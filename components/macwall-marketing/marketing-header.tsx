@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import {
   macwall,
+  macwallInstallerLatestPath,
   macwallAppIconPath,
   macwallAppIconRadiusClass,
   mailtoSupport,
@@ -146,9 +147,7 @@ export default function MacWallMarketingHeader({
           <div className="Header_user_buttons__pvlG6">
             <Link
               className="SecondaryButton_secondaryButton__F7442"
-              href={macwall.website}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={macwallInstallerLatestPath}
               style={{
                 fontSize: 12,
                 fontWeight: 500,

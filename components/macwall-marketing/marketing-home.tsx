@@ -14,6 +14,7 @@ import {
   macwall,
   macwallAppIconPath,
   macwallAppIconRadiusClass,
+  macwallInstallerLatestPath,
   macwallProCheckoutURL,
 } from "@/lib/macwall-site"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
@@ -66,9 +67,7 @@ function Ribbon() {
         {c.lineBeforeLink}
         <a
           className="Ribbon_link__XDQxu"
-          target="_blank"
-          rel="noopener noreferrer"
-          href={macwall.website}
+          href={macwallInstallerLatestPath}
         >
           {c.linkText} <SvgChevron14 />
         </a>
@@ -844,9 +843,7 @@ export default function MacWallMarketingHome() {
           </p>
           <Link
             className="UnderFooter_link__83P0M"
-            href={macwall.website}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={macwallInstallerLatestPath}
           >
             {macwallExactCopy.underFooter.cta}
             <SvgChevron14 />

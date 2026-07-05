@@ -2,7 +2,10 @@
 
 import Link from "next/link"
 import { useCallback, useState } from "react"
-import { macwall, macwallProCheckoutURL } from "@/lib/macwall-site"
+import {
+  macwallInstallerLatestPath,
+  macwallProCheckoutURL,
+} from "@/lib/macwall-site"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
 import MacWallMarketingFooter from "@/components/macwall-marketing/marketing-footer"
@@ -172,12 +175,7 @@ export default function MacWallMarketingPricingPage() {
         <div className="Ribbon_ribbon__wKRG3">
           <span className="Ribbon_text__QAwUX">
             {ribbon.lineBeforeLink}
-            <a
-              className="Ribbon_link__XDQxu"
-              target="_blank"
-              rel="noopener noreferrer"
-              href={macwall.website}
-            >
+            <a className="Ribbon_link__XDQxu" href={macwallInstallerLatestPath}>
               {ribbon.linkText} <SvgChevron14 />
             </a>
           </span>
@@ -206,9 +204,7 @@ export default function MacWallMarketingPricingPage() {
               <div className="Pro_cardCta__T0F_S">
                 <Link
                   className="SecondaryButton_secondaryButton__F7442"
-                  href={macwall.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={macwallInstallerLatestPath}
                   aria-label={p.free.ctaAria}
                   style={{
                     fontSize: 14,
@@ -293,12 +289,7 @@ export default function MacWallMarketingPricingPage() {
                 <p className="Pro_bottomDesc__ux9lz">{p.bottomDesc}</p>
               </div>
               <div className="Pro_bottomActions__NZS0l">
-                <Link
-                  className="Pro_btnSecondary___9Q0K"
-                  href={macwall.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Pro_btnSecondary___9Q0K" href={macwallInstallerLatestPath}>
                   {p.bottomCtaFree}
                 </Link>
                 <a
