@@ -1,18 +1,29 @@
 import type { Metadata } from "next"
+import { JsonLd } from "@/components/seo/json-ld"
 import { LegalDocumentShell } from "@/components/legal/legal-document-shell"
 import { legalTextPrimary } from "@/components/legal/legal-classes"
 import { LegalSection, legalBulletList } from "@/components/legal/legal-section"
+import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
 import { macwall } from "@/lib/macwall-site"
+import { canonicalSiteOrigin, canonicalSitePath } from "@/lib/site-url"
 import { cn } from "@/lib/utils"
+
+const PAGE_DESCRIPTION = `How ${macwall.name} collects, uses, and shares information across the macOS app and website.`
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: `How ${macwall.name} collects, uses, and shares information for the app and website.`,
+  description: PAGE_DESCRIPTION,
+  alternates: { canonical: canonicalSitePath("/privacy") },
   openGraph: {
     title: `Privacy Policy · ${macwall.name}`,
-    description: `How ${macwall.name} collects, uses, and shares information for the app and website.`,
-    url: "/privacy",
+    description: PAGE_DESCRIPTION,
+    url: canonicalSitePath("/privacy"),
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Privacy Policy · ${macwall.name}`,
+    description: PAGE_DESCRIPTION,
   },
 }
 
@@ -20,41 +31,51 @@ const siteHost = macwall.website.replace(/^https?:\/\//, "")
 
 export default function PrivacyPage() {
   const year = new Date().getFullYear()
+  const jsonLd = webPageWithBreadcrumbsJsonLd({
+    origin: canonicalSiteOrigin(),
+    pathname: "/privacy",
+    pageTitle: "Privacy Policy",
+    headline: `${macwall.name} Privacy Policy`,
+    description: PAGE_DESCRIPTION,
+    dateModifiedIso: macwall.legalEffectiveDateIso,
+  })
 
   return (
-    <LegalDocumentShell
-      variant="privacy"
-      intro={
-        <>
-          <p>
-            {macwall.name} is committed to your privacy. This Privacy Policy
-            explains how we collect, use, disclose, and store information when
-            you use our macOS app and website.
-          </p>
-          <p>
-            {macwall.name} does not require user accounts. To manage licensing
-            and preferences, use{" "}
-            <strong className={cn("font-semibold", legalTextPrimary)}>
-              Settings
-            </strong>{" "}
-            in the Mac
-            app, or read the latest policy at{" "}
-            <a
-              href={macwall.legalPrivacy}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {siteHost}/privacy
-            </a>
-            . For corrections or general enquiries, contact{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>
-              {macwall.supportEmail}
-            </a>
-            .
-          </p>
-        </>
-      }
-    >
+    <>
+      <JsonLd payload={jsonLd} />
+      <LegalDocumentShell
+        variant="privacy"
+        intro={
+          <>
+            <p>
+              {macwall.name} is committed to your privacy. This Privacy Policy
+              explains how we collect, use, disclose, and store information when
+              you use our macOS app and website.
+            </p>
+            <p>
+              {macwall.name} does not require user accounts. To manage licensing
+              and preferences, use{" "}
+              <strong className={cn("font-semibold", legalTextPrimary)}>
+                Settings
+              </strong>{" "}
+              in the Mac
+              app, or read the latest policy at{" "}
+              <a
+                href={macwall.legalPrivacy}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {siteHost}/privacy
+              </a>
+              . For corrections or general enquiries, contact{" "}
+              <a href={`mailto:${macwall.supportEmail}`}>
+                {macwall.supportEmail}
+              </a>
+              .
+            </p>
+          </>
+        }
+      >
       <LegalSection id="information-we-collect" title="Information We Collect">
         <p>
           We do not require registration for basic catalog and wallpaper use.
@@ -267,5 +288,6 @@ export default function PrivacyPage() {
         </p>
       </LegalSection>
     </LegalDocumentShell>
+    </>
   )
 }

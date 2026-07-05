@@ -17,6 +17,8 @@ const supabaseHost = catalogSupabaseHostname()
 const nextConfig = {
   poweredByHeader: false,
   compress: true,
+  /** Match default App Router URLs (no trailing slash) for consistent canonicals. */
+  trailingSlash: false,
   images: {
     remotePatterns: [
       {

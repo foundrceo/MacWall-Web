@@ -32,6 +32,8 @@ export const macwall = {
   legalPrivacy: "https://macwall.app/privacy",
   /** Shown at top of Terms / Privacy (update when policies change). */
   legalEffectiveDate: "May 9, 2026",
+  /** ISO form for JSON-LD `dateModified` (keep in sync with `legalEffectiveDate`). */
+  legalEffectiveDateIso: "2026-05-09",
   /** Same buckets as Home → Categories in the Mac app */
   categories: [
     "Nature",

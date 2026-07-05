@@ -14,7 +14,7 @@ const Page = () => {
     <div className="relative flex h-full min-h-screen w-full flex-col items-center justify-center gap-6 p-4">
       <Image
         src="/images/templates/macwall/auth-background.svg"
-        alt="Background"
+        alt="Decorative gradient backdrop behind the account sign-in card"
         fill
         className="object-cover"
         priority

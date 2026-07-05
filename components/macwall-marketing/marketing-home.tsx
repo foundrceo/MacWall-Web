@@ -160,8 +160,8 @@ function InteractDemo() {
   return (
     <section className="Interact_interact__IL36v">
       <div className="Interact_text__LkV7D">
-        <h3 className="Interact_subtitle__1lt_2">{ix.kicker}</h3>
-        <h2 className="Interact_title__gbMbW">{ix.title}</h2>
+        <p className="Interact_subtitle__1lt_2">{ix.kicker}</p>
+        <h1 className="Interact_title__gbMbW">{ix.title}</h1>
         <Link className="Interact_link__VsII_" href="/terms">
           {ix.moreLink} <SvgLinkChevron />
         </Link>
@@ -627,17 +627,15 @@ export default function MacWallMarketingHome() {
       <section className="Statistic_statistic__V4kCy">
         <div className="Statistic_container__5dVfB">
           <div className="Statistic_text__ckl3k">
-            <h2 className="Statistic_subtitle__SQARS">
-              {macwallExactCopy.stats.kicker}
-            </h2>
-            <h1 className="Statistic_title__WbE_f">
+            <p className="Statistic_subtitle__SQARS">{macwallExactCopy.stats.kicker}</p>
+            <h2 className="Statistic_title__WbE_f">
               {macwallExactCopy.stats.title}
-            </h1>
+            </h2>
           </div>
           <div className="Statistic_grid__42HXC">
             <div className="Statistic_image__container__J5z52">
               <Image
-                alt=""
+                alt={`MacBook Pro showing ${macwall.name} live wallpaper on the desktop — ${macwallExactCopy.stats.title}`}
                 width={1162}
                 height={710}
                 decoding="async"
@@ -669,12 +667,12 @@ export default function MacWallMarketingHome() {
       <div className="General_general__88yyQ">
         <div className="General_container__ROnT_">
           <div className="General_text__leNbB">
-            <h2 className="General_subtitle___9qQJ">
+            <p className="General_subtitle___9qQJ">
               {macwallExactCopy.lockScreen.kicker}
-            </h2>
-            <h1 className="General_title__4lenb">
+            </p>
+            <h2 className="General_title__4lenb">
               {macwallExactCopy.lockScreen.title}
-            </h1>
+            </h2>
           </div>
 
           <div>
@@ -687,9 +685,7 @@ export default function MacWallMarketingHome() {
               loop
               muted
               playsInline
-              preload="auto"
-              disablePictureInPicture
-              aria-label={macwallExactCopy.lockScreen.title}
+              preload="metadata"
             >
               <source src="/Video.webm" type="video/webm" />
             </video>
@@ -709,12 +705,12 @@ export default function MacWallMarketingHome() {
       <div id="playback" className="Battery_battery__Tg_Yb">
         <div className="Battery_container__Dpv9T">
           <div className="Battery_text__Z_Vvq">
-            <h2 className="Battery_subtitle__oIk_s">
+            <p className="Battery_subtitle__oIk_s">
               {macwallExactCopy.battery.kicker}
-            </h2>
-            <h1 className="Battery_title__ma6uO">
+            </p>
+            <h2 className="Battery_title__ma6uO">
               {macwallExactCopy.battery.title}
-            </h1>
+            </h2>
           </div>
           <div className="Battery_image__0Bymm">
             <Image
@@ -840,9 +836,9 @@ export default function MacWallMarketingHome() {
 
       <section className="UnderFooter_UnderFooter__b6g_p">
         <div className="UnderFooter_container__oOtv6">
-          <h1 className="UnderFooter_title__OVvuP">
+          <h2 className="UnderFooter_title__OVvuP">
             {macwallExactCopy.underFooter.title}
-          </h1>
+          </h2>
           <p className="UnderFooter_text__nMG8_">
             {macwallExactCopy.underFooter.body}
           </p>

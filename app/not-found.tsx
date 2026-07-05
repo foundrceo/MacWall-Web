@@ -1,7 +1,14 @@
 import Link from "next/link"
+import type { Metadata } from "next"
 import { buttonVariants } from "@/components/ui/button"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
+
+export const metadata: Metadata = {
+  title: "Page not found",
+  description: `The page you requested is not on the ${macwall.name} site.`,
+  robots: { index: false, follow: true },
+}
 
 export default function NotFound() {
   return (
