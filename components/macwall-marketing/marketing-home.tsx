@@ -1,7 +1,7 @@
-/* eslint-disable @next/next/no-img-element -- Matches vendored layout markup (same-origin `/marketing-shell` assets). */
 "use client"
 
 import clsx from "clsx"
+import Image from "next/image"
 import Link from "next/link"
 import {
   AnimatePresence,
@@ -21,7 +21,7 @@ import MacWallMarketingFooter from "@/components/macwall-marketing/marketing-foo
 import MacWallMarketingHeader from "@/components/macwall-marketing/marketing-header"
 import { HIGHLIGHT_PAGE_IDS } from "./marketing-data"
 import MacWallCatalogMarketingPreview from "@/components/macwall-marketing/macwall-catalog-marketing-preview"
-import { MARKETING_SUPABASE_WALLPAPER_SLIDES } from "@/lib/marketing-supabase-wallpapers"
+import { MARKETING_CATALOG_SLIDES } from "@/lib/marketing-catalog-slides"
 import { MARKETING_SHELL_FALLBACK_MP4 } from "@/lib/marketing-shell/assets"
 
 const menubarDemoIconSrc = (file: string) => `/marketing-shell/icons/${file}`
@@ -109,7 +109,7 @@ function MenubarIsland() {
 function InteractDemo() {
   const ix = macwallExactCopy.interact
   const reducedMotion = useReducedMotion()
-  const catalogSlides = MARKETING_SUPABASE_WALLPAPER_SLIDES
+  const catalogSlides = MARKETING_CATALOG_SLIDES
   const n = catalogSlides.length
 
   const [featuredIx, setFeaturedIx] = useState(0)
@@ -117,13 +117,6 @@ function InteractDemo() {
   const [desktopWallpaperIx, setDesktopWallpaperIx] = useState(0)
   /** Faux app window visibility (red traffic light closes; menu-bar status mountain reopens). */
   const [demoWindowOpen, setDemoWindowOpen] = useState(true)
-
-  useEffect(() => {
-    if (n <= 0) return
-    const cap = n - 1
-    setFeaturedIx((i) => Math.min(Math.max(i, 0), cap))
-    setDesktopWallpaperIx((i) => Math.min(Math.max(i, 0), cap))
-  }, [n])
 
   useEffect(() => {
     if (reducedMotion || n <= 1 || !demoWindowOpen) return
@@ -134,8 +127,8 @@ function InteractDemo() {
     return () => globalThis.clearInterval(id)
   }, [reducedMotion, n, demoWindowOpen])
 
-  const safeFeatured = n > 0 ? Math.min(featuredIx, n - 1) : 0
-  const safeDesktop = n > 0 ? Math.min(desktopWallpaperIx, n - 1) : 0
+  const safeFeatured = n > 0 ? Math.min(Math.max(featuredIx, 0), n - 1) : 0
+  const safeDesktop = n > 0 ? Math.min(Math.max(desktopWallpaperIx, 0), n - 1) : 0
 
   const fallbackBgVideo = MARKETING_SHELL_FALLBACK_MP4
   const bgSlide = n > 0 ? catalogSlides[safeDesktop] : null
@@ -195,9 +188,8 @@ function InteractDemo() {
             role="button"
             aria-label={ix.dockAria}
           >
-            <img
+            <Image
               alt=""
-              loading="lazy"
               width={120}
               height={120}
               decoding="async"
@@ -232,11 +224,10 @@ function InteractDemo() {
           <div className="Menubar_right___0KcF">
             {demoWindowOpen ? (
               <div className="Menubar_status__QeZi_">
-                <img
+                <Image
                   alt={macwallExactCopy.header.logoAlt}
-                  loading="lazy"
-                  width={512}
-                  height={512}
+                  width={36}
+                  height={36}
                   decoding="async"
                   className={clsx(
                     "Menubar_statusIcon__rx7_c object-cover",
@@ -256,11 +247,10 @@ function InteractDemo() {
                 aria-label={ix.demoReopenMenubarAria}
                 onClick={() => setDemoWindowOpen(true)}
               >
-                <img
+                <Image
                   alt=""
-                  loading="lazy"
-                  width={512}
-                  height={512}
+                  width={36}
+                  height={36}
                   decoding="async"
                   className={clsx(
                     "Menubar_statusIcon__rx7_c object-cover",
@@ -275,36 +265,30 @@ function InteractDemo() {
               </button>
             )}
             <span className="Menubar_percent__vaV6A">86%</span>
-            <img
+            <Image
               alt="Battery"
-              loading="lazy"
-              width={512}
-              height={512}
+              width={22}
+              height={22}
               decoding="async"
               className="Menubar_batteryIcon__3_gXT"
-              srcSet={`${menubarDemoIconSrc("battery.png")} 2x`}
               src={menubarDemoIconSrc("battery.png")}
               style={{ color: "transparent" }}
             />
-            <img
-              alt="Wi-Fi"
-              loading="lazy"
-              width={512}
-              height={512}
+            <Image
+              alt="Wi‑Fi signal strength"
+              width={22}
+              height={22}
               decoding="async"
               className="Menubar_wifi__OJScq"
-              srcSet={`${menubarDemoIconSrc("ios-wifi-2.png")} 2x`}
               src={menubarDemoIconSrc("ios-wifi-2.png")}
               style={{ color: "transparent" }}
             />
-            <img
+            <Image
               alt="Control Center"
-              loading="lazy"
-              width={512}
-              height={512}
+              width={22}
+              height={22}
               decoding="async"
               className="Menubar_centerIcon__JxLAN"
-              srcSet={`${menubarDemoIconSrc("control-center.png")} 2x`}
               src={menubarDemoIconSrc("control-center.png")}
               style={{ color: "transparent" }}
             />
@@ -652,15 +636,15 @@ export default function MacWallMarketingHome() {
           </div>
           <div className="Statistic_grid__42HXC">
             <div className="Statistic_image__container__J5z52">
-              <img
+              <Image
                 alt=""
-                loading="lazy"
                 width={1162}
                 height={710}
                 decoding="async"
                 className="Statistic_image__uYNCo"
                 src="/OGMacBook.jpg"
                 style={{ color: "transparent" }}
+                sizes="(max-width: 734px) 100vw, (max-width: 1068px) 90vw, 1162px"
               />
             </div>
             <div className="Statistic_info__ATOD7">
@@ -733,15 +717,15 @@ export default function MacWallMarketingHome() {
             </h1>
           </div>
           <div className="Battery_image__0Bymm">
-            <img
+            <Image
               alt={`${macwall.name} Settings — playback, battery, and CPU options`}
-              loading="lazy"
               width={1722}
               height={956}
               decoding="async"
               className="Battery_image__0Bymm"
               src="/Settings.png"
               style={{ color: "transparent" }}
+              sizes="(max-width: 734px) 100vw, (max-width: 1068px) 90vw, 1722px"
             />
             <div className="Battery_text__container___4Z10">
               <ul className="Battery_paragraph__xt5SM">

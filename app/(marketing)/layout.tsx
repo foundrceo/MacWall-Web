@@ -2,6 +2,8 @@ import MarketingShellBodyClass from "@/components/macwall-marketing/marketing-bo
 import { MARKETING_SHELL_STYLESHEETS } from "@/lib/marketing-shell/assets"
 import type { ReactNode } from "react"
 
+export const dynamic = "force-static"
+
 /** Vendored layout CSS ships from `/public/marketing-shell` so first paint has module class names. */
 export default function MarketingLayout({
   children,

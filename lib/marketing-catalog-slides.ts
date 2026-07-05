@@ -1,12 +1,12 @@
 /**
  * Featured hero carousel for marketing — six live catalog wallpapers from Supabase.
  * Thumbnails are vendored under `public/marketing-supabase-thumbs/` (run
- * `npm run marketing:sync-wallpapers`).
+ * `pnpm run marketing:sync-catalog-thumbs`).
  * Videos stream from Storage public URLs (~same as shipped MacWall app).
  */
 import { catalogPublicVideoUrlFromKey } from "@/lib/macwall-catalog-urls"
 
-export type MarketingWallpaperSlide = {
+export type MarketingCatalogSlide = {
   id: string
   name: string
   category: string
@@ -14,7 +14,7 @@ export type MarketingWallpaperSlide = {
   file_size_bytes: number
   duration_seconds: number
   like_count: number
-  /** Local JPG under `public/marketing-supabase-thumbs/` — sync via `npm run marketing:sync-wallpapers`. */
+  /** Local JPG under `public/marketing-supabase-thumbs/` — sync via catalog thumb script. */
   thumbPath: string
   videoUrl: string
 }
@@ -84,8 +84,8 @@ const rows = [
   },
 ] as const
 
-export const MARKETING_SUPABASE_WALLPAPER_SLIDES: MarketingWallpaperSlide[] =
-  rows.map((r) => ({
+export const MARKETING_CATALOG_SLIDES: MarketingCatalogSlide[] = rows.map(
+  (r) => ({
     id: r.id,
     name: r.name,
     category: r.category,
@@ -95,4 +95,5 @@ export const MARKETING_SUPABASE_WALLPAPER_SLIDES: MarketingWallpaperSlide[] =
     like_count: r.like_count,
     thumbPath: `/marketing-supabase-thumbs/${r.id}.jpg`,
     videoUrl: catalogPublicVideoUrlFromKey(r.video_key),
-  }))
+  })
+)

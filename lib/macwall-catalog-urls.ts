@@ -1,16 +1,11 @@
-/** Public Storage URL helpers — aligns with macOS app `WallpaperMacOS/CatalogEndpoints.swift`. */
+/** Public Storage URL helpers — aligns with MacWall macOS `CatalogEndpoints.swift`. */
 
-const DEFAULT_SUPABASE_URL = "https://YOUR_SUPABASE_PROJECT_REF.supabase.co"
+import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
+
 const STORAGE_BUCKET = "wallpaper-catalog"
 
 export function catalogSupabaseOrigin(): string {
-  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
-  if (!raw?.startsWith("https://")) return DEFAULT_SUPABASE_URL
-  try {
-    return new URL(raw).origin
-  } catch {
-    return DEFAULT_SUPABASE_URL
-  }
+  return getCatalogSupabaseOrigin()
 }
 
 /** Bucket-relative path encoded per segment (`foo/bar baz` → encoded segments). */
