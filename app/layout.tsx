@@ -1,5 +1,8 @@
 import { ThemeProvider } from "@/components/providers/theme-provider"
+import { JsonLd } from "@/components/seo/json-ld"
+import { macwallSchemaGraph } from "@/lib/macwall-json-ld"
 import { macwall } from "@/lib/macwall-site"
+import { canonicalSiteOrigin, metadataBaseUrl } from "@/lib/site-url"
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
@@ -16,42 +19,50 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
 })
 
+const SITE_DESCRIPTION_FALLBACK =
+  "Bring motion wallpapers to your Mac Desktop: curated daily catalog lanes, search & filters for new backgrounds, your own clips, intelligent pause on battery/full screen, optional MacWall Pro for Lock Screen live wallpaper where Sonoma, Ventura, Sequoia, and newer builds allow."
+
 export const metadata: Metadata = {
   title: {
     default: `${macwall.name} — ${macwall.tagline}`,
     template: `%s · ${macwall.name}`,
   },
-  description:
-    "Browse live video wallpapers on every display, explore a curated catalog with search and filters, import your own clips, and unlock Lock Screen video with MacWall Pro.",
-  metadataBase: new URL(macwall.website),
+  description: SITE_DESCRIPTION_FALLBACK,
+  metadataBase: metadataBaseUrl(),
+  keywords: [
+    "Mac wallpaper app",
+    "live wallpapers for Mac",
+    "video wallpaper macOS",
+    "motion desktop background",
+    "dynamic wallpapers Mac",
+    "Mac desktop backgrounds",
+    "daily wallpaper discovery",
+    "Sonoma Ventura Sequoia wallpaper",
+    `${macwall.name}`,
+  ],
   /* Favicons: app/favicon.ico, app/icon.png, app/apple-icon.png (see npm run icons:build). */
   openGraph: {
     type: "website",
     locale: "en_US",
     siteName: macwall.name,
     title: `${macwall.name} — ${macwall.tagline}`,
-    description:
-      "Live video wallpapers for Mac. Curated catalog, multi-display playback, and MacWall Pro for Lock Screen video.",
-    url: macwall.website,
-    images: [
-      {
-        url: "/macwall-app-icon.png",
-        width: 512,
-        height: 512,
-        alt: `${macwall.name} icon`,
-      },
-    ],
+    description: SITE_DESCRIPTION_FALLBACK,
+    url: "/",
   },
   twitter: {
     card: "summary_large_image",
     title: `${macwall.name} — ${macwall.tagline}`,
-    description:
-      "Live video wallpapers for Mac. Curated catalog, multi-display playback, and MacWall Pro for Lock Screen video.",
-    images: ["/macwall-app-icon.png"],
+    description: SITE_DESCRIPTION_FALLBACK,
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 }
 
@@ -67,6 +78,8 @@ export const viewport: Viewport = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const jsonLd = macwallSchemaGraph(canonicalSiteOrigin())
+
   return (
     <html
       lang="en"
@@ -78,6 +91,7 @@ export default function RootLayout({
         className="w-full bg-background font-sans font-light text-foreground antialiased"
         suppressHydrationWarning
       >
+        <JsonLd payload={jsonLd} />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

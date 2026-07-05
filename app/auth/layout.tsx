@@ -4,6 +4,10 @@ import { macwall } from "@/lib/macwall-site"
 export const metadata: Metadata = {
   title: "Account",
   description: `Sign in or create an account for ${macwall.name}.`,
+  robots: {
+    index: false,
+    follow: true,
+  },
 }
 
 export default function AuthLayout({

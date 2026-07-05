@@ -1,17 +1,28 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { JsonLd } from "@/components/seo/json-ld"
 import { LegalDocumentShell } from "@/components/legal/legal-document-shell"
 import { LegalSection, legalBulletList } from "@/components/legal/legal-section"
+import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
 import { macwall } from "@/lib/macwall-site"
+import { canonicalSiteOrigin, canonicalSitePath } from "@/lib/site-url"
+
+const PAGE_DESCRIPTION = `Terms covering the ${macwall.name} macOS app website, installs, downloads, billing, licensing, acceptable use, and Apple platform policies.`
 
 export const metadata: Metadata = {
   title: "Terms of Use",
-  description: `Terms governing use of the ${macwall.name} macOS app and ${macwall.website}.`,
+  description: PAGE_DESCRIPTION,
+  alternates: { canonical: canonicalSitePath("/terms") },
   openGraph: {
     title: `Terms of Use · ${macwall.name}`,
-    description: `Terms governing use of the ${macwall.name} macOS app and ${macwall.website}.`,
-    url: "/terms",
+    description: PAGE_DESCRIPTION,
+    url: canonicalSitePath("/terms"),
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Terms of Use · ${macwall.name}`,
+    description: PAGE_DESCRIPTION,
   },
 }
 
@@ -19,30 +30,40 @@ const siteHost = macwall.website.replace(/^https?:\/\//, "")
 
 export default function TermsPage() {
   const year = new Date().getFullYear()
+  const jsonLd = webPageWithBreadcrumbsJsonLd({
+    origin: canonicalSiteOrigin(),
+    pathname: "/terms",
+    pageTitle: "Terms of Use",
+    headline: `${macwall.name} Terms of Use`,
+    description: PAGE_DESCRIPTION,
+    dateModifiedIso: macwall.legalEffectiveDateIso,
+  })
 
   return (
-    <LegalDocumentShell
-      variant="terms"
-      intro={
-        <>
-          <p>
-            These Terms of Use (&ldquo;Terms&rdquo;) govern your access to the{" "}
-            {macwall.name} macOS application (&ldquo;App&rdquo;) and our website
-            at {siteHost} (&ldquo;Site&rdquo;). By using the App or Site, or
-            purchasing {macwall.name} Pro, you agree to these Terms.
-          </p>
-          <p>
-            For privacy practices, see our{" "}
-            <Link href="/privacy">Privacy Policy</Link>
-            . Questions:{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>
-              {macwall.supportEmail}
-            </a>
-            .
-          </p>
-        </>
-      }
-    >
+    <>
+      <JsonLd payload={jsonLd} />
+      <LegalDocumentShell
+        variant="terms"
+        intro={
+          <>
+            <p>
+              These Terms of Use (&ldquo;Terms&rdquo;) govern your access to the{" "}
+              {macwall.name} macOS application (&ldquo;App&rdquo;) and our website
+              at {siteHost} (&ldquo;Site&rdquo;). By using the App or Site, or
+              purchasing {macwall.name} Pro, you agree to these Terms.
+            </p>
+            <p>
+              For privacy practices, see our{" "}
+              <Link href="/privacy">Privacy Policy</Link>
+              . Questions:{" "}
+              <a href={`mailto:${macwall.supportEmail}`}>
+                {macwall.supportEmail}
+              </a>
+              .
+            </p>
+          </>
+        }
+      >
       <LegalSection id="the-service" title="The Service">
         <p>
           {macwall.name} provides live and video desktop wallpapers, including
@@ -170,5 +191,6 @@ export default function TermsPage() {
         </p>
       </LegalSection>
     </LegalDocumentShell>
+    </>
   )
 }
