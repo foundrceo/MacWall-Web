@@ -14,14 +14,14 @@ export const metadata: Metadata = {
   description: PAGE_DESCRIPTION,
   alternates: { canonical: canonicalSitePath("/terms") },
   openGraph: {
-    title: `Terms of Use · ${macwall.name}`,
+    title: `${macwall.name} – Terms of Use`,
     description: PAGE_DESCRIPTION,
     url: canonicalSitePath("/terms"),
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: `Terms of Use · ${macwall.name}`,
+    title: `${macwall.name} – Terms of Use`,
     description: PAGE_DESCRIPTION,
   },
 }

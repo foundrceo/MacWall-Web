@@ -27,7 +27,7 @@ export const macwallExactCopy = {
   },
   interact: {
     kicker: "PRODUCT TOUR",
-    title: "See how MacWall feels on your desktop",
+    title: "Live motion Mac wallpapers for Desktop & Dock",
     moreLink: "How licensing works",
     demoVideoAria: "Background preview loop",
     dockAria: `Focus ${macwall.name}`,
@@ -103,7 +103,7 @@ export const macwallExactCopy = {
   },
   lockScreen: {
     kicker: "PRO",
-    title: "Lock Screen video (macOS 26+)",
+    title: "Lock Screen live wallpaper — latest macOS",
     strong:
       "Mirror high-quality motion to the Lock Screen where the OS allows it—without weird installers.",
     rest: "Setup stays reversible: turn it off anytime from Settings, and your previous look returns.",

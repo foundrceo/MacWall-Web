@@ -189,7 +189,7 @@ function InteractDemo() {
             aria-label={ix.dockAria}
           >
             <Image
-              alt=""
+              alt={macwallExactCopy.header.logoAlt}
               width={120}
               height={120}
               decoding="async"
@@ -248,7 +248,7 @@ function InteractDemo() {
                 onClick={() => setDemoWindowOpen(true)}
               >
                 <Image
-                  alt=""
+                  alt={macwallExactCopy.header.logoAlt}
                   width={36}
                   height={36}
                   decoding="async"
@@ -415,7 +415,7 @@ function Highlights() {
             },
           }}
         >
-          <motion.h1
+          <motion.h2
             className="Highlights_title__Du7W5"
             variants={{
               hidden: reduceMotion
@@ -430,7 +430,7 @@ function Highlights() {
             }}
           >
             {hi.sectionTitle}
-          </motion.h1>
+          </motion.h2>
           <motion.div
             className="Highlights_links__O3_AU"
             variants={{

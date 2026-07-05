@@ -1,7 +1,7 @@
 import { macwall } from "@/lib/macwall-site"
 import { ImageResponse } from "next/og"
 
-export const alt = `${macwall.name} — ${macwall.tagline}`
+export const alt = `${macwall.name} – ${macwall.tagline}`
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 

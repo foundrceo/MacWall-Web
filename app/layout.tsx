@@ -2,11 +2,16 @@ import { ThemeProvider } from "@/components/providers/theme-provider"
 import { JsonLd } from "@/components/seo/json-ld"
 import { macwallSchemaGraph } from "@/lib/macwall-json-ld"
 import { macwall } from "@/lib/macwall-site"
-import { canonicalSiteOrigin, metadataBaseUrl } from "@/lib/site-url"
+import {
+  canonicalSiteOrigin,
+  metadataBaseUrl,
+  openGraphImageAbsoluteUrl,
+} from "@/lib/site-url"
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
 import { Geist, Geist_Mono } from "next/font/google"
 import { GoogleAnalytics } from "@next/third-parties/google"
+import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -45,8 +50,8 @@ const ahrefsWebAnalyticsKey = resolveAhrefsWebAnalyticsKey()
 
 export const metadata: Metadata = {
   title: {
-    default: `${macwall.name} — ${macwall.tagline}`,
-    template: `%s · ${macwall.name}`,
+    default: `${macwall.name} – ${macwall.tagline}`,
+    template: `${macwall.name} – %s`,
   },
   description: SITE_DESCRIPTION_FALLBACK,
   metadataBase: metadataBaseUrl(),
@@ -66,14 +71,23 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: macwall.name,
-    title: `${macwall.name} — ${macwall.tagline}`,
+    title: `${macwall.name} – ${macwall.tagline}`,
     description: SITE_DESCRIPTION_FALLBACK,
     url: "/",
+    images: [
+      {
+        url: openGraphImageAbsoluteUrl(),
+        width: 1200,
+        height: 630,
+        alt: `${macwall.name} – ${macwall.tagline}`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${macwall.name} — ${macwall.tagline}`,
+    title: `${macwall.name} – ${macwall.tagline}`,
     description: SITE_DESCRIPTION_FALLBACK,
+    images: [openGraphImageAbsoluteUrl()],
   },
   robots: {
     index: true,
@@ -121,6 +135,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <Analytics />
         {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
         {ahrefsWebAnalyticsKey ? (
           <Script
