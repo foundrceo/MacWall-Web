@@ -1,6 +1,7 @@
 import Link from "next/link"
 import {
   macwall,
+  macwallInstallerLatestPath,
   macwallProCheckoutURL,
   mailtoSupport,
 } from "@/lib/macwall-site"
@@ -123,14 +124,9 @@ export default function MacWallMarketingFooter({
                 </Link>
               </li>
               <li className="Footer_item__8hrsH">
-                <a
-                  className={c.link}
-                  href={macwall.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <Link className={c.link} href={macwallInstallerLatestPath}>
                   {foot.shop.download}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -210,14 +206,9 @@ export default function MacWallMarketingFooter({
                   </Link>
                 </li>
                 <li className="Footer_item__8hrsH">
-                  <a
-                    className={c.link}
-                    href={macwall.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <Link className={c.link} href={macwallInstallerLatestPath}>
                     {foot.shop.download}
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>

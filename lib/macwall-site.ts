@@ -75,3 +75,9 @@ export const macwall = {
 } as const
 
 export const mailtoSupport = `mailto:${macwall.supportEmail}`
+
+/**
+ * Stable canonical path served by `/download/latest` (302 → `MACWALL_INSTALLER_REDIRECT_URL`).
+ * Same pattern as `https://download.example.app/latest` → object storage URL.
+ */
+export const macwallInstallerLatestPath = "/download/latest" as const
