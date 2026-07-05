@@ -1,5 +1,5 @@
 {
-  "name": "wallpaperweb",
+  "name": "macwall-web",
   "version": "0.0.1",
   "type": "module",
   "private": true,
@@ -11,7 +11,7 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "icons:build": "node scripts/build-macwall-icons.mjs",
-    "marketing:sync-wallpapers": "node scripts/sync-marketing-wallpapers-from-supabase.mjs"
+    "marketing:sync-catalog-thumbs": "node scripts/sync-marketing-catalog-thumbs.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

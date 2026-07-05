@@ -1,7 +1,20 @@
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { macwall } from "@/lib/macwall-site"
 import type { Metadata, Viewport } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
+
+const geistSans = Geist({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-geist-sans",
+})
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-geist-mono",
+})
 
 export const metadata: Metadata = {
   title: {
@@ -55,25 +68,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin=""
-        />
-        {/* eslint-disable @next/next/no-page-custom-font -- fonts load from root layout site-wide (rule targets Pages router) */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap"
-          rel="stylesheet"
-        />
-        {/* eslint-enable @next/next/no-page-custom-font */}
-      </head>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
       {/* Avoid hydration warnings when extensions inject attributes on <body> */}
       <body
         className="w-full bg-background font-sans font-light text-foreground antialiased"

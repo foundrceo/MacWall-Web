@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element -- Supabase / local JPG thumbs for marketing carousel. */
 "use client"
 
 import Image from "next/image"
@@ -12,9 +11,9 @@ import {
 } from "lucide-react"
 import { useCallback, useMemo } from "react"
 import {
-  MARKETING_SUPABASE_WALLPAPER_SLIDES,
-  type MarketingWallpaperSlide,
-} from "@/lib/marketing-supabase-wallpapers"
+  MARKETING_CATALOG_SLIDES,
+  type MarketingCatalogSlide,
+} from "@/lib/marketing-catalog-slides"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import {
   macwallAppIconPath,
@@ -38,7 +37,7 @@ function formatDuration(seconds: number): string | null {
   return `${m}:${String(s).padStart(2, "0")}`
 }
 
-function heroDetailParts(slide: MarketingWallpaperSlide): string[] {
+function heroDetailParts(slide: MarketingCatalogSlide): string[] {
   const out: string[] = []
   if (slide.resolution && slide.resolution !== "—") out.push(slide.resolution)
   const fb = formatApproxFileSize(slide.file_size_bytes)
@@ -59,7 +58,7 @@ export type MacWallCatalogMarketingPreviewProps = {
 }
 
 /**
- * Home-tab style preview fed by Supabase catalog (see `marketing-supabase-wallpapers.ts`).
+ * Home-tab style preview fed by catalog slides (`marketing-catalog-slides`).
  * Parent owns featured index + auto-advance; MacWall’s Pick thumbnails + arrows change the hero clip.
  */
 export default function MacWallCatalogMarketingPreview({
@@ -74,9 +73,7 @@ export default function MacWallCatalogMarketingPreview({
 
   const slides = useMemo(
     () =>
-      MARKETING_SUPABASE_WALLPAPER_SLIDES.length > 0
-        ? MARKETING_SUPABASE_WALLPAPER_SLIDES
-        : [],
+      MARKETING_CATALOG_SLIDES.length > 0 ? MARKETING_CATALOG_SLIDES : [],
     []
   )
 
@@ -278,14 +275,14 @@ export default function MacWallCatalogMarketingPreview({
               onClick={() => onFeaturedIndexChange(i)}
               aria-label={`Show ${tw.name}`}
             >
-              <img
+              <Image
                 alt=""
-                loading="lazy"
                 width={312}
                 height={176}
                 decoding="async"
                 className="h-full w-full object-cover"
                 src={tw.thumbPath}
+                sizes="156px"
               />
             </button>
           ))}

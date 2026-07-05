@@ -1,4 +1,9 @@
 @import "tailwindcss";
+
+/* Explicit sources: ensures utilities apply across app/components (vendored shell uses static CSS modules). */
+@source "../components/**/*.{tsx,ts,jsx,js}";
+@source "./**/*.{tsx,ts,jsx,js}";
+
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -54,9 +59,11 @@
 }
 
 :root {
-  --site-font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --site-font-heading: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --site-font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --site-font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --site-font-heading: var(--font-geist-sans), ui-sans-serif, system-ui,
+    sans-serif;
+  --site-font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo,
+    monospace;
 
   /* Apple-like CTAs (store/product pages): primary blue + secondary charcoal */
   --button-primary-bg: rgb(0, 113, 227);

@@ -1,7 +1,7 @@
-/* eslint-disable @next/next/no-img-element -- Site chrome uses static app icon URLs. */
 "use client"
 
 import clsx from "clsx"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -68,15 +68,15 @@ export default function MacWallMarketingHeader({
           style={{ opacity: 1, transform: "none" }}
         >
           <Link className="Header_logo__49F8E" href="/">
-            <img
+            <Image
               alt={h.logoAlt}
-              loading="lazy"
               width={28}
               height={28}
               decoding="async"
               src={macwallAppIconPath}
               className={`${macwallAppIconRadiusClass} object-cover`}
               style={{ color: "transparent" }}
+              priority={pathname === "/"}
             />
             {macwall.name} for macOS
           </Link>
@@ -88,7 +88,8 @@ export default function MacWallMarketingHeader({
           <button
             type="button"
             className="Header_mobile_icon__Talq4"
-            aria-label="Open Menu"
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Close Menu" : "Open Menu"}
             onClick={() => setMenuOpen((v) => !v)}
           >
             <svg
@@ -119,12 +120,22 @@ export default function MacWallMarketingHeader({
               {h.navOverview}
             </Link>
             <div onMouseEnter={keepMegaOpen}>
-              <button type="button" className="Header_navButton__utV_Q">
+              <button
+                type="button"
+                className="Header_navButton__utV_Q"
+                aria-expanded={navHover}
+                aria-haspopup="true"
+              >
                 {h.navSocials}
               </button>
             </div>
             <div onMouseEnter={keepMegaOpen}>
-              <button type="button" className="Header_navButton__utV_Q">
+              <button
+                type="button"
+                className="Header_navButton__utV_Q"
+                aria-expanded={navHover}
+                aria-haspopup="true"
+              >
                 {h.navSupport}
               </button>
             </div>
