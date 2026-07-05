@@ -4,6 +4,7 @@ import { macwallSchemaGraph } from "@/lib/macwall-json-ld"
 import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin, metadataBaseUrl } from "@/lib/site-url"
 import type { Metadata, Viewport } from "next"
+import Script from "next/script"
 import { Geist, Geist_Mono } from "next/font/google"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import "./globals.css"
@@ -28,6 +29,19 @@ const gaId =
   gaMeasurementId && /^G-[A-Z0-9]+$/i.test(gaMeasurementId)
     ? gaMeasurementId
     : undefined
+
+/** Shipped default when `NEXT_PUBLIC_AHREFS_WEB_ANALYTICS_KEY` is unset. Set the env empty to disable. */
+const AHREFS_WEB_ANALYTICS_KEY_FALLBACK =
+  "YOUR_AHREFS_ANALYTICS_KEY" as const
+
+function resolveAhrefsWebAnalyticsKey(): string | undefined {
+  const raw = process.env.NEXT_PUBLIC_AHREFS_WEB_ANALYTICS_KEY
+  if (raw === undefined) return AHREFS_WEB_ANALYTICS_KEY_FALLBACK
+  const trimmed = raw.trim()
+  return trimmed.length > 0 ? trimmed : undefined
+}
+
+const ahrefsWebAnalyticsKey = resolveAhrefsWebAnalyticsKey()
 
 export const metadata: Metadata = {
   title: {
@@ -108,6 +122,13 @@ export default function RootLayout({
           {children}
         </ThemeProvider>
         {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
+        {ahrefsWebAnalyticsKey ? (
+          <Script
+            src="https://analytics.ahrefs.com/analytics.js"
+            strategy="afterInteractive"
+            data-key={ahrefsWebAnalyticsKey}
+          />
+        ) : null}
       </body>
     </html>
   )
