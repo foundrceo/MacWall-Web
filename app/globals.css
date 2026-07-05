@@ -202,8 +202,8 @@
 }
 
 /*
- * Wallper marketing CSS loads Inter on `body` and `.__className_f367f3` (unlayered).
- * This block is unlayered with !important so Geist wins everywhere, including nav.
+ * Legacy layout stylesheet targets Inter on `body` and `.__className_f367f3` (unlayered).
+ * This block keeps Geist everywhere, including nav.
  */
 html,
 body,
@@ -227,7 +227,7 @@ h6 {
   font-family: var(--site-font-heading) !important;
 }
 
-/* Wallper under-footer CTA: CDN CSS loads after globals; asymmetric 130/100px padding skews layout */
+/* Marketing under-footer CTA — vendored CSS padding overrides for alignment */
 .UnderFooter_UnderFooter__b6g_p {
   flex-direction: column !important;
   justify-content: center !important;
@@ -244,29 +244,27 @@ h6 {
 }
 
 /*
- * Wallper light footer — CDN rules use dark-theme border tokens on mobile drawers.
- * apple.com-style light rail (#f5f5f7) needs neutral hairlines.
+ * Light-footer rail (#f5f5f7) — vendored CDN rules reuse dark drawer tokens without neutral hairlines.
  */
-[data-wallper-footer="light"] .Footer_details__yAgbt {
+[data-macwall-footer="light"] .Footer_details__yAgbt {
   border-top-color: rgba(0, 0, 0, 0.12);
 }
 
-[data-wallper-footer="light"] .Footer_accordions__lxdA5 {
+[data-macwall-footer="light"] .Footer_accordions__lxdA5 {
   border-bottom-color: rgba(0, 0, 0, 0.12);
 }
 
-/* Wallper light footer — disclaimer block includes a top hairline we don't want above the rail */
-[data-wallper-footer="light"] .Footer_footerTextBlack__xGE0Q {
+[data-macwall-footer="light"] .Footer_footerTextBlack__xGE0Q {
   border-top: none;
 }
 
-/* Site nav: remove Wallper CDN active-link hairline border */
+/* Site nav — remove legacy active-link underline from vendored header classes */
 .Header_active__oXKOc,
 .Header_activeBlack__Q4QG5 {
   border-bottom: none !important;
 }
 
-/* Product tour: center faux MacWall window (Wallper CDN uses left/top 13%). */
+/* Product tour — center faux MacWall window (defaults in vendored CSS use left/top %) */
 .MacWallInteract_demoAppCenterWrap {
   position: absolute;
   inset: 0;

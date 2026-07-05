@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
-import WallperExactFooter from "@/components/wallper-exact/wallper-exact-footer"
-import WallperExactHeader from "@/components/wallper-exact/wallper-exact-header"
+import MacWallMarketingFooter from "@/components/macwall-marketing/marketing-footer"
+import MacWallMarketingHeader from "@/components/macwall-marketing/marketing-header"
 import {
   legalBorderSubtle,
   legalLinkProse,
@@ -31,10 +31,8 @@ export function LegalDocumentShell({
   const titleId = "legal-document-title"
 
   return (
-    <div
-      className={cn("relative min-h-screen", legalPageBg, legalTextPrimary)}
-    >
-      <WallperExactHeader variant="light" />
+    <div className={cn("relative min-h-screen", legalPageBg, legalTextPrimary)}>
+      <MacWallMarketingHeader variant="light" />
 
       <a href="#legal-document-main" className={skipLinkClass}>
         Skip to main content
@@ -72,10 +70,7 @@ export function LegalDocumentShell({
         </header>
 
         <hr
-          className={cn(
-            "my-14 border-0 border-t md:my-20",
-            legalBorderSubtle
-          )}
+          className={cn("my-14 border-0 border-t md:my-20", legalBorderSubtle)}
         />
 
         <article
@@ -85,7 +80,7 @@ export function LegalDocumentShell({
         </article>
       </main>
 
-      <WallperExactFooter variant="light" shopPricingHref="/pricing" />
+      <MacWallMarketingFooter variant="light" shopPricingHref="/pricing" />
     </div>
   )
 }

@@ -9,11 +9,6 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "www.wallper.app",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
         hostname: "YOUR_SUPABASE_PROJECT_REF.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },

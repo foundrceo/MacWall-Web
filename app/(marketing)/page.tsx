@@ -1,6 +1,6 @@
-import WallperExactHome from "@/components/wallper-exact/wallper-exact-home"
+import MacWallMarketingHome from "@/components/macwall-marketing/marketing-home"
 
-/** Pixel clone of wallper.app — ships their CSS module classes + CDN assets. */
+/** MacWall marketing homepage (vendored layout CSS + catalog demo). */
 export default function Page() {
-  return <WallperExactHome />
+  return <MacWallMarketingHome />
 }

@@ -1,4 +1,4 @@
-import WallperExactPricing from "@/components/wallper-exact/wallper-exact-pricing"
+import MacWallMarketingPricingPage from "@/components/macwall-marketing/marketing-pricing"
 import { macwall } from "@/lib/macwall-site"
 import type { Metadata } from "next"
 
@@ -9,5 +9,5 @@ export const metadata: Metadata = {
 }
 
 export default function PricingPage() {
-  return <WallperExactPricing />
+  return <MacWallMarketingPricingPage />
 }

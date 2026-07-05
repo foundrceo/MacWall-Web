@@ -1,21 +1,17 @@
-import { WALLPER_ORIGIN, WALLPER_STYLESHEETS } from "@/lib/wallper/cdn"
-import WallperStylesLoader from "@/components/wallper-exact/WallperStylesLoader"
+import MarketingShellBodyClass from "@/components/macwall-marketing/marketing-body-class"
+import { MARKETING_SHELL_STYLESHEETS } from "@/lib/marketing-shell/assets"
 import type { ReactNode } from "react"
 
-/**
- * Wallper clone CSS must load in the initial HTML (not only after hydration)
- * so hashed module classes resolve on first paint.
- */
+/** Vendored layout CSS ships from `/public/marketing-shell` so first paint has module class names. */
 export default function MarketingLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
     <>
-      <link rel="preconnect" href={WALLPER_ORIGIN} crossOrigin="" />
-      {WALLPER_STYLESHEETS.map((href) => (
+      {MARKETING_SHELL_STYLESHEETS.map((href) => (
         <link key={href} rel="stylesheet" href={href} />
       ))}
-      <WallperStylesLoader />
+      <MarketingShellBodyClass />
       {children}
     </>
   )

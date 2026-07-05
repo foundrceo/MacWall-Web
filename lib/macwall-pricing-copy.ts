@@ -1,6 +1,6 @@
 import { macwall } from "@/lib/macwall-site"
 
-/** Copy for `/pricing` — Wallper pricing layout (`Pro_*` CSS), MacWall product truth. */
+/** Copy for `/pricing` — vendored `Pro_*` layout classes + MacWall product truth. */
 export const macwallPricingCopy = {
   heroTitle: "One app. Free tier or Pro.",
   heroLead: `Use ${macwall.name} free with the core catalog, imports, and multi-display playback—then unlock Pro when you want Lock Screen video, deeper libraries, and premium drops. No subscription: Pro is a single purchase with lifetime updates for your licensed Macs.`,
