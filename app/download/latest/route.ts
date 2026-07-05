@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server"
 
-/** Server-only: HTTPS URL to the hosted `.dmg` (S3/R2/Supabase Storage/GitHub Releases, etc.). */
+import { MACWALL_DEFAULT_INSTALLER_REDIRECT_URL } from "@/lib/macwall-installer-url"
+
+/** Server-only override; empty string (after trim) = disable redirect intentionally. */
 const ENV_INSTALLER_REDIRECT = "MACWALL_INSTALLER_REDIRECT_URL"
+
+function resolveInstallerRedirectDestination(): string | undefined {
+  const fromEnv = process.env[ENV_INSTALLER_REDIRECT]
+  if (fromEnv !== undefined && fromEnv.trim() === "") {
+    return undefined
+  }
+  const trimmed = fromEnv?.trim()
+  if (trimmed) return trimmed
+  return MACWALL_DEFAULT_INSTALLER_REDIRECT_URL
+}
 
 function isHttpsProductionUrl(candidate: URL) {
   if (process.env.NODE_ENV !== "production") return true
@@ -9,10 +21,10 @@ function isHttpsProductionUrl(candidate: URL) {
 }
 
 export function GET() {
-  const raw = process.env[ENV_INSTALLER_REDIRECT]?.trim()
+  const raw = resolveInstallerRedirectDestination()
   if (!raw) {
     return new NextResponse(
-      "Installer is not configured. Set MACWALL_INSTALLER_REDIRECT_URL.",
+      "Installer download is disabled. Set MACWALL_INSTALLER_REDIRECT_URL or remove an empty override.",
       {
         status: 404,
         headers: {
