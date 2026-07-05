@@ -106,7 +106,7 @@ export default function MacWallCatalogMarketingPreview({
         <div className="flex min-w-0 shrink-0 items-center gap-2">
           <Image
             src={macwallAppIconPath}
-            alt=""
+            alt={macwallExactCopy.header.logoAlt}
             width={28}
             height={28}
             className={`object-cover ${macwallAppIconRadiusClass}`}

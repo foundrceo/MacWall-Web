@@ -8,18 +8,18 @@ import type { Metadata } from "next"
 const PAGE_DESCRIPTION = `Pricing for ${macwall.name} Pro versus the free tier: one-time checkout, licensing on up to ${macwall.maxLicensedMacs} personal Macs, and what ships on Sonoma, Ventura, Sequoia, and newer.`
 
 export const metadata: Metadata = {
-  title: `Pricing — ${macwall.name}`,
+  title: "Pricing",
   description: PAGE_DESCRIPTION,
   alternates: { canonical: canonicalSitePath("/pricing") },
   openGraph: {
-    title: `Pricing · ${macwall.name}`,
+    title: `${macwall.name} – Pricing`,
     description: PAGE_DESCRIPTION,
     url: canonicalSitePath("/pricing"),
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: `Pricing · ${macwall.name}`,
+    title: `${macwall.name} – Pricing`,
     description: PAGE_DESCRIPTION,
   },
 }

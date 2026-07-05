@@ -1,13 +1,16 @@
 import MacWallMarketingHome from "@/components/macwall-marketing/marketing-home"
 import { macwall } from "@/lib/macwall-site"
-import { canonicalSitePath } from "@/lib/site-url"
+import { canonicalSitePath, openGraphImageAbsoluteUrl } from "@/lib/site-url"
 import type { Metadata } from "next"
 
+/** ≤160 chars · conversion + Lock Screen hint (paired with curated title). */
 const PAGE_DESCRIPTION =
-  "Live motion Mac wallpapers behind your Desktop: searchable catalog for fresh clips, imports, tuned multi-display playback, and MacWall Pro for Lock Screen live wallpaper where recent Sonoma, Ventura, and Sequoia builds allow."
+  "Mac live wallpapers behind your Desktop: fresh offline-friendly catalog & Apple Silicon decode. Pro adds Lock Screen motion on Sonoma/Sequoia/newer builds."
+
+const HOME_DOCUMENT_TITLE_ABSOLUTE = `${macwall.name} – ${macwall.tagline}` as const
 
 export const metadata: Metadata = {
-  title: `${macwall.name} — ${macwall.tagline}`,
+  title: { absolute: HOME_DOCUMENT_TITLE_ABSOLUTE },
   description: PAGE_DESCRIPTION,
   alternates: { canonical: canonicalSitePath("/") },
   keywords: [
@@ -15,17 +18,28 @@ export const metadata: Metadata = {
     "best live wallpaper macOS",
     "animated wallpapers Mac Desktop",
     "HD motion backgrounds Mac",
+    "Mac live wallpapers",
+    "motion desktop background",
   ],
   openGraph: {
-    title: `${macwall.name} — ${macwall.tagline}`,
+    title: HOME_DOCUMENT_TITLE_ABSOLUTE,
     description: PAGE_DESCRIPTION,
     url: canonicalSitePath("/"),
     type: "website",
+    images: [
+      {
+        url: openGraphImageAbsoluteUrl(),
+        width: 1200,
+        height: 630,
+        alt: `${macwall.name} – ${macwall.tagline}`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${macwall.name} — ${macwall.tagline}`,
+    title: HOME_DOCUMENT_TITLE_ABSOLUTE,
     description: PAGE_DESCRIPTION,
+    images: [openGraphImageAbsoluteUrl()],
   },
 }
 

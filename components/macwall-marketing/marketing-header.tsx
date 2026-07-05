@@ -179,7 +179,7 @@ export default function MacWallMarketingHeader({
         >
           <div className="HoverMenu_container__4i6wf">
             <div className="HoverMenu_block__9R02a">
-              <h2
+              <p
                 className={
                   light
                     ? "HoverMenu_blackHeading__xquPy"
@@ -187,7 +187,7 @@ export default function MacWallMarketingHeader({
                 }
               >
                 {ho.exploreTitle}
-              </h2>
+              </p>
               <div className="HoverMenu_links__AjMzs">
                 <a
                   className={
@@ -205,7 +205,7 @@ export default function MacWallMarketingHeader({
               </div>
             </div>
             <div className="HoverMenu_block__9R02a">
-              <h2
+              <p
                 className={
                   light
                     ? "HoverMenu_blackHeading__xquPy"
@@ -213,7 +213,7 @@ export default function MacWallMarketingHeader({
                 }
               >
                 {ho.supportEmailTitle}
-              </h2>
+              </p>
               <div className="HoverMenu_links__AjMzs">
                 <a
                   className={
