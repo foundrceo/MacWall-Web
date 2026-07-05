@@ -5,6 +5,7 @@ import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin, metadataBaseUrl } from "@/lib/site-url"
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { GoogleAnalytics } from "@next/third-parties/google"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -21,6 +22,12 @@ const geistMono = Geist_Mono({
 
 const SITE_DESCRIPTION_FALLBACK =
   "Bring motion wallpapers to your Mac Desktop: curated daily catalog lanes, search & filters for new backgrounds, your own clips, intelligent pause on battery/full screen, optional MacWall Pro for Lock Screen live wallpaper where Sonoma, Ventura, Sequoia, and newer builds allow."
+
+const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim()
+const gaId =
+  gaMeasurementId && /^G-[A-Z0-9]+$/i.test(gaMeasurementId)
+    ? gaMeasurementId
+    : undefined
 
 export const metadata: Metadata = {
   title: {
@@ -100,6 +107,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
       </body>
     </html>
   )
