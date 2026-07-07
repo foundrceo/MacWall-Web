@@ -36,6 +36,11 @@ const nextConfig = {
         hostname: supabaseHost,
         pathname: "/storage/v1/object/public/wallpaper-catalog/**",
       },
+      {
+        protocol: "https",
+        hostname: supabaseHost,
+        pathname: "/storage/v1/render/image/public/wallpaper-catalog/**",
+      },
     ],
   },
   experimental: {

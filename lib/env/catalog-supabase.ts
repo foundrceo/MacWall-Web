@@ -6,6 +6,10 @@
 export const CATALOG_SUPABASE_DEFAULT_ORIGIN =
   "https://YOUR_SUPABASE_PROJECT_REF.supabase.co" as const
 
+/** Public anon key — same as the macOS app; safe for read-only catalog REST. */
+export const CATALOG_SUPABASE_DEFAULT_ANON_KEY =
+  "REDACTED_SUPABASE_ANON_KEY" as const
+
 /** Validated HTTPS project origin for catalog + Storage URLs. */
 export function getCatalogSupabaseOrigin(): string {
   const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
@@ -15,4 +19,10 @@ export function getCatalogSupabaseOrigin(): string {
   } catch {
     return CATALOG_SUPABASE_DEFAULT_ORIGIN
   }
+}
+
+/** Public anon key for PostgREST catalog reads (override via NEXT_PUBLIC_SUPABASE_ANON_KEY). */
+export function getCatalogSupabaseAnonKey(): string {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()
+  return raw || CATALOG_SUPABASE_DEFAULT_ANON_KEY
 }

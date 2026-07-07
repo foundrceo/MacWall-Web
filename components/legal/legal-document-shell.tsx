@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
-import MacWallMarketingFooter from "@/components/macwall-marketing/marketing-footer"
+import MacWallMarketingAnnouncementBar from "@/components/macwall-marketing/marketing-announcement-bar"
+import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import MacWallMarketingHeader from "@/components/macwall-marketing/marketing-header"
 import {
   legalBorderSubtle,
@@ -31,8 +32,15 @@ export function LegalDocumentShell({
   const titleId = "legal-document-title"
 
   return (
-    <div className={cn("relative min-h-screen", legalPageBg, legalTextPrimary)}>
+    <div
+      className={cn(
+        "MacWallMarketingPage relative min-h-screen",
+        legalPageBg,
+        legalTextPrimary
+      )}
+    >
       <MacWallMarketingHeader variant="light" />
+      <MacWallMarketingAnnouncementBar />
 
       <a href="#legal-document-main" className={skipLinkClass}>
         Skip to main content
@@ -43,7 +51,7 @@ export function LegalDocumentShell({
         tabIndex={-1}
         aria-labelledby={titleId}
         className={cn(
-          "mx-auto max-w-[680px] px-6 pb-32 outline-none md:px-8 md:pb-40",
+          "mx-auto max-w-[680px] px-6 pb-12 outline-none md:px-8 md:pb-16",
           legalLinkProse,
           "pt-[max(8.5rem,calc(env(safe-area-inset-top)+6.75rem))] md:pt-[max(10rem,calc(env(safe-area-inset-top)+7.5rem))]"
         )}
@@ -80,7 +88,7 @@ export function LegalDocumentShell({
         </article>
       </main>
 
-      <MacWallMarketingFooter variant="light" shopPricingHref="/pricing" />
+      <MacWallMarketingPageEnd />
     </div>
   )
 }

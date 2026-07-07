@@ -42,9 +42,16 @@ export function metadataBaseUrl(): URL {
   return new URL(`${deploymentSiteOrigin()}/`)
 }
 
-/** Default social preview — `app/opengraph-image.tsx` (1200×630). Absolute URL fixes crawlers without ImageResponse probing. */
+/** Default social preview — `public/OG.png`. Absolute URL fixes crawlers without relative-path probing. */
+export const openGraphImagePath = "/OG.png" as const
+
+export const openGraphImageSize = {
+  width: 2998,
+  height: 1544,
+} as const
+
 export function openGraphImageAbsoluteUrl(): string {
-  return new URL("opengraph-image", metadataBaseUrl()).toString()
+  return new URL(openGraphImagePath, metadataBaseUrl()).toString()
 }
 
 /** Absolute canonical URL path (starts with `/`, no trailing slash except root → trailing slash omitted per Next defaults). */

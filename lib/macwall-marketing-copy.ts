@@ -22,11 +22,11 @@ export const macwallExactCopy = {
     },
   },
   ribbon: {
-    lineBeforeLink: `${macwall.name} is a native macOS app for motion wallpapers—built to stay quiet, efficient, and easy to control from the menu bar. `,
+    lineBeforeLink: `${macwall.name} is a native macOS app for motion wallpapers, built to stay quiet, efficient, and easy to control from the menu bar. `,
     linkText: `Open ${macwall.name}`,
   },
   interact: {
-    kicker: "PRODUCT TOUR",
+    kicker: "In the app",
     title: "Live motion Mac wallpapers for Desktop & Dock",
     moreLink: "How licensing works",
     demoVideoAria: "Background preview loop",
@@ -37,6 +37,8 @@ export const macwallExactCopy = {
     demoCloseWindowAria: "Close demo window",
     menubarBrand: macwall.name,
     menubarStatus: "Works in background",
+    heroLead:
+      "Curated motion wallpapers, your own clips, and menu bar controls. Built for macOS.",
     paragraph1Lead: "Explore",
     paragraph1Rest:
       "the chrome around the window: traffic-light controls, sidebar, and the top bar behave like a real Mac app. Video tiles loop with hardware decoding so previews stay smooth.",
@@ -63,49 +65,20 @@ export const macwallExactCopy = {
     picksSubtitle: "A fresh random sample every time your catalog refreshes",
   },
   pricing: {
-    buyCta: "Buy",
-    secondaryCta: "Get Discount",
-    priceLine: `Only for ${macwall.pro.price}. ${macwall.pro.headline} · up to ${macwall.maxLicensedMacs} personal Macs.`,
+    buyCta: "Buy Pro",
+    secondaryCta: "Save 50% with a Reel",
+    priceLine: `${macwall.pro.price} ${macwall.pro.suffix}. ${macwall.pro.headline}. Up to ${macwall.maxLicensedMacs} personal Macs.`,
   },
-  highlights: {
-    sectionTitle: "Why MacWall",
-    linkSystem: "macOS 14+ (Sonoma or newer)",
-    linkDisplays: "Privacy & licensing",
-    slides: [
-      "Motion wallpapers that feel at home on macOS—not a slideshow hack.",
-      "Runs on Apple Silicon and Intel: one build, hardware-accelerated playback.",
-      /* Hidden carousel panes (extra `Highlights_page-*` IDs exist in vendored CSS if re-enabled).
-      "Different clips per display, or keep every screen in sync—you choose.",
-      "Pause automatically on battery, in full screen, or when you are away—no constant babysitting.",
-      */
-    ] as const,
-  },
-  stats: {
-    kicker: "BY THE NUMBERS",
-    title: "What the app is built for",
-    cards: [
-      {
-        value: `${macwall.pro.socialProofMembers}+`,
-        strong: "People interested in Pro.",
-        desc: "Early adopters who want Lock Screen video, exclusive catalog drops, and playlist tools.",
-      },
-      {
-        value: "9+",
-        strong: "Browsing lanes in Explore.",
-        desc: `From ${macwall.categories.slice(0, 3).join(", ")} to niche moods—jump in without an account.`,
-      },
-      {
-        value: "HW decode",
-        strong: "One player per display.",
-        desc: "Metal-friendly paths, pause-on-battery options, and calm CPU use during long sessions.",
-      },
-    ] as const,
+  gallery: {
+    kicker: "Gallery",
+    title: "Wallpapers you'll love",
+    lead: "A growing collection of cinematic live wallpapers, curated for quality and performance.",
   },
   lockScreen: {
     kicker: "PRO",
-    title: "Lock Screen live wallpaper — latest macOS",
+    title: "Lock Screen live wallpaper on the latest macOS",
     strong:
-      "Mirror high-quality motion to the Lock Screen where the OS allows it—without weird installers.",
+      "Mirror high-quality motion to the Lock Screen where the OS allows it, without extra installers.",
     rest: "Setup stays reversible: turn it off anytime from Settings, and your previous look returns.",
     linkText: "Lock Screen requirements",
   },
@@ -118,48 +91,72 @@ export const macwallExactCopy = {
         text: "A crisp 4K loop on a single display (larger source files cache locally after download).",
       },
       {
-        strong: "",
+        strong: "Compare: ",
         text: "Streaming a 1080p browser video is usually several times heavier than MacWall sitting idle on wallpaper duty.",
-        highlight: true as const,
       },
+    ],
+    bulletsB: [
       {
         strong: "On the go: ",
         text: "Toggle “Pause on battery” so motion stops while unplugged and resumes when power returns.",
       },
-    ],
-    bulletsB: [
       {
         strong: "Idle-friendly: ",
         text: "Pauses when another app goes full screen or when the display sleeps. Uses system decoders so fans stay quiet during normal work.",
       },
     ],
+    cards: [
+      {
+        title: "Shown",
+        body: "A crisp 4K loop on a single display (larger source files cache locally after download).",
+        accent: "violet",
+      },
+      {
+        title: "Compare",
+        body: "Streaming a 1080p browser video is usually several times heavier than MacWall sitting idle on wallpaper duty.",
+        accent: "orange",
+      },
+      {
+        title: "On the go",
+        body: "Toggle “Pause on battery” so motion stops while unplugged and resumes when power returns.",
+        accent: "teal",
+      },
+      {
+        title: "Idle-friendly",
+        body: "Pauses when another app goes full screen or when the display sleeps. Uses system decoders so fans stay quiet during normal work.",
+        accent: "blue",
+      },
+    ] as const,
   },
   values: {
     title: "Feels like it belongs on macOS.",
-    lead: `${macwall.name} keeps motion in the background—quick to launch, simple to pause, and respectful of focus. Import your own videos, lean on the cloud catalog, or unlock Pro for Lock Screen clips and deeper libraries.`,
+    lead: `${macwall.name} keeps motion in the background. Quick to launch, simple to pause, and respectful of focus. Import your own videos, browse the cloud catalog, and unlock Lock Screen clips with Pro.`,
     cards: [
       {
         title: "Your files stay offline.",
         body: "Imports and favorites live on your Mac. We do not ship an account wall for browsing the catalog or running your own media.",
+        accent: "violet",
       },
       {
-        title: "No ads. No login for basics.",
-        body: "Activate Pro when you want premium perks—there is no banner farm or forced signup just to preview wallpapers.",
+        title: "No ads. No subscription.",
+        body: "One Pro purchase unlocks the app. No banner ads and no monthly billing.",
+        accent: "orange",
       },
       {
         title: "Pay once for Pro.",
-        body: `${macwall.pro.headline}: ${macwall.pro.price} ${macwall.pro.suffix} unlocks the current Pro feature set—no monthly rent.`,
+        body: `${macwall.pro.headline}. ${macwall.pro.price} ${macwall.pro.suffix} unlocks the current Pro feature set. No monthly fee.`,
+        accent: "teal",
       },
     ] as const,
   },
   underFooter: {
     title: "Ready when you are.",
-    body: `${macwall.name} is for people who want their desk to feel alive—not noisy. Grab the build, try the free tier, and upgrade when you want Lock Screen video or the full Pro catalog.`,
-    cta: `Download ${macwall.name}`,
+    body: `${macwall.name} is for people who want their desk to feel alive, not noisy. Buy Pro once, install on your Mac, and make a Reel to earn up to 100% back.`,
+    cta: `Buy Pro for ${macwall.pro.price}`,
   },
   footer: {
     disclaimerBullets: [
-      `${macwall.name} includes a free tier plus optional Pro checkout—the figure on this page matches the current early-bird offer.`,
+      `${macwall.name} Pro is a one-time purchase. The price on this page reflects the current early-bird offer. Make a Reel to qualify for up to 100% back — see Pricing for details.`,
       "A compatible Mac, recent builds, and network access are required for catalog sync, updates, and online license checks.",
       `Pro features, Lock Screen motion, and catalog depth can differ by region and macOS version. Each personal license may be used on up to ${macwall.maxLicensedMacs} Macs you own.`,
       `Continued use of ${macwall.name} means you agree to the Terms of Service and Privacy Policy linked in the footer.`,

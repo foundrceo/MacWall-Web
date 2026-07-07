@@ -97,3 +97,7 @@ export const MARKETING_CATALOG_SLIDES: MarketingCatalogSlide[] = rows.map(
     videoUrl: catalogPublicVideoUrlFromKey(r.video_key),
   })
 )
+
+/** Homepage “Wallpaper in motion” block — change when the final clip is chosen. */
+export const MARKETING_LIVE_WALLPAPER_PREVIEW: MarketingCatalogSlide | null =
+  MARKETING_CATALOG_SLIDES[0] ?? null

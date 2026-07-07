@@ -1,13 +1,19 @@
 import MacWallMarketingHome from "@/components/macwall-marketing/marketing-home"
+import MacWallMarketingGallerySection from "@/components/macwall-marketing/marketing-gallery-section"
 import { macwall } from "@/lib/macwall-site"
-import { canonicalSitePath, openGraphImageAbsoluteUrl } from "@/lib/site-url"
+import {
+  canonicalSitePath,
+  openGraphImageAbsoluteUrl,
+  openGraphImageSize,
+} from "@/lib/site-url"
 import type { Metadata } from "next"
 
 /** ≤160 chars · conversion + Lock Screen hint (paired with curated title). */
 const PAGE_DESCRIPTION =
   "Mac live wallpapers behind your Desktop: fresh offline-friendly catalog & Apple Silicon decode. Pro adds Lock Screen motion on Sonoma/Sequoia/newer builds."
 
-const HOME_DOCUMENT_TITLE_ABSOLUTE = `${macwall.name} – ${macwall.tagline}` as const
+const HOME_DOCUMENT_TITLE_ABSOLUTE =
+  `${macwall.name} – ${macwall.tagline}` as const
 
 export const metadata: Metadata = {
   title: { absolute: HOME_DOCUMENT_TITLE_ABSOLUTE },
@@ -29,8 +35,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: openGraphImageAbsoluteUrl(),
-        width: 1200,
-        height: 630,
+        width: openGraphImageSize.width,
+        height: openGraphImageSize.height,
         alt: `${macwall.name} – ${macwall.tagline}`,
       },
     ],
@@ -47,5 +53,7 @@ export const dynamic = "force-static"
 
 /** MacWall marketing homepage (vendored layout CSS + catalog demo). */
 export default function Page() {
-  return <MacWallMarketingHome />
+  return (
+    <MacWallMarketingHome gallerySection={<MacWallMarketingGallerySection />} />
+  )
 }

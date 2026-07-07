@@ -1,34 +1,32 @@
 "use client"
 
-import clsx from "clsx"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import {
   macwall,
-  macwallInstallerLatestPath,
   macwallAppIconPath,
   macwallAppIconRadiusClass,
+  macwallInstallerLatestPath,
   mailtoSupport,
 } from "@/lib/macwall-site"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import { MarketingButton } from "@/components/macwall-marketing/marketing-primitives"
+import { cn } from "@/lib/utils"
 
-export type MacWallMarketingHeaderVariant = "dark" | "light"
+export type MacWallMarketingHeaderVariant = "light" | "dark"
 
-/** Top marketing nav (home, pricing, legal, …). */
 export default function MacWallMarketingHeader({
-  variant = "dark",
+  variant = "light",
 }: Readonly<{ variant?: MacWallMarketingHeaderVariant }>) {
-  const light = variant === "light"
+  const dark = variant === "dark"
   const pathname = usePathname()
-  const overviewActive = pathname === "/"
-  const pricingActive = pathname === "/pricing"
-
   const h = macwallExactCopy.header
   const ho = macwallExactCopy.hover
+
   const [menuOpen, setMenuOpen] = useState(false)
-  const [navHover, setNavHover] = useState(false)
+  const [megaOpen, setMegaOpen] = useState<string | null>(null)
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const clearLeave = () => {
@@ -37,199 +35,242 @@ export default function MacWallMarketingHeader({
 
   const scheduleClose = useCallback(() => {
     clearLeave()
-    leaveTimer.current = setTimeout(() => setNavHover(false), 180)
+    leaveTimer.current = setTimeout(() => setMegaOpen(null), 160)
   }, [])
 
   useEffect(() => () => clearLeave(), [])
 
-  const keepMegaOpen = useCallback(() => {
-    clearLeave()
-    setNavHover(true)
-  }, [])
-
-  const navItem = (active: boolean) =>
-    active
-      ? light
-        ? "Header_activeBlack__Q4QG5"
-        : "Header_active__oXKOc"
-      : "Header_navLink__UiCPW"
-
-  const headerSurface = light
-    ? "Header_header_white__oghaD"
-    : "Header_header_black__igo2e"
+  const navLink = (active: boolean) =>
+    cn(
+      "text-[12px] transition-colors",
+      dark
+        ? active
+          ? "text-white"
+          : "text-white/70 hover:text-white"
+        : active
+          ? "text-[#1d1d1f]"
+          : "text-[#1d1d1f]/65 hover:text-[#1d1d1f]"
+    )
 
   return (
-    <header className={headerSurface}>
-      <div
-        className="Header_container__Kzpza"
-        style={{ opacity: 1, transform: "none" }}
-      >
-        <div
-          className={clsx("Header_left__wL_E2", light && "Header_black__ssOR6")}
-          style={{ opacity: 1, transform: "none" }}
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full border-b backdrop-blur-2xl backdrop-saturate-150",
+        dark ? "border-white/10 bg-black/80" : "border-black/[0.06] bg-white/80"
+      )}
+    >
+      <div className="MacWallMarketingHeaderBar mx-auto h-[44px] max-w-[1080px]">
+        <Link
+          href="/"
+          className={cn(
+            "MacWallMarketingHeaderBrand flex min-w-0 items-center gap-2 text-[14px] tracking-[-0.01em]",
+            dark ? "text-white" : "text-[#1d1d1f]"
+          )}
         >
-          <Link className="Header_logo__49F8E" href="/">
-            <Image
-              alt={h.logoAlt}
-              width={28}
-              height={28}
-              decoding="async"
-              src={macwallAppIconPath}
-              className={`${macwallAppIconRadiusClass} object-cover`}
-              style={{ color: "transparent" }}
-              priority={pathname === "/"}
-            />
-            {macwall.name} for macOS
+          <Image
+            alt={h.logoAlt}
+            width={20}
+            height={20}
+            src={macwallAppIconPath}
+            className={cn(macwallAppIconRadiusClass, "shrink-0 object-cover")}
+            priority={pathname === "/"}
+          />
+          <span className="truncate font-medium">{macwall.name}</span>
+        </Link>
+
+        <nav className="MacWallMarketingHeaderNav" aria-label="Main">
+          <Link
+            href="/"
+            className={cn(
+              navLink(pathname === "/"),
+              "MacWallMarketingHeaderNavItem"
+            )}
+          >
+            {h.navOverview}
           </Link>
-        </div>
-        <div
-          className="Header_right__WR_Le"
-          style={{ opacity: 1, transform: "none" }}
-        >
+
+          <div
+            className="relative"
+            onMouseEnter={() => {
+              clearLeave()
+              setMegaOpen("community")
+            }}
+            onMouseLeave={scheduleClose}
+          >
+            <button
+              type="button"
+              className={cn(
+                navLink(false),
+                "MacWallMarketingHeaderNavItem cursor-default border-0 bg-transparent p-0"
+              )}
+              aria-expanded={megaOpen === "community"}
+            >
+              {h.navSocials}
+            </button>
+          </div>
+
+          <div
+            className="relative"
+            onMouseEnter={() => {
+              clearLeave()
+              setMegaOpen("support")
+            }}
+            onMouseLeave={scheduleClose}
+          >
+            <button
+              type="button"
+              className={cn(
+                navLink(false),
+                "MacWallMarketingHeaderNavItem cursor-default border-0 bg-transparent p-0"
+              )}
+              aria-expanded={megaOpen === "support"}
+            >
+              {h.navSupport}
+            </button>
+          </div>
+
+          <Link
+            href="/pricing"
+            className={cn(
+              navLink(pathname === "/pricing"),
+              "MacWallMarketingHeaderNavItem"
+            )}
+          >
+            {h.navPricing}
+          </Link>
+        </nav>
+
+        <div className="MacWallMarketingHeaderActions flex items-center justify-end gap-2">
+          <MarketingButton
+            href={macwallInstallerLatestPath}
+            size="sm"
+            variant="primary"
+            className="MacWallMarketingHeaderDownload shrink-0"
+          >
+            {h.downloadCta}
+          </MarketingButton>
+
           <button
             type="button"
-            className="Header_mobile_icon__Talq4"
+            className={cn(
+              "MacWallMarketingHeaderMenu size-8 shrink-0 items-center justify-center rounded-lg",
+              dark ? "text-white" : "text-[#1d1d1f]"
+            )}
             aria-expanded={menuOpen}
-            aria-label={menuOpen ? "Close Menu" : "Open Menu"}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
             onClick={() => setMenuOpen((v) => !v)}
           >
             <svg
-              stroke="currentColor"
-              fill="currentColor"
-              strokeWidth="0"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
-              height="20"
-              width="20"
-              xmlns="http://www.w3.org/2000/svg"
-              style={{
-                color: light ? "rgba(0, 0, 0, 0.65)" : "rgb(255, 255, 255)",
-                transform: menuOpen ? "rotate(0deg)" : "rotate(180deg)",
-                transition: "transform 0.2s ease-in-out",
-              }}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden
             >
-              <path d="M18.78 15.78a.749.749 0 0 1-1.06 0L12 10.061 6.28 15.78a.749.749 0 1 1-1.06-1.06l6.25-6.25a.749.749 0 0 1 1.06 0l6.25 6.25a.749.749 0 0 1 0 1.06Z" />
+              {menuOpen ? (
+                <path d="M6 6l12 12M18 6L6 18" />
+              ) : (
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              )}
             </svg>
           </button>
-          <div
-            className={clsx(
-              "Header_navigation_header__bvCmS",
-              light && "Header_black__ssOR6",
-              menuOpen && "max-[830px]:![display:flex]"
-            )}
-          >
-            <Link className={navItem(overviewActive)} href="/">
-              {h.navOverview}
-            </Link>
-            <div onMouseEnter={keepMegaOpen}>
-              <button
-                type="button"
-                className="Header_navButton__utV_Q"
-                aria-expanded={navHover}
-                aria-haspopup="true"
-              >
-                {h.navSocials}
-              </button>
-            </div>
-            <div onMouseEnter={keepMegaOpen}>
-              <button
-                type="button"
-                className="Header_navButton__utV_Q"
-                aria-expanded={navHover}
-                aria-haspopup="true"
-              >
-                {h.navSupport}
-              </button>
-            </div>
-            <Link className={navItem(pricingActive)} href="/pricing">
-              {h.navPricing}
-            </Link>
-          </div>
-          <div className="Header_user_buttons__pvlG6">
-            <Link
-              className="SecondaryButton_secondaryButton__F7442"
-              href={macwallInstallerLatestPath}
-              style={{
-                fontSize: 12,
-                fontWeight: 500,
-                width: "max-content",
-                padding: "3px 10px",
-                backgroundColor: "rgb(0, 113, 227)",
-              }}
-            >
-              <span>{h.downloadCta}</span>
-            </Link>
-          </div>
         </div>
       </div>
+
       <div
-        className="HoverMenu_active__LgeG3"
-        style={{
-          display: navHover ? "flex" : "none",
-          opacity: navHover ? 1 : 0,
-          transform: navHover ? "none" : "translateY(8px)",
-        }}
-        onMouseEnter={keepMegaOpen}
+        className={cn(
+          "absolute inset-x-0 top-[44px] border-b transition-all duration-200",
+          dark
+            ? "border-white/10 bg-[#1d1d1f]/95"
+            : "border-black/[0.06] bg-white/95",
+          megaOpen
+            ? "visible opacity-100"
+            : "pointer-events-none invisible opacity-0"
+        )}
+        onMouseEnter={clearLeave}
         onMouseLeave={scheduleClose}
       >
-        <div
-          className={
-            light ? "HoverMenu_contentBlack___1Gr3" : "HoverMenu_content__v2B7L"
-          }
-        >
-          <div className="HoverMenu_container__4i6wf">
-            <div className="HoverMenu_block__9R02a">
-              <p
-                className={
-                  light
-                    ? "HoverMenu_blackHeading__xquPy"
-                    : "HoverMenu_heading__WpMMp"
-                }
-              >
+        <div className="mx-auto max-w-[1080px] px-6 py-7 md:px-8">
+          {megaOpen === "community" ? (
+            <div>
+              <p className="mb-2 text-[11px] font-semibold tracking-[0.1em] text-[#86868b] uppercase">
                 {ho.exploreTitle}
               </p>
-              <div className="HoverMenu_links__AjMzs">
-                <a
-                  className={
-                    light
-                      ? "HoverMenu_blackLinks__jF7Ps"
-                      : "HoverMenu_link__SaLDK"
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={ho.links.discord.title}
-                  href={macwall.discordInvite}
-                >
-                  <span>{ho.links.discord.label}</span>
-                </a>
-              </div>
-            </div>
-            <div className="HoverMenu_block__9R02a">
-              <p
-                className={
-                  light
-                    ? "HoverMenu_blackHeading__xquPy"
-                    : "HoverMenu_heading__WpMMp"
-                }
+              <a
+                href={macwall.discordInvite}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "text-[19px] font-semibold tracking-[-0.01em] hover:underline",
+                  dark ? "text-white" : "text-[#1d1d1f]"
+                )}
               >
+                {ho.links.discord.label}
+              </a>
+            </div>
+          ) : null}
+          {megaOpen === "support" ? (
+            <div>
+              <p className="mb-2 text-[11px] font-semibold tracking-[0.1em] text-[#86868b] uppercase">
                 {ho.supportEmailTitle}
               </p>
-              <div className="HoverMenu_links__AjMzs">
-                <a
-                  className={
-                    light
-                      ? "HoverMenu_blackLinks__jF7Ps"
-                      : "HoverMenu_link__SaLDK"
-                  }
-                  title={ho.links.supportMail.title}
-                  href={mailtoSupport}
-                >
-                  <span>{ho.links.supportMail.label}</span>
-                </a>
-              </div>
+              <a
+                href={mailtoSupport}
+                className={cn(
+                  "text-[19px] font-semibold tracking-[-0.01em] hover:underline",
+                  dark ? "text-white" : "text-[#1d1d1f]"
+                )}
+              >
+                {ho.links.supportMail.label}
+              </a>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
+
+      {menuOpen ? (
+        <div
+          className={cn(
+            "MacWallMarketingHeaderMobilePanel border-t px-4 py-5",
+            dark
+              ? "border-white/10 bg-[#1d1d1f]"
+              : "border-black/[0.06] bg-white"
+          )}
+        >
+          <nav className="flex flex-col gap-4" aria-label="Mobile">
+            <Link
+              href="/"
+              className={navLink(pathname === "/")}
+              onClick={() => setMenuOpen(false)}
+            >
+              {h.navOverview}
+            </Link>
+            <Link
+              href="/pricing"
+              className={navLink(pathname === "/pricing")}
+              onClick={() => setMenuOpen(false)}
+            >
+              {h.navPricing}
+            </Link>
+            <a
+              href={macwall.discordInvite}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={navLink(false)}
+            >
+              {ho.links.discord.label}
+            </a>
+            <a href={mailtoSupport} className={navLink(false)}>
+              {ho.links.supportMail.label}
+            </a>
+            <MarketingButton href={macwallInstallerLatestPath} size="sm">
+              {h.downloadCta}
+            </MarketingButton>
+          </nav>
+        </div>
+      ) : null}
     </header>
   )
 }

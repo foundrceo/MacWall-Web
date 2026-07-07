@@ -1,0 +1,1377 @@
+/*
+ * Loaded after layout-1/2/3 on marketing routes.
+ * Vendored layout-1.css ships `.hidden { display: none }` without matching sm:/md:
+ * display utilities, which breaks Tailwind responsive patterns across the landing page.
+ */
+
+@media (min-width: 40rem) {
+  .sm\:inline-flex {
+    display: inline-flex !important;
+  }
+
+  .sm\:inline {
+    display: inline !important;
+  }
+}
+
+@media (min-width: 48rem) {
+  .md\:flex {
+    display: flex !important;
+  }
+
+  .md\:hidden {
+    display: none !important;
+  }
+
+  .md\:grid {
+    display: grid !important;
+  }
+}
+
+/* Prevent horizontal scroll from demo transforms without changing layout. */
+.MacWallMarketingPage {
+  overflow-x: clip;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+html:has(.MacWallMarketingPage) {
+  scroll-padding-top: 44px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+body:has(.MacWallMarketingPage) {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+/* ── Site header (3-zone grid: logo | centered nav | CTA) ── */
+.MacWallMarketingHeaderBar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallMarketingHeaderBar {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    column-gap: 1rem;
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .MacWallMarketingHeaderBar {
+    padding-inline: 2rem;
+  }
+}
+
+.MacWallMarketingHeaderBrand {
+  grid-column: 1;
+  justify-self: start;
+  min-width: 0;
+}
+
+.MacWallMarketingHeaderNav {
+  display: none;
+  grid-column: 2;
+  align-items: center;
+  column-gap: 1.5rem;
+  justify-self: center;
+}
+
+@media (min-width: 64rem) {
+  .MacWallMarketingHeaderNav {
+    column-gap: 1.75rem;
+  }
+}
+
+@media (min-width: 48rem) {
+  .MacWallMarketingHeaderNav {
+    display: flex !important;
+  }
+
+  .MacWallMarketingHeaderMenu {
+    display: none !important;
+  }
+
+  .MacWallMarketingHeaderMobilePanel {
+    display: none !important;
+  }
+}
+
+.MacWallMarketingHeaderDownload {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .MacWallMarketingHeaderDownload {
+    display: inline-flex !important;
+  }
+}
+
+.MacWallMarketingHeaderMenu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.MacWallMarketingHeaderActions {
+  grid-column: 2;
+  justify-self: end;
+  min-width: 0;
+}
+
+@media (min-width: 48rem) {
+  .MacWallMarketingHeaderActions {
+    grid-column: 3;
+  }
+}
+
+.MacWallMarketingHeaderNavItem {
+  display: inline-flex;
+  height: 44px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 47.99rem) {
+  .MacWallMarketingContainer {
+    padding-inline: 1rem !important;
+  }
+
+  .MacWallMarketingHeaderMobilePanel {
+    padding-inline: 1rem !important;
+  }
+}
+
+/* ── Site footer responsive rails ── */
+.MacWallMarketingFooterDesktop {
+  display: none;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  column-gap: 2rem;
+  row-gap: 2.5rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallMarketingFooterDesktop {
+    display: grid !important;
+  }
+
+  .MacWallMarketingFooterMobile {
+    display: none !important;
+  }
+}
+
+.MacWallMarketingFooterMobile {
+  display: block;
+}
+
+.MacWallMarketingFooterPipe {
+  display: none;
+}
+
+@media (min-width: 40rem) {
+  .MacWallMarketingFooterPipe {
+    display: inline !important;
+  }
+}
+
+/* Site-wide announcement strip (below header) */
+.MacWallMarketingAnnouncementBar {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: #f5f5f7;
+  padding: 0.625rem 1rem;
+  text-align: center;
+}
+
+@media (min-width: 48rem) {
+  .MacWallMarketingAnnouncementBar {
+    padding-inline: 1.5rem;
+  }
+}
+
+.MacWallMarketingAnnouncementBar p {
+  margin: 0 auto;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #6e6e73;
+}
+
+@media (min-width: 64rem) {
+  .MacWallMarketingAnnouncementBar p {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 63.99rem) {
+  .MacWallMarketingAnnouncementBar p {
+    max-width: 100%;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
+
+.MacWallMarketingAnnouncementBar a {
+  margin-left: 0.2rem;
+  display: inline !important;
+  color: #0066cc !important;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.MacWallMarketingAnnouncementBar a:hover {
+  text-decoration: underline;
+}
+
+.MacWallMarketingAnnouncementBarChevron {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  vertical-align: -0.125em;
+  margin-left: 0.0625rem;
+}
+
+/* ── Hero: demo + Wallper-style interact / controls + CTAs ── */
+.MacWallHeroDemo {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.MacWallDesktopDemo.Interact_container__n__qc {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-inline: auto !important;
+}
+
+@media (max-width: 850px) {
+  .MacWallDesktopDemo.Interact_container__n__qc {
+    width: 100% !important;
+    margin-right: 0 !important;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .MacWallDesktopDemo.Interact_container__n__qc {
+    width: 100% !important;
+    margin-top: 0 !important;
+    border-radius: 20px !important;
+  }
+}
+
+/* Hero desktop demo — tablet & phone (desktop ≥851px unchanged in globals.css) */
+@media (max-width: 850px) {
+  .MacWallDesktopDemo.Interact_container__n__qc {
+    aspect-ratio: 16 / 11 !important;
+    min-height: 380px !important;
+    max-height: min(560px, 78vw) !important;
+  }
+
+  .MacWallDesktopDemo .MacWallInteract_demoAppCenterWrap {
+    padding: 6.5% 5.5% 9.5% !important;
+  }
+
+  /* Vendored layout hides menubar sides at 768px — keep a compact bar in the demo */
+  .MacWallDesktopDemo .Menubar_menubar__4ME4U {
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    padding: 3px 8px !important;
+  }
+
+  .MacWallDesktopDemo .Menubar_left__QCsBf {
+    display: flex !important;
+    gap: 0.5rem !important;
+    font-size: 9px !important;
+  }
+
+  .MacWallDesktopDemo .Menubar_left__QCsBf > span:not(.Menubar_brand__jj7yS) {
+    display: none;
+  }
+
+  .MacWallDesktopDemo .Menubar_right___0KcF {
+    display: flex !important;
+    gap: 0.2rem !important;
+    font-size: 9px !important;
+  }
+
+  .MacWallDesktopDemo .Menubar_island__L6ZjV {
+    width: clamp(96px, 22vw, 140px);
+    height: 22px;
+    padding: 0.35rem 0.5rem 0.45rem;
+  }
+
+  .MacWallDesktopDemo .Menubar_statusIcon__rx7_c {
+    width: 16px;
+    height: 16px;
+  }
+
+  .MacWallDesktopDemo .Menubar_batteryIcon__3_gXT,
+  .MacWallDesktopDemo .Menubar_wifi__OJScq,
+  .MacWallDesktopDemo .Menubar_centerIcon__JxLAN {
+    width: 14px;
+    height: 14px;
+    margin-left: 0.35rem;
+  }
+
+  .MacWallDesktopDemo .Menubar_time__4GBY3 {
+    display: none;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppHeaderGrid {
+    column-gap: 4px !important;
+    padding-inline: 6px !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppPick {
+    flex: 0 0 calc(25% - 6px) !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .MacWallDesktopDemo.Interact_container__n__qc {
+    aspect-ratio: 4 / 5 !important;
+    min-height: 420px !important;
+    max-height: min(540px, 92vw) !important;
+    border-radius: 16px !important;
+  }
+
+  .MacWallDesktopDemo .Interact_videoWrap__Gzo4G,
+  .MacWallDesktopDemo .Interact_videoEl__UxId_ {
+    border-radius: 16px;
+  }
+
+  .MacWallDesktopDemo .MacWallInteract_demoAppCenterWrap {
+    padding: 4.5% 3.5% 7.5% !important;
+  }
+
+  .MacWallDesktopDemo .Dock_container__lRHU1 {
+    bottom: 6px;
+    padding: 4px;
+    border-radius: 12px;
+    transform: scale(0.88);
+    transform-origin: center bottom;
+  }
+
+  .MacWallDesktopDemo .Dock_image___wUSx {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .MacWallDesktopDemo .Menubar_menubar__4ME4U {
+    padding: 2px 6px !important;
+  }
+
+  .MacWallDesktopDemo .Menubar_brand__jj7yS {
+    display: none;
+  }
+
+  .MacWallDesktopDemo .Menubar_percent__vaV6A,
+  .MacWallDesktopDemo .Menubar_wifi__OJScq,
+  .MacWallDesktopDemo .Menubar_centerIcon__JxLAN,
+  .MacWallDesktopDemo .Menubar_round__nIYKT {
+    display: none;
+  }
+
+  .MacWallDesktopDemo .Menubar_statusText__DyznY {
+    display: none;
+  }
+
+  .MacWallDesktopDemo .Menubar_island__L6ZjV {
+    width: 72px;
+    height: 18px;
+  }
+
+  .MacWallDesktopDemo .MacWallDesktopDemo__window {
+    border-radius: 10px !important;
+  }
+
+  /* In-app chrome — icon-only brand, Home tab only, PRO + settings hidden */
+  .MacWallDesktopDemo .MacWallDemoAppBrandName {
+    display: none !important;
+  }
+
+  .MacWallDesktopDemo
+    .MacWallDemoAppNav
+    .Application_header_content__plHsT
+    span:not(.Application_active__mdLR4) {
+    display: none !important;
+  }
+
+  .MacWallDesktopDemo
+    .MacWallDemoAppActions
+    > .Application_search__Q_j_2:not(.MacWallDemoAppPro) {
+    display: none !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppHeaderGrid {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+    column-gap: 3px !important;
+    padding: 4px 5px 3px !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppNav {
+    justify-self: center;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppNavPill,
+  .MacWallDesktopDemo .MacWallDemoApp .Application_header__57Sg5 {
+    max-width: 100% !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppBody {
+    padding: 3px 8px 6px !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppFeaturedOverlay {
+    padding: 0 8px 8px !important;
+    gap: 2px !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppFeaturedMeta span:nth-child(n + 2) {
+    display: none;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppFeaturedCta {
+    padding: 4px 10px !important;
+    font-size: 9px !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppFeaturedHeart {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppPicksSub {
+    display: none !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppPicksHead {
+    margin-top: 4px !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppPicksRow {
+    margin-top: 3px !important;
+    min-height: 52px !important;
+    gap: 6px !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppPicksRow::-webkit-scrollbar {
+    display: none;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppPick {
+    flex: 0 0 38% !important;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 850px) {
+  .MacWallDesktopDemo .MacWallDemoAppBrandName {
+    max-width: 4.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .MacWallDesktopDemo
+    .MacWallDemoAppNav
+    .Application_header_content__plHsT
+    span:nth-child(3) {
+    display: none !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppPicksSub {
+    max-width: 12rem;
+  }
+}
+
+.MacWallHeroDemoTitle {
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallHeroDemoTitle {
+    margin-bottom: 2.5rem;
+  }
+}
+
+.MacWallHeroFoot {
+  max-width: 920px;
+  margin-inline: auto;
+  margin-top: 2.5rem;
+  text-align: center;
+}
+
+@media (min-width: 48rem) {
+  .MacWallHeroFoot {
+    margin-top: 3rem;
+  }
+}
+
+.MacWallHeroFeatures {
+  display: grid;
+  gap: 2rem;
+  text-align: left;
+}
+
+@media (min-width: 48rem) {
+  .MacWallHeroFeatures {
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+}
+
+.MacWallHeroFeatureTitle {
+  margin-bottom: 0.5rem;
+  font-size: 17px;
+  line-height: 1.235;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.MacWallHeroFeatureBody {
+  font-size: 17px;
+  line-height: 1.47;
+  color: #86868b;
+}
+
+.MacWallHeroActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallHeroActions {
+    gap: 1rem;
+    margin-top: 2.5rem;
+  }
+}
+
+.MacWallHeroSecondaryCta {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding-inline: 1.5rem;
+  font-size: 17px;
+  letter-spacing: -0.022em;
+  color: #1d1d1f;
+  background: #f5f5f7;
+  transition: background-color 150ms ease;
+}
+
+.MacWallHeroSecondaryCta:hover {
+  background: #e8e8ed;
+}
+
+.MacWallHeroMeta {
+  margin-top: 1rem;
+  font-size: 14px;
+  line-height: 1.428;
+  color: #86868b;
+}
+
+.MacWallHeroFinePrint {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 14px;
+  line-height: 1.428;
+  color: #0066cc;
+  transition: opacity 150ms ease;
+}
+
+.MacWallHeroFinePrint:hover {
+  text-decoration: underline;
+}
+
+/* Last content section before shared page-end — avoid double gap with bottom CTA */
+.MacWallMarketingSectionPrePageEnd {
+  padding-bottom: 2rem !important;
+}
+
+@media (min-width: 48rem) {
+  .MacWallMarketingSectionPrePageEnd {
+    padding-bottom: 2.5rem !important;
+  }
+}
+
+/* Bottom page CTA — true viewport center (grid, symmetric padding) */
+.MacWallBottomCta {
+  display: grid;
+  justify-items: center;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  background: #fff;
+  padding-block: 3.5rem;
+  padding-inline: 1.5rem;
+  text-align: center !important;
+}
+
+@media (min-width: 48rem) {
+  .MacWallBottomCta {
+    padding-block: 5rem;
+    padding-inline: 2rem;
+  }
+}
+
+.MacWallCtaCluster {
+  display: grid;
+  justify-items: center;
+  justify-self: center;
+  width: min(640px, 100%);
+  margin: 0;
+  text-align: center !important;
+}
+
+.MacWallCtaIcon {
+  display: block;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  margin-inline: auto;
+}
+
+.MacWallCtaTitle {
+  margin: 1.25rem 0 0;
+  width: 100%;
+  font-size: 2rem;
+  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #1d1d1f;
+  text-align: center !important;
+}
+
+@media (min-width: 48rem) {
+  .MacWallCtaTitle {
+    margin-top: 1.5rem;
+    font-size: 2.5rem;
+  }
+}
+
+.MacWallCtaBody {
+  margin: 1rem 0 0;
+  width: min(540px, 100%);
+  font-size: 1.0625rem;
+  line-height: 1.47;
+  color: #86868b;
+  text-align: center !important;
+}
+
+@media (min-width: 48rem) {
+  .MacWallCtaBody {
+    margin-top: 1.125rem;
+    font-size: 1.1875rem;
+    line-height: 1.421;
+  }
+}
+
+.MacWallCtaActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallCtaActions {
+    gap: 1rem;
+    margin-top: 2.25rem;
+  }
+}
+
+.MacWallCtaSecondaryBtn {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding-inline: 1.5rem;
+  font-size: 17px;
+  letter-spacing: -0.022em;
+  color: #1d1d1f;
+  background: #f5f5f7;
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+
+.MacWallCtaSecondaryBtn:hover {
+  background: #e8e8ed;
+}
+
+.MacWallCtaMeta {
+  margin: 1rem 0 0;
+  width: 100%;
+  font-size: 14px;
+  line-height: 1.428;
+  color: #86868b;
+  text-align: center !important;
+}
+
+/* Homepage gallery — edge-to-edge reels, section bg only (no wrapper fills) */
+.MacWallGalleryKicker {
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2997ff;
+}
+
+.MacWallGalleryMarqueeStack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: hidden;
+  width: 100%;
+}
+
+@media (min-width: 48rem) {
+  .MacWallGalleryMarqueeStack {
+    gap: 1.25rem;
+  }
+}
+
+.MacWallGalleryMarqueeRow {
+  overflow: hidden;
+  width: 100%;
+}
+
+.MacWallGalleryMarqueeTrack {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: MacWallGalleryScrollLeft 72s linear infinite;
+}
+
+.MacWallGalleryMarqueeRowReverse .MacWallGalleryMarqueeTrack {
+  animation-name: MacWallGalleryScrollRight;
+}
+
+.MacWallGalleryMarqueeRowStatic .MacWallGalleryMarqueeTrack {
+  animation: none;
+}
+
+.MacWallGalleryTile {
+  width: 240px;
+  aspect-ratio: 16 / 9;
+  flex-shrink: 0;
+  margin-right: 1rem;
+  background: #000;
+}
+
+@media (min-width: 48rem) {
+  .MacWallGalleryTile {
+    margin-right: 1.25rem;
+  }
+}
+
+.MacWallGallerySkeleton {
+  z-index: 2;
+  background: linear-gradient(
+    110deg,
+    #1a1a1a 0%,
+    #2a2a2a 18%,
+    #333 38%,
+    #2a2a2a 58%,
+    #1a1a1a 100%
+  );
+  background-size: 220% 100%;
+  animation: MacWallGallerySkeletonShimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes MacWallGallerySkeletonShimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (min-width: 40rem) {
+  .MacWallGalleryTile {
+    width: 280px;
+  }
+}
+
+@media (min-width: 64rem) {
+  .MacWallGalleryTile {
+    width: 320px;
+  }
+}
+
+.MacWallGalleryVideo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+.MacWallGalleryPoster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+
+@keyframes MacWallGalleryScrollLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes MacWallGalleryScrollRight {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .MacWallGalleryMarqueeTrack {
+    animation: none !important;
+  }
+}
+
+/* Values — Apple-style icon card scroll gallery */
+.MacWallValuesHeader {
+  padding-bottom: 0;
+}
+
+.MacWallValuesTitle {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+
+.MacWallValuesLead {
+  margin: 1rem 0 0;
+  max-width: 45rem;
+  font-size: 1.0625rem;
+  line-height: 1.47;
+}
+
+@media (min-width: 48rem) {
+  .MacWallValuesTitle {
+    font-size: 3rem;
+    line-height: 1.08;
+  }
+
+  .MacWallValuesLead {
+    margin-top: 1.25rem;
+    font-size: 1.1875rem;
+    line-height: 1.421;
+  }
+}
+
+.MacWallValuesGallery {
+  position: relative;
+  width: 100%;
+  max-width: 1080px;
+  margin-inline: auto;
+  margin-top: 2.5rem;
+  overflow: hidden;
+}
+
+@media (min-width: 48rem) {
+  .MacWallValuesGallery {
+    margin-top: 3.5rem;
+  }
+}
+
+.MacWallValuesScroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1rem;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 48rem) {
+  .MacWallValuesScroll {
+    scroll-padding-inline: 2.75rem;
+  }
+}
+
+.MacWallValuesScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.MacWallValuesCardSet {
+  display: flex;
+  gap: 1rem;
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: 0 1rem 0.25rem;
+  list-style: none;
+  box-sizing: border-box;
+}
+
+@media (min-width: 48rem) {
+  .MacWallValuesCardSet {
+    gap: 1.25rem;
+    padding-inline: 2rem;
+  }
+}
+
+.MacWallValuesCardItem {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  width: min(360px, calc(100vw - 2rem));
+}
+
+@media (min-width: 40rem) {
+  .MacWallValuesCardItem {
+    width: min(360px, calc(100vw - 4rem));
+  }
+}
+
+@media (min-width: 48rem) {
+  .MacWallValuesCardItem {
+    width: min(360px, calc(100vw - 6.5rem));
+  }
+}
+
+@media (min-width: 68.75rem) {
+  .MacWallValuesCardSet {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    padding-inline: 2rem;
+  }
+
+  .MacWallValuesCardItem {
+    flex: 1 1 0;
+    width: auto;
+    max-width: 360px;
+  }
+
+  .MacWallValuesScroll {
+    overflow-x: visible;
+    scroll-padding-inline: 0;
+  }
+}
+
+.MacWallValuesCard {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 240px;
+  height: auto;
+  border-radius: 20px;
+  background: #fff;
+  transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+@media (min-width: 48rem) {
+  .MacWallValuesCard {
+    min-height: 280px;
+    height: 300px;
+    border-radius: 24px;
+  }
+}
+
+.MacWallValuesCard:hover {
+  transform: scale(1.016);
+}
+
+.MacWallValuesCardContent {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallValuesCardContent {
+    gap: 1.25rem;
+    padding: 1.75rem;
+  }
+}
+
+.MacWallValuesCardIcon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 48rem) {
+  .MacWallValuesCardIcon {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.MacWallValuesCardIconSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.MacWallValuesAccentViolet {
+  color: #6e6bc2;
+}
+
+.MacWallValuesAccentOrange {
+  color: #f56300;
+}
+
+.MacWallValuesAccentTeal {
+  color: #038876;
+}
+
+.MacWallValuesAccentBlue {
+  color: #0066cc;
+}
+
+.MacWallValuesCardHeadline {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.009em;
+  color: #1d1d1f;
+}
+
+@media (min-width: 48rem) {
+  .MacWallValuesCardHeadline {
+    font-size: 1.375rem;
+    line-height: 1.18182;
+  }
+}
+
+.MacWallValuesCardHeadline strong {
+  font-weight: 600;
+}
+
+.MacWallValuesCardBody {
+  margin: 0.5rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.47;
+  letter-spacing: -0.022em;
+  color: #86868b;
+}
+
+@media (min-width: 48rem) {
+  .MacWallValuesCardBody {
+    margin-top: 0.625rem;
+    font-size: 1rem;
+    line-height: 1.47059;
+  }
+}
+
+.MacWallValuesPaddleNav {
+  display: none;
+  pointer-events: none;
+}
+
+.MacWallValuesPaddleIcon {
+  display: block;
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+@media (min-width: 40rem) and (max-width: 68.6875rem) {
+  .MacWallValuesPaddleNav {
+    display: block;
+  }
+
+  .MacWallValuesPaddle {
+    pointer-events: auto;
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.96);
+    color: #1d1d1f;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transform: translateY(-50%);
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .MacWallValuesPaddle:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .MacWallValuesPaddlePrev {
+    left: 0.375rem;
+  }
+
+  .MacWallValuesPaddleNext {
+    right: 0.375rem;
+  }
+}
+
+@media (min-width: 48rem) and (max-width: 68.6875rem) {
+  .MacWallValuesPaddle {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .MacWallValuesPaddleIcon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .MacWallValuesPaddlePrev {
+    left: 0.5rem;
+  }
+
+  .MacWallValuesPaddleNext {
+    right: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .MacWallValuesCard {
+    transition: none;
+  }
+
+  .MacWallValuesCard:hover {
+    transform: none;
+  }
+}
+
+/* Lock Screen Pro — video only (no poster flash) */
+.MacWallLockScreenVideo {
+  background: #000;
+}
+
+.MacWallLockScreenVideoEl {
+  display: block;
+}
+
+/* Pricing — Free & Pro plan cards */
+.MacWallPricingPlansGrid {
+  align-items: stretch;
+}
+
+.MacWallPricingPlanCard {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100%;
+  padding: 1.375rem 1.5rem !important;
+  border: none !important;
+  background: #f5f5f7 !important;
+}
+
+@media (min-width: 48rem) {
+  .MacWallPricingPlanCard {
+    padding: 1.5rem 1.625rem !important;
+  }
+}
+
+.MacWallPricingPlanHead {
+  margin: 0;
+}
+
+.MacWallPricingPlanBadge {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  font-weight: 600;
+  color: #86868b;
+}
+
+.MacWallPricingPlanTitle {
+  margin: 0.5rem 0 0;
+  font-size: 1.375rem;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #1d1d1f;
+}
+
+.MacWallPricingPlanDescription {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  font-weight: 400;
+  color: #86868b;
+}
+
+.MacWallPricingPlanDivider {
+  flex-shrink: 0;
+  height: 1px;
+  margin: 0.75rem 0 1.25rem;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.MacWallPricingPlanCardFeatures {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 0;
+  border-top: none;
+}
+
+.MacWallPricingProFeatures {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.MacWallPricingProFeature {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: #1d1d1f;
+}
+
+.MacWallPricingPlanCardFoot {
+  margin-top: 1rem;
+}
+
+.MacWallPricingPlanCardCta {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: auto;
+  padding-top: 1.25rem;
+}
+
+.MacWallPricingReelSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.MacWallPricingReelStep {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.MacWallPricingReelStepIconWrap {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  margin-top: 0.0625rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #1d1d1f;
+}
+
+.MacWallPricingReelStepIconSvg {
+  display: block;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.MacWallPricingReelStepCopy {
+  min-width: 0;
+}
+
+.MacWallPricingReelStepTitle {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.32;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.MacWallPricingReelStepBody {
+  margin: 0.125rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.42;
+  color: #86868b;
+}
+
+.MacWallPricingReelInfluencer {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #86868b;
+}
+
+.MacWallPricingReelInfluencerTitle {
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.MacWallPricingReelInfluencerBody {
+  display: inline;
+}
+
+.MacWallMarketingInlineLink {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.MacWallMarketingInlineLink:hover {
+  text-decoration: underline;
+}
+
+.MacWallPricingReelFinePrint {
+  margin: 0.625rem 0 0;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.625rem;
+  background: rgba(255, 255, 255, 0.55);
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: #86868b;
+}
+
+.MacWallPricingReelFinePrintLabel {
+  font-weight: 600;
+  color: #6e6e73;
+}
