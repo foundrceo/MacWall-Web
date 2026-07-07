@@ -25,9 +25,19 @@ export const macwall = {
   name: "MacWall",
   tagline: "Live motion Mac wallpapers for Desktop & Dock",
   website: "https://macwall.app",
-  /** Community invite — matches `discordInviteURLString` in the Mac app; replace with your real invite. */
-  discordInvite: "https://discord.gg/",
+  /** Community invite — matches `discordInviteURLString` in the Mac app. */
+  discordInvite: "https://discord.gg/qhtYwEvHND",
   supportEmail: "support@macwall.app",
+  /** Reel refund program — 50% at 2k views, 100% at 20k views. */
+  reelRefundEmail: "discount@macwall.com",
+  reelRefundInstagram: "@macwall.app",
+  reelRefundInstagramURL: "https://www.instagram.com/macwall.app",
+  reelRefundTiktok: "@macwall2",
+  reelRefundTiktokURL: "https://www.tiktok.com/@macwall2",
+  reelRefundHashtag: "#macwall",
+  reelRefundHashtagURL: "https://www.instagram.com/explore/tags/macwall/",
+  reelRefundHalfViews: 2_000,
+  reelRefundFullViews: 20_000,
   legalTerms: "https://macwall.app/terms",
   legalPrivacy: "https://macwall.app/privacy",
   /** Shown at top of Terms / Privacy (update when policies change). */
@@ -48,8 +58,8 @@ export const macwall = {
   ],
   pro: {
     headline: "Early Bird Offer",
-    strikePrice: "$12.49",
-    price: "$9.99",
+    strikePrice: "$9.99",
+    price: "$7.99",
     suffix: "one-time",
     socialProofMembers: "5,000",
     features: [
@@ -63,7 +73,8 @@ export const macwall = {
   proDiscountPromoCode: "MACWALLPRO",
   /** Personal license device limit (`AppBrand.maxLicensedMacs`). */
   maxLicensedMacs: 3,
-  freeFeatures: [
+  /** Everything included with a Pro license. */
+  proIncludedFeatures: [
     "Cloud catalog: featured, newest, and popular",
     "Explore with search, filters, and community likes",
     "Save favorites and browse by category",
@@ -74,6 +85,7 @@ export const macwall = {
   ],
 } as const
 
+export const mailtoReelRefund = `mailto:${macwall.reelRefundEmail}`
 export const mailtoSupport = `mailto:${macwall.supportEmail}`
 
 /**

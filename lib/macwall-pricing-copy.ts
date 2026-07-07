@@ -1,56 +1,65 @@
-import { macwall } from "@/lib/macwall-site"
+import { macwall, mailtoReelRefund } from "@/lib/macwall-site"
 
-/** Copy for `/pricing` — vendored `Pro_*` layout classes + MacWall product truth. */
+export type ReelRefundStepIcon = "video" | "tag" | "views" | "email"
+
 export const macwallPricingCopy = {
-  heroTitle: "One app. Free tier or Pro.",
-  heroLead: `Use ${macwall.name} free with the core catalog, imports, and multi-display playback—then unlock Pro when you want Lock Screen video, deeper libraries, and premium drops. No subscription: Pro is a single purchase with lifetime updates for your licensed Macs.`,
+  heroTitle: "One purchase. Earn your money back.",
+  heroLead: `${macwall.name} Pro is a one-time ${macwall.pro.price} license with lifetime updates. Buy once, use the full app — then make a Reel and get up to 100% refunded when your video hits the view targets.`,
 
-  free: {
-    badge: "Free",
-    title: "For everyday desktops",
-    price: "$0",
-    tagline: "Everything you need to try motion wallpapers without paying.",
-    cta: "Download for Mac",
-    ctaAria: `Download ${macwall.name} for Mac`,
-    features: macwall.freeFeatures.slice(0, 6),
+  reelRefund: {
+    badge: "Reel refund",
+    title: "Get 50% back",
+    description:
+      "Make a Reel. Get views. We pay you back. Instagram or TikTok. Organic views only.",
+    steps: [
+      {
+        icon: "video" as const,
+        title: "Create your Reel",
+        body: `Film ${macwall.name} on your Mac — your setup, your wallpaper, your vibe.`,
+      },
+      {
+        icon: "tag" as const,
+        title: "Post and tag us",
+      },
+      {
+        icon: "views" as const,
+        title: "Hit the milestones",
+        body: `${macwall.reelRefundHalfViews.toLocaleString()} views → 50% refund. ${macwall.reelRefundFullViews.toLocaleString()} views → full refund.`,
+      },
+      {
+        icon: "email" as const,
+        title: "Send your claim",
+        body: `Email ${macwall.reelRefundEmail} with your Reel link, view screenshot, and purchase email.`,
+      },
+    ],
+    influencerTitle: "Got a bigger audience?",
+    finePrintLabel: "The fine print:",
+    finePrint:
+      "You can post as many Reels as you want until one hits 2,000 views — no cap on attempts. Views must be organic (no bots, no paid promotion). We reserve the right to verify view counts and decline suspicious activity. Refund is 50% of the purchase price, sent via the original payment method. Offer can be withdrawn at any time.",
+    cta: "Email for your refund",
+    ctaHref: mailtoReelRefund,
   },
 
   pro: {
     badge: "Pro",
     title: "Lifetime license",
-    priceLine: `${macwall.pro.price} ${macwall.pro.suffix}`,
-    tagline: `${macwall.pro.headline}: Lock Screen video where macOS allows, richer catalog access, and upcoming Pro-only tools.`,
-    cta: `Buy Pro — ${macwall.pro.price}`,
+    description: `One-time ${macwall.pro.price}. Full catalog, Lock Screen video, unlimited playlists, and lifetime updates on up to ${macwall.maxLicensedMacs} Macs — no subscription, ever.`,
+    cta: `Buy Pro for ${macwall.pro.price}`,
     ctaAria: `Buy ${macwall.name} Pro for ${macwall.pro.price}`,
     features: [
       ...macwall.pro.features,
+      ...macwall.proIncludedFeatures.slice(0, 5),
       `Use on up to ${macwall.maxLicensedMacs} personal Macs`,
-      "Lifetime updates with your license — no subscription",
-      "Checkout via Whop — license delivered by email",
-    ].slice(0, 6),
+      "Lifetime updates with your license",
+    ],
   },
 
-  tech: [
-    {
-      title: "Native on macOS",
-      body: "Built for menu bar control, Spaces, and multi-display layouts — with decoding paths that respect how macOS schedules work.",
-    },
-    {
-      title: "Smart power",
-      body: "Pause when you are on battery, when another app goes fullscreen, or when you just want silence — without hunting through dialogs.",
-    },
-    {
-      title: "Privacy-first",
-      body: "Imports and favorites stay on disk you control. Transparent choices about what syncs or downloads from the cloud.",
-    },
-  ] as const,
-
-  faqTitle: "Questions? Answers.",
+  faqTitle: "Common questions",
 
   faq: [
     {
-      q: "What is included in the free tier?",
-      a: `Browsing the catalog, saving favorites, importing your own videos, one hardware-backed player per display, and sensible pause rules — everything ${macwall.name} needs to be useful before you pay.`,
+      q: "How does the Reel refund work?",
+      a: `Buy ${macwall.name} Pro, post on Instagram ${macwall.reelRefundInstagram} or TikTok ${macwall.reelRefundTiktok} with ${macwall.reelRefundHashtag}, then email ${macwall.reelRefundEmail} once you hit ${macwall.reelRefundHalfViews.toLocaleString()} views for 50% back or ${macwall.reelRefundFullViews.toLocaleString()} views for a full refund.`,
     },
     {
       q: "Is Pro a subscription?",
@@ -58,7 +67,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "How does checkout work?",
-      a: "Checkout runs on Whop. After payment, your license details are delivered to the email you used — keep that message for reinstalls or device changes.",
+      a: "Checkout runs on Whop. After payment, your license details are delivered to the email you used. Keep that message for reinstalls or device changes.",
     },
     {
       q: "How many Macs can I use with one Pro license?",
@@ -66,24 +75,24 @@ export const macwallPricingCopy = {
     },
     {
       q: "Does Lock Screen video work on every macOS version?",
-      a: "Lock Screen live wallpapers follow Apple’s platform gates. Where the OS does not expose APIs, Pro still unlocks catalog depth and other premium features documented on this site and in the app.",
+      a: "Lock Screen live wallpapers follow Apple's platform gates. Where the OS does not expose APIs, Pro still unlocks catalog depth and other premium features documented on this site and in the app.",
     },
     {
-      q: "Can I get a refund?",
-      a: `Refund eligibility is described in our Terms of Service. If you are within the posted window and qualify, email ${macwall.supportEmail} with your order details.`,
+      q: "Can I get a refund without making a Reel?",
+      a: `Standard refund eligibility is described in our Terms of Service. The Reel program is separate: email ${macwall.reelRefundEmail} with your post link and purchase email after you hit the view targets.`,
     },
     {
       q: "Where do I get help?",
-      a: `Email ${macwall.supportEmail} with your macOS version, Mac model, and a short screen recording if something looks wrong — we read every message.`,
+      a: `Email ${macwall.supportEmail} with your macOS version, Mac model, and a short screen recording if something looks wrong. We read every message.`,
     },
     {
       q: "Which macOS releases are supported?",
-      a: "We target current and recent macOS versions on Apple silicon, and Intel where Apple still ships security updates for the OS. Grab the latest build from the site for the freshest compatibility notes.",
+      a: "We target current and recent macOS versions on Apple silicon, and Intel where Apple still ships security updates for the OS. Download the latest build from the site for the freshest compatibility notes.",
     },
   ] as const,
 
-  bottomTitle: `Ready to try ${macwall.name}?`,
-  bottomDesc: `Free tier first. Pro when you want it. Up to ${macwall.maxLicensedMacs} Macs with a personal Pro license.`,
-  bottomCtaFree: "Download for Mac",
-  bottomCtaPro: `Buy Pro — ${macwall.pro.price}`,
+  bottomTitle: `Get ${macwall.name}`,
+  bottomDesc: `Pro is ${macwall.pro.price} one-time. Make a Reel and earn up to 100% back. Up to ${macwall.maxLicensedMacs} Macs with a personal license.`,
+  bottomCtaPro: `Buy Pro for ${macwall.pro.price}`,
+  bottomCtaReel: "Save 50% with a Reel",
 } as const

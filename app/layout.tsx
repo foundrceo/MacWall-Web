@@ -6,6 +6,7 @@ import {
   canonicalSiteOrigin,
   metadataBaseUrl,
   openGraphImageAbsoluteUrl,
+  openGraphImageSize,
 } from "@/lib/site-url"
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
@@ -36,8 +37,7 @@ const gaId =
     : undefined
 
 /** Shipped default when `NEXT_PUBLIC_AHREFS_WEB_ANALYTICS_KEY` is unset. Set the env empty to disable. */
-const AHREFS_WEB_ANALYTICS_KEY_FALLBACK =
-  "YOUR_AHREFS_ANALYTICS_KEY" as const
+const AHREFS_WEB_ANALYTICS_KEY_FALLBACK = "YOUR_AHREFS_ANALYTICS_KEY" as const
 
 function resolveAhrefsWebAnalyticsKey(): string | undefined {
   const raw = process.env.NEXT_PUBLIC_AHREFS_WEB_ANALYTICS_KEY
@@ -77,8 +77,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: openGraphImageAbsoluteUrl(),
-        width: 1200,
-        height: 630,
+        width: openGraphImageSize.width,
+        height: openGraphImageSize.height,
         alt: `${macwall.name} – ${macwall.tagline}`,
       },
     ],

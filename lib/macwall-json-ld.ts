@@ -8,7 +8,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
   const siteId = `${origin}/#website`
   const appId = `${origin}/#softwareapplication`
 
-  const proPriceUsd = macwall.pro.price.replace(/[^\d.]/g, "") || "9.99"
+  const proPriceUsd = macwall.pro.price.replace(/[^\d.]/g, "") || "7.99"
 
   return {
     "@context": "https://schema.org",
@@ -36,8 +36,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         name: macwall.name,
         applicationCategory: "MultimediaApplication",
         operatingSystem: "macOS",
-        description:
-          `${macwall.name} brings live motion wallpapers and daily catalog updates to Intel and Apple Silicon Macs running recent Sonoma, Ventura, and Sequoia builds where playback is supported; features vary by OS version.`,
+        description: `${macwall.name} brings live motion wallpapers and daily catalog updates to Intel and Apple Silicon Macs running recent Sonoma, Ventura, and Sequoia builds where playback is supported; features vary by OS version.`,
         url: origin,
         image: logoUrl,
         offers: [
