@@ -143,16 +143,16 @@ function GalleryMediaTile({
   useEffect(() => {
     if (posterOnly || !sectionActive || !visible || reduceMotion) {
       releaseGalleryDecoder(wallpaper.id)
-      setHasDecoder(false)
+      setTimeout(() => setHasDecoder(false), 0)
       return
     }
 
     if (!requestGalleryDecoder(wallpaper.id)) {
-      setHasDecoder(false)
+      setTimeout(() => setHasDecoder(false), 0)
       return
     }
 
-    setHasDecoder(true)
+    setTimeout(() => setHasDecoder(true), 0)
     return () => releaseGalleryDecoder(wallpaper.id)
   }, [posterOnly, sectionActive, visible, reduceMotion, wallpaper.id])
 

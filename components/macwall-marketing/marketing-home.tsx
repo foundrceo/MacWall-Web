@@ -9,7 +9,7 @@ import {
   macwall,
   macwallAppIconPath,
   macwallAppIconRadiusClass,
-  macwallProCheckoutURL,
+  macwallInstallerLatestPath,
 } from "@/lib/macwall-site"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import MacWallMarketingAnnouncementBar from "@/components/macwall-marketing/marketing-announcement-bar"
@@ -31,7 +31,6 @@ import MacWallMarketingValuesSection from "@/components/macwall-marketing/market
 import type { ReactNode } from "react"
 import {
   MARKETING_CATALOG_SLIDES,
-  MARKETING_LIVE_WALLPAPER_PREVIEW,
 } from "@/lib/marketing-catalog-slides"
 import { MARKETING_SHELL_FALLBACK_MP4 } from "@/lib/marketing-shell/assets"
 
@@ -39,7 +38,6 @@ const menubarDemoIconSrc = (file: string) => `/marketing-shell/icons/${file}`
 
 function HeroSection() {
   const ix = macwallExactCopy.interact
-  const price = macwallExactCopy.pricing
 
   return (
     <section className="MacWallHero bg-white pt-14 pb-16 text-center md:pt-20 md:pb-24">
@@ -70,20 +68,20 @@ function HeroSection() {
           </div>
 
           <div id="pricing" className="MacWallHeroActions">
-            <MarketingButton href={macwallProCheckoutURL} size="lg" external>
-              {price.buyCta} — {macwall.pro.price}
+            <MarketingButton href={macwallInstallerLatestPath} size="lg">
+              Download for macOS
             </MarketingButton>
             <Link
-              href="/pricing#reel-refund"
+              href="#how-it-works"
               className="MacWallHeroSecondaryCta"
             >
-              {price.secondaryCta}
+              Watch Demo
             </Link>
           </div>
-          <p className="MacWallHeroMeta">{price.priceLine}</p>
-          <Link href="/terms" className="MacWallHeroFinePrint">
-            {ix.moreLink}
-          </Link>
+          <p className="MacWallHeroMeta">No subscriptions. Only for {macwall.pro.price}.</p>
+          <p className="MacWallHeroFinePrint">
+            Requires macOS 15.0 or later.
+          </p>
         </div>
       </MarketingContainer>
     </section>
@@ -328,38 +326,35 @@ function DesktopProductDemo() {
 }
 
 function LiveWallpaperSection() {
-  const preview = MARKETING_LIVE_WALLPAPER_PREVIEW
-  const videoSrc = preview?.videoUrl ?? MARKETING_SHELL_FALLBACK_MP4
-  const poster = preview?.thumbPath
+  const videoSrc =
+    "https://YOUR_SUPABASE_PROJECT_REF.supabase.co/storage/v1/object/sign/Assets/Video.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85NjM2NWM5NC1kNzFiLTRkMjMtOGRmMC1mYzhmNDE3NjczOWEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJBc3NldHMvVmlkZW8ubXA0IiwiaWF0IjoxNzc5NzE0ODQwLCJleHAiOjIwOTUwNzQ4NDB9.hCaMI_7xqhaJ7DgUv4znbHXQbZcyFfxmm-0dBkQN0g0"
 
   return (
-    <MarketingSection muted className="py-16 md:py-20">
+    <MarketingSection id="how-it-works" muted className="py-16 md:py-20">
       <MarketingContainer wide>
         <div className="mb-10 text-center md:mb-12">
-          <SectionEyebrow className="mb-2">Live motion</SectionEyebrow>
+          <SectionEyebrow className="mb-2">Walkthrough</SectionEyebrow>
           <SectionTitle
             as="h2"
             className="mx-auto max-w-[640px] text-[28px] md:text-[40px]"
           >
-            Wallpaper in motion
+            See How it works
           </SectionTitle>
           <SectionLead className="mx-auto mt-5 max-w-[540px]">
-            Curated loops from the MacWall catalog, hardware-decoded and ready
-            to set as your desktop background.
+            Watch how MacWall brings live wallpapers to your desktop, lets you customize playback settings, and stays out of the way in your menu bar.
           </SectionLead>
         </div>
 
         <MarketingCard className="overflow-hidden p-0">
           <video
-            className="aspect-video w-full object-cover"
+            className="aspect-[3024/1964] w-full object-cover"
             src={videoSrc}
-            poster={poster}
             autoPlay
             loop
             muted
             playsInline
             preload="auto"
-            aria-label="Live wallpaper preview"
+            aria-label="MacWall app walkthrough video"
           />
         </MarketingCard>
       </MarketingContainer>
