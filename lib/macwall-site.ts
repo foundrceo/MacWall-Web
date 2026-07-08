@@ -30,8 +30,8 @@ export const macwall = {
   supportEmail: "support@macwall.app",
   /** Reel refund program — 50% at 2k views, 100% at 20k views. */
   reelRefundEmail: "discount@macwall.com",
-  reelRefundInstagram: "@macwall.app",
-  reelRefundInstagramURL: "https://www.instagram.com/macwall.app",
+  reelRefundInstagram: "@macwallapp",
+  reelRefundInstagramURL: "https://www.instagram.com/macwallapp",
   reelRefundTiktok: "@macwall2",
   reelRefundTiktokURL: "https://www.tiktok.com/@macwall2",
   reelRefundHashtag: "#macwall",
@@ -63,11 +63,18 @@ export const macwall = {
     suffix: "one-time",
     socialProofMembers: "5,000",
     features: [
+      "24-hour free trial",
       "Exclusive wallpapers",
       "Lock Screen live wallpapers",
       "Unlimited playlists",
       "Future Pro features",
     ],
+  },
+  trial: {
+    hours: 24,
+    label: "24-hour free trial",
+    description:
+      "Start the full Pro experience free for 24 hours. When the timer ends, MacWall pauses wallpapers until Pro is activated.",
   },
   /** Shown in Pro discount flows (`AppBrand.proDiscountPromoCode` in Theme.swift). */
   proDiscountPromoCode: "MACWALLPRO",

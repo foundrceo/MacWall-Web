@@ -78,7 +78,9 @@ function HeroSection() {
               Watch Demo
             </Link>
           </div>
-          <p className="MacWallHeroMeta">No subscriptions. Only for {macwall.pro.price}.</p>
+          <p className="MacWallHeroMeta">
+            24-hour trial. Then {macwall.pro.price} one-time.
+          </p>
           <p className="MacWallHeroFinePrint">
             Requires macOS 15.0 or later.
           </p>

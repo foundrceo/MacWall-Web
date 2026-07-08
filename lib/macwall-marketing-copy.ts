@@ -66,8 +66,8 @@ export const macwallExactCopy = {
   },
   pricing: {
     buyCta: "Buy Pro",
-    secondaryCta: "Save 50% with a Reel",
-    priceLine: `${macwall.pro.price} ${macwall.pro.suffix}. ${macwall.pro.headline}. Up to ${macwall.maxLicensedMacs} personal Macs.`,
+    secondaryCta: "Start the 24-hour trial",
+    priceLine: `${macwall.trial.label}. Then ${macwall.pro.price} ${macwall.pro.suffix}. ${macwall.pro.headline}. Up to ${macwall.maxLicensedMacs} personal Macs.`,
   },
   gallery: {
     kicker: "Gallery",
@@ -130,7 +130,7 @@ export const macwallExactCopy = {
   },
   values: {
     title: "Feels like it belongs on macOS.",
-    lead: `${macwall.name} keeps motion in the background. Quick to launch, simple to pause, and respectful of focus. Import your own videos, browse the cloud catalog, and unlock Lock Screen clips with Pro.`,
+    lead: `${macwall.name} keeps motion in the background. Start with a 24-hour Pro trial, import your own videos, browse the cloud catalog, and unlock Lock Screen clips when you keep Pro.`,
     cards: [
       {
         title: "Your files stay offline.",
@@ -139,7 +139,7 @@ export const macwallExactCopy = {
       },
       {
         title: "No ads. No subscription.",
-        body: "One Pro purchase unlocks the app. No banner ads and no monthly billing.",
+        body: "Try Pro free for 24 hours. After that, one Pro purchase unlocks the app with no banner ads and no monthly billing.",
         accent: "orange",
       },
       {
@@ -151,12 +151,12 @@ export const macwallExactCopy = {
   },
   underFooter: {
     title: "Ready when you are.",
-    body: `${macwall.name} is for people who want their desk to feel alive, not noisy. Buy Pro once, install on your Mac, and make a Reel to earn up to 100% back.`,
+    body: `${macwall.name} is for people who want their desk to feel alive, not noisy. Start the 24-hour trial, then buy Pro once and make a Reel to earn up to 100% back.`,
     cta: `Buy Pro for ${macwall.pro.price}`,
   },
   footer: {
     disclaimerBullets: [
-      `${macwall.name} Pro is a one-time purchase. The price on this page reflects the current early-bird offer. Make a Reel to qualify for up to 100% back — see Pricing for details.`,
+      `${macwall.name} includes a one-time 24-hour Pro trial. After the trial, live wallpapers pause until Pro is activated. Pro is a one-time purchase, and the price reflects the current early-bird offer. Make a Reel to qualify for up to 100% back — see Pricing for details.`,
       "A compatible Mac, recent builds, and network access are required for catalog sync, updates, and online license checks.",
       `Pro features, Lock Screen motion, and catalog depth can differ by region and macOS version. Each personal license may be used on up to ${macwall.maxLicensedMacs} Macs you own.`,
       `Continued use of ${macwall.name} means you agree to the Terms of Service and Privacy Policy linked in the footer.`,

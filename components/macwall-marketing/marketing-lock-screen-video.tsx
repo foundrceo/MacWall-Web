@@ -111,8 +111,8 @@ export default function MacWallMarketingLockScreenVideo({
         preload="auto"
         aria-label={ariaLabel}
       >
-        <source src={MARKETING_LOCK_SCREEN_VIDEO_MP4} type="video/mp4" />
         <source src={MARKETING_LOCK_SCREEN_VIDEO_WEBM} type="video/webm" />
+        <source src={MARKETING_LOCK_SCREEN_VIDEO_MP4} type="video/mp4" />
       </video>
     </div>
   )
