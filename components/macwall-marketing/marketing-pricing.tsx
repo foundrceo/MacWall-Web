@@ -226,7 +226,7 @@ export default function MacWallMarketingPricingPage() {
                   question={item.q}
                   answer={item.a}
                   answerNode={
-                    i === 0 ? (
+                    item.q === "How does the Reel refund work?" ? (
                       <MarketingReelFaqRefundCopy className="mt-3 text-[17px] leading-[1.47] text-[#86868b]" />
                     ) : undefined
                   }

@@ -36,7 +36,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         name: macwall.name,
         applicationCategory: "MultimediaApplication",
         operatingSystem: "macOS",
-        description: `${macwall.name} brings live motion wallpapers and daily catalog updates to Intel and Apple Silicon Macs running recent Sonoma, Ventura, and Sequoia builds where playback is supported; features vary by OS version.`,
+        description: `${macwall.name} brings live motion wallpapers, a 24-hour Pro trial, and catalog updates to Intel and Apple Silicon Macs running recent macOS builds where playback is supported; features vary by OS version.`,
         url: origin,
         image: logoUrl,
         offers: [
