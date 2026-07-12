@@ -325,43 +325,6 @@ function DesktopProductDemo() {
   )
 }
 
-function LiveWallpaperSection() {
-  const videoSrc =
-    "/hero/hero-video.mp4"
-
-  return (
-    <MarketingSection id="how-it-works" muted className="py-16 md:py-20">
-      <MarketingContainer wide>
-        <div className="mb-10 text-center md:mb-12">
-          <SectionEyebrow className="mb-2">Walkthrough</SectionEyebrow>
-          <SectionTitle
-            as="h2"
-            className="mx-auto max-w-[640px] text-[28px] md:text-[40px]"
-          >
-            See How it works
-          </SectionTitle>
-          <SectionLead className="mx-auto mt-5 max-w-[540px]">
-            Watch how MacWall brings live wallpapers to your desktop, lets you customize playback settings, and stays out of the way in your menu bar.
-          </SectionLead>
-        </div>
-
-        <MarketingCard className="overflow-hidden p-0">
-          <video
-            className="aspect-[3024/1964] w-full object-cover"
-            src={videoSrc}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            aria-label="MacWall app walkthrough video"
-          />
-        </MarketingCard>
-      </MarketingContainer>
-    </MarketingSection>
-  )
-}
-
 function LockScreenSection() {
   const ls = macwallExactCopy.lockScreen
   return (
@@ -393,15 +356,17 @@ function LockScreenSection() {
 
 export default function MacWallMarketingHome({
   gallerySection,
+  walkthroughSection,
 }: Readonly<{
   gallerySection: ReactNode
+  walkthroughSection: ReactNode
 }>) {
   return (
     <div className="MacWallMarketingPage min-h-screen bg-white">
       <MacWallMarketingHeader variant="light" />
       <MacWallMarketingAnnouncementBar />
       <HeroSection />
-      <LiveWallpaperSection />
+      {walkthroughSection}
       {gallerySection}
       <LockScreenSection />
       <BatterySection />

@@ -1,5 +1,6 @@
 import MacWallMarketingHome from "@/components/macwall-marketing/marketing-home"
 import MacWallMarketingGallerySection from "@/components/macwall-marketing/marketing-gallery-section"
+import MacWallMarketingWalkthroughSection from "@/components/macwall-marketing/marketing-walkthrough-section"
 import { macwall } from "@/lib/macwall-site"
 import {
   canonicalSitePath,
@@ -54,6 +55,9 @@ export const dynamic = "force-static"
 /** MacWall marketing homepage (vendored layout CSS + catalog demo). */
 export default function Page() {
   return (
-    <MacWallMarketingHome gallerySection={<MacWallMarketingGallerySection />} />
+    <MacWallMarketingHome
+      gallerySection={<MacWallMarketingGallerySection />}
+      walkthroughSection={<MacWallMarketingWalkthroughSection />}
+    />
   )
 }
