@@ -14,8 +14,10 @@ export type MarketingCatalogSlide = {
   file_size_bytes: number
   duration_seconds: number
   like_count: number
-  /** Local JPG under `public/marketing-supabase-thumbs/` — sync via catalog thumb script. */
+  /** Poster/thumb URL (local path or Supabase). */
   thumbPath: string
+  /** Optional second URL if `thumbPath` fails to load (demo pick tiles). */
+  thumbFallbackPath?: string
   videoUrl: string
 }
 

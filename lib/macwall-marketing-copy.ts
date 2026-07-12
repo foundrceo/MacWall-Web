@@ -62,7 +62,14 @@ export const macwallExactCopy = {
     /** Matches `HeroPrimaryAction` in `WallpaperMacOS/HomeView.swift`. */
     heroViewCta: "View Wallpaper",
     picksTitle: "MacWall's Pick",
-    picksSubtitle: "A fresh random sample every time your catalog refreshes",
+    picksSubtitle: "Curated selection of the finest wallpapers",
+    latestTitle: "Latest Collection",
+    latestSubtitle: "Most recent community wallpapers",
+    popularTitle: "Most Popular Wallpapers",
+    popularSubtitle: "Trending wallpapers loved by the community",
+    categoriesTitle: "Categories",
+    categoriesSubtitle: "Browse wallpapers by category",
+    newBadge: "NEW",
   },
   pricing: {
     buyCta: "Buy Pro",

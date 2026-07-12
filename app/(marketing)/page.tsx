@@ -1,6 +1,7 @@
 import MacWallMarketingHome from "@/components/macwall-marketing/marketing-home"
 import MacWallMarketingGallerySection from "@/components/macwall-marketing/marketing-gallery-section"
 import MacWallMarketingWalkthroughSection from "@/components/macwall-marketing/marketing-walkthrough-section"
+import { fetchMarketingHomePickSlides } from "@/lib/fetch-marketing-home-pick-wallpapers"
 import { macwall } from "@/lib/macwall-site"
 import {
   canonicalSitePath,
@@ -53,9 +54,12 @@ export const metadata: Metadata = {
 export const dynamic = "force-static"
 
 /** MacWall marketing homepage (vendored layout CSS + catalog demo). */
-export default function Page() {
+export default async function Page() {
+  const homePickSlides = await fetchMarketingHomePickSlides()
+
   return (
     <MacWallMarketingHome
+      homePickSlides={homePickSlides}
       gallerySection={<MacWallMarketingGallerySection />}
       walkthroughSection={<MacWallMarketingWalkthroughSection />}
     />
