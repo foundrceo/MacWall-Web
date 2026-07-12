@@ -325,43 +325,6 @@ function DesktopProductDemo() {
   )
 }
 
-function LiveWallpaperSection() {
-  const videoSrc =
-    "https://YOUR_SUPABASE_PROJECT_REF.supabase.co/storage/v1/object/sign/Assets/Video%20(1).mov?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85NjM2NWM5NC1kNzFiLTRkMjMtOGRmMC1mYzhmNDE3NjczOWEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJBc3NldHMvVmlkZW8gKDEpLm1vdiIsImlhdCI6MTc4MDY3MDQyNywiZXhwIjoyMDk2MDMwNDI3fQ.gdPaLqtoXigIjIkSs0TqIfFJnwcS_ByUd4TjAocWJ1Y"
-
-  return (
-    <MarketingSection id="how-it-works" muted className="py-16 md:py-20">
-      <MarketingContainer wide>
-        <div className="mb-10 text-center md:mb-12">
-          <SectionEyebrow className="mb-2">Walkthrough</SectionEyebrow>
-          <SectionTitle
-            as="h2"
-            className="mx-auto max-w-[640px] text-[28px] md:text-[40px]"
-          >
-            See How it works
-          </SectionTitle>
-          <SectionLead className="mx-auto mt-5 max-w-[540px]">
-            Watch how MacWall brings live wallpapers to your desktop, lets you customize playback settings, and stays out of the way in your menu bar.
-          </SectionLead>
-        </div>
-
-        <MarketingCard className="overflow-hidden p-0">
-          <video
-            className="aspect-[3024/1964] w-full object-cover"
-            src={videoSrc}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            aria-label="MacWall app walkthrough video"
-          />
-        </MarketingCard>
-      </MarketingContainer>
-    </MarketingSection>
-  )
-}
-
 function LockScreenSection() {
   const ls = macwallExactCopy.lockScreen
   return (
@@ -393,15 +356,17 @@ function LockScreenSection() {
 
 export default function MacWallMarketingHome({
   gallerySection,
+  walkthroughSection,
 }: Readonly<{
   gallerySection: ReactNode
+  walkthroughSection: ReactNode
 }>) {
   return (
     <div className="MacWallMarketingPage min-h-screen bg-white">
       <MacWallMarketingHeader variant="light" />
       <MacWallMarketingAnnouncementBar />
       <HeroSection />
-      <LiveWallpaperSection />
+      {walkthroughSection}
       {gallerySection}
       <LockScreenSection />
       <BatterySection />
