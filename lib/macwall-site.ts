@@ -63,18 +63,11 @@ export const macwall = {
     suffix: "one-time",
     socialProofMembers: "5,000",
     features: [
-      "24-hour free trial",
       "Exclusive wallpapers",
       "Lock Screen live wallpapers",
       "Unlimited playlists",
       "Future Pro features",
     ],
-  },
-  trial: {
-    hours: 24,
-    label: "24-hour free trial",
-    description:
-      "Start the full Pro experience free for 24 hours. When the timer ends, MacWall pauses wallpapers until Pro is activated.",
   },
   /** Shown in Pro discount flows (`AppBrand.proDiscountPromoCode` in Theme.swift). */
   proDiscountPromoCode: "MACWALLPRO",

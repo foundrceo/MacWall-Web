@@ -10,7 +10,7 @@ import type { Metadata } from "next"
 
 /** ≤160 chars · conversion + Lock Screen hint (paired with curated title). */
 const PAGE_DESCRIPTION =
-  "Mac live wallpapers behind your Desktop with a 24-hour Pro trial, offline-friendly catalog, Apple Silicon decode, and Lock Screen motion on newer macOS builds."
+  "Mac live wallpapers behind your Desktop: fresh offline-friendly catalog & Apple Silicon decode. Pro adds Lock Screen motion on Sonoma/Sequoia/newer builds."
 
 const HOME_DOCUMENT_TITLE_ABSOLUTE =
   `${macwall.name} – ${macwall.tagline}` as const

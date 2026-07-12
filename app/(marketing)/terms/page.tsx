@@ -101,11 +101,6 @@ export default function TermsPage() {
           the product you purchase.
         </p>
         <p>
-          The App may include a one-time 24-hour Pro trial. The trial starts
-          when you activate it in the App. When that fixed period ends, Pro
-          features and live wallpapers pause until a paid license is activated.
-        </p>
-        <p>
           You agree to provide accurate information and not to share keys beyond
           what your purchase allows.
         </p>
