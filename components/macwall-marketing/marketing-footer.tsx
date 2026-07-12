@@ -1,4 +1,7 @@
+"use client"
+
 import Link from "next/link"
+import { TrackedFooterLink } from "@/components/analytics/tracked-marketing-buttons"
 import {
   macwall,
   macwallInstallerLatestPath,
@@ -72,14 +75,15 @@ export default function MacWallMarketingFooter({
             <h3 className={titleClass}>{foot.shopTitle}</h3>
             <ul className="space-y-2">
               <li>
-                <a
+                <TrackedFooterLink
                   className={linkClass}
                   href={macwallProCheckoutURL}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  eventName="pricing_click"
+                  location="footer_shop_buy"
+                  external
                 >
                   {foot.shop.buy}
-                </a>
+                </TrackedFooterLink>
               </li>
               <li>
                 <Link className={linkClass} href={shopPricingHref}>
@@ -87,9 +91,14 @@ export default function MacWallMarketingFooter({
                 </Link>
               </li>
               <li>
-                <Link className={linkClass} href={macwallInstallerLatestPath}>
+                <TrackedFooterLink
+                  className={linkClass}
+                  href={macwallInstallerLatestPath}
+                  eventName="download_click"
+                  location="footer_shop_download"
+                >
                   {foot.shop.download}
-                </Link>
+                </TrackedFooterLink>
               </li>
             </ul>
           </div>
@@ -214,7 +223,26 @@ export default function MacWallMarketingFooter({
               <ul className="mt-3 space-y-2 pb-2">
                 {section.links.map((link) => (
                   <li key={link.label}>
-                    {"external" in link && link.external ? (
+                    {link.href === macwallProCheckoutURL ? (
+                      <TrackedFooterLink
+                        className={linkClass}
+                        href={link.href}
+                        eventName="pricing_click"
+                        location="footer_mobile_shop"
+                        external
+                      >
+                        {link.label}
+                      </TrackedFooterLink>
+                    ) : link.href === macwallInstallerLatestPath ? (
+                      <TrackedFooterLink
+                        className={linkClass}
+                        href={link.href}
+                        eventName="download_click"
+                        location="footer_mobile_download"
+                      >
+                        {link.label}
+                      </TrackedFooterLink>
+                    ) : "external" in link && link.external ? (
                       <a
                         className={linkClass}
                         href={link.href}

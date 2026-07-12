@@ -1,0 +1,165 @@
+import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
+import { getSupabaseAdmin } from "@/lib/supabase/admin"
+
+const STORAGE_BUCKET = "wallpaper-catalog"
+
+export type CommunityUploadStatus = "pending" | "approved" | "rejected"
+
+export type AdminCommunityUpload = {
+  id: string
+  submitterId: string
+  title: string
+  category: string
+  videoKey: string
+  thumbKey: string
+  resolution: string
+  durationSeconds: number
+  fileSizeBytes: number
+  status: CommunityUploadStatus
+  reviewNotes: string | null
+  approvedWallpaperId: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+type UploadRow = {
+  id: string
+  submitter_id: string
+  title: string
+  category: string
+  video_key: string
+  thumb_key: string
+  resolution: string
+  duration_seconds: number
+  file_size_bytes: number
+  status: CommunityUploadStatus
+  review_notes: string | null
+  approved_wallpaper_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+function mapUpload(row: UploadRow): AdminCommunityUpload {
+  return {
+    id: row.id,
+    submitterId: row.submitter_id,
+    title: row.title,
+    category: row.category,
+    videoKey: row.video_key,
+    thumbKey: row.thumb_key,
+    resolution: row.resolution,
+    durationSeconds: row.duration_seconds,
+    fileSizeBytes: row.file_size_bytes,
+    status: row.status,
+    reviewNotes: row.review_notes,
+    approvedWallpaperId: row.approved_wallpaper_id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
+}
+
+export async function listCommunityUploads(
+  status?: CommunityUploadStatus | "all"
+): Promise<AdminCommunityUpload[]> {
+  const supabase = getSupabaseAdmin()
+  let query = supabase
+    .from("community_uploads")
+    .select(
+      "id,submitter_id,title,category,video_key,thumb_key,resolution,duration_seconds,file_size_bytes,status,review_notes,approved_wallpaper_id,created_at,updated_at"
+    )
+    .order("created_at", { ascending: false })
+    .limit(200)
+
+  if (status && status !== "all") {
+    query = query.eq("status", status)
+  }
+
+  const { data, error } = await query
+  if (error) throw new Error(error.message)
+  return (data as UploadRow[]).map(mapUpload)
+}
+
+export async function getCommunityUpload(
+  uploadId: string
+): Promise<AdminCommunityUpload | null> {
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase
+    .from("community_uploads")
+    .select(
+      "id,submitter_id,title,category,video_key,thumb_key,resolution,duration_seconds,file_size_bytes,status,review_notes,approved_wallpaper_id,created_at,updated_at"
+    )
+    .eq("id", uploadId)
+    .maybeSingle()
+
+  if (error) throw new Error(error.message)
+  if (!data) return null
+  return mapUpload(data as UploadRow)
+}
+
+export async function approveCommunityUpload(uploadId: string) {
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase.rpc("approve_community_upload", {
+    p_upload_id: uploadId,
+  })
+
+  if (error) throw new Error(error.message)
+  return data
+}
+
+export async function rejectCommunityUpload(
+  uploadId: string,
+  reviewNotes?: string
+) {
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase.rpc("reject_community_upload", {
+    p_upload_id: uploadId,
+    p_review_notes: reviewNotes?.trim() || null,
+  })
+
+  if (error) throw new Error(error.message)
+  return data
+}
+
+export async function createPendingUploadSignedUrls(
+  videoKey: string,
+  thumbKey: string,
+  expiresInSeconds = 3600
+) {
+  const supabase = getSupabaseAdmin()
+  const origin = getCatalogSupabaseOrigin()
+
+  const [video, thumb] = await Promise.all([
+    supabase.storage
+      .from(STORAGE_BUCKET)
+      .createSignedUrl(videoKey, expiresInSeconds),
+    supabase.storage
+      .from(STORAGE_BUCKET)
+      .createSignedUrl(thumbKey, expiresInSeconds),
+  ])
+
+  if (video.error) throw new Error(video.error.message)
+  if (thumb.error) throw new Error(thumb.error.message)
+
+  return {
+    videoUrl: video.data.signedUrl,
+    thumbUrl: thumb.data.signedUrl,
+    origin,
+    expiresAt: new Date(Date.now() + expiresInSeconds * 1000).toISOString(),
+  }
+}
+
+export async function revalidateMarketingCatalog() {
+  const secret = process.env.REVALIDATE_SECRET?.trim()
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+  if (!secret || !siteUrl) return
+
+  try {
+    await fetch(new URL("/api/revalidate/catalog", siteUrl), {
+      method: "POST",
+      headers: { "x-revalidate-secret": secret },
+      cache: "no-store",
+    })
+  } catch (error) {
+    console.error("[admin] catalog revalidate failed:", error)
+  }
+}

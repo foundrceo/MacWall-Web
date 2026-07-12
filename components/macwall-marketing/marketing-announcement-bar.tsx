@@ -1,3 +1,6 @@
+"use client"
+
+import { TrackedLink } from "@/components/analytics/tracked-link"
 import { macwallInstallerLatestPath } from "@/lib/macwall-site"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 
@@ -9,7 +12,11 @@ export default function MacWallMarketingAnnouncementBar() {
     <div className="MacWallMarketingAnnouncementBar">
       <p>
         {c.lineBeforeLink}
-        <a href={macwallInstallerLatestPath}>
+        <TrackedLink
+          href={macwallInstallerLatestPath}
+          eventName="download_click"
+          metadata={{ location: "announcement_bar" }}
+        >
           {c.linkText}
           <svg
             viewBox="0 0 24 24"
@@ -19,7 +26,7 @@ export default function MacWallMarketingAnnouncementBar() {
           >
             <path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z" />
           </svg>
-        </a>
+        </TrackedLink>
       </p>
     </div>
   )

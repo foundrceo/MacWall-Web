@@ -15,8 +15,8 @@ import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import MacWallMarketingAnnouncementBar from "@/components/macwall-marketing/marketing-announcement-bar"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import MacWallMarketingHeader from "@/components/macwall-marketing/marketing-header"
+import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import {
-  MarketingButton,
   MarketingCard,
   MarketingContainer,
   MarketingSection,
@@ -71,20 +71,21 @@ function HeroSection({
           </div>
 
           <div id="pricing" className="MacWallHeroActions">
-            <MarketingButton href={macwallInstallerLatestPath} size="lg">
-              Download for macOS
-            </MarketingButton>
-            <Link
-              href="#how-it-works"
-              className="MacWallHeroSecondaryCta"
+            <TrackedDownloadButton
+              href={macwallInstallerLatestPath}
+              size="lg"
+              location="hero"
             >
+              Download for macOS
+            </TrackedDownloadButton>
+            <Link href="#how-it-works" className="MacWallHeroSecondaryCta">
               Watch Demo
             </Link>
           </div>
-          <p className="MacWallHeroMeta">No subscriptions. Only for {macwall.pro.price}.</p>
-          <p className="MacWallHeroFinePrint">
-            Requires macOS 15.0 or later.
+          <p className="MacWallHeroMeta">
+            No subscriptions. Only for {macwall.pro.price}.
           </p>
+          <p className="MacWallHeroFinePrint">Requires macOS 15.0 or later.</p>
         </div>
       </MarketingContainer>
     </section>

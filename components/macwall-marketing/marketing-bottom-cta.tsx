@@ -1,6 +1,8 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
-import { MarketingButton } from "@/components/macwall-marketing/marketing-primitives"
+import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import { macwallPricingCopy as pricingCopy } from "@/lib/macwall-pricing-copy"
 import {
@@ -37,9 +39,13 @@ export default function MacWallMarketingBottomCta() {
         </h2>
         <p className="MacWallCtaBody">{uf.body}</p>
         <div className="MacWallCtaActions">
-          <MarketingButton href={macwallProCheckoutURL} size="lg" external>
+          <TrackedPricingButton
+            href={macwallProCheckoutURL}
+            size="lg"
+            location="bottom_cta"
+          >
             {uf.cta}
-          </MarketingButton>
+          </TrackedPricingButton>
           <Link href="/pricing#reel-refund" className="MacWallCtaSecondaryBtn">
             {pricingCopy.bottomCtaReel}
           </Link>

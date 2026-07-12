@@ -1,3 +1,4 @@
+import { PageViewTracker } from "@/components/analytics/page-view-tracker"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { JsonLd } from "@/components/seo/json-ld"
 import { macwallSchemaGraph } from "@/lib/macwall-json-ld"
@@ -134,6 +135,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <PageViewTracker />
         </ThemeProvider>
         <Analytics />
         {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
