@@ -12,7 +12,7 @@ import {
   mailtoSupport,
 } from "@/lib/macwall-site"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
-import { MarketingButton } from "@/components/macwall-marketing/marketing-primitives"
+import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { cn } from "@/lib/utils"
 
 export type MacWallMarketingHeaderVariant = "light" | "dark"
@@ -141,14 +141,14 @@ export default function MacWallMarketingHeader({
         </nav>
 
         <div className="MacWallMarketingHeaderActions flex items-center justify-end gap-2">
-          <MarketingButton
+          <TrackedDownloadButton
             href={macwallInstallerLatestPath}
             size="sm"
-            variant="primary"
             className="MacWallMarketingHeaderDownload shrink-0"
+            location="header_desktop"
           >
             {h.downloadCta}
-          </MarketingButton>
+          </TrackedDownloadButton>
 
           <button
             type="button"
@@ -265,9 +265,13 @@ export default function MacWallMarketingHeader({
             <a href={mailtoSupport} className={navLink(false)}>
               {ho.links.supportMail.label}
             </a>
-            <MarketingButton href={macwallInstallerLatestPath} size="sm">
+            <TrackedDownloadButton
+              href={macwallInstallerLatestPath}
+              size="sm"
+              location="header_mobile"
+            >
               {h.downloadCta}
-            </MarketingButton>
+            </TrackedDownloadButton>
           </nav>
         </div>
       ) : null}

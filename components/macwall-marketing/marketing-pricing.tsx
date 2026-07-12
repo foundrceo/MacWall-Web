@@ -12,12 +12,12 @@ import {
   macwallPricingCopy as p,
   type ReelRefundStepIcon,
 } from "@/lib/macwall-pricing-copy"
+import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import MacWallMarketingAnnouncementBar from "@/components/macwall-marketing/marketing-announcement-bar"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import MacWallMarketingHeader from "@/components/macwall-marketing/marketing-header"
 import {
   CheckIcon,
-  MarketingButton,
   MarketingCard,
   MarketingContainer,
   MarketingSection,
@@ -199,13 +199,13 @@ export default function MacWallMarketingPricingPage() {
               </ul>
 
               <div className="MacWallPricingPlanCardCta">
-                <MarketingButton
+                <TrackedPricingButton
                   href={macwallProCheckoutURL}
-                  external
+                  location="pricing_card"
                   ariaLabel={p.pro.ctaAria}
                 >
                   {p.pro.cta}
-                </MarketingButton>
+                </TrackedPricingButton>
               </div>
             </MarketingCard>
           </div>

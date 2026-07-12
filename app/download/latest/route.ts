@@ -1,6 +1,21 @@
 import { NextResponse } from "next/server"
 
+import { trackSiteEvent } from "@/lib/analytics/track-server"
 import { MACWALL_DEFAULT_INSTALLER_REDIRECT_URL } from "@/lib/macwall-installer-url"
+
+export const runtime = "nodejs"
+
+async function visitorFingerprint(request: Request): Promise<string> {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
+  const ua = request.headers.get("user-agent") || "unknown"
+  const bytes = new TextEncoder().encode(`${ip}|${ua}`)
+  const digest = await crypto.subtle.digest("SHA-256", bytes)
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("")
+    .slice(0, 32)
+}
 
 /** Server-only override; empty string (after trim) = disable redirect intentionally. */
 const ENV_INSTALLER_REDIRECT = "MACWALL_INSTALLER_REDIRECT_URL"
@@ -20,7 +35,7 @@ function isHttpsProductionUrl(candidate: URL) {
   return candidate.protocol === "https:"
 }
 
-export function GET() {
+export async function GET(request: Request) {
   const raw = resolveInstallerRedirectDestination()
   if (!raw) {
     return new NextResponse(
@@ -41,11 +56,19 @@ export function GET() {
       return new NextResponse("Invalid installer URL.", { status: 500 })
     }
     if (!isHttpsProductionUrl(target)) {
-      return new NextResponse(
-        "Installer URL must use HTTPS in production.",
-        { status: 500 }
-      )
+      return new NextResponse("Installer URL must use HTTPS in production.", {
+        status: 500,
+      })
     }
+    await trackSiteEvent({
+      eventName: "download_redirect",
+      path: "/download/latest",
+      referrer: request.headers.get("referer"),
+      userAgent: request.headers.get("user-agent"),
+      sessionId: await visitorFingerprint(request),
+      metadata: { destination: target.hostname },
+    })
+
     return NextResponse.redirect(target, 302)
   } catch {
     return new NextResponse("Invalid installer URL.", { status: 500 })
