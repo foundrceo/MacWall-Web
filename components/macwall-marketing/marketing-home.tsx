@@ -327,7 +327,7 @@ function DesktopProductDemo() {
 
 function LiveWallpaperSection() {
   const videoSrc =
-    "https://YOUR_SUPABASE_PROJECT_REF.supabase.co/storage/v1/object/sign/Assets/Video.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85NjM2NWM5NC1kNzFiLTRkMjMtOGRmMC1mYzhmNDE3NjczOWEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJBc3NldHMvVmlkZW8ubXA0IiwiaWF0IjoxNzc5NzE0ODQwLCJleHAiOjIwOTUwNzQ4NDB9.hCaMI_7xqhaJ7DgUv4znbHXQbZcyFfxmm-0dBkQN0g0"
+    "https://YOUR_SUPABASE_PROJECT_REF.supabase.co/storage/v1/object/sign/Assets/Video.mov?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85NjM2NWM5NC1kNzFiLTRkMjMtOGRmMC1mYzhmNDE3NjczOWEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJBc3NldHMvVmlkZW8ubW92IiwiaWF0IjoxNzgwNjQ4MTI4LCJleHAiOjQ5MzQyNDgxMjh9.8W4mHl-dInuoBe2CuzKdhY1HxIcoC_6b_GkxDseED20"
 
   return (
     <MarketingSection id="how-it-works" muted className="py-16 md:py-20">
