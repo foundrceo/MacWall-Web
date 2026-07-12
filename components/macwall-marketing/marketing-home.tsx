@@ -31,12 +31,15 @@ import MacWallMarketingValuesSection from "@/components/macwall-marketing/market
 import type { ReactNode } from "react"
 import {
   MARKETING_CATALOG_SLIDES,
+  type MarketingCatalogSlide,
 } from "@/lib/marketing-catalog-slides"
 import { MARKETING_SHELL_FALLBACK_MP4 } from "@/lib/marketing-shell/assets"
 
 const menubarDemoIconSrc = (file: string) => `/marketing-shell/icons/${file}`
 
-function HeroSection() {
+function HeroSection({
+  homePickSlides,
+}: Readonly<{ homePickSlides: MarketingCatalogSlide[] }>) {
   const ix = macwallExactCopy.interact
 
   return (
@@ -52,7 +55,7 @@ function HeroSection() {
           >
             See it on your desktop
           </SectionTitle>
-          <DesktopProductDemo />
+          <DesktopProductDemo homePickSlides={homePickSlides} />
         </div>
 
         <div className="MacWallHeroFoot">
@@ -119,7 +122,9 @@ function MenubarIsland() {
   )
 }
 
-function DesktopProductDemo() {
+function DesktopProductDemo({
+  homePickSlides,
+}: Readonly<{ homePickSlides: MarketingCatalogSlide[] }>) {
   const ix = macwallExactCopy.interact
   const reducedMotion = useReducedMotion()
   const catalogSlides = MARKETING_CATALOG_SLIDES
@@ -127,6 +132,8 @@ function DesktopProductDemo() {
 
   const [featuredIx, setFeaturedIx] = useState(0)
   const [desktopWallpaperIx, setDesktopWallpaperIx] = useState(0)
+  const [desktopWallpaperOverride, setDesktopWallpaperOverride] =
+    useState<MarketingCatalogSlide | null>(null)
   const [demoWindowOpen, setDemoWindowOpen] = useState(true)
 
   useEffect(() => {
@@ -140,9 +147,10 @@ function DesktopProductDemo() {
 
   const safeFeatured = n > 0 ? Math.min(Math.max(featuredIx, 0), n - 1) : 0
   const bgSlide =
-    n > 0
+    desktopWallpaperOverride ??
+    (n > 0
       ? catalogSlides[Math.min(Math.max(desktopWallpaperIx, 0), n - 1)]
-      : null
+      : null)
   const bgVideoSrc = bgSlide?.videoUrl ?? MARKETING_SHELL_FALLBACK_MP4
   const bgPoster = bgSlide?.thumbPath
   const bgVideoKey = bgSlide?.id ?? "catalog-fallback-bg"
@@ -311,9 +319,29 @@ function DesktopProductDemo() {
             >
               {n > 0 ? (
                 <MacWallCatalogMarketingPreview
+                  homePickSlides={homePickSlides}
                   featuredIndex={safeFeatured}
-                  onFeaturedIndexChange={setFeaturedIx}
-                  onApplyWallpaper={() => setDesktopWallpaperIx(safeFeatured)}
+                  onFeaturedIndexChange={(index) => {
+                    setFeaturedIx(index)
+                    setDesktopWallpaperIx(index)
+                    setDesktopWallpaperOverride(null)
+                  }}
+                  onSelectWallpaper={(slide) => {
+                    const fi = catalogSlides.findIndex((s) => s.id === slide.id)
+                    if (fi >= 0) {
+                      setFeaturedIx(fi)
+                      setDesktopWallpaperIx(fi)
+                      setDesktopWallpaperOverride(null)
+                      return
+                    }
+                    if (homePickSlides.some((s) => s.id === slide.id)) {
+                      setDesktopWallpaperOverride(slide)
+                    }
+                  }}
+                  onApplyWallpaper={() => {
+                    if (desktopWallpaperOverride) return
+                    setDesktopWallpaperIx(safeFeatured)
+                  }}
                   onRequestClose={() => setDemoWindowOpen(false)}
                 />
               ) : null}
@@ -355,9 +383,11 @@ function LockScreenSection() {
 }
 
 export default function MacWallMarketingHome({
+  homePickSlides,
   gallerySection,
   walkthroughSection,
 }: Readonly<{
+  homePickSlides: MarketingCatalogSlide[]
   gallerySection: ReactNode
   walkthroughSection: ReactNode
 }>) {
@@ -365,7 +395,7 @@ export default function MacWallMarketingHome({
     <div className="MacWallMarketingPage min-h-screen bg-white">
       <MacWallMarketingHeader variant="light" />
       <MacWallMarketingAnnouncementBar />
-      <HeroSection />
+      <HeroSection homePickSlides={homePickSlides} />
       {walkthroughSection}
       {gallerySection}
       <LockScreenSection />

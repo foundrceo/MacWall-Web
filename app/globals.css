@@ -360,6 +360,18 @@ h6 {
 }
 
 .MacWallDesktopDemo .MacWallDemoApp {
+  /* Spacing scale — mirrors AppLayout, scaled for the embedded demo window */
+  --macwall-demo-pad-x: clamp(10px, 4cqi, 18px);
+  --macwall-demo-pad-nav-y: clamp(5px, 1.5cqi, 9px);
+  --macwall-demo-pad-hero-bottom: clamp(8px, 2.8cqb, 14px);
+  --macwall-demo-pad-section-y: clamp(6px, 1.8cqi, 10px);
+  --macwall-demo-gap-hero: clamp(4px, 1.25cqi, 7px);
+  --macwall-demo-gap-header-content: clamp(5px, 1.5cqi, 9px);
+  --macwall-demo-gap-nav: clamp(5px, 1.25cqi, 8px);
+  --macwall-demo-gap-cards: clamp(4px, 1.25cqi, 7px);
+  --macwall-demo-inset-chevron: clamp(6px, 1.35cqi, 10px);
+  --macwall-demo-nav-control: clamp(24px, 6.5cqi, 32px);
+  --macwall-demo-nav-icon: clamp(10px, 2.8cqi, 14px);
   position: relative;
   top: auto;
   left: auto;
@@ -374,20 +386,26 @@ h6 {
   padding: clamp(6px, 2cqi, 10px) clamp(8px, 2.5cqi, 12px) 0;
 }
 
+.MacWallDesktopDemo .MacWallDemoAppHeader {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: 10;
+  background: transparent;
+  pointer-events: none;
+}
+
 .MacWallDesktopDemo .MacWallDemoAppHeaderGrid {
   display: grid !important;
   grid-template-columns: max-content minmax(0, 1fr) max-content;
   align-items: center;
-  column-gap: clamp(8px, 2cqi, 14px);
-  padding: clamp(6px, 1.8cqi, 10px) clamp(8px, 2.5cqi, 14px)
-    clamp(4px, 1.2cqi, 8px);
-}
-
-.MacWallDesktopDemo .MacWallDemoAppHeader {
-  gap: clamp(4px, 1.5cqi, 10px);
+  column-gap: var(--macwall-demo-gap-nav);
+  padding: var(--macwall-demo-pad-nav-y) var(--macwall-demo-pad-x)
+    calc(var(--macwall-demo-pad-nav-y) * 0.65);
 }
 
 .MacWallDesktopDemo .MacWallDemoAppHeaderLeft {
+  gap: var(--macwall-demo-gap-nav);
   min-width: max-content;
   max-width: none;
   overflow: visible;
@@ -405,31 +423,108 @@ h6 {
   min-width: 0;
 }
 
-.MacWallDesktopDemo .MacWallDemoAppNavPill,
-.MacWallDesktopDemo .MacWallDemoApp .Application_header__57Sg5 {
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-  display: inline-flex !important;
-  flex-direction: row !important;
+.MacWallDesktopDemo .MacWallDemoAppNavCluster {
+  display: inline-flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: clamp(4px, 1cqi, 8px) !important;
-  width: max-content !important;
+  gap: var(--macwall-demo-gap-nav);
+  width: max-content;
   max-width: 100%;
   flex-shrink: 0;
 }
 
+.MacWallDesktopDemo .MacWallDemoAppTabPills {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  height: var(--macwall-demo-nav-control);
+  flex-shrink: 0;
+  padding: clamp(2px, 0.45cqi, 3px) clamp(4px, 1cqi, 6px);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppTab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--macwall-demo-nav-control) - clamp(4px, 1cqi, 6px));
+  padding: 0 clamp(6px, 1.5cqi, 9px);
+  border-radius: 9999px;
+  font-size: clamp(8px, 2cqi, 11px);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 0.5px 0.8px rgba(0, 0, 0, 0.35);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppTab--active {
+  background: rgba(255, 255, 255, 0.88);
+  color: rgba(0, 0, 0, 0.88);
+  text-shadow: none;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppTabSep {
+  flex-shrink: 0;
+  width: 0.5px;
+  height: clamp(8px, 2.2cqi, 12px);
+  margin-inline: clamp(3px, 0.8cqi, 5px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppNavBtn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppNavBtnIcon {
+  width: var(--macwall-demo-nav-control);
+  height: var(--macwall-demo-nav-control);
+  border-radius: 50%;
+  padding: clamp(3px, 1cqi, 6px);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppNavBtnIcon svg,
+.MacWallDesktopDemo .MacWallDemoAppNavBtnIcon .size-4 {
+  width: var(--macwall-demo-nav-icon);
+  height: var(--macwall-demo-nav-icon);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppNavBtnPro {
+  min-width: clamp(36px, 9.5cqi, 46px);
+  height: var(--macwall-demo-nav-control);
+  padding-inline: clamp(6px, 1.6cqi, 10px);
+  border-radius: 9999px;
+  font-size: clamp(7px, 1.8cqi, 9px);
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.98);
+}
+
 .MacWallDesktopDemo .MacWallDemoAppActions {
+  gap: var(--macwall-demo-gap-nav);
   justify-content: flex-end;
   flex-wrap: nowrap;
   flex-shrink: 0;
 }
 
 .MacWallDesktopDemo .MacWallDemoAppBrand {
+  gap: var(--macwall-demo-gap-nav);
   min-width: max-content;
 }
 
@@ -441,47 +536,9 @@ h6 {
   line-height: 1.2;
 }
 
-.MacWallDesktopDemo .MacWallDemoApp .Application_header_content__plHsT {
-  font-size: clamp(9px, 2.4cqi, 13px) !important;
-  width: max-content !important;
-  max-width: 100%;
-  flex: 0 0 auto !important;
-  display: inline-flex !important;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
 .MacWallDesktopDemo .MacWallDemoAppBrand img {
   width: clamp(18px, 5cqi, 26px) !important;
   height: clamp(18px, 5cqi, 26px) !important;
-}
-
-.MacWallDesktopDemo .MacWallDemoApp .Application_header_content__plHsT span {
-  padding: clamp(2px, 0.8cqi, 4px) clamp(6px, 1.8cqi, 10px) !important;
-  flex: 0 0 auto !important;
-}
-
-.MacWallDesktopDemo .MacWallDemoApp .Application_header__57Sg5 {
-  gap: clamp(4px, 1.2cqi, 8px);
-}
-
-.MacWallDesktopDemo .MacWallDemoApp .Application_header_content__plHsT {
-  font-size: clamp(9px, 2.4cqi, 13px);
-}
-
-.MacWallDesktopDemo .MacWallDemoApp .Application_search__Q_j_2 {
-  padding: clamp(3px, 1cqi, 6px);
-}
-
-.MacWallDesktopDemo .MacWallDemoApp .Application_search__Q_j_2 svg,
-.MacWallDesktopDemo .MacWallDemoApp .Application_search__Q_j_2 .size-4 {
-  width: clamp(10px, 2.8cqi, 14px);
-  height: clamp(10px, 2.8cqi, 14px);
-}
-
-.MacWallDesktopDemo .MacWallDemoAppPro {
-  font-size: clamp(7px, 1.8cqi, 9px) !important;
-  padding: clamp(2px, 0.6cqi, 3px) clamp(5px, 1.4cqi, 8px) !important;
 }
 
 .MacWallDesktopDemo .MacWallDemoAppBody {
@@ -494,8 +551,22 @@ h6 {
 }
 
 .MacWallDesktopDemo .MacWallDemoAppFeaturedOverlay {
-  gap: clamp(2px, 0.8cqi, 6px);
-  padding: 0 clamp(10px, 3cqi, 22px) clamp(8px, 2.5cqi, 18px);
+  gap: var(--macwall-demo-gap-hero);
+  padding: 0 var(--macwall-demo-pad-x) var(--macwall-demo-pad-hero-bottom);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppFeaturedOverlay > p,
+.MacWallDesktopDemo .MacWallDemoAppFeaturedOverlay > h3 {
+  margin: 0;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppFeaturedActions {
+  gap: var(--macwall-demo-gap-nav);
+  margin-top: clamp(2px, 0.55cqi, 4px);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppHeroNav {
+  padding-inline: var(--macwall-demo-inset-chevron);
 }
 
 .MacWallDesktopDemo .MacWallDemoAppFeaturedLabel {
@@ -514,10 +585,10 @@ h6 {
 }
 
 .MacWallDesktopDemo .MacWallDemoAppFeaturedCta {
-  font-size: clamp(8px, 2.4cqi, 12px);
-  padding: clamp(4px, 1.2cqi, 7px) clamp(10px, 2.8cqi, 16px);
-  gap: clamp(3px, 0.8cqi, 6px);
-  margin-top: clamp(2px, 0.6cqi, 4px);
+  font-size: clamp(7px, 2cqi, 10px) !important;
+  padding: clamp(3px, 0.9cqi, 5px) clamp(7px, 2cqi, 12px) !important;
+  gap: clamp(2px, 0.6cqi, 4px) !important;
+  margin-top: 0 !important;
 }
 
 .MacWallDesktopDemo .MacWallDemoAppFeaturedCta svg {
@@ -526,8 +597,8 @@ h6 {
 }
 
 .MacWallDesktopDemo .MacWallDemoAppFeaturedHeart {
-  width: clamp(24px, 7cqi, 34px);
-  height: clamp(24px, 7cqi, 34px);
+  width: clamp(20px, 6cqi, 28px) !important;
+  height: clamp(20px, 6cqi, 28px) !important;
 }
 
 .MacWallDesktopDemo .MacWallDemoAppFeaturedHeart svg {
@@ -560,10 +631,320 @@ h6 {
   border-radius: clamp(6px, 1.6cqi, 12px);
 }
 
+/* In-app Home tab — scaled for marketing browser window (not full macOS height) */
+.MacWallDesktopDemo .MacWallDemoAppHomeLayout {
+  display: flex;
+  position: relative;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Hero ~68% of window; wallpaper bleeds under floating nav (like ContentView ZStack) */
+.MacWallDesktopDemo .MacWallDemoAppFeaturedHero {
+  flex: 17 1 0;
+  min-height: 0;
+  width: 100%;
+  max-height: 70cqb;
+  background: transparent;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppPicksPane {
+  display: flex;
+  min-height: 0;
+  flex: 8 0 auto;
+  max-height: 36cqb;
+  flex-direction: column;
+  background: #070708;
+  padding: var(--macwall-demo-pad-section-y) var(--macwall-demo-pad-x)
+    calc(var(--macwall-demo-pad-section-y) * 1.15);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionPicks {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--macwall-demo-gap-header-content);
+  min-width: 0;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionHead {
+  gap: var(--macwall-demo-gap-nav);
+  margin: 0;
+  padding: 0;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionHead h4,
+.MacWallDesktopDemo .MacWallDemoAppSectionHead p {
+  margin: 0;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionPicks .MacWallDemoAppSectionSub {
+  display: block;
+  font-size: clamp(7px, 1.9cqi, 10px);
+  line-height: 1.3;
+  margin-top: clamp(2px, 0.5cqi, 3px);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionPicks .MacWallDemoAppCarouselTrack {
+  flex: 0 0 auto;
+  align-items: flex-start;
+  gap: var(--macwall-demo-gap-cards);
+  margin: 0;
+  padding-block: 0;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionPicks .MacWallDemoAppCarouselItem {
+  flex: 0 0 calc(25% - clamp(3px, 0.85cqi, 5.5px));
+  height: auto;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionPicks .MacWallDemoAppWallCard {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: clamp(5px, 1.5cqi, 10px);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppBrowseBackdrop {
+  z-index: 1;
+  background:
+    radial-gradient(
+      ellipse 120% 115% at 0% 100%,
+      rgba(0, 0, 0, 0.34) 0%,
+      rgba(0, 0, 0, 0.18) 36%,
+      transparent 100%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 52%,
+      rgba(7, 7, 8, 0.12) 68%,
+      rgba(7, 7, 8, 0.38) 80%,
+      rgba(7, 7, 8, 0.72) 92%,
+      #070708 100%
+    );
+}
+
+.MacWallDesktopDemo .MacWallDemoAppHeroChevron {
+  display: inline-flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.66);
+  filter: drop-shadow(0 3px 7px rgba(0, 0, 0, 0.26));
+  transition: color 0.16s ease, transform 0.16s ease;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppHeroChevronIcon {
+  width: clamp(14px, 5cqi, 20px);
+  height: clamp(14px, 5cqi, 20px);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppHeroChevron:hover {
+  color: rgba(255, 255, 255, 0.98);
+  transform: scale(1.04);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppFeaturedTitle {
+  font-size: clamp(10px, 4.6cqi, 18px) !important;
+  line-height: 1.12 !important;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppFeaturedLabel {
+  font-size: clamp(6px, 1.6cqi, 8px) !important;
+  letter-spacing: clamp(0.6px, 0.25cqi, 1.6px) !important;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppFeaturedMetaLine {
+  font-size: clamp(7px, 1.9cqi, 10px);
+  line-height: 1.25;
+  min-height: 0;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppFeaturedCtaPlay {
+  width: clamp(9px, 2.4cqi, 12px);
+  height: clamp(9px, 2.4cqi, 12px);
+  flex-shrink: 0;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSection {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: var(--macwall-demo-gap-header-content);
+  margin: 0;
+  padding: 0;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionTitle {
+  font-size: clamp(9px, 2.8cqi, 13px);
+  line-height: 1.2;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionSub {
+  display: none;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionArrow {
+  display: inline-flex;
+  height: clamp(18px, 5.5cqi, 24px);
+  width: clamp(18px, 5.5cqi, 24px);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.15);
+  color: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px) saturate(180%);
+  transition: color 0.14s ease, opacity 0.14s ease;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionArrow:hover:not(:disabled) {
+  color: rgba(255, 255, 255, 0.98);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionArrow:disabled {
+  cursor: default;
+  opacity: 0.28;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppSectionArrows {
+  gap: calc(var(--macwall-demo-gap-nav) * 0.75);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppCarouselTrack {
+  display: flex;
+  gap: var(--macwall-demo-gap-cards);
+  overflow-x: auto;
+  margin: 0;
+  padding: 0;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppCarouselTrack::-webkit-scrollbar {
+  display: none;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppCarouselItem {
+  flex: 0 0 calc(33.333% - clamp(3px, 1cqi, 6px));
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppWallCard {
+  width: 100%;
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppWallCard:hover {
+  transform: scale(1.012);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.32);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppBadge {
+  position: absolute;
+  top: clamp(5px, 1.4cqi, 8px);
+  left: clamp(5px, 1.4cqi, 8px);
+  z-index: 1;
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: clamp(6px, 1.6cqi, 8px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppBadgeNew {
+  background: #0a84ff;
+  color: #fff;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppPopularRank {
+  position: absolute;
+  top: clamp(2px, 0.8cqi, 5px);
+  left: clamp(5px, 1.6cqi, 9px);
+  z-index: 1;
+  font-size: clamp(14px, 5.5cqi, 22px);
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.35) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  pointer-events: none;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppCategoryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(5px, 1.4cqi, 8px);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppCategoryTile {
+  height: clamp(26px, 10cqb, 36px);
+  border-radius: clamp(5px, 1.4cqi, 8px);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  background: #0e0e10;
+}
+
+.MacWallDesktopDemo .MacWallDemoAppCategoryPlaceholder {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgb(31, 31, 41) 0%,
+    rgb(14, 14, 19) 50%,
+    rgb(10, 10, 13) 100%
+  );
+}
+
+.MacWallDesktopDemo .MacWallDemoAppCategoryScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.82) 0%,
+    rgba(0, 0, 0, 0.45) 28%,
+    rgba(0, 0, 0, 0.12) 52%,
+    transparent 78%
+  );
+}
+
+.MacWallDesktopDemo .MacWallDemoAppCategoryLabel {
+  position: absolute;
+  right: clamp(4px, 1.2cqi, 7px);
+  bottom: clamp(3px, 1cqi, 6px);
+  left: clamp(4px, 1.2cqi, 7px);
+  z-index: 1;
+  font-size: clamp(6px, 2cqi, 9px);
+  font-weight: 800;
+  line-height: 1.1;
+  color: #fff;
+  text-shadow: 0 5px 16px rgba(0, 0, 0, 0.55);
+}
+
+.MacWallDesktopDemo .MacWallDemoAppFeaturedCta .MacWallDemoAppFeaturedCtaArrow {
+  display: none;
+}
+
 @media (min-width: 851px) {
   .MacWallDesktopDemo.Interact_container__n__qc {
     min-height: 460px;
-    max-height: min(720px, 58vw);
+    max-height: min(640px, 52vw);
   }
 
   .MacWallDesktopDemo .MacWallInteract_demoAppCenterWrap {

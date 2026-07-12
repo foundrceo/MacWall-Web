@@ -333,16 +333,23 @@ body:has(.MacWallMarketingPage) {
   }
 
   .MacWallDesktopDemo .MacWallDemoAppHeaderGrid {
-    column-gap: 4px !important;
-    padding-inline: 6px !important;
+    column-gap: var(--macwall-demo-gap-nav) !important;
+    padding: var(--macwall-demo-pad-nav-y) var(--macwall-demo-pad-x)
+      calc(var(--macwall-demo-pad-nav-y) * 0.65) !important;
   }
 
-  .MacWallDesktopDemo .MacWallDemoAppPick {
-    flex: 0 0 calc(25% - 6px) !important;
+  .MacWallDesktopDemo .MacWallDemoAppSectionPicks .MacWallDemoAppCarouselItem {
+    flex: 0 0 calc(25% - 4px) !important;
   }
 }
 
 @media (max-width: 639px) {
+  .MacWallDesktopDemo .MacWallDemoApp {
+    --macwall-demo-pad-x: clamp(8px, 3.5cqi, 14px);
+    --macwall-demo-pad-section-y: clamp(5px, 1.6cqi, 8px);
+    --macwall-demo-gap-header-content: clamp(4px, 1.35cqi, 7px);
+  }
+
   .MacWallDesktopDemo.Interact_container__n__qc {
     aspect-ratio: 4 / 5 !important;
     min-height: 420px !important;
@@ -405,23 +412,22 @@ body:has(.MacWallMarketingPage) {
     display: none !important;
   }
 
-  .MacWallDesktopDemo
-    .MacWallDemoAppNav
-    .Application_header_content__plHsT
-    span:not(.Application_active__mdLR4) {
+  .MacWallDesktopDemo .MacWallDemoAppTab:not(.MacWallDemoAppTab--active),
+  .MacWallDesktopDemo .MacWallDemoAppTabSep {
     display: none !important;
   }
 
   .MacWallDesktopDemo
     .MacWallDemoAppActions
-    > .Application_search__Q_j_2:not(.MacWallDemoAppPro) {
+    > .MacWallDemoAppNavBtn:not(.MacWallDemoAppNavBtnPro) {
     display: none !important;
   }
 
   .MacWallDesktopDemo .MacWallDemoAppHeaderGrid {
     grid-template-columns: auto minmax(0, 1fr) auto !important;
-    column-gap: 3px !important;
-    padding: 4px 5px 3px !important;
+    column-gap: var(--macwall-demo-gap-nav) !important;
+    padding: var(--macwall-demo-pad-nav-y) var(--macwall-demo-pad-x)
+      calc(var(--macwall-demo-pad-nav-y) * 0.65) !important;
   }
 
   .MacWallDesktopDemo .MacWallDemoAppNav {
@@ -430,18 +436,32 @@ body:has(.MacWallMarketingPage) {
     overflow: hidden;
   }
 
-  .MacWallDesktopDemo .MacWallDemoAppNavPill,
-  .MacWallDesktopDemo .MacWallDemoApp .Application_header__57Sg5 {
+  .MacWallDesktopDemo .MacWallDemoAppNavCluster,
+  .MacWallDesktopDemo .MacWallDemoAppTabPills {
     max-width: 100% !important;
   }
 
-  .MacWallDesktopDemo .MacWallDemoAppBody {
-    padding: 3px 8px 6px !important;
+  .MacWallDesktopDemo .MacWallDemoAppFeaturedHero {
+    flex: 17 1 0 !important;
+    max-height: 68cqb !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppPicksPane {
+    flex: 8 0 auto !important;
+    max-height: 32cqb !important;
+    padding: var(--macwall-demo-pad-section-y) var(--macwall-demo-pad-x)
+      calc(var(--macwall-demo-pad-section-y) * 1.15) !important;
+  }
+
+  .MacWallDesktopDemo .MacWallDemoAppSectionPicks .MacWallDemoAppWallCard {
+    aspect-ratio: 16 / 9 !important;
+    height: auto !important;
+    min-height: 0 !important;
   }
 
   .MacWallDesktopDemo .MacWallDemoAppFeaturedOverlay {
-    padding: 0 8px 8px !important;
-    gap: 2px !important;
+    padding: 0 var(--macwall-demo-pad-x) var(--macwall-demo-pad-hero-bottom) !important;
+    gap: var(--macwall-demo-gap-hero) !important;
   }
 
   .MacWallDesktopDemo .MacWallDemoAppFeaturedMeta span:nth-child(n + 2) {
@@ -458,29 +478,6 @@ body:has(.MacWallMarketingPage) {
     height: 26px !important;
   }
 
-  .MacWallDesktopDemo .MacWallDemoAppPicksSub {
-    display: none !important;
-  }
-
-  .MacWallDesktopDemo .MacWallDemoAppPicksHead {
-    margin-top: 4px !important;
-  }
-
-  .MacWallDesktopDemo .MacWallDemoAppPicksRow {
-    margin-top: 3px !important;
-    min-height: 52px !important;
-    gap: 6px !important;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .MacWallDesktopDemo .MacWallDemoAppPicksRow::-webkit-scrollbar {
-    display: none;
-  }
-
-  .MacWallDesktopDemo .MacWallDemoAppPick {
-    flex: 0 0 38% !important;
-  }
 }
 
 @media (min-width: 640px) and (max-width: 850px) {
@@ -490,10 +487,8 @@ body:has(.MacWallMarketingPage) {
     text-overflow: ellipsis;
   }
 
-  .MacWallDesktopDemo
-    .MacWallDemoAppNav
-    .Application_header_content__plHsT
-    span:nth-child(3) {
+  .MacWallDesktopDemo .MacWallDemoAppTab:last-of-type,
+  .MacWallDesktopDemo .MacWallDemoAppTabSep:last-of-type {
     display: none !important;
   }
 

@@ -35,7 +35,7 @@ export function buildMarketingGalleryWallpaper(input: {
   }
 }
 
-const FALLBACK_SEEDS = [
+export const FALLBACK_SEEDS = [
   {
     id: "miles-morales-spider-man-snow",
     name: "Miles Morales – Snow",
