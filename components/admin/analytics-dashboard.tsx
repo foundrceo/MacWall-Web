@@ -1,9 +1,29 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Activity, Download, Heart, ImageIcon, Users } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  CategoryDonut,
+  DailyActivityChart,
+  DownloadActivityChart,
+  EventsSummaryChart,
+  HorizontalBarChart,
+  RingGauge,
+  StatRing,
+  TopPagesChart,
+} from "@/components/admin/admin-charts"
+import {
+  AdminBadge,
+  AdminMetricTile,
+  AdminNotice,
+  AdminPill,
+  AdminSectionHeading,
+  AdminSkeleton,
+  AdminSurface,
+  AdminSurfaceBody,
+  AdminSurfaceHeader,
+} from "@/components/admin/admin-ui"
 
 type AnalyticsResponse = {
   rangeDays: number
@@ -25,6 +45,13 @@ type AnalyticsResponse = {
   catalogWallpaperCount: number
   totalLikes: number
   activatedDevices: number
+  wallpaperCategoryCounts?: Array<{ category: string; count: number }>
+  topLikedWallpapers?: Array<{
+    id: string
+    name: string
+    category: string
+    likeCount: number
+  }>
 }
 
 export function AnalyticsDashboard() {
@@ -83,25 +110,44 @@ export function AnalyticsDashboard() {
   const pageViews =
     data?.eventCounts.find((e) => e.event_name === "page_view")?.count ?? 0
 
+  const uploadTotal = data
+    ? data.communityUploads.pending +
+      data.communityUploads.approved +
+      data.communityUploads.rejected
+    : 0
+  const uploadApprovalRate =
+    uploadTotal > 0
+      ? Math.round((data!.communityUploads.approved / uploadTotal) * 100)
+      : 0
+
+  const avgLikesPerWallpaper =
+    data && data.catalogWallpaperCount > 0
+      ? Math.round(data.totalLikes / data.catalogWallpaperCount)
+      : 0
+
+  const engagementRingMax = Math.max(
+    avgLikesPerWallpaper,
+    data?.topLikedWallpapers?.[0]?.likeCount ?? 0,
+    1
+  )
+  const pricingRingMax = Math.max(downloadClicks, pricingClicks, 1)
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="space-y-8">
+      <div className="flex flex-wrap gap-2">
         {[7, 30, 90].map((value) => (
-          <Button
+          <AdminPill
             key={value}
-            size="sm"
-            variant={days === value ? "default" : "outline"}
+            active={days === value}
             onClick={() => setDays(value)}
           >
             Last {value} days
-          </Button>
+          </AdminPill>
         ))}
       </div>
 
-      {loading ? (
-        <p className="text-sm text-white/55">Loading analytics…</p>
-      ) : null}
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
+      {loading ? <AnalyticsSkeleton /> : null}
+      {error ? <AdminNotice tone="warning">{error}</AdminNotice> : null}
 
       {data ? (
         <>
@@ -110,226 +156,268 @@ export function AnalyticsDashboard() {
             since={data.since}
           />
 
-          <p className="text-xs font-medium tracking-wide text-white/45 uppercase">
-            Website analytics · last {data.rangeDays} days
-          </p>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <MetricCard
-              title="Download button clicks"
-              value={downloadClicks}
-              hint="Users who tapped a Download CTA on the site"
-            />
-            <MetricCard
-              title="Installer redirects"
-              value={downloadRedirects}
-              hint="Hits to /download/latest that reached the DMG"
-            />
-            <MetricCard
-              title="Unique download sessions"
-              value={uniqueDownloadSessions}
-              hint="Distinct visitors who triggered an installer redirect"
-            />
-            <MetricCard
-              title="Click → redirect rate"
-              value={downloadCompletionRate}
-              suffix="%"
-              hint="Redirects divided by button clicks in this period"
-            />
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
-            <MetricCard title="Pricing clicks" value={pricingClicks} />
-            <MetricCard title="Page views" value={pageViews} />
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-2">
-            <LocationBreakdownCard
-              title="Download clicks by button"
-              emptyLabel="No download button clicks recorded yet."
-              rows={data.downloadClicksByLocation ?? []}
-              formatLocation={formatDownloadLocation}
+          <section className="space-y-4">
+            <AdminSectionHeading
+              eyebrow={`Last ${data.rangeDays} days`}
+              title="Website performance"
             />
 
-            <LocationBreakdownCard
-              title="Pricing / checkout clicks by button"
-              emptyLabel="No pricing clicks recorded yet."
-              rows={data.pricingClicksByLocation ?? []}
-              formatLocation={formatPricingLocation}
-            />
-          </div>
+            <div className="grid gap-4 lg:grid-cols-4">
+              <AdminMetricTile
+                icon={<Download className="size-4 text-[#86868b]" />}
+                label="Download clicks"
+                value={downloadClicks}
+                hint="CTA taps across the site"
+              />
+              <AdminMetricTile
+                icon={<Activity className="size-4 text-[#86868b]" />}
+                label="Installer redirects"
+                value={downloadRedirects}
+                hint="Successful /download/latest hits"
+              />
+              <AdminMetricTile
+                icon={<Users className="size-4 text-[#86868b]" />}
+                label="Unique sessions"
+                value={uniqueDownloadSessions}
+                hint="Distinct download visitors"
+              />
+              <AdminMetricTile
+                icon={<Activity className="size-4 text-[#86868b]" />}
+                label="Page views"
+                value={pageViews}
+                hint="Tracked marketing page views"
+              />
+            </div>
 
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Card className="border-white/10 bg-white/[0.03] text-white">
-              <CardHeader>
-                <CardTitle className="text-base">
-                  Daily download activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1">
-                {(data.downloadDaily ?? []).length === 0 ? (
-                  <p className="text-sm text-white/50">
-                    No download events in this range yet.
-                  </p>
-                ) : (
-                  data.downloadDaily?.slice(-14).map((row) => (
-                    <div
-                      key={`${row.day}-${row.event_name}`}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <span className="text-white/65">
-                        {row.day} · {formatDownloadEvent(row.event_name)}
-                      </span>
-                      <span className="font-medium tabular-nums">
-                        {row.count}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </CardContent>
-            </Card>
-          </div>
+            <div className="grid gap-4 lg:grid-cols-3">
+              <AdminSurface>
+                <AdminSurfaceHeader
+                  title="Download funnel"
+                  description="Click-to-redirect completion in this period"
+                />
+                <AdminSurfaceBody className="flex justify-center pb-8">
+                  <RingGauge
+                    value={downloadCompletionRate}
+                    label="Completion rate"
+                    sublabel={`${downloadRedirects} / ${downloadClicks} redirects`}
+                  />
+                </AdminSurfaceBody>
+              </AdminSurface>
 
-          <p className="pt-2 text-xs font-medium tracking-wide text-white/45 uppercase">
-            App catalog & licenses · all time
-          </p>
+              <AdminSurface className="lg:col-span-2">
+                <AdminSurfaceHeader
+                  title="Daily activity"
+                  description="All tracked events aggregated by day"
+                />
+                <AdminSurfaceBody>
+                  <DailyActivityChart rows={data.dailyCounts} days={14} />
+                </AdminSurfaceBody>
+              </AdminSurface>
+            </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <MetricCard
-              title="Pending uploads"
-              value={data.communityUploads.pending}
-            />
-            <MetricCard
-              title="Approved uploads"
-              value={data.communityUploads.approved}
-            />
-            <MetricCard
-              title="Rejected uploads"
-              value={data.communityUploads.rejected}
-            />
-            <MetricCard
-              title="Catalog wallpapers"
-              value={data.catalogWallpaperCount}
-            />
-            <MetricCard title="Total likes" value={data.totalLikes} />
-            <MetricCard
-              title="Activated devices"
-              value={data.activatedDevices}
-            />
-          </div>
+            <AdminSurface>
+              <AdminSurfaceHeader
+                title="Download activity"
+                description="Download clicks and installer redirects per day"
+              />
+              <AdminSurfaceBody>
+                <DownloadActivityChart
+                  rows={data.downloadDaily ?? []}
+                  days={14}
+                />
+              </AdminSurfaceBody>
+            </AdminSurface>
 
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Card className="border-white/10 bg-white/[0.03] text-white">
-              <CardHeader>
-                <CardTitle className="text-base">All tracked events</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {data.eventCounts.length === 0 ? (
-                  <p className="text-sm text-white/50">
-                    No events in this range yet.
-                  </p>
-                ) : (
-                  data.eventCounts.map((row) => (
-                    <div
-                      key={row.event_name}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <span className="text-white/75">{row.event_name}</span>
-                      <span className="font-medium tabular-nums">
-                        {row.count}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </CardContent>
-            </Card>
+            <div className="grid gap-4 lg:grid-cols-2">
+              <AdminSurface>
+                <AdminSurfaceHeader title="Download clicks by button" />
+                <AdminSurfaceBody>
+                  <HorizontalBarChart
+                    rows={(data.downloadClicksByLocation ?? []).map((row) => ({
+                      label: row.location,
+                      value: row.count,
+                    }))}
+                    formatLabel={formatDownloadLocation}
+                  />
+                </AdminSurfaceBody>
+              </AdminSurface>
 
-            <Card className="border-white/10 bg-white/[0.03] text-white">
-              <CardHeader>
-                <CardTitle className="text-base">
-                  Top pages (page views)
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {data.topPages.length === 0 ? (
-                  <p className="text-sm text-white/50">
-                    No page views recorded yet.
-                  </p>
-                ) : (
-                  data.topPages.map((row) => (
-                    <div
-                      key={row.path}
-                      className="flex items-center justify-between gap-3 text-sm"
-                    >
-                      <span className="truncate text-white/75">{row.path}</span>
-                      <span className="shrink-0 font-medium tabular-nums">
-                        {row.count}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </CardContent>
-            </Card>
-          </div>
+              <AdminSurface>
+                <AdminSurfaceHeader title="Pricing clicks by button" />
+                <AdminSurfaceBody>
+                  <HorizontalBarChart
+                    rows={(data.pricingClicksByLocation ?? []).map((row) => ({
+                      label: row.location,
+                      value: row.count,
+                    }))}
+                    formatLabel={formatPricingLocation}
+                  />
+                </AdminSurfaceBody>
+              </AdminSurface>
+            </div>
+          </section>
 
-          <Card className="border-white/10 bg-white/[0.03] text-white">
-            <CardHeader>
-              <CardTitle className="text-base">Daily activity</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1">
-              {data.dailyCounts.length === 0 ? (
-                <p className="text-sm text-white/50">No daily breakdown yet.</p>
-              ) : (
-                data.dailyCounts.slice(-20).map((row) => (
-                  <div
-                    key={`${row.day}-${row.event_name}`}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <span className="text-white/65">
-                      {row.day} · {row.event_name}
-                    </span>
-                    <span className="font-medium tabular-nums">
-                      {row.count}
-                    </span>
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
+          <section className="space-y-4">
+            <AdminSectionHeading
+              eyebrow="All-time database totals"
+              title="Catalog & community"
+            />
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <AdminMetricTile
+                icon={<ImageIcon className="size-4 text-[#86868b]" />}
+                label="Catalog wallpapers"
+                value={data.catalogWallpaperCount}
+              />
+              <AdminMetricTile
+                icon={<Heart className="size-4 text-[#86868b]" />}
+                label="Total likes"
+                value={data.totalLikes}
+              />
+              <AdminMetricTile
+                label="Pending uploads"
+                value={data.communityUploads.pending}
+              />
+              <AdminMetricTile
+                label="Activated devices"
+                value={data.activatedDevices}
+              />
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-3">
+              <AdminSurface>
+                <AdminSurfaceHeader
+                  title="Upload health"
+                  description="Community moderation status"
+                />
+                <AdminSurfaceBody className="flex justify-center pb-8">
+                  <RingGauge
+                    value={uploadApprovalRate}
+                    label="Approval rate"
+                    sublabel={`${data.communityUploads.approved} approved`}
+                    color="#34c759"
+                  />
+                </AdminSurfaceBody>
+              </AdminSurface>
+
+              <AdminSurface>
+                <AdminSurfaceHeader
+                  title="Engagement"
+                  description="Average likes per wallpaper"
+                />
+                <AdminSurfaceBody className="flex justify-center pb-8">
+                  <StatRing
+                    value={avgLikesPerWallpaper}
+                    max={engagementRingMax}
+                    label="Avg likes"
+                    sublabel={`${data.totalLikes} total`}
+                    color="#ff2d55"
+                  />
+                </AdminSurfaceBody>
+              </AdminSurface>
+
+              <AdminSurface>
+                <AdminSurfaceHeader
+                  title="Pricing interest"
+                  description="Checkout CTA taps"
+                />
+                <AdminSurfaceBody className="flex justify-center pb-8">
+                  <StatRing
+                    value={pricingClicks}
+                    max={pricingRingMax}
+                    label="Pricing clicks"
+                    sublabel={`Last ${data.rangeDays} days`}
+                    color="#ff9500"
+                  />
+                </AdminSurfaceBody>
+              </AdminSurface>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <AdminSurface>
+                <AdminSurfaceHeader title="Catalog by category" />
+                <AdminSurfaceBody>
+                  <CategoryDonut
+                    rows={(data.wallpaperCategoryCounts ?? []).map((row) => ({
+                      label: row.category,
+                      value: row.count,
+                    }))}
+                  />
+                </AdminSurfaceBody>
+              </AdminSurface>
+
+              <AdminSurface>
+                <AdminSurfaceHeader title="Top liked wallpapers" />
+                <AdminSurfaceBody className="space-y-2">
+                  {(data.topLikedWallpapers ?? []).length === 0 ? (
+                    <p className="text-[14px] text-[#86868b]">
+                      No likes recorded yet.
+                    </p>
+                  ) : (
+                    data.topLikedWallpapers?.map((row, index) => (
+                      <div
+                        key={row.id}
+                        className="flex items-center justify-between gap-3 rounded-2xl bg-[#f5f5f7] px-3.5 py-2.5"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-[14px] font-medium text-[#1d1d1f]">
+                            {index + 1}. {row.name}
+                          </p>
+                          <p className="text-[12px] text-[#86868b]">
+                            {row.category}
+                          </p>
+                        </div>
+                        <AdminBadge tone="red">
+                          <Heart className="mr-1 size-3" />
+                          {row.likeCount}
+                        </AdminBadge>
+                      </div>
+                    ))
+                  )}
+                </AdminSurfaceBody>
+              </AdminSurface>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <AdminSurface>
+                <AdminSurfaceHeader title="All tracked events" />
+                <AdminSurfaceBody>
+                  <EventsSummaryChart
+                    rows={data.eventCounts.map((row) => ({
+                      label: row.event_name,
+                      value: row.count,
+                    }))}
+                  />
+                </AdminSurfaceBody>
+              </AdminSurface>
+
+              <AdminSurface>
+                <AdminSurfaceHeader title="Top pages" />
+                <AdminSurfaceBody>
+                  <TopPagesChart rows={data.topPages} />
+                </AdminSurfaceBody>
+              </AdminSurface>
+            </div>
+          </section>
         </>
       ) : null}
     </div>
   )
 }
 
-function MetricCard({
-  title,
-  value,
-  hint,
-  suffix,
-}: Readonly<{
-  title: string
-  value: number
-  hint?: string
-  suffix?: string
-}>) {
+function AnalyticsSkeleton() {
   return (
-    <Card className="border-white/10 bg-white/[0.03] text-white">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-white/65">
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-3xl font-semibold tracking-tight tabular-nums">
-          {value.toLocaleString()}
-          {suffix ? (
-            <span className="text-xl text-white/55">{suffix}</span>
-          ) : null}
-        </p>
-        {hint ? <p className="mt-2 text-xs text-white/45">{hint}</p> : null}
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      <div className="grid gap-4 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <AdminSkeleton key={index} className="h-28" />
+        ))}
+      </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <AdminSkeleton className="h-64" />
+        <AdminSkeleton className="h-64 lg:col-span-2" />
+      </div>
+    </div>
   )
 }
 
@@ -357,22 +445,16 @@ function formatPricingLocation(location: string) {
   return PRICING_LOCATION_LABELS[location] ?? location
 }
 
-function formatDownloadEvent(eventName: string) {
-  if (eventName === "download_click") return "button click"
-  if (eventName === "download_redirect") return "installer redirect"
-  return eventName
-}
-
 function TrackingHealthBanner({
   lastEventAt,
   since,
 }: Readonly<{ lastEventAt: string | null; since: string }>) {
   if (!lastEventAt) {
     return (
-      <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-100">
+      <AdminNotice tone="warning">
         No analytics events stored yet. Visit the public site and click Download
         to verify tracking after deploy.
-      </p>
+      </AdminNotice>
     )
   }
 
@@ -380,55 +462,19 @@ function TrackingHealthBanner({
   const sinceMs = new Date(since).getTime()
   const isRecent = lastMs >= sinceMs
 
-  return (
-    <p
-      className={
-        isRecent
-          ? "text-sm text-emerald-400"
-          : "rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-100"
-      }
-    >
-      {isRecent
-        ? `Tracking active · last event ${formatRelativeTime(lastEventAt)}`
-        : `No events in the selected range · last event ${formatRelativeTime(lastEventAt)}`}
-    </p>
-  )
-}
+  if (isRecent) {
+    return (
+      <AdminNotice tone="success">
+        Tracking active · last event {formatRelativeTime(lastEventAt)}
+      </AdminNotice>
+    )
+  }
 
-function LocationBreakdownCard({
-  title,
-  emptyLabel,
-  rows,
-  formatLocation,
-}: Readonly<{
-  title: string
-  emptyLabel: string
-  rows: Array<{ location: string; count: number }>
-  formatLocation: (location: string) => string
-}>) {
   return (
-    <Card className="border-white/10 bg-white/[0.03] text-white">
-      <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {rows.length === 0 ? (
-          <p className="text-sm text-white/50">{emptyLabel}</p>
-        ) : (
-          rows.map((row) => (
-            <div
-              key={row.location}
-              className="flex items-center justify-between text-sm"
-            >
-              <span className="text-white/75">
-                {formatLocation(row.location)}
-              </span>
-              <span className="font-medium tabular-nums">{row.count}</span>
-            </div>
-          ))
-        )}
-      </CardContent>
-    </Card>
+    <AdminNotice tone="warning">
+      No events in the selected range · last event{" "}
+      {formatRelativeTime(lastEventAt)}
+    </AdminNotice>
   )
 }
 

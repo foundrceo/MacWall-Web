@@ -2,9 +2,16 @@
 
 import { FormEvent, useState } from "react"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import {
+  AdminAppIcon,
+  AdminButton,
+  AdminInput,
+  AdminLabel,
+  AdminNotice,
+  AdminSurface,
+  AdminSurfaceBody,
+} from "@/components/admin/admin-ui"
+import { macwall } from "@/lib/macwall-site"
 
 export function AdminLoginForm({
   nextPath = "/admin",
@@ -30,8 +37,6 @@ export function AdminLoginForm({
         throw new Error(json.error ?? "Login failed")
       }
 
-      // Full navigation ensures the httpOnly session cookie is attached before
-      // the protected admin layout runs (client router can race Set-Cookie).
       window.location.assign(nextPath)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed")
@@ -40,34 +45,45 @@ export function AdminLoginForm({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0b0b0f] px-4 text-white">
-      <Card className="w-full max-w-md border-white/10 bg-[#111118] text-white">
-        <CardHeader>
-          <CardTitle>MacWall Admin</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form className="space-y-4" onSubmit={onSubmit}>
+    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+      <AdminSurface className="w-full max-w-md">
+        <AdminSurfaceBody className="space-y-6 pt-8 text-center">
+          <div className="flex flex-col items-center gap-3">
+            <AdminAppIcon size="lg" />
+            <div>
+              <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-[#1d1d1f]">
+                {macwall.name} Admin
+              </h1>
+              <p className="mt-1 text-[15px] text-[#86868b]">
+                Sign in to manage analytics, wallpapers, and uploads.
+              </p>
+            </div>
+          </div>
+
+          <form className="space-y-4 text-left" onSubmit={onSubmit}>
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm text-white/70">
-                Admin password
-              </label>
-              <Input
+              <AdminLabel htmlFor="password">Admin password</AdminLabel>
+              <AdminInput
                 id="password"
                 type="password"
                 autoComplete="current-password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="border-white/15 bg-black/30 text-white"
                 required
               />
             </div>
-            {error ? <p className="text-sm text-red-400">{error}</p> : null}
-            <Button type="submit" className="w-full" disabled={loading}>
+            {error ? <AdminNotice tone="warning">{error}</AdminNotice> : null}
+            <AdminButton
+              type="submit"
+              size="lg"
+              className="w-full"
+              disabled={loading}
+            >
               {loading ? "Signing in…" : "Sign in"}
-            </Button>
+            </AdminButton>
           </form>
-        </CardContent>
-      </Card>
+        </AdminSurfaceBody>
+      </AdminSurface>
     </div>
   )
 }

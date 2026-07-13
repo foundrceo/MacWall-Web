@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 
+import "./admin.css"
+
 export const metadata: Metadata = {
   title: "Admin",
   robots: {
@@ -11,5 +13,9 @@ export const metadata: Metadata = {
 export default function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return children
+  return (
+    <div className="admin-portal min-h-screen bg-[#f5f5f7] text-[#1d1d1f] antialiased [color-scheme:light]">
+      {children}
+    </div>
+  )
 }

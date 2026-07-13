@@ -11,6 +11,10 @@ import {
   fetchLatestEventAt,
   type DailyRow,
 } from "@/lib/analytics/admin-metrics"
+import {
+  fetchTopLikedWallpapers,
+  fetchWallpaperCategoryCounts,
+} from "@/lib/admin/wallpapers"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 export const runtime = "nodejs"
@@ -42,6 +46,8 @@ export async function GET(request: Request) {
       catalogResult,
       likesResult,
       licensesResult,
+      categoryCounts,
+      topLikedWallpapers,
     ] = await Promise.all([
       countEventsByName(supabase, sinceIso),
       supabase.rpc("admin_analytics_daily_counts", { p_since: sinceIso }),
@@ -60,6 +66,8 @@ export async function GET(request: Request) {
       supabase
         .from("macwall_license_devices")
         .select("id", { count: "exact", head: true }),
+      fetchWallpaperCategoryCounts(),
+      fetchTopLikedWallpapers(8),
     ])
 
     const uploadTotals = { pending: 0, approved: 0, rejected: 0 }
@@ -111,6 +119,8 @@ export async function GET(request: Request) {
       catalogWallpaperCount: catalogResult.count ?? 0,
       totalLikes: likesResult.count ?? 0,
       activatedDevices: licensesResult.count ?? 0,
+      wallpaperCategoryCounts: categoryCounts,
+      topLikedWallpapers,
     })
   } catch (error) {
     const message =

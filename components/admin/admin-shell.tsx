@@ -3,14 +3,42 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import type { ReactNode } from "react"
+import { LogOut } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import {
+  AdminAppMark,
+  AdminButton,
+  AdminPageIntro,
+} from "@/components/admin/admin-ui"
 
 const NAV = [
   { href: "/admin", label: "Analytics" },
+  { href: "/admin/wallpapers", label: "Wallpapers" },
   { href: "/admin/uploads", label: "Uploads" },
 ] as const
+
+function AdminNavLink({
+  href,
+  active,
+  children,
+}: Readonly<{
+  href: string
+  active: boolean
+  children: ReactNode
+}>) {
+  return (
+    <Link
+      href={href}
+      className={
+        active
+          ? "inline-flex min-h-[32px] items-center rounded-full bg-[#1d1d1f] px-4 text-[13px] text-white"
+          : "inline-flex min-h-[32px] items-center rounded-full bg-[#f5f5f7] px-4 text-[13px] text-[#1d1d1f]/75 transition-colors hover:bg-[#e8e8ed] hover:text-[#1d1d1f]"
+      }
+    >
+      {children}
+    </Link>
+  )
+}
 
 export function AdminShell({
   title,
@@ -34,54 +62,61 @@ export function AdminShell({
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0b0f] text-white">
-      <header className="border-b border-white/10 bg-[#111118]/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-6">
-            <Link
-              href="/admin"
-              className="text-sm font-semibold tracking-tight"
-            >
-              MacWall Admin
-            </Link>
-            <nav className="flex items-center gap-1">
-              {NAV.map((item) => {
-                const active =
+    <>
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-2xl backdrop-saturate-150">
+        <div className="mx-auto flex h-11 max-w-[1080px] items-center justify-between px-4 sm:px-6">
+          <Link href="/admin" className="min-w-0">
+            <AdminAppMark subtitle="Admin" />
+          </Link>
+
+          <nav className="hidden items-center gap-1 md:flex">
+            {NAV.map((item) => (
+              <AdminNavLink
+                key={item.href}
+                href={item.href}
+                active={
                   item.href === "/admin"
                     ? pathname === "/admin"
                     : pathname.startsWith(item.href)
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "rounded-md px-3 py-1.5 text-sm transition-colors",
-                      active
-                        ? "bg-white/10 text-white"
-                        : "text-white/60 hover:text-white"
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                )
-              })}
-            </nav>
-          </div>
-          <Button variant="outline" size="sm" onClick={logout}>
+                }
+              >
+                {item.label}
+              </AdminNavLink>
+            ))}
+          </nav>
+
+          <AdminButton
+            variant="ghost"
+            size="sm"
+            onClick={logout}
+            className="gap-1.5"
+          >
+            <LogOut className="size-3.5" />
             Sign out
-          </Button>
+          </AdminButton>
         </div>
+
+        <nav className="flex gap-1 overflow-x-auto px-4 py-2 md:hidden">
+          {NAV.map((item) => (
+            <AdminNavLink
+              key={item.href}
+              href={item.href}
+              active={
+                item.href === "/admin"
+                  ? pathname === "/admin"
+                  : pathname.startsWith(item.href)
+              }
+            >
+              {item.label}
+            </AdminNavLink>
+          ))}
+        </nav>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-          {description ? (
-            <p className="mt-1 text-sm text-white/55">{description}</p>
-          ) : null}
-        </div>
+      <main className="mx-auto max-w-[1080px] px-4 py-8 sm:px-6">
+        <AdminPageIntro title={title} description={description} />
         {children}
       </main>
-    </div>
+    </>
   )
 }
