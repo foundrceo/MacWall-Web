@@ -82,6 +82,7 @@ type EventCountKey =
   | "download_redirect"
   | "pricing_click"
   | "cta_click"
+  | "purchase_complete"
 
 type DailySeriesRow = {
   day: string
@@ -94,6 +95,7 @@ const EVENT_COUNT_KEYS: EventCountKey[] = [
   "download_redirect",
   "pricing_click",
   "cta_click",
+  "purchase_complete",
 ]
 
 function isEventCountKey(name: string): name is EventCountKey {
@@ -153,6 +155,7 @@ const dailyActivityConfig = {
   download_redirect: { label: "Redirects", color: APPLE.teal },
   pricing_click: { label: "Pricing clicks", color: APPLE.orange },
   cta_click: { label: "CTA clicks", color: APPLE.purple },
+  purchase_complete: { label: "Purchases", color: APPLE.pink },
 } satisfies ChartConfig
 
 export function DailyActivityChart({
