@@ -1,10 +1,20 @@
 "use client"
 
+import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
+import {
+  AdminBadge,
+  AdminButton,
+  AdminInfoGrid,
+  AdminNotice,
+  AdminPill,
+  AdminRowListItem,
+  AdminSurface,
+  AdminSurfaceBody,
+  AdminSurfaceHeader,
+  AdminTextarea,
+} from "@/components/admin/admin-ui"
 
 type UploadStatus = "pending" | "approved" | "rejected" | "all"
 
@@ -46,6 +56,7 @@ export function UploadReviewPanel() {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [mediaError, setMediaError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
 
   const loadUploads = useCallback(async (status: UploadStatus) => {
@@ -88,6 +99,7 @@ export function UploadReviewPanel() {
     let cancelled = false
 
     async function loadMedia() {
+      setMediaError(null)
       try {
         const res = await fetch(`/api/admin/uploads/${selectedId}/media`, {
           cache: "no-store",
@@ -103,7 +115,7 @@ export function UploadReviewPanel() {
         if (!cancelled) {
           setVideoUrl(null)
           setThumbUrl(null)
-          setError(
+          setMediaError(
             err instanceof Error ? err.message : "Failed to load preview"
           )
         }
@@ -167,75 +179,69 @@ export function UploadReviewPanel() {
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
         {FILTERS.map((item) => (
-          <Button
+          <AdminPill
             key={item.id}
-            size="sm"
-            variant={filter === item.id ? "default" : "outline"}
+            active={filter === item.id}
             onClick={() => setFilter(item.id)}
           >
             {item.label}
-          </Button>
+          </AdminPill>
         ))}
-        <Button
-          size="sm"
+        <AdminButton
           variant="ghost"
+          size="sm"
           onClick={() => void loadUploads(filter)}
         >
           Refresh
-        </Button>
+        </AdminButton>
       </div>
 
       {loading ? (
-        <p className="text-sm text-white/55">Loading uploads…</p>
+        <p className="text-[14px] text-[#86868b]">Loading uploads…</p>
       ) : null}
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
-      {message ? <p className="text-sm text-emerald-400">{message}</p> : null}
+      {error ? <AdminNotice tone="warning">{error}</AdminNotice> : null}
+      {message ? <AdminNotice tone="success">{message}</AdminNotice> : null}
 
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-        <Card className="border-white/10 bg-white/[0.03] text-white">
-          <CardHeader>
-            <CardTitle className="text-base">Queue</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        <AdminSurface>
+          <AdminSurfaceHeader
+            title="Queue"
+            description="Community submissions awaiting review"
+          />
+          <AdminSurfaceBody className="space-y-2">
             {uploads.length === 0 ? (
-              <p className="text-sm text-white/50">
+              <p className="text-[14px] text-[#86868b]">
                 No uploads in this filter.
               </p>
             ) : (
               uploads.map((upload) => (
-                <button
+                <AdminRowListItem
                   key={upload.id}
-                  type="button"
+                  active={selectedId === upload.id}
+                  title={upload.title}
                   onClick={() => setSelectedId(upload.id)}
-                  className={cn(
-                    "w-full rounded-lg border px-3 py-2 text-left transition-colors",
-                    selectedId === upload.id
-                      ? "border-[#0071e3]/60 bg-[#0071e3]/10"
-                      : "border-white/10 bg-black/20 hover:bg-white/[0.04]"
-                  )}
-                >
-                  <p className="truncate text-sm font-medium">{upload.title}</p>
-                  <p className="mt-1 text-xs text-white/50">
-                    {upload.category} · {upload.status}
-                  </p>
-                </button>
+                  meta={
+                    <span className="text-[12px] text-[#86868b]">
+                      {upload.category}
+                    </span>
+                  }
+                  badge={<StatusBadge status={upload.status} />}
+                />
               ))
             )}
-          </CardContent>
-        </Card>
+          </AdminSurfaceBody>
+        </AdminSurface>
 
-        <Card className="border-white/10 bg-white/[0.03] text-white">
-          <CardHeader>
-            <CardTitle className="text-base">Preview & review</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <AdminSurface>
+          <AdminSurfaceHeader title="Preview & review" />
+          <AdminSurfaceBody className="space-y-4">
             {!selected ? (
-              <p className="text-sm text-white/50">
+              <p className="text-[14px] text-[#86868b]">
                 Select an upload to preview.
               </p>
             ) : (
               <>
-                <div className="overflow-hidden rounded-xl border border-white/10 bg-black">
+                <div className="overflow-hidden rounded-[20px] bg-[#f5f5f7]">
                   {videoUrl ? (
                     <video
                       key={videoUrl}
@@ -243,80 +249,92 @@ export function UploadReviewPanel() {
                       poster={thumbUrl ?? undefined}
                       controls
                       playsInline
-                      className="aspect-video w-full bg-black"
+                      className="aspect-video w-full bg-black/[0.03]"
                     />
                   ) : (
-                    <div className="flex aspect-video items-center justify-center text-sm text-white/45">
+                    <div className="flex aspect-video items-center justify-center text-[14px] text-[#86868b]">
                       Loading preview…
                     </div>
                   )}
                 </div>
 
-                <div className="grid gap-2 text-sm text-white/75 sm:grid-cols-2">
-                  <p>
-                    <span className="text-white/45">Title:</span>{" "}
-                    {selected.title}
-                  </p>
-                  <p>
-                    <span className="text-white/45">Category:</span>{" "}
-                    {selected.category}
-                  </p>
-                  <p>
-                    <span className="text-white/45">Resolution:</span>{" "}
-                    {selected.resolution}
-                  </p>
-                  <p>
-                    <span className="text-white/45">Duration:</span>{" "}
-                    {formatDuration(selected.durationSeconds)}
-                  </p>
-                  <p>
-                    <span className="text-white/45">Size:</span>{" "}
-                    {formatBytes(selected.fileSizeBytes)}
-                  </p>
-                  <p>
-                    <span className="text-white/45">Status:</span>{" "}
-                    {selected.status}
-                  </p>
-                </div>
+                <AdminInfoGrid
+                  items={[
+                    { label: "Title", value: selected.title },
+                    { label: "Category", value: selected.category },
+                    { label: "Resolution", value: selected.resolution },
+                    {
+                      label: "Duration",
+                      value: formatDuration(selected.durationSeconds),
+                    },
+                    {
+                      label: "Size",
+                      value: formatBytes(selected.fileSizeBytes),
+                    },
+                    { label: "Status", value: selected.status },
+                  ]}
+                />
 
                 {selected.reviewNotes ? (
-                  <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                  <AdminNotice tone="warning">
                     {selected.reviewNotes}
-                  </p>
+                  </AdminNotice>
+                ) : null}
+
+                {mediaError ? (
+                  <AdminNotice tone="warning">{mediaError}</AdminNotice>
+                ) : null}
+
+                {selected.approvedWallpaperId ? (
+                  <AdminNotice tone="success">
+                    Published as{" "}
+                    <Link
+                      href={`/admin/wallpapers?q=${encodeURIComponent(selected.approvedWallpaperId)}`}
+                      className="font-medium text-[#0071e3] underline-offset-2 hover:underline"
+                    >
+                      {selected.approvedWallpaperId}
+                    </Link>
+                  </AdminNotice>
                 ) : null}
 
                 {selected.status === "pending" ? (
                   <div className="space-y-3">
-                    <textarea
+                    <AdminTextarea
                       value={rejectNotes}
                       onChange={(event) => setRejectNotes(event.target.value)}
                       placeholder="Optional rejection notes for the submitter"
-                      className="min-h-24 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white ring-[#0071e3]/40 outline-none focus:ring-2"
                     />
                     <div className="flex flex-wrap gap-2">
-                      <Button
+                      <AdminButton
                         onClick={() => void approveSelected()}
                         disabled={actionLoading}
                       >
                         Approve & publish
-                      </Button>
-                      <Button
-                        variant="destructive"
+                      </AdminButton>
+                      <AdminButton
+                        variant="danger"
                         onClick={() => void rejectSelected()}
                         disabled={actionLoading}
                       >
                         Reject
-                      </Button>
+                      </AdminButton>
                     </div>
                   </div>
                 ) : null}
               </>
             )}
-          </CardContent>
-        </Card>
+          </AdminSurfaceBody>
+        </AdminSurface>
       </div>
     </div>
   )
+}
+
+function StatusBadge({ status }: Readonly<{ status: UploadItem["status"] }>) {
+  if (status === "approved")
+    return <AdminBadge tone="green">Approved</AdminBadge>
+  if (status === "rejected") return <AdminBadge tone="red">Rejected</AdminBadge>
+  return <AdminBadge tone="amber">Pending</AdminBadge>
 }
 
 function formatDuration(seconds: number) {
