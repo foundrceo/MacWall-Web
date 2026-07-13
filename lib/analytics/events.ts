@@ -4,6 +4,7 @@ export const SITE_ANALYTICS_EVENTS = [
   "pricing_click",
   "page_view",
   "cta_click",
+  "purchase_complete",
 ] as const
 
 export type SiteAnalyticsEventName = (typeof SITE_ANALYTICS_EVENTS)[number]
