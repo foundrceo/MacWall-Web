@@ -4,6 +4,7 @@ import { macwall } from "@/lib/macwall-site"
 export const macwallExactCopy = {
   header: {
     navOverview: "Overview",
+    navBlog: "Blog",
     navSocials: "Community",
     navSupport: "Help",
     navPricing: "Pricing",
@@ -172,10 +173,17 @@ export const macwallExactCopy = {
     legalTitle: "Legal",
     supportTitle: "Support",
     communityTitle: "Community",
+    resourcesTitle: "Resources",
     shop: {
       buy: "Buy Pro",
       pricing: "Pricing",
       download: "Download",
+    },
+    resources: {
+      blog: "Blog",
+      liveWallpaper: "Live Wallpaper for Mac",
+      download: "Download MacWall",
+      bestApp: "Best Wallpaper App",
     },
     legal: {
       privacy: "Privacy Policy",
@@ -195,61 +203,3 @@ export const macwallExactCopy = {
     copyrightName: macwall.name,
   },
 } as const
-
-export const macwallDemoWallpapers = [
-  {
-    poster: "/video/posters/wallpaper1.jpg",
-    webm: "/video/preview/wallpaper1.webm" as string | undefined,
-    mp4Preview: "/video/preview/wallpaper1.mp4" as string | undefined,
-    mp4Fallback: "/video/wallpaper1.mp4",
-    activeDot: 0,
-    category: "NATURE",
-    name: "Coastal mist loop",
-    meta: "3840×2160 · refreshed weekly · ~32 MB · 1:20",
-    likes: "328",
-  },
-  {
-    poster: "/video/posters/wallpaper2.jpg",
-    webm: undefined,
-    mp4Preview: "/video/preview/wallpaper2.mp4" as string | undefined,
-    mp4Fallback: "/video/wallpaper2.mp4",
-    activeDot: 1,
-    category: "SPACE",
-    name: "Orbital sunrise",
-    meta: "3440×1440 · new this month · ~28 MB · 2:05",
-    likes: "412",
-  },
-  {
-    poster: "/video/posters/wallpaper3.jpg",
-    webm: undefined,
-    mp4Preview: "/video/preview/wallpaper3.mp4" as string | undefined,
-    mp4Fallback: "/video/wallpaper3.mp4",
-    activeDot: 2,
-    category: "ANIME",
-    name: "Neon alley rain",
-    meta: "2560×1440 · editor’s choice · ~18 MB · 0:55",
-    likes: "597",
-  },
-  {
-    poster: "/video/posters/wallpaper4.jpg",
-    webm: undefined,
-    mp4Preview: "/video/preview/wallpaper4.mp4" as string | undefined,
-    mp4Fallback: "/video/wallpaper4.mp4",
-    activeDot: 3,
-    category: "CITY",
-    name: "Midnight express",
-    meta: "3840×2160 · trending · ~45 MB · 3:02",
-    likes: "264",
-  },
-  {
-    poster: "/video/posters/wallpaper5.jpg",
-    webm: undefined,
-    mp4Preview: "/video/preview/wallpaper5.mp4" as string | undefined,
-    mp4Fallback: "/video/wallpaper5.mp4",
-    activeDot: 4,
-    category: "SCI-FI",
-    name: "Glass canyon flight",
-    meta: "5120×2880 · heavy-weight hero · ~62 MB · 1:48",
-    likes: "189",
-  },
-] as const

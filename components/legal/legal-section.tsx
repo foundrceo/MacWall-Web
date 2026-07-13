@@ -1,8 +1,14 @@
 import type { ReactNode } from "react"
-import { legalSectionBody, legalTextPrimary } from "@/components/legal/legal-classes"
+import {
+  legalSectionBody,
+  legalTextPrimary,
+} from "@/components/legal/legal-classes"
 import { cn } from "@/lib/utils"
 
-export { legalBulletList, legalSectionBody } from "@/components/legal/legal-classes"
+export {
+  legalBulletList,
+  legalSectionBody,
+} from "@/components/legal/legal-classes"
 
 export function LegalSection({
   id,
@@ -21,8 +27,7 @@ export function LegalSection({
       <h2
         id={id}
         className={cn(
-          "scroll-mt-[calc(52px+1.5rem)] md:scroll-mt-[calc(52px+2rem)]",
-          "text-2xl font-semibold tracking-tight md:text-[28px] md:leading-snug",
+          "MacWallProseH2 MacWallProseH2--first scroll-mt-[calc(52px+1.5rem)] md:scroll-mt-[calc(52px+2rem)]",
           legalTextPrimary
         )}
       >

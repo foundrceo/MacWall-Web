@@ -104,6 +104,32 @@ export default function MacWallMarketingFooter({
           </div>
 
           <div>
+            <h3 className={titleClass}>{foot.resourcesTitle}</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link className={linkClass} href="/blog">
+                  {foot.resources.blog}
+                </Link>
+              </li>
+              <li>
+                <Link className={linkClass} href="/live-wallpaper-mac">
+                  {foot.resources.liveWallpaper}
+                </Link>
+              </li>
+              <li>
+                <Link className={linkClass} href="/download">
+                  {foot.resources.download}
+                </Link>
+              </li>
+              <li>
+                <Link className={linkClass} href="/best-live-wallpaper-mac">
+                  {foot.resources.bestApp}
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
             <h3 className={titleClass}>{foot.legalTitle}</h3>
             <ul className="space-y-2">
               <li>
@@ -173,6 +199,21 @@ export default function MacWallMarketingFooter({
                 },
                 { href: shopPricingHref, label: foot.shop.pricing },
                 { href: macwallInstallerLatestPath, label: foot.shop.download },
+              ],
+            },
+            {
+              title: foot.resourcesTitle,
+              links: [
+                { href: "/blog", label: foot.resources.blog },
+                {
+                  href: "/live-wallpaper-mac",
+                  label: foot.resources.liveWallpaper,
+                },
+                { href: "/download", label: foot.resources.download },
+                {
+                  href: "/best-live-wallpaper-mac",
+                  label: foot.resources.bestApp,
+                },
               ],
             },
             {

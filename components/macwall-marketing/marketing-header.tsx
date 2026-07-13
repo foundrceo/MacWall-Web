@@ -130,6 +130,16 @@ export default function MacWallMarketingHeader({
           </div>
 
           <Link
+            href="/blog"
+            className={cn(
+              navLink(pathname === "/blog" || pathname.startsWith("/blog/")),
+              "MacWallMarketingHeaderNavItem"
+            )}
+          >
+            {h.navBlog}
+          </Link>
+
+          <Link
             href="/pricing"
             className={cn(
               navLink(pathname === "/pricing"),
@@ -246,6 +256,15 @@ export default function MacWallMarketingHeader({
               onClick={() => setMenuOpen(false)}
             >
               {h.navOverview}
+            </Link>
+            <Link
+              href="/blog"
+              className={navLink(
+                pathname === "/blog" || pathname.startsWith("/blog/")
+              )}
+              onClick={() => setMenuOpen(false)}
+            >
+              {h.navBlog}
             </Link>
             <Link
               href="/pricing"

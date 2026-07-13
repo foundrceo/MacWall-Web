@@ -77,15 +77,13 @@ export function UploadReviewPanel() {
   }, [])
 
   useEffect(() => {
-    void loadUploads(filter)
+    queueMicrotask(() => {
+      void loadUploads(filter)
+    })
   }, [filter, loadUploads])
 
   useEffect(() => {
-    if (!selectedId) {
-      setVideoUrl(null)
-      setThumbUrl(null)
-      return
-    }
+    if (!selectedId) return
 
     let cancelled = false
 

@@ -17,6 +17,22 @@ const supabaseHost = catalogSupabaseHostname()
 const nextConfig = {
   poweredByHeader: false,
   compress: true,
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        ...config.watchOptions,
+        aggregateTimeout: 300,
+        ignored: [
+          "**/node_modules/**",
+          "**/.git/**",
+          "**/.next/**",
+          "**/.playwright-cli/**",
+          "**/*.log",
+        ],
+      }
+    }
+    return config
+  },
   /** Match default App Router URLs (no trailing slash) for consistent canonicals. */
   trailingSlash: false,
   images: {
@@ -41,8 +57,14 @@ const nextConfig = {
         hostname: supabaseHost,
         pathname: "/storage/v1/render/image/public/wallpaper-catalog/**",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/**",
+      },
     ],
   },
+  turbopack: {},
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },

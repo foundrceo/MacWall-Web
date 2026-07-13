@@ -44,13 +44,14 @@ export function trackSiteEventClient(
 
   if (navigator.sendBeacon) {
     const blob = new Blob([body], { type: "application/json" })
-    navigator.sendBeacon("/api/analytics/track", blob)
-    return
+    const sent = navigator.sendBeacon("/api/analytics/track", blob)
+    if (sent) return
   }
 
   void fetch("/api/analytics/track", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
     body,
     keepalive: true,
   })

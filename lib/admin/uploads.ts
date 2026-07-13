@@ -96,14 +96,28 @@ export async function getCommunityUpload(
   return mapUpload(data as UploadRow)
 }
 
-export async function approveCommunityUpload(uploadId: string) {
+export async function approveCommunityUpload(
+  uploadId: string,
+  wallpaperId?: string | null
+) {
   const supabase = getSupabaseAdmin()
-  const { data, error } = await supabase.rpc("approve_community_upload", {
-    p_upload_id: uploadId,
-  })
+  const body: { upload_id: string; wallpaper_id?: string } = {
+    upload_id: uploadId,
+  }
+  const trimmedWallpaperId = wallpaperId?.trim()
+  if (trimmedWallpaperId) body.wallpaper_id = trimmedWallpaperId
+
+  const { data, error } = await supabase.functions.invoke(
+    "approve-community-upload",
+    { body }
+  )
 
   if (error) throw new Error(error.message)
-  return data
+
+  const payload = data as { error?: string; status?: string } | null
+  if (payload?.error) throw new Error(payload.error)
+
+  return payload
 }
 
 export async function rejectCommunityUpload(

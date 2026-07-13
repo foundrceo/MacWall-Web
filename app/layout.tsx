@@ -14,6 +14,7 @@ import Script from "next/script"
 import { Geist, Geist_Mono } from "next/font/google"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -59,10 +60,16 @@ export const metadata: Metadata = {
   keywords: [
     "Mac wallpaper app",
     "live wallpapers for Mac",
+    "live wallpaper for mac",
+    "best wallpaper app for mac",
     "video wallpaper macOS",
     "motion desktop background",
     "dynamic wallpapers Mac",
     "Mac desktop backgrounds",
+    "wallpaper engine alternative mac",
+    "lock screen live wallpaper mac",
+    "animated wallpaper mac",
+    "4k live wallpaper mac",
     "daily wallpaper discovery",
     "Sonoma Ventura Sequoia wallpaper",
     `${macwall.name}`,
@@ -138,6 +145,7 @@ export default function RootLayout({
           <PageViewTracker />
         </ThemeProvider>
         <Analytics />
+        <SpeedInsights />
         {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
         {ahrefsWebAnalyticsKey ? (
           <Script

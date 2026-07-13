@@ -2,6 +2,8 @@ dist/
 node_modules/
 .next/
 .turbo/
+.vercel/
 coverage/
 pnpm-lock.yaml
 .pnpm-store/
+.playwright-cli/
