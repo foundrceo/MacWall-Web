@@ -45,16 +45,15 @@ function HeroSection({
   return (
     <section className="MacWallHero bg-white pt-14 pb-16 text-center md:pt-20 md:pb-24">
       <MarketingContainer wide>
-        <h1 className="sr-only">{macwall.tagline}</h1>
-
         <div className="MacWallHeroDemo">
           <SectionEyebrow className="mb-2">{ix.kicker}</SectionEyebrow>
           <SectionTitle
-            as="h2"
+            as="h1"
             className="MacWallHeroDemoTitle mx-auto max-w-[640px] text-[28px] md:text-[40px]"
           >
-            See it on your desktop
+            {ix.title}
           </SectionTitle>
+          <p className="MacWallHeroLead">{ix.heroLead}</p>
           <DesktopProductDemo homePickSlides={homePickSlides} />
         </div>
 

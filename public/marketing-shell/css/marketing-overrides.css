@@ -154,9 +154,23 @@ body:has(.MacWallMarketingPage) {
 /* ── Site footer responsive rails ── */
 .MacWallMarketingFooterDesktop {
   display: none;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  column-gap: 2rem;
-  row-gap: 2.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  row-gap: 2rem;
+}
+
+@media (min-width: 64rem) {
+  .MacWallMarketingFooterDesktop {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 2rem;
+    row-gap: 2.5rem;
+  }
+}
+
+@media (min-width: 80rem) {
+  .MacWallMarketingFooterDesktop {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 48rem) {
@@ -477,7 +491,6 @@ body:has(.MacWallMarketingPage) {
     width: 26px !important;
     height: 26px !important;
   }
-
 }
 
 @media (min-width: 640px) and (max-width: 850px) {
@@ -498,12 +511,28 @@ body:has(.MacWallMarketingPage) {
 }
 
 .MacWallHeroDemoTitle {
-  margin-bottom: 2rem;
+  margin-bottom: 0.75rem;
 }
 
 @media (min-width: 48rem) {
   .MacWallHeroDemoTitle {
+    margin-bottom: 1rem;
+  }
+}
+
+.MacWallHeroLead {
+  margin: 0 auto 2rem;
+  max-width: 560px;
+  font-size: 17px;
+  line-height: 1.47;
+  color: #86868b;
+}
+
+@media (min-width: 48rem) {
+  .MacWallHeroLead {
     margin-bottom: 2.5rem;
+    font-size: 19px;
+    line-height: 1.421;
   }
 }
 
@@ -1369,4 +1398,388 @@ body:has(.MacWallMarketingPage) {
 .MacWallPricingReelFinePrintLabel {
   font-weight: 600;
   color: #6e6e73;
+}
+
+/* ── Prose / blog / SEO / legal — Apple document rhythm ── */
+.MacWallProseMain {
+  box-sizing: border-box;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  padding-bottom: 3.5rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseMain {
+    padding-inline: 2rem;
+    padding-bottom: 4.5rem;
+  }
+}
+
+.MacWallProseMainOffset {
+  padding-top: max(7rem, calc(env(safe-area-inset-top) + 5.5rem));
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseMainOffset {
+    padding-top: max(8.25rem, calc(env(safe-area-inset-top) + 6.25rem));
+  }
+}
+
+.MacWallProseMain--article {
+  max-width: 680px;
+}
+
+.MacWallProseMain--wide {
+  max-width: 980px;
+}
+
+.MacWallProseMain--blog {
+  max-width: 1080px;
+  padding-inline: 0;
+  padding-bottom: 0;
+}
+
+.MacWallProseMain--blog .MacWallProseHero {
+  padding-inline: 1.5rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseMain--blog .MacWallProseHero {
+    padding-inline: 2rem;
+  }
+}
+
+.MacWallProseBreadcrumbs {
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseBreadcrumbs {
+    margin-bottom: 2rem;
+  }
+}
+
+.MacWallProseBreadcrumbsList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  line-height: 1.333;
+  color: #86868b;
+}
+
+.MacWallProseBreadcrumbsItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.MacWallProseBreadcrumbsSep {
+  color: #d2d2d7;
+}
+
+.MacWallProseBreadcrumbsLink {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.MacWallProseBreadcrumbsLink:hover {
+  text-decoration: underline;
+}
+
+.MacWallProseBreadcrumbsCurrent {
+  color: #6e6e73;
+}
+
+.MacWallProseHero {
+  text-align: center;
+}
+
+.MacWallProseHero--blog {
+  padding-bottom: 0.5rem;
+}
+
+.MacWallProseHeroTitle {
+  margin: 0;
+  font-size: 2.125rem;
+  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #1d1d1f;
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseHeroTitle {
+    font-size: 3rem;
+    line-height: 1.05;
+  }
+}
+
+.MacWallProseHeroLead {
+  margin: 1.25rem auto 0;
+  max-width: 640px;
+  font-size: 1.0625rem;
+  line-height: 1.47;
+  color: #86868b;
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseHeroLead {
+    margin-top: 1.5rem;
+    font-size: 1.1875rem;
+    line-height: 1.421;
+  }
+}
+
+.MacWallProseHeroIntro {
+  margin-top: 2rem;
+  font-size: 1.0625rem;
+  line-height: 1.47;
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseHeroIntro {
+    margin-top: 2.5rem;
+    font-size: 1.0625rem;
+  }
+}
+
+.MacWallProseHeroMeta {
+  margin: 1rem 0 0;
+  font-size: 12px;
+  line-height: 1.333;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #86868b;
+}
+
+.MacWallProseDivider {
+  height: 1px;
+  margin: 3rem 0;
+  border: 0;
+  background: #d2d2d7;
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseDivider {
+    margin: 4rem 0;
+  }
+}
+
+.MacWallProseArticle {
+  margin: 0;
+}
+
+.MacWallProseArticle--legal {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseArticle--legal {
+    gap: 4.5rem;
+  }
+}
+
+.MacWallProseBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.MacWallProseH2 {
+  margin: 2rem 0 0;
+  font-size: 1.75rem;
+  line-height: 1.12;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.MacWallProseH2--first {
+  margin-top: 0;
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseH2 {
+    margin-top: 2.5rem;
+    font-size: 2rem;
+    line-height: 1.1;
+  }
+
+  .MacWallProseH2--first {
+    margin-top: 0;
+  }
+}
+
+.MacWallProseH3 {
+  margin: 1.5rem 0 0;
+  font-size: 1.3125rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.MacWallProseP {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: #424245;
+}
+
+.MacWallProseUl,
+.MacWallProseOl {
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.MacWallProseUlItem {
+  display: flex;
+  gap: 0.625rem;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: #424245;
+}
+
+.MacWallProseUlItem + .MacWallProseUlItem {
+  margin-top: 0.75rem;
+}
+
+.MacWallProseUlBullet {
+  flex-shrink: 0;
+  color: #86868b;
+}
+
+.MacWallProseOl {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+
+.MacWallProseOlItem {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: #424245;
+}
+
+.MacWallProseOlItem + .MacWallProseOlItem {
+  margin-top: 0.75rem;
+}
+
+.MacWallProseOlItem::marker {
+  color: #86868b;
+}
+
+.MacWallProseFaq {
+  margin: 0;
+}
+
+.MacWallProseFaqTitle {
+  margin: 0 0 2rem;
+  font-size: 1.75rem;
+  line-height: 1.12;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: #1d1d1f;
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseFaqTitle {
+    font-size: 2rem;
+  }
+}
+
+.MacWallProseFaqList {
+  margin: 0;
+}
+
+.MacWallProseFaqItem + .MacWallProseFaqItem {
+  margin-top: 2rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseFaqItem + .MacWallProseFaqItem {
+    margin-top: 2.5rem;
+  }
+}
+
+.MacWallProseFaqQuestion {
+  margin: 0;
+  font-size: 1.1875rem;
+  line-height: 1.25;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.MacWallProseFaqAnswer {
+  margin: 0.625rem 0 0;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: #424245;
+}
+
+.MacWallProseActionRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallProseActionRow {
+    gap: 1rem;
+    margin-top: 2.5rem;
+  }
+}
+
+.MacWallProsePrimaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-weight: 400;
+  color: #fff !important;
+  background-color: #0071e3;
+  text-decoration: none !important;
+  -webkit-text-decoration: none !important;
+  transition: background-color 150ms ease;
+}
+
+.MacWallProsePrimaryBtn:hover,
+.MacWallProsePrimaryBtn:focus-visible {
+  color: #fff !important;
+  background-color: #0077ed;
+  text-decoration: none !important;
+}
+
+.MacWallProseGhostBtn {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding-inline: 1.5rem;
+  font-size: 17px;
+  letter-spacing: -0.022em;
+  color: #1d1d1f;
+  background: #f5f5f7;
+  text-decoration: none !important;
+  -webkit-text-decoration: none !important;
+  transition: background-color 150ms ease;
+}
+
+.MacWallProseGhostBtn:hover {
+  background: #e8e8ed;
+}
+
+.MacWallProseTextLink {
+  min-height: 48px;
+  align-self: center;
 }

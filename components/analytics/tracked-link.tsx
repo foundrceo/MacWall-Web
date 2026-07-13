@@ -32,12 +32,17 @@ export function TrackedLink({
     trackSiteEventClient(eventName, metadata)
   }
 
+  const trackProps = {
+    onClick: onNavigate,
+    onAuxClick: onNavigate,
+  }
+
   if (external || href.startsWith("http") || href.startsWith("mailto:")) {
     return (
       <a
         href={href}
         className={className}
-        onClick={onNavigate}
+        {...trackProps}
         target={href.startsWith("http") ? "_blank" : undefined}
         rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
         aria-label={ariaLabel}
@@ -51,7 +56,7 @@ export function TrackedLink({
     <Link
       href={href}
       className={className}
-      onClick={onNavigate}
+      {...trackProps}
       aria-label={ariaLabel}
     >
       {children}

@@ -36,10 +36,7 @@ function readCachedFrame(src: string): string | null {
 
 function writeCachedFrame(src: string, dataUrl: string) {
   try {
-    sessionStorage.setItem(
-      POSTER_CACHE_KEY,
-      JSON.stringify({ src, dataUrl })
-    )
+    sessionStorage.setItem(POSTER_CACHE_KEY, JSON.stringify({ src, dataUrl }))
   } catch {
     // quota or private mode
   }
@@ -82,7 +79,8 @@ export default function MacWallMarketingWalkthroughVideo({
   const [framePoster, setFramePoster] = useState<string | null>(null)
 
   const activeSrc = sources[Math.min(sourceIndex, sources.length - 1)] ?? ""
-  const shouldAutoplay = inView && !reduceMotion && !videoFailed && Boolean(activeSrc)
+  const shouldAutoplay =
+    inView && !reduceMotion && !videoFailed && Boolean(activeSrc)
 
   const cacheAndShowFirstFrame = useCallback(() => {
     const video = videoRef.current
@@ -112,15 +110,17 @@ export default function MacWallMarketingWalkthroughVideo({
   }, [sourceIndex, sources])
 
   useEffect(() => {
-    if (!activeSrc) {
-      setFramePoster(null)
-      frameCapturedRef.current = false
-      return
-    }
+    queueMicrotask(() => {
+      if (!activeSrc) {
+        setFramePoster(null)
+        frameCapturedRef.current = false
+        return
+      }
 
-    const cached = readCachedFrame(activeSrc)
-    setFramePoster(cached)
-    frameCapturedRef.current = Boolean(cached)
+      const cached = readCachedFrame(activeSrc)
+      setFramePoster(cached)
+      frameCapturedRef.current = Boolean(cached)
+    })
   }, [activeSrc])
 
   useEffect(() => {
@@ -151,7 +151,10 @@ export default function MacWallMarketingWalkthroughVideo({
     const video = videoRef.current
     if (!video || !shouldAutoplay) return
 
-    if (frameCapturedRef.current || video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+    if (
+      frameCapturedRef.current ||
+      video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
+    ) {
       playMutedLoop(video)
       return
     }

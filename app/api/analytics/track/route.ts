@@ -6,6 +6,8 @@ import {
 } from "@/lib/analytics/events"
 import { trackSiteEvent } from "@/lib/analytics/track-server"
 
+export const runtime = "nodejs"
+
 const RATE_LIMIT_WINDOW_MS = 60_000
 const RATE_LIMIT_MAX = 120
 const hits = new Map<string, { count: number; resetAt: number }>()

@@ -9,12 +9,12 @@ type ButtonSize = "default" | "sm" | "lg"
 
 function buttonClasses(size: ButtonSize, className?: string) {
   return cn(
-    "inline-flex items-center justify-center rounded-full font-normal transition-colors duration-150",
+    "MacWallProsePrimaryBtn inline-flex items-center justify-center rounded-full font-normal no-underline transition-colors duration-150",
     size === "sm" && "min-h-[28px] px-4 text-[12px]",
     size === "default" &&
       "min-h-[44px] px-[22px] text-[17px] tracking-[-0.022em]",
     size === "lg" && "min-h-[48px] px-6 text-[17px] tracking-[-0.022em]",
-    "bg-[#0071e3] text-white hover:bg-[#0077ed]",
+    "bg-[#0071e3] text-white hover:bg-[#0077ed] hover:text-white hover:no-underline",
     className
   )
 }
