@@ -1,4 +1,8 @@
 import { PageViewTracker } from "@/components/analytics/page-view-tracker"
+import {
+  resolveTikTokPixelId,
+  TikTokPixel,
+} from "@/components/analytics/tiktok-pixel"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { JsonLd } from "@/components/seo/json-ld"
 import { macwallSchemaGraph } from "@/lib/macwall-json-ld"
@@ -49,6 +53,7 @@ function resolveAhrefsWebAnalyticsKey(): string | undefined {
 }
 
 const ahrefsWebAnalyticsKey = resolveAhrefsWebAnalyticsKey()
+const tiktokPixelId = resolveTikTokPixelId()
 
 export const metadata: Metadata = {
   title: {
@@ -129,6 +134,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
+      <head>{tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}</head>
       {/* Avoid hydration warnings when extensions inject attributes on <body> */}
       <body
         className="w-full bg-background font-sans font-light text-foreground antialiased"

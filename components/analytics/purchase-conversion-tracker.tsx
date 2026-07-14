@@ -8,6 +8,9 @@ import { macwall } from "@/lib/macwall-site"
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void
+    ttq?: {
+      track: (...args: unknown[]) => void
+    }
   }
 }
 
@@ -48,7 +51,27 @@ function fireGa4Purchase() {
   })
 }
 
-/** Fires once per thank-you visit — internal analytics + optional Google Ads / GA4 purchase. */
+function fireTikTokCompletePayment() {
+  if (typeof window.ttq?.track !== "function") return
+
+  const value = Number.isFinite(purchaseValue) ? purchaseValue : 7.99
+
+  window.ttq.track("CompletePayment", {
+    value,
+    currency: "USD",
+    contents: [
+      {
+        content_id: "macwall-pro",
+        content_type: "product",
+        content_name: `${macwall.name} Pro`,
+        price: value,
+        quantity: 1,
+      },
+    ],
+  })
+}
+
+/** Fires once per thank-you visit — internal analytics + optional Google Ads / GA4 / TikTok purchase. */
 export function PurchaseConversionTracker() {
   const fired = useRef(false)
 
@@ -61,9 +84,13 @@ export function PurchaseConversionTracker() {
     const run = () => {
       fireGoogleAdsConversion()
       fireGa4Purchase()
+      fireTikTokCompletePayment()
     }
 
-    if (typeof window.gtag === "function") {
+    if (
+      typeof window.gtag === "function" ||
+      typeof window.ttq?.track === "function"
+    ) {
       run()
       return
     }
