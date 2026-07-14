@@ -1,16 +1,18 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { useSearchParams } from "next/navigation"
 
 import { trackSiteEventClient } from "@/lib/analytics/client"
+import {
+  readCheckoutEmailFromSearch,
+  trackTikTokPurchaseWithIdentify,
+} from "@/lib/analytics/tiktok-client"
 import { macwall } from "@/lib/macwall-site"
 
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void
-    ttq?: {
-      track: (...args: unknown[]) => void
-    }
   }
 }
 
@@ -51,29 +53,10 @@ function fireGa4Purchase() {
   })
 }
 
-function fireTikTokCompletePayment() {
-  if (typeof window.ttq?.track !== "function") return
-
-  const value = Number.isFinite(purchaseValue) ? purchaseValue : 7.99
-
-  window.ttq.track("CompletePayment", {
-    value,
-    currency: "USD",
-    contents: [
-      {
-        content_id: "macwall-pro",
-        content_type: "product",
-        content_name: `${macwall.name} Pro`,
-        price: value,
-        quantity: 1,
-      },
-    ],
-  })
-}
-
 /** Fires once per thank-you visit — internal analytics + optional Google Ads / GA4 / TikTok purchase. */
 export function PurchaseConversionTracker() {
   const fired = useRef(false)
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     if (fired.current) return
@@ -81,10 +64,14 @@ export function PurchaseConversionTracker() {
 
     trackSiteEventClient("purchase_complete", { product: "macwall_pro" })
 
+    const checkoutEmail = readCheckoutEmailFromSearch(searchParams)
+
     const run = () => {
       fireGoogleAdsConversion()
       fireGa4Purchase()
-      fireTikTokCompletePayment()
+      void trackTikTokPurchaseWithIdentify(
+        checkoutEmail ? { email: checkoutEmail } : undefined
+      )
     }
 
     if (
@@ -97,7 +84,7 @@ export function PurchaseConversionTracker() {
 
     const timer = window.setTimeout(run, 1200)
     return () => window.clearTimeout(timer)
-  }, [])
+  }, [searchParams])
 
   return null
 }
