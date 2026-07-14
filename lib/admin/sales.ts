@@ -1,0 +1,220 @@
+import type { AnalyticsEventRow } from "@/lib/analytics/admin-metrics"
+import { getSupabaseAdmin } from "@/lib/supabase/admin"
+
+/** MacWall Pro one-time price (USD). */
+export const PRO_PRICE_USD = 7.99
+
+/**
+ * Whop marketplace fee estimate: ~3% platform + ~2.9% + $0.30 processing.
+ * Override with WHOP_FEE_PERCENT / WHOP_FEE_FIXED env vars if your plan differs.
+ */
+const WHOP_FEE_PERCENT = Number.parseFloat(
+  process.env.WHOP_FEE_PERCENT ?? "5.9"
+)
+const WHOP_FEE_FIXED = Number.parseFloat(process.env.WHOP_FEE_FIXED ?? "0.30")
+
+export function netRevenuePerSale(): number {
+  const fee = PRO_PRICE_USD * (WHOP_FEE_PERCENT / 100) + WHOP_FEE_FIXED
+  return Math.max(0, PRO_PRICE_USD - fee)
+}
+
+export type SaleRow = { sent_at: string }
+export type DeviceRow = { activated_at: string }
+
+export type DailySalesRow = { day: string; sales: number; revenue: number }
+
+export type SalesSummary = {
+  pricePerSale: number
+  netPerSale: number
+  feePercentAssumed: number
+  feeFixedAssumed: number
+  sales: number
+  grossRevenue: number
+  netRevenue: number
+  prevSales: number
+  prevGrossRevenue: number
+  salesChangePercent: number | null
+  allTimeSales: number
+  allTimeGrossRevenue: number
+  allTimeNetRevenue: number
+  firstSaleAt: string | null
+  daily: DailySalesRow[]
+  prevDaily: DailySalesRow[]
+}
+
+export type ConversionFunnel = {
+  pageViews: number
+  uniqueVisitors: number
+  downloadClicks: number
+  installerRedirects: number
+  uniqueInstallSessions: number
+  activatedDevices: number
+  sales: number
+  visitorToDownloadRate: number
+  downloadToInstallRate: number
+  installToSaleRate: number
+  visitorToSaleRate: number
+}
+
+function round1(value: number): number {
+  return Math.round(value * 10) / 10
+}
+
+function round2(value: number): number {
+  return Math.round(value * 100) / 100
+}
+
+function rate(numerator: number, denominator: number): number {
+  if (denominator <= 0) return 0
+  return round1((numerator / denominator) * 100)
+}
+
+function bucketByDay(rows: SaleRow[]): DailySalesRow[] {
+  const totals = new Map<string, number>()
+  for (const row of rows) {
+    const day = row.sent_at.slice(0, 10)
+    totals.set(day, (totals.get(day) ?? 0) + 1)
+  }
+  return [...totals.entries()]
+    .map(([day, sales]) => ({
+      day,
+      sales,
+      revenue: round2(sales * PRO_PRICE_USD),
+    }))
+    .sort((a, b) => a.day.localeCompare(b.day))
+}
+
+/** Single query — every Whop sale ever recorded (low volume table). */
+export async function fetchAllSales(): Promise<SaleRow[]> {
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase
+    .from("macwall_whop_license_emails")
+    .select("sent_at")
+    .order("sent_at", { ascending: true })
+    .limit(10000)
+
+  if (error) throw new Error(error.message)
+  return (data ?? []) as SaleRow[]
+}
+
+/** Single query — every license device activation (low volume table). */
+export async function fetchAllDeviceActivations(): Promise<DeviceRow[]> {
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase
+    .from("macwall_license_devices")
+    .select("activated_at")
+    .order("activated_at", { ascending: true })
+    .limit(10000)
+
+  if (error) throw new Error(error.message)
+  return (data ?? []) as DeviceRow[]
+}
+
+/** Pure: computes the full sales summary from all sale rows. */
+export function buildSalesSummary(
+  allSales: SaleRow[],
+  days: number
+): SalesSummary {
+  const now = new Date()
+  const since = new Date(now)
+  since.setUTCDate(since.getUTCDate() - days)
+  const prevSince = new Date(since)
+  prevSince.setUTCDate(prevSince.getUTCDate() - days)
+
+  const sinceIso = since.toISOString()
+  const prevSinceIso = prevSince.toISOString()
+
+  const currentRows = allSales.filter((row) => row.sent_at >= sinceIso)
+  const prevRows = allSales.filter(
+    (row) => row.sent_at >= prevSinceIso && row.sent_at < sinceIso
+  )
+
+  const net = netRevenuePerSale()
+  const sales = currentRows.length
+  const prevSales = prevRows.length
+  const allTimeSales = allSales.length
+
+  let salesChangePercent: number | null = 0
+  if (prevSales > 0) {
+    salesChangePercent = round1(((sales - prevSales) / prevSales) * 100)
+  } else if (sales > 0) {
+    salesChangePercent = null
+  }
+
+  return {
+    pricePerSale: PRO_PRICE_USD,
+    netPerSale: round2(net),
+    feePercentAssumed: WHOP_FEE_PERCENT,
+    feeFixedAssumed: WHOP_FEE_FIXED,
+    sales,
+    grossRevenue: round2(sales * PRO_PRICE_USD),
+    netRevenue: round2(sales * net),
+    prevSales,
+    prevGrossRevenue: round2(prevSales * PRO_PRICE_USD),
+    salesChangePercent,
+    allTimeSales,
+    allTimeGrossRevenue: round2(allTimeSales * PRO_PRICE_USD),
+    allTimeNetRevenue: round2(allTimeSales * net),
+    firstSaleAt: allSales[0]?.sent_at ?? null,
+    daily: bucketByDay(currentRows),
+    prevDaily: bucketByDay(prevRows),
+  }
+}
+
+/** Pure: computes the install→sale funnel from already-fetched rows. */
+export function buildConversionFunnel(
+  eventRows: AnalyticsEventRow[],
+  deviceRows: DeviceRow[],
+  saleRows: SaleRow[],
+  days: number
+): ConversionFunnel {
+  const since = new Date()
+  since.setUTCDate(since.getUTCDate() - days)
+  const sinceIso = since.toISOString()
+
+  let pageViews = 0
+  let downloadClicks = 0
+  let installerRedirects = 0
+  const visitorSessions = new Set<string>()
+  const installSessions = new Set<string>()
+
+  for (const row of eventRows) {
+    if (row.event_name === "page_view") {
+      pageViews += 1
+      if (row.session_id) visitorSessions.add(row.session_id)
+    } else if (row.event_name === "download_click") {
+      downloadClicks += 1
+    } else if (row.event_name === "download_redirect") {
+      installerRedirects += 1
+      if (row.session_id) installSessions.add(row.session_id)
+    }
+  }
+
+  const activatedDevices = deviceRows.filter(
+    (row) => row.activated_at >= sinceIso
+  ).length
+  const sales = saleRows.filter((row) => row.sent_at >= sinceIso).length
+
+  const uniqueVisitors = visitorSessions.size
+  const uniqueInstallSessions = installSessions.size
+
+  return {
+    pageViews,
+    uniqueVisitors,
+    downloadClicks,
+    installerRedirects,
+    uniqueInstallSessions,
+    activatedDevices,
+    sales,
+    visitorToDownloadRate: rate(
+      uniqueInstallSessions,
+      Math.max(uniqueVisitors, uniqueInstallSessions)
+    ),
+    downloadToInstallRate: rate(activatedDevices, uniqueInstallSessions),
+    installToSaleRate: rate(sales, Math.max(activatedDevices, sales)),
+    visitorToSaleRate: rate(
+      sales,
+      Math.max(uniqueVisitors, uniqueInstallSessions, sales)
+    ),
+  }
+}

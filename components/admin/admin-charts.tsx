@@ -731,3 +731,218 @@ export function TopPagesChart({
     />
   )
 }
+
+/* ---------------------------------------------------------------------------
+ * Shopify-style sales comparison chart
+ * Solid line + gradient fill for current period, dotted line for previous.
+ * ------------------------------------------------------------------------- */
+
+type DailySalesRow = { day: string; sales: number; revenue: number }
+
+function isoDay(date: Date): string {
+  return date.toISOString().slice(0, 10)
+}
+
+function zeroFilledRange(
+  rows: DailySalesRow[],
+  endExclusive: Date,
+  days: number
+): DailySalesRow[] {
+  const byDay = new Map(rows.map((row) => [row.day, row]))
+  const out: DailySalesRow[] = []
+  for (let i = days - 1; i >= 0; i -= 1) {
+    const date = new Date(endExclusive)
+    date.setUTCDate(date.getUTCDate() - 1 - i)
+    const day = isoDay(date)
+    const found = byDay.get(day)
+    out.push(found ?? { day, sales: 0, revenue: 0 })
+  }
+  return out
+}
+
+const salesComparisonConfig = {
+  current: { label: "This period", color: "#0091ff" },
+  previous: { label: "Previous period", color: "#9ecdf5" },
+} satisfies ChartConfig
+
+export function SalesComparisonChart({
+  daily,
+  prevDaily,
+  days,
+  metric = "revenue",
+}: Readonly<{
+  daily: DailySalesRow[]
+  prevDaily: DailySalesRow[]
+  days: number
+  metric?: "revenue" | "sales"
+}>) {
+  const tomorrow = new Date()
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
+  const periodStart = new Date()
+  periodStart.setUTCDate(periodStart.getUTCDate() - days + 1)
+
+  const currentSeries = zeroFilledRange(daily, tomorrow, days)
+  const prevSeries = zeroFilledRange(prevDaily, periodStart, days)
+
+  const data = currentSeries.map((row, index) => ({
+    label: formatDayLabel(row.day),
+    current: metric === "revenue" ? row.revenue : row.sales,
+    previous:
+      metric === "revenue"
+        ? (prevSeries[index]?.revenue ?? 0)
+        : (prevSeries[index]?.sales ?? 0),
+  }))
+
+  const hasAny = data.some((row) => row.current > 0 || row.previous > 0)
+  if (!hasAny) {
+    return <ChartEmpty message="No sales in this range yet." />
+  }
+
+  const prefix = metric === "revenue" ? "$" : ""
+
+  return (
+    <ChartContainer config={salesComparisonConfig} className={chartShell}>
+      <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id="fill-sales-current" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#0091ff" stopOpacity={0.22} />
+            <stop offset="95%" stopColor="#0091ff" stopOpacity={0.01} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid
+          vertical={false}
+          stroke={APPLE.grid}
+          strokeDasharray="4 4"
+        />
+        <XAxis
+          dataKey="label"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          minTickGap={28}
+          tick={{ fill: APPLE.muted, fontSize: 11 }}
+        />
+        <YAxis
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          width={44}
+          tick={{ fill: APPLE.muted, fontSize: 11 }}
+          tickFormatter={(value: number) =>
+            `${prefix}${value.toLocaleString()}`
+          }
+        />
+        <ChartTooltip
+          cursor={{ stroke: APPLE.grid, strokeWidth: 1 }}
+          content={
+            <ChartTooltipContent
+              className="rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] ring-0"
+              indicator="dot"
+              formatter={(value, name, item) => (
+                <div className="flex w-full items-center justify-between gap-4">
+                  <span className="flex items-center gap-1.5 text-[#86868b]">
+                    <span
+                      className="size-2 rounded-full"
+                      style={{
+                        backgroundColor: item.color,
+                      }}
+                    />
+                    {salesComparisonConfig[
+                      name as keyof typeof salesComparisonConfig
+                    ]?.label ?? name}
+                  </span>
+                  <span className="font-medium text-[#1d1d1f] tabular-nums">
+                    {prefix}
+                    {Number(value).toLocaleString(undefined, {
+                      maximumFractionDigits: 2,
+                    })}
+                  </span>
+                </div>
+              )}
+            />
+          }
+        />
+        <ChartLegend content={<ChartLegendContent />} />
+        <Area
+          type="natural"
+          dataKey="previous"
+          stroke="#a9d3f7"
+          strokeWidth={2}
+          strokeDasharray="2 6"
+          strokeLinecap="round"
+          fill="none"
+          dot={false}
+          isAnimationActive
+        />
+        <Area
+          type="natural"
+          dataKey="current"
+          stroke="#0091ff"
+          strokeWidth={2.5}
+          strokeLinecap="round"
+          fill="url(#fill-sales-current)"
+          dot={false}
+          activeDot={{
+            r: 4.5,
+            fill: "#fff",
+            stroke: "#0091ff",
+            strokeWidth: 2.5,
+          }}
+          isAnimationActive
+        />
+      </AreaChart>
+    </ChartContainer>
+  )
+}
+
+/* ---------------------------------------------------------------------------
+ * Conversion funnel — gradient step bars with stage-to-stage rates
+ * ------------------------------------------------------------------------- */
+
+export function ConversionFunnelChart({
+  steps,
+}: Readonly<{
+  steps: Array<{ label: string; value: number; hint?: string }>
+}>) {
+  const peak = Math.max(1, ...steps.map((step) => step.value))
+
+  return (
+    <div className="space-y-3.5">
+      {steps.map((step, index) => {
+        const prev = index > 0 ? steps[index - 1].value : null
+        const stepRate =
+          prev && prev > 0 ? Math.round((step.value / prev) * 1000) / 10 : null
+        return (
+          <div key={step.label} className="space-y-1.5">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[13px] text-[#86868b]">
+                {step.label}
+                {step.hint ? (
+                  <span className="ml-1.5 text-[11px] text-[#86868b]/70">
+                    {step.hint}
+                  </span>
+                ) : null}
+              </span>
+              <span className="text-[14px] font-medium text-[#1d1d1f] tabular-nums">
+                {step.value.toLocaleString()}
+                {stepRate != null ? (
+                  <span className="ml-2 text-[11px] font-normal text-[#86868b]">
+                    {stepRate}% of prev
+                  </span>
+                ) : null}
+              </span>
+            </div>
+            <div className="h-3 overflow-hidden rounded-full bg-[#f5f5f7]">
+              <div
+                className="h-full rounded-full bg-linear-to-r from-[#0071e3] to-[#34c759] transition-all duration-500"
+                style={{
+                  width: `${Math.max(1.5, (step.value / peak) * 100)}%`,
+                }}
+              />
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}

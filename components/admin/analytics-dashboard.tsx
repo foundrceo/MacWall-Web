@@ -1,15 +1,26 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Activity, Download, Heart, ImageIcon, Users } from "lucide-react"
+import {
+  Activity,
+  ArrowDownRight,
+  ArrowUpRight,
+  CreditCard,
+  Download,
+  Heart,
+  ImageIcon,
+  Users,
+} from "lucide-react"
 
 import {
   CategoryDonut,
+  ConversionFunnelChart,
   DailyActivityChart,
   DownloadActivityChart,
   EventsSummaryChart,
   HorizontalBarChart,
   RingGauge,
+  SalesComparisonChart,
   StatRing,
   TopPagesChart,
 } from "@/components/admin/admin-charts"
@@ -52,6 +63,46 @@ type AnalyticsResponse = {
     category: string
     likeCount: number
   }>
+  sales?: {
+    pricePerSale: number
+    netPerSale: number
+    feePercentAssumed: number
+    feeFixedAssumed: number
+    sales: number
+    grossRevenue: number
+    netRevenue: number
+    prevSales: number
+    prevGrossRevenue: number
+    salesChangePercent: number | null
+    allTimeSales: number
+    allTimeGrossRevenue: number
+    allTimeNetRevenue: number
+    firstSaleAt: string | null
+    daily: Array<{ day: string; sales: number; revenue: number }>
+    prevDaily: Array<{ day: string; sales: number; revenue: number }>
+  }
+  conversionFunnel?: {
+    pageViews: number
+    uniqueVisitors: number
+    downloadClicks: number
+    installerRedirects: number
+    uniqueInstallSessions: number
+    activatedDevices: number
+    sales: number
+    visitorToDownloadRate: number
+    downloadToInstallRate: number
+    installToSaleRate: number
+    visitorToSaleRate: number
+  }
+}
+
+function formatUsd(value: number): string {
+  return value.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
 }
 
 export function AnalyticsDashboard() {
@@ -155,6 +206,14 @@ export function AnalyticsDashboard() {
             lastEventAt={data.lastEventAt}
             since={data.since}
           />
+
+          {data.sales ? (
+            <SalesSection
+              sales={data.sales}
+              funnel={data.conversionFunnel}
+              rangeDays={data.rangeDays}
+            />
+          ) : null}
 
           <section className="space-y-4">
             <AdminSectionHeading
@@ -402,6 +461,136 @@ export function AnalyticsDashboard() {
         </>
       ) : null}
     </div>
+  )
+}
+
+function SalesSection({
+  sales,
+  funnel,
+  rangeDays,
+}: Readonly<{
+  sales: NonNullable<AnalyticsResponse["sales"]>
+  funnel: AnalyticsResponse["conversionFunnel"]
+  rangeDays: number
+}>) {
+  const change = sales.salesChangePercent
+  const changeUp = change != null && change >= 0
+
+  return (
+    <section className="space-y-4">
+      <AdminSectionHeading
+        eyebrow={`Whop · last ${rangeDays} days vs previous ${rangeDays}`}
+        title="Sales & revenue"
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-[20px] bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-[13px] font-medium text-[#86868b]">
+              Gross revenue
+            </p>
+            <CreditCard className="size-4 text-[#86868b]" />
+          </div>
+          <div className="mt-2 flex flex-wrap items-baseline gap-2">
+            <p className="text-[32px] font-semibold tracking-[-0.03em] text-[#1d1d1f] tabular-nums">
+              {formatUsd(sales.grossRevenue)}
+            </p>
+            {change != null ? (
+              <span
+                className={
+                  changeUp
+                    ? "inline-flex items-center gap-0.5 text-[14px] font-medium text-[#248a3d]"
+                    : "inline-flex items-center gap-0.5 text-[14px] font-medium text-[#d70015]"
+                }
+              >
+                {changeUp ? (
+                  <ArrowUpRight className="size-3.5" />
+                ) : (
+                  <ArrowDownRight className="size-3.5" />
+                )}
+                {Math.abs(change)}%
+              </span>
+            ) : sales.sales > 0 ? (
+              <AdminBadge tone="green">New</AdminBadge>
+            ) : null}
+          </div>
+          <p className="mt-1.5 text-[12px] text-[#86868b]">
+            {sales.sales} sales × {formatUsd(sales.pricePerSale)} · prev period{" "}
+            {formatUsd(sales.prevGrossRevenue)}
+          </p>
+        </div>
+
+        <AdminMetricTile
+          label="Net revenue (est.)"
+          value={formatUsd(sales.netRevenue)}
+          hint={`≈ ${formatUsd(sales.netPerSale)}/sale after ~${sales.feePercentAssumed}% + $${sales.feeFixedAssumed.toFixed(2)} Whop fees`}
+        />
+        <AdminMetricTile
+          label="All-time revenue"
+          value={formatUsd(sales.allTimeGrossRevenue)}
+          hint={`${sales.allTimeSales} lifetime sales · ${formatUsd(sales.allTimeNetRevenue)} net est.`}
+        />
+        <AdminMetricTile
+          label="Visitor → sale"
+          value={`${funnel?.visitorToSaleRate ?? 0}%`}
+          hint="Unique site sessions that became purchases"
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <AdminSurface className="lg:col-span-2">
+          <AdminSurfaceHeader
+            title="Revenue over time"
+            description={`Daily gross revenue · solid = this period, dotted = previous ${rangeDays} days`}
+          />
+          <AdminSurfaceBody>
+            <SalesComparisonChart
+              daily={sales.daily}
+              prevDaily={sales.prevDaily}
+              days={rangeDays}
+              metric="revenue"
+            />
+          </AdminSurfaceBody>
+        </AdminSurface>
+
+        <AdminSurface>
+          <AdminSurfaceHeader
+            title="Conversion funnel"
+            description="From site visit to paid license"
+          />
+          <AdminSurfaceBody>
+            {funnel ? (
+              <ConversionFunnelChart
+                steps={[
+                  {
+                    label: "Unique visitors",
+                    value: funnel.uniqueVisitors,
+                    hint: `${funnel.pageViews} page views`,
+                  },
+                  {
+                    label: "Download sessions",
+                    value: funnel.uniqueInstallSessions,
+                    hint: `${funnel.installerRedirects} redirects`,
+                  },
+                  {
+                    label: "Devices activated",
+                    value: funnel.activatedDevices,
+                  },
+                  {
+                    label: "Purchases",
+                    value: funnel.sales,
+                  },
+                ]}
+              />
+            ) : (
+              <p className="text-[14px] text-[#86868b]">
+                No funnel data in range.
+              </p>
+            )}
+          </AdminSurfaceBody>
+        </AdminSurface>
+      </div>
+    </section>
   )
 }
 
