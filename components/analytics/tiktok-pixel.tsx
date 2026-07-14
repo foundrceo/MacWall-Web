@@ -1,14 +1,6 @@
 import Script from "next/script"
 
-/** Shipped default when `NEXT_PUBLIC_TIKTOK_PIXEL_ID` is unset. Set the env empty to disable. */
-const TIKTOK_PIXEL_ID_FALLBACK = "YOUR_TIKTOK_PIXEL_ID" as const
-
-export function resolveTikTokPixelId(): string | undefined {
-  const raw = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID
-  if (raw === undefined) return TIKTOK_PIXEL_ID_FALLBACK
-  const trimmed = raw.trim()
-  return trimmed.length > 0 ? trimmed : undefined
-}
+export { resolveTikTokPixelId } from "@/lib/analytics/tiktok-config"
 
 /** TikTok Events Manager base pixel — loads on every page and fires `ttq.page()`. */
 export function TikTokPixel({ pixelId }: Readonly<{ pixelId: string }>) {

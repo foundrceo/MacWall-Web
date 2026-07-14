@@ -7,7 +7,7 @@ import type {
 
 const SESSION_KEY = "macwall_analytics_session"
 
-function analyticsSessionId(): string {
+export function getAnalyticsSessionId(): string {
   if (typeof window === "undefined") return ""
 
   try {
@@ -36,7 +36,7 @@ export function trackSiteEventClient(
     eventName,
     path: window.location.pathname,
     referrer: document.referrer || null,
-    sessionId: analyticsSessionId(),
+    sessionId: getAnalyticsSessionId(),
     metadata: metadata ?? {},
   }
 

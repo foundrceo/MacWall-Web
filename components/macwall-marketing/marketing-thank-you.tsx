@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { Suspense } from "react"
 import { Mail } from "lucide-react"
 
 import { PurchaseConversionTracker } from "@/components/analytics/purchase-conversion-tracker"
@@ -19,7 +20,9 @@ import { macwall, mailtoSupport } from "@/lib/macwall-site"
 export default function MacWallMarketingThankYouPage() {
   return (
     <div className="MacWallMarketingPage min-h-screen bg-white">
-      <PurchaseConversionTracker />
+      <Suspense fallback={null}>
+        <PurchaseConversionTracker />
+      </Suspense>
       <MacWallMarketingHeader variant="light" />
       <main className="pt-14 md:pt-20">
         <MarketingContainer>

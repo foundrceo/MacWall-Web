@@ -8,6 +8,7 @@ import type {
   SiteAnalyticsEventName,
   SiteAnalyticsMetadata,
 } from "@/lib/analytics/events"
+import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
 
 type TrackedLinkProps = {
   href: string
@@ -30,6 +31,10 @@ export function TrackedLink({
 }: TrackedLinkProps) {
   const onNavigate = () => {
     trackSiteEventClient(eventName, metadata)
+
+    if (eventName === "pricing_click") {
+      void trackTikTokInitiateCheckoutWithIdentify()
+    }
   }
 
   const trackProps = {
