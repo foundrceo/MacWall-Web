@@ -6,6 +6,7 @@ import {
 import { JsonLd } from "@/components/seo/json-ld"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { getAllBlogSlugs, getBlogArticle } from "@/lib/blog"
+import { blogTilePoster } from "@/lib/blog/tile-media"
 import { BLOG_CATEGORY_LABELS, type BlogCategory } from "@/lib/content/types"
 import { articleJsonLd, faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
@@ -29,10 +30,27 @@ export async function generateMetadata({
   const article = getBlogArticle(slug)
   if (!article) return {}
 
-  return createSeoPageMetadata({
+  const base = createSeoPageMetadata({
     ...article,
     title: article.title,
   })
+
+  const poster = blogTilePoster(slug, article.category, "hero")
+  const posterUrl = poster.startsWith("http")
+    ? poster
+    : `${canonicalSiteOrigin()}${poster}`
+  const posterImage = {
+    url: posterUrl,
+    width: 1600,
+    height: 1000,
+    alt: article.headline,
+  }
+
+  return {
+    ...base,
+    openGraph: { ...base.openGraph, images: [posterImage] },
+    twitter: { ...base.twitter, images: [posterUrl] },
+  }
 }
 
 function formatDate(iso: string) {

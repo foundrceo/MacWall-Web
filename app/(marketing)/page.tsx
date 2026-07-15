@@ -65,12 +65,12 @@ const HOME_FAQ = [
   {
     question: "What is the best live wallpaper app for Mac?",
     answer:
-      "MacWall is a native macOS app with hardware-accelerated video playback, menu bar controls, community catalog, and one-time Pro pricing — built for smooth daily use on Apple Silicon and Intel Macs.",
+      "MacWall is a native macOS app with hardware-accelerated video playback, menu bar controls, community catalog, and one-time Pro pricing, built for smooth daily use on Apple Silicon and Intel Macs.",
   },
   {
-    question: "Is MacWall free to download?",
+    question: "How much does MacWall cost?",
     answer:
-      "Yes. Desktop live wallpapers are free. MacWall Pro is an optional one-time upgrade for Lock Screen motion and exclusive catalog features.",
+      "MacWall is a one-time $7.99 purchase (early bird, normally $9.99) with lifetime updates and no subscription. One license covers up to 3 personal Macs, and posting a Reel with #macwall can earn up to 100% of the price back.",
   },
   {
     question: "Does MacWall work on MacBook Air and MacBook Pro?",

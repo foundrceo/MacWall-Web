@@ -9,7 +9,7 @@ export const macosArticles: BlogArticle[] = [
     description:
       "Everything Sonoma users need to know about animated desktop and Lock Screen wallpapers with MacWall.",
     excerpt:
-      "Sonoma-compatible live wallpapers — desktop free, Lock Screen with MacWall Pro.",
+      "Sonoma-compatible live wallpapers for desktop, plus Lock Screen on supported macOS versions.",
     category: "macos",
     readMinutes: 5,
     publishedAt: "2026-03-18",
@@ -21,7 +21,7 @@ export const macosArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "macOS Sonoma refined desktop personalization with updated dynamic wallpapers and improved multi-display support. **MacWall** extends Sonoma with true video loops — cinematic motion behind your windows, not just time-of-day gradients.",
+        text: "macOS Sonoma refined desktop personalization with updated dynamic wallpapers and improved multi-display support. **MacWall** extends Sonoma with true video loops, cinematic motion behind your windows, not just time-of-day gradients.",
       },
       {
         type: "h2",
@@ -42,7 +42,7 @@ export const macosArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Download MacWall, grant necessary permissions when prompted, and pick a catalog wallpaper. Sonoma's window server handles compositing — MacWall feeds decoded frames efficiently underneath.",
+        text: "Download MacWall, grant necessary permissions when prompted, and pick a catalog wallpaper. Sonoma's window server handles compositing. MacWall feeds decoded frames efficiently underneath.",
       },
     ],
     faq: [
@@ -73,7 +73,7 @@ export const macosArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "macOS Sequoia continues Apple's visual polish. **MacWall** complements Sequoia's built-in dynamic sets with full-motion video — and MacWall Pro pushes motion to the Lock Screen where Sequoia allows custom video backgrounds.",
+        text: "macOS Sequoia continues Apple's visual polish. **MacWall** complements Sequoia's built-in dynamic sets with full-motion video, and MacWall Pro pushes motion to the Lock Screen where Sequoia allows custom video backgrounds.",
       },
       {
         type: "h2",
@@ -85,7 +85,7 @@ export const macosArticles: BlogArticle[] = [
           "Apple Silicon decode optimized for M3/M4 Sequoia machines",
           "Catalog refreshed with Sequoia-friendly 4K assets",
           "Pause rules tuned for Sequoia full-screen Spaces",
-          "One-time Pro pricing — no subscription on Apple's newest OS",
+          "One-time Pro pricing, no subscription on Apple's newest OS",
         ],
       },
       {
@@ -105,7 +105,7 @@ export const macosArticles: BlogArticle[] = [
     title: "Live Wallpapers for MacBook Pro (M-Series)",
     headline: "Live Wallpapers for MacBook Pro",
     description:
-      "MacBook Pro setup guide for 4K motion wallpapers — external displays, battery tips, and MacWall configuration.",
+      "MacBook Pro setup guide for 4K motion wallpapers, external displays, battery tips, and MacWall configuration.",
     excerpt:
       "Maximize your MacBook Pro desktop with hardware-accelerated live wallpapers.",
     category: "macos",
@@ -131,7 +131,7 @@ export const macosArticles: BlogArticle[] = [
           "Enable pause-on-battery for mobile use",
           "Use 4K catalog loops on the built-in display",
           "Assign a separate wallpaper to each external monitor",
-          "Upgrade to Pro for Lock Screen motion",
+          "Turn on Lock Screen motion on supported macOS versions",
         ],
       },
     ],
@@ -143,7 +143,7 @@ export const macosArticles: BlogArticle[] = [
     title: "Live Wallpapers for MacBook Air",
     headline: "Live Wallpapers for MacBook Air",
     description:
-      "Light, efficient motion wallpapers on MacBook Air — battery-smart defaults and 1440p–4K guidance.",
+      "Light, efficient motion wallpapers on MacBook Air, battery-smart defaults and 1440p–4K guidance.",
     excerpt:
       "Beautiful desktops on MacBook Air without compromising portability.",
     category: "macos",
@@ -169,7 +169,7 @@ export const macosArticles: BlogArticle[] = [
           "Keep pause-on-battery enabled (default recommended)",
           "Prefer 2560×1440 loops on 13-inch Air for best efficiency",
           "Use menu bar pause before long unplugged work sessions",
-          "Free download — no subscription weighing down your wallet",
+          "Free download, no subscription weighing down your wallet",
         ],
       },
     ],
@@ -179,11 +179,11 @@ export const macosArticles: BlogArticle[] = [
     slug: "macos-27-beta-live-wallpaper-not-working",
     pathname: "/blog/macos-27-beta-live-wallpaper-not-working",
     title: "Live Wallpaper Not Working on macOS 27 Beta? Here's the Fix",
-    headline: "Live Wallpaper Broke on macOS 27 Beta — Here's What Happened",
+    headline: "Live Wallpaper Broke on macOS 27 Beta: Here's What Happened",
     description:
-      "Apple's macOS 27 beta broke Lock Screen and Screen Saver video in most wallpaper apps. MacWall is the first app with native macOS 27 support — here's the fix.",
+      "Apple's macOS 27 beta broke Lock Screen and Screen Saver video in most wallpaper apps. MacWall is the first app with native macOS 27 support, here's the fix.",
     excerpt:
-      "The macOS 27 beta changed how custom wallpaper assets work, breaking most live wallpaper apps. MacWall already works.",
+      "The macOS 27 beta broke Lock Screen video in most live wallpaper apps. MacWall already works.",
     category: "macos",
     readMinutes: 6,
     publishedAt: "2026-06-12",
@@ -198,17 +198,17 @@ export const macosArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Installed the new **macOS 27 beta** and noticed your live Lock Screen or Screen Saver suddenly shows Apple's default Aerials instead of your video? You're not alone. The beta changed how macOS handles custom wallpaper assets — and the Lock Screen features of most third-party wallpaper apps stopped working overnight.",
+        text: "Installed the new **macOS 27 beta** and noticed your live Lock Screen or Screen Saver suddenly shows Apple's defaults instead of your video? You're not alone. The beta changed system wallpaper behavior under the hood, and the Lock Screen features of most third-party wallpaper apps stopped working overnight.",
       },
-      { type: "h2", text: "What Apple changed in macOS 27" },
+      { type: "h2", text: "What changed in macOS 27" },
       {
         type: "p",
-        text: "On macOS 26 (Tahoe), apps could register custom video assets with the system wallpaper stack and they would appear in System Settings and play on the Lock Screen and Screen Saver. The macOS 27 beta tightened this: the system now **ignores unknown custom asset IDs**, so wallpapers registered the old way are silently dropped. Apps built only for the macOS 26 behavior break with no error — the video just never plays.",
+        text: "Apple regularly reworks system internals between major releases, and the macOS 27 beta is no exception. Lock Screen and Screen Saver wallpapers that worked perfectly on macOS 26 (Tahoe) silently stopped playing, no error, no warning. Apps built only for the macOS 26 behavior simply fail: the video never appears.",
       },
       { type: "h2", text: "MacWall: the first app that works on macOS 27" },
       {
         type: "p",
-        text: "**MacWall** shipped dedicated macOS 27 beta support. Instead of relying on the old custom-asset path, MacWall integrates with the asset format the new beta actually accepts, safely backing up the original system media and restoring it whenever you switch back. The result: **live Lock Screen and Screen Saver video that keeps working natively on macOS 27** — while competitor apps wait for rewrites.",
+        text: "**MacWall** shipped dedicated macOS 27 beta support ahead of everyone else. The result: **live Lock Screen and Screen Saver video that keeps working natively on macOS 27**: while competitor apps wait for rewrites. Switching back and forth is always safe, and your original system wallpaper is never lost.",
       },
       {
         type: "h2",
@@ -217,16 +217,16 @@ export const macosArticles: BlogArticle[] = [
       {
         type: "ol",
         items: [
-          "Download MacWall free from macwall.app/download.",
+          "Download MacWall from macwall.app/download.",
           "Pick any wallpaper from the catalog or import your own MP4/MOV.",
           'Enable "Use Lock Screen & Screen Saver" (MacWall Pro).',
-          "Lock your screen — your video plays natively, even on the 27 beta.",
+          "Lock your screen, your video plays natively, even on the 27 beta.",
         ],
       },
       { type: "h2", text: "If your system wallpaper got stuck" },
       {
         type: "p",
-        text: 'Switched between apps and now the Lock Screen shows the wrong thing? MacWall includes a one-click repair: Settings → "Restore System Aerial with Lock Screen" restores Apple\'s original manifest and restarts the wallpaper services cleanly. No Terminal, no reinstall.',
+        text: "Switched between apps and now the Lock Screen shows the wrong thing? MacWall includes a one-click repair tool in Settings that cleanly restores Apple's default Lock Screen and Screen Saver. No Terminal, no reinstall.",
       },
     ],
     faq: [
@@ -234,7 +234,7 @@ export const macosArticles: BlogArticle[] = [
         question:
           "Why did my live wallpaper stop working after updating to macOS 27 beta?",
         answer:
-          "The macOS 27 beta ignores custom wallpaper asset IDs registered the macOS 26 way. Apps that haven't updated for the new behavior silently fail. MacWall ships dedicated macOS 27 support, so its Lock Screen and Screen Saver video keep working.",
+          "The macOS 27 beta changed system wallpaper behavior, and apps that haven't updated for it silently fail. MacWall ships dedicated macOS 27 support, so its Lock Screen and Screen Saver video keep working.",
       },
       {
         question: "Which wallpaper apps work on macOS 27?",
@@ -244,7 +244,7 @@ export const macosArticles: BlogArticle[] = [
       {
         question: "Is it safe to use MacWall on a beta?",
         answer:
-          "Yes. MacWall backs up the original system wallpaper media before integrating and includes a one-click repair tool to restore Apple's defaults at any time.",
+          "Yes. MacWall never destroys your system configuration and includes a one-click repair tool to restore Apple's defaults at any time.",
       },
     ],
   },
@@ -254,7 +254,7 @@ export const macosArticles: BlogArticle[] = [
     title: "macOS 27 Lock Screen Live Wallpaper: The Complete Guide",
     headline: "Lock Screen Live Wallpaper on macOS 27",
     description:
-      "Set a live video wallpaper on your macOS 27 Lock Screen and Screen Saver. MacWall is the first app with native macOS 27 support — full setup guide.",
+      "Set a live video wallpaper on your macOS 27 Lock Screen and Screen Saver. MacWall is the first app with native macOS 27 support, full setup guide.",
     excerpt:
       "Step-by-step: native video Lock Screen and Screen Saver on the newest macOS, with the only app that supports it.",
     category: "macos",
@@ -270,27 +270,27 @@ export const macosArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "macOS 27 keeps Apple's beautiful Aerial system for the Lock Screen and Screen Saver — but out of the box you're limited to Apple's own footage. **MacWall** is the first app in the world to bring **your own live video wallpapers** to the macOS 27 Lock Screen and Screen Saver, natively, through the system wallpaper stack.",
+        text: "macOS 27 ships beautiful Lock Screen and Screen Saver wallpapers, but out of the box you're limited to Apple's own footage. **MacWall** is the first app in the world to bring **your own live video wallpapers** to the macOS 27 Lock Screen and Screen Saver, natively.",
       },
       { type: "h2", text: "What you get" },
       {
         type: "ul",
         items: [
           "Any catalog wallpaper or personal MP4/MOV on your Lock Screen",
-          "The same video as your Screen Saver — one integration covers both",
-          "Native playback through Apple's wallpaper system, not an overlay hack",
-          "Automatic HEVC transcoding with hardware encode when a clip needs it",
-          "One-click restore of Apple's default Aerials anytime",
+          "The same video as your Screen Saver, one integration covers both",
+          "True native playback, not an overlay hack",
+          "Automatic format conversion when a clip needs it, hardware-accelerated",
+          "One-click restore of Apple's defaults anytime",
         ],
       },
       { type: "h2", text: "Setup in under two minutes" },
       {
         type: "ol",
         items: [
-          "Download MacWall free and pick a wallpaper (or import your own).",
-          "Upgrade to MacWall Pro ($7.99 one-time) to unlock Lock Screen.",
+          "Download MacWall and pick a wallpaper (or import your own).",
+          "Activate your one-time $7.99 license, Lock Screen included.",
           'Toggle "Use Lock Screen & Screen Saver" in Settings.',
-          "Lock your Mac — the video plays natively on the Lock Screen.",
+          "Lock your Mac, the video plays natively on the Lock Screen.",
         ],
       },
       { type: "h2", text: "Requirements" },
@@ -305,14 +305,14 @@ export const macosArticles: BlogArticle[] = [
       { type: "h2", text: "Why only MacWall works on the 27 beta" },
       {
         type: "p",
-        text: "Apple's macOS 27 beta ignores unknown custom wallpaper asset IDs, which broke the Lock Screen features of other wallpaper apps. MacWall ships a macOS 27-specific integration path with safe backup and restore of system media — which is why it's currently the only app delivering native live Lock Screen video on the new beta.",
+        text: "Apple's macOS 27 beta changed system wallpaper behavior, which broke the Lock Screen features of other wallpaper apps. MacWall shipped dedicated macOS 27 support faster than anyone, which is why it's currently the only app delivering native live Lock Screen video on the new beta, with safe one-click restore of Apple's defaults.",
       },
     ],
     faq: [
       {
         question: "Can I set a video as my Lock Screen on macOS 27?",
         answer:
-          "Yes — with MacWall Pro. It integrates your video into the system wallpaper stack so it plays natively on the Lock Screen and Screen Saver, including on the macOS 27 beta.",
+          "Yes, with MacWall Pro. Your video plays natively on the Lock Screen and Screen Saver, including on the macOS 27 beta.",
       },
       {
         question: "Does this work on older macOS versions?",

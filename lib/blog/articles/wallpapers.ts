@@ -7,9 +7,9 @@ export const wallpaperArticles: BlogArticle[] = [
     title: "Anime Live Wallpapers for Mac",
     headline: "Anime Live Wallpapers for Mac",
     description:
-      "Neon city loops, sakura scenes, and anime motion wallpapers on macOS — browse MacWall's Anime category or import your own.",
+      "Neon city loops, sakura scenes, and anime motion wallpapers on macOS, browse MacWall's Anime category or import your own.",
     excerpt:
-      "The best anime motion desktops for Mac — curated catalog plus custom imports.",
+      "The best anime motion desktops for Mac, curated catalog plus custom imports.",
     category: "wallpapers",
     readMinutes: 4,
     publishedAt: "2026-03-22",
@@ -21,7 +21,7 @@ export const wallpaperArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Anime fans want motion desktops that match their aesthetic — rain-soaked alleys, cyberpunk skylines, gentle slice-of-life loops. **MacWall's Anime category** curates community favorites in 1440p and 4K, ready to play with hardware decode.",
+        text: "Anime fans want motion desktops that match their aesthetic, rain-soaked alleys, cyberpunk skylines, gentle slice-of-life loops. **MacWall's Anime category** curates community favorites in 1440p and 4K, ready to play with hardware decode.",
       },
       {
         type: "h2",
@@ -48,7 +48,7 @@ export const wallpaperArticles: BlogArticle[] = [
     title: "Nature Live Wallpapers for Mac",
     headline: "Nature Live Wallpapers for Mac",
     description:
-      "Forests, oceans, mountains, and weather loops — calm nature motion wallpapers for macOS desktops.",
+      "Forests, oceans, mountains, and weather loops, calm nature motion wallpapers for macOS desktops.",
     excerpt:
       "Bring the outdoors to your Mac desktop with curated nature video loops.",
     category: "wallpapers",
@@ -62,7 +62,7 @@ export const wallpaperArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Nature loops are the most popular live wallpaper genre — calming, universal, and gorgeous on Retina displays. **MacWall's Nature category** includes coastal mist, forest canopies, aurora timelapses, and rainfall scenes.",
+        text: "Nature loops are the most popular live wallpaper genre, calming, universal, and gorgeous on Retina displays. **MacWall's Nature category** includes coastal mist, forest canopies, aurora timelapses, and rainfall scenes.",
       },
       {
         type: "p",
@@ -77,7 +77,7 @@ export const wallpaperArticles: BlogArticle[] = [
     title: "Space & Sci-Fi Live Wallpapers for Mac",
     headline: "Space Live Wallpapers for Mac",
     description:
-      "Orbital sunrises, nebula flythroughs, and sci-fi loops for Mac desktops — MacWall Space and Sci-fi categories.",
+      "Orbital sunrises, nebula flythroughs, and sci-fi loops for Mac desktops. MacWall Space and Sci-fi categories.",
     excerpt:
       "Explore the cosmos on your Mac desktop with 4K space motion wallpapers.",
     category: "wallpapers",
@@ -91,7 +91,7 @@ export const wallpaperArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Space wallpapers turn your Mac into a viewport to the cosmos. **MacWall** hosts orbital loops, nebula clouds, and sci-fi city flythroughs in both Space and Sci-fi categories — many in 4K and ultrawide.",
+        text: "Space wallpapers turn your Mac into a viewport to the cosmos. **MacWall** hosts orbital loops, nebula clouds, and sci-fi city flythroughs in both Space and Sci-fi categories, many in 4K and ultrawide.",
       },
       {
         type: "p",
@@ -106,7 +106,7 @@ export const wallpaperArticles: BlogArticle[] = [
     title: "Gaming Live Wallpapers for Mac",
     headline: "Gaming Live Wallpapers for Mac",
     description:
-      "Video game-inspired motion desktops for Mac — MacWall's Video Games category and custom gameplay imports.",
+      "Video game-inspired motion desktops for Mac. MacWall's Video Games category and custom gameplay imports.",
     excerpt:
       "Game-inspired loops and gameplay captures as live Mac wallpapers.",
     category: "wallpapers",
@@ -120,11 +120,11 @@ export const wallpaperArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "From cyberpunk cityscapes to fantasy realms, gaming aesthetics dominate desktop culture. **MacWall's Video Games category** curates loops inspired by popular game visuals — plus you can import your own gameplay highlights.",
+        text: "From cyberpunk cityscapes to fantasy realms, gaming aesthetics dominate desktop culture. **MacWall's Video Games category** curates loops inspired by popular game visuals, plus you can import your own gameplay highlights.",
       },
       {
         type: "p",
-        text: "MacWall pauses automatically when you launch a game full screen — motion on your desktop, silence during play.",
+        text: "MacWall pauses automatically when you launch a game full screen, motion on your desktop, silence during play.",
       },
     ],
     faq: [],

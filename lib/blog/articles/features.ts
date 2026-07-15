@@ -7,7 +7,7 @@ export const featureArticles: BlogArticle[] = [
     title: "Why MacWall Is the Best Native Wallpaper App for macOS",
     headline: "Why MacWall Is the Best Native Wallpaper App",
     description:
-      "Native SwiftUI, Metal hardware decode, menu bar controls, and intelligent pause — the technical reasons MacWall runs smoother than cross-platform wallpaper apps.",
+      "Native SwiftUI, Metal hardware decode, menu bar controls, and intelligent pause, the technical reasons MacWall runs smoother than cross-platform wallpaper apps.",
     excerpt:
       "Built for Mac. Runs like Mac software. Here's the engineering behind the smoothest wallpaper experience.",
     category: "features",
@@ -21,7 +21,7 @@ export const featureArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Most wallpaper apps on Mac are ports — Electron shells, web views, or Windows code in compatibility layers. **MacWall** is native macOS software. That is not marketing fluff; it is why playback stays smooth when you have twenty Safari tabs open.",
+        text: "Most wallpaper apps on Mac are ports. Electron shells, web views, or Windows code in compatibility layers. **MacWall** is native macOS software. That is not marketing fluff; it is why playback stays smooth when you have twenty Safari tabs open.",
       },
       {
         type: "h2",
@@ -48,7 +48,7 @@ export const featureArticles: BlogArticle[] = [
         items: [
           "Pause when on battery power",
           "Pause when any app goes full screen",
-          "Per-display players — one decoder per monitor",
+          "Per-display players, one decoder per monitor",
           "Respects reduced motion accessibility settings",
         ],
       },
@@ -58,7 +58,7 @@ export const featureArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Curated catalog lanes plus unlimited personal imports. You are not locked into a closed library. Upload, share, and discover — the catalog grows daily.",
+        text: "Curated catalog lanes plus unlimited personal imports. You are not locked into a closed library. Upload, share, and discover, the catalog grows daily.",
       },
       {
         type: "h2",
@@ -66,14 +66,14 @@ export const featureArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Free desktop wallpapers. Pro is $7.99 one-time — not $9.99/month. Lifetime updates. Licensed on 3 personal Macs. Make a Reel and earn your money back.",
+        text: "One-time $7.99, not $9.99/month like subscription apps. Lifetime updates. Licensed on 3 personal Macs. Make a Reel with #macwall and earn your money back.",
       },
     ],
     faq: [
       {
         question: "Is MacWall really the smoothest Mac wallpaper app?",
         answer:
-          "Native GPU decode and intelligent pause give MacWall a structural performance advantage over cross-platform apps. Try the free download and compare CPU usage in Activity Monitor.",
+          "Native GPU decode and intelligent pause give MacWall a structural performance advantage over cross-platform apps. Install it and compare CPU usage in Activity Monitor.",
       },
     ],
   },
@@ -85,7 +85,7 @@ export const featureArticles: BlogArticle[] = [
     description:
       "How MacWall Pro brings video motion to your Mac Lock Screen on supported Sonoma and Sequoia builds.",
     excerpt:
-      "Motion on your Lock Screen — the Pro feature that makes MacWall stand out.",
+      "Motion on your Lock Screen, the Pro feature that makes MacWall stand out.",
     category: "features",
     readMinutes: 5,
     publishedAt: "2026-03-12",
@@ -97,7 +97,7 @@ export const featureArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Your desktop is only half the canvas. **MacWall Pro** extends live motion to the Lock Screen on macOS versions where Apple allows custom video backgrounds — including recent Sonoma and Sequoia builds.",
+        text: "Your desktop is only half the canvas. **MacWall Pro** extends live motion to the Lock Screen on macOS versions where Apple allows custom video backgrounds, including recent Sonoma and Sequoia builds.",
       },
       {
         type: "h2",
@@ -106,7 +106,7 @@ export const featureArticles: BlogArticle[] = [
       {
         type: "ol",
         items: [
-          "Upgrade to MacWall Pro (one-time purchase).",
+          "Activate MacWall with your one-time license.",
           "Pick a wallpaper from the catalog or your Library.",
           "Enable Lock Screen in wallpaper settings.",
           "Lock your Mac to see the loop on the login screen.",
@@ -125,7 +125,7 @@ export const featureArticles: BlogArticle[] = [
       {
         question: "Is Lock Screen wallpaper included free?",
         answer:
-          "Lock Screen live wallpaper is a MacWall Pro feature. Desktop playback remains free.",
+          "Lock Screen live wallpaper is included with MacWall's one-time license on supported macOS versions.",
       },
     ],
   },
@@ -137,7 +137,7 @@ export const featureArticles: BlogArticle[] = [
     description:
       "How MacWall minimizes battery impact with pause-on-battery, hardware decode, and full-screen detection.",
     excerpt:
-      "The truth about live wallpapers and MacBook battery life — and how MacWall fixes it.",
+      "The truth about live wallpapers and MacBook battery life, and how MacWall fixes it.",
     category: "features",
     readMinutes: 5,
     publishedAt: "2026-03-13",
@@ -149,7 +149,7 @@ export const featureArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Yes, playing video continuously uses energy. But **how** the app plays video matters enormously. Software-rendered wallpapers can burn 5–15% CPU. MacWall's hardware decode on Apple Silicon typically stays under 1% when plugged in — and **zero** when pause-on-battery kicks in.",
+        text: "Yes, playing video continuously uses energy. But **how** the app plays video matters enormously. Software-rendered wallpapers can burn 5–15% CPU. MacWall's hardware decode on Apple Silicon typically stays under 1% when plugged in, and **zero** when pause-on-battery kicks in.",
       },
       {
         type: "h2",
@@ -160,7 +160,7 @@ export const featureArticles: BlogArticle[] = [
         items: [
           "Automatic pause on battery",
           "Pause during full-screen apps (video calls, games, Keynote)",
-          "One hardware decoder per display — no duplicate work",
+          "One hardware decoder per display, no duplicate work",
           "Preload off until wallpaper is visible",
         ],
       },
@@ -181,7 +181,7 @@ export const featureArticles: BlogArticle[] = [
     title: "4K Video Wallpapers on Mac: Performance Guide",
     headline: "4K Video Wallpapers on Mac",
     description:
-      "Run stunning 3840×2160 and 5K motion wallpapers on Mac without stutter — MacWall's decode pipeline explained.",
+      "Run stunning 3840×2160 and 5K motion wallpapers on Mac without stutter. MacWall's decode pipeline explained.",
     excerpt: "4K loops on Retina displays with native hardware acceleration.",
     category: "features",
     readMinutes: 4,
@@ -194,7 +194,7 @@ export const featureArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "4K video wallpapers look incredible on 27-inch iMacs and MacBook Pro Retina panels. **MacWall** decodes 4K H.264 and HEVC streams on the GPU — the same pipeline used by QuickTime and Final Cut playback.",
+        text: "4K video wallpapers look incredible on 27-inch iMacs and MacBook Pro Retina panels. **MacWall** decodes 4K H.264 and HEVC streams on the GPU, the same pipeline used by QuickTime and Final Cut playback.",
       },
       {
         type: "h2",
@@ -214,7 +214,7 @@ export const featureArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "MacBook Air 13-inch and older Intel Macs may run cooler with 2560×1440 sources. MacWall scales video to fit — pick the resolution that matches your display for best quality-to-performance ratio.",
+        text: "MacBook Air 13-inch and older Intel Macs may run cooler with 2560×1440 sources. MacWall scales video to fit, pick the resolution that matches your display for best quality-to-performance ratio.",
       },
     ],
     faq: [],
@@ -225,7 +225,7 @@ export const featureArticles: BlogArticle[] = [
     title: "Multi-Monitor Live Wallpapers on Mac",
     headline: "Multi-Monitor Live Wallpapers on Mac",
     description:
-      "Set different motion wallpapers per display with MacWall — dual monitors, ultrawide + laptop, and desk setups.",
+      "Set different motion wallpapers per display with MacWall, dual monitors, ultrawide + laptop, and desk setups.",
     excerpt:
       "Independent wallpapers on every display. One app, full desk coverage.",
     category: "features",
@@ -239,7 +239,7 @@ export const featureArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Productivity setups often run two or three displays. **MacWall** assigns one player per monitor — mirror the same loop or pick different wallpapers for each screen.",
+        text: "Productivity setups often run two or three displays. **MacWall** assigns one player per monitor, mirror the same loop or pick different wallpapers for each screen.",
       },
       {
         type: "h2",
@@ -248,9 +248,9 @@ export const featureArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          "MacBook + external ultrawide — different aspect ratios, both supported",
-          "Dual 4K monitors — independent 4K loops without duplicate decode load",
-          "Sidecar iPad — focus MacWall on built-in and primary external displays",
+          "MacBook + external ultrawide, different aspect ratios, both supported",
+          "Dual 4K monitors, independent 4K loops without duplicate decode load",
+          "Sidecar iPad, focus MacWall on built-in and primary external displays",
         ],
       },
       {
@@ -270,9 +270,9 @@ export const featureArticles: BlogArticle[] = [
     title: "Apple Silicon & Live Wallpapers: Why Native Apps Win",
     headline: "Apple Silicon Live Wallpaper Performance",
     description:
-      "M1, M2, M3, and M4 Macs decode video wallpapers efficiently — MacWall's Metal pipeline vs cross-platform overhead.",
+      "M1, M2, M3, and M4 Macs decode video wallpapers efficiently. MacWall's Metal pipeline vs cross-platform overhead.",
     excerpt:
-      "Why Apple Silicon Macs are the best machines for live wallpapers — with the right app.",
+      "Why Apple Silicon Macs are the best machines for live wallpapers, with the right app.",
     category: "features",
     readMinutes: 5,
     publishedAt: "2026-03-16",
@@ -284,7 +284,7 @@ export const featureArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Apple Silicon unified memory and media engines make live wallpapers practical for daily use — **if** the app uses native decode. MacWall is built with SwiftUI and Metal, targeting M-series chips from day one.",
+        text: "Apple Silicon unified memory and media engines make live wallpapers practical for daily use, **if** the app uses native decode. MacWall is built with SwiftUI and Metal, targeting M-series chips from day one.",
       },
       {
         type: "h2",
@@ -315,9 +315,9 @@ export const featureArticles: BlogArticle[] = [
     title: "Menu Bar Wallpaper Controls on Mac (MacWall)",
     headline: "Menu Bar Wallpaper Controls on Mac",
     description:
-      "Pause, resume, and switch live wallpapers from the Mac menu bar — no floating windows required.",
+      "Pause, resume, and switch live wallpapers from the Mac menu bar, no floating windows required.",
     excerpt:
-      "Control your desktop motion like a real Mac utility — from the menu bar.",
+      "Control your desktop motion like a real Mac utility, from the menu bar.",
     category: "features",
     readMinutes: 3,
     publishedAt: "2026-03-17",
