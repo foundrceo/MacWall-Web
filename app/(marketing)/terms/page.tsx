@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     title: `${macwall.name} – Terms of Use`,
     description: PAGE_DESCRIPTION,
     url: canonicalSitePath("/terms"),
+    siteName: macwall.name,
     type: "website",
   },
   twitter: {

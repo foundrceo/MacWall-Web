@@ -75,7 +75,7 @@ export const BLOG_TILE_FALLBACK_IMAGE = UNSPLASH(
   "photo-1517336714731-489689fd1ca8"
 )
 
-export type BlogTileImageVariant = "hero" | "tile" | "list"
+export type BlogTileImageVariant = "hero" | "tile" | "list" | "og"
 
 function withCrop(url: string, variant: BlogTileImageVariant): string {
   if (!url.startsWith("http")) return url
@@ -83,6 +83,11 @@ function withCrop(url: string, variant: BlogTileImageVariant): string {
   if (variant === "list") {
     parsed.searchParams.set("w", "240")
     parsed.searchParams.set("h", "240")
+    parsed.searchParams.set("fit", "crop")
+  } else if (variant === "og") {
+    // 1.91:1 per the Open Graph spec so cards never crop or letterbox.
+    parsed.searchParams.set("w", "1200")
+    parsed.searchParams.set("h", "630")
     parsed.searchParams.set("fit", "crop")
   } else if (variant === "hero") {
     parsed.searchParams.set("w", "1600")

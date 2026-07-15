@@ -294,10 +294,10 @@ export const guideArticles: BlogArticle[] = [
   {
     slug: "animated-desktop-background-mac-free",
     pathname: "/blog/animated-desktop-background-mac-free",
-    title: "Animated Desktop Backgrounds for Mac Without a Subscription",
+    title: "Animated Mac Backgrounds Without a Subscription",
     headline: "Animated Desktop Backgrounds Without a Subscription",
     description:
-      "Searching for free animated wallpapers on Mac? Here's why a one-time $7.99 app beats free Electron tools, and how a Reel can make MacWall cost nothing.",
+      "Searching for free animated wallpapers on Mac? Why a one-time $7.99 app beats free Electron tools, and how a Reel can make MacWall free.",
     excerpt:
       "Why pay-once beats free wallpaper tools on Mac, and how to earn the whole price back with a Reel.",
     category: "guides",

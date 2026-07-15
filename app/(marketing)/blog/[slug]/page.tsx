@@ -35,14 +35,14 @@ export async function generateMetadata({
     title: article.title,
   })
 
-  const poster = blogTilePoster(slug, article.category, "hero")
+  const poster = blogTilePoster(slug, article.category, "og")
   const posterUrl = poster.startsWith("http")
     ? poster
     : `${canonicalSiteOrigin()}${poster}`
   const posterImage = {
     url: posterUrl,
-    width: 1600,
-    height: 1000,
+    width: 1200,
+    height: 630,
     alt: article.headline,
   }
 

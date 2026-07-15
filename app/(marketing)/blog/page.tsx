@@ -22,6 +22,7 @@ export const metadata: Metadata = {
     title: `${macwall.name} – Blog`,
     description: PAGE_DESCRIPTION,
     url: canonicalSitePath("/blog"),
+    siteName: macwall.name,
     type: "website",
   },
 }
