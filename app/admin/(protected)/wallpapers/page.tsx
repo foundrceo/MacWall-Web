@@ -11,7 +11,7 @@ export default async function AdminWallpapersPage({ searchParams }: PageProps) {
   return (
     <AdminShell
       title="Wallpapers"
-      description="Search the full catalog, review likes, and edit wallpaper metadata."
+      description="Bulk upload catalog videos, review likes, and edit wallpaper metadata."
     >
       <WallpaperCatalogPanel initialQuery={q} />
     </AdminShell>

@@ -141,14 +141,12 @@ export function ThankYouSuccessMark({
 }>) {
   const reducedMotion = useReducedMotion()
   const [phase, setPhase] = useState<Phase>("check")
+  const visiblePhase: Phase = reducedMotion ? "logo" : phase
 
   const showLogo = useCallback(() => setPhase("logo"), [])
 
   useEffect(() => {
-    if (reducedMotion) {
-      setPhase("logo")
-      return
-    }
+    if (reducedMotion) return
 
     const toLogo = globalThis.setTimeout(showLogo, LOGO_SWAP_MS)
 
@@ -162,7 +160,7 @@ export function ThankYouSuccessMark({
       aria-hidden
     >
       <AnimatePresence mode="wait" initial={false}>
-        {phase === "check" ? (
+        {visiblePhase === "check" ? (
           <motion.div
             key="thank-you-check"
             className="absolute inset-0"
