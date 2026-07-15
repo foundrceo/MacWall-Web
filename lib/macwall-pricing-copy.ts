@@ -4,7 +4,7 @@ export type ReelRefundStepIcon = "video" | "tag" | "views" | "email"
 
 export const macwallPricingCopy = {
   heroTitle: "One purchase. Earn your money back.",
-  heroLead: `${macwall.name} Pro is a one-time ${macwall.pro.price} license with lifetime updates. Buy once, use the full app — then make a Reel and get up to 100% refunded when your video hits the view targets.`,
+  heroLead: `${macwall.name} Pro is a one-time ${macwall.pro.price} license with lifetime updates. Buy once, use the full app, then make a Reel and get up to 100% refunded when your video hits the view targets.`,
 
   reelRefund: {
     badge: "Reel refund",
@@ -15,7 +15,7 @@ export const macwallPricingCopy = {
       {
         icon: "video" as const,
         title: "Create your Reel",
-        body: `Film ${macwall.name} on your Mac — your setup, your wallpaper, your vibe.`,
+        body: `Film ${macwall.name} on your Mac, your setup, your wallpaper, your vibe.`,
       },
       {
         icon: "tag" as const,
@@ -35,7 +35,7 @@ export const macwallPricingCopy = {
     influencerTitle: "Got a bigger audience?",
     finePrintLabel: "The fine print:",
     finePrint:
-      "You can post as many Reels as you want until one hits 2,000 views — no cap on attempts. Views must be organic (no bots, no paid promotion). We reserve the right to verify view counts and decline suspicious activity. Refund is 50% of the purchase price, sent via the original payment method. Offer can be withdrawn at any time.",
+      "You can post as many Reels as you want until one hits 2,000 views, no cap on attempts. Views must be organic (no bots, no paid promotion). We reserve the right to verify view counts and decline suspicious activity. Refund is 50% of the purchase price, sent via the original payment method. Offer can be withdrawn at any time.",
     cta: "Email for your refund",
     ctaHref: mailtoReelRefund,
   },
@@ -43,7 +43,7 @@ export const macwallPricingCopy = {
   pro: {
     badge: "Pro",
     title: "Lifetime license",
-    description: `One-time ${macwall.pro.price}. Full catalog, Lock Screen video, unlimited playlists, and lifetime updates on up to ${macwall.maxLicensedMacs} Macs — no subscription, ever.`,
+    description: `One-time ${macwall.pro.price}. Full catalog, Lock Screen video, unlimited playlists, and lifetime updates on up to ${macwall.maxLicensedMacs} Macs, no subscription, ever.`,
     cta: `Buy Pro for ${macwall.pro.price}`,
     ctaAria: `Buy ${macwall.name} Pro for ${macwall.pro.price}`,
     features: [
@@ -79,7 +79,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "Can I get a refund without making a Reel?",
-      a: `Standard refund eligibility is described in our Terms of Service. The Reel program is separate: email ${macwall.reelRefundEmail} with your post link and purchase email after you hit the view targets.`,
+      a: `There is no general refund policy: all sales are final. In limited cases (for example, a billing error or the app not running on a supported macOS version) we may issue a refund at our discretion. Email ${macwall.supportEmail} and we'll review it. The Reel program is separate: email ${macwall.reelRefundEmail} with your post link and purchase email after you hit the view targets.`,
     },
     {
       q: "Where do I get help?",

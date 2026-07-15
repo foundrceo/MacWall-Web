@@ -18,17 +18,12 @@ export type MacWallMarketingFooterVariant = "dark" | "light"
 const compareLinks = [
   { href: "/best-live-wallpaper-mac", label: "Best Live Wallpaper for Mac" },
   { href: "/alternatives/wallpaper-engine", label: "Wallpaper Engine for Mac" },
-  { href: "/alternatives/macwall-vs-wallper", label: "MacWall vs Wallper" },
-  { href: "/alternatives/macwall-vs-wallspace", label: "MacWall vs Wallspace" },
-  { href: "/alternatives/macwall-vs-backdrop", label: "MacWall vs Backdrop" },
+  { href: "/alternatives/macwall-vs-wallper", label: "Wallper Alternative" },
   {
-    href: "/alternatives/macwall-vs-iwallpaper",
-    label: "MacWall vs iWallpaper",
+    href: "/alternatives/macwall-vs-wallspace",
+    label: "Wallspace Alternative",
   },
-  {
-    href: "/alternatives/macwall-vs-vivid-walls",
-    label: "MacWall vs Vivid Walls",
-  },
+  { href: "/alternatives/macwall-vs-backdrop", label: "Backdrop Alternative" },
   {
     href: "/alternatives/lively-wallpaper-mac",
     label: "Lively Wallpaper for Mac",
@@ -187,12 +182,6 @@ export default function MacWallMarketingFooter({
                   {foot.support.email}
                 </a>
               </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className={titleClass}>{foot.communityTitle}</h3>
-            <ul className="space-y-2">
               <li>
                 <a
                   className={linkClass}
@@ -263,11 +252,8 @@ export default function MacWallMarketingFooter({
             },
             {
               title: foot.supportTitle,
-              links: [{ href: mailtoSupport, label: foot.support.email }],
-            },
-            {
-              title: foot.communityTitle,
               links: [
+                { href: mailtoSupport, label: foot.support.email },
                 {
                   href: macwall.discordInvite,
                   label: foot.community.discord,

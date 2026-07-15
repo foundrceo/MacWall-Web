@@ -6,10 +6,10 @@ import { canonicalSitePath } from "@/lib/site-url"
 import type { Metadata } from "next"
 
 const PAGE_DESCRIPTION =
-  "Guides, comparisons, and tips for live wallpapers on Mac. Learn why MacWall is the smoothest native wallpaper app for macOS."
+  "Guides, comparisons, and macOS news for live wallpapers on Mac. macOS 27 beta fixes, app comparisons, battery tips, and more from the MacWall team."
 
 export const metadata: Metadata = {
-  title: "Blog",
+  title: "Blog: Mac Live Wallpaper Guides, Comparisons & News",
   description: PAGE_DESCRIPTION,
   alternates: { canonical: canonicalSitePath("/blog") },
   keywords: [

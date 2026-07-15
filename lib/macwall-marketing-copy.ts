@@ -8,7 +8,7 @@ export const macwallExactCopy = {
     navSocials: "Community",
     navSupport: "Help",
     navPricing: "Pricing",
-    downloadCta: "Download for Mac",
+    downloadCta: "Get MacWall",
     logoAlt: `${macwall.name} logo`,
   },
   hover: {
@@ -23,8 +23,8 @@ export const macwallExactCopy = {
     },
   },
   ribbon: {
-    lineBeforeLink: `${macwall.name} is a native macOS app for motion wallpapers, built to stay quiet, efficient, and easy to control from the menu bar. `,
-    linkText: `Open ${macwall.name}`,
+    lineBeforeLink: `New: ${macwall.name} is the first app with live Lock Screen wallpaper working on the latest macOS beta, where other apps broke. `,
+    linkText: `Get ${macwall.name}`,
   },
   interact: {
     kicker: "In the app",
@@ -39,13 +39,13 @@ export const macwallExactCopy = {
     menubarBrand: macwall.name,
     menubarStatus: "Works in background",
     heroLead:
-      "Curated motion wallpapers, your own clips, and menu bar controls. Built for macOS.",
-    paragraph1Lead: "Explore",
+      "Set a cinematic 4K wallpaper in one click. Curated catalog, your own clips, and a battery that barely notices. Pay once, own it forever.",
+    paragraph1Lead: "Try it now",
     paragraph1Rest:
-      "the chrome around the window: traffic-light controls, sidebar, and the top bar behave like a real Mac app. Video tiles loop with hardware decoding so previews stay smooth.",
-    paragraph2Lead: "Controls",
+      "This demo is the real app. Click any wallpaper to set it. That's the entire learning curve. Native macOS design, smooth hardware-decoded playback.",
+    paragraph2Lead: "Stays out of your way",
     paragraph2Rest:
-      "mirror what you get after install: launch from the Dock, pause from the menu bar, import your own clips, and hop between Home, Explore, and Library without leaving the window.",
+      "Pause from the menu bar, import your own clips, and let it auto-pause on battery or full screen. Joined by 1,000+ Mac users, no account needed.",
   },
   appUi: {
     viewClipCta: "Play preview",
@@ -158,13 +158,13 @@ export const macwallExactCopy = {
     ] as const,
   },
   underFooter: {
-    title: "Ready when you are.",
-    body: `${macwall.name} is for people who want their desk to feel alive, not noisy. Buy Pro once, install on your Mac, and make a Reel to earn up to 100% back.`,
-    cta: `Buy Pro for ${macwall.pro.price}`,
+    title: "Your desktop deserves better.",
+    body: `Join 1,000+ Mac users running live wallpapers with ${macwall.name}. Pay once for Pro (${macwall.pro.price}, lifetime updates) and a single Reel can earn the whole thing back.`,
+    cta: `Get Pro for ${macwall.pro.price}`,
   },
   footer: {
     disclaimerBullets: [
-      `${macwall.name} Pro is a one-time purchase. The price on this page reflects the current early-bird offer. Make a Reel to qualify for up to 100% back — see Pricing for details.`,
+      `${macwall.name} Pro is a one-time purchase. The price on this page reflects the current early-bird offer. Make a Reel to qualify for up to 100% back. See Pricing for details.`,
       "A compatible Mac, recent builds, and network access are required for catalog sync, updates, and online license checks.",
       `Pro features, Lock Screen motion, and catalog depth can differ by region and macOS version. Each personal license may be used on up to ${macwall.maxLicensedMacs} Macs you own.`,
       `Continued use of ${macwall.name} means you agree to the Terms of Service and Privacy Policy linked in the footer.`,

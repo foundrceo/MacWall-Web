@@ -20,10 +20,9 @@ const TILE_IMAGE_BY_SLUG: Record<string, string> = {
   "best-live-wallpaper-app-mac-2026": UNSPLASH(
     "photo-1527864550417-7fd91fc51a46"
   ),
-  "wallpaper-engine-alternative-mac": UNSPLASH(
-    "photo-1461749280684-dccba630e2f6"
-  ),
-  "macwall-vs-backdrop": UNSPLASH("photo-1531482615713-2afd69097998"),
+  "wallpaper-engine-alternative-mac":
+    "/blog/vs/macwall-vs-wallpaper-engine.png",
+  "macwall-vs-backdrop": "/blog/vs/macwall-vs-backdrop.png",
   "dynamic-wallpaper-vs-live-wallpaper-mac": UNSPLASH(
     "photo-1516321318423-f06f85e504b3"
   ),
@@ -48,6 +47,20 @@ const TILE_IMAGE_BY_SLUG: Record<string, string> = {
   "nature-live-wallpaper-mac": UNSPLASH("photo-1454165804606-c3d57bc86b40"),
   "space-wallpaper-mac": UNSPLASH("photo-1522071820081-009f0129c71c"),
   "gaming-wallpaper-mac": UNSPLASH("photo-1593305841991-05c297ba4575"),
+  /* Generated comparison covers — see scripts/build-blog-vs-images.mjs */
+  "macwall-vs-wallper": "/blog/vs/macwall-vs-wallper.png",
+  "macwall-vs-wallspace": "/blog/vs/macwall-vs-wallspace.png",
+  "macwall-vs-lively-wallpaper": "/blog/vs/macwall-vs-lively-wallpaper.png",
+  "macos-27-beta-live-wallpaper-not-working": UNSPLASH(
+    "photo-1517430816045-df4b7de11d1d"
+  ),
+  "macos-27-lock-screen-live-wallpaper": UNSPLASH(
+    "photo-1488590528505-98d2b5aba04b"
+  ),
+  "live-wallpaper-cpu-usage-mac": UNSPLASH("photo-1518770660439-4636190af475"),
+  "upload-wallpaper-macwall-community": UNSPLASH(
+    "photo-1492724441997-5dc865305da7"
+  ),
 }
 
 const CATEGORY_FALLBACK: Record<BlogCategory, string> = {
@@ -65,6 +78,7 @@ export const BLOG_TILE_FALLBACK_IMAGE = UNSPLASH(
 export type BlogTileImageVariant = "hero" | "tile" | "list"
 
 function withCrop(url: string, variant: BlogTileImageVariant): string {
+  if (!url.startsWith("http")) return url
   const parsed = new URL(url)
   if (variant === "list") {
     parsed.searchParams.set("w", "240")

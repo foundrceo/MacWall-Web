@@ -104,12 +104,12 @@ const Page = () => {
                 >
                   Password
                 </Label>
-                <Link
-                  href="/forgot-password"
+                <a
+                  href="mailto:support@macwall.app?subject=Password%20help"
                   className="text-[14px] text-[#0066cc] hover:underline"
                 >
                   Forgot password?
-                </Link>
+                </a>
               </div>
               <Input
                 id="password"
@@ -125,8 +125,8 @@ const Page = () => {
 
           <p className="text-center text-[14px] text-[#86868b]">
             Don&apos;t have an account?{" "}
-            <Link href="/sign-up" className="text-[#0066cc] hover:underline">
-              Sign up
+            <Link href="/download" className="text-[#0066cc] hover:underline">
+              Get MacWall
             </Link>
           </p>
         </CardContent>

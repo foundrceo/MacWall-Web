@@ -75,14 +75,16 @@ function HeroSection({
               size="lg"
               location="hero"
             >
-              Download for macOS
+              Download for Mac
             </TrackedDownloadButton>
             <Link href="#how-it-works" className="MacWallHeroSecondaryCta">
               Watch Demo
             </Link>
           </div>
           <p className="MacWallHeroMeta">
-            No subscriptions. Only for {macwall.pro.price}.
+            One-time {macwall.pro.price}, never a subscription. Lifetime updates
+            on up to {macwall.maxLicensedMacs} Macs, and a Reel can earn it all
+            back.
           </p>
           <p className="MacWallHeroFinePrint">Requires macOS 15.0 or later.</p>
         </div>

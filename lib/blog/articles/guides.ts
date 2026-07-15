@@ -7,7 +7,7 @@ export const guideArticles: BlogArticle[] = [
     title: "How to Set a Live Wallpaper on Mac (2026 Guide)",
     headline: "How to Set a Live Wallpaper on Mac",
     description:
-      "Step-by-step guide to animated desktop backgrounds on macOS with MacWall — download, pick a wallpaper, and control playback from the menu bar.",
+      "Step-by-step guide to animated desktop backgrounds on macOS with MacWall, download, pick a wallpaper, and control playback from the menu bar.",
     excerpt:
       "The complete walkthrough for motion wallpapers on Intel and Apple Silicon Macs running Sonoma, Ventura, and Sequoia.",
     category: "guides",
@@ -21,7 +21,7 @@ export const guideArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "macOS ships with a handful of dynamic wallpapers, but they are limited and you cannot use your own video loops. **MacWall** is a native app that plays motion wallpapers behind your desktop windows — with hardware decoding on Apple Silicon, menu bar controls, and an offline-friendly catalog.",
+        text: "macOS ships with a handful of dynamic wallpapers, but they are limited and you cannot use your own video loops. **MacWall** is a native app that plays motion wallpapers behind your desktop windows, with hardware decoding on Apple Silicon, menu bar controls, and an offline-friendly catalog.",
       },
       {
         type: "h2",
@@ -29,7 +29,7 @@ export const guideArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Visit macwall.app/download and grab the latest DMG. Open it, drag MacWall to Applications, and launch from the Dock. The app runs quietly in the background — you control everything from the menu bar icon.",
+        text: "Visit macwall.app/download and grab the latest DMG. Open it, drag MacWall to Applications, and launch from the Dock. The app runs quietly in the background, you control everything from the menu bar icon.",
       },
       {
         type: "h2",
@@ -45,7 +45,7 @@ export const guideArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Drag and drop MP4, MOV, M4V, or GIF files into MacWall. Your imports stay in your Library — perfect for personal loops, cinematic edits, or clips you found online.",
+        text: "Drag and drop MP4, MOV, M4V, or GIF files into MacWall. Your imports stay in your Library, perfect for personal loops, cinematic edits, or clips you found online.",
       },
       {
         type: "h2",
@@ -53,11 +53,11 @@ export const guideArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Pause, resume, or stop from the menu bar without opening the main window. MacWall automatically pauses on battery power and when another app goes full screen — so your Mac stays fast during work and gaming.",
+        text: "Pause, resume, or stop from the menu bar without opening the main window. MacWall automatically pauses on battery power and when another app goes full screen, so your Mac stays fast during work and gaming.",
       },
       {
         type: "h2",
-        text: "Step 5: Upgrade to Pro for Lock Screen (optional)",
+        text: "Step 5: Turn on Lock Screen motion",
       },
       {
         type: "p",
@@ -97,7 +97,7 @@ export const guideArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Apple does not let you set a video file as your desktop background out of the box. **MacWall** solves this with native hardware decode — your video plays behind Finder windows, loops cleanly, and respects battery and full-screen rules.",
+        text: "Apple does not let you set a video file as your desktop background out of the box. **MacWall** solves this with native hardware decode, your video plays behind Finder windows, loops cleanly, and respects battery and full-screen rules.",
       },
       {
         type: "h2",
@@ -132,7 +132,7 @@ export const guideArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          "Prefer H.264 or HEVC encodes — MacWall decodes on the GPU.",
+          "Prefer H.264 or HEVC encodes. MacWall decodes on the GPU.",
           "Shorter loops (30–120 seconds) feel more natural than hour-long files.",
           "Enable pause-on-battery if you work unplugged often.",
           "Use one wallpaper per display on multi-monitor setups.",
@@ -143,7 +143,7 @@ export const guideArticles: BlogArticle[] = [
       {
         question: "Can I use Wallpaper Engine scenes on Mac?",
         answer:
-          "Wallpaper Engine .pkg scenes require a specialized renderer. MacWall focuses on native video playback — the smoothest path for most Mac users. See our Wallpaper Engine alternative guide for details.",
+          "Wallpaper Engine .pkg scenes require a specialized renderer. MacWall focuses on native video playback, the smoothest path for most Mac users. See our Wallpaper Engine alternative guide for details.",
       },
     ],
   },
@@ -153,7 +153,7 @@ export const guideArticles: BlogArticle[] = [
     title: "MP4 Wallpaper on Mac: Complete Setup Guide",
     headline: "MP4 Wallpaper on Mac",
     description:
-      "Everything you need to loop MP4 files as macOS desktop backgrounds — encoding tips, resolution guidance, and MacWall setup.",
+      "Everything you need to loop MP4 files as macOS desktop backgrounds, encoding tips, resolution guidance, and MacWall setup.",
     excerpt:
       "The definitive guide to MP4 live wallpapers on MacBook and iMac with native performance.",
     category: "guides",
@@ -167,7 +167,7 @@ export const guideArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "MP4 is the most common format for live wallpapers. **MacWall** plays MP4 files with hardware acceleration — no browser wrappers, no Electron overhead.",
+        text: "MP4 is the most common format for live wallpapers. **MacWall** plays MP4 files with hardware acceleration, no browser wrappers, no Electron overhead.",
       },
       {
         type: "h2",
@@ -199,7 +199,7 @@ export const guideArticles: BlogArticle[] = [
     title: "Animated Wallpaper for MacBook: Setup & Battery Tips",
     headline: "Animated Wallpaper for MacBook",
     description:
-      "Live motion wallpapers on MacBook Pro and MacBook Air without killing battery — MacWall's smart pause and Apple Silicon decode explained.",
+      "Live motion wallpapers on MacBook Pro and MacBook Air without killing battery. MacWall's smart pause and Apple Silicon decode explained.",
     excerpt:
       "How to get cinematic desktop motion on a laptop Mac without sacrificing unplugged runtime.",
     category: "guides",
@@ -221,7 +221,7 @@ export const guideArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Both M-series MacBooks handle 4K video wallpapers efficiently when MacWall uses hardware decode. Pro models with multiple displays can run independent wallpapers per screen. Air users benefit most from pause-on-battery — enable it in settings.",
+        text: "Both M-series MacBooks handle 4K video wallpapers efficiently when MacWall uses hardware decode. Pro models with multiple displays can run independent wallpapers per screen. Air users benefit most from pause-on-battery, enable it in settings.",
       },
       {
         type: "h2",
@@ -230,10 +230,10 @@ export const guideArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          "Use 1440p or 4K loops — avoid unnecessary 8K on a 13-inch display",
+          "Use 1440p or 4K loops, avoid unnecessary 8K on a 13-inch display",
           "Pause manually from the menu bar during video calls or gaming",
           "Pick shorter loops to reduce decoder memory footprint",
-          "Try MacWall's curated catalog — clips are optimized for Mac playback",
+          "Try MacWall's curated catalog, clips are optimized for Mac playback",
         ],
       },
     ],
@@ -251,7 +251,7 @@ export const guideArticles: BlogArticle[] = [
     title: "How to Import Custom Wallpapers on Mac",
     headline: "Import Custom Wallpapers on Mac",
     description:
-      "Bring your own video loops into MacWall — personal clips, AI-generated motion, or downloads from any source.",
+      "Bring your own video loops into MacWall, personal clips, AI-generated motion, or downloads from any source.",
     excerpt:
       "Your library, your rules: custom imports with native macOS playback.",
     category: "guides",
@@ -265,7 +265,7 @@ export const guideArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Closed catalogs limit creativity. **MacWall** combines a community catalog with unlimited personal imports — drag any compatible video into your Library and set it instantly.",
+        text: "Closed catalogs limit creativity. **MacWall** combines a community catalog with unlimited personal imports, drag any compatible video into your Library and set it instantly.",
       },
       {
         type: "h2",
@@ -294,12 +294,12 @@ export const guideArticles: BlogArticle[] = [
   {
     slug: "animated-desktop-background-mac-free",
     pathname: "/blog/animated-desktop-background-mac-free",
-    title: "Free Animated Desktop Backgrounds for Mac",
-    headline: "Free Animated Desktop Backgrounds for Mac",
+    title: "Animated Desktop Backgrounds for Mac Without a Subscription",
+    headline: "Animated Desktop Backgrounds Without a Subscription",
     description:
-      "MacWall is free to download with a curated motion wallpaper catalog. Learn what's included free vs MacWall Pro.",
+      "Searching for free animated wallpapers on Mac? Here's why a one-time $7.99 app beats free Electron tools, and how a Reel can make MacWall cost nothing.",
     excerpt:
-      "Start with free live wallpapers on macOS — upgrade only when you want Lock Screen and Pro catalog lanes.",
+      "Why pay-once beats free wallpaper tools on Mac, and how to earn the whole price back with a Reel.",
     category: "guides",
     readMinutes: 4,
     publishedAt: "2026-03-06",
@@ -311,18 +311,21 @@ export const guideArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "**MacWall** is free to download. You get native playback, catalog browsing, imports, menu bar controls, multi-display support, and smart pause — without a subscription.",
+        text: "Searching for free animated wallpapers usually lands you on heavy Electron apps, ad-filled sites, or watermarked downloads. **MacWall** takes the honest route: one $7.99 payment, and you own a native macOS app with the full catalog, imports, menu bar controls, multi-display support, and smart pause. No subscription, no ads, lifetime updates.",
       },
       {
         type: "h2",
-        text: "Free vs MacWall Pro",
+        text: "What one payment includes",
       },
       {
         type: "ul",
         items: [
-          "Free: desktop live wallpapers, imports, community catalog, hardware decode",
-          "Pro ($7.99 one-time): Lock Screen live wallpaper, exclusive catalog lanes, unlimited playlists, future Pro features",
-          "No monthly fee — ever",
+          "Full curated catalog across 9 categories, with new community drops",
+          "Desktop live wallpapers plus Lock Screen on supported macOS versions",
+          "Import your own MP4/MOV/GIF loops",
+          "Unlimited playlists and menu bar controls",
+          "Lifetime updates on up to 3 personal Macs",
+          "No monthly fee, ever",
         ],
       },
       {
@@ -331,7 +334,7 @@ export const guideArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Post a TikTok or Instagram Reel with #macwall. Hit 2,000 views for 50% back or 20,000 views for a full refund. See Pricing for details.",
+        text: "Want it actually free? Post a TikTok or Instagram Reel with #macwall. Hit 2,000 organic views for 50% back or 20,000 views for a full refund. That's the closest thing to a free animated wallpaper app that doesn't compromise your Mac.",
       },
     ],
     faq: [],
@@ -344,7 +347,7 @@ export const guideArticles: BlogArticle[] = [
     description:
       "Share your live wallpaper with thousands of Mac users. Upload requirements, the review process, and tips to get your loop featured in MacWall.",
     excerpt:
-      "Made a beautiful loop? Get it into MacWall's public catalog — drag, drop, and pass review.",
+      "Made a beautiful loop? Get it into MacWall's public catalog, drag, drop, and pass review.",
     category: "guides",
     readMinutes: 5,
     publishedAt: "2026-06-12",
@@ -358,13 +361,13 @@ export const guideArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "MacWall's catalog isn't just curated — it's **community-built**. Anyone can submit a looping video wallpaper, and approved uploads are published to the public catalog where every MacWall user can discover, like, and set them.",
+        text: "MacWall's catalog isn't just curated, it's **community-built**. Anyone can submit a looping video wallpaper, and approved uploads are published to the public catalog where every MacWall user can discover, like, and set them.",
       },
       { type: "h2", text: "Upload requirements" },
       {
         type: "ul",
         items: [
-          "Seamless loop — the end should flow back into the start",
+          "Seamless loop, the end should flow back into the start",
           "1920×1080 minimum resolution (4K loops look best)",
           "MP4 or MOV format, up to 300 MB",
           "Title up to 50 characters",
@@ -378,20 +381,20 @@ export const guideArticles: BlogArticle[] = [
           "Open MacWall and go to the upload panel.",
           "Drag and drop your video (or use the file picker).",
           "Pick or upload a thumbnail and choose a category.",
-          "Submit — your wallpaper enters the human review queue.",
+          "Submit, your wallpaper enters the human review queue.",
         ],
       },
       { type: "h2", text: "What happens in review" },
       {
         type: "p",
-        text: "Every submission is reviewed by a human before publication — checking loop quality, resolution, and content guidelines. You'll see the status in-app: Pending, Approved, or Rejected with notes. Approved wallpapers go live in the catalog for everyone.",
+        text: "Every submission is reviewed by a human before publication, checking loop quality, resolution, and content guidelines. You'll see the status in-app: Pending, Approved, or Rejected with notes. Approved wallpapers go live in the catalog for everyone.",
       },
       { type: "h2", text: "Tips to get featured" },
       {
         type: "ul",
         items: [
           "Subtle, slow motion loops outperform fast cuts as wallpapers",
-          "Test the loop point — a visible jump is the #1 rejection reason",
+          "Test the loop point, a visible jump is the #1 rejection reason",
           "Export at 4K HEVC if you can; Apple Silicon decodes it for free",
           "Popular likes push your wallpaper up the Most Popular ranking",
         ],
@@ -399,9 +402,9 @@ export const guideArticles: BlogArticle[] = [
     ],
     faq: [
       {
-        question: "Is uploading wallpapers to MacWall free?",
+        question: "Can anyone upload wallpapers to MacWall?",
         answer:
-          "Yes. Anyone can submit wallpapers to the community catalog at no cost. Approved uploads become available to all MacWall users.",
+          "Yes, uploading is included with MacWall, no extra cost beyond the one-time license. Approved uploads become available to all MacWall users.",
       },
       {
         question: "Why was my wallpaper rejected?",
