@@ -84,7 +84,13 @@ export const liveWallpaperMacPage: SeoContentPage = {
   keywords: [
     "live wallpaper for mac",
     "live wallpaper mac",
+    "live wallpaper macbook",
     "animated wallpaper macos",
+    "moving wallpaper mac",
+    "video wallpaper mac",
+    "dynamic wallpaper mac",
+    "free live wallpaper mac",
+    "4k live wallpaper mac",
     "motion desktop mac",
   ],
   sections: [
@@ -191,6 +197,9 @@ export const bestLiveWallpaperMacPage: SeoContentPage = {
   keywords: [
     "best live wallpaper mac",
     "best wallpaper app mac 2026",
+    "best live wallpaper app for macbook",
+    "best animated wallpaper mac",
+    "best free wallpaper app mac",
     "top mac wallpaper app",
   ],
   sections: [
@@ -207,6 +216,8 @@ export const bestLiveWallpaperMacPage: SeoContentPage = {
       items: [
         "vs Backdrop — lower Pro price, community uploads, Reel refund",
         "vs Wallpaper Engine — native Mac app, no Windows dependency",
+        "vs Wallper — bigger community catalog and aggressive one-time pricing",
+        "vs Wallspace — deeper catalog, imports, and Lock Screen Pro",
         "vs iWallpaper — better macOS integration and catalog depth",
         "vs web-based tools — GPU decode, not Chromium overhead",
       ],
@@ -230,7 +241,14 @@ export const wallpaperEngineAlternativePage: SeoContentPage = {
   headline: "Wallpaper Engine Alternative for Mac",
   description:
     "The best native Mac alternative to Wallpaper Engine. Video wallpapers, hardware decode, and no Steam required.",
-  keywords: ["wallpaper engine mac alternative", "wallpaper engine macos"],
+  keywords: [
+    "wallpaper engine mac alternative",
+    "wallpaper engine macos",
+    "wallpaper engine for mac",
+    "wallpaper engine mac download",
+    "steam wallpaper engine mac",
+    "apps like wallpaper engine for mac",
+  ],
   sections: [
     {
       type: "p",
@@ -260,7 +278,13 @@ export const macwallVsBackdropPage: SeoContentPage = {
   headline: "MacWall vs Backdrop",
   description:
     "Honest comparison of MacWall and Backdrop — pricing, Lock Screen, catalog, and which native app fits your Mac.",
-  keywords: ["macwall vs backdrop", "backdrop alternative mac"],
+  keywords: [
+    "macwall vs backdrop",
+    "backdrop alternative mac",
+    "backdrop mac wallpaper app",
+    "backdrop cindori alternative",
+    "best backdrop alternative",
+  ],
   sections: [
     {
       type: "p",
@@ -291,18 +315,50 @@ export const macwallVsWallperPage: SeoContentPage = {
   headline: "MacWall vs Wallper",
   description:
     "Compare MacWall and Wallper for live wallpapers on Mac — catalog, performance, and pricing.",
-  keywords: ["macwall vs wallper", "wallper alternative"],
+  keywords: [
+    "macwall vs wallper",
+    "wallper alternative",
+    "wallper app alternative mac",
+    "wallper vs macwall",
+    "apps like wallper",
+    "wallper free alternative",
+  ],
   sections: [
     {
       type: "p",
-      text: "**Wallper** offers SwiftUI playback with a growing library. **MacWall** differentiates with a larger community catalog, Reel refund program, menu bar-first workflow, and aggressive early-bird Pro pricing.",
+      text: "**Wallper** offers SwiftUI playback with a curated library of around 700 loops. **MacWall** differentiates with a larger community catalog, free desktop tier, Reel refund program, menu bar-first workflow, and aggressive early-bird Pro pricing.",
+    },
+    {
+      type: "h2",
+      text: "Side by side",
+    },
+    {
+      type: "ul",
+      items: [
+        "MacWall: free desktop live wallpapers, $7.99 Pro one-time",
+        "Wallper: paid license after trial",
+        "Both: 4K video, Apple Silicon optimized, multi-monitor",
+        "MacWall: community uploads + import your own MP4/MOV/GIF for free",
+        "MacWall: Reel refund — earn up to 100% of Pro back",
+      ],
     },
     {
       type: "p",
       text: "Download both free tiers and compare smoothness on your specific Mac — MacWall optimizes for daily menu bar control and multi-category discovery.",
     },
   ],
-  faq: [],
+  faq: [
+    {
+      question: "Is MacWall a free Wallper alternative?",
+      answer:
+        "Yes. MacWall's desktop live wallpapers are completely free, including catalog browsing and personal video imports. Pro is an optional $7.99 one-time upgrade for Lock Screen motion.",
+    },
+    {
+      question: "Which is better for MacBook battery life?",
+      answer:
+        "Both use hardware decode. MacWall additionally pauses automatically on battery and in full screen, keeping playback off when it doesn't matter.",
+    },
+  ],
 }
 
 export const macwallVsIwallpaperPage: SeoContentPage = {
@@ -312,7 +368,12 @@ export const macwallVsIwallpaperPage: SeoContentPage = {
   headline: "MacWall vs iWallpaper",
   description:
     "MacWall vs iWallpaper — native design, catalog depth, and performance compared.",
-  keywords: ["macwall vs iwallpaper", "iwallpaper alternative mac"],
+  keywords: [
+    "macwall vs iwallpaper",
+    "iwallpaper alternative mac",
+    "iwallpaper mac app",
+    "apps like iwallpaper",
+  ],
   sections: [
     {
       type: "p",
@@ -324,6 +385,174 @@ export const macwallVsIwallpaperPage: SeoContentPage = {
     },
   ],
   faq: [],
+}
+
+export const macwallVsWallspacePage: SeoContentPage = {
+  slug: "macwall-vs-wallspace",
+  pathname: "/alternatives/macwall-vs-wallspace",
+  title: "MacWall vs Wallspace (2026 Comparison)",
+  headline: "MacWall vs Wallspace",
+  description:
+    "Compare MacWall and Wallspace for Mac live wallpapers — catalog size, Lock Screen support, pricing, and battery impact.",
+  keywords: [
+    "macwall vs wallspace",
+    "wallspace alternative",
+    "wallspace mac app",
+    "wallspace vs macwall",
+    "apps like wallspace mac",
+    "wallspace live wallpaper alternative",
+  ],
+  sections: [
+    {
+      type: "p",
+      text: "**Wallspace** is a minimal Swift app focused on simplicity and low CPU usage. **MacWall** matches that native efficiency while adding a much deeper community catalog, search and filters, personal video imports on the free tier, and a Reel refund program that can make Pro effectively free.",
+    },
+    {
+      type: "h2",
+      text: "Side by side",
+    },
+    {
+      type: "ul",
+      items: [
+        "MacWall: free desktop tier, $7.99 Pro one-time",
+        "Wallspace: free tier, $8.99 Pro one-time",
+        "Both: native Swift, hardware-accelerated 4K, multi-monitor, battery-aware pause",
+        "MacWall: 9-category community catalog with search, filters, and likes",
+        "MacWall: Lock Screen Pro on supported Sonoma/Sequoia builds — Wallspace needs macOS 26+",
+        "MacWall: Reel refund — 50% back at 2k views, 100% at 20k views",
+      ],
+    },
+    {
+      type: "h2",
+      text: "Which should you pick?",
+    },
+    {
+      type: "p",
+      text: "If you want the absolute minimum feature set, Wallspace is a fine pick. If you want catalog discovery, community uploads, imports, and broader Lock Screen support without a subscription, MacWall is the stronger daily driver.",
+    },
+  ],
+  faq: [
+    {
+      question: "Is MacWall lighter than Wallspace?",
+      answer:
+        "Both are native Swift apps with hardware video decode. MacWall pauses on battery and in full screen automatically, so real-world impact stays minimal on MacBooks.",
+    },
+    {
+      question: "Does MacWall require an account?",
+      answer:
+        "No account is needed to browse the catalog and set desktop wallpapers. Sign-in is only used for community features like uploads and likes.",
+    },
+  ],
+}
+
+export const macwallVsVividWallsPage: SeoContentPage = {
+  slug: "macwall-vs-vivid-walls",
+  pathname: "/alternatives/macwall-vs-vivid-walls",
+  title: "MacWall vs Vivid Walls (2026 Comparison)",
+  headline: "MacWall vs Vivid Walls",
+  description:
+    "MacWall vs Vivid Walls — video wallpapers vs Wallpaper Engine scene files on Mac. Pricing, performance, and which fits your setup.",
+  keywords: [
+    "macwall vs vivid walls",
+    "vivid walls alternative",
+    "vivid walls mac",
+    "wallpaper engine scenes mac",
+    "apps like vivid walls",
+  ],
+  sections: [
+    {
+      type: "p",
+      text: "**Vivid Walls** specializes in running Wallpaper Engine .pkg/.scene files on macOS via a Vulkan-to-Metal renderer. **MacWall** focuses on what most people actually want daily: smooth native 4K video wallpapers with a curated catalog, free desktop tier, and menu bar controls.",
+    },
+    {
+      type: "h2",
+      text: "Side by side",
+    },
+    {
+      type: "ul",
+      items: [
+        "MacWall: free desktop tier, $7.99 Pro one-time",
+        "Vivid Walls: $9.99 one-time, aimed at existing Wallpaper Engine libraries",
+        "MacWall: native AVFoundation video pipeline — no scene-engine overhead",
+        "MacWall: community catalog, imports, Lock Screen Pro, Reel refund",
+        "Vivid Walls: the pick if you own Steam Workshop scene files",
+      ],
+    },
+    {
+      type: "p",
+      text: "Rule of thumb: own a Wallpaper Engine library on Steam? Try Vivid Walls. Want the best daily video wallpaper experience built for macOS? Download MacWall free.",
+    },
+  ],
+  faq: [
+    {
+      question: "Can MacWall play Wallpaper Engine scene files?",
+      answer:
+        "No — MacWall plays video (MP4, MOV, GIF) natively for maximum smoothness and battery efficiency. Export scenes as MP4 to use them in MacWall.",
+    },
+  ],
+}
+
+export const livelyWallpaperMacPage: SeoContentPage = {
+  slug: "lively-wallpaper-mac",
+  pathname: "/alternatives/lively-wallpaper-mac",
+  title: "Lively Wallpaper for Mac — The Native Alternative | MacWall",
+  headline: "Lively Wallpaper for Mac",
+  description:
+    "Lively Wallpaper is Windows-only. MacWall is the free native macOS equivalent — live video wallpapers with hardware decode and menu bar controls.",
+  keywords: [
+    "lively wallpaper mac",
+    "lively wallpaper for macos",
+    "lively wallpaper mac download",
+    "lively wallpaper alternative mac",
+    "free live wallpaper app mac",
+    "rocksdanister lively mac",
+  ],
+  sections: [
+    {
+      type: "p",
+      text: "Searching for **Lively Wallpaper on Mac**? Lively is a popular free live wallpaper app — but it's Windows-only and has no macOS version. **MacWall** is the closest native equivalent: free desktop video wallpapers, your own MP4/MOV/GIF imports, and a curated community catalog.",
+    },
+    {
+      type: "h2",
+      text: "Why MacWall instead of Lively on Mac",
+    },
+    {
+      type: "ul",
+      items: [
+        "Free desktop live wallpapers — like Lively, no subscription",
+        "Native Swift + Metal app, built only for macOS",
+        "Import the same video files you used in Lively",
+        "Curated 4K catalog across Nature, Space, Anime, and more",
+        "Pause on battery and full screen — MacBook-friendly",
+        "Optional $7.99 Pro for Lock Screen live wallpaper",
+      ],
+    },
+    {
+      type: "h2",
+      text: "Switching from Lively",
+    },
+    {
+      type: "ol",
+      items: [
+        "Copy your favorite video wallpapers from your Windows PC.",
+        "Download MacWall free from macwall.app/download.",
+        "Import the videos into your MacWall Library.",
+        "Browse the catalog for fresh Mac-optimized 4K loops.",
+      ],
+    },
+  ],
+  faq: [
+    {
+      question: "Is there a Lively Wallpaper version for Mac?",
+      answer:
+        "No. Lively Wallpaper supports Windows only. MacWall is the free native macOS alternative for video live wallpapers.",
+    },
+    {
+      question: "Is MacWall free like Lively?",
+      answer:
+        "Yes — desktop live wallpapers, catalog browsing, and video imports are free. MacWall Pro is an optional one-time upgrade for Lock Screen motion and exclusive content.",
+    },
+  ],
 }
 
 export function wallpaperCategoryPage(categoryName: string): SeoContentPage {

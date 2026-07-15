@@ -336,4 +336,78 @@ export const guideArticles: BlogArticle[] = [
     ],
     faq: [],
   },
+  {
+    slug: "upload-wallpaper-macwall-community",
+    pathname: "/blog/upload-wallpaper-macwall-community",
+    title: "How to Upload Your Wallpaper to the MacWall Community",
+    headline: "Upload Your Wallpaper to the MacWall Community Catalog",
+    description:
+      "Share your live wallpaper with thousands of Mac users. Upload requirements, the review process, and tips to get your loop featured in MacWall.",
+    excerpt:
+      "Made a beautiful loop? Get it into MacWall's public catalog — drag, drop, and pass review.",
+    category: "guides",
+    readMinutes: 5,
+    publishedAt: "2026-06-12",
+    keywords: [
+      "upload wallpaper macwall",
+      "community wallpaper mac",
+      "share live wallpaper mac",
+      "submit wallpaper macwall catalog",
+      "create live wallpaper mac",
+    ],
+    sections: [
+      {
+        type: "p",
+        text: "MacWall's catalog isn't just curated — it's **community-built**. Anyone can submit a looping video wallpaper, and approved uploads are published to the public catalog where every MacWall user can discover, like, and set them.",
+      },
+      { type: "h2", text: "Upload requirements" },
+      {
+        type: "ul",
+        items: [
+          "Seamless loop — the end should flow back into the start",
+          "1920×1080 minimum resolution (4K loops look best)",
+          "MP4 or MOV format, up to 300 MB",
+          "Title up to 50 characters",
+          "One of 9 categories: Nature, Space, Anime, Cars, City, Video Games, Sci-fi, Fantasy, Cats",
+        ],
+      },
+      { type: "h2", text: "How to submit" },
+      {
+        type: "ol",
+        items: [
+          "Open MacWall and go to the upload panel.",
+          "Drag and drop your video (or use the file picker).",
+          "Pick or upload a thumbnail and choose a category.",
+          "Submit — your wallpaper enters the human review queue.",
+        ],
+      },
+      { type: "h2", text: "What happens in review" },
+      {
+        type: "p",
+        text: "Every submission is reviewed by a human before publication — checking loop quality, resolution, and content guidelines. You'll see the status in-app: Pending, Approved, or Rejected with notes. Approved wallpapers go live in the catalog for everyone.",
+      },
+      { type: "h2", text: "Tips to get featured" },
+      {
+        type: "ul",
+        items: [
+          "Subtle, slow motion loops outperform fast cuts as wallpapers",
+          "Test the loop point — a visible jump is the #1 rejection reason",
+          "Export at 4K HEVC if you can; Apple Silicon decodes it for free",
+          "Popular likes push your wallpaper up the Most Popular ranking",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Is uploading wallpapers to MacWall free?",
+        answer:
+          "Yes. Anyone can submit wallpapers to the community catalog at no cost. Approved uploads become available to all MacWall users.",
+      },
+      {
+        question: "Why was my wallpaper rejected?",
+        answer:
+          "The most common reasons are a visible loop jump, resolution below 1920×1080, or content guideline issues. Rejections include reviewer notes so you can fix and resubmit.",
+      },
+    ],
+  },
 ]
