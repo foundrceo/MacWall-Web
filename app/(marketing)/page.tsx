@@ -14,9 +14,9 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-/** ≤130 chars so social cards never truncate (paired with curated title). */
+/** ≤125 chars so social cards never truncate (paired with curated title). */
 const PAGE_DESCRIPTION =
-  "Live 4K wallpapers for Mac with a curated catalog and barely-there battery use. Pro adds Lock Screen motion. Pay once, own it."
+  "Cinematic 4K live wallpapers for Mac with near-zero battery impact. Lock Screen motion with Pro. One-time $7.99, no subs."
 
 const HOME_DOCUMENT_TITLE_ABSOLUTE =
   `${macwall.name} – ${macwall.tagline}` as const

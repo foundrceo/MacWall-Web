@@ -26,7 +26,7 @@ export const macwallAppIconRadiusClass = "rounded-[22.37%]" as const
 
 export const macwall = {
   name: "MacWall",
-  tagline: "Live motion Mac wallpapers for Desktop & Dock",
+  tagline: "4K Live Wallpapers for Mac. Pay Once, Own It.",
   website: "https://macwall.app",
   /** Community invite — matches `discordInviteURLString` in the Mac app. */
   discordInvite: "https://discord.gg/qhtYwEvHND",
