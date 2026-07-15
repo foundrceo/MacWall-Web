@@ -4,10 +4,10 @@ export const featureArticles: BlogArticle[] = [
   {
     slug: "why-macwall-best-native-wallpaper-app",
     pathname: "/blog/why-macwall-best-native-wallpaper-app",
-    title: "Why MacWall Is the Best Native Wallpaper App for macOS",
+    title: "The Best Native Wallpaper App for macOS",
     headline: "Why MacWall Is the Best Native Wallpaper App",
     description:
-      "Native SwiftUI, Metal hardware decode, menu bar controls, and intelligent pause, the technical reasons MacWall runs smoother than cross-platform wallpaper apps.",
+      "Native SwiftUI, Metal hardware decode, menu bar controls, and intelligent pause: why MacWall runs smoother than cross-platform wallpaper apps.",
     excerpt:
       "Built for Mac. Runs like Mac software. Here's the engineering behind the smoothest wallpaper experience.",
     category: "features",

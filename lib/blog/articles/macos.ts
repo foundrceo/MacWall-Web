@@ -178,10 +178,10 @@ export const macosArticles: BlogArticle[] = [
   {
     slug: "macos-27-beta-live-wallpaper-not-working",
     pathname: "/blog/macos-27-beta-live-wallpaper-not-working",
-    title: "Live Wallpaper Not Working on macOS 27 Beta? Here's the Fix",
-    headline: "Live Wallpaper Broke on macOS 27 Beta: Here's What Happened",
+    title: "macOS 27 Beta Broke Live Wallpapers? The Fix",
+    headline: "macOS 27 Beta Broke Live Wallpapers: The Fix",
     description:
-      "Apple's macOS 27 beta broke Lock Screen and Screen Saver video in most wallpaper apps. MacWall is the first app with native macOS 27 support, here's the fix.",
+      "The macOS 27 beta broke Lock Screen video in most wallpaper apps. MacWall already works natively. Here's the fix.",
     excerpt:
       "The macOS 27 beta broke Lock Screen video in most live wallpaper apps. MacWall already works.",
     category: "macos",
@@ -251,10 +251,10 @@ export const macosArticles: BlogArticle[] = [
   {
     slug: "macos-27-lock-screen-live-wallpaper",
     pathname: "/blog/macos-27-lock-screen-live-wallpaper",
-    title: "macOS 27 Lock Screen Live Wallpaper: The Complete Guide",
+    title: "macOS 27 Lock Screen Live Wallpaper Guide",
     headline: "Lock Screen Live Wallpaper on macOS 27",
     description:
-      "Set a live video wallpaper on your macOS 27 Lock Screen and Screen Saver. MacWall is the first app with native macOS 27 support, full setup guide.",
+      "Set live video on your macOS 27 Lock Screen and Screen Saver with MacWall, the first app with native macOS 27 support.",
     excerpt:
       "Step-by-step: native video Lock Screen and Screen Saver on the newest macOS, with the only app that supports it.",
     category: "macos",

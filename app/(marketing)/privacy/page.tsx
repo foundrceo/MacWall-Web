@@ -18,6 +18,7 @@ export const metadata: Metadata = {
     title: `${macwall.name} – Privacy Policy`,
     description: PAGE_DESCRIPTION,
     url: canonicalSitePath("/privacy"),
+    siteName: macwall.name,
     type: "website",
   },
   twitter: {

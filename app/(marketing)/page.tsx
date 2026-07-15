@@ -14,9 +14,9 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-/** ≤160 chars · conversion + Lock Screen hint (paired with curated title). */
+/** ≤130 chars so social cards never truncate (paired with curated title). */
 const PAGE_DESCRIPTION =
-  "Mac live wallpapers behind your Desktop: fresh offline-friendly catalog & Apple Silicon decode. Pro adds Lock Screen motion on Sonoma/Sequoia/newer builds."
+  "Live 4K wallpapers for Mac with a curated catalog and barely-there battery use. Pro adds Lock Screen motion. Pay once, own it."
 
 const HOME_DOCUMENT_TITLE_ABSOLUTE =
   `${macwall.name} – ${macwall.tagline}` as const
@@ -41,6 +41,7 @@ export const metadata: Metadata = {
     title: HOME_DOCUMENT_TITLE_ABSOLUTE,
     description: PAGE_DESCRIPTION,
     url: canonicalSitePath("/"),
+    siteName: macwall.name,
     type: "website",
     images: [
       {

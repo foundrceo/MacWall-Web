@@ -7,7 +7,7 @@ export const downloadPage: SeoContentPage = {
   title: "Download MacWall for Mac",
   headline: "Download MacWall for Mac",
   description:
-    "Download MacWall for macOS. Native live motion wallpapers with hardware decode, menu bar controls, and a curated catalog. One-time $7.99, no subscription.",
+    "Download MacWall for macOS. Native live motion wallpapers with hardware decode, menu bar controls, and a curated catalog. One-time $7.99.",
   keywords: [
     "macwall download",
     "download live wallpaper mac",
@@ -368,7 +368,7 @@ export const macwallVsWallspacePage: SeoContentPage = {
   title: "Wallspace Alternative for Mac: MacWall",
   headline: "The Wallspace Alternative for Mac",
   description:
-    "Looking for a Wallspace alternative? MacWall costs less, adds a much deeper catalog with community uploads, and supports the macOS 27 beta Lock Screen.",
+    "Looking for a Wallspace alternative? MacWall costs less, adds a deeper catalog with community uploads, and works on the macOS 27 beta Lock Screen.",
   keywords: [
     "wallspace alternative",
     "wallspace alternative mac",
@@ -426,7 +426,7 @@ export const livelyWallpaperMacPage: SeoContentPage = {
   title: "Lively Wallpaper for Mac: The Native Alternative | MacWall",
   headline: "Lively Wallpaper for Mac",
   description:
-    "Lively Wallpaper is Windows-only. MacWall is the native macOS equivalent, live video wallpapers with hardware decode and menu bar controls. One-time $7.99.",
+    "Lively Wallpaper is Windows-only. MacWall is the native macOS equivalent: live video wallpapers with hardware decode and menu bar controls.",
   keywords: [
     "lively wallpaper mac",
     "lively wallpaper for macos",

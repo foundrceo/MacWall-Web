@@ -19,6 +19,7 @@ export function createSeoPageMetadata(page: SeoContentPage): Metadata {
       title: `${macwall.name} – ${page.headline}`,
       description: page.description,
       url: canonicalSitePath(page.pathname),
+      siteName: macwall.name,
       type: "website",
       images: [
         {

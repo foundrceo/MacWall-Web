@@ -7,7 +7,7 @@ export const comparisonArticles: BlogArticle[] = [
     title: "Best Live Wallpaper App for Mac in 2026",
     headline: "Best Live Wallpaper App for Mac in 2026",
     description:
-      "We compared native Mac live wallpaper apps on performance, Lock Screen support, price, and catalog depth. Here's why MacWall leads for smooth daily use.",
+      "We compared native Mac live wallpaper apps on performance, Lock Screen support, price, and catalog depth. Why MacWall leads for daily use.",
     excerpt:
       "An honest 2026 roundup of animated wallpaper apps for macOS, and why MacWall is the top native pick.",
     category: "comparisons",
@@ -75,7 +75,7 @@ export const comparisonArticles: BlogArticle[] = [
   {
     slug: "wallpaper-engine-alternative-mac",
     pathname: "/blog/wallpaper-engine-alternative-mac",
-    title: "Does Wallpaper Engine Work on Mac? What to Use Instead",
+    title: "Does Wallpaper Engine Work on Mac?",
     headline: "Does Wallpaper Engine Work on Mac?",
     description:
       "Wallpaper Engine has no native macOS version. Here is why, what breaks if you force it, and how Mac users get animated desktops natively with MacWall.",
@@ -235,10 +235,10 @@ export const comparisonArticles: BlogArticle[] = [
   {
     slug: "macwall-vs-wallper",
     pathname: "/blog/macwall-vs-wallper",
-    title: "MacWall vs Wallper (2026): Which Mac Live Wallpaper App Wins?",
+    title: "MacWall vs Wallper: Which App Wins in 2026?",
     headline: "MacWall vs Wallper: The 2026 Comparison",
     description:
-      "MacWall vs Wallper compared on price, catalog, CPU usage, macOS 27 support, and Lock Screen. See why MacWall is the stronger pick for most Macs.",
+      "MacWall vs Wallper on price, catalog, CPU use, and macOS 27 Lock Screen support. See why MacWall wins for most Macs.",
     excerpt:
       "Lower one-time price, bigger community catalog, and working macOS 27 Lock Screen. MacWall vs Wallper, point by point.",
     category: "comparisons",
@@ -418,7 +418,7 @@ export const comparisonArticles: BlogArticle[] = [
   {
     slug: "live-wallpaper-cpu-usage-mac",
     pathname: "/blog/live-wallpaper-cpu-usage-mac",
-    title: "Live Wallpaper CPU Usage on Mac: Which App Is Lightest?",
+    title: "Live Wallpaper CPU Usage on Mac, Tested",
     headline: "Live Wallpaper CPU Usage on Mac, Compared",
     description:
       "How much CPU do live wallpapers really use on a Mac? Why MacWall stays the lightest, hardware decode, auto-pause on high CPU, battery quality capping.",
