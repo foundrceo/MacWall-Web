@@ -14,6 +14,27 @@ import { cn } from "@/lib/utils"
 
 export type MacWallMarketingFooterVariant = "dark" | "light"
 
+/** Keyword-rich internal links so comparison pages are crawlable from every page. */
+const compareLinks = [
+  { href: "/best-live-wallpaper-mac", label: "Best Live Wallpaper for Mac" },
+  { href: "/alternatives/wallpaper-engine", label: "Wallpaper Engine for Mac" },
+  { href: "/alternatives/macwall-vs-wallper", label: "MacWall vs Wallper" },
+  { href: "/alternatives/macwall-vs-wallspace", label: "MacWall vs Wallspace" },
+  { href: "/alternatives/macwall-vs-backdrop", label: "MacWall vs Backdrop" },
+  {
+    href: "/alternatives/macwall-vs-iwallpaper",
+    label: "MacWall vs iWallpaper",
+  },
+  {
+    href: "/alternatives/macwall-vs-vivid-walls",
+    label: "MacWall vs Vivid Walls",
+  },
+  {
+    href: "/alternatives/lively-wallpaper-mac",
+    label: "Lively Wallpaper for Mac",
+  },
+] as const
+
 export default function MacWallMarketingFooter({
   shopPricingHref = "/pricing",
   variant = "light",
@@ -122,10 +143,23 @@ export default function MacWallMarketingFooter({
                 </Link>
               </li>
               <li>
-                <Link className={linkClass} href="/best-live-wallpaper-mac">
-                  {foot.resources.bestApp}
+                <Link className={linkClass} href="/lock-screen-wallpaper">
+                  Lock Screen Wallpaper
                 </Link>
               </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className={titleClass}>Compare</h3>
+            <ul className="space-y-2">
+              {compareLinks.map((link) => (
+                <li key={link.href}>
+                  <Link className={linkClass} href={link.href}>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -211,10 +245,14 @@ export default function MacWallMarketingFooter({
                 },
                 { href: "/download", label: foot.resources.download },
                 {
-                  href: "/best-live-wallpaper-mac",
-                  label: foot.resources.bestApp,
+                  href: "/lock-screen-wallpaper",
+                  label: "Lock Screen Wallpaper",
                 },
               ],
+            },
+            {
+              title: "Compare",
+              links: [...compareLinks],
             },
             {
               title: foot.legalTitle,

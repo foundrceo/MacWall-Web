@@ -15,6 +15,9 @@ export function indexableMarketingPaths(): string[] {
     "/alternatives/macwall-vs-backdrop",
     "/alternatives/macwall-vs-wallper",
     "/alternatives/macwall-vs-iwallpaper",
+    "/alternatives/macwall-vs-wallspace",
+    "/alternatives/macwall-vs-vivid-walls",
+    "/alternatives/lively-wallpaper-mac",
     "/privacy",
     "/terms",
   ]

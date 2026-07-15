@@ -66,17 +66,41 @@ export const metadata: Metadata = {
     "Mac wallpaper app",
     "live wallpapers for Mac",
     "live wallpaper for mac",
+    "live wallpaper macbook",
     "best wallpaper app for mac",
+    "best live wallpaper app mac",
     "video wallpaper macOS",
+    "video wallpaper mac",
+    "moving wallpaper mac",
+    "moving wallpapers for macbook",
     "motion desktop background",
     "dynamic wallpapers Mac",
+    "dynamic wallpaper macos",
     "Mac desktop backgrounds",
+    "macbook wallpaper app",
+    "macbook pro live wallpaper",
+    "macbook air live wallpaper",
     "wallpaper engine alternative mac",
+    "wallpaper engine for mac",
+    "wallper alternative",
+    "wallspace alternative",
+    "backdrop alternative mac",
+    "lively wallpaper mac",
     "lock screen live wallpaper mac",
     "animated wallpaper mac",
+    "animated desktop background mac",
     "4k live wallpaper mac",
+    "4k wallpaper mac",
+    "hd wallpaper mac",
+    "free live wallpaper mac",
+    "desktop wallpaper app macos",
+    "screensaver wallpaper mac",
     "daily wallpaper discovery",
     "Sonoma Ventura Sequoia wallpaper",
+    "macos 27 live wallpaper",
+    "macos 27 lock screen wallpaper",
+    "macos 26 tahoe live wallpaper",
+    "screen saver video mac",
     `${macwall.name}`,
   ],
   /* Favicons: app/favicon.ico, app/icon.png, app/apple-icon.png (see npm run icons:build). */
@@ -134,7 +158,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
-      <head>{tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}</head>
+      <head>
+        {tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}
+      </head>
       {/* Avoid hydration warnings when extensions inject attributes on <body> */}
       <body
         className="w-full bg-background font-sans font-light text-foreground antialiased"
