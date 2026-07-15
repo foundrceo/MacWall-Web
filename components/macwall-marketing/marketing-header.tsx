@@ -14,6 +14,7 @@ import {
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { cn } from "@/lib/utils"
+import MacWallMarketingOfferCountdownBar from "@/components/macwall-marketing/marketing-offer-countdown-bar"
 
 export type MacWallMarketingHeaderVariant = "light" | "dark"
 
@@ -53,6 +54,8 @@ export default function MacWallMarketingHeader({
     )
 
   return (
+    <>
+    <MacWallMarketingOfferCountdownBar />
     <header
       className={cn(
         "sticky top-0 z-50 w-full border-b backdrop-blur-2xl backdrop-saturate-150",
@@ -295,5 +298,6 @@ export default function MacWallMarketingHeader({
         </div>
       ) : null}
     </header>
+    </>
   )
 }

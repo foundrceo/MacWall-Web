@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Heart, Search, X } from "lucide-react"
 
+import { CatalogBulkUploadPanel } from "@/components/admin/catalog-bulk-upload-panel"
 import {
   AdminBadge,
   AdminButton,
@@ -169,6 +170,8 @@ export function WallpaperCatalogPanel({
 
   return (
     <div className="space-y-6">
+      <CatalogBulkUploadPanel onUploaded={loadWallpapers} />
+
       <AdminSurface>
         <AdminSurfaceHeader
           title="Catalog search"
