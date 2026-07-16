@@ -50,10 +50,6 @@ const MAX_FILES = 300
 const METADATA_READ_CONCURRENCY = 3
 const AI_ANALYSIS_CHUNK_SIZE = 6
 const AI_ANALYSIS_CONCURRENCY = 2
-const UPLOAD_API_BATCH_SIZE = 40
-const SIGN_API_CONCURRENCY = 3
-const UPLOAD_CONCURRENCY = 6
-const COMMIT_API_CONCURRENCY = 2
 const UPLOAD_RETRY_ATTEMPTS = 3
 const UPLOAD_RETRY_BASE_DELAY_MS = 800
 const THUMB_MAX_WIDTH = 1280
@@ -147,17 +143,14 @@ type DraftValidation = {
   message: string | null
 }
 
-type UploadRunPhase = "preparing" | "uploading" | "publishing" | "complete"
+type UploadRunPhase = "processing" | "complete"
 
 type UploadRun = {
   phase: UploadRunPhase
   total: number
-  uploadTotal: number
-  prepared: number
-  uploaded: number
+  current: number
   published: number
   failed: number
-  active: number
 }
 
 type BrowserFileSystemFileHandle = {
@@ -272,7 +265,7 @@ export function CatalogBulkUploadPanel({
   }, [busy])
 
   useEffect(() => {
-    if (!persistenceReady) return
+    if (!persistenceReady || busy) return
 
     const timeout = window.setTimeout(() => {
       if (draftsRef.current.length) {
@@ -726,264 +719,152 @@ export function CatalogBulkUploadPanel({
     setError(null)
     setNotice(null)
 
+    let supabase: SupabaseClient | null = null
+
+    let publishedCount = 0
+    let failedCount = 0
+    const failures: string[] = []
+
+    setUploadRun({
+      phase: "processing",
+      total: candidates.length,
+      current: 0,
+      published: 0,
+      failed: 0,
+    })
+
     try {
-      const toUpload = candidates.filter((draft) => draft.status !== "uploaded")
-      const initiallyUploadedCount = candidates.length - toUpload.length
-      setUploadRun({
-        phase: "preparing",
-        total: candidates.length,
-        uploadTotal: candidates.length,
-        prepared: initiallyUploadedCount,
-        uploaded: initiallyUploadedCount,
-        published: 0,
-        failed: 0,
-        active: 0,
-      })
-
-      if (toUpload.length) {
-        const uploadChunks = chunkArray(toUpload, UPLOAD_API_BATCH_SIZE)
-        const signedByClientId = new Map<
-          string,
-          SignedUploadResponse["uploads"][number] & {
-            bucket: string
-            origin: string
-            anonKey: string
-            cacheControl: string
-          }
-        >()
-        let preparedCount = initiallyUploadedCount
-        let uploadedCount = initiallyUploadedCount
-        let failedCount = 0
-
-        await runPool(uploadChunks, SIGN_API_CONCURRENCY, async (chunk) => {
-          const signRes = await fetch(
-            "/api/admin/wallpapers/bulk-upload/sign",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              credentials: "same-origin",
-              body: JSON.stringify({
-                items: chunk.map((draft) => ({
-                  clientId: draft.localId,
-                  id: draft.id,
-                  videoKey: draft.videoKey,
-                  thumbKey: draft.thumbKey,
-                  videoContentType: draft.videoContentType,
-                  thumbContentType: "image/jpeg",
-                  videoSizeBytes: draft.fileSizeBytes,
-                  thumbSizeBytes: draft.thumbBlob?.size ?? 0,
-                })),
-              }),
-            }
-          )
-          const signed = await readJsonResponse<SignedUploadResponse>(
-            signRes,
-            "Could not prepare uploads."
-          )
-          if (!signRes.ok) {
-            throw new Error(signed.error ?? "Could not prepare uploads.")
-          }
-
-          for (const upload of signed.uploads) {
-            signedByClientId.set(upload.clientId, {
-              ...upload,
-              bucket: signed.bucket,
-              origin: signed.origin,
-              anonKey: signed.anonKey,
-              cacheControl: signed.cacheControl,
-            })
-          }
-
-          preparedCount += signed.uploads.length
-          setUploadRun((current) =>
-            current
-              ? {
-                  ...current,
-                  prepared: Math.min(preparedCount, current.uploadTotal),
-                }
-              : current
-          )
-        })
-
+      for (let index = 0; index < candidates.length; index += 1) {
+        const draft = candidates[index]
         setUploadRun((current) =>
-          current ? { ...current, phase: "uploading" } : current
+          current ? { ...current, current: index + 1 } : current
         )
 
-        const uploadFailures: string[] = []
-        const supabaseClients = new Map<string, SupabaseClient>()
-        await runPool(toUpload, UPLOAD_CONCURRENCY, async (draft) => {
-          const upload = signedByClientId.get(draft.localId)
-          if (!upload)
-            throw new Error(`Missing upload token for ${draft.name}.`)
-          if (!draft.thumbBlob)
-            throw new Error(`Missing thumbnail for ${draft.name}.`)
+        try {
+          if (!draft.thumbBlob) {
+            throw new Error("Missing thumbnail.")
+          }
 
-          try {
-            setUploadRun((current) =>
-              current ? { ...current, active: current.active + 1 } : current
-            )
-            updateDraft(draft.localId, (current) => ({
+          const liveDraft =
+            draftsRef.current.find((item) => item.localId === draft.localId) ??
+            draft
+
+          if (liveDraft.status !== "uploaded") {
+            updateDraft(liveDraft.localId, (current) => ({
               ...current,
               status: "uploading",
-              progress: 12,
+              progress: 5,
               error: null,
             }))
 
-            const supabaseKey = `${upload.origin}:${upload.anonKey}`
-            let supabase = supabaseClients.get(supabaseKey)
+            const signed = await signCatalogDraft(liveDraft)
+            const upload = signed.uploads[0]
+            if (!upload) {
+              throw new Error("Could not prepare upload tokens.")
+            }
+
             if (!supabase) {
-              supabase = createClient(upload.origin, upload.anonKey, {
+              supabase = createClient(signed.origin, signed.anonKey, {
                 auth: { persistSession: false, autoRefreshToken: false },
               })
-              supabaseClients.set(supabaseKey, supabase)
             }
 
-            let completedParts = 0
-            const markPartDone = () => {
-              completedParts += 1
-              updateDraft(draft.localId, (current) => ({
-                ...current,
-                progress: completedParts === 1 ? 56 : 100,
-              }))
-            }
+            updateDraft(liveDraft.localId, (current) => ({
+              ...current,
+              progress: 15,
+            }))
 
-            await Promise.all([
-              uploadStorageTarget({
-                supabase,
-                bucket: upload.bucket,
-                target: upload.video,
-                fileBody: draft.file,
-                cacheControl: upload.cacheControl,
-                contentType: draft.videoContentType,
-              }).then(markPartDone),
-              uploadStorageTarget({
-                supabase,
-                bucket: upload.bucket,
-                target: upload.thumb,
-                fileBody: draft.thumbBlob,
-                cacheControl: upload.cacheControl,
-                contentType: "image/jpeg",
-              }).then(markPartDone),
-            ])
+            await uploadStorageTarget({
+              supabase,
+              bucket: signed.bucket,
+              target: upload.video,
+              fileBody: liveDraft.file,
+              cacheControl: signed.cacheControl,
+              contentType: liveDraft.videoContentType,
+            })
 
-            uploadedCount += 1
-            updateDraft(draft.localId, (current) => ({
+            updateDraft(liveDraft.localId, (current) => ({
+              ...current,
+              progress: 55,
+            }))
+
+            await uploadStorageTarget({
+              supabase,
+              bucket: signed.bucket,
+              target: upload.thumb,
+              fileBody: liveDraft.thumbBlob!,
+              cacheControl: signed.cacheControl,
+              contentType: "image/jpeg",
+            })
+
+            updateDraft(liveDraft.localId, (current) => ({
               ...current,
               status: "uploaded",
-              progress: 100,
+              progress: 85,
             }))
-            setUploadRun((current) =>
-              current ? { ...current, uploaded: uploadedCount } : current
-            )
-          } catch (err) {
-            failedCount += 1
-            const message =
-              err instanceof Error ? err.message : "Storage upload failed."
-            uploadFailures.push(`${draft.name}: ${message}`)
-            updateDraft(draft.localId, (current) => ({
+          } else {
+            updateDraft(liveDraft.localId, (current) => ({
               ...current,
-              status: "error",
-              error: message,
+              status: "uploading",
+              progress: 85,
+              error: null,
             }))
-            setUploadRun((current) =>
-              current ? { ...current, failed: failedCount } : current
-            )
-          } finally {
-            setUploadRun((current) =>
-              current
-                ? { ...current, active: Math.max(0, current.active - 1) }
-                : current
-            )
           }
-        })
 
-        if (uploadFailures.length) {
-          throw new Error(uploadFailures.slice(0, 3).join(" "))
+          await commitCatalogDraft(
+            draftsRef.current.find((item) => item.localId === draft.localId) ??
+              liveDraft
+          )
+
+          publishedCount += 1
+          updateDraft(liveDraft.localId, (current) => ({
+            ...current,
+            status: "committed",
+            progress: 100,
+            error: null,
+          }))
+          setUploadRun((current) =>
+            current ? { ...current, published: publishedCount } : current
+          )
+        } catch (err) {
+          failedCount += 1
+          const message = err instanceof Error ? err.message : "Upload failed."
+          failures.push(`${draft.name}: ${message}`)
+          updateDraft(draft.localId, (current) => ({
+            ...current,
+            status: "error",
+            error: message,
+          }))
+          setUploadRun((current) =>
+            current ? { ...current, failed: failedCount } : current
+          )
         }
       }
 
-      const commitChunks = chunkArray(candidates, UPLOAD_API_BATCH_SIZE)
-      let insertedCount = 0
       setUploadRun((current) =>
-        current ? { ...current, phase: "publishing", active: 0 } : current
+        current ? { ...current, phase: "complete" } : current
       )
 
-      await runPool(commitChunks, COMMIT_API_CONCURRENCY, async (chunk) => {
-        const commitRes = await fetch(
-          "/api/admin/wallpapers/bulk-upload/commit",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "same-origin",
-            body: JSON.stringify({
-              items: chunk.map((draft) => ({
-                clientId: draft.localId,
-                id: draft.id,
-                name: draft.name,
-                category: draft.category,
-                tags: tagsFromText(draft.tagsText),
-                resolution: draft.resolution,
-                durationSeconds: draft.durationSeconds,
-                fileSizeBytes: draft.fileSizeBytes,
-                videoKey: draft.videoKey,
-                thumbKey: draft.thumbKey,
-                thumbSizeBytes: draft.thumbBlob?.size ?? 0,
-                isPro: draft.isPro,
-                isFeatured: draft.isFeatured,
-                isCuratedPick: draft.isCuratedPick,
-              })),
-            }),
-          }
-        )
-        const commit = await readJsonResponse<CommitResponse>(
-          commitRes,
-          "Could not publish wallpapers."
-        )
-        if (!commitRes.ok) {
-          throw new Error(commit.error ?? "Could not publish wallpapers.")
-        }
+      if (publishedCount === 0) {
+        throw new Error(failures[0] ?? "No wallpapers were published.")
+      }
 
-        insertedCount += commit.inserted
-        setDrafts((current) =>
-          current.map((draft) =>
-            chunk.some((item) => item.localId === draft.localId)
-              ? { ...draft, status: "committed", progress: 100, error: null }
-              : draft
-          )
+      if (failures.length) {
+        setNotice(
+          `Published ${publishedCount.toLocaleString()} wallpapers. ${failures.length.toLocaleString()} still need attention — fix the row and upload again.`
         )
-        setUploadRun((current) =>
-          current
-            ? {
-                ...current,
-                published: Math.min(insertedCount, current.total),
-              }
-            : current
-        )
-      })
+        setError(failures.slice(0, 2).join(" "))
+      } else {
+        setNotice(`Published ${publishedCount.toLocaleString()} wallpapers.`)
+      }
 
-      setUploadRun((current) =>
-        current
-          ? {
-              ...current,
-              phase: "complete",
-              active: 0,
-              published: Math.min(insertedCount, current.total),
-            }
-          : current
-      )
-      setNotice(`Published ${insertedCount.toLocaleString()} wallpapers.`)
-      void deletePersistedUploadSession()
+      if (publishedCount === candidates.length) {
+        void deletePersistedUploadSession()
+      }
       await onUploaded?.()
     } catch (err) {
       const message = err instanceof Error ? err.message : "Upload failed."
       setError(message)
-      setDrafts((current) =>
-        current.map((draft) =>
-          draft.status === "uploading"
-            ? { ...draft, status: "error", error: message }
-            : draft
-        )
-      )
     } finally {
       setBusy(false)
     }
@@ -993,7 +874,7 @@ export function CatalogBulkUploadPanel({
     <AdminSurface>
       <AdminSurfaceHeader
         title="Bulk catalog upload"
-        description="Stage up to 300 videos, let AI analyze thumbnails for metadata, then publish directly into wallpaper-catalog."
+        description="Stage up to 300 videos, let AI analyze thumbnails for metadata, then publish one-by-one directly to Supabase Storage."
         action={
           <div className="flex flex-wrap gap-2">
             <AdminButton
@@ -1469,8 +1350,7 @@ function RecoverUploadSessionNotice({
 }
 
 function UploadPipelineProgress({ run }: Readonly<{ run: UploadRun }>) {
-  const uploadLeft = Math.max(0, run.uploadTotal - run.uploaded - run.failed)
-  const publishLeft = Math.max(0, run.total - run.published)
+  const left = Math.max(0, run.total - run.published - run.failed)
 
   return (
     <div className="rounded-2xl border border-[#d2d2d7] bg-white p-4">
@@ -1480,23 +1360,17 @@ function UploadPipelineProgress({ run }: Readonly<{ run: UploadRun }>) {
             {uploadPhaseLabel(run.phase)}
           </p>
           <p className="mt-0.5 text-[12px] text-[#86868b]">
-            {run.active
-              ? `${run.active.toLocaleString()} active uploads`
-              : "Pipeline ready"}
+            Processing wallpaper {run.current.toLocaleString()} of{" "}
+            {run.total.toLocaleString()}
           </p>
         </div>
         <AdminBadge tone={run.failed ? "red" : "blue"}>
-          {run.uploaded.toLocaleString()} uploaded /{" "}
-          {uploadLeft.toLocaleString()} left
+          {run.published.toLocaleString()} published / {left.toLocaleString()}{" "}
+          left
         </AdminBadge>
       </div>
 
-      <div className="mt-4 grid gap-3 lg:grid-cols-2">
-        <ProgressLine
-          label="Storage upload"
-          value={run.uploaded}
-          total={run.uploadTotal}
-        />
+      <div className="mt-4">
         <ProgressLine
           label="Catalog publish"
           value={run.published}
@@ -1504,19 +1378,10 @@ function UploadPipelineProgress({ run }: Readonly<{ run: UploadRun }>) {
         />
       </div>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
-        <MiniStat label="Prepared" value={run.prepared} />
-        <MiniStat label="Active" value={run.active} />
-        <MiniStat label="Uploaded" value={run.uploaded} />
-        <MiniStat label="Upload left" value={uploadLeft} />
-        <MiniStat label="Published" value={run.published} />
-        <MiniStat label="Publish left" value={publishLeft} />
-      </div>
-
       {run.failed ? (
         <p className="mt-3 text-[12px] text-[#d70015]">
-          {run.failed.toLocaleString()} upload failed. Fix the row error and run
-          upload again.
+          {run.failed.toLocaleString()} failed. Fix the row error and upload
+          again to retry only those wallpapers.
         </p>
       ) : null}
     </div>
@@ -1544,20 +1409,6 @@ function ProgressLine({
           style={{ width: `${percent}%` }}
         />
       </div>
-    </div>
-  )
-}
-
-function MiniStat({
-  label,
-  value,
-}: Readonly<{ label: string; value: number }>) {
-  return (
-    <div className="rounded-xl bg-[#f5f5f7] px-3 py-2">
-      <p className="text-[11px] text-[#86868b]">{label}</p>
-      <p className="mt-0.5 text-[14px] font-semibold text-[#1d1d1f] tabular-nums">
-        {value.toLocaleString()}
-      </p>
     </div>
   )
 }
@@ -1993,6 +1844,7 @@ async function uploadStorageTarget({
       .uploadToSignedUrl(target.path, target.token, fileBody, {
         cacheControl,
         contentType,
+        upsert: true,
       })
 
     if (!error) return
@@ -2004,7 +1856,7 @@ async function uploadStorageTarget({
     }
   }
 
-  throw new Error(storageErrorMessage(lastError))
+  throw new Error(`${target.path}: ${storageErrorMessage(lastError)}`)
 }
 
 function isDuplicateStorageError(error: unknown) {
@@ -2207,15 +2059,79 @@ function statusLabel(status: DraftStatus, progress: number) {
 
 function uploadPhaseLabel(phase: UploadRunPhase) {
   switch (phase) {
-    case "preparing":
-      return "Preparing signed upload URLs"
-    case "uploading":
-      return "Uploading directly to Supabase Storage"
-    case "publishing":
-      return "Publishing catalog rows"
+    case "processing":
+      return "Publishing one wallpaper at a time"
     case "complete":
       return "Upload complete"
   }
+}
+
+function catalogDraftPayload(draft: CatalogDraft) {
+  return {
+    clientId: draft.localId,
+    id: draft.id,
+    name: draft.name,
+    category: draft.category,
+    tags: tagsFromText(draft.tagsText),
+    resolution: draft.resolution,
+    durationSeconds: draft.durationSeconds,
+    fileSizeBytes: draft.fileSizeBytes,
+    videoKey: draft.videoKey,
+    thumbKey: draft.thumbKey,
+    thumbSizeBytes: draft.thumbBlob?.size ?? 0,
+    isPro: draft.isPro,
+    isFeatured: draft.isFeatured,
+    isCuratedPick: draft.isCuratedPick,
+  }
+}
+
+async function signCatalogDraft(draft: CatalogDraft) {
+  const signRes = await fetch("/api/admin/wallpapers/bulk-upload/sign", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify({
+      items: [
+        {
+          clientId: draft.localId,
+          id: draft.id,
+          videoKey: draft.videoKey,
+          thumbKey: draft.thumbKey,
+          videoContentType: draft.videoContentType,
+          thumbContentType: "image/jpeg",
+          videoSizeBytes: draft.fileSizeBytes,
+          thumbSizeBytes: draft.thumbBlob?.size ?? 0,
+        },
+      ],
+    }),
+  })
+  const signed = await readJsonResponse<SignedUploadResponse>(
+    signRes,
+    "Could not prepare upload."
+  )
+  if (!signRes.ok) {
+    throw new Error(signed.error ?? "Could not prepare upload.")
+  }
+  return signed
+}
+
+async function commitCatalogDraft(draft: CatalogDraft) {
+  const commitRes = await fetch("/api/admin/wallpapers/bulk-upload/commit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify({
+      items: [catalogDraftPayload(draft)],
+    }),
+  })
+  const commit = await readJsonResponse<CommitResponse>(
+    commitRes,
+    "Could not publish wallpaper."
+  )
+  if (!commitRes.ok) {
+    throw new Error(commit.error ?? "Could not publish wallpaper.")
+  }
+  return commit
 }
 
 function progressPercent(value: number, total: number) {
