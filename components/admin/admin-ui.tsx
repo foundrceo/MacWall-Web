@@ -67,7 +67,42 @@ export function AdminSurface({
   return (
     <div
       className={cn(
-        "rounded-[20px] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]",
+        "rounded-[20px] bg-white",
+        className
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+export function AdminFadeIn({
+  children,
+  className,
+  delay = 0,
+}: Readonly<{
+  children: ReactNode
+  className?: string
+  delay?: number
+}>) {
+  return (
+    <div
+      className={cn("admin-fade-in", className)}
+      style={delay > 0 ? { animationDelay: `${delay}ms` } : undefined}
+    >
+      {children}
+    </div>
+  )
+}
+
+export function AdminToolbar({
+  children,
+  className,
+}: Readonly<{ children: ReactNode; className?: string }>) {
+  return (
+    <div
+      className={cn(
+        "flex flex-wrap items-center gap-2 sm:gap-2.5",
         className
       )}
     >
@@ -90,7 +125,7 @@ export function AdminSurfaceHeader({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-start justify-between gap-3 px-6 pt-6",
+        "flex flex-wrap items-start justify-between gap-3 px-5 pt-5 sm:px-6 sm:pt-6",
         className
       )}
     >
@@ -113,7 +148,11 @@ export function AdminSurfaceBody({
   className,
   children,
 }: Readonly<{ className?: string; children: ReactNode }>) {
-  return <div className={cn("px-6 pt-4 pb-6", className)}>{children}</div>
+  return (
+    <div className={cn("px-5 pt-3 pb-5 sm:px-6 sm:pt-4 sm:pb-6", className)}>
+      {children}
+    </div>
+  )
 }
 
 export function AdminPageIntro({
@@ -121,12 +160,12 @@ export function AdminPageIntro({
   description,
 }: Readonly<{ title: string; description?: string }>) {
   return (
-    <div className="mb-8">
-      <h1 className="text-[32px] font-semibold tracking-[-0.025em] text-[#1d1d1f] md:text-[40px]">
+    <div className="mb-6 sm:mb-8">
+      <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-[#1d1d1f] sm:text-[32px] md:text-[40px]">
         {title}
       </h1>
       {description ? (
-        <p className="mt-2 max-w-2xl text-[17px] leading-snug text-[#86868b]">
+        <p className="mt-2 max-w-2xl text-[15px] leading-snug text-[#86868b] sm:text-[17px]">
           {description}
         </p>
       ) : null}
@@ -135,7 +174,7 @@ export function AdminPageIntro({
 }
 
 const buttonBase =
-  "inline-flex items-center justify-center rounded-full font-normal transition-colors duration-150 outline-none disabled:pointer-events-none disabled:opacity-45"
+  "inline-flex items-center justify-center rounded-full font-normal transition-all duration-200 ease-out outline-none active:scale-[0.98] disabled:pointer-events-none disabled:opacity-45 disabled:active:scale-100"
 
 const buttonSizes = {
   sm: "min-h-[32px] px-4 text-[12px]",
@@ -186,7 +225,7 @@ export function AdminPill({
       type="button"
       className={cn(
         buttonBase,
-        "min-h-[32px] px-4 text-[13px]",
+        "min-h-[32px] gap-1.5 px-4 text-[13px]",
         active
           ? "bg-[#1d1d1f] text-white"
           : "bg-[#f5f5f7] text-[#1d1d1f]/75 hover:bg-[#e8e8ed] hover:text-[#1d1d1f]",
@@ -206,7 +245,7 @@ export function AdminInput({
   return (
     <input
       className={cn(
-        "h-11 w-full rounded-xl bg-[#f5f5f7] px-4 text-[15px] text-[#1d1d1f] transition-colors outline-none placeholder:text-[#86868b] focus:bg-[#ebebed]",
+        "h-11 w-full rounded-full bg-[#f5f5f7] px-5 text-[15px] text-[#1d1d1f] transition-all duration-200 outline-none placeholder:text-[#86868b] focus:bg-[#ebebed]",
         className
       )}
       {...props}
@@ -221,7 +260,7 @@ export function AdminTextarea({
   return (
     <textarea
       className={cn(
-        "min-h-24 w-full rounded-xl bg-[#f5f5f7] px-4 py-3 text-[15px] text-[#1d1d1f] transition-colors outline-none placeholder:text-[#86868b] focus:bg-[#ebebed]",
+        "min-h-24 w-full rounded-2xl bg-[#f5f5f7] px-4 py-3 text-[15px] text-[#1d1d1f] transition-all duration-200 outline-none placeholder:text-[#86868b] focus:bg-[#ebebed]",
         className
       )}
       {...props}
@@ -281,12 +320,14 @@ export function AdminMetricTile({
   icon?: ReactNode
 }>) {
   return (
-    <div className="rounded-[20px] bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+    <div className="rounded-[20px] bg-white p-4 sm:p-5">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[13px] font-medium text-[#86868b]">{label}</p>
+        <p className="text-[12px] font-medium text-[#86868b] sm:text-[13px]">
+          {label}
+        </p>
         {icon}
       </div>
-      <p className="mt-2 text-[32px] font-semibold tracking-[-0.03em] text-[#1d1d1f] tabular-nums">
+      <p className="mt-2 text-[28px] font-semibold tracking-[-0.03em] text-[#1d1d1f] tabular-nums sm:text-[32px]">
         {typeof value === "number" ? value.toLocaleString() : value}
       </p>
       {hint ? (
@@ -299,14 +340,15 @@ export function AdminMetricTile({
 export function AdminSectionHeading({
   eyebrow,
   title,
-}: Readonly<{ eyebrow: string; title: string }>) {
+  icon,
+}: Readonly<{ eyebrow: string; title: string; icon?: ReactNode }>) {
   return (
     <div>
       <p className="text-[12px] font-medium tracking-wide text-[#86868b] uppercase">
         {eyebrow}
       </p>
-      <h2 className="mt-1 text-[21px] font-semibold tracking-[-0.022em] text-[#1d1d1f]">
-        {title}
+      <h2 className="mt-1 flex items-center gap-2 text-[19px] font-semibold tracking-[-0.022em] text-[#1d1d1f] sm:text-[21px]">
+        {icon}{title}
       </h2>
     </div>
   )
@@ -320,16 +362,16 @@ export function AdminNotice({
   children: ReactNode
 }>) {
   return (
-    <p
+    <div
       className={cn(
-        "rounded-2xl px-4 py-3 text-[14px]",
+        "flex items-start gap-2.5 rounded-2xl px-4 py-3 text-[14px] leading-snug",
         tone === "info" && "bg-[#f5f5f7] text-[#1d1d1f]/80",
         tone === "success" && "bg-[#34c759]/10 text-[#248a3d]",
         tone === "warning" && "bg-[#ff9500]/10 text-[#9a3412]"
       )}
     >
       {children}
-    </p>
+    </div>
   )
 }
 
@@ -351,7 +393,7 @@ export function AdminRowListItem({
       type="button"
       onClick={onClick}
       className={cn(
-        "w-full rounded-2xl px-3.5 py-3 text-left transition-colors",
+        "w-full rounded-2xl px-3.5 py-3 text-left transition-colors duration-200",
         active ? "bg-[#0071e3]/10" : "bg-[#f5f5f7] hover:bg-[#ebebed]"
       )}
     >
@@ -370,7 +412,7 @@ export function AdminInfoGrid({
   items,
 }: Readonly<{ items: Array<{ label: string; value: string }> }>) {
   return (
-    <div className="grid gap-2 sm:grid-cols-2">
+    <div className="grid gap-2.5 sm:grid-cols-2">
       {items.map((item) => (
         <div
           key={item.label}
@@ -389,7 +431,10 @@ export function AdminInfoGrid({
 export function AdminSkeleton({ className }: Readonly<{ className?: string }>) {
   return (
     <div
-      className={cn("animate-pulse rounded-[20px] bg-[#ebebed]", className)}
+      className={cn(
+        "admin-skeleton-pulse rounded-[20px] bg-[#e8e8ed]/70",
+        className
+      )}
     />
   )
 }

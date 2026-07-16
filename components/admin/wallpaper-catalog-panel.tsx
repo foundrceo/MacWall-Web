@@ -1,7 +1,18 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { Heart, Search, X } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  HeartIcon,
+  ImageNotFoundIcon,
+  CursorPointer01Icon,
+  ArrowReloadHorizontalIcon,
+  SaveIcon,
+  Search01Icon,
+  Cancel01Icon,
+} from "@hugeicons/core-free-icons"
 
 import { CatalogBulkUploadPanel } from "@/components/admin/catalog-bulk-upload-panel"
 import {
@@ -169,7 +180,7 @@ export function WallpaperCatalogPanel({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6 lg:space-y-8">
       <CatalogBulkUploadPanel onUploaded={loadWallpapers} />
 
       <AdminSurface>
@@ -177,10 +188,10 @@ export function WallpaperCatalogPanel({
           title="Catalog search"
           description={`Browse all ${data?.total ?? "…"} wallpapers. Search by name or ID, edit metadata, and review likes.`}
         />
-        <AdminSurfaceBody className="space-y-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+        <AdminSurfaceBody className="space-y-4 sm:space-y-5">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center">
             <div className="relative min-w-0 flex-1">
-              <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-[#86868b]" />
+              <HugeiconsIcon icon={Search01Icon} className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-[#86868b]" />
               <AdminInput
                 value={query}
                 onChange={(event) => {
@@ -198,7 +209,7 @@ export function WallpaperCatalogPanel({
                 setPage(1)
               }}
             >
-              <SelectTrigger className="w-full min-w-[160px] lg:w-auto">
+              <SelectTrigger className="w-full min-w-[160px] rounded-full h-11 lg:w-auto">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -217,7 +228,7 @@ export function WallpaperCatalogPanel({
                 setPage(1)
               }}
             >
-              <SelectTrigger className="w-full min-w-[140px] lg:w-auto">
+              <SelectTrigger className="w-full min-w-[140px] rounded-full h-11 lg:w-auto">
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
               <SelectContent>
@@ -230,9 +241,11 @@ export function WallpaperCatalogPanel({
             </Select>
             <AdminButton
               variant="ghost"
-              size="sm"
+              size="md"
+              className="gap-1.5 min-h-[44px]"
               onClick={() => void loadWallpapers()}
             >
+              <HugeiconsIcon icon={ArrowReloadHorizontalIcon} className="size-3.5" />
               Refresh
             </AdminButton>
           </div>
@@ -250,7 +263,7 @@ export function WallpaperCatalogPanel({
                     setPage(1)
                   }}
                   className={cn(
-                    "rounded-full px-3.5 py-1.5 text-[12px] transition-colors",
+                    "rounded-full px-3.5 py-1.5 text-[12px] transition-all duration-200 ease-out active:scale-[0.98]",
                     category === row.category
                       ? "bg-[#0071e3]/12 text-[#0071e3]"
                       : "bg-[#f5f5f7] text-[#86868b] hover:bg-[#ebebed] hover:text-[#1d1d1f]"
@@ -268,7 +281,7 @@ export function WallpaperCatalogPanel({
       {error ? <AdminNotice tone="warning">{error}</AdminNotice> : null}
       {message ? <AdminNotice tone="success">{message}</AdminNotice> : null}
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_380px]">
+      <div className="grid gap-4 sm:gap-5 min-[1200px]:grid-cols-[minmax(0,1fr)_minmax(280px,380px)] min-[1200px]:gap-6">
         <AdminSurface className="min-w-0 overflow-hidden">
           <AdminSurfaceHeader
             title="Wallpapers"
@@ -279,15 +292,15 @@ export function WallpaperCatalogPanel({
             }
           />
           <AdminSurfaceBody className="px-0 pt-2">
-            <div className="overflow-x-auto">
-              <table className="w-full text-[14px]">
+            <div className="overflow-x-auto [-webkit-overflow-scrolling:touch]">
+              <table className="w-full min-w-[640px] text-[14px]">
                 <thead>
                   <tr className="text-left text-[11px] font-medium tracking-wide text-[#86868b] uppercase">
-                    <th className="px-6 py-2">Preview</th>
-                    <th className="px-3 py-2">Name</th>
-                    <th className="px-3 py-2">Category</th>
-                    <th className="px-3 py-2">Likes</th>
-                    <th className="px-6 py-2">Flags</th>
+                    <th className="px-4 py-2.5 sm:px-6">Preview</th>
+                    <th className="px-3 py-2.5">Name</th>
+                    <th className="px-3 py-2.5">Category</th>
+                    <th className="px-3 py-2.5">Likes</th>
+                    <th className="px-4 py-2.5 sm:px-6">Flags</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -295,9 +308,12 @@ export function WallpaperCatalogPanel({
                     <tr>
                       <td
                         colSpan={5}
-                        className="px-6 py-10 text-center text-[#86868b]"
+                        className="px-4 py-12 text-center text-[#86868b] sm:px-6"
                       >
-                        No wallpapers match your filters.
+                        <div className="flex flex-col items-center gap-2">
+                          <HugeiconsIcon icon={ImageNotFoundIcon} className="size-8 text-[#86868b]/60" />
+                          No wallpapers match your filters.
+                        </div>
                       </td>
                     </tr>
                   ) : (
@@ -305,17 +321,17 @@ export function WallpaperCatalogPanel({
                       <tr
                         key={item.id}
                         className={cn(
-                          "cursor-pointer transition-colors hover:bg-[#f5f5f7]/80",
+                          "cursor-pointer transition-all duration-200 ease-out hover:bg-[#f5f5f7]/80",
                           selectedId === item.id && "bg-[#0071e3]/[0.06]"
                         )}
                         onClick={() => setSelectedId(item.id)}
                       >
-                        <td className="px-6 py-3">
+                        <td className="px-4 py-3 sm:px-6">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={item.thumbUrl}
                             alt=""
-                            className="size-14 rounded-[14px] object-cover"
+                            className="size-12 rounded-[12px] object-cover sm:size-14 sm:rounded-[14px]"
                           />
                         </td>
                         <td className="px-3 py-3">
@@ -331,11 +347,11 @@ export function WallpaperCatalogPanel({
                         </td>
                         <td className="px-3 py-3">
                           <span className="inline-flex items-center gap-1 font-medium text-[#1d1d1f] tabular-nums">
-                            <Heart className="size-3.5 text-[#ff2d55]" />
+                            <HugeiconsIcon icon={HeartIcon} className="size-3.5 text-[#ff2d55]" />
                             {item.likeCount.toLocaleString()}
                           </span>
                         </td>
-                        <td className="px-6 py-3">
+                        <td className="px-4 py-3 sm:px-6">
                           <div className="flex flex-wrap gap-1">
                             {item.isFeatured ? (
                               <AdminBadge tone="blue">Featured</AdminBadge>
@@ -356,7 +372,7 @@ export function WallpaperCatalogPanel({
             </div>
 
             {totalPages > 1 ? (
-              <div className="flex items-center justify-between px-6 py-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-black/[0.06] px-4 py-4 sm:px-6">
                 <p className="text-[14px] text-[#86868b]">
                   Page {page} of {totalPages}
                 </p>
@@ -364,20 +380,24 @@ export function WallpaperCatalogPanel({
                   <AdminButton
                     size="sm"
                     variant="secondary"
+                    className="gap-1"
                     disabled={page <= 1}
                     onClick={() => setPage((value) => Math.max(1, value - 1))}
                   >
+                    <HugeiconsIcon icon={ChevronLeftIcon} className="size-3.5" />
                     Previous
                   </AdminButton>
                   <AdminButton
                     size="sm"
                     variant="secondary"
+                    className="gap-1"
                     disabled={page >= totalPages}
                     onClick={() =>
                       setPage((value) => Math.min(totalPages, value + 1))
                     }
                   >
                     Next
+                    <HugeiconsIcon icon={ChevronRightIcon} className="size-3.5" />
                   </AdminButton>
                 </div>
               </div>
@@ -393,15 +413,18 @@ export function WallpaperCatalogPanel({
             onSave={saveWallpaper}
           />
         ) : (
-          <AdminSurface className="h-fit xl:sticky xl:top-6">
+          <AdminSurface className="h-fit min-[1200px]:sticky min-[1200px]:top-[5.5rem]">
             <AdminSurfaceHeader
               title="Edit wallpaper"
               description="Update catalog metadata. Changes sync to the public site."
             />
             <AdminSurfaceBody>
-              <p className="text-[14px] text-[#86868b]">
-                Select a wallpaper from the table.
-              </p>
+              <div className="flex flex-col items-center gap-2 py-4 text-center">
+                <HugeiconsIcon icon={CursorPointer01Icon} className="size-8 text-[#86868b]/60" />
+                <p className="text-[14px] text-[#86868b]">
+                  Select a wallpaper from the table.
+                </p>
+              </div>
             </AdminSurfaceBody>
           </AdminSurface>
         )}
@@ -461,12 +484,12 @@ function WallpaperEditor({
   }
 
   return (
-    <AdminSurface className="h-fit xl:sticky xl:top-6">
+    <AdminSurface className="h-fit min-[1200px]:sticky min-[1200px]:top-[5.5rem]">
       <AdminSurfaceHeader
         title="Edit wallpaper"
         description="Update catalog metadata. Changes sync to the public site."
       />
-      <AdminSurfaceBody className="space-y-4">
+      <AdminSurfaceBody className="space-y-4 sm:space-y-5">
         <div className="overflow-hidden rounded-[20px] bg-[#f5f5f7]">
           <video
             key={wallpaper.videoUrl}
@@ -554,10 +577,11 @@ function WallpaperEditor({
         <div className="flex gap-2">
           <AdminButton
             size="lg"
-            className="flex-1"
+            className="flex-1 gap-1.5"
             onClick={() => void handleSave()}
             disabled={saving || name.trim().length < 2}
           >
+            <HugeiconsIcon icon={SaveIcon} className="size-4" />
             {saving ? "Saving…" : "Save changes"}
           </AdminButton>
           <AdminButton
@@ -566,7 +590,7 @@ function WallpaperEditor({
             onClick={onClose}
             aria-label="Close editor"
           >
-            <X className="size-4" />
+            <HugeiconsIcon icon={Cancel01Icon} className="size-4" />
           </AdminButton>
         </div>
 

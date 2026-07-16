@@ -12,19 +12,17 @@ import {
   buildDailyCountsFallback,
   buildDownloadFunnel,
   buildTopPageViews,
+  fetchDailyCounts,
   fetchEventsInRange,
   fetchLatestEventAt,
 } from "@/lib/analytics/admin-metrics"
+import {
+  fetchTopLikedWallpapers,
+  fetchWallpaperCategoryCounts,
+} from "@/lib/admin/wallpapers"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 export const runtime = "nodejs"
-
-type WallpaperLiteRow = {
-  id: string
-  name: string
-  category: string
-  like_count: number
-}
 
 export async function GET(request: Request) {
   const denied = await requireAdminApi()
@@ -34,7 +32,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const days = Math.min(
       90,
-      Math.max(1, Number.parseInt(searchParams.get("days") ?? "30", 10) || 30)
+      Math.max(1, Number.parseInt(searchParams.get("days") ?? "7", 10) || 7)
     )
 
     const since = new Date()
@@ -43,13 +41,15 @@ export async function GET(request: Request) {
 
     const supabase = getSupabaseAdmin()
 
-    // One round-trip per dataset; all metrics derived locally from these rows.
     const [
       eventRows,
       lastEventAt,
       uploadsResult,
-      wallpapersResult,
+      wallpaperCountResult,
       likesResult,
+      categoryCounts,
+      topLikedWallpapers,
+      dailyCountsRpc,
       allSales,
       allDevices,
     ] = await Promise.all([
@@ -58,20 +58,23 @@ export async function GET(request: Request) {
       supabase.from("community_uploads").select("status"),
       supabase
         .from("wallpapers")
-        .select("id,name,category,like_count")
-        .limit(2000),
+        .select("id", { count: "exact", head: true }),
       supabase
         .from("wallpaper_likes")
         .select("id", { count: "exact", head: true }),
+      fetchWallpaperCategoryCounts(),
+      fetchTopLikedWallpapers(8),
+      fetchDailyCounts(supabase, sinceIso),
       fetchAllSales(),
       fetchAllDeviceActivations(),
     ])
 
     if (uploadsResult.error) throw new Error(uploadsResult.error.message)
-    if (wallpapersResult.error) throw new Error(wallpapersResult.error.message)
+    if (wallpaperCountResult.error) {
+      throw new Error(wallpaperCountResult.error.message)
+    }
     if (likesResult.error) throw new Error(likesResult.error.message)
 
-    // Event tallies (replaces one head-count query per event name)
     const eventTotals = new Map<string, number>()
     for (const row of eventRows) {
       eventTotals.set(
@@ -83,7 +86,10 @@ export async function GET(request: Request) {
       .map(([event_name, count]) => ({ event_name, count }))
       .sort((a, b) => b.count - a.count)
 
-    const dailyCounts = buildDailyCountsFallback(eventRows, sinceIso)
+    const dailyCounts =
+      dailyCountsRpc.length > 0
+        ? dailyCountsRpc
+        : buildDailyCountsFallback(eventRows, sinceIso)
 
     // Upload moderation totals
     const uploadTotals = { pending: 0, approved: 0, rejected: 0 }
@@ -92,27 +98,9 @@ export async function GET(request: Request) {
       if (status in uploadTotals) uploadTotals[status] += 1
     }
 
-    // Catalog stats from a single wallpapers fetch
-    const wallpapers = (wallpapersResult.data ?? []) as WallpaperLiteRow[]
-    const categoryTotals = new Map<string, number>()
-    for (const row of wallpapers) {
-      categoryTotals.set(
-        row.category,
-        (categoryTotals.get(row.category) ?? 0) + 1
-      )
-    }
-    const wallpaperCategoryCounts = [...categoryTotals.entries()]
-      .map(([category, count]) => ({ category, count }))
-      .sort((a, b) => b.count - a.count)
-    const topLikedWallpapers = [...wallpapers]
-      .sort((a, b) => b.like_count - a.like_count)
-      .slice(0, 8)
-      .map((row) => ({
-        id: row.id,
-        name: row.name,
-        category: row.category,
-        likeCount: row.like_count,
-      }))
+    // Catalog stats (exact counts + RPC rollups)
+    const wallpaperCategoryCounts = categoryCounts
+    const topLiked = topLikedWallpapers
 
     const downloadFunnel = buildDownloadFunnel(eventRows)
     const downloadClicksByLocation = buildClicksByLocation(
@@ -152,11 +140,12 @@ export async function GET(request: Request) {
       downloadDaily,
       topPages,
       communityUploads: uploadTotals,
-      catalogWallpaperCount: wallpapers.length,
+      catalogWallpaperCount: wallpaperCountResult.count ?? 0,
       totalLikes: likesResult.count ?? 0,
-      activatedDevices: allDevices.length,
+      activatedDevicesAllTime: allDevices.length,
+      activatedDevicesInRange: conversionFunnel.activatedDevices,
       wallpaperCategoryCounts,
-      topLikedWallpapers,
+      topLikedWallpapers: topLiked,
       sales,
       conversionFunnel,
     })

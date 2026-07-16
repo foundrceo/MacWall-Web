@@ -22,7 +22,7 @@ export default async function AdminLoginPage({
   }
 
   return (
-    <Suspense fallback={<p className="p-8 text-sm text-white/60">Loading…</p>}>
+    <Suspense fallback={<p className="p-8 text-sm text-[#86868b]">Loading…</p>}>
       <AdminLoginForm nextPath={nextPath} />
     </Suspense>
   )

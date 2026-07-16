@@ -26,6 +26,22 @@ export function getAnalyticsSessionId(): string {
   }
 }
 
+/** Appends analytics session id to installer URLs so clicks match redirects. */
+export function withAnalyticsSessionHref(href: string): string {
+  if (typeof window === "undefined") return href
+
+  const isInstaller =
+    href === "/download/latest" || href.endsWith("/download/latest")
+  if (!isInstaller) return href
+
+  const sid = getAnalyticsSessionId()
+  if (!sid) return href
+
+  const url = new URL(href, window.location.origin)
+  url.searchParams.set("sid", sid)
+  return `${url.pathname}${url.search}`
+}
+
 export function trackSiteEventClient(
   eventName: SiteAnalyticsEventName,
   metadata?: SiteAnalyticsMetadata

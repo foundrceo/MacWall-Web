@@ -1,16 +1,22 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { HugeiconsIcon } from "@hugeicons/react"
 import {
-  Activity,
-  ArrowDownRight,
-  ArrowUpRight,
-  CreditCard,
-  Download,
-  Heart,
+  ActivityIcon,
+  Calendar01Icon,
+  CreditCardIcon,
+  Download01Icon,
+  Globe02Icon,
+  HeartIcon,
   ImageIcon,
-  Users,
-} from "lucide-react"
+  LayersIcon,
+  ArrowReloadHorizontalIcon,
+  FullSignalIcon,
+  NoSignalIcon,
+  ArrowUpRightIcon,
+  UserGroupIcon,
+} from "@hugeicons/core-free-icons"
 
 import {
   CategoryDonut,
@@ -26,6 +32,7 @@ import {
 } from "@/components/admin/admin-charts"
 import {
   AdminBadge,
+  AdminFadeIn,
   AdminMetricTile,
   AdminNotice,
   AdminPill,
@@ -34,6 +41,7 @@ import {
   AdminSurface,
   AdminSurfaceBody,
   AdminSurfaceHeader,
+  AdminToolbar,
 } from "@/components/admin/admin-ui"
 
 type AnalyticsResponse = {
@@ -55,7 +63,10 @@ type AnalyticsResponse = {
   communityUploads: { pending: number; approved: number; rejected: number }
   catalogWallpaperCount: number
   totalLikes: number
-  activatedDevices: number
+  activatedDevicesAllTime?: number
+  activatedDevicesInRange?: number
+  /** @deprecated Use activatedDevicesAllTime */
+  activatedDevices?: number
   wallpaperCategoryCounts?: Array<{ category: string; count: number }>
   topLikedWallpapers?: Array<{
     id: string
@@ -85,12 +96,15 @@ type AnalyticsResponse = {
     pageViews: number
     uniqueVisitors: number
     downloadClicks: number
+    uniqueDownloadClickSessions?: number
     installerRedirects: number
     uniqueInstallSessions: number
     activatedDevices: number
     sales: number
     visitorToDownloadRate: number
-    downloadToInstallRate: number
+    downloadToRedirectRate?: number
+    /** @deprecated Use downloadToRedirectRate */
+    downloadToInstallRate?: number
     installToSaleRate: number
     visitorToSaleRate: number
   }
@@ -106,10 +120,11 @@ function formatUsd(value: number): string {
 }
 
 export function AnalyticsDashboard() {
-  const [days, setDays] = useState(30)
+  const [days, setDays] = useState(7)
   const [data, setData] = useState<AnalyticsResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -117,6 +132,7 @@ export function AnalyticsDashboard() {
     async function load() {
       setLoading(true)
       setError(null)
+      setData(null)
       try {
         const res = await fetch(`/api/admin/analytics?days=${days}`, {
           cache: "no-store",
@@ -142,7 +158,7 @@ export function AnalyticsDashboard() {
     return () => {
       cancelled = true
     }
-  }, [days])
+  }, [days, refreshKey])
 
   const downloadClicks =
     data?.downloadFunnel?.clicks ??
@@ -154,7 +170,9 @@ export function AnalyticsDashboard() {
       ?.count ??
     0
   const uniqueDownloadSessions =
-    data?.downloadFunnel?.uniqueRedirectSessions ?? 0
+    data?.conversionFunnel?.uniqueDownloadClickSessions ??
+    data?.downloadFunnel?.uniqueRedirectSessions ??
+    0
   const downloadCompletionRate = data?.downloadFunnel?.completionRate ?? 0
   const pricingClicks =
     data?.eventCounts.find((e) => e.event_name === "pricing_click")?.count ?? 0
@@ -183,25 +201,42 @@ export function AnalyticsDashboard() {
   )
   const pricingRingMax = Math.max(downloadClicks, pricingClicks, 1)
 
+  const activatedDevicesAllTime =
+    data?.activatedDevicesAllTime ?? data?.activatedDevices ?? 0
+
+  const chartDays = data?.rangeDays ?? days
+
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap gap-2">
+    <div className="space-y-5 sm:space-y-6 lg:space-y-8">
+      <AdminToolbar>
         {[7, 30, 90].map((value) => (
           <AdminPill
             key={value}
             active={days === value}
             onClick={() => setDays(value)}
           >
+            <HugeiconsIcon icon={Calendar01Icon} className="size-3.5" />
             Last {value} days
           </AdminPill>
         ))}
-      </div>
+        <AdminPill
+          active={false}
+          onClick={() => setRefreshKey((key) => key + 1)}
+          disabled={loading}
+        >
+          <HugeiconsIcon icon={ArrowReloadHorizontalIcon} className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
+          Refresh
+        </AdminPill>
+      </AdminToolbar>
 
-      {loading ? <AnalyticsSkeleton /> : null}
+      {loading && !data ? <AnalyticsSkeleton /> : null}
       {error ? <AdminNotice tone="warning">{error}</AdminNotice> : null}
 
       {data ? (
-        <>
+        <AdminFadeIn
+          key={`${days}-${refreshKey}`}
+          className="space-y-8 sm:space-y-10"
+        >
           <TrackingHealthBanner
             lastEventAt={data.lastEventAt}
             since={data.since}
@@ -215,46 +250,47 @@ export function AnalyticsDashboard() {
             />
           ) : null}
 
-          <section className="space-y-4">
+          <section className="space-y-5 sm:space-y-6">
             <AdminSectionHeading
               eyebrow={`Last ${data.rangeDays} days`}
               title="Website performance"
+              icon={<HugeiconsIcon icon={Globe02Icon} className="size-5 text-[#86868b]" />}
             />
 
-            <div className="grid gap-4 lg:grid-cols-4">
+            <div className="grid gap-4 lg:gap-5 lg:grid-cols-4">
               <AdminMetricTile
-                icon={<Download className="size-4 text-[#86868b]" />}
+                icon={<HugeiconsIcon icon={Download01Icon} className="size-4 text-[#86868b]" />}
                 label="Download clicks"
                 value={downloadClicks}
                 hint="CTA taps across the site"
               />
               <AdminMetricTile
-                icon={<Activity className="size-4 text-[#86868b]" />}
+                icon={<HugeiconsIcon icon={ActivityIcon} className="size-4 text-[#86868b]" />}
                 label="Installer redirects"
                 value={downloadRedirects}
                 hint="Successful /download/latest hits"
               />
               <AdminMetricTile
-                icon={<Users className="size-4 text-[#86868b]" />}
-                label="Unique sessions"
+                icon={<HugeiconsIcon icon={UserGroupIcon} className="size-4 text-[#86868b]" />}
+                label="Download click sessions"
                 value={uniqueDownloadSessions}
-                hint="Distinct download visitors"
+                hint="Unique visitors who tapped download"
               />
               <AdminMetricTile
-                icon={<Activity className="size-4 text-[#86868b]" />}
+                icon={<HugeiconsIcon icon={ActivityIcon} className="size-4 text-[#86868b]" />}
                 label="Page views"
                 value={pageViews}
                 hint="Tracked marketing page views"
               />
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-3">
+            <div className="grid gap-4 lg:gap-5 lg:grid-cols-3">
               <AdminSurface>
                 <AdminSurfaceHeader
                   title="Download funnel"
                   description="Click-to-redirect completion in this period"
                 />
-                <AdminSurfaceBody className="flex justify-center pb-8">
+                <AdminSurfaceBody className="flex justify-center pb-6 sm:pb-8">
                   <RingGauge
                     value={downloadCompletionRate}
                     label="Completion rate"
@@ -269,7 +305,7 @@ export function AnalyticsDashboard() {
                   description="All tracked events aggregated by day"
                 />
                 <AdminSurfaceBody>
-                  <DailyActivityChart rows={data.dailyCounts} days={14} />
+                  <DailyActivityChart rows={data.dailyCounts} days={chartDays} />
                 </AdminSurfaceBody>
               </AdminSurface>
             </div>
@@ -282,12 +318,12 @@ export function AnalyticsDashboard() {
               <AdminSurfaceBody>
                 <DownloadActivityChart
                   rows={data.downloadDaily ?? []}
-                  days={14}
+                  days={chartDays}
                 />
               </AdminSurfaceBody>
             </AdminSurface>
 
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-4 lg:gap-5 lg:grid-cols-2">
               <AdminSurface>
                 <AdminSurfaceHeader title="Download clicks by button" />
                 <AdminSurfaceBody>
@@ -316,40 +352,45 @@ export function AnalyticsDashboard() {
             </div>
           </section>
 
-          <section className="space-y-4">
+          <section className="space-y-5 sm:space-y-6">
             <AdminSectionHeading
               eyebrow="All-time database totals"
               title="Catalog & community"
+              icon={<HugeiconsIcon icon={LayersIcon} className="size-5 text-[#86868b]" />}
             />
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 lg:gap-5 sm:grid-cols-2 lg:grid-cols-4">
               <AdminMetricTile
-                icon={<ImageIcon className="size-4 text-[#86868b]" />}
+                icon={<HugeiconsIcon icon={ImageIcon} className="size-4 text-[#86868b]" />}
                 label="Catalog wallpapers"
                 value={data.catalogWallpaperCount}
+                hint="All-time total"
               />
               <AdminMetricTile
-                icon={<Heart className="size-4 text-[#86868b]" />}
+                icon={<HugeiconsIcon icon={HeartIcon} className="size-4 text-[#86868b]" />}
                 label="Total likes"
                 value={data.totalLikes}
+                hint="All-time total"
               />
               <AdminMetricTile
                 label="Pending uploads"
                 value={data.communityUploads.pending}
+                hint="Awaiting moderation"
               />
               <AdminMetricTile
                 label="Activated devices"
-                value={data.activatedDevices}
+                value={activatedDevicesAllTime}
+                hint={`${data.activatedDevicesInRange ?? 0} in selected range`}
               />
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-3">
+            <div className="grid gap-4 lg:gap-5 lg:grid-cols-3">
               <AdminSurface>
                 <AdminSurfaceHeader
                   title="Upload health"
                   description="Community moderation status"
                 />
-                <AdminSurfaceBody className="flex justify-center pb-8">
+                <AdminSurfaceBody className="flex justify-center pb-6 sm:pb-8">
                   <RingGauge
                     value={uploadApprovalRate}
                     label="Approval rate"
@@ -364,7 +405,7 @@ export function AnalyticsDashboard() {
                   title="Engagement"
                   description="Average likes per wallpaper"
                 />
-                <AdminSurfaceBody className="flex justify-center pb-8">
+                <AdminSurfaceBody className="flex justify-center pb-6 sm:pb-8">
                   <StatRing
                     value={avgLikesPerWallpaper}
                     max={engagementRingMax}
@@ -380,7 +421,7 @@ export function AnalyticsDashboard() {
                   title="Pricing interest"
                   description="Checkout CTA taps"
                 />
-                <AdminSurfaceBody className="flex justify-center pb-8">
+                <AdminSurfaceBody className="flex justify-center pb-6 sm:pb-8">
                   <StatRing
                     value={pricingClicks}
                     max={pricingRingMax}
@@ -392,7 +433,7 @@ export function AnalyticsDashboard() {
               </AdminSurface>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-4 lg:gap-5 lg:grid-cols-2">
               <AdminSurface>
                 <AdminSurfaceHeader title="Catalog by category" />
                 <AdminSurfaceBody>
@@ -416,7 +457,7 @@ export function AnalyticsDashboard() {
                     data.topLikedWallpapers?.map((row, index) => (
                       <div
                         key={row.id}
-                        className="flex items-center justify-between gap-3 rounded-2xl bg-[#f5f5f7] px-3.5 py-2.5"
+                        className="flex items-center justify-between gap-3 rounded-2xl bg-[#f5f5f7] px-3.5 py-2.5 transition-colors duration-200 hover:bg-[#ebebed]"
                       >
                         <div className="min-w-0">
                           <p className="truncate text-[14px] font-medium text-[#1d1d1f]">
@@ -427,7 +468,7 @@ export function AnalyticsDashboard() {
                           </p>
                         </div>
                         <AdminBadge tone="red">
-                          <Heart className="mr-1 size-3" />
+                          <HugeiconsIcon icon={HeartIcon} className="mr-1 size-3" />
                           {row.likeCount}
                         </AdminBadge>
                       </div>
@@ -437,7 +478,7 @@ export function AnalyticsDashboard() {
               </AdminSurface>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-4 lg:gap-5 lg:grid-cols-2">
               <AdminSurface>
                 <AdminSurfaceHeader title="All tracked events" />
                 <AdminSurfaceBody>
@@ -458,7 +499,7 @@ export function AnalyticsDashboard() {
               </AdminSurface>
             </div>
           </section>
-        </>
+        </AdminFadeIn>
       ) : null}
     </div>
   )
@@ -477,48 +518,26 @@ function SalesSection({
   const changeUp = change != null && change >= 0
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-5 sm:space-y-6">
       <AdminSectionHeading
         eyebrow={`Whop · last ${rangeDays} days vs previous ${rangeDays}`}
         title="Sales & revenue"
+        icon={<HugeiconsIcon icon={ArrowUpRightIcon} className="size-5 text-[#86868b]" />}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-[20px] bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
-          <div className="flex items-start justify-between gap-2">
-            <p className="text-[13px] font-medium text-[#86868b]">
-              Gross revenue
-            </p>
-            <CreditCard className="size-4 text-[#86868b]" />
-          </div>
-          <div className="mt-2 flex flex-wrap items-baseline gap-2">
-            <p className="text-[32px] font-semibold tracking-[-0.03em] text-[#1d1d1f] tabular-nums">
-              {formatUsd(sales.grossRevenue)}
-            </p>
-            {change != null ? (
-              <span
-                className={
-                  changeUp
-                    ? "inline-flex items-center gap-0.5 text-[14px] font-medium text-[#248a3d]"
-                    : "inline-flex items-center gap-0.5 text-[14px] font-medium text-[#d70015]"
-                }
-              >
-                {changeUp ? (
-                  <ArrowUpRight className="size-3.5" />
-                ) : (
-                  <ArrowDownRight className="size-3.5" />
-                )}
-                {Math.abs(change)}%
-              </span>
-            ) : sales.sales > 0 ? (
-              <AdminBadge tone="green">New</AdminBadge>
-            ) : null}
-          </div>
-          <p className="mt-1.5 text-[12px] text-[#86868b]">
-            {sales.sales} sales × {formatUsd(sales.pricePerSale)} · prev period{" "}
-            {formatUsd(sales.prevGrossRevenue)}
-          </p>
-        </div>
+      <div className="grid gap-4 lg:gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <AdminMetricTile
+          icon={<HugeiconsIcon icon={CreditCardIcon} className="size-4 text-[#86868b]" />}
+          label="Gross revenue"
+          value={formatUsd(sales.grossRevenue)}
+          hint={`${sales.sales} sales · prev ${formatUsd(sales.prevGrossRevenue)}${
+            change != null
+              ? ` · ${changeUp ? "+" : "-"}${Math.abs(change)}%`
+              : sales.sales > 0
+                ? " · new"
+                : ""
+          }`}
+        />
 
         <AdminMetricTile
           label="Net revenue (est.)"
@@ -533,11 +552,11 @@ function SalesSection({
         <AdminMetricTile
           label="Visitor → sale"
           value={`${funnel?.visitorToSaleRate ?? 0}%`}
-          hint="Unique site sessions that became purchases"
+          hint="Purchases per unique visitor in range"
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:gap-5 lg:grid-cols-3">
         <AdminSurface className="lg:col-span-2">
           <AdminSurfaceHeader
             title="Revenue over time"
@@ -568,9 +587,14 @@ function SalesSection({
                     hint: `${funnel.pageViews} page views`,
                   },
                   {
-                    label: "Download sessions",
-                    value: funnel.uniqueInstallSessions,
-                    hint: `${funnel.installerRedirects} redirects`,
+                    label: "Download clicks",
+                    value: funnel.downloadClicks,
+                    hint: `${funnel.uniqueDownloadClickSessions ?? 0} unique sessions`,
+                  },
+                  {
+                    label: "Installer redirects",
+                    value: funnel.installerRedirects,
+                    hint: `${funnel.uniqueInstallSessions} matched sessions`,
                   },
                   {
                     label: "Devices activated",
@@ -596,13 +620,13 @@ function SalesSection({
 
 function AnalyticsSkeleton() {
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 lg:grid-cols-4">
+    <div className="space-y-5 sm:space-y-6">
+      <div className="grid gap-4 lg:gap-5 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <AdminSkeleton key={index} className="h-28" />
         ))}
       </div>
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:gap-5 lg:grid-cols-3">
         <AdminSkeleton className="h-64" />
         <AdminSkeleton className="h-64 lg:col-span-2" />
       </div>
@@ -641,8 +665,11 @@ function TrackingHealthBanner({
   if (!lastEventAt) {
     return (
       <AdminNotice tone="warning">
-        No analytics events stored yet. Visit the public site and click Download
-        to verify tracking after deploy.
+        <span className="inline-flex items-center gap-1.5">
+          <HugeiconsIcon icon={NoSignalIcon} className="size-4 shrink-0" />
+          No analytics events stored yet. Visit the public site and click Download
+          to verify tracking after deploy.
+        </span>
       </AdminNotice>
     )
   }
@@ -654,15 +681,21 @@ function TrackingHealthBanner({
   if (isRecent) {
     return (
       <AdminNotice tone="success">
-        Tracking active · last event {formatRelativeTime(lastEventAt)}
+        <span className="inline-flex items-center gap-1.5">
+          <HugeiconsIcon icon={FullSignalIcon} className="size-4 shrink-0" />
+          Tracking active · last event {formatRelativeTime(lastEventAt)}
+        </span>
       </AdminNotice>
     )
   }
 
   return (
     <AdminNotice tone="warning">
-      No events in the selected range · last event{" "}
-      {formatRelativeTime(lastEventAt)}
+      <span className="inline-flex items-center gap-1.5">
+        <HugeiconsIcon icon={NoSignalIcon} className="size-4 shrink-0" />
+        No events in the selected range · last event{" "}
+        {formatRelativeTime(lastEventAt)}
+      </span>
     </AdminNotice>
   )
 }

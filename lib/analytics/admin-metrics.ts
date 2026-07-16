@@ -83,6 +83,25 @@ export async function fetchLatestEventAt(
   return data?.created_at ?? null
 }
 
+export async function fetchDailyCounts(
+  supabase: SupabaseClient,
+  sinceIso: string
+): Promise<DailyRow[]> {
+  const { data, error } = await supabase.rpc("admin_analytics_daily_counts", {
+    p_since: sinceIso,
+  })
+
+  if (!error && Array.isArray(data)) {
+    return data.map((row) => ({
+      day: String((row as { day: string }).day).slice(0, 10),
+      event_name: String((row as { event_name: string }).event_name),
+      count: Number((row as { count: number | string }).count),
+    }))
+  }
+
+  return []
+}
+
 export function buildTopPageViews(
   rows: AnalyticsEventRow[],
   limit = 12
@@ -119,11 +138,7 @@ export function buildDownloadFunnel(rows: AnalyticsEventRow[]) {
   }
 
   const completionRate =
-    clicks > 0
-      ? Math.round((redirects / clicks) * 100)
-      : redirects > 0
-        ? 100
-        : 0
+    clicks > 0 ? Math.round((redirects / clicks) * 100) : 0
 
   return {
     clicks,

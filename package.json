@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
+    "@hugeicons/core-free-icons": "^4.2.0",
+    "@hugeicons/react": "^1.1.6",
     "@next/third-parties": "^16.1.7",
     "@supabase/supabase-js": "^2.107.0",
     "@vercel/analytics": "^2.0.1",

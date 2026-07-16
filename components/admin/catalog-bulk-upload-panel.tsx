@@ -1,15 +1,16 @@
 "use client"
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
+import { HugeiconsIcon } from "@hugeicons/react"
 import {
-  AlertCircle,
-  CheckCircle2,
-  Files,
-  ImagePlus,
-  Loader2,
-  Trash2,
-  Upload,
-} from "lucide-react"
+  AlertCircleIcon,
+  CheckmarkCircle01Icon,
+  FilesIcon,
+  ImageAddIcon,
+  Loading01Icon,
+  Delete01Icon,
+  Upload01Icon,
+} from "@hugeicons/core-free-icons"
 import {
   type ChangeEvent,
   type DragEvent,
@@ -516,7 +517,7 @@ export function CatalogBulkUploadPanel({
               disabled={busy || analyzing || drafts.length >= MAX_FILES}
               className="gap-1.5"
             >
-              <Files className="size-3.5" />
+              <HugeiconsIcon icon={FilesIcon} className="size-3.5" />
               Select videos
             </AdminButton>
             <AdminButton
@@ -526,16 +527,16 @@ export function CatalogBulkUploadPanel({
               className="gap-1.5"
             >
               {busy ? (
-                <Loader2 className="size-3.5 animate-spin" />
+                <HugeiconsIcon icon={Loading01Icon} className="size-3.5 animate-spin" />
               ) : (
-                <Upload className="size-3.5" />
+                <HugeiconsIcon icon={Upload01Icon} className="size-3.5" />
               )}
               Upload {readyCount ? readyCount.toLocaleString() : ""}
             </AdminButton>
           </div>
         }
       />
-      <AdminSurfaceBody className="space-y-4">
+      <AdminSurfaceBody className="space-y-4 sm:space-y-5">
         <input
           ref={fileInputRef}
           type="file"
@@ -567,7 +568,7 @@ export function CatalogBulkUploadPanel({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={cn(
-            "flex min-h-36 w-full cursor-pointer flex-col items-center justify-center rounded-[20px] border border-dashed px-5 text-center transition-colors outline-none",
+            "flex min-h-36 w-full cursor-pointer flex-col items-center justify-center rounded-[20px] border border-dashed px-5 py-6 text-center transition-all duration-200 ease-out outline-none sm:min-h-40",
             dragActive
               ? "border-[#0071e3] bg-[#e8f2ff]"
               : "border-[#d2d2d7] bg-[#f5f5f7] hover:bg-[#ebebed]",
@@ -575,9 +576,9 @@ export function CatalogBulkUploadPanel({
           )}
         >
           {analyzing ? (
-            <Loader2 className="size-7 animate-spin text-[#0071e3]" />
+            <HugeiconsIcon icon={Loading01Icon} className="size-7 animate-spin text-[#0071e3]" />
           ) : (
-            <Upload className="size-7 text-[#0071e3]" />
+            <HugeiconsIcon icon={Upload01Icon} className="size-7 text-[#0071e3]" />
           )}
           <span className="mt-3 text-[17px] font-medium tracking-[-0.02em] text-[#1d1d1f]">
             {dragActive ? "Drop videos to stage" : "Drag videos here"}
@@ -659,7 +660,7 @@ function DraftRow({
   const idLocked = disabled || draft.status === "uploaded"
 
   return (
-    <div className="rounded-[20px] bg-[#f5f5f7] p-3">
+    <div className="rounded-[20px] bg-[#f5f5f7] p-3 transition-colors duration-200 sm:p-4">
       <div className="grid gap-3 lg:grid-cols-[148px_1fr_auto]">
         <div className="space-y-2">
           <div className="relative aspect-video overflow-hidden rounded-2xl bg-black/[0.04]">
@@ -673,9 +674,9 @@ function DraftRow({
             ) : (
               <div className="flex h-full items-center justify-center">
                 {draft.status === "analyzing" ? (
-                  <Loader2 className="size-5 animate-spin text-[#86868b]" />
+                  <HugeiconsIcon icon={Loading01Icon} className="size-5 animate-spin text-[#86868b]" />
                 ) : (
-                  <ImagePlus className="size-5 text-[#86868b]" />
+                  <HugeiconsIcon icon={ImageAddIcon} className="size-5 text-[#86868b]" />
                 )}
               </div>
             )}
@@ -821,12 +822,12 @@ function DraftRow({
           <AdminBadge tone={statusTone}>
             <span className="inline-flex items-center gap-1">
               {draft.status === "uploading" || draft.status === "analyzing" ? (
-                <Loader2 className="size-3 animate-spin" />
+                <HugeiconsIcon icon={Loading01Icon} className="size-3 animate-spin" />
               ) : draft.status === "committed" ||
                 draft.status === "uploaded" ? (
-                <CheckCircle2 className="size-3" />
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="size-3" />
               ) : draft.status === "error" || validation?.ok === false ? (
-                <AlertCircle className="size-3" />
+                <HugeiconsIcon icon={AlertCircleIcon} className="size-3" />
               ) : null}
               {statusLabel(draft.status, draft.progress)}
             </span>
@@ -838,7 +839,7 @@ function DraftRow({
             disabled={disabled}
             onClick={() => onRemove(draft.localId)}
           >
-            <Trash2 className="size-4" />
+            <HugeiconsIcon icon={Delete01Icon} className="size-4" />
           </AdminButton>
         </div>
       </div>
