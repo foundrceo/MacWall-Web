@@ -45,12 +45,25 @@ import { cn } from "@/lib/utils"
 
 const WALLPAPER_CATEGORIES: string[] = [...macwall.categories]
 const DEFAULT_CATEGORY = WALLPAPER_CATEGORIES[0] ?? "Nature"
-const MAX_FILES = 100
-const UPLOAD_CONCURRENCY = 2
+const MAX_FILES = 300
+const METADATA_READ_CONCURRENCY = 3
+const AI_ANALYSIS_CHUNK_SIZE = 6
+const AI_ANALYSIS_CONCURRENCY = 2
+const UPLOAD_API_BATCH_SIZE = 40
+const SIGN_API_CONCURRENCY = 3
+const UPLOAD_CONCURRENCY = 6
+const COMMIT_API_CONCURRENCY = 2
 const UPLOAD_RETRY_ATTEMPTS = 3
 const UPLOAD_RETRY_BASE_DELAY_MS = 800
 const THUMB_MAX_WIDTH = 1280
 const THUMB_QUALITY = 0.86
+const AI_THUMB_MAX_WIDTH = 512
+const AI_THUMB_QUALITY = 0.72
+const UPLOAD_SESSION_DB_NAME = "macwall-admin-upload-session"
+const UPLOAD_SESSION_STORE = "sessions"
+const UPLOAD_SESSION_KEY = "catalog-bulk-upload-v1"
+const UPLOAD_SESSION_VERSION = 1
+const UPLOAD_SESSION_SAVE_DELAY_MS = 900
 const WALLPAPER_ID_RE = /^[a-z0-9][a-z0-9-]{1,127}$/
 const VIDEO_EXTENSIONS = new Set(["mp4", "mov", "m4v", "webm"])
 
@@ -65,6 +78,7 @@ type DraftStatus =
 type CatalogDraft = {
   localId: string
   file: File
+  fileHandle: BrowserFileSystemFileHandle | null
   sourceFileName: string
   id: string
   videoExtension: string
@@ -115,9 +129,80 @@ type CommitResponse = {
   error?: string
 }
 
+type AiMetadataResponse = {
+  items: AiMetadataItem[]
+  error?: string
+}
+
+type AiMetadataItem = {
+  clientId: string
+  name: string
+  category: string
+  tags: string[]
+}
+
 type DraftValidation = {
   ok: boolean
   message: string | null
+}
+
+type UploadRunPhase = "preparing" | "uploading" | "publishing" | "complete"
+
+type UploadRun = {
+  phase: UploadRunPhase
+  total: number
+  uploadTotal: number
+  prepared: number
+  uploaded: number
+  published: number
+  failed: number
+  active: number
+}
+
+type BrowserFileSystemFileHandle = {
+  kind?: string
+  name: string
+  getFile: () => Promise<File>
+  queryPermission?: (descriptor?: { mode?: "read" }) => Promise<PermissionState>
+  requestPermission?: (descriptor?: {
+    mode?: "read"
+  }) => Promise<PermissionState>
+}
+
+type FilePickerWindow = Window &
+  typeof globalThis & {
+    showOpenFilePicker?: (options?: {
+      excludeAcceptAllOption?: boolean
+      multiple?: boolean
+      types?: Array<{
+        description?: string
+        accept: Record<string, string[]>
+      }>
+    }) => Promise<BrowserFileSystemFileHandle[]>
+  }
+
+type DataTransferItemWithHandle = DataTransferItem & {
+  getAsFileSystemHandle?: () => Promise<BrowserFileSystemFileHandle | null>
+}
+
+type StagedFileInput = {
+  file: File
+  fileHandle: BrowserFileSystemFileHandle | null
+}
+
+type PersistedCatalogDraft = Omit<CatalogDraft, "file" | "thumbUrl"> & {
+  file: File | null
+}
+
+type PersistedUploadSession = {
+  version: typeof UPLOAD_SESSION_VERSION
+  updatedAt: string
+  drafts: PersistedCatalogDraft[]
+}
+
+type RecoverableSession = {
+  updatedAt: string
+  count: number
 }
 
 export function CatalogBulkUploadPanel({
@@ -126,6 +211,11 @@ export function CatalogBulkUploadPanel({
   const [drafts, setDrafts] = useState<CatalogDraft[]>([])
   const [busy, setBusy] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
+  const [uploadRun, setUploadRun] = useState<UploadRun | null>(null)
+  const [persistenceReady, setPersistenceReady] = useState(false)
+  const [recoverableSession, setRecoverableSession] =
+    useState<RecoverableSession | null>(null)
+  const pendingRecoveryRef = useRef<PersistedUploadSession | null>(null)
   const [dragDepth, setDragDepth] = useState(0)
   const [notice, setNotice] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -145,6 +235,55 @@ export function CatalogBulkUploadPanel({
     []
   )
 
+  useEffect(() => {
+    let cancelled = false
+
+    void loadPersistedUploadSession()
+      .then((session) => {
+        if (cancelled) return
+        if (session?.drafts.length && draftsRef.current.length === 0) {
+          pendingRecoveryRef.current = session
+          setRecoverableSession({
+            updatedAt: session.updatedAt,
+            count: session.drafts.length,
+          })
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setPersistenceReady(true)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!busy) return
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = ""
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+  }, [busy])
+
+  useEffect(() => {
+    if (!persistenceReady) return
+
+    const timeout = window.setTimeout(() => {
+      if (draftsRef.current.length) {
+        void savePersistedUploadSession(draftsRef.current)
+      } else if (!recoverableSession) {
+        void deletePersistedUploadSession()
+      }
+    }, UPLOAD_SESSION_SAVE_DELAY_MS)
+
+    return () => window.clearTimeout(timeout)
+  }, [drafts, persistenceReady, recoverableSession])
+
   const validation = useMemo(() => validateDrafts(drafts), [drafts])
 
   const readyCount = drafts.filter(
@@ -159,11 +298,73 @@ export function CatalogBulkUploadPanel({
   async function handleFilesSelected(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? [])
     event.target.value = ""
-    await stageFiles(files)
+    await stageFiles(files.map((file) => ({ file, fileHandle: null })))
   }
 
-  async function stageFiles(files: File[]) {
-    if (!files.length) return
+  async function pickFiles() {
+    if (busy || analyzing || draftsRef.current.length >= MAX_FILES) return
+
+    const picker = window as FilePickerWindow
+    if (!picker.showOpenFilePicker) {
+      fileInputRef.current?.click()
+      return
+    }
+
+    try {
+      const handles = await picker.showOpenFilePicker({
+        multiple: true,
+        excludeAcceptAllOption: false,
+        types: [
+          {
+            description: "Videos",
+            accept: {
+              "video/mp4": [".mp4", ".m4v"],
+              "video/quicktime": [".mov"],
+              "video/webm": [".webm"],
+            },
+          },
+        ],
+      })
+      const items = await Promise.all(
+        handles.map(async (fileHandle) => ({
+          file: await fileHandle.getFile(),
+          fileHandle,
+        }))
+      )
+      await stageFiles(items)
+    } catch (err) {
+      if (isAbortError(err)) return
+      setError(err instanceof Error ? err.message : "Could not select videos.")
+    }
+  }
+
+  async function filesFromDrop(event: DragEvent<HTMLElement>) {
+    const items = Array.from(event.dataTransfer.items ?? [])
+    if (items.length) {
+      return Promise.all(
+        items
+          .filter((item) => item.kind === "file")
+          .map(async (item) => {
+            const withHandle = item as DataTransferItemWithHandle
+            const fileHandle = await withHandle.getAsFileSystemHandle?.()
+            const file = fileHandle
+              ? await fileHandle.getFile()
+              : item.getAsFile()
+            return file ? { file, fileHandle } : null
+          })
+      ).then((results) =>
+        results.filter((item): item is StagedFileInput => Boolean(item))
+      )
+    }
+
+    return Array.from(event.dataTransfer.files).map((file) => ({
+      file,
+      fileHandle: null,
+    }))
+  }
+
+  async function stageFiles(inputs: StagedFileInput[]) {
+    if (!inputs.length) return
     if (busy || analyzing) return
     if (draftsRef.current.length >= MAX_FILES) {
       setError(`Remove a staged item before adding more than ${MAX_FILES}.`)
@@ -176,26 +377,34 @@ export function CatalogBulkUploadPanel({
 
     try {
       const availableSlots = Math.max(0, MAX_FILES - draftsRef.current.length)
-      const nextFiles = files.slice(0, availableSlots)
-      if (nextFiles.length !== files.length) {
+      const nextFiles = inputs.slice(0, availableSlots)
+      if (nextFiles.length !== inputs.length) {
         setNotice(`Only ${MAX_FILES} wallpapers can be staged at once.`)
       }
 
       const usedIds = new Set(draftsRef.current.map((draft) => draft.id))
       const rejected: string[] = []
-      for (const file of nextFiles) {
+      const staged: CatalogDraft[] = []
+      for (const { file, fileHandle } of nextFiles) {
         const localId = createLocalId()
         let initial: CatalogDraft
         try {
-          initial = createInitialDraft(file, localId, usedIds)
+          initial = createInitialDraft(file, fileHandle, localId, usedIds)
         } catch (err) {
           rejected.push(err instanceof Error ? err.message : file.name)
           continue
         }
-        setDrafts((current) => [...current, initial])
+        staged.push(initial)
+      }
 
+      if (staged.length) {
+        setDrafts((current) => [...current, ...staged])
+      }
+
+      const inspectedDrafts: CatalogDraft[] = []
+      await runPool(staged, METADATA_READ_CONCURRENCY, async (initial) => {
         try {
-          const inspected = await inspectVideoFile(file)
+          const inspected = await inspectVideoFile(initial.file)
           const ready: CatalogDraft = {
             ...initial,
             resolution: `${inspected.width}x${inspected.height}`,
@@ -204,13 +413,16 @@ export function CatalogBulkUploadPanel({
             thumbUrl: inspected.thumbUrl,
             status: "ready",
           }
+          inspectedDrafts.push(ready)
           setDrafts((current) =>
-            current.map((draft) => (draft.localId === localId ? ready : draft))
+            current.map((draft) =>
+              draft.localId === initial.localId ? ready : draft
+            )
           )
         } catch (err) {
           setDrafts((current) =>
             current.map((draft) =>
-              draft.localId === localId
+              draft.localId === initial.localId
                 ? {
                     ...draft,
                     status: "error",
@@ -223,6 +435,10 @@ export function CatalogBulkUploadPanel({
             )
           )
         }
+      })
+
+      if (inspectedDrafts.length) {
+        await analyzeDraftMetadata(inspectedDrafts)
       }
 
       if (rejected.length) {
@@ -235,6 +451,132 @@ export function CatalogBulkUploadPanel({
     } finally {
       setAnalyzing(false)
     }
+  }
+
+  async function analyzeDraftMetadata(targetDrafts: CatalogDraft[]) {
+    const draftsWithThumbs = targetDrafts.filter((draft) => draft.thumbBlob)
+    if (!draftsWithThumbs.length) return
+
+    const chunks = chunkArray(draftsWithThumbs, AI_ANALYSIS_CHUNK_SIZE)
+    let analyzedCount = 0
+    const failedBatches: string[] = []
+
+    setNotice(
+      `AI is analyzing ${draftsWithThumbs.length.toLocaleString()} thumbnails for professional metadata.`
+    )
+
+    await runPool(chunks, AI_ANALYSIS_CONCURRENCY, async (chunk) => {
+      for (const draft of chunk) {
+        updateDraft(draft.localId, (current) =>
+          current.status === "ready"
+            ? { ...current, status: "analyzing" }
+            : current
+        )
+      }
+
+      try {
+        const items = await Promise.all(
+          chunk.map(async (draft) => ({
+            clientId: draft.localId,
+            sourceFileName: draft.sourceFileName,
+            initialName: draft.name,
+            initialCategory: draft.category,
+            initialTags: tagsFromText(draft.tagsText),
+            thumbDataUrl: await blobToResizedJpegDataUrl(draft.thumbBlob!),
+          }))
+        )
+
+        const response = await fetch(
+          "/api/admin/wallpapers/bulk-upload/analyze",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({ items }),
+          }
+        )
+        const analysis = await readJsonResponse<AiMetadataResponse>(
+          response,
+          "Could not analyze wallpaper thumbnails."
+        )
+        if (!response.ok) {
+          throw new Error(
+            analysis.error ?? "Could not analyze wallpaper thumbnails."
+          )
+        }
+
+        applyAiMetadata(analysis.items)
+        const returnedClientIds = new Set(
+          analysis.items.map((item) => item.clientId)
+        )
+        for (const draft of chunk) {
+          if (returnedClientIds.has(draft.localId)) continue
+          updateDraft(draft.localId, (current) =>
+            current.status === "analyzing"
+              ? { ...current, status: "ready", error: null }
+              : current
+          )
+        }
+        analyzedCount += analysis.items.length
+      } catch (err) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Could not analyze wallpaper thumbnails."
+        failedBatches.push(message)
+        for (const draft of chunk) {
+          updateDraft(draft.localId, (current) =>
+            current.status === "analyzing"
+              ? { ...current, status: "ready", error: null }
+              : current
+          )
+        }
+      }
+    })
+
+    setNotice(
+      failedBatches.length
+        ? `AI analyzed ${analyzedCount.toLocaleString()} wallpapers. ${failedBatches.length.toLocaleString()} batch failed, so those rows kept filename metadata.`
+        : `AI analyzed ${analyzedCount.toLocaleString()} wallpapers and filled professional names, categories, and tags.`
+    )
+  }
+
+  function applyAiMetadata(items: AiMetadataItem[]) {
+    const metadataByClientId = new Map(
+      items.map((item) => [item.clientId, item])
+    )
+    setDrafts((current) => {
+      const usedIds = new Set(
+        current
+          .filter((draft) => !metadataByClientId.has(draft.localId))
+          .map((draft) => draft.id)
+      )
+
+      return current.map((draft) => {
+        const metadata = metadataByClientId.get(draft.localId)
+        if (!metadata || draft.status === "committed") return draft
+
+        const name = normalizeAiTitle(metadata.name, draft.name)
+        const category = WALLPAPER_CATEGORIES.includes(metadata.category)
+          ? metadata.category
+          : draft.category
+        const tags = normalizeAiTags(metadata.tags, name, category)
+        const id = uniqueSlug(slugify(name), usedIds)
+        usedIds.add(id)
+
+        return {
+          ...draft,
+          id,
+          name,
+          category,
+          tagsText: tags.join(", "),
+          videoKey: `videos/${id}.${draft.videoExtension}`,
+          thumbKey: `thumbs/${id}.jpg`,
+          status: draft.status === "analyzing" ? "ready" : draft.status,
+          error: null,
+        }
+      })
+    })
   }
 
   function handleDragEnter(event: DragEvent<HTMLElement>) {
@@ -259,19 +601,19 @@ export function CatalogBulkUploadPanel({
     setDragDepth((current) => Math.max(0, current - 1))
   }
 
-  function handleDrop(event: DragEvent<HTMLElement>) {
+  async function handleDrop(event: DragEvent<HTMLElement>) {
     if (!isFileDrag(event)) return
     event.preventDefault()
     event.stopPropagation()
     setDragDepth(0)
     if (!canStageMore) return
-    void stageFiles(Array.from(event.dataTransfer.files))
+    await stageFiles(await filesFromDrop(event))
   }
 
   function handleDropZoneKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key !== "Enter" && event.key !== " ") return
     event.preventDefault()
-    if (canStageMore) fileInputRef.current?.click()
+    if (canStageMore) void pickFiles()
   }
 
   function updateDraft(
@@ -332,8 +674,41 @@ export function CatalogBulkUploadPanel({
       if (draft.thumbUrl) URL.revokeObjectURL(draft.thumbUrl)
     }
     setDrafts([])
+    setUploadRun(null)
+    pendingRecoveryRef.current = null
+    setRecoverableSession(null)
     setNotice(null)
     setError(null)
+    void deletePersistedUploadSession()
+  }
+
+  async function restoreLastUploadSession() {
+    const session = pendingRecoveryRef.current
+    if (!session?.drafts.length) return
+
+    for (const draft of draftsRef.current) {
+      if (draft.thumbUrl) URL.revokeObjectURL(draft.thumbUrl)
+    }
+
+    const { drafts: restored, failed } = await recoverPersistedDrafts(
+      session.drafts
+    )
+    setDrafts(restored)
+    setUploadRun(null)
+    pendingRecoveryRef.current = null
+    setRecoverableSession(null)
+    setError(null)
+    setNotice(
+      failed
+        ? `Restored ${restored.length.toLocaleString()} wallpapers. ${failed.toLocaleString()} files need to be selected again.`
+        : `Restored ${restored.length.toLocaleString()} wallpapers from the last upload session.`
+    )
+  }
+
+  function discardLastUploadSession() {
+    pendingRecoveryRef.current = null
+    setRecoverableSession(null)
+    void deletePersistedUploadSession()
   }
 
   async function handleUpload() {
@@ -352,40 +727,89 @@ export function CatalogBulkUploadPanel({
 
     try {
       const toUpload = candidates.filter((draft) => draft.status !== "uploaded")
-      if (toUpload.length) {
-        const signRes = await fetch("/api/admin/wallpapers/bulk-upload/sign", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({
-            items: toUpload.map((draft) => ({
-              clientId: draft.localId,
-              id: draft.id,
-              videoKey: draft.videoKey,
-              thumbKey: draft.thumbKey,
-              videoContentType: draft.videoContentType,
-              thumbContentType: "image/jpeg",
-              videoSizeBytes: draft.fileSizeBytes,
-              thumbSizeBytes: draft.thumbBlob?.size ?? 0,
-            })),
-          }),
-        })
-        const signed = await readJsonResponse<SignedUploadResponse>(
-          signRes,
-          "Could not prepare uploads."
-        )
-        if (!signRes.ok) {
-          throw new Error(signed.error ?? "Could not prepare uploads.")
-        }
+      const initiallyUploadedCount = candidates.length - toUpload.length
+      setUploadRun({
+        phase: "preparing",
+        total: candidates.length,
+        uploadTotal: candidates.length,
+        prepared: initiallyUploadedCount,
+        uploaded: initiallyUploadedCount,
+        published: 0,
+        failed: 0,
+        active: 0,
+      })
 
-        const supabase = createClient(signed.origin, signed.anonKey, {
-          auth: { persistSession: false, autoRefreshToken: false },
+      if (toUpload.length) {
+        const uploadChunks = chunkArray(toUpload, UPLOAD_API_BATCH_SIZE)
+        const signedByClientId = new Map<
+          string,
+          SignedUploadResponse["uploads"][number] & {
+            bucket: string
+            origin: string
+            anonKey: string
+            cacheControl: string
+          }
+        >()
+        let preparedCount = initiallyUploadedCount
+        let uploadedCount = initiallyUploadedCount
+        let failedCount = 0
+
+        await runPool(uploadChunks, SIGN_API_CONCURRENCY, async (chunk) => {
+          const signRes = await fetch(
+            "/api/admin/wallpapers/bulk-upload/sign",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "same-origin",
+              body: JSON.stringify({
+                items: chunk.map((draft) => ({
+                  clientId: draft.localId,
+                  id: draft.id,
+                  videoKey: draft.videoKey,
+                  thumbKey: draft.thumbKey,
+                  videoContentType: draft.videoContentType,
+                  thumbContentType: "image/jpeg",
+                  videoSizeBytes: draft.fileSizeBytes,
+                  thumbSizeBytes: draft.thumbBlob?.size ?? 0,
+                })),
+              }),
+            }
+          )
+          const signed = await readJsonResponse<SignedUploadResponse>(
+            signRes,
+            "Could not prepare uploads."
+          )
+          if (!signRes.ok) {
+            throw new Error(signed.error ?? "Could not prepare uploads.")
+          }
+
+          for (const upload of signed.uploads) {
+            signedByClientId.set(upload.clientId, {
+              ...upload,
+              bucket: signed.bucket,
+              origin: signed.origin,
+              anonKey: signed.anonKey,
+              cacheControl: signed.cacheControl,
+            })
+          }
+
+          preparedCount += signed.uploads.length
+          setUploadRun((current) =>
+            current
+              ? {
+                  ...current,
+                  prepared: Math.min(preparedCount, current.uploadTotal),
+                }
+              : current
+          )
         })
-        const signedByClientId = new Map(
-          signed.uploads.map((upload) => [upload.clientId, upload])
+
+        setUploadRun((current) =>
+          current ? { ...current, phase: "uploading" } : current
         )
 
         const uploadFailures: string[] = []
+        const supabaseClients = new Map<string, SupabaseClient>()
         await runPool(toUpload, UPLOAD_CONCURRENCY, async (draft) => {
           const upload = signedByClientId.get(draft.localId)
           if (!upload)
@@ -394,6 +818,9 @@ export function CatalogBulkUploadPanel({
             throw new Error(`Missing thumbnail for ${draft.name}.`)
 
           try {
+            setUploadRun((current) =>
+              current ? { ...current, active: current.active + 1 } : current
+            )
             updateDraft(draft.localId, (current) => ({
               ...current,
               status: "uploading",
@@ -401,35 +828,54 @@ export function CatalogBulkUploadPanel({
               error: null,
             }))
 
-            await uploadStorageTarget({
-              supabase,
-              bucket: signed.bucket,
-              target: upload.video,
-              fileBody: draft.file,
-              cacheControl: signed.cacheControl,
-              contentType: draft.videoContentType,
-            })
+            const supabaseKey = `${upload.origin}:${upload.anonKey}`
+            let supabase = supabaseClients.get(supabaseKey)
+            if (!supabase) {
+              supabase = createClient(upload.origin, upload.anonKey, {
+                auth: { persistSession: false, autoRefreshToken: false },
+              })
+              supabaseClients.set(supabaseKey, supabase)
+            }
 
-            updateDraft(draft.localId, (current) => ({
-              ...current,
-              progress: 72,
-            }))
+            let completedParts = 0
+            const markPartDone = () => {
+              completedParts += 1
+              updateDraft(draft.localId, (current) => ({
+                ...current,
+                progress: completedParts === 1 ? 56 : 100,
+              }))
+            }
 
-            await uploadStorageTarget({
-              supabase,
-              bucket: signed.bucket,
-              target: upload.thumb,
-              fileBody: draft.thumbBlob,
-              cacheControl: signed.cacheControl,
-              contentType: "image/jpeg",
-            })
+            await Promise.all([
+              uploadStorageTarget({
+                supabase,
+                bucket: upload.bucket,
+                target: upload.video,
+                fileBody: draft.file,
+                cacheControl: upload.cacheControl,
+                contentType: draft.videoContentType,
+              }).then(markPartDone),
+              uploadStorageTarget({
+                supabase,
+                bucket: upload.bucket,
+                target: upload.thumb,
+                fileBody: draft.thumbBlob,
+                cacheControl: upload.cacheControl,
+                contentType: "image/jpeg",
+              }).then(markPartDone),
+            ])
 
+            uploadedCount += 1
             updateDraft(draft.localId, (current) => ({
               ...current,
               status: "uploaded",
               progress: 100,
             }))
+            setUploadRun((current) =>
+              current ? { ...current, uploaded: uploadedCount } : current
+            )
           } catch (err) {
+            failedCount += 1
             const message =
               err instanceof Error ? err.message : "Storage upload failed."
             uploadFailures.push(`${draft.name}: ${message}`)
@@ -438,6 +884,15 @@ export function CatalogBulkUploadPanel({
               status: "error",
               error: message,
             }))
+            setUploadRun((current) =>
+              current ? { ...current, failed: failedCount } : current
+            )
+          } finally {
+            setUploadRun((current) =>
+              current
+                ? { ...current, active: Math.max(0, current.active - 1) }
+                : current
+            )
           }
         })
 
@@ -446,47 +901,77 @@ export function CatalogBulkUploadPanel({
         }
       }
 
-      const commitRes = await fetch(
-        "/api/admin/wallpapers/bulk-upload/commit",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({
-            items: candidates.map((draft) => ({
-              clientId: draft.localId,
-              id: draft.id,
-              name: draft.name,
-              category: draft.category,
-              tags: tagsFromText(draft.tagsText),
-              resolution: draft.resolution,
-              durationSeconds: draft.durationSeconds,
-              fileSizeBytes: draft.fileSizeBytes,
-              videoKey: draft.videoKey,
-              thumbKey: draft.thumbKey,
-              isPro: draft.isPro,
-              isFeatured: draft.isFeatured,
-              isCuratedPick: draft.isCuratedPick,
-            })),
-          }),
-        }
+      const commitChunks = chunkArray(candidates, UPLOAD_API_BATCH_SIZE)
+      let insertedCount = 0
+      setUploadRun((current) =>
+        current ? { ...current, phase: "publishing", active: 0 } : current
       )
-      const commit = await readJsonResponse<CommitResponse>(
-        commitRes,
-        "Could not publish wallpapers."
-      )
-      if (!commitRes.ok) {
-        throw new Error(commit.error ?? "Could not publish wallpapers.")
-      }
 
-      setDrafts((current) =>
-        current.map((draft) =>
-          candidates.some((item) => item.localId === draft.localId)
-            ? { ...draft, status: "committed", progress: 100, error: null }
-            : draft
+      await runPool(commitChunks, COMMIT_API_CONCURRENCY, async (chunk) => {
+        const commitRes = await fetch(
+          "/api/admin/wallpapers/bulk-upload/commit",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              items: chunk.map((draft) => ({
+                clientId: draft.localId,
+                id: draft.id,
+                name: draft.name,
+                category: draft.category,
+                tags: tagsFromText(draft.tagsText),
+                resolution: draft.resolution,
+                durationSeconds: draft.durationSeconds,
+                fileSizeBytes: draft.fileSizeBytes,
+                videoKey: draft.videoKey,
+                thumbKey: draft.thumbKey,
+                thumbSizeBytes: draft.thumbBlob?.size ?? 0,
+                isPro: draft.isPro,
+                isFeatured: draft.isFeatured,
+                isCuratedPick: draft.isCuratedPick,
+              })),
+            }),
+          }
         )
+        const commit = await readJsonResponse<CommitResponse>(
+          commitRes,
+          "Could not publish wallpapers."
+        )
+        if (!commitRes.ok) {
+          throw new Error(commit.error ?? "Could not publish wallpapers.")
+        }
+
+        insertedCount += commit.inserted
+        setDrafts((current) =>
+          current.map((draft) =>
+            chunk.some((item) => item.localId === draft.localId)
+              ? { ...draft, status: "committed", progress: 100, error: null }
+              : draft
+          )
+        )
+        setUploadRun((current) =>
+          current
+            ? {
+                ...current,
+                published: Math.min(insertedCount, current.total),
+              }
+            : current
+        )
+      })
+
+      setUploadRun((current) =>
+        current
+          ? {
+              ...current,
+              phase: "complete",
+              active: 0,
+              published: Math.min(insertedCount, current.total),
+            }
+          : current
       )
-      setNotice(`Published ${commit.inserted.toLocaleString()} wallpapers.`)
+      setNotice(`Published ${insertedCount.toLocaleString()} wallpapers.`)
+      void deletePersistedUploadSession()
       await onUploaded?.()
     } catch (err) {
       const message = err instanceof Error ? err.message : "Upload failed."
@@ -507,13 +992,13 @@ export function CatalogBulkUploadPanel({
     <AdminSurface>
       <AdminSurfaceHeader
         title="Bulk catalog upload"
-        description="Stage up to 100 videos, edit generated metadata, then publish directly into wallpaper-catalog."
+        description="Stage up to 300 videos, let AI analyze thumbnails for metadata, then publish directly into wallpaper-catalog."
         action={
           <div className="flex flex-wrap gap-2">
             <AdminButton
               variant="secondary"
               size="sm"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => void pickFiles()}
               disabled={busy || analyzing || drafts.length >= MAX_FILES}
               className="gap-1.5"
             >
@@ -527,7 +1012,10 @@ export function CatalogBulkUploadPanel({
               className="gap-1.5"
             >
               {busy ? (
-                <HugeiconsIcon icon={Loading01Icon} className="size-3.5 animate-spin" />
+                <HugeiconsIcon
+                  icon={Loading01Icon}
+                  className="size-3.5 animate-spin"
+                />
               ) : (
                 <HugeiconsIcon icon={Upload01Icon} className="size-3.5" />
               )}
@@ -552,21 +1040,31 @@ export function CatalogBulkUploadPanel({
           <StatPill label="Published" value={committedCount.toLocaleString()} />
         </div>
 
+        {recoverableSession ? (
+          <RecoverUploadSessionNotice
+            session={recoverableSession}
+            disabled={busy || analyzing || drafts.length > 0}
+            onRestore={restoreLastUploadSession}
+            onDiscard={discardLastUploadSession}
+          />
+        ) : null}
+
         {notice ? <AdminNotice tone="success">{notice}</AdminNotice> : null}
         {error ? <AdminNotice tone="warning">{error}</AdminNotice> : null}
+        {uploadRun ? <UploadPipelineProgress run={uploadRun} /> : null}
 
         <div
           role="button"
           tabIndex={canStageMore ? 0 : -1}
           aria-disabled={!canStageMore}
           onClick={() => {
-            if (canStageMore) fileInputRef.current?.click()
+            if (canStageMore) void pickFiles()
           }}
           onKeyDown={handleDropZoneKeyDown}
           onDragEnter={handleDragEnter}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
+          onDrop={(event) => void handleDrop(event)}
           className={cn(
             "flex min-h-36 w-full cursor-pointer flex-col items-center justify-center rounded-[20px] border border-dashed px-5 py-6 text-center transition-all duration-200 ease-out outline-none sm:min-h-40",
             dragActive
@@ -576,15 +1074,21 @@ export function CatalogBulkUploadPanel({
           )}
         >
           {analyzing ? (
-            <HugeiconsIcon icon={Loading01Icon} className="size-7 animate-spin text-[#0071e3]" />
+            <HugeiconsIcon
+              icon={Loading01Icon}
+              className="size-7 animate-spin text-[#0071e3]"
+            />
           ) : (
-            <HugeiconsIcon icon={Upload01Icon} className="size-7 text-[#0071e3]" />
+            <HugeiconsIcon
+              icon={Upload01Icon}
+              className="size-7 text-[#0071e3]"
+            />
           )}
           <span className="mt-3 text-[17px] font-medium tracking-[-0.02em] text-[#1d1d1f]">
             {dragActive ? "Drop videos to stage" : "Drag videos here"}
           </span>
           <span className="mt-1 text-[13px] text-[#86868b]">
-            or select MP4, MOV, M4V, and WEBM files.
+            Select or drop MP4, MOV, M4V, and WEBM files.
           </span>
         </div>
 
@@ -674,9 +1178,15 @@ function DraftRow({
             ) : (
               <div className="flex h-full items-center justify-center">
                 {draft.status === "analyzing" ? (
-                  <HugeiconsIcon icon={Loading01Icon} className="size-5 animate-spin text-[#86868b]" />
+                  <HugeiconsIcon
+                    icon={Loading01Icon}
+                    className="size-5 animate-spin text-[#86868b]"
+                  />
                 ) : (
-                  <HugeiconsIcon icon={ImageAddIcon} className="size-5 text-[#86868b]" />
+                  <HugeiconsIcon
+                    icon={ImageAddIcon}
+                    className="size-5 text-[#86868b]"
+                  />
                 )}
               </div>
             )}
@@ -822,10 +1332,16 @@ function DraftRow({
           <AdminBadge tone={statusTone}>
             <span className="inline-flex items-center gap-1">
               {draft.status === "uploading" || draft.status === "analyzing" ? (
-                <HugeiconsIcon icon={Loading01Icon} className="size-3 animate-spin" />
+                <HugeiconsIcon
+                  icon={Loading01Icon}
+                  className="size-3 animate-spin"
+                />
               ) : draft.status === "committed" ||
                 draft.status === "uploaded" ? (
-                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="size-3" />
+                <HugeiconsIcon
+                  icon={CheckmarkCircle01Icon}
+                  className="size-3"
+                />
               ) : draft.status === "error" || validation?.ok === false ? (
                 <HugeiconsIcon icon={AlertCircleIcon} className="size-3" />
               ) : null}
@@ -900,6 +1416,151 @@ function StatPill({
   )
 }
 
+function RecoverUploadSessionNotice({
+  session,
+  disabled,
+  onRestore,
+  onDiscard,
+}: Readonly<{
+  session: RecoverableSession
+  disabled: boolean
+  onRestore: () => Promise<void>
+  onDiscard: () => void
+}>) {
+  return (
+    <div className="rounded-2xl border border-[#0071e3]/25 bg-[#e8f2ff] p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-[13px] font-semibold text-[#1d1d1f]">
+            Recover last upload session
+          </p>
+          <p className="mt-0.5 text-[12px] text-[#3f6f9f]">
+            {session.count.toLocaleString()} staged wallpapers saved{" "}
+            {formatRecoveryTime(session.updatedAt)}.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <AdminButton
+            size="sm"
+            variant="secondary"
+            disabled={disabled}
+            onClick={() => void onRestore()}
+          >
+            Restore
+          </AdminButton>
+          <AdminButton
+            size="sm"
+            variant="ghost"
+            disabled={disabled}
+            onClick={onDiscard}
+          >
+            Discard
+          </AdminButton>
+        </div>
+      </div>
+      {disabled ? (
+        <p className="mt-2 text-[12px] text-[#3f6f9f]">
+          Clear the current staged list before restoring the saved session.
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
+function UploadPipelineProgress({ run }: Readonly<{ run: UploadRun }>) {
+  const uploadLeft = Math.max(0, run.uploadTotal - run.uploaded - run.failed)
+  const publishLeft = Math.max(0, run.total - run.published)
+
+  return (
+    <div className="rounded-2xl border border-[#d2d2d7] bg-white p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="text-[13px] font-semibold text-[#1d1d1f]">
+            {uploadPhaseLabel(run.phase)}
+          </p>
+          <p className="mt-0.5 text-[12px] text-[#86868b]">
+            {run.active
+              ? `${run.active.toLocaleString()} active uploads`
+              : "Pipeline ready"}
+          </p>
+        </div>
+        <AdminBadge tone={run.failed ? "red" : "blue"}>
+          {run.uploaded.toLocaleString()} uploaded /{" "}
+          {uploadLeft.toLocaleString()} left
+        </AdminBadge>
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        <ProgressLine
+          label="Storage upload"
+          value={run.uploaded}
+          total={run.uploadTotal}
+        />
+        <ProgressLine
+          label="Catalog publish"
+          value={run.published}
+          total={run.total}
+        />
+      </div>
+
+      <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <MiniStat label="Prepared" value={run.prepared} />
+        <MiniStat label="Active" value={run.active} />
+        <MiniStat label="Uploaded" value={run.uploaded} />
+        <MiniStat label="Upload left" value={uploadLeft} />
+        <MiniStat label="Published" value={run.published} />
+        <MiniStat label="Publish left" value={publishLeft} />
+      </div>
+
+      {run.failed ? (
+        <p className="mt-3 text-[12px] text-[#d70015]">
+          {run.failed.toLocaleString()} upload failed. Fix the row error and run
+          upload again.
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
+function ProgressLine({
+  label,
+  value,
+  total,
+}: Readonly<{ label: string; value: number; total: number }>) {
+  const percent = progressPercent(value, total)
+
+  return (
+    <div>
+      <div className="mb-1 flex items-center justify-between gap-2 text-[12px]">
+        <span className="font-medium text-[#1d1d1f]">{label}</span>
+        <span className="text-[#86868b] tabular-nums">
+          {value.toLocaleString()} / {total.toLocaleString()}
+        </span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-[#e8e8ed]">
+        <div
+          className="h-full rounded-full bg-[#0071e3] transition-[width] duration-300 ease-out"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function MiniStat({
+  label,
+  value,
+}: Readonly<{ label: string; value: number }>) {
+  return (
+    <div className="rounded-xl bg-[#f5f5f7] px-3 py-2">
+      <p className="text-[11px] text-[#86868b]">{label}</p>
+      <p className="mt-0.5 text-[14px] font-semibold text-[#1d1d1f] tabular-nums">
+        {value.toLocaleString()}
+      </p>
+    </div>
+  )
+}
+
 function Info({ label, value }: Readonly<{ label: string; value: string }>) {
   return (
     <div className="min-w-0 rounded-2xl bg-white px-3 py-2">
@@ -913,6 +1574,7 @@ function Info({ label, value }: Readonly<{ label: string; value: string }>) {
 
 function createInitialDraft(
   file: File,
+  fileHandle: BrowserFileSystemFileHandle | null,
   localId: string,
   usedIds: Set<string>
 ): CatalogDraft {
@@ -928,6 +1590,7 @@ function createInitialDraft(
   return {
     localId,
     file,
+    fileHandle,
     sourceFileName: file.name,
     id,
     videoExtension,
@@ -948,6 +1611,65 @@ function createInitialDraft(
     status: "analyzing",
     progress: 0,
     error: null,
+  }
+}
+
+async function recoverPersistedDrafts(
+  drafts: PersistedCatalogDraft[]
+): Promise<{ drafts: CatalogDraft[]; failed: number }> {
+  const restored: CatalogDraft[] = []
+  let failed = 0
+
+  for (const draft of drafts) {
+    const file = await recoverPersistedFile(draft)
+    if (!file) {
+      failed += 1
+      continue
+    }
+
+    const hasThumb = Boolean(draft.thumbBlob)
+    const status =
+      draft.status === "committed" || draft.status === "uploaded"
+        ? draft.status
+        : hasThumb
+          ? "ready"
+          : "error"
+
+    restored.push({
+      ...draft,
+      file,
+      thumbUrl: draft.thumbBlob ? URL.createObjectURL(draft.thumbBlob) : null,
+      status,
+      progress: status === "uploaded" || status === "committed" ? 100 : 0,
+      error:
+        status === "error"
+          ? "Recovered session is missing a thumbnail. Replace the thumbnail or restage this file."
+          : draft.status === "uploading"
+            ? "Recovered after reload. Upload can resume."
+            : null,
+    })
+  }
+
+  return { drafts: restored, failed }
+}
+
+async function recoverPersistedFile(draft: PersistedCatalogDraft) {
+  if (draft.file) return draft.file
+  if (!draft.fileHandle) return null
+
+  try {
+    const permission = await draft.fileHandle.queryPermission?.({
+      mode: "read",
+    })
+    if (permission === "denied") {
+      const requested = await draft.fileHandle.requestPermission?.({
+        mode: "read",
+      })
+      if (requested === "denied") return null
+    }
+    return await draft.fileHandle.getFile()
+  } catch {
+    return null
   }
 }
 
@@ -1239,6 +1961,10 @@ function isFileDrag(event: DragEvent<HTMLElement>) {
   return Array.from(event.dataTransfer.types).includes("Files")
 }
 
+function isAbortError(error: unknown) {
+  return error instanceof DOMException && error.name === "AbortError"
+}
+
 async function uploadStorageTarget({
   supabase,
   bucket,
@@ -1391,6 +2117,64 @@ function tagsFromText(value: string) {
     .filter(Boolean)
 }
 
+function normalizeAiTitle(value: string, fallback: string) {
+  const cleaned = value
+    .replace(/\s+/g, " ")
+    .replace(/[^A-Za-z0-9\s:.'&-]/g, "")
+    .trim()
+  return toTitleCase(cleaned || fallback).slice(0, 140)
+}
+
+function normalizeAiTags(
+  tags: string[],
+  title: string,
+  category: string
+): string[] {
+  const normalized = tags
+    .map((tag) =>
+      tag
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, " ")
+        .replace(/\s+/g, "-")
+        .replace(/^-+|-+$/g, "")
+    )
+    .filter((tag) => tag.length >= 2 && tag.length <= 32)
+
+  const fallback = inferTags(`${title} ${category}`)
+  return [...new Set([...normalized, ...fallback])].slice(0, 10)
+}
+
+async function blobToResizedJpegDataUrl(blob: Blob): Promise<string> {
+  const objectUrl = URL.createObjectURL(blob)
+  const image = new Image()
+  image.src = objectUrl
+
+  try {
+    await image.decode()
+    const scale = Math.min(
+      1,
+      AI_THUMB_MAX_WIDTH / Math.max(image.naturalWidth, image.naturalHeight, 1)
+    )
+    const canvas = document.createElement("canvas")
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale))
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale))
+    const context = canvas.getContext("2d")
+    if (!context) throw new Error("Canvas is not available.")
+    context.drawImage(image, 0, 0, canvas.width, canvas.height)
+    return canvas.toDataURL("image/jpeg", AI_THUMB_QUALITY)
+  } finally {
+    URL.revokeObjectURL(objectUrl)
+  }
+}
+
+function chunkArray<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = []
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size))
+  }
+  return chunks
+}
+
 async function readJsonResponse<T extends { error?: string }>(
   response: Response,
   fallback: string
@@ -1420,6 +2204,24 @@ function statusLabel(status: DraftStatus, progress: number) {
   }
 }
 
+function uploadPhaseLabel(phase: UploadRunPhase) {
+  switch (phase) {
+    case "preparing":
+      return "Preparing signed upload URLs"
+    case "uploading":
+      return "Uploading directly to Supabase Storage"
+    case "publishing":
+      return "Publishing catalog rows"
+    case "complete":
+      return "Upload complete"
+  }
+}
+
+function progressPercent(value: number, total: number) {
+  if (total <= 0) return 100
+  return Math.min(100, Math.max(0, Math.round((value / total) * 100)))
+}
+
 function formatDuration(seconds: number) {
   const total = Math.max(0, Math.round(seconds))
   const mins = Math.floor(total / 60)
@@ -1439,6 +2241,130 @@ function formatBytes(bytes: number) {
   return `${value.toFixed(value >= 10 || unit === 0 ? 0 : 1)} ${units[unit]}`
 }
 
+function formatRecoveryTime(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return "recently"
+  return date.toLocaleString([], {
+    dateStyle: "medium",
+    timeStyle: "short",
+  })
+}
+
 function createLocalId() {
   return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`
+}
+
+async function savePersistedUploadSession(drafts: CatalogDraft[]) {
+  try {
+    await navigator.storage?.persist?.()
+    const db = await openUploadSessionDb()
+    await idbRequest(
+      db
+        .transaction(UPLOAD_SESSION_STORE, "readwrite")
+        .objectStore(UPLOAD_SESSION_STORE)
+        .put(
+          {
+            version: UPLOAD_SESSION_VERSION,
+            updatedAt: new Date().toISOString(),
+            drafts: drafts.map(serializeDraftForPersistence),
+          } satisfies PersistedUploadSession,
+          UPLOAD_SESSION_KEY
+        )
+    )
+    db.close()
+  } catch (err) {
+    console.warn("[admin] could not save upload recovery session", err)
+  }
+}
+
+async function loadPersistedUploadSession(): Promise<PersistedUploadSession | null> {
+  try {
+    const db = await openUploadSessionDb()
+    const session = await idbRequest<PersistedUploadSession | undefined>(
+      db
+        .transaction(UPLOAD_SESSION_STORE, "readonly")
+        .objectStore(UPLOAD_SESSION_STORE)
+        .get(UPLOAD_SESSION_KEY)
+    )
+    db.close()
+
+    if (session?.version !== UPLOAD_SESSION_VERSION || !session.drafts.length) {
+      return null
+    }
+    return session
+  } catch (err) {
+    console.warn("[admin] could not load upload recovery session", err)
+    return null
+  }
+}
+
+async function deletePersistedUploadSession() {
+  try {
+    const db = await openUploadSessionDb()
+    await idbRequest(
+      db
+        .transaction(UPLOAD_SESSION_STORE, "readwrite")
+        .objectStore(UPLOAD_SESSION_STORE)
+        .delete(UPLOAD_SESSION_KEY)
+    )
+    db.close()
+  } catch (err) {
+    console.warn("[admin] could not clear upload recovery session", err)
+  }
+}
+
+function serializeDraftForPersistence(
+  draft: CatalogDraft
+): PersistedCatalogDraft {
+  return {
+    localId: draft.localId,
+    file: draft.fileHandle ? null : draft.file,
+    fileHandle: draft.fileHandle,
+    sourceFileName: draft.sourceFileName,
+    id: draft.id,
+    videoExtension: draft.videoExtension,
+    videoKey: draft.videoKey,
+    thumbKey: draft.thumbKey,
+    name: draft.name,
+    category: draft.category,
+    tagsText: draft.tagsText,
+    resolution: draft.resolution,
+    durationSeconds: draft.durationSeconds,
+    fileSizeBytes: draft.fileSizeBytes,
+    videoContentType: draft.videoContentType,
+    thumbBlob: draft.thumbBlob,
+    isPro: draft.isPro,
+    isFeatured: draft.isFeatured,
+    isCuratedPick: draft.isCuratedPick,
+    status: draft.status,
+    progress: draft.progress,
+    error: draft.error,
+  }
+}
+
+function openUploadSessionDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(
+      UPLOAD_SESSION_DB_NAME,
+      UPLOAD_SESSION_VERSION
+    )
+
+    request.onupgradeneeded = () => {
+      const db = request.result
+      if (!db.objectStoreNames.contains(UPLOAD_SESSION_STORE)) {
+        db.createObjectStore(UPLOAD_SESSION_STORE)
+      }
+    }
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () =>
+      reject(request.error ?? new Error("Could not open upload session DB."))
+  })
+}
+
+function idbRequest<T = unknown>(request: IDBRequest<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () =>
+      reject(request.error ?? new Error("Upload session DB request failed."))
+  })
 }

@@ -11,10 +11,13 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { WALLPAPER_CATEGORIES } from "./wallpapers"
 
 const STORAGE_BUCKET = "wallpaper-catalog"
-const MAX_BATCH_ITEMS = 100
+const MAX_BATCH_ITEMS = 300
 const MAX_VIDEO_BYTES = 2 * 1024 * 1024 * 1024
 const MAX_THUMB_BYTES = 12 * 1024 * 1024
 const CACHE_CONTROL_SECONDS = "31536000"
+const EXISTING_ROW_CHECK_CHUNK_SIZE = 50
+const STORAGE_CHECK_CONCURRENCY = 10
+const SIGNED_URL_CONCURRENCY = 12
 
 const VIDEO_EXTENSIONS = new Set(["mp4", "mov", "m4v", "webm"])
 const VIDEO_CONTENT_TYPES = new Set([
@@ -48,6 +51,7 @@ export type CatalogUploadCommitItem = {
   fileSizeBytes: number
   videoKey: string
   thumbKey: string
+  thumbSizeBytes: number
   isPro: boolean
   isFeatured: boolean
   isCuratedPick: boolean
@@ -67,6 +71,7 @@ type NormalizedCommitItem = CatalogUploadCommitItem & {
   resolution: string
   videoKey: string
   thumbKey: string
+  thumbSizeBytes: number
 }
 
 type StorageObjectInfo = {
@@ -79,6 +84,15 @@ type SignedUploadTarget = {
   token: string | null
   signedUrl: string | null
   alreadyUploaded: boolean
+}
+
+type ExistingWallpaperRow = {
+  id: string
+  name: string
+  category: string
+  video_key: string
+  thumb_key: string
+  file_size_bytes: number
 }
 
 export function catalogUploadConfig() {
@@ -245,6 +259,11 @@ function normalizeCommitItem(raw: unknown): NormalizedCommitItem {
     ),
     videoKey,
     thumbKey,
+    thumbSizeBytes: normalizePositiveInteger(
+      raw.thumbSizeBytes,
+      `Thumbnail size for ${id}`,
+      MAX_THUMB_BYTES
+    ),
     isPro: Boolean(raw.isPro),
     isFeatured: Boolean(raw.isFeatured),
     isCuratedPick: Boolean(raw.isCuratedPick),
@@ -274,18 +293,33 @@ function normalizeBatch<T>(
 }
 
 async function assertNoExistingRows(ids: string[]) {
-  const supabase = getSupabaseAdmin()
-  const { data, error } = await supabase
-    .from("wallpapers")
-    .select("id")
-    .in("id", ids)
-
-  if (error) throw new Error(error.message)
-  if (data?.length) {
+  const data = await existingWallpaperRows(ids)
+  if (data.length) {
     throw new Error(
       `Already in catalog: ${data.map((row) => row.id).join(", ")}.`
     )
   }
+}
+
+async function existingWallpaperRows(
+  ids: string[]
+): Promise<ExistingWallpaperRow[]> {
+  const supabase = getSupabaseAdmin()
+  const results = await asyncPool(
+    chunkArray(ids, EXISTING_ROW_CHECK_CHUNK_SIZE),
+    STORAGE_CHECK_CONCURRENCY,
+    async (chunk) => {
+      const { data, error } = await supabase
+        .from("wallpapers")
+        .select("id,name,category,video_key,thumb_key,file_size_bytes")
+        .in("id", chunk)
+
+      if (error) throw new Error(error.message)
+      return (data ?? []) as ExistingWallpaperRow[]
+    }
+  )
+
+  return results.flat()
 }
 
 function storageKeyParts(key: string): { folder: string; name: string } {
@@ -330,61 +364,53 @@ function storageObjectSize(object: { metadata?: unknown }): number | null {
   return Number.isSafeInteger(size) && size > 0 ? size : null
 }
 
-async function reusableExistingObjects(items: NormalizedSignItem[]) {
-  const checks = await Promise.all(
-    items.flatMap((item) => [
-      storageObjectInfo(item.videoKey),
-      storageObjectInfo(item.thumbKey),
-    ])
+function isAlreadyExistsStorageError(error: { message?: string }) {
+  const message = error.message?.toLowerCase() ?? ""
+  return (
+    message.includes("already exists") ||
+    message.includes("duplicate") ||
+    message.includes("resource already exists")
   )
-
-  const reusable = new Set<string>()
-  for (let index = 0; index < checks.length; index += 1) {
-    const info = checks[index]
-    if (!info.exists) continue
-
-    const item = items[Math.floor(index / 2)]
-    const isVideo = index % 2 === 0
-    const key = isVideo ? item.videoKey : item.thumbKey
-    const expectedSize = isVideo ? item.videoSizeBytes : item.thumbSizeBytes
-
-    if (info.sizeBytes !== expectedSize) {
-      throw new Error(
-        `Storage object already exists with a different size: ${key}. Change the wallpaper ID or remove the existing object.`
-      )
-    }
-    reusable.add(key)
-  }
-
-  return reusable
 }
 
 async function assertObjectsExist(items: NormalizedCommitItem[]) {
-  const checks = await Promise.all(
-    items.flatMap((item) => [
-      storageObjectInfo(item.videoKey),
-      storageObjectInfo(item.thumbKey),
-    ])
+  const objectChecks = items.flatMap((item) => [
+    {
+      item,
+      isVideo: true,
+      key: item.videoKey,
+    },
+    {
+      item,
+      isVideo: false,
+      key: item.thumbKey,
+    },
+  ])
+  const checks = await asyncPool(
+    objectChecks,
+    STORAGE_CHECK_CONCURRENCY,
+    async (check) => ({
+      ...check,
+      info: await storageObjectInfo(check.key),
+    })
   )
 
   const missing: string[] = []
-  for (let index = 0; index < checks.length; index += 1) {
-    const item = items[Math.floor(index / 2)]
-    const isVideo = index % 2 === 0
-    const info = checks[index]
+  for (const check of checks) {
+    const info = check.info
 
     if (!info.exists) {
-      missing.push(isVideo ? item.videoKey : item.thumbKey)
+      missing.push(check.key)
       continue
     }
 
     if (
-      isVideo &&
       info.sizeBytes !== null &&
-      info.sizeBytes !== item.fileSizeBytes
+      info.sizeBytes !==
+        (check.isVideo ? check.item.fileSizeBytes : check.item.thumbSizeBytes)
     ) {
       throw new Error(
-        `Uploaded video size does not match staged file: ${item.videoKey}.`
+        `Uploaded ${check.isVideo ? "video" : "thumbnail"} size does not match staged file: ${check.key}.`
       )
     }
   }
@@ -396,23 +422,32 @@ async function assertObjectsExist(items: NormalizedCommitItem[]) {
 
 async function createSignedUploadTarget(
   path: string,
-  alreadyUploaded: boolean
+  expectedSizeBytes: number
 ): Promise<SignedUploadTarget> {
-  if (alreadyUploaded) {
-    return {
-      path,
-      token: null,
-      signedUrl: null,
-      alreadyUploaded: true,
-    }
-  }
-
   const supabase = getSupabaseAdmin()
   const { data, error } = await supabase.storage
     .from(STORAGE_BUCKET)
     .createSignedUploadUrl(path, { upsert: false })
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    if (isAlreadyExistsStorageError(error)) {
+      const existing = await storageObjectInfo(path)
+      if (existing.exists && existing.sizeBytes === expectedSizeBytes) {
+        return {
+          path,
+          token: null,
+          signedUrl: null,
+          alreadyUploaded: true,
+        }
+      }
+
+      throw new Error(
+        `Storage object already exists with a different size: ${path}. Change the wallpaper ID or remove the existing object.`
+      )
+    }
+
+    throw new Error(error.message)
+  }
 
   return {
     path: data.path,
@@ -425,19 +460,14 @@ async function createSignedUploadTarget(
 export async function createCatalogSignedUploadBatch(rawItems: unknown) {
   const items = normalizeBatch(rawItems, normalizeSignItem, "items")
   await assertNoExistingRows(items.map((item) => item.id))
-  const reusableObjects = await reusableExistingObjects(items)
 
-  const uploads = await Promise.all(
-    items.map(async (item) => {
+  const uploads = await asyncPool(
+    items,
+    SIGNED_URL_CONCURRENCY,
+    async (item) => {
       const [video, thumb] = await Promise.all([
-        createSignedUploadTarget(
-          item.videoKey,
-          reusableObjects.has(item.videoKey)
-        ),
-        createSignedUploadTarget(
-          item.thumbKey,
-          reusableObjects.has(item.thumbKey)
-        ),
+        createSignedUploadTarget(item.videoKey, item.videoSizeBytes),
+        createSignedUploadTarget(item.thumbKey, item.thumbSizeBytes),
       ])
 
       return {
@@ -450,7 +480,7 @@ export async function createCatalogSignedUploadBatch(rawItems: unknown) {
         videoUrl: catalogPublicVideoUrlFromKey(item.videoKey),
         thumbUrl: catalogMarketingGalleryPosterUrlFromKey(item.thumbKey),
       }
-    })
+    }
   )
 
   return {
@@ -463,13 +493,58 @@ export async function createCatalogSignedUploadBatch(rawItems: unknown) {
   }
 }
 
+async function asyncPool<T, R>(
+  items: T[],
+  limit: number,
+  worker: (item: T) => Promise<R>
+): Promise<R[]> {
+  const results = new Array<R>(items.length)
+  let next = 0
+  const workers = Array.from({
+    length: Math.min(limit, items.length),
+  }).map(async () => {
+    while (next < items.length) {
+      const index = next
+      next += 1
+      results[index] = await worker(items[index])
+    }
+  })
+  await Promise.all(workers)
+  return results
+}
+
+function chunkArray<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = []
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size))
+  }
+  return chunks
+}
+
 export async function commitCatalogUploadBatch(rawItems: unknown) {
   const items = normalizeBatch(rawItems, normalizeCommitItem, "items")
-  await assertNoExistingRows(items.map((item) => item.id))
   await assertObjectsExist(items)
+  const existingRows = await existingWallpaperRows(items.map((item) => item.id))
+  const existingById = new Map(existingRows.map((row) => [row.id, row]))
+  const insertItems = items.filter((item) => {
+    const existing = existingById.get(item.id)
+    if (!existing) return true
+
+    if (
+      existing.video_key !== item.videoKey ||
+      existing.thumb_key !== item.thumbKey ||
+      existing.file_size_bytes !== item.fileSizeBytes
+    ) {
+      throw new Error(
+        `Already in catalog with different files: ${item.id}. Change the wallpaper ID or remove the existing row.`
+      )
+    }
+
+    return false
+  })
 
   const now = new Date().toISOString()
-  const rows = items.map((item) => ({
+  const rows = insertItems.map((item) => ({
     id: item.id,
     name: item.name,
     category: item.category,
@@ -487,6 +562,19 @@ export async function commitCatalogUploadBatch(rawItems: unknown) {
     updated_at: now,
   }))
 
+  if (!rows.length) {
+    return {
+      inserted: existingRows.length,
+      wallpapers: existingRows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        category: row.category,
+        videoKey: row.video_key,
+        thumbKey: row.thumb_key,
+      })),
+    }
+  }
+
   const supabase = getSupabaseAdmin()
   const { data, error } = await supabase
     .from("wallpapers")
@@ -496,14 +584,22 @@ export async function commitCatalogUploadBatch(rawItems: unknown) {
   if (error) throw new Error(error.message)
 
   return {
-    inserted: data?.length ?? rows.length,
-    wallpapers:
-      data?.map((row) => ({
+    inserted: existingRows.length + (data?.length ?? rows.length),
+    wallpapers: [
+      ...existingRows.map((row) => ({
         id: row.id,
         name: row.name,
         category: row.category,
         videoKey: row.video_key,
         thumbKey: row.thumb_key,
-      })) ?? [],
+      })),
+      ...(data ?? []).map((row) => ({
+        id: row.id,
+        name: row.name,
+        category: row.category,
+        videoKey: row.video_key,
+        thumbKey: row.thumb_key,
+      })),
+    ],
   }
 }
