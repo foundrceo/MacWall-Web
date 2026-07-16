@@ -13,6 +13,11 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { items?: unknown }
     const result = await createCatalogSignedUploadBatch(body.items)
+    console.info(
+      "[admin] bulk catalog sign ok:",
+      result.uploads.length,
+      "wallpaper(s)"
+    )
     return NextResponse.json(result)
   } catch (error) {
     const message =

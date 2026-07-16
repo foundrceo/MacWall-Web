@@ -15,6 +15,11 @@ export async function POST(request: Request) {
     const body = (await request.json()) as { items?: unknown }
     const result = await commitCatalogUploadBatch(body.items)
     await revalidateMarketingCatalog()
+    console.info(
+      "[admin] bulk catalog commit ok:",
+      result.inserted,
+      "wallpaper(s)"
+    )
     return NextResponse.json(result)
   } catch (error) {
     const message =

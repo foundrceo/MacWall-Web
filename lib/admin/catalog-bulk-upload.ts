@@ -334,6 +334,27 @@ function storageKeyParts(key: string): { folder: string; name: string } {
 }
 
 const STORAGE_LIST_PAGE_SIZE = 1000
+const STORAGE_FAST_LOOKUP_THRESHOLD = 8
+
+async function storageObjectInfoSingle(
+  key: string
+): Promise<StorageObjectInfo> {
+  const origin = getCatalogSupabaseOrigin()
+  const url = `${origin}/storage/v1/object/public/${STORAGE_BUCKET}/${encodeURI(key)}`
+
+  try {
+    const response = await fetch(url, { method: "HEAD", cache: "no-store" })
+    if (!response.ok) return { exists: false, sizeBytes: null }
+
+    const size = Number(response.headers.get("content-length"))
+    return {
+      exists: true,
+      sizeBytes: Number.isFinite(size) && size > 0 ? Math.trunc(size) : null,
+    }
+  } catch {
+    return { exists: false, sizeBytes: null }
+  }
+}
 
 async function listFolderObjects(folder: string) {
   const supabase = getSupabaseAdmin()
@@ -362,6 +383,15 @@ async function storageObjectInfoMap(
   keys: string[]
 ): Promise<Map<string, StorageObjectInfo>> {
   const uniqueKeys = [...new Set(keys)]
+  if (uniqueKeys.length <= STORAGE_FAST_LOOKUP_THRESHOLD) {
+    const entries = await Promise.all(
+      uniqueKeys.map(
+        async (key) => [key, await storageObjectInfoSingle(key)] as const
+      )
+    )
+    return new Map(entries)
+  }
+
   const namesByFolder = new Map<string, Set<string>>()
   for (const key of uniqueKeys) {
     const { folder, name } = storageKeyParts(key)
@@ -391,11 +421,6 @@ async function storageObjectInfoMap(
   }
 
   return infoByKey
-}
-
-async function storageObjectInfo(key: string): Promise<StorageObjectInfo> {
-  const infoByKey = await storageObjectInfoMap([key])
-  return infoByKey.get(key) ?? { exists: false, sizeBytes: null }
 }
 
 function storageObjectSize(object: { metadata?: unknown }): number | null {
@@ -458,6 +483,12 @@ async function assertObjectsExist(items: NormalizedCommitItem[]) {
   }
 }
 
+async function removeStorageObject(path: string) {
+  const supabase = getSupabaseAdmin()
+  const { error } = await supabase.storage.from(STORAGE_BUCKET).remove([path])
+  if (error) throw new Error(error.message)
+}
+
 async function createSignedUploadTarget(
   path: string,
   expectedSizeBytes: number
@@ -467,30 +498,47 @@ async function createSignedUploadTarget(
     .from(STORAGE_BUCKET)
     .createSignedUploadUrl(path, { upsert: false })
 
-  if (error) {
-    if (isAlreadyExistsStorageError(error)) {
-      const existing = await storageObjectInfo(path)
-      if (existing.exists && existing.sizeBytes === expectedSizeBytes) {
-        return {
-          path,
-          token: null,
-          signedUrl: null,
-          alreadyUploaded: true,
-        }
-      }
-
-      throw new Error(
-        `Storage object already exists with a different size: ${path}. Change the wallpaper ID or remove the existing object.`
-      )
+  if (!error) {
+    return {
+      path: data.path,
+      token: data.token,
+      signedUrl: data.signedUrl,
+      alreadyUploaded: false,
     }
+  }
 
+  if (!isAlreadyExistsStorageError(error)) {
     throw new Error(error.message)
   }
 
+  const existing = await storageObjectInfoSingle(path)
+  if (
+    existing.exists &&
+    existing.sizeBytes !== null &&
+    existing.sizeBytes === expectedSizeBytes
+  ) {
+    return {
+      path,
+      token: null,
+      signedUrl: null,
+      alreadyUploaded: true,
+    }
+  }
+
+  if (existing.exists) {
+    await removeStorageObject(path)
+  }
+
+  const { data: freshData, error: freshError } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .createSignedUploadUrl(path, { upsert: false })
+
+  if (freshError) throw new Error(freshError.message)
+
   return {
-    path: data.path,
-    token: data.token,
-    signedUrl: data.signedUrl,
+    path: freshData.path,
+    token: freshData.token,
+    signedUrl: freshData.signedUrl,
     alreadyUploaded: false,
   }
 }
