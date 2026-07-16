@@ -40,11 +40,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
+import {
+  DEFAULT_WALLPAPER_CATEGORY,
+  WALLPAPER_CATEGORIES,
+} from "@/lib/wallpaper-categories"
 
-const WALLPAPER_CATEGORIES: string[] = [...macwall.categories]
-const DEFAULT_CATEGORY = WALLPAPER_CATEGORIES[0] ?? "Nature"
 const MAX_FILES = 300
 const METADATA_READ_CONCURRENCY = 3
 const AI_ANALYSIS_CHUNK_SIZE = 6
@@ -1800,7 +1801,7 @@ function inferCategory(text: string): string {
   return (
     pairs.find(([, words]) =>
       words.some((word) => source.includes(word))
-    )?.[0] ?? DEFAULT_CATEGORY
+    )?.[0] ?? DEFAULT_WALLPAPER_CATEGORY
   )
 }
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { HugeiconsIcon } from "@hugeicons/react"
+import type { IconSvgElement } from "@hugeicons/react"
 import {
   CheckIcon,
   CheckmarkCircle01Icon,
@@ -55,7 +56,7 @@ type MediaResponse = {
 const FILTERS: Array<{
   id: UploadStatus
   label: string
-  icon: any
+  icon: IconSvgElement
 }> = [
   { id: "pending", label: "Pending", icon: Clock01Icon },
   { id: "approved", label: "Approved", icon: CheckmarkCircle01Icon },
@@ -211,7 +212,10 @@ export function UploadReviewPanel() {
           className="gap-1.5"
           onClick={() => void loadUploads(filter)}
         >
-          <HugeiconsIcon icon={ArrowReloadHorizontalIcon} className="size-3.5" />
+          <HugeiconsIcon
+            icon={ArrowReloadHorizontalIcon}
+            className="size-3.5"
+          />
           Refresh
         </AdminButton>
       </AdminToolbar>
@@ -222,7 +226,7 @@ export function UploadReviewPanel() {
       {error ? <AdminNotice tone="warning">{error}</AdminNotice> : null}
       {message ? <AdminNotice tone="success">{message}</AdminNotice> : null}
 
-      <div className="grid gap-4 sm:gap-5 min-[1024px]:grid-cols-[minmax(260px,320px)_minmax(0,1fr)]">
+      <div className="grid gap-4 min-[1024px]:grid-cols-[minmax(260px,320px)_minmax(0,1fr)] sm:gap-5">
         <AdminSurface className="min-h-0">
           <AdminSurfaceHeader
             title="Queue"
@@ -231,7 +235,10 @@ export function UploadReviewPanel() {
           <AdminSurfaceBody className="max-h-[min(70vh,560px)] space-y-2 overflow-y-auto sm:space-y-2.5">
             {uploads.length === 0 ? (
               <div className="flex flex-col items-center gap-2 py-8 text-center">
-                <HugeiconsIcon icon={InboxIcon} className="size-8 text-[#86868b]/60" />
+                <HugeiconsIcon
+                  icon={InboxIcon}
+                  className="size-8 text-[#86868b]/60"
+                />
                 <p className="text-[14px] text-[#86868b]">
                   No uploads in this filter.
                 </p>
@@ -260,7 +267,10 @@ export function UploadReviewPanel() {
           <AdminSurfaceBody className="space-y-4 sm:space-y-5">
             {!selected ? (
               <div className="flex flex-col items-center gap-2 py-10 text-center sm:py-14">
-                <HugeiconsIcon icon={CursorPointer01Icon} className="size-8 text-[#86868b]/60" />
+                <HugeiconsIcon
+                  icon={CursorPointer01Icon}
+                  className="size-8 text-[#86868b]/60"
+                />
                 <p className="text-[14px] text-[#86868b]">
                   Select an upload to preview.
                 </p>

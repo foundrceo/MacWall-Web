@@ -22,17 +22,25 @@ export default function MacWallMarketingOfferCountdownBar() {
   const ribbon = macwallExactCopy.ribbon
 
   useEffect(() => {
-    const seconds = getSessionCountdownSeconds()
-    setRemaining(seconds)
-    if (seconds <= 0) return
+    let intervalId: number | undefined
 
-    const id = setInterval(() => {
-      setRemaining((prev) => {
-        if (prev === null || prev <= 1) return 0
-        return prev - 1
-      })
-    }, 1000)
-    return () => clearInterval(id)
+    const timeoutId = window.setTimeout(() => {
+      const seconds = getSessionCountdownSeconds()
+      setRemaining(seconds)
+      if (seconds <= 0) return
+
+      intervalId = window.setInterval(() => {
+        setRemaining((prev) => {
+          if (prev === null || prev <= 1) return 0
+          return prev - 1
+        })
+      }, 1000)
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+      if (intervalId !== undefined) window.clearInterval(intervalId)
+    }
   }, [])
 
   if (remaining === 0) {

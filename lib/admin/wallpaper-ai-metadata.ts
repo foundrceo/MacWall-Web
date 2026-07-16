@@ -1,10 +1,12 @@
-import { WALLPAPER_CATEGORIES } from "./wallpapers"
+import {
+  DEFAULT_WALLPAPER_CATEGORY,
+  WALLPAPER_CATEGORIES,
+} from "@/lib/wallpaper-categories"
 
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
 const DEFAULT_MODEL = "gpt-5.4-mini"
 const MAX_ANALYSIS_ITEMS = 12
 const MAX_THUMB_DATA_URL_LENGTH = 1_200_000
-const DEFAULT_CATEGORY = WALLPAPER_CATEGORIES[0] ?? "Nature"
 
 type RawAnalysisItem = {
   clientId: string
@@ -298,7 +300,9 @@ function normalizeTitle(value: string) {
 }
 
 function normalizeCategory(value: string) {
-  return WALLPAPER_CATEGORIES.includes(value) ? value : DEFAULT_CATEGORY
+  return WALLPAPER_CATEGORIES.includes(value)
+    ? value
+    : DEFAULT_WALLPAPER_CATEGORY
 }
 
 function normalizeTags(tags: string[], title: string, category: string) {

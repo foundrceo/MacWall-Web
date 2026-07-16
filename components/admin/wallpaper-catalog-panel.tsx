@@ -34,8 +34,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { WALLPAPER_CATEGORIES } from "@/lib/admin/wallpapers"
 import { cn } from "@/lib/utils"
+import { WALLPAPER_CATEGORIES } from "@/lib/wallpaper-categories"
 
 type WallpaperItem = {
   id: string
@@ -191,7 +191,10 @@ export function WallpaperCatalogPanel({
         <AdminSurfaceBody className="space-y-4 sm:space-y-5">
           <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center">
             <div className="relative min-w-0 flex-1">
-              <HugeiconsIcon icon={Search01Icon} className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-[#86868b]" />
+              <HugeiconsIcon
+                icon={Search01Icon}
+                className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-[#86868b]"
+              />
               <AdminInput
                 value={query}
                 onChange={(event) => {
@@ -209,7 +212,7 @@ export function WallpaperCatalogPanel({
                 setPage(1)
               }}
             >
-              <SelectTrigger className="w-full min-w-[160px] rounded-full h-11 lg:w-auto">
+              <SelectTrigger className="h-11 w-full min-w-[160px] rounded-full lg:w-auto">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -228,7 +231,7 @@ export function WallpaperCatalogPanel({
                 setPage(1)
               }}
             >
-              <SelectTrigger className="w-full min-w-[140px] rounded-full h-11 lg:w-auto">
+              <SelectTrigger className="h-11 w-full min-w-[140px] rounded-full lg:w-auto">
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
               <SelectContent>
@@ -242,10 +245,13 @@ export function WallpaperCatalogPanel({
             <AdminButton
               variant="ghost"
               size="md"
-              className="gap-1.5 min-h-[44px]"
+              className="min-h-[44px] gap-1.5"
               onClick={() => void loadWallpapers()}
             >
-              <HugeiconsIcon icon={ArrowReloadHorizontalIcon} className="size-3.5" />
+              <HugeiconsIcon
+                icon={ArrowReloadHorizontalIcon}
+                className="size-3.5"
+              />
               Refresh
             </AdminButton>
           </div>
@@ -281,7 +287,7 @@ export function WallpaperCatalogPanel({
       {error ? <AdminNotice tone="warning">{error}</AdminNotice> : null}
       {message ? <AdminNotice tone="success">{message}</AdminNotice> : null}
 
-      <div className="grid gap-4 sm:gap-5 min-[1200px]:grid-cols-[minmax(0,1fr)_minmax(280px,380px)] min-[1200px]:gap-6">
+      <div className="grid gap-4 min-[1200px]:grid-cols-[minmax(0,1fr)_minmax(280px,380px)] min-[1200px]:gap-6 sm:gap-5">
         <AdminSurface className="min-w-0 overflow-hidden">
           <AdminSurfaceHeader
             title="Wallpapers"
@@ -311,7 +317,10 @@ export function WallpaperCatalogPanel({
                         className="px-4 py-12 text-center text-[#86868b] sm:px-6"
                       >
                         <div className="flex flex-col items-center gap-2">
-                          <HugeiconsIcon icon={ImageNotFoundIcon} className="size-8 text-[#86868b]/60" />
+                          <HugeiconsIcon
+                            icon={ImageNotFoundIcon}
+                            className="size-8 text-[#86868b]/60"
+                          />
                           No wallpapers match your filters.
                         </div>
                       </td>
@@ -347,7 +356,10 @@ export function WallpaperCatalogPanel({
                         </td>
                         <td className="px-3 py-3">
                           <span className="inline-flex items-center gap-1 font-medium text-[#1d1d1f] tabular-nums">
-                            <HugeiconsIcon icon={HeartIcon} className="size-3.5 text-[#ff2d55]" />
+                            <HugeiconsIcon
+                              icon={HeartIcon}
+                              className="size-3.5 text-[#ff2d55]"
+                            />
                             {item.likeCount.toLocaleString()}
                           </span>
                         </td>
@@ -384,7 +396,10 @@ export function WallpaperCatalogPanel({
                     disabled={page <= 1}
                     onClick={() => setPage((value) => Math.max(1, value - 1))}
                   >
-                    <HugeiconsIcon icon={ChevronLeftIcon} className="size-3.5" />
+                    <HugeiconsIcon
+                      icon={ChevronLeftIcon}
+                      className="size-3.5"
+                    />
                     Previous
                   </AdminButton>
                   <AdminButton
@@ -397,7 +412,10 @@ export function WallpaperCatalogPanel({
                     }
                   >
                     Next
-                    <HugeiconsIcon icon={ChevronRightIcon} className="size-3.5" />
+                    <HugeiconsIcon
+                      icon={ChevronRightIcon}
+                      className="size-3.5"
+                    />
                   </AdminButton>
                 </div>
               </div>
@@ -420,7 +438,10 @@ export function WallpaperCatalogPanel({
             />
             <AdminSurfaceBody>
               <div className="flex flex-col items-center gap-2 py-4 text-center">
-                <HugeiconsIcon icon={CursorPointer01Icon} className="size-8 text-[#86868b]/60" />
+                <HugeiconsIcon
+                  icon={CursorPointer01Icon}
+                  className="size-8 text-[#86868b]/60"
+                />
                 <p className="text-[14px] text-[#86868b]">
                   Select a wallpaper from the table.
                 </p>
