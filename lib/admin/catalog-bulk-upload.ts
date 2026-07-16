@@ -333,25 +333,69 @@ function storageKeyParts(key: string): { folder: string; name: string } {
   }
 }
 
-async function storageObjectInfo(key: string): Promise<StorageObjectInfo> {
+const STORAGE_LIST_PAGE_SIZE = 1000
+
+async function listFolderObjects(folder: string) {
   const supabase = getSupabaseAdmin()
-  const { folder, name } = storageKeyParts(key)
-  const { data, error } = await supabase.storage
-    .from(STORAGE_BUCKET)
-    .list(folder, {
-      limit: 100,
-      offset: 0,
-      search: name,
-    })
+  const objects: Array<{ name: string; metadata?: unknown }> = []
+  let offset = 0
 
-  if (error) throw new Error(error.message)
-  const object = (data ?? []).find((item) => item.name === name)
-  if (!object) return { exists: false, sizeBytes: null }
+  while (true) {
+    const { data, error } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .list(folder, {
+        limit: STORAGE_LIST_PAGE_SIZE,
+        offset,
+      })
 
-  return {
-    exists: true,
-    sizeBytes: storageObjectSize(object),
+    if (error) throw new Error(error.message)
+    const page = data ?? []
+    objects.push(...page)
+    if (page.length < STORAGE_LIST_PAGE_SIZE) break
+    offset += STORAGE_LIST_PAGE_SIZE
   }
+
+  return objects
+}
+
+async function storageObjectInfoMap(
+  keys: string[]
+): Promise<Map<string, StorageObjectInfo>> {
+  const uniqueKeys = [...new Set(keys)]
+  const namesByFolder = new Map<string, Set<string>>()
+  for (const key of uniqueKeys) {
+    const { folder, name } = storageKeyParts(key)
+    const names = namesByFolder.get(folder) ?? new Set<string>()
+    names.add(name)
+    namesByFolder.set(folder, names)
+  }
+
+  const infoByKey = new Map<string, StorageObjectInfo>()
+  for (const [folder, names] of namesByFolder) {
+    const objects = await listFolderObjects(folder)
+    const objectsByName = new Map(
+      objects.map((object) => [object.name, object])
+    )
+    for (const name of names) {
+      const key = `${folder}/${name}`
+      const object = objectsByName.get(name)
+      if (!object) {
+        infoByKey.set(key, { exists: false, sizeBytes: null })
+        continue
+      }
+      infoByKey.set(key, {
+        exists: true,
+        sizeBytes: storageObjectSize(object),
+      })
+    }
+  }
+
+  return infoByKey
+}
+
+async function storageObjectInfo(key: string): Promise<StorageObjectInfo> {
+  const infoByKey = await storageObjectInfoMap([key])
+  return infoByKey.get(key) ?? { exists: false, sizeBytes: null }
 }
 
 function storageObjectSize(object: { metadata?: unknown }): number | null {
@@ -385,18 +429,13 @@ async function assertObjectsExist(items: NormalizedCommitItem[]) {
       key: item.thumbKey,
     },
   ])
-  const checks = await asyncPool(
-    objectChecks,
-    STORAGE_CHECK_CONCURRENCY,
-    async (check) => ({
-      ...check,
-      info: await storageObjectInfo(check.key),
-    })
+  const infoByKey = await storageObjectInfoMap(
+    objectChecks.map((check) => check.key)
   )
 
   const missing: string[] = []
-  for (const check of checks) {
-    const info = check.info
+  for (const check of objectChecks) {
+    const info = infoByKey.get(check.key) ?? { exists: false, sizeBytes: null }
 
     if (!info.exists) {
       missing.push(check.key)
