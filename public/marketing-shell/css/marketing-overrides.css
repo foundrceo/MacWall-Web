@@ -139,6 +139,33 @@ body:has(.MacWallMarketingPage) {
   height: 44px;
   align-items: center;
   white-space: nowrap;
+  cursor: pointer;
+}
+
+.MacWallMarketingHeaderMegaClip {
+  pointer-events: auto;
+  will-change: clip-path;
+}
+
+.MacWallMarketingHeaderMega {
+  min-height: 0;
+}
+
+.MacWallMarketingHeaderCurtain {
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.MacWallMarketingHeaderCurtain--light {
+  background: rgba(232, 232, 237, 0.4);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+.MacWallMarketingHeaderCurtain--dark {
+  background: rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
 }
 
 @media (max-width: 47.99rem) {
@@ -152,6 +179,10 @@ body:has(.MacWallMarketingPage) {
 }
 
 /* ── Site footer responsive rails ── */
+.MacWallMarketingFooterBrand {
+  min-width: 0;
+}
+
 .MacWallMarketingFooterDesktop {
   display: none;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -169,7 +200,7 @@ body:has(.MacWallMarketingPage) {
 
 @media (min-width: 80rem) {
   .MacWallMarketingFooterDesktop {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: 1.1fr repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -1785,31 +1816,30 @@ body:has(.MacWallMarketingPage) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Offer Countdown Bar — conversion-optimized single-line strip
+   Offer Countdown Bar — timer + Pro CTA (active offer only)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .MacWallOfferBar {
   position: relative;
-  z-index: 9999;
+  z-index: 10;
   width: 100%;
-  background: #f5f5f7;
-  color: #1d1d1f;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgb(245, 245, 247);
+  color: rgb(29, 29, 31);
+  border: none;
+  box-shadow: none;
 }
 
 .MacWallOfferBarInner {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 1.25rem;
   max-width: 980px;
   margin: 0 auto;
-  padding: 7px 1.5rem;
-  height: 44px;
+  padding: 8px 0;
   box-sizing: border-box;
 }
 
-/* Timer — single row: "OFFER VALID FOR  00:34:12" */
 .MacWallOfferBarTimer {
   display: flex;
   align-items: center;
@@ -1839,7 +1869,7 @@ body:has(.MacWallMarketingPage) {
 }
 
 .MacWallOfferBarDigit {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1;
   min-width: 2ch;
@@ -1847,21 +1877,26 @@ body:has(.MacWallMarketingPage) {
   color: #1d1d1f;
 }
 
+.MacWallOfferBarDigit--placeholder {
+  color: #86868b;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
 .MacWallOfferBarColon {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1;
   color: #86868b;
   margin: 0 1px;
 }
 
-/* CTA pill */
 .MacWallOfferBarCta {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  height: 30px;
-  padding: 0 14px;
+  gap: 0.35rem;
+  height: 26px;
+  padding: 0 12px;
   border-radius: 9999px;
   background: #0066cc;
   border: none;
@@ -1906,12 +1941,10 @@ body:has(.MacWallMarketingPage) {
   text-decoration: line-through;
 }
 
-/* ── Mobile ── */
 @media (max-width: 639px) {
   .MacWallOfferBarInner {
-    gap: 0.6rem;
-    padding: 6px 0.75rem;
-    height: 40px;
+    gap: 0.5rem;
+    padding: 7px 0.75rem;
   }
 
   .MacWallOfferBarLabel {
@@ -1943,6 +1976,114 @@ body:has(.MacWallMarketingPage) {
 
   .MacWallOfferBarCtaLine2 {
     font-size: 10px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Apple-style announcement ribbon (matches apple.com Ribbon_bg-neutral)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.MacWallRibbon {
+  --ribbon-background: rgb(245, 245, 247);
+  --ribbon-color: rgb(29, 29, 31);
+  --ribbon-link-color: rgb(0, 102, 204);
+  position: relative;
+  z-index: 10;
+  box-sizing: border-box;
+  width: 100%;
+  overflow: hidden;
+  border: none;
+  box-shadow: none;
+  font-size: 13px;
+  line-height: 1.3846153846;
+  font-weight: 400;
+  letter-spacing: -0.016em;
+  color: var(--ribbon-color);
+}
+
+.MacWallRibbon--bg-neutral {
+  --ribbon-background: rgb(245, 245, 247);
+  --ribbon-color: rgb(29, 29, 31);
+}
+
+.MacWallRibbon--row {
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
+}
+
+.MacWallRibbonContentWrapper {
+  width: 100%;
+  padding: 8px 0;
+  background-color: var(--ribbon-background);
+  overflow: hidden;
+  border: none;
+  box-shadow: none;
+}
+
+.MacWallRibbonColumn {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.MacWallRibbonContent {
+  margin: 0;
+  text-align: center;
+}
+
+.MacWallRibbonLarge10 {
+  flex-basis: 83.3333333333%;
+  max-width: 83.3333333333%;
+}
+
+.MacWallRibbonLargeCentered {
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+}
+
+.MacWallRibbonLink {
+  color: var(--ribbon-link-color);
+  margin-left: 3px;
+}
+
+.MacWallStandardsLink {
+  display: inline;
+  letter-spacing: inherit;
+  text-decoration: none;
+  color: var(--ribbon-link-color);
+}
+
+.MacWallStandardsLink:hover {
+  text-decoration: none;
+}
+
+.MacWallStandardsLink:hover .MacWallStandardsLinkCopy {
+  text-decoration: underline;
+}
+
+.MacWallStandardsLinkCopy {
+  display: inline;
+}
+
+.MacWallStandardsLinkIconWrapper .MacWallStandardsLinkIcon {
+  display: inline;
+  position: static;
+}
+
+.MacWallStandardsLinkIconAfter::after {
+  display: inline-block;
+  padding-inline-start: 0.24em;
+  content: "›";
+  font-size: 1.05em;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+@media (min-width: 64rem) {
+  .MacWallRibbonContent {
+    white-space: nowrap;
   }
 }
 
@@ -2090,7 +2231,9 @@ body:has(.MacWallMarketingPage) {
   color: #86868b;
   cursor: pointer;
   border-radius: 50%;
-  transition: background 150ms ease, color 150ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
 }
 
 .MacWallLocaleSwitcherClose:hover {

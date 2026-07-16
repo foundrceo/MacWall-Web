@@ -2,33 +2,137 @@
 
 import Link from "next/link"
 import { TrackedFooterLink } from "@/components/analytics/tracked-marketing-buttons"
-import {
-  macwall,
-  macwallInstallerLatestPath,
-  macwallProCheckoutURL,
-  mailtoSupport,
-} from "@/lib/macwall-site"
+import { macwall, mailtoSupport } from "@/lib/macwall-site"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import {
+  footerAnalyticsLocation,
+  getMarketingFooterSections,
+  type FooterNavLink,
+} from "@/lib/marketing-footer-nav"
 import { MarketingContainer } from "@/components/macwall-marketing/marketing-primitives"
 import { cn } from "@/lib/utils"
 
 export type MacWallMarketingFooterVariant = "dark" | "light"
 
-/** Keyword-rich internal links so comparison pages are crawlable from every page. */
-const compareLinks = [
-  { href: "/best-live-wallpaper-mac", label: "Best Live Wallpaper for Mac" },
-  { href: "/alternatives/wallpaper-engine", label: "Wallpaper Engine for Mac" },
-  { href: "/alternatives/macwall-vs-wallper", label: "Wallper Alternative" },
-  {
-    href: "/alternatives/macwall-vs-wallspace",
-    label: "Wallspace Alternative",
-  },
-  { href: "/alternatives/macwall-vs-backdrop", label: "Backdrop Alternative" },
-  {
-    href: "/alternatives/lively-wallpaper-mac",
-    label: "Lively Wallpaper for Mac",
-  },
-] as const
+function FooterBrandBlock({
+  titleClass,
+  linkClass,
+}: Readonly<{
+  titleClass: string
+  linkClass: string
+}>) {
+  const org = macwallExactCopy.footer.org
+
+  return (
+    <div className="MacWallMarketingFooterBrand">
+      <h3 className={titleClass}>{org.name}</h3>
+      <ul className="mt-2 space-y-2">
+        <li>
+          <a className={linkClass} href={macwall.website}>
+            {org.website}
+          </a>
+        </li>
+        <li>
+          <a className={linkClass} href={mailtoSupport}>
+            {macwall.supportEmail}
+          </a>
+        </li>
+      </ul>
+    </div>
+  )
+}
+
+function FooterNavLinkItem({
+  link,
+  sectionTitle,
+  linkClass,
+  mobile,
+}: Readonly<{
+  link: FooterNavLink
+  sectionTitle: string
+  linkClass: string
+  mobile: boolean
+}>) {
+  const location = footerAnalyticsLocation(sectionTitle, link.kind, mobile)
+
+  if (link.kind === "pricing") {
+    return (
+      <TrackedFooterLink
+        className={linkClass}
+        href={link.href}
+        eventName="pricing_click"
+        location={location}
+        external
+      >
+        {link.label}
+      </TrackedFooterLink>
+    )
+  }
+
+  if (link.kind === "download") {
+    return (
+      <TrackedFooterLink
+        className={linkClass}
+        href={link.href}
+        eventName="download_click"
+        location={location}
+      >
+        {link.label}
+      </TrackedFooterLink>
+    )
+  }
+
+  if (link.kind === "external") {
+    return (
+      <a
+        className={linkClass}
+        href={link.href}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {link.label}
+      </a>
+    )
+  }
+
+  return (
+    <Link className={linkClass} href={link.href}>
+      {link.label}
+    </Link>
+  )
+}
+
+function FooterSection({
+  title,
+  links,
+  titleClass,
+  linkClass,
+  mobile = false,
+}: Readonly<{
+  title: string
+  links: readonly FooterNavLink[]
+  titleClass: string
+  linkClass: string
+  mobile?: boolean
+}>) {
+  return (
+    <div>
+      <h3 className={titleClass}>{title}</h3>
+      <ul className="space-y-2">
+        {links.map((link) => (
+          <li key={`${title}-${link.href}`}>
+            <FooterNavLinkItem
+              link={link}
+              sectionTitle={title}
+              linkClass={linkClass}
+              mobile={mobile}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
 
 export default function MacWallMarketingFooter({
   shopPricingHref = "/pricing",
@@ -38,6 +142,7 @@ export default function MacWallMarketingFooter({
   variant?: MacWallMarketingFooterVariant
 }>) {
   const foot = macwallExactCopy.footer
+  const sections = getMarketingFooterSections(shopPricingHref)
   const year = new Date().getFullYear()
   const light = variant === "light"
 
@@ -51,6 +156,13 @@ export default function MacWallMarketingFooter({
     light ? "text-[#1d1d1f]" : "text-[#f5f5f7]"
   )
 
+  const disclaimerClass = cn(
+    "MacWallMarketingFooterDisclaimer mb-8 space-y-2 border-b pb-8 text-[12px] leading-[1.333]",
+    light
+      ? "border-black/[0.12] text-[#6e6e73]"
+      : "border-white/[0.12] text-[#a1a1a6]"
+  )
+
   return (
     <footer
       className={cn(
@@ -60,208 +172,32 @@ export default function MacWallMarketingFooter({
       data-macwall-footer={variant}
     >
       <MarketingContainer wide>
-        <ul
-          className={cn(
-            "mb-8 space-y-2 border-b pb-8 text-[12px] leading-[1.333]",
-            light
-              ? "border-black/[0.12] text-[#6e6e73]"
-              : "border-white/[0.12] text-[#a1a1a6]"
-          )}
-        >
+        <ul className={disclaimerClass}>
           {foot.disclaimerBullets.map((text) => (
             <li key={text}>{text}</li>
           ))}
         </ul>
 
-        <div
-          className="MacWallMarketingFooterDesktop"
-          role="navigation"
-          aria-label="Footer"
-        >
-          <div>
-            <h4 className={titleClass}>{foot.org.name}</h4>
-            <p className={linkClass}>
-              {foot.org.line1}
-              <br />
-              {foot.org.line2}
-            </p>
-          </div>
+        <nav className="MacWallMarketingFooterDesktop" aria-label="Footer">
+          <FooterBrandBlock titleClass={titleClass} linkClass={linkClass} />
+          {sections.map((section) => (
+            <FooterSection
+              key={section.title}
+              title={section.title}
+              links={section.links}
+              titleClass={titleClass}
+              linkClass={linkClass}
+            />
+          ))}
+        </nav>
 
-          <div>
-            <h3 className={titleClass}>{foot.shopTitle}</h3>
-            <ul className="space-y-2">
-              <li>
-                <TrackedFooterLink
-                  className={linkClass}
-                  href={macwallProCheckoutURL}
-                  eventName="pricing_click"
-                  location="footer_shop_buy"
-                  external
-                >
-                  {foot.shop.buy}
-                </TrackedFooterLink>
-              </li>
-              <li>
-                <Link className={linkClass} href={shopPricingHref}>
-                  {foot.shop.pricing}
-                </Link>
-              </li>
-              <li>
-                <TrackedFooterLink
-                  className={linkClass}
-                  href={macwallInstallerLatestPath}
-                  eventName="download_click"
-                  location="footer_shop_download"
-                >
-                  {foot.shop.download}
-                </TrackedFooterLink>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className={titleClass}>{foot.resourcesTitle}</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link className={linkClass} href="/blog">
-                  {foot.resources.blog}
-                </Link>
-              </li>
-              <li>
-                <Link className={linkClass} href="/live-wallpaper-mac">
-                  {foot.resources.liveWallpaper}
-                </Link>
-              </li>
-              <li>
-                <Link className={linkClass} href="/download">
-                  {foot.resources.download}
-                </Link>
-              </li>
-              <li>
-                <Link className={linkClass} href="/lock-screen-wallpaper">
-                  Lock Screen Wallpaper
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className={titleClass}>Compare</h3>
-            <ul className="space-y-2">
-              {compareLinks.map((link) => (
-                <li key={link.href}>
-                  <Link className={linkClass} href={link.href}>
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className={titleClass}>{foot.legalTitle}</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link className={linkClass} href="/privacy">
-                  {foot.legal.privacy}
-                </Link>
-              </li>
-              <li>
-                <Link className={linkClass} href="/terms">
-                  {foot.legal.terms}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className={titleClass}>{foot.supportTitle}</h3>
-            <ul className="space-y-2">
-              <li>
-                <a className={linkClass} href={mailtoSupport}>
-                  {foot.support.email}
-                </a>
-              </li>
-              <li>
-                <a
-                  className={linkClass}
-                  href={macwall.discordInvite}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {foot.community.discord}
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Mobile accordion-style footer */}
-        <div
-          className="MacWallMarketingFooterMobile space-y-0"
-          role="navigation"
+        <nav
+          className="MacWallMarketingFooterMobile"
           aria-label="Footer (mobile)"
         >
-          <div className="mb-6">
-            <h4 className={titleClass}>{foot.org.name}</h4>
-            <p className={linkClass}>
-              {foot.org.line1}
-              <br />
-              {foot.org.line2}
-            </p>
-          </div>
+          <FooterBrandBlock titleClass={titleClass} linkClass={linkClass} />
 
-          {[
-            {
-              title: foot.shopTitle,
-              links: [
-                {
-                  href: macwallProCheckoutURL,
-                  label: foot.shop.buy,
-                  external: true,
-                },
-                { href: shopPricingHref, label: foot.shop.pricing },
-                { href: macwallInstallerLatestPath, label: foot.shop.download },
-              ],
-            },
-            {
-              title: foot.resourcesTitle,
-              links: [
-                { href: "/blog", label: foot.resources.blog },
-                {
-                  href: "/live-wallpaper-mac",
-                  label: foot.resources.liveWallpaper,
-                },
-                { href: "/download", label: foot.resources.download },
-                {
-                  href: "/lock-screen-wallpaper",
-                  label: "Lock Screen Wallpaper",
-                },
-              ],
-            },
-            {
-              title: "Compare",
-              links: [...compareLinks],
-            },
-            {
-              title: foot.legalTitle,
-              links: [
-                { href: "/privacy", label: foot.legal.privacy },
-                { href: "/terms", label: foot.legal.terms },
-              ],
-            },
-            {
-              title: foot.supportTitle,
-              links: [
-                { href: mailtoSupport, label: foot.support.email },
-                {
-                  href: macwall.discordInvite,
-                  label: foot.community.discord,
-                  external: true,
-                },
-              ],
-            },
-          ].map((section) => (
+          {sections.map((section) => (
             <details
               key={section.title}
               className={cn(
@@ -287,58 +223,29 @@ export default function MacWallMarketingFooter({
               </summary>
               <ul className="mt-3 space-y-2 pb-2">
                 {section.links.map((link) => (
-                  <li key={link.label}>
-                    {link.href === macwallProCheckoutURL ? (
-                      <TrackedFooterLink
-                        className={linkClass}
-                        href={link.href}
-                        eventName="pricing_click"
-                        location="footer_mobile_shop"
-                        external
-                      >
-                        {link.label}
-                      </TrackedFooterLink>
-                    ) : link.href === macwallInstallerLatestPath ? (
-                      <TrackedFooterLink
-                        className={linkClass}
-                        href={link.href}
-                        eventName="download_click"
-                        location="footer_mobile_download"
-                      >
-                        {link.label}
-                      </TrackedFooterLink>
-                    ) : "external" in link && link.external ? (
-                      <a
-                        className={linkClass}
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {link.label}
-                      </a>
-                    ) : link.href.startsWith("mailto:") ? (
-                      <a className={linkClass} href={link.href}>
-                        {link.label}
-                      </a>
-                    ) : (
-                      <Link className={linkClass} href={link.href}>
-                        {link.label}
-                      </Link>
-                    )}
+                  <li key={`${section.title}-${link.href}-mobile`}>
+                    <FooterNavLinkItem
+                      link={link}
+                      sectionTitle={section.title}
+                      linkClass={linkClass}
+                      mobile
+                    />
                   </li>
                 ))}
               </ul>
             </details>
           ))}
-        </div>
+        </nav>
 
         <div
           className={cn(
             "mt-8 flex flex-wrap items-center gap-x-3 gap-y-2 border-t pt-6 text-[12px]",
-            light ? "border-black/[0.12]" : "border-white/[0.12]"
+            light
+              ? "border-black/[0.12] text-[#424245]"
+              : "border-white/[0.12] text-[#a1a1a6]"
           )}
         >
-          <span className={linkClass}>
+          <span>
             © {year} {foot.copyrightName}. All rights reserved.
           </span>
           <span

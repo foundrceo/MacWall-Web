@@ -74,7 +74,7 @@ export const macwallExactCopy = {
   },
   pricing: {
     buyCta: "Buy Pro",
-    secondaryCta: "Save 50% with a Reel",
+    secondaryCta: "Get 100% free",
     priceLine: `${macwall.pro.price} ${macwall.pro.suffix}. ${macwall.pro.headline}. Up to ${macwall.maxLicensedMacs} personal Macs.`,
   },
   gallery: {
@@ -163,43 +163,37 @@ export const macwallExactCopy = {
     cta: `Get Pro for ${macwall.pro.price}`,
   },
   footer: {
+    shopTitle: "Shop",
+    exploreTitle: "Explore",
+    compareTitle: "Compare",
+    connectTitle: "Connect",
+    shop: {
+      buy: "Buy Pro",
+      pricing: "Pricing",
+      download: "Download",
+    },
+    explore: {
+      blog: "Blog",
+      liveWallpaper: "Live Wallpaper for Mac",
+      lockScreen: "Lock Screen Wallpaper",
+    },
+    legal: {
+      privacy: "Privacy Policy",
+      terms: "Terms of Service",
+    },
+    connect: {
+      discord: "Discord Community",
+    },
+    org: {
+      name: macwall.name,
+      website: "macwall.app",
+    },
+    copyrightName: macwall.name,
     disclaimerBullets: [
       `${macwall.name} Pro is a one-time purchase. The price on this page reflects the current early-bird offer. Make a Reel to qualify for up to 100% back. See Pricing for details.`,
       "A compatible Mac, recent builds, and network access are required for catalog sync, updates, and online license checks.",
       `Pro features, Lock Screen motion, and catalog depth can differ by region and macOS version. Each personal license may be used on up to ${macwall.maxLicensedMacs} Macs you own.`,
       `Continued use of ${macwall.name} means you agree to the Terms of Service and Privacy Policy linked in the footer.`,
     ],
-    shopTitle: "Shop and Learn",
-    legalTitle: "Legal",
-    supportTitle: "Support",
-    communityTitle: "Community",
-    resourcesTitle: "Resources",
-    shop: {
-      buy: "Buy Pro",
-      pricing: "Pricing",
-      download: "Download",
-    },
-    resources: {
-      blog: "Blog",
-      liveWallpaper: "Live Wallpaper for Mac",
-      download: "Download MacWall",
-      bestApp: "Best Wallpaper App",
-    },
-    legal: {
-      privacy: "Privacy Policy",
-      terms: "Terms of Service",
-    },
-    support: {
-      email: "Email support",
-    },
-    community: {
-      discord: "Discord",
-    },
-    org: {
-      name: macwall.name,
-      line1: `Help inbox: ${macwall.supportEmail}`,
-      line2: macwall.website.replace(/^https?:\/\//, ""),
-    },
-    copyrightName: macwall.name,
   },
 } as const

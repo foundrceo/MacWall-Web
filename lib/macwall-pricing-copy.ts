@@ -8,7 +8,7 @@ export const macwallPricingCopy = {
 
   reelRefund: {
     badge: "Reel refund",
-    title: "Get 50% back",
+    title: "Get 100% back",
     description:
       "Make a Reel. Get views. We pay you back. Instagram or TikTok. Organic views only.",
     steps: [
@@ -94,5 +94,5 @@ export const macwallPricingCopy = {
   bottomTitle: `Get ${macwall.name}`,
   bottomDesc: `Pro is ${macwall.pro.price} one-time. Make a Reel and earn up to 100% back. Up to ${macwall.maxLicensedMacs} Macs with a personal license.`,
   bottomCtaPro: `Buy Pro for ${macwall.pro.price}`,
-  bottomCtaReel: "Save 50% with a Reel",
+  bottomCtaReel: "Get 100% free",
 } as const
