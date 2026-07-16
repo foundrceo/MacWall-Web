@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import type { ReactNode } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
+import type { IconSvgElement } from "@hugeicons/react"
 import {
   Analytics01Icon,
   ImageIcon,
@@ -32,7 +33,7 @@ function AdminNavLink({
 }: Readonly<{
   href: string
   active: boolean
-  icon?: any
+  icon?: IconSvgElement
   children: ReactNode
 }>) {
   return (
@@ -107,7 +108,7 @@ export function AdminShell({
           </AdminButton>
         </div>
 
-        <nav className="flex gap-1 overflow-x-auto px-4 py-2 [-ms-overflow-style:none] [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden">
+        <nav className="flex [scrollbar-width:none] gap-1 overflow-x-auto px-4 py-2 [-ms-overflow-style:none] md:hidden [&::-webkit-scrollbar]:hidden">
           {NAV.map((item) => (
             <AdminNavLink
               key={item.href}
@@ -127,7 +128,10 @@ export function AdminShell({
 
       <main className="mx-auto max-w-[1080px] px-4 py-5 sm:px-6 sm:py-8 lg:py-10">
         <AdminPageIntro title={title} description={description} />
-        <AdminFadeIn key={pathname} className="space-y-5 sm:space-y-6 lg:space-y-8">
+        <AdminFadeIn
+          key={pathname}
+          className="space-y-5 sm:space-y-6 lg:space-y-8"
+        >
           {children}
         </AdminFadeIn>
       </main>

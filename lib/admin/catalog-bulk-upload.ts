@@ -7,8 +7,7 @@ import {
   getCatalogSupabaseOrigin,
 } from "@/lib/env/catalog-supabase"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
-
-import { WALLPAPER_CATEGORIES } from "./wallpapers"
+import { WALLPAPER_CATEGORIES } from "@/lib/wallpaper-categories"
 
 const STORAGE_BUCKET = "wallpaper-catalog"
 const MAX_BATCH_ITEMS = 300

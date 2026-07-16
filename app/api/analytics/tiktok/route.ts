@@ -2,36 +2,38 @@ import { NextResponse } from "next/server"
 
 import { isTikTokTrackEvent } from "@/lib/analytics/tiktok-shared"
 import { sendTikTokServerEvent } from "@/lib/analytics/tiktok-server"
+import {
+  clientIpFromRequest,
+  createInMemoryRateLimiter,
+} from "@/lib/http/rate-limit"
+import { HttpRequestError, readJsonRequestBody } from "@/lib/http/request"
 
 export const runtime = "nodejs"
 
 const RATE_LIMIT_WINDOW_MS = 60_000
 const RATE_LIMIT_MAX = 60
-const hits = new Map<string, { count: number; resetAt: number }>()
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now()
-  const entry = hits.get(ip)
-  if (!entry || entry.resetAt <= now) {
-    hits.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
-    return false
-  }
-  entry.count += 1
-  return entry.count > RATE_LIMIT_MAX
-}
+const MAX_BODY_BYTES = 16 * 1024
+const checkRateLimit = createInMemoryRateLimiter({
+  max: RATE_LIMIT_MAX,
+  windowMs: RATE_LIMIT_WINDOW_MS,
+})
 
 export async function POST(request: Request) {
   try {
-    const ip =
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      request.headers.get("x-real-ip")?.trim() ||
-      "unknown"
+    const ip = clientIpFromRequest(request)
+    const rateLimit = checkRateLimit(ip)
 
-    if (isRateLimited(ip)) {
-      return NextResponse.json({ ok: false }, { status: 429 })
+    if (rateLimit.limited) {
+      return NextResponse.json(
+        { ok: false },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+        }
+      )
     }
 
-    const body = (await request.json()) as {
+    const body = await readJsonRequestBody<{
       event?: string
       eventId?: string
       url?: string
@@ -41,7 +43,7 @@ export async function POST(request: Request) {
       ttclid?: string
       ttp?: string
       searchString?: string
-    }
+    }>(request, { maxBytes: MAX_BODY_BYTES })
 
     const event = body.event?.trim() ?? ""
     if (!isTikTokTrackEvent(event)) {
@@ -80,7 +82,13 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ ok: true, skipped: result.skipped ?? false })
-  } catch {
+  } catch (error) {
+    if (error instanceof HttpRequestError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status }
+      )
+    }
     return NextResponse.json({ ok: false }, { status: 500 })
   }
 }

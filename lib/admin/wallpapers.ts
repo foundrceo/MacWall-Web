@@ -1,11 +1,9 @@
-import { macwall } from "@/lib/macwall-site"
 import {
   catalogMarketingGalleryPosterUrlFromKey,
   catalogPublicVideoUrlFromKey,
 } from "@/lib/macwall-catalog-urls"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
-
-export const WALLPAPER_CATEGORIES: string[] = [...macwall.categories]
+import { WALLPAPER_CATEGORIES } from "@/lib/wallpaper-categories"
 
 export type WallpaperSort =
   | "likes_desc"
