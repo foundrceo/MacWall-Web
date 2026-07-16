@@ -5,6 +5,7 @@ import { commitCatalogUploadBatch } from "@/lib/admin/catalog-bulk-upload"
 import { revalidateMarketingCatalog } from "@/lib/admin/uploads"
 
 export const runtime = "nodejs"
+export const maxDuration = 60
 
 export async function POST(request: Request) {
   const denied = await requireAdminApi()
