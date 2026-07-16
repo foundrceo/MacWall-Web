@@ -60,12 +60,19 @@ export async function GET(request: Request) {
         status: 500,
       })
     }
+    const requestUrl = new URL(request.url)
+    const querySessionId = requestUrl.searchParams.get("sid")?.trim()
+    const sessionId =
+      querySessionId && querySessionId.length <= 64
+        ? querySessionId
+        : await visitorFingerprint(request)
+
     await trackSiteEvent({
       eventName: "download_redirect",
       path: "/download/latest",
       referrer: request.headers.get("referer"),
       userAgent: request.headers.get("user-agent"),
-      sessionId: await visitorFingerprint(request),
+      sessionId,
       metadata: { destination: target.hostname },
     })
 

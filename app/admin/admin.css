@@ -1,4 +1,4 @@
-/* MacWall admin — Apple-like surfaces (no borders, pill CTAs, site icon). */
+/* MacWall admin — Apple-like surfaces (flat borders, pill CTAs, site icon). */
 
 .admin-portal {
   --admin-bg: #f5f5f7;
@@ -9,7 +9,7 @@
   --admin-surface: #ffffff;
   --admin-fill: #f5f5f7;
   --admin-fill-hover: #e8e8ed;
-  --admin-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  --admin-border: rgba(0, 0, 0, 0.06);
 
   --chart-1: #0071e3;
   --chart-2: #34c759;
@@ -46,4 +46,51 @@
 .admin-portal [data-slot="chart"] .recharts-legend-item-text {
   color: #86868b !important;
   font-size: 12px !important;
+}
+
+@keyframes admin-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes admin-shimmer {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.admin-fade-in {
+  animation: admin-fade-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.admin-portal .admin-skeleton-pulse {
+  animation: admin-shimmer 2s ease-in-out infinite;
+}
+
+.admin-portal [data-slot="select-content"] {
+  border: none !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 1rem !important;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-fade-in {
+    animation: none;
+  }
+
+  .admin-portal .admin-skeleton-pulse {
+    animation: none;
+    opacity: 0.7;
+  }
 }

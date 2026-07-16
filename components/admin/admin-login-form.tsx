@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react"
 import {
   AdminAppIcon,
   AdminButton,
+  AdminFadeIn,
   AdminInput,
   AdminLabel,
   AdminNotice,
@@ -45,9 +46,10 @@ export function AdminLoginForm({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
-      <AdminSurface className="w-full max-w-md">
-        <AdminSurfaceBody className="space-y-6 pt-8 text-center">
+    <div className="flex min-h-screen items-center justify-center px-4 py-10 sm:py-12">
+      <AdminFadeIn className="w-full max-w-md">
+        <AdminSurface>
+          <AdminSurfaceBody className="space-y-6 pt-6 text-center sm:pt-8">
           <div className="flex flex-col items-center gap-3">
             <AdminAppIcon size="lg" />
             <div>
@@ -84,6 +86,7 @@ export function AdminLoginForm({
           </form>
         </AdminSurfaceBody>
       </AdminSurface>
+      </AdminFadeIn>
     </div>
   )
 }

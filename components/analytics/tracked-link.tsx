@@ -3,7 +3,10 @@
 import Link from "next/link"
 import type { ReactNode } from "react"
 
-import { trackSiteEventClient } from "@/lib/analytics/client"
+import {
+  trackSiteEventClient,
+  withAnalyticsSessionHref,
+} from "@/lib/analytics/client"
 import type {
   SiteAnalyticsEventName,
   SiteAnalyticsMetadata,
@@ -37,6 +40,9 @@ export function TrackedLink({
     }
   }
 
+  const resolvedHref =
+    eventName === "download_click" ? withAnalyticsSessionHref(href) : href
+
   const trackProps = {
     onClick: onNavigate,
     onAuxClick: onNavigate,
@@ -45,7 +51,7 @@ export function TrackedLink({
   if (external || href.startsWith("http") || href.startsWith("mailto:")) {
     return (
       <a
-        href={href}
+        href={resolvedHref}
         className={className}
         {...trackProps}
         target={href.startsWith("http") ? "_blank" : undefined}
@@ -59,7 +65,7 @@ export function TrackedLink({
 
   return (
     <Link
-      href={href}
+      href={resolvedHref}
       className={className}
       {...trackProps}
       aria-label={ariaLabel}

@@ -224,7 +224,7 @@ export function DailyActivityChart({
           cursor={{ stroke: APPLE.grid, strokeWidth: 1 }}
           content={
             <ChartTooltipContent
-              className="rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] ring-0"
+              className="rounded-2xl border border-black/[0.06] bg-white ring-0 shadow-none"
               indicator="dot"
             />
           }
@@ -294,7 +294,7 @@ export function DownloadActivityChart({
           cursor={{ fill: APPLE.fill }}
           content={
             <ChartTooltipContent
-              className="rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] ring-0"
+              className="rounded-2xl border border-black/[0.06] bg-white ring-0 shadow-none"
               indicator="dot"
             />
           }
@@ -374,7 +374,7 @@ export function HorizontalBarChart({
           cursor={{ fill: APPLE.fill }}
           content={
             <ChartTooltipContent
-              className="rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] ring-0"
+              className="rounded-2xl border border-black/[0.06] bg-white ring-0 shadow-none"
               hideLabel
             />
           }
@@ -584,7 +584,7 @@ export function CategoryDonut({
           <ChartTooltip
             content={
               <ChartTooltipContent
-                className="rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] ring-0"
+                className="rounded-2xl border border-black/[0.06] bg-white ring-0 shadow-none"
                 hideLabel
                 nameKey="label"
               />
@@ -709,7 +709,7 @@ export function EventsSummaryChart({
           cursor={{ fill: APPLE.fill }}
           content={
             <ChartTooltipContent
-              className="rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] ring-0"
+              className="rounded-2xl border border-black/[0.06] bg-white ring-0 shadow-none"
               hideLabel
             />
           }
@@ -836,7 +836,7 @@ export function SalesComparisonChart({
           cursor={{ stroke: APPLE.grid, strokeWidth: 1 }}
           content={
             <ChartTooltipContent
-              className="rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] ring-0"
+              className="rounded-2xl border border-black/[0.06] bg-white ring-0 shadow-none"
               indicator="dot"
               formatter={(value, name, item) => (
                 <div className="flex w-full items-center justify-between gap-4">

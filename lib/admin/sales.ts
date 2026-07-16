@@ -46,12 +46,13 @@ export type ConversionFunnel = {
   pageViews: number
   uniqueVisitors: number
   downloadClicks: number
+  uniqueDownloadClickSessions: number
   installerRedirects: number
   uniqueInstallSessions: number
   activatedDevices: number
   sales: number
   visitorToDownloadRate: number
-  downloadToInstallRate: number
+  downloadToRedirectRate: number
   installToSaleRate: number
   visitorToSaleRate: number
 }
@@ -176,6 +177,7 @@ export function buildConversionFunnel(
   let downloadClicks = 0
   let installerRedirects = 0
   const visitorSessions = new Set<string>()
+  const downloadClickSessions = new Set<string>()
   const installSessions = new Set<string>()
 
   for (const row of eventRows) {
@@ -184,6 +186,7 @@ export function buildConversionFunnel(
       if (row.session_id) visitorSessions.add(row.session_id)
     } else if (row.event_name === "download_click") {
       downloadClicks += 1
+      if (row.session_id) downloadClickSessions.add(row.session_id)
     } else if (row.event_name === "download_redirect") {
       installerRedirects += 1
       if (row.session_id) installSessions.add(row.session_id)
@@ -196,25 +199,21 @@ export function buildConversionFunnel(
   const sales = saleRows.filter((row) => row.sent_at >= sinceIso).length
 
   const uniqueVisitors = visitorSessions.size
+  const uniqueDownloadClickSessions = downloadClickSessions.size
   const uniqueInstallSessions = installSessions.size
 
   return {
     pageViews,
     uniqueVisitors,
     downloadClicks,
+    uniqueDownloadClickSessions,
     installerRedirects,
     uniqueInstallSessions,
     activatedDevices,
     sales,
-    visitorToDownloadRate: rate(
-      uniqueInstallSessions,
-      Math.max(uniqueVisitors, uniqueInstallSessions)
-    ),
-    downloadToInstallRate: rate(activatedDevices, uniqueInstallSessions),
-    installToSaleRate: rate(sales, Math.max(activatedDevices, sales)),
-    visitorToSaleRate: rate(
-      sales,
-      Math.max(uniqueVisitors, uniqueInstallSessions, sales)
-    ),
+    visitorToDownloadRate: rate(uniqueDownloadClickSessions, uniqueVisitors),
+    downloadToRedirectRate: rate(installerRedirects, downloadClicks),
+    installToSaleRate: rate(sales, activatedDevices),
+    visitorToSaleRate: rate(sales, uniqueVisitors),
   }
 }
