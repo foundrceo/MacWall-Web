@@ -99,6 +99,42 @@ export async function r2DeleteObject(key: string): Promise<void> {
   }
 }
 
+/** HEAD against the private R2 API (authoritative for copy/skip logic). */
+export async function r2ObjectExists(key: string): Promise<boolean> {
+  const { client, config } = requireR2()
+  const response = await client.fetch(objectEndpoint(config, key), {
+    method: "HEAD",
+  })
+  return response.ok
+}
+
+/**
+ * Server-side copy within the catalog bucket (`x-amz-copy-source`).
+ * Idempotent when the destination already exists.
+ */
+export async function r2CopyObject(
+  sourceKey: string,
+  destKey: string
+): Promise<void> {
+  if (sourceKey === destKey) return
+
+  const { client, config } = requireR2()
+  if (await r2ObjectExists(destKey)) return
+
+  const response = await client.fetch(objectEndpoint(config, destKey), {
+    method: "PUT",
+    headers: {
+      "x-amz-copy-source": `/${config.bucket}/${encodeObjectKey(sourceKey)}`,
+    },
+  })
+  if (!response.ok) {
+    const body = await response.text().catch(() => "")
+    throw new Error(
+      `R2 copy ${sourceKey} -> ${destKey}: HTTP ${response.status} ${body}`
+    )
+  }
+}
+
 export type R2ObjectInfo = { exists: boolean; sizeBytes: number | null }
 
 /** Existence + size via a HEAD against the public read base (objects are public). */

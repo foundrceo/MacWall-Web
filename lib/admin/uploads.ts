@@ -1,6 +1,7 @@
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
-import { r2PresignGetUrl } from "@/lib/storage/r2"
+import { r2CopyObject, r2PresignGetUrl } from "@/lib/storage/r2"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
+import { randomUUID } from "crypto"
 
 export type CommunityUploadStatus = "pending" | "approved" | "rejected"
 
@@ -99,24 +100,86 @@ export async function approveCommunityUpload(
   uploadId: string,
   wallpaperId?: string | null
 ) {
-  const supabase = getSupabaseAdmin()
-  const body: { upload_id: string; wallpaper_id?: string } = {
-    upload_id: uploadId,
-  }
-  const trimmedWallpaperId = wallpaperId?.trim()
-  if (trimmedWallpaperId) body.wallpaper_id = trimmedWallpaperId
+  const upload = await getCommunityUpload(uploadId)
+  if (!upload) throw new Error("upload_not_found")
+  if (upload.status === "rejected") throw new Error("upload_rejected")
 
-  const { data, error } = await supabase.functions.invoke(
-    "approve-community-upload",
-    { body }
+  if (upload.status === "approved" && upload.approvedWallpaperId) {
+    return {
+      status: "approved",
+      wallpaperId: upload.approvedWallpaperId,
+      alreadyPublished: true,
+    }
+  }
+
+  const wallpaperID =
+    wallpaperId?.trim() ||
+    upload.approvedWallpaperId?.trim() ||
+    randomUUID()
+
+  const { videoKey, thumbKey } = canonicalCommunityCatalogKeys(
+    wallpaperID,
+    upload.videoKey
   )
 
-  if (error) throw new Error(error.message)
+  await r2CopyObject(upload.videoKey, videoKey)
+  await r2CopyObject(upload.thumbKey, thumbKey)
 
-  const payload = data as { error?: string; status?: string } | null
-  if (payload?.error) throw new Error(payload.error)
+  const supabase = getSupabaseAdmin()
 
-  return payload
+  const { error: wallpaperError } = await supabase.from("wallpapers").upsert(
+    {
+      id: wallpaperID,
+      name: upload.title,
+      category: upload.category,
+      tags: ["community"],
+      resolution: upload.resolution,
+      duration_seconds: upload.durationSeconds,
+      file_size_bytes: upload.fileSizeBytes,
+      video_key: videoKey,
+      thumb_key: thumbKey,
+      is_pro: false,
+      is_featured: false,
+      is_curated_pick: false,
+      like_count: 0,
+    },
+    { onConflict: "id" }
+  )
+  if (wallpaperError) {
+    throw new Error(`wallpapers upsert: ${wallpaperError.message}`)
+  }
+
+  const { error: uploadError } = await supabase
+    .from("community_uploads")
+    .update({
+      status: "approved",
+      approved_wallpaper_id: wallpaperID,
+    })
+    .eq("id", uploadId)
+
+  if (uploadError) {
+    throw new Error(`community_uploads update: ${uploadError.message}`)
+  }
+
+  return {
+    status: "approved",
+    wallpaperId: wallpaperID,
+    videoKey,
+    thumbKey,
+  }
+}
+
+function canonicalCommunityCatalogKeys(wallpaperId: string, sourceVideoKey: string) {
+  const ext = videoExtensionFromKey(sourceVideoKey)
+  return {
+    videoKey: `videos/${wallpaperId}.${ext}`,
+    thumbKey: `thumbs/${wallpaperId}.jpg`,
+  }
+}
+
+function videoExtensionFromKey(videoKey: string): string {
+  const ext = videoKey.split(".").pop()?.toLowerCase() ?? "mp4"
+  return ["mp4", "mov", "m4v", "webm"].includes(ext) ? ext : "mp4"
 }
 
 export async function rejectCommunityUpload(
