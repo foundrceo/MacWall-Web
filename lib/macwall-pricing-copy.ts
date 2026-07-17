@@ -75,7 +75,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "Does Lock Screen video work on every macOS version?",
-      a: "Lock Screen live wallpapers follow Apple's platform gates. Where the OS does not expose APIs, Pro still unlocks catalog depth and other premium features documented on this site and in the app.",
+      a: "Live Lock Screen and Screen Saver wallpapers require macOS 26 Tahoe or later, where Apple exposes the native wallpaper APIs. On macOS 14 Sonoma and 15 Sequoia, Pro still unlocks the full catalog, desktop motion, and other premium features, and Lock Screen video turns on automatically once you upgrade.",
     },
     {
       q: "Can I get a refund without making a Reel?",
@@ -87,7 +87,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "Which macOS releases are supported?",
-      a: "We target current and recent macOS versions on Apple silicon, and Intel where Apple still ships security updates for the OS. Download the latest build from the site for the freshest compatibility notes.",
+      a: "MacWall runs on macOS 14 Sonoma or later (including Sequoia and Tahoe) on Apple silicon and Intel Macs. Live Lock Screen and Screen Saver wallpapers require macOS 26 Tahoe. Download the latest build from the site for the freshest compatibility notes.",
     },
   ] as const,
 

@@ -16,11 +16,11 @@ import type { Metadata } from "next"
 
 /** ≤158 chars; leads with the app entity to disambiguate from the unrelated "MACWALL" retaining-wall product. */
 const PAGE_DESCRIPTION =
-  "MacWall is the macOS app for cinematic 4K live wallpapers on your desktop, with near-zero battery impact and Lock Screen in Pro. One-time $7.99, no subs."
+  "MacWall is the native macOS app for cinematic live wallpapers, controlled from the menu bar, with near-zero battery impact and a Lock Screen on macOS 26. One-time $7.99, no subs."
 
 /** Exact homepage <title>. "App" is the key signal that separates the MacWall app from the MACWALL retaining-wall brand. */
 const HOME_DOCUMENT_TITLE_ABSOLUTE =
-  "MacWall App — 4K Live Wallpapers for Mac" as const
+  "MacWall App — Live Wallpapers for Mac" as const
 
 export const metadata: Metadata = {
   title: { absolute: HOME_DOCUMENT_TITLE_ABSOLUTE },
@@ -77,7 +77,7 @@ const HOME_FAQ = [
   {
     question: "Does MacWall work on MacBook Air and MacBook Pro?",
     answer:
-      "MacWall supports M-series and Intel Macs running recent Sonoma, Ventura, and Sequoia builds, with automatic pause on battery and full screen.",
+      "MacWall supports Apple Silicon (M-series) and Intel Macs running macOS 14 Sonoma or later, with automatic pause on battery, full screen, and high CPU. Live Lock Screen and Screen Saver wallpapers require macOS 26 Tahoe.",
   },
 ] as const
 

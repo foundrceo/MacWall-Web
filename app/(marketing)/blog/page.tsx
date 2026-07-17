@@ -10,7 +10,7 @@ import {
 import type { Metadata } from "next"
 
 const PAGE_DESCRIPTION =
-  "Guides, comparisons, and macOS news for live wallpapers on Mac. macOS 27 beta fixes, app comparisons, battery tips, and more from the MacWall team."
+  "Guides, comparisons, and macOS news for live wallpapers on Mac. macOS 26 Tahoe Lock Screen tips, app comparisons, battery advice, and more from the MacWall team."
 
 export const metadata: Metadata = {
   title: "Blog: Mac Live Wallpaper Guides, Comparisons & News",

@@ -26,7 +26,7 @@ export const macwallAppIconRadiusClass = "rounded-[22.37%]" as const
 
 export const macwall = {
   name: "MacWall",
-  tagline: "4K Live Wallpapers for Mac. Pay Once, Own It.",
+  tagline: "4K Live Wallpaper App for macOS.",
   website: "https://macwall.app",
   /** Community invite — matches `discordInviteURLString` in the Mac app. */
   discordInvite: "https://discord.gg/qhtYwEvHND",
@@ -64,12 +64,12 @@ export const macwall = {
     strikePrice: "$9.99",
     price: "$7.99",
     suffix: "one-time",
-    socialProofMembers: "5,000",
+    socialProofMembers: "1,000+",
     features: [
-      "Exclusive wallpapers",
-      "Lock Screen live wallpapers",
-      "Unlimited playlists",
-      "Future Pro features",
+      "Full cloud catalog (1,000+ live wallpapers)",
+      "Live Lock Screen & Screen Saver (macOS 26 Tahoe+)",
+      "Unlimited favorites and playlists",
+      "Lifetime updates and future Pro features",
     ],
   },
   /** Shown in Pro discount flows (`AppBrand.proDiscountPromoCode` in Theme.swift). */
@@ -78,13 +78,14 @@ export const macwall = {
   maxLicensedMacs: 3,
   /** Everything included with a Pro license. */
   proIncludedFeatures: [
-    "Cloud catalog: featured, newest, and popular",
+    "Cloud catalog: featured, newest, and most popular",
     "Explore with search, filters, and community likes",
-    "Save favorites and browse by category",
-    "Import your own video files",
-    "One player per display (hardware decode)",
-    "Pause on full-screen and on battery",
-    "Menu bar controls: pause, resume, stop",
+    "Save favorites and browse 9 categories",
+    "Import your own MP4 and MOV clips",
+    "Multi-display playback, synced or solo (hardware decode)",
+    "Music Sync: album-art gradients from Apple Music and Spotify",
+    "Menu bar control: pause, resume, stop, switch wallpapers",
+    "Auto-pause on battery, full screen, and high CPU",
   ],
 } as const
 

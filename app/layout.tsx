@@ -35,10 +35,10 @@ const geistMono = Geist_Mono({
 })
 
 const SITE_DESCRIPTION_FALLBACK =
-  "MacWall is the native macOS app for live motion wallpapers on your Mac Desktop: a curated daily catalog, search & filters, your own clips, intelligent pause on battery/full screen, and optional MacWall Pro for Lock Screen live wallpaper where Sonoma, Ventura, Sequoia, and newer builds allow."
+  "MacWall is the native macOS app for live video wallpapers on your Mac desktop: a curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, intelligent pause on battery and full screen, and optional MacWall Pro for live Lock Screen and Screen Saver wallpapers on macOS 26 Tahoe."
 
 /** Exact, brand-disambiguated site title. "App" separates the MacWall app from the unrelated MACWALL retaining-wall brand. */
-const SITE_TITLE_DEFAULT = "MacWall App — 4K Live Wallpapers for Mac" as const
+const SITE_TITLE_DEFAULT = "MacWall App — Live Wallpapers for Mac" as const
 
 /** Google Search Console / Bing verification tokens (set in env to claim the entity). */
 const googleSiteVerification =
@@ -111,10 +111,12 @@ export const metadata: Metadata = {
     "desktop wallpaper app macos",
     "screensaver wallpaper mac",
     "daily wallpaper discovery",
-    "Sonoma Ventura Sequoia wallpaper",
-    "macos 27 live wallpaper",
-    "macos 27 lock screen wallpaper",
+    "menu bar wallpaper app mac",
+    "music sync wallpaper mac",
+    "multi monitor live wallpaper mac",
     "macos 26 tahoe live wallpaper",
+    "macos 26 lock screen wallpaper",
+    "macos tahoe screen saver video",
     "screen saver video mac",
     `${macwall.name}`,
   ],
