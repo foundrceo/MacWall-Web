@@ -1,13 +1,8 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { useSearchParams } from "next/navigation"
 
 import { trackSiteEventClient } from "@/lib/analytics/client"
-import {
-  readCheckoutEmailFromSearch,
-  trackTikTokPurchaseWithIdentify,
-} from "@/lib/analytics/tiktok-client"
 import { macwall } from "@/lib/macwall-site"
 
 declare global {
@@ -53,10 +48,9 @@ function fireGa4Purchase() {
   })
 }
 
-/** Fires once per thank-you visit — internal analytics + optional Google Ads / GA4 / TikTok purchase. */
+/** Fires once per thank-you visit — internal analytics + optional Google Ads / GA4. */
 export function PurchaseConversionTracker() {
   const fired = useRef(false)
-  const searchParams = useSearchParams()
 
   useEffect(() => {
     if (fired.current) return
@@ -64,27 +58,23 @@ export function PurchaseConversionTracker() {
 
     trackSiteEventClient("purchase_complete", { product: "macwall_pro" })
 
-    const checkoutEmail = readCheckoutEmailFromSearch(searchParams)
-
+    // TikTok Purchase/CompletePayment fires server-side from the Whop webhook
+    // (whop-license-email edge function) where the verified buyer email is
+    // always available — see lib/analytics for the Events API client. Firing it
+    // here too would double-count, so the browser only handles GA4 / Google Ads.
     const run = () => {
       fireGoogleAdsConversion()
       fireGa4Purchase()
-      void trackTikTokPurchaseWithIdentify(
-        checkoutEmail ? { email: checkoutEmail } : undefined
-      )
     }
 
-    if (
-      typeof window.gtag === "function" ||
-      typeof window.ttq?.track === "function"
-    ) {
+    if (typeof window.gtag === "function") {
       run()
       return
     }
 
     const timer = window.setTimeout(run, 1200)
     return () => window.clearTimeout(timer)
-  }, [searchParams])
+  }, [])
 
   return null
 }

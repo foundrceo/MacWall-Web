@@ -1,3 +1,4 @@
+import Link from "next/link"
 import {
   legalLinkProse,
   legalTextPrimary,
@@ -5,10 +6,14 @@ import {
 } from "@/components/legal/legal-classes"
 import type { ContentBlock } from "@/lib/content/types"
 import { cn } from "@/lib/utils"
+import type { ReactNode } from "react"
 
-function renderInlineText(text: string) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g)
-  return parts.map((part, index) => {
+const INLINE_LINK_PATTERN = /^\[([^\]]+)\]\(([^)]+)\)$/
+
+/** Inline markdown: **bold** and [label](href). Internal hrefs (starting with "/") use next/link. */
+function renderInlineText(text: string): ReactNode[] {
+  const tokens = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g)
+  return tokens.map((part, index) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return (
         <strong key={index} className="font-semibold text-[#1d1d1f]">
@@ -16,6 +21,24 @@ function renderInlineText(text: string) {
         </strong>
       )
     }
+
+    const link = part.match(INLINE_LINK_PATTERN)
+    if (link) {
+      const [, label, href] = link
+      if (href.startsWith("/")) {
+        return (
+          <Link key={index} href={href}>
+            {label}
+          </Link>
+        )
+      }
+      return (
+        <a key={index} href={href} target="_blank" rel="noopener noreferrer">
+          {label}
+        </a>
+      )
+    }
+
     return <span key={index}>{part}</span>
   })
 }

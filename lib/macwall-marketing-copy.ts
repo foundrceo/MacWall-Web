@@ -28,7 +28,7 @@ export const macwallExactCopy = {
   },
   interact: {
     kicker: "In the app",
-    title: "Live motion Mac wallpapers for Desktop & Dock",
+    title: `${macwall.name} — live motion wallpapers for your Mac Desktop & Dock`,
     moreLink: "How licensing works",
     demoVideoAria: "Background preview loop",
     dockAria: `Focus ${macwall.name}`,
@@ -166,6 +166,7 @@ export const macwallExactCopy = {
     shopTitle: "Shop",
     exploreTitle: "Explore",
     compareTitle: "Compare",
+    categoriesTitle: "Wallpapers",
     connectTitle: "Connect",
     shop: {
       buy: "Buy Pro",

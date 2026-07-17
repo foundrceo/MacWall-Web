@@ -5,25 +5,39 @@ import { LegalDocumentShell } from "@/components/legal/legal-document-shell"
 import { LegalSection, legalBulletList } from "@/components/legal/legal-section"
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
 import { macwall } from "@/lib/macwall-site"
-import { canonicalSiteOrigin, canonicalSitePath } from "@/lib/site-url"
+import {
+  canonicalSiteOrigin,
+  canonicalSitePath,
+  openGraphImageAbsoluteUrl,
+  openGraphImageSize,
+} from "@/lib/site-url"
 
-const PAGE_DESCRIPTION = `Terms covering the ${macwall.name} macOS app website, installs, downloads, billing, licensing, acceptable use, and Apple platform policies.`
+const PAGE_DESCRIPTION = `Terms covering the ${macwall.name} macOS app and website, installs, downloads, billing, licensing, acceptable use, and Apple platform policies.`
 
 export const metadata: Metadata = {
   title: "Terms of Use",
   description: PAGE_DESCRIPTION,
   alternates: { canonical: canonicalSitePath("/terms") },
   openGraph: {
-    title: `${macwall.name} – Terms of Use`,
+    title: `${macwall.name} App – Terms of Use`,
     description: PAGE_DESCRIPTION,
     url: canonicalSitePath("/terms"),
-    siteName: macwall.name,
+    siteName: `${macwall.name} App`,
     type: "website",
+    images: [
+      {
+        url: openGraphImageAbsoluteUrl(),
+        width: openGraphImageSize.width,
+        height: openGraphImageSize.height,
+        alt: `${macwall.name} App – Terms of Use`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${macwall.name} – Terms of Use`,
+    title: `${macwall.name} App – Terms of Use`,
     description: PAGE_DESCRIPTION,
+    images: [openGraphImageAbsoluteUrl()],
   },
 }
 

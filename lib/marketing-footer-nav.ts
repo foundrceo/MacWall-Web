@@ -1,5 +1,6 @@
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import { macwall, macwallProCheckoutURL } from "@/lib/macwall-site"
+import { categorySlugFromName } from "@/lib/seo/category-slugs"
 
 export type FooterLinkKind = "internal" | "external" | "pricing" | "download"
 
@@ -24,7 +25,21 @@ export const footerCompareLinks = [
     label: "Wallspace Alternative",
   },
   { href: "/alternatives/macwall-vs-backdrop", label: "Backdrop Alternative" },
+  {
+    href: "/alternatives/lively-wallpaper-mac",
+    label: "Lively Wallpaper for Mac",
+  },
 ] as const
+
+/**
+ * Wallpaper category landing pages — linked site-wide so every category is
+ * crawlable from any page (prevents orphan pages and single-inbound-link issues).
+ */
+export const footerCategoryLinks: { href: string; label: string }[] =
+  macwall.categories.flatMap((name) => {
+    const slug = categorySlugFromName(name)
+    return slug ? [{ href: `/wallpapers/${slug}`, label: name as string }] : []
+  })
 
 export function getMarketingFooterSections(
   shopPricingHref: string
@@ -71,6 +86,14 @@ export function getMarketingFooterSections(
     {
       title: foot.compareTitle,
       links: footerCompareLinks.map((link) => ({
+        label: link.label,
+        href: link.href,
+        kind: "internal" as const,
+      })),
+    },
+    {
+      title: foot.categoriesTitle,
+      links: footerCategoryLinks.map((link) => ({
         label: link.label,
         href: link.href,
         kind: "internal" as const,

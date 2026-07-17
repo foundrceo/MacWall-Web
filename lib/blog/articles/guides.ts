@@ -251,7 +251,7 @@ export const guideArticles: BlogArticle[] = [
     title: "How to Import Custom Wallpapers on Mac",
     headline: "Import Custom Wallpapers on Mac",
     description:
-      "Bring your own video loops into MacWall, personal clips, AI-generated motion, or downloads from any source.",
+      "Bring your own video loops into MacWall: personal clips, AI-generated motion, or downloads from any source, all with native hardware-decoded playback.",
     excerpt:
       "Your library, your rules: custom imports with native macOS playback.",
     category: "guides",

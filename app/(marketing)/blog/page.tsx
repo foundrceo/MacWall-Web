@@ -2,7 +2,11 @@ import "@/components/blog/blog-newsroom.css"
 import { BlogIndexPage } from "@/components/blog/blog-index-page"
 import { blogArticles } from "@/lib/blog"
 import { macwall } from "@/lib/macwall-site"
-import { canonicalSitePath } from "@/lib/site-url"
+import {
+  canonicalSitePath,
+  openGraphImageAbsoluteUrl,
+  openGraphImageSize,
+} from "@/lib/site-url"
 import type { Metadata } from "next"
 
 const PAGE_DESCRIPTION =
@@ -19,11 +23,25 @@ export const metadata: Metadata = {
     macwall.name,
   ],
   openGraph: {
-    title: `${macwall.name} – Blog`,
+    title: `${macwall.name} App – Blog`,
     description: PAGE_DESCRIPTION,
     url: canonicalSitePath("/blog"),
-    siteName: macwall.name,
+    siteName: `${macwall.name} App`,
     type: "website",
+    images: [
+      {
+        url: openGraphImageAbsoluteUrl(),
+        width: openGraphImageSize.width,
+        height: openGraphImageSize.height,
+        alt: `${macwall.name} App – Blog`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${macwall.name} App – Blog`,
+    description: PAGE_DESCRIPTION,
+    images: [openGraphImageAbsoluteUrl()],
   },
 }
 

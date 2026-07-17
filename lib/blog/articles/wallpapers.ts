@@ -48,7 +48,7 @@ export const wallpaperArticles: BlogArticle[] = [
     title: "Nature Live Wallpapers for Mac",
     headline: "Nature Live Wallpapers for Mac",
     description:
-      "Forests, oceans, mountains, and weather loops, calm nature motion wallpapers for macOS desktops.",
+      "Forests, oceans, mountains, and weather loops: calm nature live wallpapers for macOS desktops, curated in 4K and ready to play in MacWall.",
     excerpt:
       "Bring the outdoors to your Mac desktop with curated nature video loops.",
     category: "wallpapers",
@@ -77,7 +77,7 @@ export const wallpaperArticles: BlogArticle[] = [
     title: "Space & Sci-Fi Live Wallpapers for Mac",
     headline: "Space Live Wallpapers for Mac",
     description:
-      "Orbital sunrises, nebula flythroughs, and sci-fi loops for Mac desktops. MacWall Space and Sci-fi categories.",
+      "Orbital sunrises, nebula flythroughs, and sci-fi loops for Mac desktops, explore MacWall's Space and Sci-fi categories in stunning 4K motion.",
     excerpt:
       "Explore the cosmos on your Mac desktop with 4K space motion wallpapers.",
     category: "wallpapers",
@@ -106,7 +106,7 @@ export const wallpaperArticles: BlogArticle[] = [
     title: "Gaming Live Wallpapers for Mac",
     headline: "Gaming Live Wallpapers for Mac",
     description:
-      "Video game-inspired motion desktops for Mac. MacWall's Video Games category and custom gameplay imports.",
+      "Video game-inspired motion desktops for Mac: browse MacWall's Video Games category or import your own gameplay captures as live wallpapers.",
     excerpt:
       "Game-inspired loops and gameplay captures as live Mac wallpapers.",
     category: "wallpapers",
