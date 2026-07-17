@@ -1,18 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-const CATALOG_SUPABASE_DEFAULT_HOST = "YOUR_SUPABASE_PROJECT_REF.supabase.co"
-
-function catalogSupabaseHostname() {
-  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
-  if (!raw?.startsWith("https://")) return CATALOG_SUPABASE_DEFAULT_HOST
-  try {
-    return new URL(raw).hostname
-  } catch {
-    return CATALOG_SUPABASE_DEFAULT_HOST
-  }
-}
-
-const supabaseHost = catalogSupabaseHostname()
+const R2_CDN_HOST = "cdn.macwall.app"
 
 const nextConfig = {
   poweredByHeader: false,
@@ -49,13 +37,8 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: supabaseHost,
-        pathname: "/storage/v1/object/public/wallpaper-catalog/**",
-      },
-      {
-        protocol: "https",
-        hostname: supabaseHost,
-        pathname: "/storage/v1/render/image/public/wallpaper-catalog/**",
+        hostname: R2_CDN_HOST,
+        pathname: "/**",
       },
       {
         protocol: "https",

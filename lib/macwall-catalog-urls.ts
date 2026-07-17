@@ -1,19 +1,6 @@
-/** Public Storage URL helpers — aligns with MacWall macOS `CatalogEndpoints.swift`. */
+/** Public catalog media URLs — Cloudflare R2 via `cdn.macwall.app`. */
 
-import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
-
-const STORAGE_BUCKET = "wallpaper-catalog"
-
-/** Gallery poster — Supabase Image Transform (16:9, ~640px wide, tuned for marquee tiles). */
-export const MARKETING_GALLERY_POSTER_TRANSFORM = {
-  width: 640,
-  height: 360,
-  quality: 78,
-} as const
-
-export function catalogSupabaseOrigin(): string {
-  return getCatalogSupabaseOrigin()
-}
+import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 
 /** Bucket-relative path encoded per segment (`foo/bar baz` → encoded segments). */
 function encodeObjectPath(trimmedPath: string): string {
@@ -34,30 +21,21 @@ function normalizeThumbsPath(key: string): string {
   return k.startsWith("thumbs/") ? k : `thumbs/${k}`
 }
 
+function publicObjectUrlFromPath(path: string): string {
+  return `${getR2PublicBaseUrl()}/${encodeObjectPath(path)}`
+}
+
 export function catalogPublicVideoUrlFromKey(videoKey: string): string {
-  const p = normalizeVideosPath(videoKey)
-  const origin = catalogSupabaseOrigin()
-  return `${origin}/storage/v1/object/public/${STORAGE_BUCKET}/${encodeObjectPath(p)}`
+  return publicObjectUrlFromPath(normalizeVideosPath(videoKey))
 }
 
 export function catalogPublicThumbUrlFromKey(thumbKey: string): string {
-  const p = normalizeThumbsPath(thumbKey)
-  const origin = catalogSupabaseOrigin()
-  return `${origin}/storage/v1/object/public/${STORAGE_BUCKET}/${encodeObjectPath(p)}`
+  return publicObjectUrlFromPath(normalizeThumbsPath(thumbKey))
 }
 
-/** Lightweight poster for marketing gallery tiles (Supabase render API). */
+/** Marketing gallery poster — full thumb URL (Next.js `<Image>` resizes on Vercel). */
 export function catalogMarketingGalleryPosterUrlFromKey(
   thumbKey: string
 ): string {
-  const p = normalizeThumbsPath(thumbKey)
-  const origin = catalogSupabaseOrigin()
-  const { width, height, quality } = MARKETING_GALLERY_POSTER_TRANSFORM
-  const params = new URLSearchParams({
-    width: String(width),
-    height: String(height),
-    quality: String(quality),
-    resize: "cover",
-  })
-  return `${origin}/storage/v1/render/image/public/${STORAGE_BUCKET}/${encodeObjectPath(p)}?${params}`
+  return publicObjectUrlFromPath(normalizeThumbsPath(thumbKey))
 }

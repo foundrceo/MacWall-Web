@@ -1,7 +1,6 @@
-import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
+import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
+import { r2PresignGetUrl } from "@/lib/storage/r2"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
-
-const STORAGE_BUCKET = "wallpaper-catalog"
 
 export type CommunityUploadStatus = "pending" | "approved" | "rejected"
 
@@ -139,27 +138,14 @@ export async function createPendingUploadSignedUrls(
   thumbKey: string,
   expiresInSeconds = 3600
 ) {
-  const supabase = getSupabaseAdmin()
-  const origin = getCatalogSupabaseOrigin()
+  const origin = getR2PublicBaseUrl()
+  const expiresAt = new Date(Date.now() + expiresInSeconds * 1000).toISOString()
 
-  const [video, thumb] = await Promise.all([
-    supabase.storage
-      .from(STORAGE_BUCKET)
-      .createSignedUrl(videoKey, expiresInSeconds),
-    supabase.storage
-      .from(STORAGE_BUCKET)
-      .createSignedUrl(thumbKey, expiresInSeconds),
+  const [videoUrl, thumbUrl] = await Promise.all([
+    r2PresignGetUrl(videoKey, expiresInSeconds),
+    r2PresignGetUrl(thumbKey, expiresInSeconds),
   ])
-
-  if (video.error) throw new Error(video.error.message)
-  if (thumb.error) throw new Error(thumb.error.message)
-
-  return {
-    videoUrl: video.data.signedUrl,
-    thumbUrl: thumb.data.signedUrl,
-    origin,
-    expiresAt: new Date(Date.now() + expiresInSeconds * 1000).toISOString(),
-  }
+  return { videoUrl, thumbUrl, origin, expiresAt }
 }
 
 export async function revalidateMarketingCatalog() {
