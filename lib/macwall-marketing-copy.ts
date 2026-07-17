@@ -23,12 +23,12 @@ export const macwallExactCopy = {
     },
   },
   ribbon: {
-    lineBeforeLink: `New: ${macwall.name} is the first app with live Lock Screen wallpaper working on the latest macOS beta, where other apps broke. `,
+    lineBeforeLink: `New: ${macwall.name} brings live Lock Screen and Screen Saver wallpapers to macOS 26 Tahoe, working on the latest builds where other apps broke. `,
     linkText: `Get ${macwall.name}`,
   },
   interact: {
     kicker: "In the app",
-    title: `${macwall.name} — live motion wallpapers for your Mac Desktop & Dock`,
+    title: "Live 4K wallpapers for your Mac.",
     moreLink: "How licensing works",
     demoVideoAria: "Background preview loop",
     dockAria: `Focus ${macwall.name}`,
@@ -37,15 +37,15 @@ export const macwallExactCopy = {
     /** Red stoplight in the faux window chrome. */
     demoCloseWindowAria: "Close demo window",
     menubarBrand: macwall.name,
-    menubarStatus: "Works in background",
+    menubarStatus: "Runs in the menu bar",
     heroLead:
-      "Set a cinematic 4K wallpaper in one click. Curated catalog, your own clips, and a battery that barely notices. Pay once, own it forever.",
+      "Set a cinematic live wallpaper in one click, then forget it's there. Curated cloud catalog, your own clips, multi-display playback, and a battery that barely notices. Pay once, own it forever.",
     paragraph1Lead: "Try it now",
     paragraph1Rest:
-      "This demo is the real app. Click any wallpaper to set it. That's the entire learning curve. Native macOS design, smooth hardware-decoded playback.",
+      "This demo is the real app. Click any wallpaper to set it. That's the entire learning curve. Native macOS design with smooth, hardware-decoded video on every display.",
     paragraph2Lead: "Stays out of your way",
     paragraph2Rest:
-      "Pause from the menu bar, import your own clips, and let it auto-pause on battery or full screen. Joined by 1,000+ Mac users, no account needed.",
+      "Control everything from the menu bar, import your own clips, and let it auto-pause on battery, full screen, or high CPU. Joined by 1,000+ Mac users, no account needed.",
   },
   appUi: {
     viewClipCta: "Play preview",
@@ -73,9 +73,9 @@ export const macwallExactCopy = {
     newBadge: "NEW",
   },
   pricing: {
-    buyCta: "Buy Pro",
-    secondaryCta: "Get 100% free",
-    priceLine: `${macwall.pro.price} ${macwall.pro.suffix}. ${macwall.pro.headline}. Up to ${macwall.maxLicensedMacs} personal Macs.`,
+    buyCta: `Get Pro — ${macwall.pro.price}`,
+    secondaryCta: "Or earn it back free",
+    priceLine: `${macwall.pro.price} one-time (was ${macwall.pro.strikePrice}). No subscription, lifetime updates, up to ${macwall.maxLicensedMacs} Macs — and a Reel earns it all back.`,
   },
   gallery: {
     kicker: "Gallery",
@@ -84,10 +84,10 @@ export const macwallExactCopy = {
   },
   lockScreen: {
     kicker: "PRO",
-    title: "Lock Screen live wallpaper on the latest macOS",
+    title: "Live Lock Screen & Screen Saver on macOS 26 Tahoe",
     strong:
-      "Mirror high-quality motion to the Lock Screen where the OS allows it, without extra installers.",
-    rest: "Setup stays reversible: turn it off anytime from Settings, and your previous look returns.",
+      "Bring real video motion to your Lock Screen and Screen Saver on macOS 26 Tahoe and later, using Apple's own wallpaper system, with no extra installers or extensions.",
+    rest: "Setup stays reversible: turn it off anytime from Settings and your previous look returns. On earlier macOS, Pro still unlocks the full catalog and desktop motion.",
     linkText: "Lock Screen requirements",
   },
   battery: {
@@ -151,16 +151,16 @@ export const macwallExactCopy = {
         accent: "orange",
       },
       {
-        title: "Pay once for Pro.",
-        body: `${macwall.pro.headline}. ${macwall.pro.price} ${macwall.pro.suffix} unlocks the current Pro feature set. No monthly fee.`,
+        title: "Pay once. Or pay nothing.",
+        body: `${macwall.pro.price} unlocks everything for good — no monthly fee. Post a Reel and you can earn 100% of it back.`,
         accent: "teal",
       },
     ] as const,
   },
   underFooter: {
     title: "Your desktop deserves better.",
-    body: `Join 1,000+ Mac users running live wallpapers with ${macwall.name}. Pay once for Pro (${macwall.pro.price}, lifetime updates) and a single Reel can earn the whole thing back.`,
-    cta: `Get Pro for ${macwall.pro.price}`,
+    body: `Join 1,000+ Mac users running live wallpapers with ${macwall.name}. Download free, then unlock Pro once for ${macwall.pro.price} (was ${macwall.pro.strikePrice}) — lifetime updates, and a single Reel can earn the whole thing back.`,
+    cta: `Get Pro — ${macwall.pro.price}`,
   },
   footer: {
     shopTitle: "Shop",

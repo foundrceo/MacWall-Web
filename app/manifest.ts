@@ -2,7 +2,7 @@ import { macwall, macwallAppIconPath } from "@/lib/macwall-site"
 import type { MetadataRoute } from "next"
 
 const DESCRIPTION =
-  "Motion wallpapers for Mac: catalog discovery, imports, menu bar controls, and optional MacWall Pro for Lock Screen video where macOS allows."
+  "Live video wallpapers for Mac: cloud catalog, imports, multi-display playback, menu bar control, and optional MacWall Pro for Lock Screen video on macOS 26 Tahoe."
 
 export default function manifest(): MetadataRoute.Manifest {
   return {

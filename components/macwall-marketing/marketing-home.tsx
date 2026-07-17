@@ -82,11 +82,13 @@ function HeroSection({
             </Link>
           </div>
           <p className="MacWallHeroMeta">
-            One-time {macwall.pro.price}, never a subscription. Lifetime updates
-            on up to {macwall.maxLicensedMacs} Macs, and a Reel can earn it all
-            back.
+            Download free, then unlock everything for a one-time{" "}
+            {macwall.pro.price} — no subscription, lifetime updates on{" "}
+            {macwall.maxLicensedMacs} Macs, and a Reel can earn it all back.
           </p>
-          <p className="MacWallHeroFinePrint">Requires macOS 15.0 or later.</p>
+          <p className="MacWallHeroFinePrint">
+            Free to try. Requires macOS 14 Sonoma or later.
+          </p>
         </div>
       </MarketingContainer>
     </section>
