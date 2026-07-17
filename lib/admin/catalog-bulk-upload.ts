@@ -2,10 +2,12 @@ import {
   catalogMarketingGalleryPosterUrlFromKey,
   catalogPublicVideoUrlFromKey,
 } from "@/lib/macwall-catalog-urls"
+import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 import {
-  getCatalogSupabaseAnonKey,
-  getCatalogSupabaseOrigin,
-} from "@/lib/env/catalog-supabase"
+  r2DeleteObject,
+  r2HeadPublicObject,
+  r2PresignPutUrl,
+} from "@/lib/storage/r2"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { WALLPAPER_CATEGORIES } from "@/lib/wallpaper-categories"
 
@@ -78,11 +80,13 @@ type StorageObjectInfo = {
   sizeBytes: number | null
 }
 
+type StorageUploadMode = "r2"
+
 type SignedUploadTarget = {
   path: string
-  token: string | null
   signedUrl: string | null
   alreadyUploaded: boolean
+  mode: StorageUploadMode
 }
 
 type ExistingWallpaperRow = {
@@ -321,124 +325,93 @@ async function existingWallpaperRows(
   return results.flat()
 }
 
-function storageKeyParts(key: string): { folder: string; name: string } {
-  const lastSlash = key.lastIndexOf("/")
-  if (lastSlash <= 0 || lastSlash === key.length - 1) {
-    throw new Error(`Invalid Storage key: ${key}.`)
-  }
-
-  return {
-    folder: key.slice(0, lastSlash),
-    name: key.slice(lastSlash + 1),
-  }
-}
-
-const STORAGE_LIST_PAGE_SIZE = 1000
-const STORAGE_FAST_LOOKUP_THRESHOLD = 8
-
 async function storageObjectInfoSingle(
   key: string
 ): Promise<StorageObjectInfo> {
-  const origin = getCatalogSupabaseOrigin()
-  const url = `${origin}/storage/v1/object/public/${STORAGE_BUCKET}/${encodeURI(key)}`
-
-  try {
-    const response = await fetch(url, { method: "HEAD", cache: "no-store" })
-    if (!response.ok) return { exists: false, sizeBytes: null }
-
-    const size = Number(response.headers.get("content-length"))
-    return {
-      exists: true,
-      sizeBytes: Number.isFinite(size) && size > 0 ? Math.trunc(size) : null,
-    }
-  } catch {
-    return { exists: false, sizeBytes: null }
-  }
-}
-
-async function listFolderObjects(folder: string) {
-  const supabase = getSupabaseAdmin()
-  const objects: Array<{ name: string; metadata?: unknown }> = []
-  let offset = 0
-
-  while (true) {
-    const { data, error } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .list(folder, {
-        limit: STORAGE_LIST_PAGE_SIZE,
-        offset,
-      })
-
-    if (error) throw new Error(error.message)
-    const page = data ?? []
-    objects.push(...page)
-    if (page.length < STORAGE_LIST_PAGE_SIZE) break
-    offset += STORAGE_LIST_PAGE_SIZE
-  }
-
-  return objects
+  return r2HeadPublicObject(key)
 }
 
 async function storageObjectInfoMap(
   keys: string[]
 ): Promise<Map<string, StorageObjectInfo>> {
   const uniqueKeys = [...new Set(keys)]
-  if (uniqueKeys.length <= STORAGE_FAST_LOOKUP_THRESHOLD) {
-    const entries = await Promise.all(
-      uniqueKeys.map(
-        async (key) => [key, await storageObjectInfoSingle(key)] as const
-      )
-    )
-    return new Map(entries)
-  }
+  const entries = await asyncPool(
+    uniqueKeys,
+    STORAGE_CHECK_CONCURRENCY,
+    async (key) => [key, await storageObjectInfoSingle(key)] as const
+  )
+  return new Map(entries)
+}
 
-  const namesByFolder = new Map<string, Set<string>>()
-  for (const key of uniqueKeys) {
-    const { folder, name } = storageKeyParts(key)
-    const names = namesByFolder.get(folder) ?? new Set<string>()
-    names.add(name)
-    namesByFolder.set(folder, names)
-  }
+async function removeStorageObject(path: string) {
+  await r2DeleteObject(path)
+}
 
-  const infoByKey = new Map<string, StorageObjectInfo>()
-  for (const [folder, names] of namesByFolder) {
-    const objects = await listFolderObjects(folder)
-    const objectsByName = new Map(
-      objects.map((object) => [object.name, object])
-    )
-    for (const name of names) {
-      const key = `${folder}/${name}`
-      const object = objectsByName.get(name)
-      if (!object) {
-        infoByKey.set(key, { exists: false, sizeBytes: null })
-        continue
-      }
-      infoByKey.set(key, {
-        exists: true,
-        sizeBytes: storageObjectSize(object),
-      })
+async function createSignedUploadTarget(
+  path: string,
+  expectedSizeBytes: number
+): Promise<SignedUploadTarget> {
+  const existing = await storageObjectInfoSingle(path)
+  if (
+    existing.exists &&
+    existing.sizeBytes !== null &&
+    existing.sizeBytes === expectedSizeBytes
+  ) {
+    return {
+      path,
+      signedUrl: null,
+      alreadyUploaded: true,
+      mode: "r2",
     }
   }
 
-  return infoByKey
+  if (existing.exists) {
+    await removeStorageObject(path)
+  }
+
+  const signedUrl = await r2PresignPutUrl(path)
+  return {
+    path,
+    signedUrl,
+    alreadyUploaded: false,
+    mode: "r2",
+  }
 }
 
-function storageObjectSize(object: { metadata?: unknown }): number | null {
-  if (!object.metadata || typeof object.metadata !== "object") return null
-  const metadata = object.metadata as Record<string, unknown>
-  const rawSize =
-    metadata.size ?? metadata.contentLength ?? metadata.content_length
-  const size = typeof rawSize === "number" ? rawSize : Number(rawSize)
-  return Number.isSafeInteger(size) && size > 0 ? size : null
-}
+export async function createCatalogSignedUploadBatch(rawItems: unknown) {
+  const items = normalizeBatch(rawItems, normalizeSignItem, "items")
+  await assertNoExistingRows(items.map((item) => item.id))
 
-function isAlreadyExistsStorageError(error: { message?: string }) {
-  const message = error.message?.toLowerCase() ?? ""
-  return (
-    message.includes("already exists") ||
-    message.includes("duplicate") ||
-    message.includes("resource already exists")
+  const uploads = await asyncPool(
+    items,
+    SIGNED_URL_CONCURRENCY,
+    async (item) => {
+      const [video, thumb] = await Promise.all([
+        createSignedUploadTarget(item.videoKey, item.videoSizeBytes),
+        createSignedUploadTarget(item.thumbKey, item.thumbSizeBytes),
+      ])
+
+      return {
+        clientId: item.clientId,
+        id: item.id,
+        video,
+        thumb,
+        videoContentType: item.videoContentType,
+        thumbContentType: item.thumbContentType,
+        videoUrl: catalogPublicVideoUrlFromKey(item.videoKey),
+        thumbUrl: catalogMarketingGalleryPosterUrlFromKey(item.thumbKey),
+      }
+    }
   )
+
+  return {
+    bucket: STORAGE_BUCKET,
+    mode: "r2" as StorageUploadMode,
+    publicBaseUrl: getR2PublicBaseUrl(),
+    cacheControl: CACHE_CONTROL_SECONDS,
+    expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+    uploads,
+  }
 }
 
 async function assertObjectsExist(items: NormalizedCommitItem[]) {
@@ -479,103 +452,7 @@ async function assertObjectsExist(items: NormalizedCommitItem[]) {
   }
 
   if (missing.length) {
-    throw new Error(`Upload missing from Storage: ${missing.join(", ")}.`)
-  }
-}
-
-async function removeStorageObject(path: string) {
-  const supabase = getSupabaseAdmin()
-  const { error } = await supabase.storage.from(STORAGE_BUCKET).remove([path])
-  if (error) throw new Error(error.message)
-}
-
-async function createSignedUploadTarget(
-  path: string,
-  expectedSizeBytes: number
-): Promise<SignedUploadTarget> {
-  const supabase = getSupabaseAdmin()
-  const { data, error } = await supabase.storage
-    .from(STORAGE_BUCKET)
-    .createSignedUploadUrl(path, { upsert: false })
-
-  if (!error) {
-    return {
-      path: data.path,
-      token: data.token,
-      signedUrl: data.signedUrl,
-      alreadyUploaded: false,
-    }
-  }
-
-  if (!isAlreadyExistsStorageError(error)) {
-    throw new Error(error.message)
-  }
-
-  const existing = await storageObjectInfoSingle(path)
-  if (
-    existing.exists &&
-    existing.sizeBytes !== null &&
-    existing.sizeBytes === expectedSizeBytes
-  ) {
-    return {
-      path,
-      token: null,
-      signedUrl: null,
-      alreadyUploaded: true,
-    }
-  }
-
-  if (existing.exists) {
-    await removeStorageObject(path)
-  }
-
-  const { data: freshData, error: freshError } = await supabase.storage
-    .from(STORAGE_BUCKET)
-    .createSignedUploadUrl(path, { upsert: false })
-
-  if (freshError) throw new Error(freshError.message)
-
-  return {
-    path: freshData.path,
-    token: freshData.token,
-    signedUrl: freshData.signedUrl,
-    alreadyUploaded: false,
-  }
-}
-
-export async function createCatalogSignedUploadBatch(rawItems: unknown) {
-  const items = normalizeBatch(rawItems, normalizeSignItem, "items")
-  await assertNoExistingRows(items.map((item) => item.id))
-
-  const uploads = await asyncPool(
-    items,
-    SIGNED_URL_CONCURRENCY,
-    async (item) => {
-      const [video, thumb] = await Promise.all([
-        createSignedUploadTarget(item.videoKey, item.videoSizeBytes),
-        createSignedUploadTarget(item.thumbKey, item.thumbSizeBytes),
-      ])
-
-      return {
-        clientId: item.clientId,
-        id: item.id,
-        video,
-        thumb,
-        videoContentType: item.videoContentType,
-        thumbContentType: item.thumbContentType,
-        videoUrl: catalogPublicVideoUrlFromKey(item.videoKey),
-        thumbUrl: catalogMarketingGalleryPosterUrlFromKey(item.thumbKey),
-      }
-    }
-  )
-
-  return {
-    bucket: STORAGE_BUCKET,
-    origin: getCatalogSupabaseOrigin(),
-    anonKey: getCatalogSupabaseAnonKey(),
-    cacheControl: CACHE_CONTROL_SECONDS,
-    expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-    uploads,
+    throw new Error(`Upload missing from R2: ${missing.join(", ")}.`)
   }
 }
 

@@ -1,6 +1,5 @@
 "use client"
 
-import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   AlertCircleIcon,
@@ -98,10 +97,12 @@ type CatalogDraft = {
   error: string | null
 }
 
+type StorageUploadMode = "r2"
+
 type SignedUploadResponse = {
   bucket: string
-  origin: string
-  anonKey: string
+  mode: StorageUploadMode
+  publicBaseUrl: string
   cacheControl: string
   uploads: Array<{
     clientId: string
@@ -116,9 +117,9 @@ type SignedUploadResponse = {
 
 type SignedUploadTarget = {
   path: string
-  token: string | null
   signedUrl: string | null
   alreadyUploaded: boolean
+  mode: StorageUploadMode
 }
 
 type CommitResponse = {
@@ -719,8 +720,6 @@ export function CatalogBulkUploadPanel({
     setError(null)
     setNotice(null)
 
-    let supabase: SupabaseClient | null = null
-
     let publishedCount = 0
     let failedCount = 0
     const failures: string[] = []
@@ -763,23 +762,14 @@ export function CatalogBulkUploadPanel({
               throw new Error("Could not prepare upload tokens.")
             }
 
-            if (!supabase) {
-              supabase = createClient(signed.origin, signed.anonKey, {
-                auth: { persistSession: false, autoRefreshToken: false },
-              })
-            }
-
             updateDraft(liveDraft.localId, (current) => ({
               ...current,
               progress: 15,
             }))
 
             await uploadStorageTarget({
-              supabase,
-              bucket: signed.bucket,
               target: upload.video,
               fileBody: liveDraft.file,
-              cacheControl: signed.cacheControl,
               contentType: liveDraft.videoContentType,
             })
 
@@ -789,11 +779,8 @@ export function CatalogBulkUploadPanel({
             }))
 
             await uploadStorageTarget({
-              supabase,
-              bucket: signed.bucket,
               target: upload.thumb,
               fileBody: liveDraft.thumbBlob!,
-              cacheControl: signed.cacheControl,
               contentType: "image/jpeg",
             })
 
@@ -874,7 +861,7 @@ export function CatalogBulkUploadPanel({
     <AdminSurface>
       <AdminSurfaceHeader
         title="Bulk catalog upload"
-        description="Stage up to 300 videos, let AI analyze thumbnails for metadata, then publish one-by-one directly to Supabase Storage."
+        description="Stage up to 300 videos, let AI analyze thumbnails for metadata, then publish one-by-one directly to Cloudflare R2."
         action={
           <div className="flex flex-wrap gap-2">
             <AdminButton
@@ -1818,54 +1805,51 @@ function isAbortError(error: unknown) {
 }
 
 async function uploadStorageTarget({
-  supabase,
-  bucket,
   target,
   fileBody,
-  cacheControl,
   contentType,
 }: {
-  supabase: SupabaseClient
-  bucket: string
   target: SignedUploadTarget
   fileBody: File | Blob
-  cacheControl: string
   contentType: string
 }) {
   if (target.alreadyUploaded) return
-  if (!target.token) {
-    throw new Error(`Missing signed upload token for ${target.path}.`)
+  await uploadR2Target({ target, fileBody, contentType })
+}
+
+async function uploadR2Target({
+  target,
+  fileBody,
+  contentType,
+}: {
+  target: SignedUploadTarget
+  fileBody: File | Blob
+  contentType: string
+}) {
+  if (!target.signedUrl) {
+    throw new Error(`Missing presigned upload URL for ${target.path}.`)
   }
 
   let lastError: unknown = null
   for (let attempt = 1; attempt <= UPLOAD_RETRY_ATTEMPTS; attempt += 1) {
-    const { error } = await supabase.storage
-      .from(bucket)
-      .uploadToSignedUrl(target.path, target.token, fileBody, {
-        cacheControl,
-        contentType,
-        upsert: true,
+    try {
+      const response = await fetch(target.signedUrl, {
+        method: "PUT",
+        headers: { "Content-Type": contentType },
+        body: fileBody,
       })
+      if (response.ok) return
+      lastError = new Error(`HTTP ${response.status}`)
+    } catch (err) {
+      lastError = err
+    }
 
-    if (!error) return
-    if (isDuplicateStorageError(error)) return
-
-    lastError = error
     if (attempt < UPLOAD_RETRY_ATTEMPTS) {
       await sleep(UPLOAD_RETRY_BASE_DELAY_MS * 2 ** (attempt - 1))
     }
   }
 
   throw new Error(`${target.path}: ${storageErrorMessage(lastError)}`)
-}
-
-function isDuplicateStorageError(error: unknown) {
-  const message = storageErrorMessage(error).toLowerCase()
-  return (
-    message.includes("duplicate") ||
-    message.includes("already exists") ||
-    message.includes("resource already exists")
-  )
 }
 
 function storageErrorMessage(error: unknown) {
