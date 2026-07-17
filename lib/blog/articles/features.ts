@@ -83,7 +83,7 @@ export const featureArticles: BlogArticle[] = [
     title: "Lock Screen Live Wallpaper on macOS (MacWall Pro)",
     headline: "Lock Screen Live Wallpaper on macOS",
     description:
-      "How MacWall Pro brings video motion to your Mac Lock Screen on supported Sonoma and Sequoia builds.",
+      "MacWall Pro brings live video motion to your Mac Lock Screen on supported macOS Sonoma and Sequoia builds, with a one-time price and lifetime updates.",
     excerpt:
       "Motion on your Lock Screen, the Pro feature that makes MacWall stand out.",
     category: "features",
@@ -135,7 +135,7 @@ export const featureArticles: BlogArticle[] = [
     title: "Do Live Wallpapers Drain Mac Battery? (Honest Answer)",
     headline: "Live Wallpaper Battery Drain on Mac",
     description:
-      "How MacWall minimizes battery impact with pause-on-battery, hardware decode, and full-screen detection.",
+      "How MacWall keeps live wallpaper battery impact low on MacBooks: automatic pause on battery, GPU hardware decode, and full-screen detection.",
     excerpt:
       "The truth about live wallpapers and MacBook battery life, and how MacWall fixes it.",
     category: "features",
@@ -181,7 +181,7 @@ export const featureArticles: BlogArticle[] = [
     title: "4K Video Wallpapers on Mac: Performance Guide",
     headline: "4K Video Wallpapers on Mac",
     description:
-      "Run stunning 3840×2160 and 5K motion wallpapers on Mac without stutter. MacWall's decode pipeline explained.",
+      "Run stunning 3840×2160 and 5K motion wallpapers on your Mac without stutter, thanks to MacWall's GPU decode pipeline built for Retina displays.",
     excerpt: "4K loops on Retina displays with native hardware acceleration.",
     category: "features",
     readMinutes: 4,
@@ -225,7 +225,7 @@ export const featureArticles: BlogArticle[] = [
     title: "Multi-Monitor Live Wallpapers on Mac",
     headline: "Multi-Monitor Live Wallpapers on Mac",
     description:
-      "Set different motion wallpapers per display with MacWall, dual monitors, ultrawide + laptop, and desk setups.",
+      "Set a different live wallpaper on every display with MacWall, from dual monitors to ultrawide-plus-laptop desk setups, with one decoder per screen.",
     excerpt:
       "Independent wallpapers on every display. One app, full desk coverage.",
     category: "features",
@@ -270,7 +270,7 @@ export const featureArticles: BlogArticle[] = [
     title: "Apple Silicon & Live Wallpapers: Why Native Apps Win",
     headline: "Apple Silicon Live Wallpaper Performance",
     description:
-      "M1, M2, M3, and M4 Macs decode video wallpapers efficiently. MacWall's Metal pipeline vs cross-platform overhead.",
+      "M1, M2, M3, and M4 Macs decode video wallpapers efficiently. See how MacWall's native Metal pipeline beats cross-platform overhead on Apple Silicon.",
     excerpt:
       "Why Apple Silicon Macs are the best machines for live wallpapers, with the right app.",
     category: "features",
@@ -315,7 +315,7 @@ export const featureArticles: BlogArticle[] = [
     title: "Menu Bar Wallpaper Controls on Mac (MacWall)",
     headline: "Menu Bar Wallpaper Controls on Mac",
     description:
-      "Pause, resume, and switch live wallpapers from the Mac menu bar, no floating windows required.",
+      "Pause, resume, and switch live wallpapers right from the Mac menu bar with MacWall, no floating windows and no clutter on your desktop.",
     excerpt:
       "Control your desktop motion like a real Mac utility, from the menu bar.",
     category: "features",

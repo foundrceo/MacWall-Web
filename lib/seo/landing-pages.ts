@@ -239,7 +239,7 @@ export const wallpaperEngineAlternativePage: SeoContentPage = {
   title: "Wallpaper Engine Alternative for Mac | MacWall",
   headline: "Wallpaper Engine Alternative for Mac",
   description:
-    "The best native Mac alternative to Wallpaper Engine. Video wallpapers, hardware decode, and no Steam required.",
+    "The best native Mac alternative to Wallpaper Engine: smooth video wallpapers, GPU hardware decode, a community catalog, and no Steam or Windows required.",
   keywords: [
     "wallpaper engine mac alternative",
     "wallpaper engine macos",
@@ -497,7 +497,7 @@ export function wallpaperCategoryPage(categoryName: string): SeoContentPage {
     pathname: `/wallpapers/${pathSlug}`,
     title: `${categoryName} Live Wallpapers for Mac | MacWall`,
     headline: `${categoryName} Live Wallpapers for Mac`,
-    description: `Browse ${categoryName.toLowerCase()} motion wallpapers for macOS. Curated ${categoryName.toLowerCase()} video loops in MacWall. 4K, hardware decode, one-time purchase.`,
+    description: `Browse ${categoryName.toLowerCase()} live wallpapers for Mac: curated ${categoryName.toLowerCase()} motion video loops in MacWall, 4K with GPU hardware decode and a one-time purchase, no subscription.`,
     keywords: [
       `${categoryName.toLowerCase()} wallpaper mac`,
       `${categoryName.toLowerCase()} live wallpaper macos`,
@@ -518,6 +518,14 @@ export function wallpaperCategoryPage(categoryName: string): SeoContentPage {
       },
       {
         type: "h2",
+        text: `${categoryName} on every display, battery-friendly`,
+      },
+      {
+        type: "p",
+        text: `Run ${categoryName.toLowerCase()} loops in crisp 4K with hardware-accelerated decode on Apple Silicon and Intel Macs. MacWall pauses automatically on battery and when an app goes full screen, so your ${categoryName.toLowerCase()} desktop looks cinematic without draining your MacBook. Set a different ${categoryName.toLowerCase()} wallpaper on each monitor, and unlock Lock Screen motion with MacWall Pro where macOS allows.`,
+      },
+      {
+        type: "h2",
         text: "Get started",
       },
       {
@@ -527,6 +535,10 @@ export function wallpaperCategoryPage(categoryName: string): SeoContentPage {
           `Open Explore and filter by ${categoryName}.`,
           "Preview, set as wallpaper, control from the menu bar.",
         ],
+      },
+      {
+        type: "p",
+        text: `Want the full picture first? See the [best live wallpaper app for Mac](/best-live-wallpaper-mac) and our [live wallpaper for Mac](/live-wallpaper-mac) guide, or read the [MacWall blog](/blog) for ${categoryName.toLowerCase()} tips and macOS how-tos.`,
       },
     ],
     faq: [

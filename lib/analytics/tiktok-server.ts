@@ -13,8 +13,9 @@ import {
   type TikTokTrackEvent,
 } from "@/lib/analytics/tiktok-shared"
 
+/** Modern TikTok Events API 2.0 endpoint (replaces the legacy `pixel/track/`). */
 const TIKTOK_EVENTS_API_URL =
-  "https://business-api.tiktok.com/open_api/v1.3/pixel/track/"
+  "https://business-api.tiktok.com/open_api/v1.3/event/track/"
 
 export type TikTokServerEventInput = {
   event: TikTokTrackEvent
@@ -47,36 +48,37 @@ export async function sendTikTokServerEvent(
     return { ok: true, skipped: true }
   }
 
+  // Events 2.0 nests all matching signals (PII, click id, cookie, ip/ua) under `user`.
   const user: Record<string, string> = {}
   if (input.email) user.email = hashTikTokEmail(input.email)
   if (input.phone) user.phone_number = hashTikTokPhone(input.phone)
   if (input.sessionId) user.external_id = hashTikTokExternalId(input.sessionId)
   if (input.ttp) user.ttp = input.ttp
-
-  const ad: Record<string, string> = {}
-  if (input.ttclid) ad.callback = input.ttclid
+  if (input.ttclid) user.ttclid = input.ttclid
+  if (input.ip) user.ip = input.ip
+  if (input.userAgent) user.user_agent = input.userAgent
 
   const properties = {
     ...macwallProProperties(),
     ...(input.searchString ? { query: input.searchString.slice(0, 256) } : {}),
   }
 
-  const body: Record<string, unknown> = {
-    pixel_code: pixelCode,
+  const eventData: Record<string, unknown> = {
     event: input.event,
+    event_time: Math.floor(Date.now() / 1000),
     event_id: input.eventId,
-    timestamp: new Date().toISOString(),
-    context: {
-      ip: input.ip ?? undefined,
-      user_agent: input.userAgent ?? undefined,
-      page: {
-        url: input.url,
-        referrer: input.referrer ?? undefined,
-      },
-      user: Object.keys(user).length > 0 ? user : undefined,
-      ad: Object.keys(ad).length > 0 ? ad : undefined,
-    },
+    user: Object.keys(user).length > 0 ? user : undefined,
     properties,
+    page: {
+      url: input.url,
+      referrer: input.referrer ?? undefined,
+    },
+  }
+
+  const body: Record<string, unknown> = {
+    event_source: "web",
+    event_source_id: pixelCode,
+    data: [eventData],
   }
 
   const testEventCode = resolveTikTokTestEventCode()

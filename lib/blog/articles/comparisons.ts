@@ -138,7 +138,7 @@ export const comparisonArticles: BlogArticle[] = [
     title: "MacWall vs Backdrop: Which Mac Wallpaper App Wins?",
     headline: "MacWall vs Backdrop",
     description:
-      "Compare MacWall and Backdrop on price, Lock Screen, catalog, CPU usage, and native macOS integration.",
+      "Compare MacWall and Backdrop on price, Lock Screen support, catalog, CPU usage, and native macOS integration to pick the right Mac wallpaper app.",
     excerpt:
       "Two native champions, here's how MacWall and Backdrop stack up in 2026.",
     category: "comparisons",
@@ -238,7 +238,7 @@ export const comparisonArticles: BlogArticle[] = [
     title: "MacWall vs Wallper: Which App Wins in 2026?",
     headline: "MacWall vs Wallper: The 2026 Comparison",
     description:
-      "MacWall vs Wallper on price, catalog, CPU use, and macOS 27 Lock Screen support. See why MacWall wins for most Macs.",
+      "MacWall vs Wallper compared on price, catalog, CPU use, and macOS 27 Lock Screen support, and why MacWall wins for most Mac users in 2026.",
     excerpt:
       "Lower one-time price, bigger community catalog, and working macOS 27 Lock Screen. MacWall vs Wallper, point by point.",
     category: "comparisons",
@@ -309,7 +309,7 @@ export const comparisonArticles: BlogArticle[] = [
     title: "MacWall vs Wallspace (2026): Full Comparison for Mac",
     headline: "MacWall vs Wallspace: Which Should You Install?",
     description:
-      "MacWall vs Wallspace compared, catalog depth, Lock Screen support, CPU usage, pricing, and macOS 27 beta compatibility.",
+      "MacWall vs Wallspace compared on catalog depth, Lock Screen support, CPU usage, pricing, and macOS 27 beta compatibility, see which to install.",
     excerpt:
       "Wallspace is minimal. MacWall is minimal AND deep, catalog, imports, Lock Screen on macOS 26/27. Full comparison.",
     category: "comparisons",

@@ -34,7 +34,16 @@ const geistMono = Geist_Mono({
 })
 
 const SITE_DESCRIPTION_FALLBACK =
-  "Bring motion wallpapers to your Mac Desktop: curated daily catalog lanes, search & filters for new backgrounds, your own clips, intelligent pause on battery/full screen, optional MacWall Pro for Lock Screen live wallpaper where Sonoma, Ventura, Sequoia, and newer builds allow."
+  "MacWall is the native macOS app for live motion wallpapers on your Mac Desktop: a curated daily catalog, search & filters, your own clips, intelligent pause on battery/full screen, and optional MacWall Pro for Lock Screen live wallpaper where Sonoma, Ventura, Sequoia, and newer builds allow."
+
+/** Exact, brand-disambiguated site title. "App" separates the MacWall app from the unrelated MACWALL retaining-wall brand. */
+const SITE_TITLE_DEFAULT = "MacWall App — 4K Live Wallpapers for Mac" as const
+
+/** Google Search Console / Bing verification tokens (set in env to claim the entity). */
+const googleSiteVerification =
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim() || undefined
+const bingSiteVerification =
+  process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.trim() || undefined
 
 const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim()
 const gaId =
@@ -57,12 +66,17 @@ const tiktokPixelId = resolveTikTokPixelId()
 
 export const metadata: Metadata = {
   title: {
-    default: `${macwall.name} – ${macwall.tagline}`,
-    template: `${macwall.name} – %s`,
+    default: SITE_TITLE_DEFAULT,
+    template: `%s — ${macwall.name} App`,
   },
   description: SITE_DESCRIPTION_FALLBACK,
+  applicationName: `${macwall.name} App`,
   metadataBase: metadataBaseUrl(),
   keywords: [
+    "MacWall app",
+    "MacWall app download",
+    "MacWall Mac app",
+    "MacWall live wallpaper",
     "Mac wallpaper app",
     "live wallpapers for Mac",
     "live wallpaper for mac",
@@ -107,8 +121,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: macwall.name,
-    title: `${macwall.name} – ${macwall.tagline}`,
+    siteName: `${macwall.name} App`,
+    title: SITE_TITLE_DEFAULT,
     description: SITE_DESCRIPTION_FALLBACK,
     url: "/",
     images: [
@@ -116,16 +130,26 @@ export const metadata: Metadata = {
         url: openGraphImageAbsoluteUrl(),
         width: openGraphImageSize.width,
         height: openGraphImageSize.height,
-        alt: `${macwall.name} – ${macwall.tagline}`,
+        alt: SITE_TITLE_DEFAULT,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${macwall.name} – ${macwall.tagline}`,
+    title: SITE_TITLE_DEFAULT,
     description: SITE_DESCRIPTION_FALLBACK,
     images: [openGraphImageAbsoluteUrl()],
   },
+  ...(googleSiteVerification || bingSiteVerification
+    ? {
+        verification: {
+          ...(googleSiteVerification ? { google: googleSiteVerification } : {}),
+          ...(bingSiteVerification
+            ? { other: { "msvalidate.01": bingSiteVerification } }
+            : {}),
+        },
+      }
+    : {}),
   robots: {
     index: true,
     follow: true,

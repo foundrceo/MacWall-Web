@@ -7,7 +7,7 @@ export const macosArticles: BlogArticle[] = [
     title: "Live Wallpapers on macOS Sonoma",
     headline: "Live Wallpapers on macOS Sonoma",
     description:
-      "Everything Sonoma users need to know about animated desktop and Lock Screen wallpapers with MacWall.",
+      "Everything macOS Sonoma users need to know about animated desktop and Lock Screen wallpapers with MacWall: native 4K motion with smart battery pause.",
     excerpt:
       "Sonoma-compatible live wallpapers for desktop, plus Lock Screen on supported macOS versions.",
     category: "macos",
@@ -59,7 +59,7 @@ export const macosArticles: BlogArticle[] = [
     title: "Live & Dynamic Wallpapers on macOS Sequoia",
     headline: "Live Wallpapers on macOS Sequoia",
     description:
-      "Sequoia users: combine Apple's dynamic wallpapers with MacWall's video loops and Lock Screen motion.",
+      "macOS Sequoia users: pair Apple's dynamic wallpapers with MacWall's native 4K video loops and Pro Lock Screen motion, one-time price, no subscription.",
     excerpt:
       "Sequoia-ready motion wallpapers with native performance and Pro Lock Screen support.",
     category: "macos",
@@ -105,7 +105,7 @@ export const macosArticles: BlogArticle[] = [
     title: "Live Wallpapers for MacBook Pro (M-Series)",
     headline: "Live Wallpapers for MacBook Pro",
     description:
-      "MacBook Pro setup guide for 4K motion wallpapers, external displays, battery tips, and MacWall configuration.",
+      "A MacBook Pro setup guide for 4K motion wallpapers: external displays, battery tips, per-monitor loops, and the best MacWall configuration for M-series.",
     excerpt:
       "Maximize your MacBook Pro desktop with hardware-accelerated live wallpapers.",
     category: "macos",
@@ -143,7 +143,7 @@ export const macosArticles: BlogArticle[] = [
     title: "Live Wallpapers for MacBook Air",
     headline: "Live Wallpapers for MacBook Air",
     description:
-      "Light, efficient motion wallpapers on MacBook Air, battery-smart defaults and 1440p–4K guidance.",
+      "Light, efficient live motion wallpapers for MacBook Air: battery-smart defaults, 1440p to 4K guidance, and quiet hardware-decoded playback on M-series.",
     excerpt:
       "Beautiful desktops on MacBook Air without compromising portability.",
     category: "macos",
@@ -181,7 +181,7 @@ export const macosArticles: BlogArticle[] = [
     title: "macOS 27 Beta Broke Live Wallpapers? The Fix",
     headline: "macOS 27 Beta Broke Live Wallpapers: The Fix",
     description:
-      "The macOS 27 beta broke Lock Screen video in most wallpaper apps. MacWall already works natively. Here's the fix.",
+      "The macOS 27 beta broke Lock Screen video in most wallpaper apps. MacWall already works natively, here's the fix and how to set it up in minutes.",
     excerpt:
       "The macOS 27 beta broke Lock Screen video in most live wallpaper apps. MacWall already works.",
     category: "macos",
@@ -254,7 +254,7 @@ export const macosArticles: BlogArticle[] = [
     title: "macOS 27 Lock Screen Live Wallpaper Guide",
     headline: "Lock Screen Live Wallpaper on macOS 27",
     description:
-      "Set live video on your macOS 27 Lock Screen and Screen Saver with MacWall, the first app with native macOS 27 support.",
+      "Set live video on your macOS 27 Lock Screen and Screen Saver with MacWall, the first app with native macOS 27 support, in a few simple steps.",
     excerpt:
       "Step-by-step: native video Lock Screen and Screen Saver on the newest macOS, with the only app that supports it.",
     category: "macos",

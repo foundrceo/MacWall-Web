@@ -423,7 +423,7 @@ function BatterySection() {
             width={1722}
             height={956}
             className="h-auto w-full"
-            src="/Settings.png"
+            src="/Settings.jpg"
             sizes="(max-width: 1068px) 100vw, 980px"
           />
         </MarketingCard>

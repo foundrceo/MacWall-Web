@@ -14,12 +14,13 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-/** ≤125 chars so social cards never truncate (paired with curated title). */
+/** ≤158 chars; leads with the app entity to disambiguate from the unrelated "MACWALL" retaining-wall product. */
 const PAGE_DESCRIPTION =
-  "Cinematic 4K live wallpapers for Mac with near-zero battery impact. Lock Screen motion with Pro. One-time $7.99, no subs."
+  "MacWall is the macOS app for cinematic 4K live wallpapers on your desktop, with near-zero battery impact and Lock Screen in Pro. One-time $7.99, no subs."
 
+/** Exact homepage <title>. "App" is the key signal that separates the MacWall app from the MACWALL retaining-wall brand. */
 const HOME_DOCUMENT_TITLE_ABSOLUTE =
-  `${macwall.name} – ${macwall.tagline}` as const
+  "MacWall App — 4K Live Wallpapers for Mac" as const
 
 export const metadata: Metadata = {
   title: { absolute: HOME_DOCUMENT_TITLE_ABSOLUTE },
