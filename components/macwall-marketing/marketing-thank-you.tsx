@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { Suspense } from "react"
+import { Suspense, useMemo } from "react"
+import { useSearchParams } from "next/navigation"
 import { Mail } from "lucide-react"
 
 import { PurchaseConversionTracker } from "@/components/analytics/purchase-conversion-tracker"
@@ -16,6 +17,67 @@ import {
 } from "@/components/macwall-marketing/marketing-primitives"
 import { macwallThankYouCopy as copy } from "@/lib/macwall-thank-you-copy"
 import { macwall, mailtoSupport } from "@/lib/macwall-site"
+
+function ThankYouActions() {
+  const searchParams = useSearchParams()
+  const licenseKey = useMemo(() => {
+    const raw = searchParams.get("key") ?? searchParams.get("license")
+    const trimmed = raw?.trim()
+    return trimmed && trimmed.length > 0 ? trimmed : null
+  }, [searchParams])
+
+  const openAppHref = licenseKey
+    ? copy.openAppWithKeyHref(licenseKey)
+    : copy.openAppHref
+
+  return (
+    <section className="mx-auto mt-10 max-w-[520px] pb-16 text-center md:pb-20">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
+        <Link
+          href={openAppHref}
+          className="inline-flex h-12 items-center justify-center rounded-full bg-[#0071e3] px-8 text-[15px] font-semibold text-white transition hover:bg-[#0077ed]"
+        >
+          {copy.openAppCta}
+        </Link>
+        <TrackedDownloadButton
+          href={copy.downloadHref}
+          size="lg"
+          location="thank_you"
+          className="border border-[#d2d2d7] bg-white text-[#1d1d1f] hover:bg-[#f5f5f7] hover:text-[#1d1d1f]"
+        >
+          {copy.downloadCta}
+        </TrackedDownloadButton>
+      </div>
+
+      {licenseKey ? (
+        <p className="mx-auto mt-5 max-w-[440px] text-[14px] leading-[1.5] text-[#86868b]">
+          Your license is ready — tap{" "}
+          <strong className="font-semibold text-[#1d1d1f]">Open MacWall</strong>{" "}
+          to activate Pro instantly.
+        </p>
+      ) : null}
+
+      <div className="mt-4 space-y-3">
+        <p className="text-[14px] leading-[1.5] text-[#86868b]">
+          {copy.supportLabel}{" "}
+          <Link
+            href={mailtoSupport}
+            className="MacWallMarketingInlineLink whitespace-nowrap"
+          >
+            {macwall.supportEmail}
+          </Link>
+        </p>
+        <p className="mx-auto max-w-[400px] text-[14px] leading-[1.5] text-[#86868b]">
+          {copy.supportHint}
+        </p>
+        <p className="inline-flex items-center justify-center gap-1.5 pt-1 text-[13px] leading-[1.4] text-[#86868b]">
+          <Mail className="size-3.5 shrink-0" aria-hidden />
+          <span>License email usually arrives within a few minutes</span>
+        </p>
+      </div>
+    </section>
+  )
+}
 
 export default function MacWallMarketingThankYouPage() {
   return (
@@ -71,34 +133,9 @@ export default function MacWallMarketingThankYouPage() {
             </ol>
           </section>
 
-          <section className="mx-auto mt-10 max-w-[520px] pb-16 text-center md:pb-20">
-            <TrackedDownloadButton
-              href={copy.downloadHref}
-              size="lg"
-              location="thank_you"
-            >
-              {copy.downloadCta}
-            </TrackedDownloadButton>
-
-            <div className="mt-4 space-y-3">
-              <p className="text-[14px] leading-[1.5] text-[#86868b]">
-                {copy.supportLabel}{" "}
-                <Link
-                  href={mailtoSupport}
-                  className="MacWallMarketingInlineLink whitespace-nowrap"
-                >
-                  {macwall.supportEmail}
-                </Link>
-              </p>
-              <p className="mx-auto max-w-[400px] text-[14px] leading-[1.5] text-[#86868b]">
-                {copy.supportHint}
-              </p>
-              <p className="inline-flex items-center justify-center gap-1.5 pt-1 text-[13px] leading-[1.4] text-[#86868b]">
-                <Mail className="size-3.5 shrink-0" aria-hidden />
-                <span>License email usually arrives within a few minutes</span>
-              </p>
-            </div>
-          </section>
+          <Suspense fallback={null}>
+            <ThankYouActions />
+          </Suspense>
         </MarketingContainer>
       </main>
       <MacWallMarketingPageEnd showBottomCta={false} />
