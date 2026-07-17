@@ -1835,7 +1835,10 @@ async function uploadR2Target({
     try {
       const response = await fetch(target.signedUrl, {
         method: "PUT",
-        headers: { "Content-Type": contentType },
+        headers: {
+          "Content-Type": contentType,
+          "Cache-Control": "public, max-age=31536000, immutable",
+        },
         body: fileBody,
       })
       if (response.ok) return
