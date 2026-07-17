@@ -1,4 +1,5 @@
 import { PageViewTracker } from "@/components/analytics/page-view-tracker"
+import { IntercomMessenger } from "@/components/integrations/intercom"
 import {
   resolveTikTokPixelId,
   TikTokPixel,
@@ -199,6 +200,7 @@ export default function RootLayout({
         >
           {children}
           <PageViewTracker />
+          <IntercomMessenger />
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />
