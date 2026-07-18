@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 import { getCachedIndiaQuote } from "@/lib/pricing/get-cached-india-quote"
 
-export const runtime = "nodejs"
+export const runtime = "edge"
 
 const CACHE_SECONDS = 300
 

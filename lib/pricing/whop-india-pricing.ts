@@ -62,7 +62,7 @@ export function parseWhopInrInitialPrice(html: string): number | null {
     }
   }
 
-  const rupeeDisplay = html.match(/₹(\d[\d,]*)/)
+  const rupeeDisplay = html.match(/₹([\d,]+(?:\.\d+)?)/)
   if (rupeeDisplay) {
     const value = Number.parseFloat(rupeeDisplay[1].replace(/,/g, ""))
     if (Number.isFinite(value) && value > 0) return value
@@ -71,7 +71,10 @@ export function parseWhopInrInitialPrice(html: string): number | null {
   return null
 }
 
-function buildQuoteFromAmount(planId: string, fullAmount: number): WhopIndiaQuote {
+function buildQuoteFromAmount(
+  planId: string,
+  fullAmount: number
+): WhopIndiaQuote {
   const saleAmount = fullAmount * (1 - indiaPromo.discountPercent / 100)
 
   return {

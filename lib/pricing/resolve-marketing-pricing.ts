@@ -1,6 +1,11 @@
 import { connection } from "next/server"
 import { cookies, headers } from "next/headers"
 
+import { COUNTRY_COOKIE } from "@/lib/geo/country"
+import {
+  isIndiaCountry,
+  resolveVisitorCountry,
+} from "@/lib/geo/resolve-visitor-country"
 import { getCachedIndiaQuote } from "@/lib/pricing/get-cached-india-quote"
 import {
   buildDefaultMarketingPricing,
@@ -8,11 +13,6 @@ import {
   buildIndiaMarketingPricingFallback,
   type MarketingPricing,
 } from "@/lib/pricing/marketing-pricing"
-import { COUNTRY_COOKIE } from "@/lib/geo/country"
-import {
-  isIndiaCountry,
-  resolveVisitorCountry,
-} from "@/lib/geo/resolve-visitor-country"
 
 export async function resolveMarketingPricing(): Promise<MarketingPricing> {
   // Geo-aware pricing must render per request — never at build time.
