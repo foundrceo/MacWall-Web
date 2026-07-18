@@ -1,17 +1,11 @@
-"use client"
-
-import Image from "next/image"
 import type {
   ButtonHTMLAttributes,
   InputHTMLAttributes,
   ReactNode,
 } from "react"
 
-import {
-  macwall,
-  macwallAppIconPath,
-  macwallAppIconRadiusClass,
-} from "@/lib/macwall-site"
+import { MacWallAppIcon } from "@/components/macwall-app-icon"
+import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 const iconSizes = {
@@ -26,16 +20,9 @@ export function AdminAppIcon({
 }: Readonly<{ size?: keyof typeof iconSizes; className?: string }>) {
   const px = iconSizes[size]
   return (
-    <Image
-      alt={`${macwall.name} app icon`}
-      src={macwallAppIconPath}
-      width={px}
-      height={px}
-      className={cn(
-        macwallAppIconRadiusClass,
-        "shrink-0 object-cover",
-        className
-      )}
+    <MacWallAppIcon
+      size={px}
+      className={className}
       priority={size === "lg"}
     />
   )

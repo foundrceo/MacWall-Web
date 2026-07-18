@@ -8,7 +8,7 @@ export default function MacWallMarketingPageEnd({
   return (
     <>
       {showBottomCta ? <MacWallMarketingBottomCta /> : null}
-      <MacWallMarketingFooter variant="light" shopPricingHref="/pricing" />
+      <MacWallMarketingFooter />
     </>
   )
 }

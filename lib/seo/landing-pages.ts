@@ -1,4 +1,8 @@
-import { macwall } from "@/lib/macwall-site"
+import {
+  macwall,
+  macwallMinimumMacOSVersion,
+  macwallMinimumMacOSRequirementOrLater,
+} from "@/lib/macwall-site"
 import type { SeoContentPage } from "@/lib/content/types"
 
 export const downloadPage: SeoContentPage = {
@@ -42,9 +46,8 @@ export const downloadPage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "macOS 14 Sonoma or later (Sequoia, Tahoe)",
+        macwallMinimumMacOSRequirementOrLater,
         "Apple Silicon or Intel Mac",
-        "Live Lock Screen and Screen Saver need macOS 26 Tahoe",
         "Network for catalog sync (offline playback after download)",
       ],
     },
@@ -112,7 +115,7 @@ export const liveWallpaperMacPage: SeoContentPage = {
         "**Community catalog**: Nature, Space, Anime, and six more categories",
         "**Your clips**: import any compatible MP4 or MOV",
         "**Menu bar first**: pause, switch, and control without a window",
-        "**Lock Screen Pro**: live Lock Screen and Screen Saver on macOS 26 Tahoe",
+        `**Lock Screen Pro**: live Lock Screen and Screen Saver on ${macwallMinimumMacOSVersion}`,
       ],
     },
     {
@@ -152,7 +155,7 @@ export const lockScreenWallpaperPage: SeoContentPage = {
   title: "Lock Screen Live Wallpaper for Mac | MacWall Pro",
   headline: "Lock Screen Live Wallpaper for Mac",
   description:
-    "MacWall Pro brings live video to your Mac Lock Screen and Screen Saver on macOS 26 Tahoe, using Apple's own wallpaper system. One-time purchase, lifetime updates.",
+    `MacWall Pro brings live video to your Mac Lock Screen and Screen Saver on ${macwallMinimumMacOSVersion}, using Apple's own wallpaper system. One-time purchase, lifetime updates.`,
   keywords: [
     "lock screen live wallpaper mac",
     "animated lock screen macos",
@@ -163,7 +166,7 @@ export const lockScreenWallpaperPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "Desktop motion is just the beginning. On **macOS 26 Tahoe**, **MacWall Pro** extends live video wallpapers to your **Lock Screen and Screen Saver**, the screen you see dozens of times a day before you even log in. It plugs into Apple's native wallpaper system, so there are no extra installers or extensions.",
+      text: `Desktop motion is just the beginning. On **${macwallMinimumMacOSVersion}**, **MacWall Pro** extends live video wallpapers to your **Lock Screen and Screen Saver**, the screen you see dozens of times a day before you even log in. It plugs into Apple's native wallpaper system, so there are no extra installers or extensions.`,
     },
     {
       type: "h2",
@@ -186,7 +189,7 @@ export const lockScreenWallpaperPage: SeoContentPage = {
     {
       question: "Which macOS versions support Lock Screen video?",
       answer:
-        "Live Lock Screen and Screen Saver wallpapers require macOS 26 Tahoe or later, where Apple exposes the native wallpaper APIs MacWall uses. On macOS 14 Sonoma and 15 Sequoia, Pro still unlocks the full catalog and desktop motion, and Lock Screen video activates automatically once you upgrade.",
+        `Live Lock Screen and Screen Saver wallpapers require ${macwallMinimumMacOSVersion} or later, where Apple exposes the native wallpaper APIs MacWall uses.`,
     },
   ],
 }
@@ -302,7 +305,7 @@ export const macwallVsBackdropPage: SeoContentPage = {
       items: [
         "MacWall: $7.99 one-time, everything included",
         "Backdrop: $9.99 one-time",
-        "Both: 4K video, multi-monitor, Lock Screen on macOS 26 Tahoe",
+        `Both: 4K video, multi-monitor, Lock Screen on ${macwallMinimumMacOSVersion}`,
         "MacWall: personal video imports + community catalog",
         "MacWall: Reel refund, earn up to 100% back",
         "Backdrop: in-app backdrop editor",
@@ -318,7 +321,7 @@ export const macwallVsWallperPage: SeoContentPage = {
   title: "Wallper Alternative for Mac: MacWall",
   headline: "The Wallper Alternative for Mac",
   description:
-    "Looking for a Wallper alternative? MacWall costs less, has a bigger community catalog, and brings live Lock Screen wallpapers to macOS 26 Tahoe.",
+    `Looking for a Wallper alternative? MacWall costs less, has a bigger community catalog, and brings live Lock Screen wallpapers to ${macwallMinimumMacOSVersion}.`,
   keywords: [
     "wallper alternative",
     "wallper alternative mac",
@@ -372,7 +375,7 @@ export const macwallVsWallspacePage: SeoContentPage = {
   title: "Wallspace Alternative for Mac: MacWall",
   headline: "The Wallspace Alternative for Mac",
   description:
-    "Looking for a Wallspace alternative? MacWall costs less, adds a deeper catalog with community uploads, and brings live Lock Screen wallpapers to macOS 26 Tahoe.",
+    `Looking for a Wallspace alternative? MacWall costs less, adds a deeper catalog with community uploads, and brings live Lock Screen wallpapers to ${macwallMinimumMacOSVersion}.`,
   keywords: [
     "wallspace alternative",
     "wallspace alternative mac",
@@ -397,7 +400,7 @@ export const macwallVsWallspacePage: SeoContentPage = {
         "Wallspace: $8.99 Pro one-time",
         "Both: native Swift, hardware-accelerated 4K, multi-monitor, battery-aware pause",
         "MacWall: 9-category community catalog with search, filters, and likes",
-        "Both: live Lock Screen on macOS 26 Tahoe. MacWall adds Screen Saver video too",
+        `Both: live Lock Screen on ${macwallMinimumMacOSVersion}. MacWall adds Screen Saver video too`,
         "MacWall: Reel refund. 50% back at 2k views, 100% at 20k views",
       ],
     },
@@ -456,7 +459,7 @@ export const livelyWallpaperMacPage: SeoContentPage = {
         "Import the same video files you used in Lively",
         "Curated 4K catalog across Nature, Space, Anime, and more",
         "Pause on battery, full screen, and high CPU. MacBook-friendly",
-        "Live Lock Screen and Screen Saver on macOS 26 Tahoe",
+        `Live Lock Screen and Screen Saver on ${macwallMinimumMacOSVersion}`,
         "Post a Reel with #macwall and earn up to 100% back",
       ],
     },
@@ -526,7 +529,7 @@ export function wallpaperCategoryPage(categoryName: string): SeoContentPage {
       },
       {
         type: "p",
-        text: `Run ${categoryName.toLowerCase()} loops in crisp 4K with hardware-accelerated decode on Apple Silicon and Intel Macs. MacWall pauses automatically on battery, full screen, and high CPU, so your ${categoryName.toLowerCase()} desktop looks cinematic without draining your MacBook. Set a different ${categoryName.toLowerCase()} wallpaper on each monitor, and unlock live Lock Screen motion with MacWall Pro on macOS 26 Tahoe.`,
+        text: `Run ${categoryName.toLowerCase()} loops in crisp 4K with hardware-accelerated decode on Apple Silicon and Intel Macs. MacWall pauses automatically on battery, full screen, and high CPU, so your ${categoryName.toLowerCase()} desktop looks cinematic without draining your MacBook. Set a different ${categoryName.toLowerCase()} wallpaper on each monitor, and unlock live Lock Screen motion with MacWall Pro on ${macwallMinimumMacOSVersion}.`,
       },
       {
         type: "h2",

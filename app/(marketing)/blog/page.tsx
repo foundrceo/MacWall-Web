@@ -1,7 +1,6 @@
-import "@/components/blog/blog-newsroom.css"
 import { BlogIndexPage } from "@/components/blog/blog-index-page"
 import { blogArticles } from "@/lib/blog"
-import { macwall } from "@/lib/macwall-site"
+import { macwall, macwallMinimumMacOSVersion } from "@/lib/macwall-site"
 import {
   canonicalSitePath,
   openGraphImageAbsoluteUrl,
@@ -10,7 +9,7 @@ import {
 import type { Metadata } from "next"
 
 const PAGE_DESCRIPTION =
-  "Guides, comparisons, and macOS news for live wallpapers on Mac. macOS 26 Tahoe Lock Screen tips, app comparisons, battery advice, and more from the MacWall team."
+  `Guides, comparisons, and macOS news for live wallpapers on Mac. ${macwallMinimumMacOSVersion} Lock Screen tips, app comparisons, battery advice, and more from the MacWall team.`
 
 export const metadata: Metadata = {
   title: "Blog: Mac Live Wallpaper Guides, Comparisons & News",

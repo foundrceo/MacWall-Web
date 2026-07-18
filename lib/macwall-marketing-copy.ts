@@ -1,4 +1,4 @@
-import { macwall } from "@/lib/macwall-site"
+import { macwall, macwallMinimumMacOSVersion } from "@/lib/macwall-site"
 
 /** User-visible strings for marketing pages (`macwall-marketing/*`). */
 export const macwallExactCopy = {
@@ -23,7 +23,7 @@ export const macwallExactCopy = {
     },
   },
   ribbon: {
-    lineBeforeLink: `New: ${macwall.name} brings live Lock Screen and Screen Saver wallpapers to macOS 26 Tahoe, working on the latest builds where other apps broke. `,
+    lineBeforeLink: `New: ${macwall.name} brings live Lock Screen and Screen Saver wallpapers to ${macwallMinimumMacOSVersion}, working on the latest builds where other apps broke. `,
     linkText: `Get ${macwall.name}`,
   },
   interact: {
@@ -84,11 +84,22 @@ export const macwallExactCopy = {
   },
   lockScreen: {
     kicker: "PRO",
-    title: "Live Lock Screen & Screen Saver on macOS 26 Tahoe",
+    title: `Live Lock Screen & Screen Saver on ${macwallMinimumMacOSVersion}`,
     strong:
-      "Bring real video motion to your Lock Screen and Screen Saver on macOS 26 Tahoe and later, using Apple's own wallpaper system, with no extra installers or extensions.",
+      `Bring real video motion to your Lock Screen and Screen Saver on ${macwallMinimumMacOSVersion} and later, using Apple's own wallpaper system, with no extra installers or extensions.`,
     rest: "Setup stays reversible: turn it off anytime from Settings and your previous look returns. On earlier macOS, Pro still unlocks the full catalog and desktop motion.",
     linkText: "Lock Screen requirements",
+  },
+  nativeMac: {
+    title: "Built native for macOS — performance that stays invisible",
+    lead: "Swift and Metal-native, tuned from Intel through M5. MacWall stays fast, quiet, and battery-smart without getting in your way.",
+    bullets: [
+      "Smooth on every Mac — from Intel to M5. Idle CPU, low memory footprint.",
+      "Reduce Quality on Battery",
+      "Pause When App is Fullscreen",
+      "Pause on High CPU Usage",
+      "Retina Rendering — Retina rendering displays wallpapers at full display resolution (2x). Turning it off reduces GPU load. Changes apply on next wallpaper load.",
+    ] as const,
   },
   battery: {
     kicker: "Efficiency",
@@ -189,7 +200,7 @@ export const macwallExactCopy = {
       name: macwall.name,
       website: "macwall.app",
     },
-    copyrightName: macwall.name,
+    copyrightName: macwall.legalCompanyName,
     disclaimerBullets: [
       `${macwall.name} Pro is a one-time purchase. The price on this page reflects the current early-bird offer. Make a Reel to qualify for up to 100% back. See Pricing for details.`,
       "A compatible Mac, recent builds, and network access are required for catalog sync, updates, and online license checks.",

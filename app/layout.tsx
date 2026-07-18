@@ -11,7 +11,11 @@ import {
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { JsonLd } from "@/components/seo/json-ld"
 import { macwallSchemaGraph } from "@/lib/macwall-json-ld"
-import { macwall } from "@/lib/macwall-site"
+import {
+  macwall,
+  macwallFavicons,
+  macwallMinimumMacOSVersion,
+} from "@/lib/macwall-site"
 import {
   canonicalSiteOrigin,
   metadataBaseUrl,
@@ -39,10 +43,9 @@ const geistMono = Geist_Mono({
 })
 
 const SITE_DESCRIPTION_FALLBACK =
-  "MacWall is the native macOS app for live video wallpapers on your Mac desktop: a curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, intelligent pause on battery and full screen, and optional MacWall Pro for live Lock Screen and Screen Saver wallpapers on macOS 26 Tahoe."
+  `MacWall is the native macOS app for live video wallpapers on your Mac desktop: a curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, intelligent pause on battery and full screen, and optional MacWall Pro for live Lock Screen and Screen Saver wallpapers on ${macwallMinimumMacOSVersion}.`
 
-/** Exact, brand-disambiguated site title. "App" separates the MacWall app from the unrelated MACWALL retaining-wall brand. */
-const SITE_TITLE_DEFAULT = "MacWall App — Live Wallpapers for Mac" as const
+const SITE_TITLE_DEFAULT = macwall.fullTagline
 
 /** Google Search Console / Bing verification tokens (set in env to claim the entity). */
 const googleSiteVerification =
@@ -124,7 +127,28 @@ export const metadata: Metadata = {
     "screen saver video mac",
     `${macwall.name}`,
   ],
-  /* Favicons: app/favicon.ico, app/icon.png, app/apple-icon.png (see npm run icons:build). */
+  icons: {
+    icon: [
+      { url: macwallFavicons.ico, sizes: "any" },
+      {
+        url: macwallFavicons.icon16,
+        sizes: "16x16",
+        type: "image/png",
+      },
+      {
+        url: macwallFavicons.icon32,
+        sizes: "32x32",
+        type: "image/png",
+      },
+    ],
+    apple: [
+      {
+        url: macwallFavicons.appleTouch,
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -173,8 +197,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#0c0d0a" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c0d0a" },
   ],
 }
 
@@ -201,7 +225,7 @@ export default function RootLayout({
         <JsonLd payload={jsonLd} />
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
         >

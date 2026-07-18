@@ -1,13 +1,4 @@
-/**
- * Vendored marketing layout CSS served from `/public/marketing-shell` (same-origin).
- * Fonts use site Geist; body class pairing lives in {@link ../../components/macwall-marketing/marketing-body-class.tsx}.
- */
-export const MARKETING_SHELL_STYLESHEETS = [
-  "/marketing-shell/css/layout-1.css",
-  "/marketing-shell/css/layout-2.css",
-  "/marketing-shell/css/layout-3.css",
-  "/marketing-shell/css/marketing-overrides.css",
-] as const
+/** Marketing media assets served from `/public/marketing-shell` (same-origin). */
 
 /** Fallback loop when catalog clips are unavailable in the demo. */
 export const MARKETING_SHELL_FALLBACK_MP4 =

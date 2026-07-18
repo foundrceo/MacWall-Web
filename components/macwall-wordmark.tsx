@@ -1,13 +1,7 @@
-"use client"
-
-import Image from "next/image"
 import Link from "next/link"
+import { MacWallAppIcon } from "@/components/macwall-app-icon"
 import { cn } from "@/lib/utils"
-import {
-  macwall,
-  macwallAppIconPath,
-  macwallAppIconRadiusClass,
-} from "@/lib/macwall-site"
+import { macwall } from "@/lib/macwall-site"
 
 type MacWallWordmarkProps = Readonly<{
   /** Pass `null` to render a non-clickable wordmark. */
@@ -26,22 +20,7 @@ export function MacWallWordmark({
 }: MacWallWordmarkProps) {
   const body = (
     <>
-      <span
-        className={cn(
-          "relative inline-block shrink-0 overflow-hidden",
-          macwallAppIconRadiusClass,
-          iconClassName ?? "h-7 w-7"
-        )}
-        aria-hidden
-      >
-        <Image
-          src={macwallAppIconPath}
-          alt=""
-          fill
-          className="object-cover"
-          sizes="128px"
-        />
-      </span>
+      <MacWallAppIcon size={28} className={iconClassName} aria-hidden />
       <span
         className={cn(
           "font-semibold tracking-tight text-foreground",

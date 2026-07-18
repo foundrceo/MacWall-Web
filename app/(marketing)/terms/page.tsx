@@ -215,7 +215,8 @@ export default function TermsPage() {
             .
           </p>
           <p>
-            Copyright © {year} {macwall.name}. All rights reserved. Last updated{" "}
+            Copyright © {year} {macwall.legalCompanyName}. All rights reserved.
+            Last updated{" "}
             {macwall.legalEffectiveDate}.
           </p>
         </LegalSection>

@@ -39,7 +39,13 @@
   width: 980px;
   max-width: 87.5%;
   margin: 0 auto 40px;
-  padding-top: max(5.5rem, calc(env(safe-area-inset-top) + 4rem));
+  padding-top: max(
+    calc(var(--macwall-marketing-banner-height) + var(--macwall-marketing-nav-height) + 1.5rem),
+    calc(
+      env(safe-area-inset-top) + var(--macwall-marketing-banner-height) +
+        var(--macwall-marketing-nav-height)
+    )
+  );
 }
 
 .takeover .MacWallNewsroomPageTitle {
@@ -165,7 +171,7 @@
 
 .takeover.theme-dark .takeover-content .tile {
   color: #6e6e73;
-  background-color: #000;
+  background-color: #0c0d0a;
 }
 
 .takeover.theme-dark .takeover-content .tile .tile__headline {
@@ -333,7 +339,7 @@
 }
 
 .everydayfeed .tile.tile-fullbleed.has-gradient-secondary {
-  background-color: #000;
+  background-color: #0c0d0a;
 }
 
 /* ── More from MacWall Blog ── */
@@ -438,7 +444,7 @@
 
 /* Blank placeholder when image fails or is missing — box size never collapses */
 .takeover .tile__media {
-  background-color: #000;
+  background-color: #0c0d0a;
 }
 
 .takeover .tile__media--hero {
@@ -700,7 +706,7 @@
   display: block;
   min-height: 468px;
   width: 100%;
-  background: #000;
+  background: #0c0d0a;
   overflow: hidden;
 }
 
@@ -819,7 +825,7 @@
   aspect-ratio: 1 / 1;
   width: 100%;
   min-height: 314px;
-  background: #000;
+  background: #0c0d0a;
   overflow: hidden;
 }
 

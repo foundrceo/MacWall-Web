@@ -35,9 +35,7 @@ export function SeoLandingPage({
             Download for Mac
           </TrackedDownloadButton>
           <ProseSecondaryLink href="/pricing">View pricing</ProseSecondaryLink>
-          <TextLink href="/blog" className="MacWallProseTextLink">
-            Read the blog
-          </TextLink>
+          <TextLink href="/blog">{`Read the blog`}</TextLink>
         </ProseActionRow>
       ) : null}
     </SeoPageShell>

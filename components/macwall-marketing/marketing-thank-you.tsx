@@ -7,8 +7,10 @@ import { Mail } from "lucide-react"
 
 import { PurchaseConversionTracker } from "@/components/analytics/purchase-conversion-tracker"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
+import MarketingSiteChrome, {
+  MARKETING_MAIN_OFFSET_CLASS,
+} from "@/components/macwall-marketing/MarketingSiteChrome"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
-import MacWallMarketingHeader from "@/components/macwall-marketing/marketing-header"
 import { ThankYouSuccessMark } from "@/components/macwall-marketing/thank-you-success-mark"
 import {
   MarketingContainer,
@@ -16,7 +18,13 @@ import {
   SectionTitle,
 } from "@/components/macwall-marketing/marketing-primitives"
 import { macwallThankYouCopy as copy } from "@/lib/macwall-thank-you-copy"
+import {
+  MARKETING_PAGE_CLASS,
+  MARKETING_INLINE_LINK_CLASS,
+} from "@/lib/marketing-chrome"
+import { prosePrimaryBtn } from "@/lib/marketing-prose-classes"
 import { macwall, mailtoSupport } from "@/lib/macwall-site"
+import { cn } from "@/lib/utils"
 
 function ThankYouActions() {
   const searchParams = useSearchParams()
@@ -33,44 +41,41 @@ function ThankYouActions() {
   return (
     <section className="mx-auto mt-10 max-w-[520px] pb-16 text-center md:pb-20">
       <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
-        <Link
-          href={openAppHref}
-          className="inline-flex h-12 items-center justify-center rounded-full bg-[#0071e3] px-8 text-[15px] font-semibold text-white transition hover:bg-[#0077ed]"
-        >
+        <Link href={openAppHref} className={cn(prosePrimaryBtn, "prose-primary-btn")}>
           {copy.openAppCta}
         </Link>
         <TrackedDownloadButton
           href={copy.downloadHref}
           size="lg"
           location="thank_you"
-          className="border border-[#d2d2d7] bg-white text-[#1d1d1f] hover:bg-[#f5f5f7] hover:text-[#1d1d1f]"
+          className="border border-border bg-transparent text-foreground hover:bg-surface"
         >
           {copy.downloadCta}
         </TrackedDownloadButton>
       </div>
 
       {licenseKey ? (
-        <p className="mx-auto mt-5 max-w-[440px] text-[14px] leading-[1.5] text-[#86868b]">
+        <p className="mx-auto mt-5 max-w-[440px] text-[14px] leading-[1.5] text-muted-foreground">
           Your license is ready — tap{" "}
-          <strong className="font-semibold text-[#1d1d1f]">Open MacWall</strong>{" "}
+          <strong className="font-semibold text-foreground">Open MacWall</strong>{" "}
           to activate Pro instantly.
         </p>
       ) : null}
 
       <div className="mt-4 space-y-3">
-        <p className="text-[14px] leading-[1.5] text-[#86868b]">
+        <p className="text-[14px] leading-[1.5] text-muted-foreground">
           {copy.supportLabel}{" "}
           <Link
             href={mailtoSupport}
-            className="MacWallMarketingInlineLink whitespace-nowrap"
+            className={cn(MARKETING_INLINE_LINK_CLASS, "whitespace-nowrap")}
           >
             {macwall.supportEmail}
           </Link>
         </p>
-        <p className="mx-auto max-w-[400px] text-[14px] leading-[1.5] text-[#86868b]">
+        <p className="mx-auto max-w-[400px] text-[14px] leading-[1.5] text-muted-foreground">
           {copy.supportHint}
         </p>
-        <p className="inline-flex items-center justify-center gap-1.5 pt-1 text-[13px] leading-[1.4] text-[#86868b]">
+        <p className="inline-flex items-center justify-center gap-1.5 pt-1 text-[13px] leading-[1.4] text-marketing-muted">
           <Mail className="size-3.5 shrink-0" aria-hidden />
           <span>License email usually arrives within a few minutes</span>
         </p>
@@ -81,12 +86,12 @@ function ThankYouActions() {
 
 export default function MacWallMarketingThankYouPage() {
   return (
-    <div className="MacWallMarketingPage min-h-screen bg-white">
+    <div className={MARKETING_PAGE_CLASS}>
       <Suspense fallback={null}>
         <PurchaseConversionTracker />
       </Suspense>
-      <MacWallMarketingHeader variant="light" />
-      <main className="pt-14 md:pt-20">
+      <MarketingSiteChrome />
+      <main className={MARKETING_MAIN_OFFSET_CLASS}>
         <MarketingContainer>
           <div className="mx-auto max-w-[640px] text-center">
             <ThankYouSuccessMark />
@@ -104,7 +109,7 @@ export default function MacWallMarketingThankYouPage() {
           >
             <h2
               id="thank-you-steps-title"
-              className="text-center text-[13px] font-semibold tracking-[0.08em] text-[#86868b] uppercase"
+              className="text-center text-[13px] font-semibold tracking-[0.08em] text-marketing-muted uppercase"
             >
               {copy.stepsTitle}
             </h2>
@@ -112,19 +117,19 @@ export default function MacWallMarketingThankYouPage() {
               {copy.steps.map((step, index) => (
                 <li
                   key={step.title}
-                  className="flex gap-4 rounded-[20px] bg-[#f5f5f7] px-5 py-4"
+                  className="flex gap-4 rounded-[20px] border border-border bg-surface px-5 py-4"
                 >
                   <span
                     aria-hidden
-                    className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-[14px] font-semibold text-[#1d1d1f] shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
+                    className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-elevated text-[14px] font-semibold text-foreground"
                   >
                     {index + 1}
                   </span>
                   <div className="min-w-0 text-left">
-                    <p className="text-[17px] font-semibold tracking-[-0.01em] text-[#1d1d1f]">
+                    <p className="text-[17px] font-semibold tracking-[-0.01em] text-foreground">
                       {step.title}
                     </p>
-                    <p className="mt-1 text-[15px] leading-[1.47] text-[#86868b]">
+                    <p className="mt-1 text-[15px] leading-[1.47] text-muted-foreground">
                       {step.body}
                     </p>
                   </div>

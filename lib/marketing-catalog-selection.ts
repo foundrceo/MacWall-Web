@@ -16,6 +16,7 @@ export type MarketingCatalogWallpaperRow = {
   category: string
   video_key: string
   thumb_key: string
+  created_at?: string
   is_featured?: boolean
   is_curated_pick?: boolean
   like_count?: number
@@ -27,6 +28,8 @@ export const MARKETING_HERO_WALLPAPER_IDS = new Set(
 )
 
 export const MARKETING_GALLERY_WALLPAPER_COUNT = 20
+
+export const MARKETING_FEATURE_CAROUSEL_WALLPAPER_COUNT = 35
 
 export const MARKETING_HOME_PICK_WALLPAPER_COUNT = 6
 
@@ -91,6 +94,35 @@ export async function fetchMarketingCatalogRows(): Promise<
   return (await res.json()) as MarketingCatalogWallpaperRow[]
 }
 
+/** Newest uploads first — used by the homepage browse carousel. */
+export async function fetchLatestMarketingCatalogRows(): Promise<
+  MarketingCatalogWallpaperRow[]
+> {
+  const origin = getCatalogSupabaseOrigin()
+  const key = getCatalogSupabaseAnonKey()
+  const params = new URLSearchParams({
+    select:
+      "id,name,category,video_key,thumb_key,created_at,is_featured,is_curated_pick,like_count,file_size_bytes",
+    order: "created_at.desc",
+    limit: "80",
+  })
+
+  const res = await fetch(`${origin}/rest/v1/wallpapers?${params}`, {
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      Accept: "application/json",
+    },
+    cache: "no-store",
+  })
+
+  if (!res.ok) {
+    throw new Error(`Latest catalog fetch failed: HTTP ${res.status}`)
+  }
+
+  return (await res.json()) as MarketingCatalogWallpaperRow[]
+}
+
 /** Homepage gallery — best 20, excluding hero carousel IDs only. */
 export function pickMarketingGalleryRows(
   rows: MarketingCatalogWallpaperRow[]
@@ -118,6 +150,23 @@ export function pickMarketingGalleryRows(
   }
 
   return picked.slice(0, MARKETING_GALLERY_WALLPAPER_COUNT)
+}
+
+function createdAtMs(row: MarketingCatalogWallpaperRow): number {
+  if (!row.created_at) return 0
+  const ms = Date.parse(row.created_at)
+  return Number.isFinite(ms) ? ms : 0
+}
+
+/** Homepage browse carousel — newest catalog uploads first (R2 thumbs). */
+export function pickLatestMarketingCarouselRows(
+  rows: MarketingCatalogWallpaperRow[],
+  count = MARKETING_FEATURE_CAROUSEL_WALLPAPER_COUNT
+): MarketingCatalogWallpaperRow[] {
+  return [...rows]
+    .filter((row) => row.thumb_key.trim().length > 0)
+    .sort((a, b) => createdAtMs(b) - createdAtMs(a))
+    .slice(0, count)
 }
 
 /**
