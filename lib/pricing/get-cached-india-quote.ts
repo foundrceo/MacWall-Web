@@ -1,10 +1,6 @@
-import { unstable_cache } from "next/cache"
+import { resolveIndiaQuote } from "@/lib/pricing/resolve-india-quote"
 
-import { fetchWhopIndiaQuote } from "@/lib/pricing/whop-india-pricing"
-
-/** Shared Whop INR quote — reused by layout prefetch and /api/pricing/india. */
-export const getCachedIndiaQuote = unstable_cache(
-  async () => fetchWhopIndiaQuote(),
-  ["whop-india-pricing-quote-v2"],
-  { revalidate: 300 }
-)
+/** Entry used by layout prefetch and /api/pricing/india. */
+export async function getCachedIndiaQuote() {
+  return resolveIndiaQuote()
+}

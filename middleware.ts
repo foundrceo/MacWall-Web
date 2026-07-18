@@ -6,14 +6,47 @@ import {
 } from "@/lib/admin/session"
 import {
   applyCountryCookie,
+  isIndiaCountry,
   MW_RESOLVED_COUNTRY_HEADER,
 } from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
+import {
+  INDIA_QUOTE_COOKIE,
+  INDIA_QUOTE_MAX_AGE_SECONDS,
+  MW_INDIA_QUOTE_HEADER,
+  parseIndiaQuotePayload,
+  serializeIndiaQuote,
+} from "@/lib/pricing/india-quote-transport"
+import { fetchWhopIndiaQuote } from "@/lib/pricing/whop-india-pricing"
 
 /**
- * Resolves visitor country on the Edge (x-vercel-ip-country) and forwards it to
- * server components via x-mw-resolved-country — Node runtimes do not receive geo headers.
+ * Whop adaptive INR is based on buyer IP, not Accept-Language. Fetch on Edge
+ * (near the visitor) and forward to Node server components on the same request.
  */
+async function resolveIndiaQuoteOnEdge(request: NextRequest) {
+  const cached = parseIndiaQuotePayload(
+    request.cookies.get(INDIA_QUOTE_COOKIE)?.value
+  )
+  if (cached) return cached
+
+  return fetchWhopIndiaQuote()
+}
+
+function applyIndiaQuoteCookie(
+  response: NextResponse,
+  serializedQuote: string
+): NextResponse {
+  response.cookies.set(INDIA_QUOTE_COOKIE, serializedQuote, {
+    maxAge: INDIA_QUOTE_MAX_AGE_SECONDS,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: false,
+  })
+
+  return response
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const country = await resolveVisitorCountry({
@@ -27,11 +60,25 @@ export async function middleware(request: NextRequest) {
     requestHeaders.set(MW_RESOLVED_COUNTRY_HEADER, country)
   }
 
-  const withCountryCookie = (response: NextResponse) =>
+  let indiaQuoteSerialized: string | null = null
+  if (isIndiaCountry(country)) {
+    const quote = await resolveIndiaQuoteOnEdge(request)
+    if (quote) {
+      indiaQuoteSerialized = serializeIndiaQuote(quote)
+      requestHeaders.set(MW_INDIA_QUOTE_HEADER, indiaQuoteSerialized)
+    }
+  }
+
+  const withGeoCookies = (response: NextResponse) => {
     applyCountryCookie(response, country)
+    if (indiaQuoteSerialized) {
+      applyIndiaQuoteCookie(response, indiaQuoteSerialized)
+    }
+    return response
+  }
 
   const next = () =>
-    withCountryCookie(
+    withGeoCookies(
       NextResponse.next({ request: { headers: requestHeaders } })
     )
 
@@ -54,14 +101,14 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api/")) {
-    return withCountryCookie(
+    return withGeoCookies(
       NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     )
   }
 
   const loginUrl = new URL("/admin/login", request.url)
   loginUrl.searchParams.set("next", pathname)
-  return withCountryCookie(NextResponse.redirect(loginUrl))
+  return withGeoCookies(NextResponse.redirect(loginUrl))
 }
 
 export const config = {
