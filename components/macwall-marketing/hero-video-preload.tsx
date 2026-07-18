@@ -1,26 +1,15 @@
-import {
-  marketingLockScreenVideoSources,
-  marketingWalkthroughVideoSources,
-} from "@/lib/marketing-assets-urls"
+import { marketingWalkthroughVideoSources } from "@/lib/marketing-assets-urls"
 
 /** Preload above-the-fold marketing clips so reserved aspect boxes fill without a late jump. */
 export function HeroVideoPreload() {
-  const preloadUrls = [
-    ...marketingWalkthroughVideoSources(),
-    ...marketingLockScreenVideoSources(),
-  ].filter((url, index, all) => all.indexOf(url) === index)
+  const heroSrc = marketingWalkthroughVideoSources()[0]
 
   return (
     <>
-      {preloadUrls.map((href) => (
-        <link
-          key={href}
-          rel="preload"
-          href={href}
-          as="video"
-          fetchPriority="high"
-        />
-      ))}
+      {heroSrc ? (
+        <link rel="preload" href={heroSrc} as="video" fetchPriority="high" />
+      ) : null}
+      <link rel="preload" href="/Video.webm" as="video" fetchPriority="high" />
     </>
   )
 }
