@@ -111,6 +111,8 @@ export const macwall = {
   },
   /** Shown in Pro discount flows (`AppBrand.proDiscountPromoCode` in Theme.swift). */
   proDiscountPromoCode: "MACWALLPRO",
+  /** India-only flash sale — 50% off, 24hr personal timer (web promo). */
+  indiaPromoCode: "INDIA50",
   /** Personal license device limit (`AppBrand.maxLicensedMacs`). */
   maxLicensedMacs: 3,
   /** Everything included with a Pro license. */

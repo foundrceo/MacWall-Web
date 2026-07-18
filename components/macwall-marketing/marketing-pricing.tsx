@@ -4,12 +4,13 @@ import "./marketing-pricing-cards.css"
 
 import { Clapperboard, Flame, Hash, Mail } from "lucide-react"
 import type { ComponentType } from "react"
-import { macwallProCheckoutURL } from "@/lib/macwall-site"
+import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import {
   macwallPricingCopy as p,
   type ReelRefundStepIcon,
 } from "@/lib/macwall-pricing-copy"
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
+import IndiaPricingOffer from "@/components/macwall-marketing/IndiaPricingOffer"
 import MarketingSiteChrome, {
   MARKETING_MAIN_OFFSET_CLASS,
 } from "@/components/macwall-marketing/MarketingSiteChrome"
@@ -49,6 +50,7 @@ function ReelStepIcon({ kind }: Readonly<{ kind: ReelRefundStepIcon }>) {
 
 export default function MacWallMarketingPricingPage() {
   const reel = p.reelRefund
+  const pricing = useMarketingPricing()
 
   return (
     <div className={MARKETING_PAGE_CLASS}>
@@ -60,11 +62,19 @@ export default function MacWallMarketingPricingPage() {
             <div className="mb-14 text-center md:mb-20">
               <SectionTitle as="h1">{p.heroTitle}</SectionTitle>
               <SectionLead className="mx-auto mt-5 max-w-[540px]">
-                {p.heroLead}
+                {pricing.pricingHeroLead}
               </SectionLead>
             </div>
 
-            <div className="MacWallPricingPlansGrid grid gap-5 md:grid-cols-2">
+            <IndiaPricingOffer />
+
+            <div
+              className={
+                pricing.showIndiaOfferCard
+                  ? "MacWallPricingPlansGrid grid gap-5"
+                  : "MacWallPricingPlansGrid grid gap-5 md:grid-cols-2"
+              }
+            >
               <MarketingCard
                 id="reel-refund"
                 className="MacWallPricingPlanCard MacWallPricingReelCard"
@@ -124,36 +134,38 @@ export default function MacWallMarketingPricingPage() {
                 </div>
               </MarketingCard>
 
-              <MarketingCard className="MacWallPricingPlanCard">
-                <div className="MacWallPricingPlanHead">
-                  <p className="MacWallPricingPlanBadge">{p.pro.badge}</p>
-                  <h2 className="MacWallPricingPlanTitle">{p.pro.title}</h2>
-                  <h3 className="MacWallPricingPlanDescription">
-                    {p.pro.description}
-                  </h3>
-                </div>
+              {!pricing.showIndiaOfferCard ? (
+                <MarketingCard className="MacWallPricingPlanCard">
+                  <div className="MacWallPricingPlanHead">
+                    <p className="MacWallPricingPlanBadge">{p.pro.badge}</p>
+                    <h2 className="MacWallPricingPlanTitle">{p.pro.title}</h2>
+                    <h3 className="MacWallPricingPlanDescription">
+                      {pricing.pricingProDescription}
+                    </h3>
+                  </div>
 
-                <div className="MacWallPricingPlanDivider" aria-hidden />
+                  <div className="MacWallPricingPlanDivider" aria-hidden />
 
-                <ul className="MacWallPricingPlanCardFeatures MacWallPricingProFeatures">
-                  {p.pro.features.map((line) => (
-                    <li key={line} className="MacWallPricingProFeature">
-                      <CheckIcon />
-                      <span>{line}</span>
-                    </li>
-                  ))}
-                </ul>
+                  <ul className="MacWallPricingPlanCardFeatures MacWallPricingProFeatures">
+                    {p.pro.features.map((line) => (
+                      <li key={line} className="MacWallPricingProFeature">
+                        <CheckIcon />
+                        <span>{line}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-                <div className="MacWallPricingPlanCardCta">
-                  <TrackedPricingButton
-                    href={macwallProCheckoutURL}
-                    location="pricing_card"
-                    ariaLabel={p.pro.ctaAria}
-                  >
-                    {p.pro.cta}
-                  </TrackedPricingButton>
-                </div>
-              </MarketingCard>
+                  <div className="MacWallPricingPlanCardCta">
+                    <TrackedPricingButton
+                      href={pricing.checkoutUrl}
+                      location="pricing_card"
+                      ariaLabel={pricing.buyProAria}
+                    >
+                      {pricing.buyProCta}
+                    </TrackedPricingButton>
+                  </div>
+                </MarketingCard>
+              ) : null}
             </div>
           </MarketingContainer>
         </section>

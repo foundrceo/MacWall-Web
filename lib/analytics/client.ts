@@ -4,6 +4,7 @@ import type {
   SiteAnalyticsEventName,
   SiteAnalyticsMetadata,
 } from "@/lib/analytics/events"
+import { getVisitorCountry, isVisitorFromIndia } from "@/lib/geo/country-client"
 
 const SESSION_KEY = "macwall_analytics_session"
 
@@ -48,12 +49,19 @@ export function trackSiteEventClient(
 ) {
   if (typeof window === "undefined") return
 
+  const country = getVisitorCountry()
+  const enriched: SiteAnalyticsMetadata = {
+    ...(metadata ?? {}),
+    ...(country ? { country } : {}),
+    ...(isVisitorFromIndia() ? { audience: "india" } : {}),
+  }
+
   const payload = {
     eventName,
     path: window.location.pathname,
     referrer: document.referrer || null,
     sessionId: getAnalyticsSessionId(),
-    metadata: metadata ?? {},
+    metadata: enriched,
   }
 
   const body = JSON.stringify(payload)
