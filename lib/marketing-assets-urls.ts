@@ -57,13 +57,3 @@ export function marketingWalkthroughVideoSources(): readonly string[] {
     marketingAssetPublicUrl(MARKETING_WALKTHROUGH_VIDEO_FALLBACK_PATH),
   ])
 }
-
-/** Lock Screen feature demo — same R2 clips as the hero walkthrough. */
-export function marketingLockScreenVideoSources(): readonly string[] {
-  return uniqueSources([
-    browserVideoSourceFromEnv("NEXT_PUBLIC_MARKETING_LOCK_SCREEN_VIDEO_URL"),
-    browserVideoSourceFromEnv("NEXT_PUBLIC_MARKETING_WALKTHROUGH_VIDEO_URL"),
-    marketingAssetPublicUrl(MARKETING_WALKTHROUGH_VIDEO_PRIMARY_PATH),
-    marketingAssetPublicUrl(MARKETING_WALKTHROUGH_VIDEO_FALLBACK_PATH),
-  ])
-}
