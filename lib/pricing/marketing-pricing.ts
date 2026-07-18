@@ -1,9 +1,6 @@
 import { macwall, macwallProCheckoutURL } from "@/lib/macwall-site"
-import { indiaPromo } from "@/lib/marketing-india-promo"
-import {
-  buildIndiaFallbackQuote,
-  type WhopIndiaQuote,
-} from "@/lib/pricing/whop-india-pricing"
+import { INDIA_PROMO_CODE, indiaPromo } from "@/lib/marketing-india-promo"
+import type { WhopIndiaQuote } from "@/lib/pricing/whop-india-pricing"
 
 export type MarketingPricingRegion = "default" | "india"
 
@@ -79,7 +76,25 @@ export function buildIndiaMarketingPricing(
 }
 
 export function buildIndiaMarketingPricingFallback(): MarketingPricing {
-  return buildIndiaMarketingPricing(buildIndiaFallbackQuote())
+  return {
+    region: "india",
+    currency: "inr",
+    isIndia: true,
+    salePrice: "50% off",
+    fullPrice: null,
+    suffix: "one-time",
+    getProCta: indiaPromo.pricing.ctaFallback,
+    buyProCta: indiaPromo.pricing.ctaFallback,
+    buyProAria: indiaPromo.pricing.ctaAria,
+    bannerHeadline: indiaPromo.banner.headline,
+    priceLine: `Use ${INDIA_PROMO_CODE} at checkout for 50% off — final INR price shown at Whop checkout. 24-hour flash deal for India.`,
+    pricingHeroLead: `${macwall.name} Pro is 50% off for India with code ${INDIA_PROMO_CODE}. Apply the code at Whop checkout to see your live INR price — one-time license with lifetime updates.`,
+    pricingProDescription: `50% off with ${INDIA_PROMO_CODE}. Final INR price at Whop checkout. Full catalog, Lock Screen video, and lifetime updates on up to ${macwall.maxLicensedMacs} Macs.`,
+    bottomCtaLabel: indiaPromo.pricing.ctaFallback,
+    promoCode: INDIA_PROMO_CODE,
+    checkoutUrl: macwallProCheckoutURL,
+    showIndiaOfferCard: true,
+  }
 }
 
 export function indiaBannerSubline(

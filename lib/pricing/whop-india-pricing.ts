@@ -4,9 +4,6 @@ import { INDIA_PROMO_CODE, indiaPromo } from "@/lib/marketing-india-promo"
 const WHOP_CHECKOUT_FETCH_TIMEOUT_MS = 12_000
 const DEFAULT_PLAN_ID = "plan_XburB7qWsnvR8"
 
-/** Last-known Whop adaptive INR for the Pro plan — used only when live scrape fails. */
-const INDIA_FALLBACK_FULL_INR = 771
-
 export type WhopIndiaQuote = {
   currency: "inr"
   planId: string
@@ -21,7 +18,7 @@ export type WhopIndiaQuote = {
   saleDisplay: string
   ctaLabel: string
   fetchedAt: string
-  source: "whop_checkout" | "fallback"
+  source: "whop_checkout"
 }
 
 export function extractWhopPlanId(
@@ -74,11 +71,7 @@ export function parseWhopInrInitialPrice(html: string): number | null {
   return null
 }
 
-function buildQuoteFromAmount(
-  planId: string,
-  fullAmount: number,
-  source: WhopIndiaQuote["source"]
-): WhopIndiaQuote {
+function buildQuoteFromAmount(planId: string, fullAmount: number): WhopIndiaQuote {
   const saleAmount = fullAmount * (1 - indiaPromo.discountPercent / 100)
 
   return {
@@ -92,14 +85,8 @@ function buildQuoteFromAmount(
     saleDisplay: formatInrWhole(saleAmount),
     ctaLabel: `Get Pro for ${formatInrWhole(saleAmount)}`,
     fetchedAt: new Date().toISOString(),
-    source,
+    source: "whop_checkout",
   }
-}
-
-export function buildIndiaFallbackQuote(
-  planId: string = extractWhopPlanId()
-): WhopIndiaQuote {
-  return buildQuoteFromAmount(planId, INDIA_FALLBACK_FULL_INR, "fallback")
 }
 
 export async function fetchWhopIndiaQuote(
@@ -131,7 +118,7 @@ export async function fetchWhopIndiaQuote(
     const fullAmount = parseWhopInrInitialPrice(html)
     if (fullAmount === null) return null
 
-    return buildQuoteFromAmount(planId, fullAmount, "whop_checkout")
+    return buildQuoteFromAmount(planId, fullAmount)
   } catch {
     return null
   } finally {
