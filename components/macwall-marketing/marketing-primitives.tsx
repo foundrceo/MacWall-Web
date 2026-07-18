@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { MARKETING_INLINE_LINK_CLASS } from "@/lib/marketing-chrome"
 import { macwall, mailtoReelRefund } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 import {
@@ -46,7 +47,7 @@ export function MarketingRichText({
           <a
             key={`${part}-${index}`}
             href={href}
-            className="MacWallMarketingInlineLink"
+            className={MARKETING_INLINE_LINK_CLASS}
             {...(external
               ? { target: "_blank", rel: "noopener noreferrer" }
               : {})}
@@ -69,7 +70,7 @@ function MarketingInlineExternalLink({
   return (
     <a
       href={href}
-      className="MacWallMarketingInlineLink"
+      className={MARKETING_INLINE_LINK_CLASS}
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -138,7 +139,7 @@ export function MarketingReelFaqRefundCopy({
       <MarketingReelAtLink platform="instagram" /> or TikTok{" "}
       <MarketingReelAtLink platform="tiktok" /> with{" "}
       <MarketingReelHashtagLink />, then email{" "}
-      <a href={mailtoReelRefund} className="MacWallMarketingInlineLink">
+      <a href={mailtoReelRefund} className={MARKETING_INLINE_LINK_CLASS}>
         {macwall.reelRefundEmail}
       </a>{" "}
       once you hit {macwall.reelRefundHalfViews.toLocaleString()} views for 50%
@@ -149,13 +150,13 @@ export function MarketingReelFaqRefundCopy({
 }
 
 export const mw = {
-  ink: "#1d1d1f",
-  muted: "#86868b",
-  subtle: "#6e6e73",
-  surface: "#f5f5f7",
-  white: "#ffffff",
-  accent: "#0071e3",
-  accentHover: "#0077ed",
+  ink: "var(--foreground)",
+  muted: "var(--muted-foreground)",
+  subtle: "var(--marketing-muted)",
+  surface: "var(--surface)",
+  white: "var(--foreground)",
+  accent: "var(--foreground)",
+  accentHover: "var(--foreground)",
 } as const
 
 export function ChevronRightIcon({
@@ -190,7 +191,7 @@ export function MarketingContainer({
   return (
     <div
       className={cn(
-        "MacWallMarketingContainer mx-auto w-full min-w-0 px-6 md:px-8",
+        "mx-auto w-full min-w-0 px-6 md:px-8",
         wide ? "max-w-[1080px]" : "max-w-[980px]",
         className
       )}
@@ -202,7 +203,7 @@ export function MarketingContainer({
 
 export function SectionEyebrow({
   children,
-  inverted,
+  inverted: _inverted,
   className,
 }: Readonly<{
   children: ReactNode
@@ -212,8 +213,7 @@ export function SectionEyebrow({
   return (
     <p
       className={cn(
-        "text-[17px] leading-[1.235] font-semibold",
-        inverted ? "text-[#86868b]" : "text-[#86868b]",
+        "text-[17px] leading-[1.235] font-semibold text-marketing-muted",
         className
       )}
     >
@@ -243,7 +243,7 @@ export function SectionTitle({
         Tag === "h1"
           ? "text-[40px] leading-[1.05] md:text-[56px] md:leading-[1.04]"
           : "text-[32px] leading-[1.08] md:text-[48px] md:leading-[1.05]",
-        inverted ? "text-white" : "text-[#1d1d1f]",
+        inverted ? "text-foreground" : "text-foreground",
         className
       )}
     >
@@ -254,7 +254,7 @@ export function SectionTitle({
 
 export function SectionLead({
   children,
-  inverted,
+  inverted: _inverted,
   className,
 }: Readonly<{
   children: ReactNode
@@ -264,8 +264,7 @@ export function SectionLead({
   return (
     <p
       className={cn(
-        "text-[19px] leading-[1.47] md:text-[21px] md:leading-[1.381]",
-        inverted ? "text-[#86868b]" : "text-[#86868b]",
+        "text-[19px] leading-[1.47] md:text-[21px] md:leading-[1.381] text-muted-foreground",
         className
       )}
     >
@@ -277,7 +276,7 @@ export function SectionLead({
 export function TextLink({
   href,
   children,
-  inverted,
+  inverted: _inverted,
   className,
   external,
 }: Readonly<{
@@ -288,8 +287,7 @@ export function TextLink({
   external?: boolean
 }>) {
   const classes = cn(
-    "inline-flex items-center gap-0.5 text-[17px] leading-[1.235] hover:underline",
-    inverted ? "text-[#2997ff]" : "text-[#0066cc]",
+    "inline-flex items-center gap-0.5 text-[17px] leading-[1.235] hover:underline text-foreground",
     className
   )
 
@@ -341,8 +339,10 @@ export function MarketingButton({
     size === "default" &&
       "min-h-[44px] px-[22px] text-[17px] tracking-[-0.022em]",
     size === "lg" && "min-h-[48px] px-6 text-[17px] tracking-[-0.022em]",
-    variant === "primary" && "bg-[#0071e3] text-white hover:bg-[#0077ed]",
-    variant === "secondary" && "bg-[#1d1d1f] text-white hover:bg-[#333336]",
+    variant === "primary" &&
+      "bg-foreground text-background hover:bg-foreground/90",
+    variant === "secondary" &&
+      "border border-border bg-transparent text-foreground hover:bg-surface",
     className
   )
 
@@ -383,9 +383,9 @@ export const MarketingSection = forwardRef<
       id={id}
       className={cn(
         "py-20 md:py-28",
-        inverted && "bg-black text-white",
-        muted && !inverted && "bg-[#f5f5f7] text-[#1d1d1f]",
-        !inverted && !muted && "bg-white text-[#1d1d1f]",
+        inverted && "bg-surface-elevated text-foreground",
+        muted && !inverted && "bg-surface text-foreground",
+        !inverted && !muted && "bg-background text-foreground",
         className
       )}
       {...rest}
@@ -410,8 +410,8 @@ export function MarketingCard({
     <div
       id={id}
       className={cn(
-        "rounded-[28px] border bg-white p-7 md:p-8",
-        highlight ? "border-[#1d1d1f]" : "border-black/[0.08]",
+        "rounded-[28px] border border-border bg-surface p-7 md:p-8",
+        highlight && "border-foreground/30",
         className
       )}
     >
@@ -429,7 +429,7 @@ export function CheckIcon({ className }: Readonly<{ className?: string }>) {
       viewBox="0 0 24 24"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={cn("mt-0.5 size-[14px] shrink-0 text-[#86868b]", className)}
+      className={cn("mt-0.5 size-[14px] shrink-0 text-muted-foreground", className)}
       aria-hidden
     >
       <polyline points="20 6 9 17 4 12" />

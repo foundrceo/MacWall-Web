@@ -5,6 +5,17 @@ import {
   legalTextSecondary,
 } from "@/components/legal/legal-classes"
 import type { ContentBlock } from "@/lib/content/types"
+import {
+  proseBody,
+  proseH2,
+  proseH3,
+  proseLinkProse,
+  proseOl,
+  proseP,
+  proseUl,
+  proseUlBullet,
+  proseUlItem,
+} from "@/lib/marketing-prose-classes"
 import { cn } from "@/lib/utils"
 import type { ReactNode } from "react"
 
@@ -16,7 +27,7 @@ function renderInlineText(text: string): ReactNode[] {
   return tokens.map((part, index) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return (
-        <strong key={index} className="font-semibold text-[#1d1d1f]">
+        <strong key={index} className="font-semibold text-foreground">
           {part.slice(2, -2)}
         </strong>
       )
@@ -47,7 +58,7 @@ export function ContentBody({
   sections,
 }: Readonly<{ sections: ContentBlock[] }>) {
   return (
-    <div className={cn("MacWallProseBody", legalLinkProse)}>
+    <div className={cn(proseBody, proseLinkProse, legalLinkProse)}>
       {sections.map((block, index) => {
         switch (block.type) {
           case "h2": {
@@ -57,8 +68,8 @@ export function ContentBody({
               <h2
                 key={`h2-${index}`}
                 className={cn(
-                  "MacWallProseH2",
-                  h2Index === 1 && "MacWallProseH2--first",
+                  proseH2,
+                  h2Index === 1 && "mt-0",
                   legalTextPrimary
                 )}
               >
@@ -70,7 +81,7 @@ export function ContentBody({
             return (
               <h3
                 key={`h3-${index}`}
-                className={cn("MacWallProseH3", legalTextPrimary)}
+                className={cn(proseH3, legalTextPrimary)}
               >
                 {block.text}
               </h3>
@@ -79,17 +90,17 @@ export function ContentBody({
             return (
               <p
                 key={`p-${index}`}
-                className={cn("MacWallProseP", legalTextSecondary)}
+                className={cn(proseP, legalTextSecondary)}
               >
                 {renderInlineText(block.text)}
               </p>
             )
           case "ul":
             return (
-              <ul key={`ul-${index}`} className="MacWallProseUl">
+              <ul key={`ul-${index}`} className={proseUl}>
                 {block.items.map((item) => (
-                  <li key={item} className="MacWallProseUlItem">
-                    <span aria-hidden className="MacWallProseUlBullet">
+                  <li key={item} className={proseUlItem}>
+                    <span aria-hidden className={proseUlBullet}>
                       •
                     </span>
                     <span>{renderInlineText(item)}</span>
@@ -99,11 +110,9 @@ export function ContentBody({
             )
           case "ol":
             return (
-              <ol key={`ol-${index}`} className="MacWallProseOl">
+              <ol key={`ol-${index}`} className={proseOl}>
                 {block.items.map((item) => (
-                  <li key={item} className="MacWallProseOlItem">
-                    {renderInlineText(item)}
-                  </li>
+                  <li key={item}>{renderInlineText(item)}</li>
                 ))}
               </ol>
             )

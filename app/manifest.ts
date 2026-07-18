@@ -1,21 +1,31 @@
-import { macwall, macwallAppIconPath } from "@/lib/macwall-site"
+import {
+  macwall,
+  macwallFavicons,
+  macwallMinimumMacOSVersion,
+} from "@/lib/macwall-site"
 import type { MetadataRoute } from "next"
 
 const DESCRIPTION =
-  "Live video wallpapers for Mac: cloud catalog, imports, multi-display playback, menu bar control, and optional MacWall Pro for Lock Screen video on macOS 26 Tahoe."
+  `${macwall.tagline} Live video wallpapers for Mac: cloud catalog, imports, multi-display playback, menu bar control, and optional MacWall Pro for Lock Screen video on ${macwallMinimumMacOSVersion}.`
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: macwall.name,
+    name: macwall.fullTagline,
     short_name: macwall.name,
     description: DESCRIPTION,
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
-    theme_color: "#000000",
+    theme_color: "#0c0d0a",
     icons: [
       {
-        src: macwallAppIconPath,
+        src: macwallFavicons.android192,
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: macwallFavicons.android512,
         sizes: "512x512",
         type: "image/png",
         purpose: "any",

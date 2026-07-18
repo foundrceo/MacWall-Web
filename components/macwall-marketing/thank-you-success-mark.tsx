@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import {
   AnimatePresence,
   motion,
@@ -9,10 +8,7 @@ import {
 } from "motion/react"
 import { useCallback, useEffect, useState } from "react"
 
-import {
-  macwallAppIconPath,
-  macwallAppIconRadiusClass,
-} from "@/lib/macwall-site"
+import { MacWallAppIcon } from "@/components/macwall-app-icon"
 import { cn } from "@/lib/utils"
 
 const MARK_SIZE = 80
@@ -188,15 +184,9 @@ export function ThankYouSuccessMark({
               },
             }}
           >
-            <Image
-              alt=""
-              width={MARK_SIZE}
-              height={MARK_SIZE}
-              src={macwallAppIconPath}
-              className={cn(
-                macwallAppIconRadiusClass,
-                "size-full object-cover"
-              )}
+            <MacWallAppIcon
+              size={MARK_SIZE}
+              className="size-full"
               priority
             />
           </motion.div>

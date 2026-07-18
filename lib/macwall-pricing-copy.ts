@@ -1,4 +1,8 @@
-import { macwall, mailtoReelRefund } from "@/lib/macwall-site"
+import {
+  macwall,
+  mailtoReelRefund,
+  macwallMinimumMacOSVersion,
+} from "@/lib/macwall-site"
 
 export type ReelRefundStepIcon = "video" | "tag" | "views" | "email"
 
@@ -75,7 +79,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "Does Lock Screen video work on every macOS version?",
-      a: "Live Lock Screen and Screen Saver wallpapers require macOS 26 Tahoe or later, where Apple exposes the native wallpaper APIs. On macOS 14 Sonoma and 15 Sequoia, Pro still unlocks the full catalog, desktop motion, and other premium features, and Lock Screen video turns on automatically once you upgrade.",
+      a: `Live Lock Screen and Screen Saver wallpapers require ${macwallMinimumMacOSVersion} or later, where Apple exposes the native wallpaper APIs.`,
     },
     {
       q: "Can I get a refund without making a Reel?",
@@ -87,7 +91,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "Which macOS releases are supported?",
-      a: "MacWall runs on macOS 14 Sonoma or later (including Sequoia and Tahoe) on Apple silicon and Intel Macs. Live Lock Screen and Screen Saver wallpapers require macOS 26 Tahoe. Download the latest build from the site for the freshest compatibility notes.",
+      a: `MacWall runs on ${macwallMinimumMacOSVersion} or later on Apple silicon and Intel Macs. Download the latest build from the site for the freshest compatibility notes.`,
     },
   ] as const,
 

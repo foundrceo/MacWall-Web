@@ -1,270 +1,195 @@
 "use client"
 
 import Link from "next/link"
-import { TrackedFooterLink } from "@/components/analytics/tracked-marketing-buttons"
-import { macwall, mailtoSupport } from "@/lib/macwall-site"
-import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import { MacWallBrandLink } from "@/components/macwall-marketing/MacWallBrandLink"
 import {
-  footerAnalyticsLocation,
-  getMarketingFooterSections,
-  type FooterNavLink,
-} from "@/lib/marketing-footer-nav"
-import { MarketingContainer } from "@/components/macwall-marketing/marketing-primitives"
+  macwall,
+  mailtoSupport,
+} from "@/lib/macwall-site"
+import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import { cn } from "@/lib/utils"
 
-export type MacWallMarketingFooterVariant = "dark" | "light"
+const socialIconClass = "block size-[18px] shrink-0"
 
-function FooterBrandBlock({
-  titleClass,
-  linkClass,
-}: Readonly<{
-  titleClass: string
-  linkClass: string
-}>) {
-  const org = macwallExactCopy.footer.org
-
+function DiscordIcon({ className }: Readonly<{ className?: string }>) {
   return (
-    <div className="MacWallMarketingFooterBrand">
-      <h3 className={titleClass}>{org.name}</h3>
-      <ul className="mt-2 space-y-2">
-        <li>
-          <a className={linkClass} href={macwall.website}>
-            {org.website}
-          </a>
-        </li>
-        <li>
-          <a className={linkClass} href={mailtoSupport}>
-            {macwall.supportEmail}
-          </a>
-        </li>
-      </ul>
-    </div>
-  )
-}
-
-function FooterNavLinkItem({
-  link,
-  sectionTitle,
-  linkClass,
-  mobile,
-}: Readonly<{
-  link: FooterNavLink
-  sectionTitle: string
-  linkClass: string
-  mobile: boolean
-}>) {
-  const location = footerAnalyticsLocation(sectionTitle, link.kind, mobile)
-
-  if (link.kind === "pricing") {
-    return (
-      <TrackedFooterLink
-        className={linkClass}
-        href={link.href}
-        eventName="pricing_click"
-        location={location}
-        external
-      >
-        {link.label}
-      </TrackedFooterLink>
-    )
-  }
-
-  if (link.kind === "download") {
-    return (
-      <TrackedFooterLink
-        className={linkClass}
-        href={link.href}
-        eventName="download_click"
-        location={location}
-      >
-        {link.label}
-      </TrackedFooterLink>
-    )
-  }
-
-  if (link.kind === "external") {
-    return (
-      <a
-        className={linkClass}
-        href={link.href}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {link.label}
-      </a>
-    )
-  }
-
-  return (
-    <Link className={linkClass} href={link.href}>
-      {link.label}
-    </Link>
-  )
-}
-
-function FooterSection({
-  title,
-  links,
-  titleClass,
-  linkClass,
-  mobile = false,
-}: Readonly<{
-  title: string
-  links: readonly FooterNavLink[]
-  titleClass: string
-  linkClass: string
-  mobile?: boolean
-}>) {
-  return (
-    <div>
-      <h3 className={titleClass}>{title}</h3>
-      <ul className="space-y-2">
-        {links.map((link) => (
-          <li key={`${title}-${link.href}`}>
-            <FooterNavLinkItem
-              link={link}
-              sectionTitle={title}
-              linkClass={linkClass}
-              mobile={mobile}
-            />
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-export default function MacWallMarketingFooter({
-  shopPricingHref = "/pricing",
-  variant = "light",
-}: Readonly<{
-  shopPricingHref?: string
-  variant?: MacWallMarketingFooterVariant
-}>) {
-  const foot = macwallExactCopy.footer
-  const sections = getMarketingFooterSections(shopPricingHref)
-  const year = new Date().getFullYear()
-  const light = variant === "light"
-
-  const linkClass = cn(
-    "text-[12px] leading-[1.333] transition-opacity hover:opacity-70",
-    light ? "text-[#424245]" : "text-[#a1a1a6]"
-  )
-
-  const titleClass = cn(
-    "mb-3 text-[12px] font-semibold",
-    light ? "text-[#1d1d1f]" : "text-[#f5f5f7]"
-  )
-
-  const disclaimerClass = cn(
-    "MacWallMarketingFooterDisclaimer mb-8 space-y-2 border-b pb-8 text-[12px] leading-[1.333]",
-    light
-      ? "border-black/[0.12] text-[#6e6e73]"
-      : "border-white/[0.12] text-[#a1a1a6]"
-  )
-
-  return (
-    <footer
-      className={cn(
-        "pt-8 pb-6",
-        light ? "bg-[#f5f5f7] text-[#1d1d1f]" : "bg-[#1d1d1f] text-[#f5f5f7]"
-      )}
-      data-macwall-footer={variant}
+    <svg
+      className={cn(socialIconClass, className)}
+      viewBox="-1 3 26 18"
+      fill="currentColor"
+      aria-hidden
     >
-      <MarketingContainer wide>
-        <ul className={disclaimerClass}>
-          {foot.disclaimerBullets.map((text) => (
-            <li key={text}>{text}</li>
-          ))}
-        </ul>
+      <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037 12.683 12.683 0 00-.608 1.25 18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+    </svg>
+  )
+}
 
-        <nav className="MacWallMarketingFooterDesktop" aria-label="Footer">
-          <FooterBrandBlock titleClass={titleClass} linkClass={linkClass} />
-          {sections.map((section) => (
-            <FooterSection
-              key={section.title}
-              title={section.title}
-              links={section.links}
-              titleClass={titleClass}
-              linkClass={linkClass}
-            />
-          ))}
-        </nav>
+function MailIcon({ className }: Readonly<{ className?: string }>) {
+  return (
+    <svg
+      className={cn(socialIconClass, className)}
+      viewBox="0 5 24 15"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
+      <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
+    </svg>
+  )
+}
 
-        <nav
-          className="MacWallMarketingFooterMobile"
-          aria-label="Footer (mobile)"
-        >
-          <FooterBrandBlock titleClass={titleClass} linkClass={linkClass} />
+function TikTokIcon({ className }: Readonly<{ className?: string }>) {
+  return (
+    <svg
+      className={cn(socialIconClass, className)}
+      viewBox="-2 1 28 22"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z" />
+    </svg>
+  )
+}
 
-          {sections.map((section) => (
-            <details
-              key={section.title}
-              className={cn(
-                "group border-t py-3",
-                light ? "border-black/[0.12]" : "border-white/[0.12]"
-              )}
-            >
-              <summary
-                className={cn(
-                  "flex cursor-pointer list-none items-center justify-between text-[12px] font-semibold [&::-webkit-details-marker]:hidden",
-                  light ? "text-[#1d1d1f]" : "text-[#f5f5f7]"
-                )}
-              >
-                {section.title}
-                <svg
-                  className="size-3 transition-transform group-open:rotate-90"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden
-                >
-                  <path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z" />
-                </svg>
-              </summary>
-              <ul className="mt-3 space-y-2 pb-2">
-                {section.links.map((link) => (
-                  <li key={`${section.title}-${link.href}-mobile`}>
-                    <FooterNavLinkItem
-                      link={link}
-                      sectionTitle={section.title}
-                      linkClass={linkClass}
-                      mobile
-                    />
-                  </li>
-                ))}
+const footerLinkClass =
+  "text-[15px] text-marketing-muted transition-colors hover:text-foreground"
+
+const socialLinkClass =
+  "inline-flex size-8 items-center justify-center text-marketing-muted transition-colors hover:text-foreground"
+
+export default function MacWallMarketingFooter() {
+  const foot = macwallExactCopy.footer
+  const year = new Date().getFullYear()
+
+  return (
+    <footer className="border-t border-border bg-[#0C0C0A]">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-12">
+        <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+          <div className="shrink-0 lg:min-w-[17rem]">
+            <MacWallBrandLink variant="footer" priority />
+            <p className="mt-2.5 text-[14px] leading-snug text-marketing-muted max-sm:whitespace-normal sm:whitespace-nowrap">
+              {macwall.tagline}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-x-8 gap-y-8 sm:gap-x-12 md:grid-cols-4 md:gap-x-10 lg:flex-1 lg:justify-center xl:gap-x-16">
+            <div>
+              <p className="mb-3 text-[15px] font-medium text-foreground">
+                Product
+              </p>
+              <ul className="space-y-2.5">
+                <li>
+                  <Link href="/pricing" className={footerLinkClass}>
+                    {foot.shop.pricing}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/blog" className={footerLinkClass}>
+                    {foot.explore.blog}
+                  </Link>
+                </li>
               </ul>
-            </details>
-          ))}
-        </nav>
-
-        <div
-          className={cn(
-            "mt-8 flex flex-wrap items-center gap-x-3 gap-y-2 border-t pt-6 text-[12px]",
-            light
-              ? "border-black/[0.12] text-[#424245]"
-              : "border-white/[0.12] text-[#a1a1a6]"
-          )}
-        >
-          <span>
-            © {year} {foot.copyrightName}. All rights reserved.
-          </span>
-          <span
-            className={cn("MacWallMarketingFooterPipe", linkClass)}
-            aria-hidden
-          >
-            |
-          </span>
-          <Link className={linkClass} href="/terms">
-            {foot.legal.terms}
-          </Link>
-          <span className={linkClass} aria-hidden>
-            |
-          </span>
-          <Link className={linkClass} href="/privacy">
-            {foot.legal.privacy}
-          </Link>
+            </div>
+            <div>
+              <p className="mb-3 text-[15px] font-medium text-foreground">
+                {foot.exploreTitle}
+              </p>
+              <ul className="space-y-2.5">
+                <li>
+                  <Link href="/live-wallpaper-mac" className={footerLinkClass}>
+                    {foot.explore.liveWallpaper}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/download" className={footerLinkClass}>
+                    {foot.shop.download}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p className="mb-3 text-[15px] font-medium text-foreground">
+                {foot.connectTitle}
+              </p>
+              <ul className="space-y-2.5">
+                <li>
+                  <a
+                    href={macwall.discordInvite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={footerLinkClass}
+                  >
+                    {foot.connect.discord}
+                  </a>
+                </li>
+                <li>
+                  <a href={mailtoSupport} className={footerLinkClass}>
+                    {macwall.supportEmail}
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <p className="mb-3 text-[15px] font-medium text-foreground">
+                Legal
+              </p>
+              <ul className="space-y-2.5">
+                <li>
+                  <Link href="/privacy" className={footerLinkClass}>
+                    {foot.legal.privacy}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className={footerLinkClass}>
+                    {foot.legal.terms}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
-      </MarketingContainer>
+
+        <div className="mt-10 border-t border-border pt-8">
+          <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+            <div className="shrink-0 lg:min-w-[17rem]">
+              <small className="text-sm text-marketing-muted">
+                © {year} {foot.copyrightName}
+              </small>
+            </div>
+            <div className="grid w-full grid-cols-2 gap-x-8 sm:gap-x-12 md:grid-cols-4 md:gap-x-10 lg:flex-1 lg:justify-center xl:gap-x-16">
+              <div className="col-span-2 md:col-span-1 md:col-start-4">
+                <div className="ml-1 flex items-center gap-2">
+                  <a
+                    href={macwall.discordInvite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Discord"
+                    className={socialLinkClass}
+                  >
+                    <DiscordIcon />
+                  </a>
+                  <a
+                    href={mailtoSupport}
+                    aria-label={macwall.supportEmail}
+                    className={socialLinkClass}
+                  >
+                    <MailIcon />
+                  </a>
+                  <a
+                    href={macwall.reelRefundTiktokURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="TikTok"
+                    className={socialLinkClass}
+                  >
+                    <TikTokIcon />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </footer>
   )
 }

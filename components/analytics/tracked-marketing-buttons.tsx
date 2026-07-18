@@ -3,18 +3,23 @@
 import type { ReactNode } from "react"
 
 import { TrackedLink } from "@/components/analytics/tracked-link"
+import { prosePrimaryBtn } from "@/lib/marketing-prose-classes"
 import { cn } from "@/lib/utils"
 
-type ButtonSize = "default" | "sm" | "lg"
+type ButtonSize = "default" | "sm" | "lg" | "pill"
 
 function buttonClasses(size: ButtonSize, className?: string) {
+  if (size === "pill") {
+    return cn(className)
+  }
+
   return cn(
-    "MacWallProsePrimaryBtn inline-flex items-center justify-center rounded-full font-normal no-underline transition-colors duration-150",
+    prosePrimaryBtn,
+    "prose-primary-btn",
     size === "sm" && "min-h-[28px] px-4 text-[12px]",
     size === "default" &&
       "min-h-[44px] px-[22px] text-[17px] tracking-[-0.022em]",
     size === "lg" && "min-h-[48px] px-6 text-[17px] tracking-[-0.022em]",
-    "bg-[#0071e3] text-white hover:bg-[#0077ed] hover:text-white hover:no-underline",
     className
   )
 }

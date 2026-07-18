@@ -2,6 +2,20 @@ import { MarketingProseShell } from "@/components/content/marketing-prose-shell"
 import { ProseBreadcrumbs } from "@/components/content/prose-breadcrumbs"
 import { ContentBody } from "@/components/content/content-body"
 import type { ContentFaq, ContentBlock } from "@/lib/content/types"
+import {
+  proseDivider,
+  proseFaq,
+  proseFaqAnswer,
+  proseFaqItem,
+  proseFaqList,
+  proseFaqQuestion,
+  proseFaqTitle,
+  proseHero,
+  proseHeroLead,
+  proseHeroMeta,
+  proseHeroTitle,
+  proseArticle,
+} from "@/lib/marketing-prose-classes"
 import type { ReactNode } from "react"
 
 export function SeoPageShell({
@@ -34,36 +48,33 @@ export function SeoPageShell({
     >
       {breadcrumbs ? <ProseBreadcrumbs items={breadcrumbs} /> : null}
 
-      <header className="MacWallProseHero">
-        <h1 id={titleId} className="MacWallProseHeroTitle">
+      <header className={proseHero}>
+        <h1 id={titleId} className={proseHeroTitle}>
           {headline}
         </h1>
-        <p className="MacWallProseHeroLead">{description}</p>
-        {meta ? <p className="MacWallProseHeroMeta">{meta}</p> : null}
+        <p className={proseHeroLead}>{description}</p>
+        {meta ? <p className={proseHeroMeta}>{meta}</p> : null}
       </header>
 
-      <div className="MacWallProseDivider" role="presentation" />
+      <div className={proseDivider} role="presentation" />
 
-      <article className="MacWallProseArticle">
+      <article className={proseArticle}>
         {sections ? <ContentBody sections={sections} /> : null}
         {children}
       </article>
 
       {faq && faq.length > 0 ? (
         <>
-          <div className="MacWallProseDivider" role="presentation" />
-          <section
-            className="MacWallProseFaq"
-            aria-labelledby="seo-page-faq-title"
-          >
-            <h2 id="seo-page-faq-title" className="MacWallProseFaqTitle">
+          <div className={proseDivider} role="presentation" />
+          <section className={proseFaq} aria-labelledby="seo-page-faq-title">
+            <h2 id="seo-page-faq-title" className={proseFaqTitle}>
               Frequently asked questions
             </h2>
-            <dl className="MacWallProseFaqList">
+            <dl className={proseFaqList}>
               {faq.map((item) => (
-                <div key={item.question} className="MacWallProseFaqItem">
-                  <dt className="MacWallProseFaqQuestion">{item.question}</dt>
-                  <dd className="MacWallProseFaqAnswer">{item.answer}</dd>
+                <div key={item.question} className={proseFaqItem}>
+                  <dt className={proseFaqQuestion}>{item.question}</dt>
+                  <dd className={proseFaqAnswer}>{item.answer}</dd>
                 </div>
               ))}
             </dl>

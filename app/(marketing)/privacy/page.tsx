@@ -310,7 +310,8 @@ export default function PrivacyPage() {
           <p>
             Feedback you provide may be used to improve the product. Information
             in this policy may change without notice apart from the posting
-            above. Copyright © {year} {macwall.name}. All rights reserved.
+            above. Copyright © {year} {macwall.legalCompanyName}. All rights
+            reserved.
             Contact:{" "}
             <a href={`mailto:${macwall.supportEmail}`}>
               {macwall.supportEmail}

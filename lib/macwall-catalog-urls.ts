@@ -11,14 +11,31 @@ function encodeObjectPath(trimmedPath: string): string {
     .join("/")
 }
 
-function normalizeVideosPath(key: string): string {
+function normalizeCatalogObjectPath(
+  key: string,
+  defaultPrefix: "videos" | "thumbs"
+): string {
   const k = key.trim().replace(/^\/+/, "")
-  return k.startsWith("videos/") ? k : `videos/${k}`
+  if (!k) return `${defaultPrefix}/`
+
+  if (
+    k.startsWith("community-pending/") ||
+    k.startsWith("videos/") ||
+    k.startsWith("thumbs/") ||
+    k.startsWith("assets/")
+  ) {
+    return k
+  }
+
+  return `${defaultPrefix}/${k}`
+}
+
+function normalizeVideosPath(key: string): string {
+  return normalizeCatalogObjectPath(key, "videos")
 }
 
 function normalizeThumbsPath(key: string): string {
-  const k = key.trim().replace(/^\/+/, "")
-  return k.startsWith("thumbs/") ? k : `thumbs/${k}`
+  return normalizeCatalogObjectPath(key, "thumbs")
 }
 
 function publicObjectUrlFromPath(path: string): string {
@@ -37,5 +54,5 @@ export function catalogPublicThumbUrlFromKey(thumbKey: string): string {
 export function catalogMarketingGalleryPosterUrlFromKey(
   thumbKey: string
 ): string {
-  return publicObjectUrlFromPath(normalizeThumbsPath(thumbKey))
+  return catalogPublicThumbUrlFromKey(thumbKey)
 }

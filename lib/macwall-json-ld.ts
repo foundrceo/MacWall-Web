@@ -1,12 +1,17 @@
-import { macwall, macwallAppIconPath } from "@/lib/macwall-site"
+import {
+  macwall,
+  macwallAppIconPath,
+  macwallMinimumMacOSVersion,
+  macwallMinimumMacOSRequirementOrLater,
+} from "@/lib/macwall-site"
 
 /**
  * Alternate names help Google resolve the "MacWall" entity to this software app
  * rather than the unrelated "MACWALL" retaining-wall product.
  */
 const MACWALL_ALTERNATE_NAMES = [
+  macwall.fullTagline,
   "MacWall App",
-  "MacWall - Live Wallpapers for Mac",
   "MacWall Live Wallpaper",
 ] as const
 
@@ -40,7 +45,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         image: logoUrl,
         email: macwall.supportEmail,
         description:
-          "Maker of MacWall, the native macOS app for live video wallpapers on the Mac desktop, with menu bar control and Lock Screen motion on macOS 26 Tahoe.",
+          `Maker of MacWall, the native macOS app for live video wallpapers on the Mac desktop, with menu bar control and Lock Screen motion on ${macwallMinimumMacOSVersion}.`,
         sameAs: [...MACWALL_SAME_AS],
       },
       {
@@ -50,7 +55,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         name: `${macwall.name} App`,
         alternateName: [...MACWALL_ALTERNATE_NAMES],
         description:
-          "Native macOS app for live video wallpapers behind your windows: curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, and optional MacWall Pro for Lock Screen and Screen Saver motion on macOS 26 Tahoe.",
+          `Native macOS app for live video wallpapers behind your windows: curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, and optional MacWall Pro for Lock Screen and Screen Saver motion on ${macwallMinimumMacOSVersion}.`,
         publisher: { "@id": orgId },
       },
       {
@@ -60,9 +65,8 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         alternateName: [...MACWALL_ALTERNATE_NAMES],
         applicationCategory: "MultimediaApplication",
         applicationSubCategory: "Desktop Wallpaper / Live Wallpaper",
-        operatingSystem:
-          "macOS 14 Sonoma, macOS 15 Sequoia, macOS 26 Tahoe, and newer",
-        description: `${macwall.name} is a native macOS app that brings live video wallpapers and a curated cloud catalog to Apple Silicon and Intel Macs running macOS 14 Sonoma or later. Live Lock Screen and Screen Saver wallpapers require macOS 26 Tahoe; features vary by OS version.`,
+        operatingSystem: macwallMinimumMacOSRequirementOrLater,
+        description: `${macwall.name} is a native macOS app that brings live video wallpapers and a curated cloud catalog to Apple Silicon and Intel Macs running ${macwallMinimumMacOSVersion} or later, including live Lock Screen and Screen Saver wallpapers.`,
         url: origin,
         image: logoUrl,
         screenshot: `${origin}/og.jpg`,
@@ -76,7 +80,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
           "Multi-display playback, synced or solo, with hardware decoding",
           "Menu bar control and auto-pause on battery, full screen, and high CPU",
           "Music Sync: album-art gradients from Apple Music and Spotify",
-          "MacWall Pro: live Lock Screen and Screen Saver on macOS 26 Tahoe",
+          `MacWall Pro: live Lock Screen and Screen Saver on ${macwallMinimumMacOSVersion}`,
         ],
         publisher: { "@id": orgId },
         isPartOf: { "@id": siteId },
