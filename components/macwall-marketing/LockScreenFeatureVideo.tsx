@@ -1,12 +1,11 @@
-import {
-  MARKETING_LOCK_SCREEN_VIDEO_MP4,
-  MARKETING_LOCK_SCREEN_VIDEO_WEBM,
-} from "@/lib/marketing-shell/assets"
+import { marketingLockScreenVideoSources } from "@/lib/marketing-assets-urls"
 
 /** Lock Screen feature demo — static markup so hydration never remounts or reloads the clip. */
 export default function LockScreenFeatureVideo({
   ariaLabel,
 }: Readonly<{ ariaLabel: string }>) {
+  const sources = marketingLockScreenVideoSources()
+
   return (
     <div className="relative aspect-video overflow-hidden rounded-2xl bg-black">
       <video
@@ -18,8 +17,9 @@ export default function LockScreenFeatureVideo({
         className="h-full w-full object-cover"
         aria-label={ariaLabel}
       >
-        <source src={MARKETING_LOCK_SCREEN_VIDEO_WEBM} type="video/webm" />
-        <source src={MARKETING_LOCK_SCREEN_VIDEO_MP4} type="video/mp4" />
+        {sources.map((src) => (
+          <source key={src} src={src} />
+        ))}
       </video>
     </div>
   )

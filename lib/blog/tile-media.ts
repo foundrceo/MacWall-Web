@@ -47,7 +47,7 @@ const TILE_IMAGE_BY_SLUG: Record<string, string> = {
   "nature-live-wallpaper-mac": UNSPLASH("photo-1454165804606-c3d57bc86b40"),
   "space-wallpaper-mac": UNSPLASH("photo-1522071820081-009f0129c71c"),
   "gaming-wallpaper-mac": UNSPLASH("photo-1593305841991-05c297ba4575"),
-  /* Generated comparison covers — see scripts/build-blog-vs-images.mjs */
+  /* Comparison cover images in public/blog/vs/ */
   "macwall-vs-wallper": "/blog/vs/macwall-vs-wallper.png",
   "macwall-vs-wallspace": "/blog/vs/macwall-vs-wallspace.png",
   "macwall-vs-lively-wallpaper": "/blog/vs/macwall-vs-lively-wallpaper.png",

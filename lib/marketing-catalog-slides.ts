@@ -1,10 +1,10 @@
 /**
- * Featured hero carousel for marketing — six live catalog wallpapers from Supabase.
- * Thumbnails are vendored under `public/marketing-supabase-thumbs/` (run
- * `pnpm run marketing:sync-catalog-thumbs`).
- * Videos stream from Storage public URLs (~same as shipped MacWall app).
+ * Featured hero carousel IDs — videos and posters from R2 CDN (same as live catalog).
  */
-import { catalogPublicVideoUrlFromKey } from "@/lib/macwall-catalog-urls"
+import {
+  catalogPublicThumbUrlFromKey,
+  catalogPublicVideoUrlFromKey,
+} from "@/lib/macwall-catalog-urls"
 
 export type MarketingCatalogSlide = {
   id: string
@@ -14,14 +14,14 @@ export type MarketingCatalogSlide = {
   file_size_bytes: number
   duration_seconds: number
   like_count: number
-  /** Poster/thumb URL (local path or Supabase). */
+  /** R2 poster/thumb URL. */
   thumbPath: string
   /** Optional second URL if `thumbPath` fails to load (demo pick tiles). */
   thumbFallbackPath?: string
   videoUrl: string
 }
 
-/** Top six by likes; categories diversified. Hero order left → newest selection index 0 starts at Spider-Man strip. */
+/** Top picks by likes; categories diversified. */
 const rows = [
   {
     id: "supra-anime-garage",
@@ -32,6 +32,7 @@ const rows = [
     duration_seconds: 30,
     like_count: 1,
     video_key: "videos/supra-anime-garage.mp4",
+    thumb_key: "thumbs/supra-anime-garage.jpg",
   },
   {
     id: "wallpaper-1773917256",
@@ -42,6 +43,7 @@ const rows = [
     duration_seconds: 18.589,
     like_count: 1,
     video_key: "videos/wallpaper-1773917256.mp4",
+    thumb_key: "thumbs/wallpaper-1773917256.jpg",
   },
   {
     id: "orbital-station-above-earth",
@@ -52,6 +54,7 @@ const rows = [
     duration_seconds: 0,
     like_count: 0,
     video_key: "videos/orbital-station-above-earth.mp4",
+    thumb_key: "thumbs/orbital-station-above-earth.jpg",
   },
   {
     id: "sukuna-battle-pose",
@@ -62,6 +65,7 @@ const rows = [
     duration_seconds: 0,
     like_count: 0,
     video_key: "videos/sukuna-battle-pose.mp4",
+    thumb_key: "thumbs/sukuna-battle-pose.jpg",
   },
   {
     id: "gentle-fern-leaves",
@@ -72,6 +76,7 @@ const rows = [
     duration_seconds: 12.6,
     like_count: 1,
     video_key: "videos/gentle-fern-leaves.mp4",
+    thumb_key: "thumbs/gentle-fern-leaves.jpg",
   },
 ] as const
 
@@ -84,7 +89,7 @@ export const MARKETING_CATALOG_SLIDES: MarketingCatalogSlide[] = rows.map(
     file_size_bytes: r.file_size_bytes,
     duration_seconds: r.duration_seconds,
     like_count: r.like_count,
-    thumbPath: `/marketing-supabase-thumbs/${r.id}.jpg`,
+    thumbPath: catalogPublicThumbUrlFromKey(r.thumb_key),
     videoUrl: catalogPublicVideoUrlFromKey(r.video_key),
   })
 )
