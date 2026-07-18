@@ -4,6 +4,10 @@ import {
   resolveTikTokPixelId,
   TikTokPixel,
 } from "@/components/analytics/tiktok-pixel"
+import {
+  resolveXAdsPixelId,
+  XAdsPixel,
+} from "@/components/analytics/x-ads-pixel"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { JsonLd } from "@/components/seo/json-ld"
 import { macwallSchemaGraph } from "@/lib/macwall-json-ld"
@@ -64,6 +68,7 @@ function resolveAhrefsWebAnalyticsKey(): string | undefined {
 
 const ahrefsWebAnalyticsKey = resolveAhrefsWebAnalyticsKey()
 const tiktokPixelId = resolveTikTokPixelId()
+const xAdsPixelId = resolveXAdsPixelId()
 
 export const metadata: Metadata = {
   title: {
@@ -97,7 +102,6 @@ export const metadata: Metadata = {
     "macbook air live wallpaper",
     "wallpaper engine alternative mac",
     "wallpaper engine for mac",
-    "wallper alternative",
     "wallspace alternative",
     "backdrop alternative mac",
     "lively wallpaper mac",
@@ -187,6 +191,7 @@ export default function RootLayout({
     >
       <head>
         {tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}
+        {xAdsPixelId ? <XAdsPixel pixelId={xAdsPixelId} /> : null}
       </head>
       {/* Avoid hydration warnings when extensions inject attributes on <body> */}
       <body
