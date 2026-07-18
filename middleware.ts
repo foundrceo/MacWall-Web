@@ -4,39 +4,53 @@ import {
   ADMIN_SESSION_COOKIE,
   verifyAdminSessionToken,
 } from "@/lib/admin/session"
-import { applyCountryCookie } from "@/lib/geo/country"
+import {
+  applyCountryCookie,
+  MW_RESOLVED_COUNTRY_HEADER,
+} from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 
 /**
- * Resolves visitor country (Vercel/CF geo, cookie, Accept-Language, IP, dev override)
- * and persists it in mw_country for analytics + client reads.
+ * Resolves visitor country on the Edge (x-vercel-ip-country) and forwards it to
+ * server components via x-mw-resolved-country — Node runtimes do not receive geo headers.
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const country = await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: request.cookies.get("mw_country")?.value,
+    geoCountry: request.headers.get("x-vercel-ip-country"),
   })
+
+  const requestHeaders = new Headers(request.headers)
+  if (country) {
+    requestHeaders.set(MW_RESOLVED_COUNTRY_HEADER, country)
+  }
 
   const withCountryCookie = (response: NextResponse) =>
     applyCountryCookie(response, country)
+
+  const next = () =>
+    withCountryCookie(
+      NextResponse.next({ request: { headers: requestHeaders } })
+    )
 
   const isAdminSurface =
     pathname.startsWith("/admin") || pathname.startsWith("/api/admin")
 
   if (!isAdminSurface) {
-    return withCountryCookie(NextResponse.next())
+    return next()
   }
 
   const isLoginPage = pathname === "/admin/login"
   const isLoginApi = pathname === "/api/admin/login"
   if (isLoginPage || isLoginApi) {
-    return withCountryCookie(NextResponse.next())
+    return next()
   }
 
   const token = request.cookies.get(ADMIN_SESSION_COOKIE)?.value
   if (await verifyAdminSessionToken(token)) {
-    return withCountryCookie(NextResponse.next())
+    return next()
   }
 
   if (pathname.startsWith("/api/")) {

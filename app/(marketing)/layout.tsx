@@ -6,6 +6,8 @@ import type { ReactNode } from "react"
 
 /** Geo-aware pricing is resolved on the server so India INR prices render on first paint. */
 export const dynamic = "force-dynamic"
+export const revalidate = 0
+export const fetchCache = "force-no-store"
 
 export default async function MarketingLayout({
   children,

@@ -9,6 +9,8 @@ import {
 export type ResolveVisitorCountryInput = {
   headers: Headers
   cookieCountry?: string | null
+  /** Vercel middleware `request.geo.country` — most reliable on production. */
+  geoCountry?: string | null
 }
 
 const IP_LOOKUP_TIMEOUT_MS = 2500
@@ -152,6 +154,9 @@ async function resolveCountryFromDevServerEgress(): Promise<string | null> {
 export async function resolveVisitorCountry(
   input: ResolveVisitorCountryInput
 ): Promise<string | null> {
+  const fromGeo = normalizeCountry(input.geoCountry)
+  if (fromGeo) return fromGeo
+
   const fromEdge = resolveCountryFromHeaders(input.headers)
   if (fromEdge) return fromEdge
 
