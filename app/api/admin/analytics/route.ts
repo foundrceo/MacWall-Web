@@ -11,7 +11,9 @@ import {
   buildClicksByLocation,
   buildDailyCountsFallback,
   buildDownloadFunnel,
+  buildIndiaAudienceMetrics,
   buildTopPageViews,
+  buildVisitorsByCountry,
   fetchDailyCounts,
   fetchEventsInRange,
   fetchLatestEventAt,
@@ -56,9 +58,7 @@ export async function GET(request: Request) {
       fetchEventsInRange(supabase, sinceIso),
       fetchLatestEventAt(supabase),
       supabase.from("community_uploads").select("status"),
-      supabase
-        .from("wallpapers")
-        .select("id", { count: "exact", head: true }),
+      supabase.from("wallpapers").select("id", { count: "exact", head: true }),
       supabase
         .from("wallpaper_likes")
         .select("id", { count: "exact", head: true }),
@@ -112,6 +112,8 @@ export async function GET(request: Request) {
       "pricing_click"
     )
     const topPages = buildTopPageViews(eventRows)
+    const visitorsByCountry = buildVisitorsByCountry(eventRows)
+    const indiaAudience = buildIndiaAudienceMetrics(eventRows)
     const downloadDaily = dailyCounts
       .filter(
         (row) =>
@@ -139,6 +141,8 @@ export async function GET(request: Request) {
       pricingClicksByLocation,
       downloadDaily,
       topPages,
+      visitorsByCountry,
+      indiaAudience,
       communityUploads: uploadTotals,
       catalogWallpaperCount: wallpaperCountResult.count ?? 0,
       totalLikes: likesResult.count ?? 0,

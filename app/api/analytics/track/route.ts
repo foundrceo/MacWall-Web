@@ -5,6 +5,7 @@ import {
   type SiteAnalyticsMetadata,
 } from "@/lib/analytics/events"
 import { trackSiteEvent } from "@/lib/analytics/track-server"
+import { resolveCountryFromHeaders } from "@/lib/geo/country"
 import {
   clientIpFromRequest,
   createInMemoryRateLimiter,
@@ -55,7 +56,10 @@ export async function POST(request: Request) {
       referrer: body.referrer?.slice(0, 512) ?? null,
       userAgent: request.headers.get("user-agent")?.slice(0, 512) ?? null,
       sessionId: body.sessionId?.slice(0, 128) ?? null,
-      metadata: sanitizeMetadata(body.metadata),
+      metadata: enrichMetadataWithCountry(
+        sanitizeMetadata(body.metadata),
+        resolveCountryFromHeaders(request.headers)
+      ),
     })
 
     return NextResponse.json({ ok: true })
@@ -68,6 +72,16 @@ export async function POST(request: Request) {
     }
     return NextResponse.json({ ok: false }, { status: 500 })
   }
+}
+
+function enrichMetadataWithCountry(
+  metadata: SiteAnalyticsMetadata,
+  country: string | null
+): SiteAnalyticsMetadata {
+  const enriched = { ...metadata }
+  if (country && !enriched.country) enriched.country = country
+  if (country === "IN" && !enriched.audience) enriched.audience = "india"
+  return enriched
 }
 
 function sanitizeMetadata(

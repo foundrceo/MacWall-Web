@@ -4,12 +4,26 @@ export type AnalyticsEventRow = {
   event_name: string
   created_at?: string
   path?: string | null
-  metadata?: { location?: string; page?: string } | null
+  metadata?: {
+    location?: string
+    page?: string
+    country?: string
+    audience?: string
+  } | null
   session_id?: string | null
 }
 
 export type DailyRow = { day: string; event_name: string; count: number }
 export type LocationCountRow = { location: string; count: number }
+export type CountryCountRow = { country: string; count: number }
+
+export type IndiaAudienceMetrics = {
+  pageViews: number
+  uniqueSessions: number
+  pricingClicks: number
+  ctaClicks: number
+  announcementClicks: number
+}
 
 const PAGE_SIZE = 1000
 
@@ -114,8 +128,7 @@ export function buildDownloadFunnel(rows: AnalyticsEventRow[]) {
     }
   }
 
-  const completionRate =
-    clicks > 0 ? Math.round((redirects / clicks) * 100) : 0
+  const completionRate = clicks > 0 ? Math.round((redirects / clicks) * 100) : 0
 
   return {
     clicks,
@@ -143,6 +156,68 @@ export function buildClicksByLocation(
   return [...totals.entries()]
     .map(([location, count]) => ({ location, count }))
     .sort((a, b) => b.count - a.count)
+}
+
+function rowCountry(row: AnalyticsEventRow): string | null {
+  const country =
+    typeof row.metadata?.country === "string" ? row.metadata.country.trim() : ""
+  if (country) return country.toUpperCase()
+
+  if (row.metadata?.audience === "india") return "IN"
+  return null
+}
+
+export function buildVisitorsByCountry(
+  rows: AnalyticsEventRow[],
+  limit = 12
+): CountryCountRow[] {
+  const totals = new Map<string, number>()
+
+  for (const row of rows) {
+    if (row.event_name !== "page_view") continue
+    const country = rowCountry(row)
+    if (!country) continue
+    totals.set(country, (totals.get(country) ?? 0) + 1)
+  }
+
+  return [...totals.entries()]
+    .map(([country, count]) => ({ country, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit)
+}
+
+export function buildIndiaAudienceMetrics(
+  rows: AnalyticsEventRow[]
+): IndiaAudienceMetrics {
+  const uniqueSessions = new Set<string>()
+  let pageViews = 0
+  let pricingClicks = 0
+  let ctaClicks = 0
+  let announcementClicks = 0
+
+  for (const row of rows) {
+    const isIndia = rowCountry(row) === "IN"
+    if (!isIndia) continue
+
+    if (row.session_id) uniqueSessions.add(row.session_id)
+
+    if (row.event_name === "page_view") pageViews += 1
+    if (row.event_name === "pricing_click") pricingClicks += 1
+    if (row.event_name === "cta_click") {
+      ctaClicks += 1
+      if (row.metadata?.location === "announcement_bar") {
+        announcementClicks += 1
+      }
+    }
+  }
+
+  return {
+    pageViews,
+    uniqueSessions: uniqueSessions.size,
+    pricingClicks,
+    ctaClicks,
+    announcementClicks,
+  }
 }
 
 export function buildDailyCountsFallback(

@@ -58,6 +58,14 @@ type AnalyticsResponse = {
   }
   downloadClicksByLocation?: Array<{ location: string; count: number }>
   pricingClicksByLocation?: Array<{ location: string; count: number }>
+  visitorsByCountry?: Array<{ country: string; count: number }>
+  indiaAudience?: {
+    pageViews: number
+    uniqueSessions: number
+    pricingClicks: number
+    ctaClicks: number
+    announcementClicks: number
+  }
   downloadDaily?: Array<{ day: string; event_name: string; count: number }>
   topPages: Array<{ path: string; count: number }>
   communityUploads: { pending: number; approved: number; rejected: number }
@@ -224,7 +232,10 @@ export function AnalyticsDashboard() {
           onClick={() => setRefreshKey((key) => key + 1)}
           disabled={loading}
         >
-          <HugeiconsIcon icon={ArrowReloadHorizontalIcon} className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
+          <HugeiconsIcon
+            icon={ArrowReloadHorizontalIcon}
+            className={`size-3.5 ${loading ? "animate-spin" : ""}`}
+          />
           Refresh
         </AdminPill>
       </AdminToolbar>
@@ -254,37 +265,62 @@ export function AnalyticsDashboard() {
             <AdminSectionHeading
               eyebrow={`Last ${data.rangeDays} days`}
               title="Website performance"
-              icon={<HugeiconsIcon icon={Globe02Icon} className="size-5 text-[#86868b]" />}
+              icon={
+                <HugeiconsIcon
+                  icon={Globe02Icon}
+                  className="size-5 text-[#86868b]"
+                />
+              }
             />
 
-            <div className="grid gap-4 lg:gap-5 lg:grid-cols-4">
+            <div className="grid gap-4 lg:grid-cols-4 lg:gap-5">
               <AdminMetricTile
-                icon={<HugeiconsIcon icon={Download01Icon} className="size-4 text-[#86868b]" />}
+                icon={
+                  <HugeiconsIcon
+                    icon={Download01Icon}
+                    className="size-4 text-[#86868b]"
+                  />
+                }
                 label="Download clicks"
                 value={downloadClicks}
                 hint="CTA taps across the site"
               />
               <AdminMetricTile
-                icon={<HugeiconsIcon icon={ActivityIcon} className="size-4 text-[#86868b]" />}
+                icon={
+                  <HugeiconsIcon
+                    icon={ActivityIcon}
+                    className="size-4 text-[#86868b]"
+                  />
+                }
                 label="Installer redirects"
                 value={downloadRedirects}
                 hint="Successful /download/latest hits"
               />
               <AdminMetricTile
-                icon={<HugeiconsIcon icon={UserGroupIcon} className="size-4 text-[#86868b]" />}
+                icon={
+                  <HugeiconsIcon
+                    icon={UserGroupIcon}
+                    className="size-4 text-[#86868b]"
+                  />
+                }
                 label="Download click sessions"
                 value={uniqueDownloadSessions}
                 hint="Unique visitors who tapped download"
               />
               <AdminMetricTile
-                icon={<HugeiconsIcon icon={ActivityIcon} className="size-4 text-[#86868b]" />}
+                icon={
+                  <HugeiconsIcon
+                    icon={ActivityIcon}
+                    className="size-4 text-[#86868b]"
+                  />
+                }
                 label="Page views"
                 value={pageViews}
                 hint="Tracked marketing page views"
               />
             </div>
 
-            <div className="grid gap-4 lg:gap-5 lg:grid-cols-3">
+            <div className="grid gap-4 lg:grid-cols-3 lg:gap-5">
               <AdminSurface>
                 <AdminSurfaceHeader
                   title="Download funnel"
@@ -305,7 +341,10 @@ export function AnalyticsDashboard() {
                   description="All tracked events aggregated by day"
                 />
                 <AdminSurfaceBody>
-                  <DailyActivityChart rows={data.dailyCounts} days={chartDays} />
+                  <DailyActivityChart
+                    rows={data.dailyCounts}
+                    days={chartDays}
+                  />
                 </AdminSurfaceBody>
               </AdminSurface>
             </div>
@@ -323,7 +362,7 @@ export function AnalyticsDashboard() {
               </AdminSurfaceBody>
             </AdminSurface>
 
-            <div className="grid gap-4 lg:gap-5 lg:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
               <AdminSurface>
                 <AdminSurfaceHeader title="Download clicks by button" />
                 <AdminSurfaceBody>
@@ -350,24 +389,91 @@ export function AnalyticsDashboard() {
                 </AdminSurfaceBody>
               </AdminSurface>
             </div>
+
+            {data.indiaAudience ? (
+              <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr] lg:gap-5">
+                <AdminSurface>
+                  <AdminSurfaceHeader
+                    title="India audience (INDIA50 promo)"
+                    description="Visitors from India tracked via geo + promo funnel"
+                  />
+                  <AdminSurfaceBody>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      <AdminMetricTile
+                        label="India page views"
+                        value={data.indiaAudience.pageViews}
+                        hint="Geo-tagged page views"
+                      />
+                      <AdminMetricTile
+                        label="India sessions"
+                        value={data.indiaAudience.uniqueSessions}
+                        hint="Unique visitors from IN"
+                      />
+                      <AdminMetricTile
+                        label="India pricing clicks"
+                        value={data.indiaAudience.pricingClicks}
+                        hint="Includes india_pricing_offer"
+                      />
+                      <AdminMetricTile
+                        label="Banner taps"
+                        value={data.indiaAudience.announcementClicks}
+                        hint="India flash banner clicks"
+                      />
+                      <AdminMetricTile
+                        label="India CTA clicks"
+                        value={data.indiaAudience.ctaClicks}
+                        hint="All India-tagged CTAs"
+                      />
+                    </div>
+                  </AdminSurfaceBody>
+                </AdminSurface>
+
+                <AdminSurface>
+                  <AdminSurfaceHeader title="Visitors by country" />
+                  <AdminSurfaceBody>
+                    <HorizontalBarChart
+                      rows={(data.visitorsByCountry ?? []).map((row) => ({
+                        label: row.country,
+                        value: row.count,
+                      }))}
+                    />
+                  </AdminSurfaceBody>
+                </AdminSurface>
+              </div>
+            ) : null}
           </section>
 
           <section className="space-y-5 sm:space-y-6">
             <AdminSectionHeading
               eyebrow="All-time database totals"
               title="Catalog & community"
-              icon={<HugeiconsIcon icon={LayersIcon} className="size-5 text-[#86868b]" />}
+              icon={
+                <HugeiconsIcon
+                  icon={LayersIcon}
+                  className="size-5 text-[#86868b]"
+                />
+              }
             />
 
-            <div className="grid gap-4 lg:gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
               <AdminMetricTile
-                icon={<HugeiconsIcon icon={ImageIcon} className="size-4 text-[#86868b]" />}
+                icon={
+                  <HugeiconsIcon
+                    icon={ImageIcon}
+                    className="size-4 text-[#86868b]"
+                  />
+                }
                 label="Catalog wallpapers"
                 value={data.catalogWallpaperCount}
                 hint="All-time total"
               />
               <AdminMetricTile
-                icon={<HugeiconsIcon icon={HeartIcon} className="size-4 text-[#86868b]" />}
+                icon={
+                  <HugeiconsIcon
+                    icon={HeartIcon}
+                    className="size-4 text-[#86868b]"
+                  />
+                }
                 label="Total likes"
                 value={data.totalLikes}
                 hint="All-time total"
@@ -384,7 +490,7 @@ export function AnalyticsDashboard() {
               />
             </div>
 
-            <div className="grid gap-4 lg:gap-5 lg:grid-cols-3">
+            <div className="grid gap-4 lg:grid-cols-3 lg:gap-5">
               <AdminSurface>
                 <AdminSurfaceHeader
                   title="Upload health"
@@ -433,7 +539,7 @@ export function AnalyticsDashboard() {
               </AdminSurface>
             </div>
 
-            <div className="grid gap-4 lg:gap-5 lg:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
               <AdminSurface>
                 <AdminSurfaceHeader title="Catalog by category" />
                 <AdminSurfaceBody>
@@ -468,7 +574,10 @@ export function AnalyticsDashboard() {
                           </p>
                         </div>
                         <AdminBadge tone="red">
-                          <HugeiconsIcon icon={HeartIcon} className="mr-1 size-3" />
+                          <HugeiconsIcon
+                            icon={HeartIcon}
+                            className="mr-1 size-3"
+                          />
                           {row.likeCount}
                         </AdminBadge>
                       </div>
@@ -478,7 +587,7 @@ export function AnalyticsDashboard() {
               </AdminSurface>
             </div>
 
-            <div className="grid gap-4 lg:gap-5 lg:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
               <AdminSurface>
                 <AdminSurfaceHeader title="All tracked events" />
                 <AdminSurfaceBody>
@@ -522,12 +631,22 @@ function SalesSection({
       <AdminSectionHeading
         eyebrow={`Whop · last ${rangeDays} days vs previous ${rangeDays}`}
         title="Sales & revenue"
-        icon={<HugeiconsIcon icon={ArrowUpRightIcon} className="size-5 text-[#86868b]" />}
+        icon={
+          <HugeiconsIcon
+            icon={ArrowUpRightIcon}
+            className="size-5 text-[#86868b]"
+          />
+        }
       />
 
-      <div className="grid gap-4 lg:gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
         <AdminMetricTile
-          icon={<HugeiconsIcon icon={CreditCardIcon} className="size-4 text-[#86868b]" />}
+          icon={
+            <HugeiconsIcon
+              icon={CreditCardIcon}
+              className="size-4 text-[#86868b]"
+            />
+          }
           label="Gross revenue"
           value={formatUsd(sales.grossRevenue)}
           hint={`${sales.sales} sales · prev ${formatUsd(sales.prevGrossRevenue)}${
@@ -556,7 +675,7 @@ function SalesSection({
         />
       </div>
 
-      <div className="grid gap-4 lg:gap-5 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3 lg:gap-5">
         <AdminSurface className="lg:col-span-2">
           <AdminSurfaceHeader
             title="Revenue over time"
@@ -621,12 +740,12 @@ function SalesSection({
 function AnalyticsSkeleton() {
   return (
     <div className="space-y-5 sm:space-y-6">
-      <div className="grid gap-4 lg:gap-5 lg:grid-cols-4">
+      <div className="grid gap-4 lg:grid-cols-4 lg:gap-5">
         {Array.from({ length: 4 }).map((_, index) => (
           <AdminSkeleton key={index} className="h-28" />
         ))}
       </div>
-      <div className="grid gap-4 lg:gap-5 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3 lg:gap-5">
         <AdminSkeleton className="h-64" />
         <AdminSkeleton className="h-64 lg:col-span-2" />
       </div>
@@ -645,6 +764,7 @@ const DOWNLOAD_LOCATION_LABELS: Record<string, string> = {
 
 const PRICING_LOCATION_LABELS: Record<string, string> = {
   pricing_card: "Pricing page CTA",
+  india_pricing_offer: "India flash offer card",
   bottom_cta: "Bottom CTA section",
   footer_shop_buy: "Footer buy link (desktop)",
   footer_mobile_shop: "Footer buy link (mobile)",
@@ -667,8 +787,8 @@ function TrackingHealthBanner({
       <AdminNotice tone="warning">
         <span className="inline-flex items-center gap-1.5">
           <HugeiconsIcon icon={NoSignalIcon} className="size-4 shrink-0" />
-          No analytics events stored yet. Visit the public site and click Download
-          to verify tracking after deploy.
+          No analytics events stored yet. Visit the public site and click
+          Download to verify tracking after deploy.
         </span>
       </AdminNotice>
     )
