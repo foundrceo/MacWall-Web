@@ -28,7 +28,7 @@ export const indiaPromo = {
     ctaAria: `Buy MacWall Pro with India discount code ${INDIA_PROMO_CODE}`,
     copyLabel: "Copy code",
     copiedLabel: "Copied!",
-    checkoutNote: "Apply INDIA50 at Whop checkout",
+    checkoutNote: "Final INR price at Whop checkout — apply INDIA50",
     lifetimeNote: "Lifetime license · up to 3 Macs",
   },
 } as const

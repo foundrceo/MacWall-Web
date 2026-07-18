@@ -89,8 +89,9 @@ export default function IndiaPricingOffer() {
           </p>
 
           <p className="MacWallIndiaOfferMeta">
-            {indiaPromo.pricing.lifetimeNote} · Live Whop price ·{" "}
-            {indiaPromo.code} at checkout
+            {pricing.salePrice === "50% off"
+              ? `Final INR price at Whop checkout · ${indiaPromo.code}`
+              : `${indiaPromo.pricing.lifetimeNote} · Live Whop price · ${indiaPromo.code} at checkout`}
           </p>
         </div>
 

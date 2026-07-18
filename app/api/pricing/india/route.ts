@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server"
 
 import { getCachedIndiaQuote } from "@/lib/pricing/get-cached-india-quote"
-import { buildIndiaFallbackQuote } from "@/lib/pricing/whop-india-pricing"
 
 export const runtime = "nodejs"
 
 const CACHE_SECONDS = 300
 
 export async function GET() {
-  const quote = (await getCachedIndiaQuote()) ?? buildIndiaFallbackQuote()
+  const quote = await getCachedIndiaQuote()
+
+  if (!quote) {
+    return NextResponse.json(
+      { error: "Unable to load live India pricing" },
+      { status: 503 }
+    )
+  }
 
   return NextResponse.json(quote, {
     headers: {
