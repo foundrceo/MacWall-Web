@@ -161,7 +161,7 @@ export function AdminPageIntro({
 }
 
 const buttonBase =
-  "inline-flex items-center justify-center rounded-full font-normal transition-all duration-200 ease-out outline-none active:scale-[0.98] disabled:pointer-events-none disabled:opacity-45 disabled:active:scale-100"
+  "inline-flex items-center justify-center rounded-full font-normal transition-all duration-200 ease-out outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)] focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-45 disabled:active:scale-100"
 
 const buttonSizes = {
   sm: "min-h-[32px] px-4 text-[12px]",
@@ -185,7 +185,8 @@ export function AdminButton({
       className={cn(
         buttonBase,
         buttonSizes[size],
-        variant === "primary" && "bg-[#0071e3] text-white hover:bg-[#0077ed]",
+        variant === "primary" &&
+          "bg-[var(--admin-blue)] text-white hover:bg-[var(--admin-blue-hover)]",
         variant === "secondary" &&
           "bg-[#f5f5f7] text-[#1d1d1f] hover:bg-[#e8e8ed]",
         variant === "ghost" &&
@@ -232,7 +233,7 @@ export function AdminInput({
   return (
     <input
       className={cn(
-        "h-11 w-full rounded-full bg-[#f5f5f7] px-5 text-[15px] text-[#1d1d1f] transition-all duration-200 outline-none placeholder:text-[#86868b] focus:bg-[#ebebed]",
+        "h-11 w-full rounded-full bg-[#f5f5f7] px-5 text-[15px] text-[#1d1d1f] transition-all duration-200 outline-none placeholder:text-[#86868b] focus:bg-[#ebebed] focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]",
         className
       )}
       {...props}
@@ -247,7 +248,7 @@ export function AdminTextarea({
   return (
     <textarea
       className={cn(
-        "min-h-24 w-full rounded-2xl bg-[#f5f5f7] px-4 py-3 text-[15px] text-[#1d1d1f] transition-all duration-200 outline-none placeholder:text-[#86868b] focus:bg-[#ebebed]",
+        "min-h-24 w-full rounded-2xl bg-[#f5f5f7] px-4 py-3 text-[15px] text-[#1d1d1f] transition-all duration-200 outline-none placeholder:text-[#86868b] focus:bg-[#ebebed] focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]",
         className
       )}
       {...props}

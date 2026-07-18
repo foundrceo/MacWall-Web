@@ -66,7 +66,7 @@ export async function GET(request: Request) {
       fetchTopLikedWallpapers(8),
       fetchDailyCounts(supabase, sinceIso),
       fetchAllSales(),
-      fetchAllDeviceActivations(),
+      fetchAllDeviceActivations(sinceIso),
     ])
 
     if (uploadsResult.error) throw new Error(uploadsResult.error.message)

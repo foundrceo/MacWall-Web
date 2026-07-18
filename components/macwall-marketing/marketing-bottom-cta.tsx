@@ -29,7 +29,7 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
 /** Shared pre-footer CTA — Palmier-style download strip. */
 export default function MacWallMarketingBottomCta() {
   return (
-    <section className="bg-[#0C0C0A]">
+    <section className="bg-background">
       <div className="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 md:py-24">
       <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-normal tracking-[-0.02em] text-foreground">
         Try {macwall.name} now.

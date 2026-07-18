@@ -4,12 +4,7 @@ import { marketingWalkthroughVideoSources } from "@/lib/marketing-assets-urls"
 export function HeroVideoPreload() {
   const heroSrc = marketingWalkthroughVideoSources()[0]
 
-  return (
-    <>
-      {heroSrc ? (
-        <link rel="preload" href={heroSrc} as="video" fetchPriority="high" />
-      ) : null}
-      <link rel="preload" href="/Video.webm" as="video" fetchPriority="high" />
-    </>
-  )
+  return heroSrc ? (
+    <link rel="preload" href={heroSrc} as="video" fetchPriority="high" />
+  ) : null
 }

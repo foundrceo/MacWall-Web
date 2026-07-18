@@ -141,6 +141,7 @@ export async function listAdminWallpapers(options: {
 
   const { data, error, count } = await query
     .order(column, { ascending })
+    .order("id", { ascending: true })
     .range(offset, offset + limit - 1)
 
   if (error) throw new Error(error.message)

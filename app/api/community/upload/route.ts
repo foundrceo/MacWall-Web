@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server"
 
+import {
+  COMMUNITY_VIDEO_CONTENT_TYPES,
+  validateVideoExtension,
+  videoContentTypeForExtension,
+} from "@/lib/community/submit-validation"
+import {
+  clientIpFromRequest,
+  createInMemoryRateLimiter,
+} from "@/lib/http/rate-limit"
 import { r2PresignPutUrl } from "@/lib/storage/r2"
 
 export const runtime = "nodejs"
@@ -7,14 +16,16 @@ export const maxDuration = 30
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-const VIDEO_EXTENSIONS = new Set(["mp4", "mov", "m4v", "webm"])
-const VIDEO_CONTENT_TYPES = new Set([
-  "video/mp4",
-  "video/quicktime",
-  "video/x-m4v",
-  "video/webm",
-])
-const PRESIGN_EXPIRY_SECONDS = 60 * 60
+
+/** Short-lived presign — the client uploads immediately after requesting it. */
+const PRESIGN_EXPIRY_SECONDS = 15 * 60
+
+const RATE_LIMIT_WINDOW_MS = 60_000
+const RATE_LIMIT_MAX = 10
+const checkRateLimit = createInMemoryRateLimiter({
+  max: RATE_LIMIT_MAX,
+  windowMs: RATE_LIMIT_WINDOW_MS,
+})
 
 type PresignRequest = {
   uploadId?: unknown
@@ -28,6 +39,18 @@ function bad(status: number, error: string) {
 
 /** Presigned R2 PUT URLs for community upload video + thumbnail. */
 export async function POST(request: Request) {
+  const ip = clientIpFromRequest(request)
+  const rateLimit = checkRateLimit(ip)
+  if (rateLimit.limited) {
+    return NextResponse.json(
+      { error: "rate_limited" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+      }
+    )
+  }
+
   let body: PresignRequest
   try {
     body = (await request.json()) as PresignRequest
@@ -41,19 +64,20 @@ export async function POST(request: Request) {
     return bad(400, "invalid_upload_id")
   }
 
-  const ext =
-    typeof body.videoExtension === "string"
-      ? body.videoExtension.trim().toLowerCase().replace(/^\./, "")
-      : ""
-  if (!VIDEO_EXTENSIONS.has(ext)) {
+  const extResult = validateVideoExtension(
+    typeof body.videoExtension === "string" ? body.videoExtension : ""
+  )
+  if (!extResult.ok) {
     return bad(400, "invalid_video_extension")
   }
+  const ext = extResult.ext
 
-  const videoContentType =
+  const rawContentType =
     typeof body.videoContentType === "string" && body.videoContentType.trim()
       ? body.videoContentType.trim()
-      : "video/mp4"
-  if (!VIDEO_CONTENT_TYPES.has(videoContentType)) {
+      : videoContentTypeForExtension("", ext)
+  const videoContentType = videoContentTypeForExtension(rawContentType, ext)
+  if (!COMMUNITY_VIDEO_CONTENT_TYPES.has(videoContentType)) {
     return bad(400, "invalid_video_content_type")
   }
 

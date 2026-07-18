@@ -11,6 +11,8 @@ export function indexableMarketingPaths(): string[] {
     "/live-wallpaper-mac",
     "/lock-screen-wallpaper",
     "/best-live-wallpaper-mac",
+    "/submit",
+    "/submit",
     "/alternatives/wallpaper-engine",
     "/alternatives/macwall-vs-backdrop",
     "/alternatives/macwall-vs-wallper",

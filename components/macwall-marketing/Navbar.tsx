@@ -102,9 +102,9 @@ export default function Navbar() {
       active: pathname === "/pricing",
     },
     {
-      href: "/live-wallpaper-mac",
-      label: "Features",
-      active: pathname === "/live-wallpaper-mac",
+      href: "/submit",
+      label: h.navSubmit,
+      active: pathname === "/submit" || pathname.startsWith("/submit/"),
     },
     {
       href: "/blog",

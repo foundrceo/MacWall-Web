@@ -64,18 +64,6 @@ export const guideArticles: BlogArticle[] = [
         text: "MacWall Pro adds Lock Screen live wallpaper on supported Sonoma and Sequoia builds. One-time purchase, lifetime updates, licensed on up to 3 personal Macs.",
       },
     ],
-    faq: [
-      {
-        question: "Does live wallpaper slow down my Mac?",
-        answer:
-          "MacWall uses hardware video decode on Apple Silicon and intelligently pauses on battery and full screen. Most users see minimal CPU impact during normal desktop use.",
-      },
-      {
-        question: "Which macOS versions are supported?",
-        answer:
-          "MacWall targets recent Sonoma, Ventura, and Sequoia builds. Lock Screen motion is a Pro feature and varies by OS version.",
-      },
-    ],
   },
   {
     slug: "how-to-use-video-as-wallpaper-mac",
@@ -139,13 +127,6 @@ export const guideArticles: BlogArticle[] = [
         ],
       },
     ],
-    faq: [
-      {
-        question: "Can I use Wallpaper Engine scenes on Mac?",
-        answer:
-          "Wallpaper Engine .pkg scenes require a specialized renderer. MacWall focuses on native video playback, the smoothest path for most Mac users. See our Wallpaper Engine alternative guide for details.",
-      },
-    ],
   },
   {
     slug: "mp4-wallpaper-mac-guide",
@@ -191,7 +172,6 @@ export const guideArticles: BlogArticle[] = [
         text: "Import via drag-and-drop, select the clip, and apply. MacWall crossfades between wallpaper changes and keeps one decoder per display for predictable performance.",
       },
     ],
-    faq: [],
   },
   {
     slug: "macbook-animated-wallpaper-guide",
@@ -235,13 +215,6 @@ export const guideArticles: BlogArticle[] = [
           "Pick shorter loops to reduce decoder memory footprint",
           "Try MacWall's curated catalog, clips are optimized for Mac playback",
         ],
-      },
-    ],
-    faq: [
-      {
-        question: "Will live wallpaper drain my MacBook battery?",
-        answer:
-          "MacWall pauses automatically on battery power. When plugged in, hardware decode keeps CPU usage low compared to software-rendered alternatives.",
       },
     ],
   },
@@ -289,7 +262,6 @@ export const guideArticles: BlogArticle[] = [
         text: "Favorites, playlists (Pro), and per-display assignments keep large libraries manageable. Switch wallpapers from Home or the menu bar without re-importing.",
       },
     ],
-    faq: [],
   },
   {
     slug: "animated-desktop-background-mac-free",
@@ -337,7 +309,6 @@ export const guideArticles: BlogArticle[] = [
         text: "Want it actually free? Post a TikTok or Instagram Reel with #macwall. Hit 2,000 organic views for 50% back or 20,000 views for a full refund. That's the closest thing to a free animated wallpaper app that doesn't compromise your Mac.",
       },
     ],
-    faq: [],
   },
   {
     slug: "upload-wallpaper-macwall-community",
@@ -398,18 +369,6 @@ export const guideArticles: BlogArticle[] = [
           "Export at 4K HEVC if you can; Apple Silicon decodes it for free",
           "Popular likes push your wallpaper up the Most Popular ranking",
         ],
-      },
-    ],
-    faq: [
-      {
-        question: "Can anyone upload wallpapers to MacWall?",
-        answer:
-          "Yes, uploading is included with MacWall, no extra cost beyond the one-time license. Approved uploads become available to all MacWall users.",
-      },
-      {
-        question: "Why was my wallpaper rejected?",
-        answer:
-          "The most common reasons are a visible loop jump, resolution below 1920×1080, or content guideline issues. Rejections include reviewer notes so you can fix and resubmit.",
       },
     ],
   },

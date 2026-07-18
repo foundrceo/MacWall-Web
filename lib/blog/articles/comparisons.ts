@@ -64,13 +64,6 @@ export const comparisonArticles: BlogArticle[] = [
         text: "Get MacWall for a one-time $7.99, everything included, Lock Screen and all, with lifetime updates. For Wallpaper Engine migrants, read our dedicated alternative guide first.",
       },
     ],
-    faq: [
-      {
-        question: "Is MacWall the best live wallpaper app for Mac?",
-        answer:
-          "For native video wallpapers with smooth Apple Silicon playback, menu bar controls, and fair pricing, MacWall is the strongest overall choice in 2026. Niche needs (WE scene files, web dashboards) may suit other apps.",
-      },
-    ],
   },
   {
     slug: "wallpaper-engine-alternative-mac",
@@ -122,13 +115,6 @@ export const comparisonArticles: BlogArticle[] = [
       {
         type: "p",
         text: "Export or download MP4 versions of your favorite loops, then import into MacWall. Browse our catalog for fresh 4K content across nine categories. MacWall is the better daily driver for native performance.",
-      },
-    ],
-    faq: [
-      {
-        question: "Does MacWall support Steam Workshop?",
-        answer:
-          "No. MacWall uses its own community catalog and personal imports. This keeps playback native and fast without Windows dependencies.",
       },
     ],
   },
@@ -189,7 +175,6 @@ export const comparisonArticles: BlogArticle[] = [
         text: "Both are one-time purchases, but MacWall costs $2 less, covers 3 Macs, and can refund itself through a Reel. If you want the best value, community-driven catalog, and a native app that feels built for your Mac, **MacWall** is the pick. If you need an in-app editor above all else, Backdrop remains excellent.",
       },
     ],
-    faq: [],
   },
   {
     slug: "dynamic-wallpaper-vs-live-wallpaper-mac",
@@ -230,7 +215,6 @@ export const comparisonArticles: BlogArticle[] = [
         text: "You want cinematic motion, custom imports, category browsing, multi-monitor independence, and optional Lock Screen video. MacWall pauses intelligently so live motion does not fight your workflow.",
       },
     ],
-    faq: [],
   },
   {
     slug: "macwall-vs-wallper",
@@ -290,18 +274,6 @@ export const comparisonArticles: BlogArticle[] = [
         text: "MacWall is a single $7.99 payment for everything, and a Reel with #macwall can earn it all back. Cheaper than Wallper, covers 3 Macs, and it's the only one working on the macOS 27 beta Lock Screen.",
       },
     ],
-    faq: [
-      {
-        question: "Is MacWall cheaper than Wallper?",
-        answer:
-          "Yes. MacWall is $7.99 one-time (early bird, normally $9.99) versus Wallper's $9.99, covers up to 3 Macs, and a Reel with #macwall can earn the full price back. No subscription.",
-      },
-      {
-        question: "Does Wallper work on the macOS 27 beta Lock Screen?",
-        answer:
-          "Apple's macOS 27 beta broke Lock Screen features in many third-party apps. MacWall ships dedicated macOS 27 compatibility so its Lock Screen and Screen Saver keep working.",
-      },
-    ],
   },
   {
     slug: "macwall-vs-wallspace",
@@ -349,18 +321,6 @@ export const comparisonArticles: BlogArticle[] = [
         text: "If you literally only want to drag one video onto your desktop and never open the app again, Wallspace is fine. For everyone else, discovery, fresh drops, community uploads, Lock Screen that survives Apple betas. MacWall is the stronger daily driver.",
       },
     ],
-    faq: [
-      {
-        question: "Is MacWall as lightweight as Wallspace?",
-        answer:
-          "Yes. MacWall is a native Swift app with hardware video decode and aggressive auto-pause rules (battery, full screen, screen lock, high CPU), so idle overhead stays minimal.",
-      },
-      {
-        question: "Which app supports the macOS 27 beta?",
-        answer:
-          "MacWall ships dedicated macOS 27 beta compatibility for Lock Screen and Screen Saver video. Many alternatives currently fail on the new beta.",
-      },
-    ],
   },
   {
     slug: "macwall-vs-lively-wallpaper",
@@ -405,13 +365,6 @@ export const comparisonArticles: BlogArticle[] = [
           "Drag the videos into MacWall's Library.",
           "Browse the catalog for Mac-optimized 4K drops.",
         ],
-      },
-    ],
-    faq: [
-      {
-        question: "Is there a Lively Wallpaper for Mac?",
-        answer:
-          "No. Lively is Windows-only. MacWall is the native macOS alternative for video live wallpapers, a one-time $7.99 with no subscription.",
       },
     ],
   },
@@ -461,18 +414,6 @@ export const comparisonArticles: BlogArticle[] = [
       {
         type: "p",
         text: "MacWall shows live CPU, RAM, and cache stats right in its menu bar popover. Open Activity Monitor next to it, during normal work with a full-screen app in front, MacWall's playback cost is zero, because it isn't playing at all.",
-      },
-    ],
-    faq: [
-      {
-        question: "Do live wallpapers drain MacBook battery?",
-        answer:
-          "Barely, with the right app. MacWall pauses on battery (optional), caps quality in Low Power Mode, and stops entirely when a full-screen app covers the desktop or the screen locks.",
-      },
-      {
-        question: "How much CPU does MacWall use?",
-        answer:
-          "During playback, video decode happens in hardware so CPU usage stays minimal. When the wallpaper is covered, paused, or the screen is locked, usage drops to effectively zero, and MacWall shows live CPU/RAM stats in its menu bar.",
       },
     ],
   },

@@ -54,7 +54,7 @@ export default function MacWallMarketingPricingPage() {
     <div className={MARKETING_PAGE_CLASS}>
       <MarketingSiteChrome />
 
-      <main className={MARKETING_MAIN_OFFSET_CLASS}>
+      <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
         <section className="pt-12 pb-14 md:pt-16 md:pb-20 lg:py-24">
           <MarketingContainer>
             <div className="mb-14 text-center md:mb-20">

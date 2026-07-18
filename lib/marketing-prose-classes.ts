@@ -71,10 +71,10 @@ export const proseActionRow =
   "mt-12 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
 
 export const prosePrimaryBtn =
-  "inline-flex items-center justify-center rounded-full bg-foreground px-6 py-3 text-[15px] font-medium text-background no-underline transition hover:bg-foreground/90"
+  "inline-flex items-center justify-center rounded-full bg-foreground px-6 py-3 text-[15px] font-medium text-background no-underline transition outline-none hover:bg-foreground/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 
 export const proseGhostBtn =
-  "inline-flex items-center justify-center rounded-full border border-border bg-transparent px-6 py-3 text-[15px] font-medium text-foreground no-underline transition hover:bg-surface"
+  "inline-flex items-center justify-center rounded-full border border-border bg-transparent px-6 py-3 text-[15px] font-medium text-foreground no-underline transition outline-none hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 
 export const proseLinkInline =
   "font-medium text-foreground underline decoration-foreground/25 underline-offset-4 transition-colors hover:decoration-foreground/50"

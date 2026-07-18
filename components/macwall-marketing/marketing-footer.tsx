@@ -62,7 +62,7 @@ export default function MacWallMarketingFooter() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="border-t border-border bg-[#0C0C0A]">
+    <footer className="border-t border-border bg-background">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-12">
         <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
           <div className="shrink-0 lg:min-w-[17rem]">
@@ -103,6 +103,11 @@ export default function MacWallMarketingFooter() {
                 <li>
                   <Link href="/download" className={footerLinkClass}>
                     {foot.shop.download}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/submit" className={footerLinkClass}>
+                    Submit a wallpaper
                   </Link>
                 </li>
               </ul>

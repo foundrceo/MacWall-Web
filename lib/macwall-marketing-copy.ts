@@ -8,6 +8,7 @@ export const macwallExactCopy = {
     navSocials: "Community",
     navSupport: "Help",
     navPricing: "Pricing",
+    navSubmit: "Submit",
     downloadCta: "Get MacWall",
     logoAlt: `${macwall.name} logo`,
   },

@@ -98,15 +98,26 @@ export async function fetchAllSales(): Promise<SaleRow[]> {
   return (data ?? []) as SaleRow[]
 }
 
-/** Single query — every license device activation (low volume table). */
-export async function fetchAllDeviceActivations(): Promise<DeviceRow[]> {
+/**
+ * Device activations (low volume table). Pass `sinceIso` to filter in SQL —
+ * the conversion funnel only needs the current window, so we avoid scanning
+ * all-time rows.
+ */
+export async function fetchAllDeviceActivations(
+  sinceIso?: string
+): Promise<DeviceRow[]> {
   const supabase = getSupabaseAdmin()
-  const { data, error } = await supabase
+  let query = supabase
     .from("macwall_license_devices")
     .select("activated_at")
     .order("activated_at", { ascending: true })
     .limit(10000)
 
+  if (sinceIso) {
+    query = query.gte("activated_at", sinceIso)
+  }
+
+  const { data, error } = await query
   if (error) throw new Error(error.message)
   return (data ?? []) as DeviceRow[]
 }
