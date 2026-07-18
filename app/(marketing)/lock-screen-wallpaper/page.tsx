@@ -8,7 +8,6 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const metadata = createSeoPageMetadata(lockScreenWallpaperPage)
 
-export const dynamic = "force-static"
 
 export default function LockScreenWallpaperPage() {
   const origin = canonicalSiteOrigin()

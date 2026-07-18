@@ -7,7 +7,6 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const metadata = createSeoPageMetadata(wallpaperEngineAlternativePage)
 
-export const dynamic = "force-static"
 
 export default function WallpaperEngineAlternativePage() {
   const origin = canonicalSiteOrigin()

@@ -44,7 +44,6 @@ export const metadata: Metadata = {
   },
 }
 
-export const dynamic = "force-static"
 
 export default function BlogPage() {
   return <BlogIndexPage articles={blogArticles} />

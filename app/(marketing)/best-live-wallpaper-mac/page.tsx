@@ -7,7 +7,6 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const metadata = createSeoPageMetadata(bestLiveWallpaperMacPage)
 
-export const dynamic = "force-static"
 
 export default function BestLiveWallpaperMacPage() {
   const origin = canonicalSiteOrigin()

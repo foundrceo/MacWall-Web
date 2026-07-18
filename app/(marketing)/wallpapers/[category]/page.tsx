@@ -30,7 +30,6 @@ export async function generateMetadata({
   return createSeoPageMetadata(wallpaperCategoryPage(name))
 }
 
-export const dynamic = "force-static"
 
 export default async function WallpaperCategoryPage({ params }: PageProps) {
   const { category } = await params

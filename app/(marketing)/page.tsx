@@ -56,7 +56,6 @@ export const metadata: Metadata = {
   },
 }
 
-export const dynamic = "force-static"
 
 const HOME_FAQ = pricingCopy.faq.map((item) => ({
   question: item.q,

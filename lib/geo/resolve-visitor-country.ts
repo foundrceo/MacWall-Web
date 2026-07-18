@@ -5,6 +5,7 @@ import {
   isIndiaCountry,
   resolveCountryFromHeaders,
 } from "./country"
+import { resolveCountryFromVercelGeolocation } from "./vercel-geolocation"
 
 export type ResolveVisitorCountryInput = {
   headers: Headers
@@ -156,6 +157,9 @@ export async function resolveVisitorCountry(
 ): Promise<string | null> {
   const fromGeo = normalizeCountry(input.geoCountry)
   if (fromGeo) return fromGeo
+
+  const fromVercel = resolveCountryFromVercelGeolocation(input.headers)
+  if (fromVercel) return fromVercel
 
   const fromEdge = resolveCountryFromHeaders(input.headers)
   if (fromEdge) return fromEdge

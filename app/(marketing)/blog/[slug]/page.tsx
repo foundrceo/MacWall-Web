@@ -61,7 +61,6 @@ function formatDate(iso: string) {
   })
 }
 
-export const dynamic = "force-static"
 
 export default async function BlogArticlePage({ params }: PageProps) {
   const { slug } = await params
