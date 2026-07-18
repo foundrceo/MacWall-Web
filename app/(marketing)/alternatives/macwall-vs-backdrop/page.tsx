@@ -7,7 +7,6 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const metadata = createSeoPageMetadata(macwallVsBackdropPage)
 
-export const dynamic = "force-static"
 
 export default function MacwallVsBackdropPage() {
   const origin = canonicalSiteOrigin()

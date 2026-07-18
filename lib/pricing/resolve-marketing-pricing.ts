@@ -1,3 +1,4 @@
+import { connection } from "next/server"
 import { cookies, headers } from "next/headers"
 
 import { getCachedIndiaQuote } from "@/lib/pricing/get-cached-india-quote"
@@ -14,6 +15,9 @@ import {
 } from "@/lib/geo/resolve-visitor-country"
 
 export async function resolveMarketingPricing(): Promise<MarketingPricing> {
+  // Geo-aware pricing must render per request — never at build time.
+  await connection()
+
   const hdrs = await headers()
   const cookieStore = await cookies()
 

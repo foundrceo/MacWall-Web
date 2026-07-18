@@ -8,7 +8,6 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const metadata = createSeoPageMetadata(downloadPage)
 
-export const dynamic = "force-static"
 
 export default function DownloadPage() {
   const origin = canonicalSiteOrigin()
