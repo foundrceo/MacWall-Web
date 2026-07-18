@@ -40,7 +40,6 @@ export const wallpaperArticles: BlogArticle[] = [
         text: "Visit our dedicated /wallpapers/anime page for category highlights and download links.",
       },
     ],
-    faq: [],
   },
   {
     slug: "nature-live-wallpaper-mac",
@@ -69,7 +68,6 @@ export const wallpaperArticles: BlogArticle[] = [
         text: "See /wallpapers/nature for featured picks and one-click download to get started.",
       },
     ],
-    faq: [],
   },
   {
     slug: "space-wallpaper-mac",
@@ -98,7 +96,6 @@ export const wallpaperArticles: BlogArticle[] = [
         text: "Browse /wallpapers/space and /wallpapers/sci-fi for category landing pages with download CTAs.",
       },
     ],
-    faq: [],
   },
   {
     slug: "gaming-wallpaper-mac",
@@ -127,6 +124,5 @@ export const wallpaperArticles: BlogArticle[] = [
         text: "MacWall pauses automatically when you launch a game full screen, motion on your desktop, silence during play.",
       },
     ],
-    faq: [],
   },
 ]

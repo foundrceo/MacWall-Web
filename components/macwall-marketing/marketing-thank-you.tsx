@@ -91,7 +91,7 @@ export default function MacWallMarketingThankYouPage() {
         <PurchaseConversionTracker />
       </Suspense>
       <MarketingSiteChrome />
-      <main className={MARKETING_MAIN_OFFSET_CLASS}>
+      <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
         <MarketingContainer>
           <div className="mx-auto max-w-[640px] text-center">
             <ThankYouSuccessMark />

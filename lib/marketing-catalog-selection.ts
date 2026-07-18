@@ -3,6 +3,10 @@ import {
   getCatalogSupabaseOrigin,
 } from "@/lib/env/catalog-supabase"
 import {
+  MARKETING_CATALOG_REVALIDATE_SECONDS,
+  MARKETING_GALLERY_CACHE_TAG,
+} from "@/lib/marketing-cache"
+import {
   catalogMarketingGalleryPosterUrlFromKey,
   catalogPublicThumbUrlFromKey,
   catalogPublicVideoUrlFromKey,
@@ -84,7 +88,10 @@ export async function fetchMarketingCatalogRows(): Promise<
       Authorization: `Bearer ${key}`,
       Accept: "application/json",
     },
-    cache: "no-store",
+    next: {
+      revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
+      tags: [MARKETING_GALLERY_CACHE_TAG],
+    },
   })
 
   if (!res.ok) {
@@ -113,7 +120,10 @@ export async function fetchLatestMarketingCatalogRows(): Promise<
       Authorization: `Bearer ${key}`,
       Accept: "application/json",
     },
-    cache: "no-store",
+    next: {
+      revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
+      tags: [MARKETING_GALLERY_CACHE_TAG],
+    },
   })
 
   if (!res.ok) {

@@ -69,13 +69,6 @@ export const featureArticles: BlogArticle[] = [
         text: "One-time $7.99, not $9.99/month like subscription apps. Lifetime updates. Licensed on 3 personal Macs. Make a Reel with #macwall and earn your money back.",
       },
     ],
-    faq: [
-      {
-        question: "Is MacWall really the smoothest Mac wallpaper app?",
-        answer:
-          "Native GPU decode and intelligent pause give MacWall a structural performance advantage over cross-platform apps. Install it and compare CPU usage in Activity Monitor.",
-      },
-    ],
   },
   {
     slug: "lock-screen-live-wallpaper-macos",
@@ -119,13 +112,6 @@ export const featureArticles: BlogArticle[] = [
       {
         type: "p",
         text: "Lock Screen video support varies by macOS version and region. MacWall Pro includes lifetime updates as Apple expands APIs. Desktop live wallpapers work on all supported macOS builds.",
-      },
-    ],
-    faq: [
-      {
-        question: "Is Lock Screen wallpaper included free?",
-        answer:
-          "Lock Screen live wallpaper is included with MacWall's one-time license on supported macOS versions.",
       },
     ],
   },
@@ -173,7 +159,6 @@ export const featureArticles: BlogArticle[] = [
         text: "On a MacBook Air, keep pause-on-battery enabled. On a desk setup, enjoy 4K loops freely. Use the menu bar to pause manually during long unplugged sessions.",
       },
     ],
-    faq: [],
   },
   {
     slug: "4k-video-wallpaper-mac",
@@ -217,7 +202,6 @@ export const featureArticles: BlogArticle[] = [
         text: "MacBook Air 13-inch and older Intel Macs may run cooler with 2560×1440 sources. MacWall scales video to fit, pick the resolution that matches your display for best quality-to-performance ratio.",
       },
     ],
-    faq: [],
   },
   {
     slug: "multi-monitor-wallpaper-mac",
@@ -262,7 +246,6 @@ export const featureArticles: BlogArticle[] = [
         text: "Match wallpaper resolution to each display. Use calmer loops on your work monitor and bolder motion on a secondary screen.",
       },
     ],
-    faq: [],
   },
   {
     slug: "apple-silicon-wallpaper-performance",
@@ -307,7 +290,6 @@ export const featureArticles: BlogArticle[] = [
         text: "AVFoundation hardware decode → Metal compositing behind desktop windows. Activity Monitor should show MacWall using minimal CPU during idle desktop use.",
       },
     ],
-    faq: [],
   },
   {
     slug: "menu-bar-wallpaper-controls-mac",
@@ -345,6 +327,5 @@ export const featureArticles: BlogArticle[] = [
         ],
       },
     ],
-    faq: [],
   },
 ]

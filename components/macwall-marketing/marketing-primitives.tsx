@@ -287,7 +287,7 @@ export function TextLink({
   external?: boolean
 }>) {
   const classes = cn(
-    "inline-flex items-center gap-0.5 text-[17px] leading-[1.235] hover:underline text-foreground",
+    "inline-flex items-center gap-0.5 text-[17px] leading-[1.235] hover:underline text-foreground rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     className
   )
 
@@ -334,7 +334,7 @@ export function MarketingButton({
   size?: "default" | "sm" | "lg"
 }>) {
   const base = cn(
-    "inline-flex items-center justify-center rounded-full font-normal transition-colors duration-150",
+    "inline-flex items-center justify-center rounded-full font-normal transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     size === "sm" && "min-h-[28px] px-4 text-[12px]",
     size === "default" &&
       "min-h-[44px] px-[22px] text-[17px] tracking-[-0.022em]",

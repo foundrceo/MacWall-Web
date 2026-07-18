@@ -1,5 +1,4 @@
-"use client"
-
+import type { Metadata } from "next"
 import Link from "next/link"
 import { MacWallWordmark } from "@/components/macwall-wordmark"
 import { Button } from "@/components/ui/button"
@@ -7,6 +6,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+
+export const metadata: Metadata = {
+  title: "Sign in",
+  description: "Sign in to your MacWall account.",
+  robots: { index: false, follow: false },
+}
 
 const Page = () => {
   return (

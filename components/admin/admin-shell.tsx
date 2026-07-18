@@ -126,7 +126,10 @@ export function AdminShell({
         </nav>
       </header>
 
-      <main className="mx-auto max-w-[1080px] px-4 py-5 sm:px-6 sm:py-8 lg:py-10">
+      <main
+        id="main-content"
+        className="mx-auto max-w-[1080px] px-4 py-5 sm:px-6 sm:py-8 lg:py-10"
+      >
         <AdminPageIntro title={title} description={description} />
         <AdminFadeIn
           key={pathname}

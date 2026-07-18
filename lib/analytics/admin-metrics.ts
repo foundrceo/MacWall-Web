@@ -1,7 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 
-import { SITE_ANALYTICS_EVENTS } from "@/lib/analytics/events"
-
 export type AnalyticsEventRow = {
   event_name: string
   created_at?: string
@@ -10,31 +8,10 @@ export type AnalyticsEventRow = {
   session_id?: string | null
 }
 
-export type EventCountRow = { event_name: string; count: number }
 export type DailyRow = { day: string; event_name: string; count: number }
 export type LocationCountRow = { location: string; count: number }
 
 const PAGE_SIZE = 1000
-
-export async function countEventsByName(
-  supabase: SupabaseClient,
-  sinceIso: string
-): Promise<EventCountRow[]> {
-  const counts = await Promise.all(
-    SITE_ANALYTICS_EVENTS.map(async (eventName) => {
-      const { count, error } = await supabase
-        .from("site_analytics_events")
-        .select("*", { count: "exact", head: true })
-        .gte("created_at", sinceIso)
-        .eq("event_name", eventName)
-
-      if (error) throw new Error(error.message)
-      return { event_name: eventName, count: count ?? 0 }
-    })
-  )
-
-  return counts.filter((row) => row.count > 0).sort((a, b) => b.count - a.count)
-}
 
 export async function fetchEventsInRange(
   supabase: SupabaseClient,

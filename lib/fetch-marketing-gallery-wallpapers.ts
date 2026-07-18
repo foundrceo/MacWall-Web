@@ -42,6 +42,9 @@ async function fetchMarketingGalleryWallpapersFromSupabase(): Promise<
   return picked.map(mapRow)
 }
 
+// Deferred: `use cache` requires cacheComponents, which conflicts with
+// `dynamic = "force-static"` and `runtime = "nodejs"` across marketing pages
+// and API routes — migrate those segment configs first.
 const getCachedMarketingGalleryWallpapers = unstable_cache(
   async () => {
     try {
