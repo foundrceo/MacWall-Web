@@ -68,11 +68,6 @@ export function resolveCountryFromAcceptLanguage(
   return null
 }
 
-function resolveDevCountryOverride(): string | null {
-  if (process.env.NODE_ENV === "production") return null
-  return normalizeCountry(process.env.MACWALL_DEV_COUNTRY)
-}
-
 async function resolveCountryFromIp(ip: string): Promise<string | null> {
   if (isNonPublicIp(ip)) return null
 
@@ -171,9 +166,6 @@ export async function resolveVisitorCountry(
     input.headers.get("accept-language")
   )
   if (fromLanguage) return fromLanguage
-
-  const fromDev = resolveDevCountryOverride()
-  if (fromDev) return fromDev
 
   const ip = clientIpFromRequest({ headers: input.headers } as Request)
   const fromIp = await resolveCountryFromIp(ip)

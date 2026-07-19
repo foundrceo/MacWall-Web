@@ -1,8 +1,7 @@
 import { INDIA_PROMO_CODE, indiaPromo } from "@/lib/marketing-india-promo"
 
-/** Approximate USD→INR for India marketing display (Stripe settles at checkout). */
-const DEFAULT_USD_TO_INR =
-  Number.parseFloat(process.env.MACWALL_USD_TO_INR ?? "84") || 84
+/** Fixed USD→INR estimate for internal quote math only (India site never displays INR). */
+const USD_TO_INR = 84
 
 const PRO_PRICE_USD = 7.99
 
@@ -32,7 +31,7 @@ export function formatInrWhole(amount: number): string {
 }
 
 export function buildStripeIndiaQuote(): IndiaQuote {
-  const fullAmount = PRO_PRICE_USD * DEFAULT_USD_TO_INR
+  const fullAmount = PRO_PRICE_USD * USD_TO_INR
   const saleAmount = fullAmount * (1 - indiaPromo.discountPercent / 100)
 
   return {
