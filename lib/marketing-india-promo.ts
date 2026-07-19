@@ -1,6 +1,6 @@
 import { macwallProCheckoutURL } from "@/lib/macwall-site"
 
-/** Whop discount code — create this in Whop dashboard for 50% off Pro. */
+/** Stripe promotion code — 50% off MacWall Pro at checkout. */
 export const INDIA_PROMO_CODE = "INDIA50" as const
 
 /** Personal 24-hour window from first India promo impression. */
@@ -11,7 +11,7 @@ export const INDIA_PROMO_START_KEY = "mw_india_promo_start" as const
 export const indiaPromo = {
   code: INDIA_PROMO_CODE,
   discountPercent: 50,
-  checkoutUrl: macwallProCheckoutURL,
+  checkoutUrl: `${macwallProCheckoutURL}?promo=${INDIA_PROMO_CODE}`,
   pricingAnchor: "india-offer",
   banner: {
     headline: "🇮🇳 India-only flash sale — 50% OFF MacWall Pro",
@@ -28,7 +28,7 @@ export const indiaPromo = {
     ctaAria: `Buy MacWall Pro with India discount code ${INDIA_PROMO_CODE}`,
     copyLabel: "Copy code",
     copiedLabel: "Copied!",
-    checkoutNote: "Final INR price at Whop checkout — apply INDIA50",
+    checkoutNote: "Apply INDIA50 at Stripe checkout",
     lifetimeNote: "Lifetime license · up to 3 Macs",
   },
 } as const
@@ -39,6 +39,22 @@ export function indiaPromoPricingHref(): string {
 
 export function getIndiaPromoDeadlineMs(startMs: number): number {
   return startMs + INDIA_PROMO_DURATION_MS
+}
+
+/**
+ * Rolling 24h countdown — when one 24h window elapses, a fresh one begins.
+ * The timer always shows time remaining and never permanently expires.
+ */
+export function getRollingPromoRemainingMs(
+  startMs: number,
+  nowMs: number = Date.now()
+): number {
+  const elapsed = nowMs - startMs
+  if (elapsed <= 0) return INDIA_PROMO_DURATION_MS
+
+  const intoCurrentWindow = elapsed % INDIA_PROMO_DURATION_MS
+  const remaining = INDIA_PROMO_DURATION_MS - intoCurrentWindow
+  return remaining === 0 ? INDIA_PROMO_DURATION_MS : remaining
 }
 
 export function formatPromoCountdown(remainingMs: number): string {

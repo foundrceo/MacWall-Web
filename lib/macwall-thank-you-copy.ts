@@ -11,11 +11,11 @@ export const macwallThankYouCopy = {
   steps: [
     {
       title: "Check your inbox",
-      body: "Whop sends your license key and activation steps within a few minutes. Check spam if you do not see it.",
+      body: "Stripe sends your license key and activation steps within a few minutes. Check spam if you do not see it.",
     },
     {
       title: "Activate Pro in one tap",
-      body: "Open MacWall from your purchase email or tap Open MacWall below — your license key activates automatically when the app is installed.",
+      body: "After checkout you land on macwall.app/activate — MacWall opens automatically and Pro activates with your license key. No paste needed.",
     },
     {
       title: "Download MacWall",

@@ -71,7 +71,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "How does checkout work?",
-      a: "Checkout runs on Whop. After payment, your license details are delivered to the email you used. Keep that message for reinstalls or device changes.",
+      a: "Checkout runs on Stripe. After payment, your license details are delivered to the email you used. Keep that message for reinstalls or device changes.",
     },
     {
       q: "How many Macs can I use with one Pro license?",

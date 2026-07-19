@@ -629,7 +629,7 @@ function SalesSection({
   return (
     <section className="space-y-5 sm:space-y-6">
       <AdminSectionHeading
-        eyebrow={`Whop · last ${rangeDays} days vs previous ${rangeDays}`}
+        eyebrow={`Stripe · last ${rangeDays} days vs previous ${rangeDays}`}
         title="Sales & revenue"
         icon={
           <HugeiconsIcon
@@ -661,7 +661,7 @@ function SalesSection({
         <AdminMetricTile
           label="Net revenue (est.)"
           value={formatUsd(sales.netRevenue)}
-          hint={`≈ ${formatUsd(sales.netPerSale)}/sale after ~${sales.feePercentAssumed}% + $${sales.feeFixedAssumed.toFixed(2)} Whop fees`}
+          hint={`≈ ${formatUsd(sales.netPerSale)}/sale after ~${sales.feePercentAssumed}% + $${sales.feeFixedAssumed.toFixed(2)} Stripe fees`}
         />
         <AdminMetricTile
           label="All-time revenue"

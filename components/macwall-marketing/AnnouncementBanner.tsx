@@ -40,7 +40,7 @@ function DefaultLaunchBanner() {
 
 function IndiaFlashBanner() {
   const pricing = useMarketingPricing()
-  const { countdownLabel, expired } = useIndiaPromoCountdown(true)
+  const { countdownLabel } = useIndiaPromoCountdown(true)
 
   return (
     <Link
@@ -58,9 +58,7 @@ function IndiaFlashBanner() {
         {pricing.bannerHeadline}
       </span>
       <span className="text-[12px] leading-snug text-black/70 sm:ml-1.5 sm:text-[14px]">
-        {expired
-          ? `Code ${indiaPromo.code} may still work — tap to claim →`
-          : indiaBannerSubline(pricing, indiaPromo.code, countdownLabel)}
+        {indiaBannerSubline(pricing, indiaPromo.code, countdownLabel)}
       </span>
     </Link>
   )

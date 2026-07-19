@@ -1,9 +1,11 @@
 "use client"
 
-import Link from "next/link"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import HeroVideoPlayer from "@/components/macwall-marketing/HeroVideoPlayer"
-import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
+import {
+  TrackedDownloadButton,
+  TrackedPricingButton,
+} from "@/components/analytics/tracked-marketing-buttons"
 import {
   HERO_DOWNLOAD_HINT_CLASS,
   HERO_PRIMARY_BTN_CLASS,
@@ -60,6 +62,22 @@ export default function HeroSection() {
             <span className="text-foreground/75">{ix.heroLead}</span>
           </p>
 
+          <p className="mt-4 text-[15px] font-medium text-foreground/90">
+            {pricing.salePrice} {pricing.suffix}
+            {pricing.fullPrice ? (
+              <>
+                {" "}
+                <span className="font-normal text-marketing-muted line-through">
+                  {pricing.fullPrice}
+                </span>
+              </>
+            ) : null}
+            {" · "}
+            <span className="font-normal text-marketing-muted">
+              Early bird · Reel earns 100% back
+            </span>
+          </p>
+
           {pricing.isIndia ? (
             <p className="mt-4 inline-flex max-w-3xl flex-wrap items-center gap-2 rounded-full border border-[#ff9933]/35 bg-[#ff9933]/10 px-4 py-2 text-[14px] font-medium text-[#ffb366]">
               <span>{pricing.bannerHeadline}</span>
@@ -83,9 +101,14 @@ export default function HeroSection() {
                 {macwallMinimumMacOSRequirement}
               </p>
             </div>
-            <Link href="/pricing" className={HERO_SECONDARY_BTN_CLASS}>
+            <TrackedPricingButton
+              href={pricing.checkoutUrl}
+              location="hero"
+              size="pill"
+              className={HERO_SECONDARY_BTN_CLASS}
+            >
               {pricing.getProCta}
-            </Link>
+            </TrackedPricingButton>
           </div>
         </div>
 

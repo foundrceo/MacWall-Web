@@ -110,7 +110,7 @@ export default function TermsPage() {
 
         <LegalSection id="pro" title="Accounts, Eligibility, and Pro">
           <p>
-            {macwall.name} Pro is sold through our merchant (Whop). Checkout,
+            {macwall.name} Pro is sold through our merchant (Stripe). Checkout,
             receipts, refunds, and taxes may also be governed by the
             merchant&apos;s policies. License keys and device limits are set by
             the product you purchase.
@@ -216,8 +216,7 @@ export default function TermsPage() {
           </p>
           <p>
             Copyright © {year} {macwall.legalCompanyName}. All rights reserved.
-            Last updated{" "}
-            {macwall.legalEffectiveDate}.
+            Last updated {macwall.legalEffectiveDate}.
           </p>
         </LegalSection>
       </LegalDocumentShell>

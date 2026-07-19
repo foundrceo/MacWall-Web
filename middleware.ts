@@ -17,19 +17,19 @@ import {
   parseIndiaQuotePayload,
   serializeIndiaQuote,
 } from "@/lib/pricing/india-quote-transport"
-import { fetchWhopIndiaQuote } from "@/lib/pricing/whop-india-pricing"
+import { fetchStripeIndiaQuote } from "@/lib/pricing/stripe-india-pricing"
 
 /**
- * Whop adaptive INR is based on buyer IP, not Accept-Language. Fetch on Edge
- * (near the visitor) and forward to Node server components on the same request.
+ * India INR display is estimated from USD list price; Stripe Checkout applies
+ * INDIA50 and local currency at payment time.
  */
-async function resolveIndiaQuoteOnEdge(request: NextRequest) {
+async function resolveIndiaQuoteOnEdge(_request: NextRequest) {
   const cached = parseIndiaQuotePayload(
-    request.cookies.get(INDIA_QUOTE_COOKIE)?.value
+    _request.cookies.get(INDIA_QUOTE_COOKIE)?.value
   )
   if (cached) return cached
 
-  return fetchWhopIndiaQuote()
+  return fetchStripeIndiaQuote()
 }
 
 function applyIndiaQuoteCookie(
@@ -78,14 +78,31 @@ export async function middleware(request: NextRequest) {
   }
 
   const next = () =>
-    withGeoCookies(
-      NextResponse.next({ request: { headers: requestHeaders } })
-    )
+    withGeoCookies(NextResponse.next({ request: { headers: requestHeaders } }))
+
+  if (pathname === "/checkout") {
+    const redirect = request.nextUrl.clone()
+    redirect.pathname = "/api/checkout/create-session"
+    return withGeoCookies(NextResponse.redirect(redirect, 308))
+  }
 
   const isAdminSurface =
     pathname.startsWith("/admin") || pathname.startsWith("/api/admin")
 
   if (!isAdminSurface) {
+    const ttclid = request.nextUrl.searchParams.get("ttclid")
+    const utmSource = request.nextUrl.searchParams
+      .get("utm_source")
+      ?.toLowerCase()
+    if (
+      pathname === "/" &&
+      (ttclid || utmSource === "tiktok" || utmSource === "tt")
+    ) {
+      const url = request.nextUrl.clone()
+      url.pathname = "/tiktok"
+      return withGeoCookies(NextResponse.rewrite(url))
+    }
+
     return next()
   }
 
