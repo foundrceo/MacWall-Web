@@ -1,9 +1,5 @@
 /** Mirrors public brand strings from MacWall macOS app (`AppBrand` in Theme.swift). */
 
-const siteOrigin =
-  process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") ||
-  "https://macwall.app"
-
 /** Server route — creates a Stripe session and redirects straight to Stripe Checkout. */
 export const macwallCheckoutPath = "/api/checkout/create-session" as const
 
@@ -11,16 +7,16 @@ export const macwallCheckoutPath = "/api/checkout/create-session" as const
 export const macwallCheckoutApiPath = "/api/checkout/create-session" as const
 
 /**
- * Stripe checkout entry (same URL as `MacWallPaidCheckoutURL` in `MacWall-Branding.plist`).
- * Opens Stripe hosted checkout directly — no macwall.app /checkout page.
- * Optional override: `NEXT_PUBLIC_MACWALL_PRO_CHECKOUT_URL` in `.env.local` for staging.
+ * Stripe checkout entry for in-browser CTAs (same path as `MacWallPaidCheckoutURL` in the Mac app,
+ * but relative so localhost / preview hosts stay on the current origin).
+ * Optional override: `NEXT_PUBLIC_MACWALL_PRO_CHECKOUT_URL` for a fixed absolute URL.
  */
 const proCheckoutFromEnv =
   process.env.NEXT_PUBLIC_MACWALL_PRO_CHECKOUT_URL?.trim()
 export const macwallProCheckoutURL =
   proCheckoutFromEnv && proCheckoutFromEnv.length > 0
     ? proCheckoutFromEnv
-    : `${siteOrigin}${macwallCheckoutPath}`
+    : macwallCheckoutPath
 
 /** Post-checkout landing page — Stripe success redirect + Google Ads purchase conversion URL. */
 export const macwallThankYouPath = "/thank-you" as const
