@@ -13,8 +13,12 @@ export function shouldApplyIndiaPromo(input: {
   // INDIA50 is geo-gated — non-India visitors always pay full USD price.
   if (!isIndiaCountry(input.country)) return false
 
-  const promo = input.requestedPromo?.trim().toUpperCase()
-  if (promo && promo !== INDIA_PROMO_CODE) return false
+  // Distinguish absent param (null) from explicit empty `?promo=`.
+  if (input.requestedPromo != null) {
+    const promo = input.requestedPromo.trim().toUpperCase()
+    if (!promo) return false
+    return promo === INDIA_PROMO_CODE
+  }
 
   return true
 }
