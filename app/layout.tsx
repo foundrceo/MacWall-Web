@@ -68,7 +68,10 @@ function resolveAhrefsWebAnalyticsKey(): string | undefined {
   return trimmed.length > 0 ? trimmed : undefined
 }
 
-const ahrefsWebAnalyticsKey = resolveAhrefsWebAnalyticsKey()
+const ahrefsWebAnalyticsKey =
+  process.env.NODE_ENV === "production"
+    ? resolveAhrefsWebAnalyticsKey()
+    : undefined
 const tiktokPixelId = resolveTikTokPixelId()
 const xAdsPixelId = resolveXAdsPixelId()
 

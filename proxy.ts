@@ -47,7 +47,7 @@ function applyIndiaQuoteCookie(
   return response
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const country = await resolveVisitorCountry({
     headers: request.headers,
