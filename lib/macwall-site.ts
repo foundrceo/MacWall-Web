@@ -1,19 +1,39 @@
 /** Mirrors public brand strings from MacWall macOS app (`AppBrand` in Theme.swift). */
 
+const siteOrigin =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim()?.replace(/\/+$/, "") ||
+  "https://macwall.app"
+
+/** Server route — creates a Stripe session and redirects straight to Stripe Checkout. */
+export const macwallCheckoutPath = "/api/checkout/create-session" as const
+
+/** POST/GET endpoint that creates a Stripe Checkout Session. */
+export const macwallCheckoutApiPath = "/api/checkout/create-session" as const
+
 /**
- * Whop hosted checkout (same URL as `MacWallPaidCheckoutURL` in `MacWall-Branding.plist`).
+ * Stripe checkout entry (same URL as `MacWallPaidCheckoutURL` in `MacWall-Branding.plist`).
+ * Opens Stripe hosted checkout directly — no macwall.app /checkout page.
  * Optional override: `NEXT_PUBLIC_MACWALL_PRO_CHECKOUT_URL` in `.env.local` for staging.
- * Completing checkout fires Whop → your Supabase `whop-license-email` webhook → license email (Resend).
  */
 const proCheckoutFromEnv =
   process.env.NEXT_PUBLIC_MACWALL_PRO_CHECKOUT_URL?.trim()
 export const macwallProCheckoutURL =
   proCheckoutFromEnv && proCheckoutFromEnv.length > 0
     ? proCheckoutFromEnv
-    : "https://whop.com/checkout/plan_XburB7qWsnvR8"
+    : `${siteOrigin}${macwallCheckoutPath}`
 
-/** Post-checkout landing page — set as Whop success redirect + Google Ads purchase conversion URL. */
+/** Post-checkout landing page — Stripe success redirect + Google Ads purchase conversion URL. */
 export const macwallThankYouPath = "/thank-you" as const
+
+/**
+ * Instant deep-link activation after Stripe checkout.
+ * Success redirect: `https://macwall.app/activate?key={license_key}&session_id={CHECKOUT_SESSION_ID}`
+ */
+export const macwallActivatePath = "/activate" as const
+
+/** Recommended Stripe Checkout success redirect (includes license key for auto-activate). */
+export const macwallStripeSuccessRedirectUrl =
+  "https://macwall.app/activate?key={license_key}&session_id={CHECKOUT_SESSION_ID}"
 
 /** Opens MacWall and auto-activates when `key` is present (`macwall://activate?key=…`). */
 export function macwallLicenseActivationDeepLink(

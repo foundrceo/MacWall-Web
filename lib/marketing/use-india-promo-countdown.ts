@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 
 import {
   formatPromoCountdown,
-  getIndiaPromoDeadlineMs,
+  getRollingPromoRemainingMs,
   INDIA_PROMO_DURATION_MS,
   INDIA_PROMO_START_KEY,
 } from "@/lib/marketing-india-promo"
@@ -33,22 +33,19 @@ export function useIndiaPromoCountdown(enabled: boolean) {
 
   useEffect(() => {
     if (!enabled) return
+
     const started = readPromoStartMs()
-    setStartMs(started)
-    setRemainingMs(Math.max(0, getIndiaPromoDeadlineMs(started) - Date.now()))
-  }, [enabled])
+    // Seed asynchronously so we never call setState synchronously in the effect body.
+    queueMicrotask(() => {
+      setStartMs(started)
+      setRemainingMs(getRollingPromoRemainingMs(started))
+    })
 
-  useEffect(() => {
-    if (!enabled || startMs === null) return
-
-    const tick = () => {
-      setRemainingMs(Math.max(0, getIndiaPromoDeadlineMs(startMs) - Date.now()))
-    }
-
-    tick()
-    const id = window.setInterval(tick, 1000)
+    const id = window.setInterval(() => {
+      setRemainingMs(getRollingPromoRemainingMs(started))
+    }, 1000)
     return () => window.clearInterval(id)
-  }, [enabled, startMs])
+  }, [enabled])
 
   const resolvedRemaining = remainingMs ?? INDIA_PROMO_DURATION_MS
 
@@ -56,7 +53,8 @@ export function useIndiaPromoCountdown(enabled: boolean) {
     startMs,
     ready: startMs !== null && remainingMs !== null,
     remainingMs: resolvedRemaining,
-    expired: startMs !== null && resolvedRemaining <= 0,
+    // Rolling timer never permanently expires — a fresh 24h window always follows.
+    expired: false,
     countdownLabel: formatPromoCountdown(resolvedRemaining),
     durationMs: INDIA_PROMO_DURATION_MS,
   }

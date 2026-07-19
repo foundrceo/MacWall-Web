@@ -5,16 +5,18 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin"
 export const PRO_PRICE_USD = 7.99
 
 /**
- * Whop marketplace fee estimate: ~3% platform + ~2.9% + $0.30 processing.
- * Override with WHOP_FEE_PERCENT / WHOP_FEE_FIXED env vars if your plan differs.
+ * Stripe fee estimate: ~2.9% + $0.30 processing.
+ * Override with STRIPE_FEE_PERCENT / STRIPE_FEE_FIXED env vars if your plan differs.
  */
-const WHOP_FEE_PERCENT = Number.parseFloat(
-  process.env.WHOP_FEE_PERCENT ?? "5.9"
+const STRIPE_FEE_PERCENT = Number.parseFloat(
+  process.env.STRIPE_FEE_PERCENT ?? "2.9"
 )
-const WHOP_FEE_FIXED = Number.parseFloat(process.env.WHOP_FEE_FIXED ?? "0.30")
+const STRIPE_FEE_FIXED = Number.parseFloat(
+  process.env.STRIPE_FEE_FIXED ?? "0.30"
+)
 
 export function netRevenuePerSale(): number {
-  const fee = PRO_PRICE_USD * (WHOP_FEE_PERCENT / 100) + WHOP_FEE_FIXED
+  const fee = PRO_PRICE_USD * (STRIPE_FEE_PERCENT / 100) + STRIPE_FEE_FIXED
   return Math.max(0, PRO_PRICE_USD - fee)
 }
 
@@ -85,17 +87,33 @@ function bucketByDay(rows: SaleRow[]): DailySalesRow[] {
     .sort((a, b) => a.day.localeCompare(b.day))
 }
 
-/** Single query — every Whop sale ever recorded (low volume table). */
-export async function fetchAllSales(): Promise<SaleRow[]> {
+async function fetchSalesFromTable(
+  table: "macwall_stripe_license_emails" | "macwall_whop_license_emails"
+): Promise<SaleRow[]> {
   const supabase = getSupabaseAdmin()
   const { data, error } = await supabase
-    .from("macwall_whop_license_emails")
+    .from(table)
     .select("sent_at")
     .order("sent_at", { ascending: true })
     .limit(10000)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    if (error.message.includes("does not exist")) return []
+    throw new Error(error.message)
+  }
   return (data ?? []) as SaleRow[]
+}
+
+/** Stripe + legacy Whop sales (low volume tables). */
+export async function fetchAllSales(): Promise<SaleRow[]> {
+  const [stripeSales, whopSales] = await Promise.all([
+    fetchSalesFromTable("macwall_stripe_license_emails"),
+    fetchSalesFromTable("macwall_whop_license_emails"),
+  ])
+
+  return [...stripeSales, ...whopSales].sort((a, b) =>
+    a.sent_at.localeCompare(b.sent_at)
+  )
 }
 
 /**
@@ -156,8 +174,8 @@ export function buildSalesSummary(
   return {
     pricePerSale: PRO_PRICE_USD,
     netPerSale: round2(net),
-    feePercentAssumed: WHOP_FEE_PERCENT,
-    feeFixedAssumed: WHOP_FEE_FIXED,
+    feePercentAssumed: STRIPE_FEE_PERCENT,
+    feeFixedAssumed: STRIPE_FEE_FIXED,
     sales,
     grossRevenue: round2(sales * PRO_PRICE_USD),
     netRevenue: round2(sales * net),

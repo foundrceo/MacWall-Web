@@ -1,7 +1,5 @@
 "use client"
 
-import Link from "next/link"
-
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import {
   TrackedDownloadButton,
@@ -63,20 +61,14 @@ export default function MacWallMarketingBottomCta() {
               {macwallMinimumMacOSRequirement}
             </p>
           </div>
-          {pricing.isIndia ? (
-            <TrackedPricingButton
-              href={pricing.checkoutUrl}
-              location="bottom_cta"
-              size="pill"
-              className={HERO_SECONDARY_BTN_CLASS}
-            >
-              {pricing.bottomCtaLabel}
-            </TrackedPricingButton>
-          ) : (
-            <Link href="/pricing" className={HERO_SECONDARY_BTN_CLASS}>
-              {pricing.bottomCtaLabel}
-            </Link>
-          )}
+          <TrackedPricingButton
+            href={pricing.checkoutUrl}
+            location="bottom_cta"
+            size="pill"
+            className={HERO_SECONDARY_BTN_CLASS}
+          >
+            {pricing.bottomCtaLabel}
+          </TrackedPricingButton>
         </div>
       </div>
     </section>

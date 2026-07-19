@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"
 import { Mail } from "lucide-react"
 
 import { PurchaseConversionTracker } from "@/components/analytics/purchase-conversion-tracker"
+import { ThankYouDeepLinkRedirect } from "@/components/analytics/thank-you-deep-link-redirect"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import MarketingSiteChrome, {
   MARKETING_MAIN_OFFSET_CLASS,
@@ -41,7 +42,10 @@ function ThankYouActions() {
   return (
     <section className="mx-auto mt-10 max-w-[520px] pb-16 text-center md:pb-20">
       <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
-        <Link href={openAppHref} className={cn(prosePrimaryBtn, "prose-primary-btn")}>
+        <Link
+          href={openAppHref}
+          className={cn(prosePrimaryBtn, "prose-primary-btn")}
+        >
           {copy.openAppCta}
         </Link>
         <TrackedDownloadButton
@@ -57,7 +61,9 @@ function ThankYouActions() {
       {licenseKey ? (
         <p className="mx-auto mt-5 max-w-[440px] text-[14px] leading-[1.5] text-muted-foreground">
           Your license is ready — tap{" "}
-          <strong className="font-semibold text-foreground">Open MacWall</strong>{" "}
+          <strong className="font-semibold text-foreground">
+            Open MacWall
+          </strong>{" "}
           to activate Pro instantly.
         </p>
       ) : null}
@@ -89,6 +95,7 @@ export default function MacWallMarketingThankYouPage() {
     <div className={MARKETING_PAGE_CLASS}>
       <Suspense fallback={null}>
         <PurchaseConversionTracker />
+        <ThankYouDeepLinkRedirect />
       </Suspense>
       <MarketingSiteChrome />
       <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>

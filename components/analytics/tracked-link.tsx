@@ -11,6 +11,8 @@ import type {
   SiteAnalyticsEventName,
   SiteAnalyticsMetadata,
 } from "@/lib/analytics/events"
+import { withMarketingAttribution } from "@/lib/analytics/marketing-attribution"
+import { markCheckoutStartedInSession } from "@/lib/analytics/retargeting"
 import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
 
 type TrackedLinkProps = {
@@ -36,10 +38,15 @@ export function TrackedLink({
   const isExternalHref =
     external || href.startsWith("http") || href.startsWith("mailto:")
 
+  const resolvedHref =
+    eventName === "pricing_click" ? withMarketingAttribution(href) : href
+
   const trackNavigation = () => {
     trackSiteEventClient(eventName, metadata)
 
     if (eventName === "pricing_click") {
+      markCheckoutStartedInSession()
+      trackSiteEventClient("checkout_started", metadata)
       void trackTikTokInitiateCheckoutWithIdentify()
     }
   }
@@ -85,11 +92,13 @@ export function TrackedLink({
   if (isExternalHref || isDownloadClick) {
     return (
       <a
-        href={href}
+        href={resolvedHref}
         className={className}
         {...trackProps}
-        target={href.startsWith("http") ? "_blank" : undefined}
-        rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+        target={resolvedHref.startsWith("http") ? "_blank" : undefined}
+        rel={
+          resolvedHref.startsWith("http") ? "noopener noreferrer" : undefined
+        }
         aria-label={ariaLabel}
       >
         {children}
@@ -99,7 +108,7 @@ export function TrackedLink({
 
   return (
     <Link
-      href={href}
+      href={resolvedHref}
       className={className}
       {...trackProps}
       aria-label={ariaLabel}

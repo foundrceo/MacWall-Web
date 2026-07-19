@@ -114,9 +114,10 @@ export default function PrivacyPage() {
             </li>
             <li>
               <strong>Purchase data:</strong> Checkout is handled by our
-              merchant (Whop). We do not collect or store your full payment card
-              details on our servers. We may receive transaction identifiers,
-              license status, and your email for fulfillment and support.
+              merchant (Stripe). We do not collect or store your full payment
+              card details on our servers. We may receive transaction
+              identifiers, license status, and your email for fulfillment and
+              support.
             </li>
             <li>
               <strong>Website and infrastructure logs:</strong> When you visit{" "}
@@ -174,7 +175,7 @@ export default function PrivacyPage() {
           </p>
           <ul className={legalBulletList}>
             <li>
-              <strong>Whop:</strong> payment, checkout, and software licensing.
+              <strong>Stripe:</strong> payment, checkout, and order fulfillment.
             </li>
             <li>
               <strong>Cloud infrastructure:</strong> APIs and databases that
@@ -311,8 +312,7 @@ export default function PrivacyPage() {
             Feedback you provide may be used to improve the product. Information
             in this policy may change without notice apart from the posting
             above. Copyright © {year} {macwall.legalCompanyName}. All rights
-            reserved.
-            Contact:{" "}
+            reserved. Contact:{" "}
             <a href={`mailto:${macwall.supportEmail}`}>
               {macwall.supportEmail}
             </a>

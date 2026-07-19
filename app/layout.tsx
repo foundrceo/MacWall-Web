@@ -1,4 +1,5 @@
 import { PageViewTracker } from "@/components/analytics/page-view-tracker"
+import { CheckoutRetargetingTracker } from "@/components/analytics/checkout-retargeting-tracker"
 import {
   resolveTikTokPixelId,
   TikTokPixel,
@@ -41,8 +42,7 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
 })
 
-const SITE_DESCRIPTION_FALLBACK =
-  `MacWall is the native macOS app for live video wallpapers on your Mac desktop: a curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, intelligent pause on battery and full screen, and optional MacWall Pro for live Lock Screen and Screen Saver wallpapers on ${macwallMinimumMacOSVersion}.`
+const SITE_DESCRIPTION_FALLBACK = `MacWall is the native macOS app for live video wallpapers on your Mac desktop: a curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, intelligent pause on battery and full screen, and optional MacWall Pro for live Lock Screen and Screen Saver wallpapers on ${macwallMinimumMacOSVersion}.`
 
 const SITE_TITLE_DEFAULT = macwall.fullTagline
 
@@ -236,6 +236,7 @@ export default function RootLayout({
         >
           {children}
           <PageViewTracker />
+          <CheckoutRetargetingTracker />
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />

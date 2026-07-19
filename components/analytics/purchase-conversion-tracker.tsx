@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 
 import { trackSiteEventClient } from "@/lib/analytics/client"
+import { markPurchaseCompleteInSession } from "@/lib/analytics/retargeting"
 import { macwall } from "@/lib/macwall-site"
 
 declare global {
@@ -57,9 +58,10 @@ export function PurchaseConversionTracker() {
     fired.current = true
 
     trackSiteEventClient("purchase_complete", { product: "macwall_pro" })
+    markPurchaseCompleteInSession()
 
-    // TikTok Purchase/CompletePayment fires server-side from the Whop webhook
-    // (whop-license-email edge function) where the verified buyer email is
+    // TikTok Purchase/CompletePayment fires server-side from the Stripe webhook
+    // (stripe-license-email edge function) where the verified buyer email is
     // always available — see lib/analytics for the Events API client. Firing it
     // here too would double-count, so the browser only handles GA4 / Google Ads.
     const run = () => {

@@ -6,10 +6,8 @@ import {
   isIndiaCountry,
   resolveVisitorCountry,
 } from "@/lib/geo/resolve-visitor-country"
-import { getCachedIndiaQuote } from "@/lib/pricing/get-cached-india-quote"
 import {
   buildDefaultMarketingPricing,
-  buildIndiaMarketingPricing,
   buildIndiaMarketingPricingFallback,
   type MarketingPricing,
 } from "@/lib/pricing/marketing-pricing"
@@ -30,8 +28,6 @@ export async function resolveMarketingPricing(): Promise<MarketingPricing> {
     return buildDefaultMarketingPricing()
   }
 
-  const quote = await getCachedIndiaQuote()
-  if (!quote) return buildIndiaMarketingPricingFallback()
-
-  return buildIndiaMarketingPricing(quote)
+  // India never shows an INR price — only the "50% off" offer + INDIA50 code.
+  return buildIndiaMarketingPricingFallback()
 }

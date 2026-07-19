@@ -43,7 +43,6 @@ export default function IndiaPricingOffer() {
   const pricing = useMarketingPricing()
   const {
     countdownLabel,
-    expired,
     ready: countdownReady,
   } = useIndiaPromoCountdown(pricing.showIndiaOfferCard)
 
@@ -63,35 +62,19 @@ export default function IndiaPricingOffer() {
           <p className="MacWallIndiaOfferHook">{indiaPromo.pricing.hook}</p>
 
           <div className="MacWallIndiaOfferPriceRow">
-            <span className="MacWallIndiaOfferPrice">{pricing.salePrice}</span>
-            {pricing.fullPrice ? (
-              <span className="MacWallIndiaOfferStrike">
-                {pricing.fullPrice}
-              </span>
-            ) : null}
-            <span className="MacWallIndiaOfferDiscount">
+            <span className="MacWallIndiaOfferPrice">
               {indiaPromo.discountPercent}% OFF
             </span>
           </div>
 
-          <p
-            className={
-              expired
-                ? "MacWallIndiaOfferCountdown MacWallIndiaOfferCountdown--expired"
-                : "MacWallIndiaOfferCountdown"
-            }
-          >
+          <p className="MacWallIndiaOfferCountdown">
             {countdownReady
-              ? expired
-                ? "24-hour window ended — try INDIA50 at checkout anyway"
-                : `⏳ ${countdownLabel} left on your personal timer`
+              ? `⏳ ${countdownLabel} left on your personal timer`
               : "⏳ Starting your 24-hour timer…"}
           </p>
 
           <p className="MacWallIndiaOfferMeta">
-            {pricing.salePrice === "50% off"
-              ? `Final INR price at Whop checkout · ${indiaPromo.code}`
-              : `${indiaPromo.pricing.lifetimeNote} · Live Whop price · ${indiaPromo.code} at checkout`}
+            {`Apply ${indiaPromo.code} at Stripe checkout`}
           </p>
         </div>
 

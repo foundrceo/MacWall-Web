@@ -1,11 +1,12 @@
 import { INDIA_PROMO_CODE, indiaPromo } from "@/lib/marketing-india-promo"
 
 import {
-  extractWhopPlanId,
+  formatInrWhole,
+  type IndiaQuote,
   type WhopIndiaQuote,
-} from "@/lib/pricing/whop-india-pricing"
+} from "@/lib/pricing/stripe-india-pricing"
 
-/** Short-lived cache — Whop adaptive INR moves with FX. */
+/** Short-lived cache for India pricing display. */
 export const INDIA_QUOTE_COOKIE = "mw_india_quote" as const
 
 /** Forwarded by Edge middleware on the same request as the page render. */
@@ -14,17 +15,19 @@ export const MW_INDIA_QUOTE_HEADER = "x-mw-india-quote" as const
 export const INDIA_QUOTE_MAX_AGE_SECONDS = 300
 
 type IndiaQuotePayload = {
-  s: string
-  f: string
   sa: number
   fa: number
   t: number
+  /** @deprecated Legacy cookies may include preformatted INR strings. */
+  s?: string
+  f?: string
 }
 
-export function serializeIndiaQuote(quote: WhopIndiaQuote): string {
+/** ASCII-only JSON for cookies and request headers (HTTP headers reject Unicode like ₹). */
+export function serializeIndiaQuote(
+  quote: IndiaQuote | WhopIndiaQuote
+): string {
   const payload: IndiaQuotePayload = {
-    s: quote.saleDisplay,
-    f: quote.fullDisplay,
     sa: quote.saleAmount,
     fa: quote.fullAmount,
     t: Date.now(),
@@ -34,14 +37,12 @@ export function serializeIndiaQuote(quote: WhopIndiaQuote): string {
 
 export function parseIndiaQuotePayload(
   raw: string | null | undefined
-): WhopIndiaQuote | null {
+): IndiaQuote | null {
   if (!raw?.trim()) return null
 
   try {
     const data = JSON.parse(raw) as IndiaQuotePayload
     if (
-      !data.s ||
-      !data.f ||
       !Number.isFinite(data.sa) ||
       !Number.isFinite(data.fa) ||
       !Number.isFinite(data.t)
@@ -52,18 +53,20 @@ export function parseIndiaQuotePayload(
     const ageMs = Date.now() - data.t
     if (ageMs < 0 || ageMs > INDIA_QUOTE_MAX_AGE_SECONDS * 1000) return null
 
+    const saleDisplay = data.s ?? formatInrWhole(data.sa)
+    const fullDisplay = data.f ?? formatInrWhole(data.fa)
+
     return {
       currency: "inr",
-      planId: extractWhopPlanId(),
       promoCode: INDIA_PROMO_CODE,
       discountPercent: indiaPromo.discountPercent,
       fullAmount: data.fa,
       saleAmount: data.sa,
-      fullDisplay: data.f,
-      saleDisplay: data.s,
-      ctaLabel: `Get Pro for ${data.s}`,
+      fullDisplay,
+      saleDisplay,
+      ctaLabel: `Get Pro for ${saleDisplay}`,
       fetchedAt: new Date(data.t).toISOString(),
-      source: "whop_checkout",
+      source: "stripe_pricing",
     }
   } catch {
     return null
