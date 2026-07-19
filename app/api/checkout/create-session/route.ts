@@ -21,6 +21,7 @@ async function startCheckout(request: Request, requestedPromo: string | null) {
   return createMacWallCheckoutSession({
     country,
     requestedPromo,
+    siteOrigin: new URL(request.url).origin,
   })
 }
 

@@ -1,11 +1,7 @@
 import "server-only"
 
 import { generateMacWallLicenseKey } from "@/lib/license/generate-license-key"
-import {
-  getSiteOrigin,
-  getStripe,
-  getStripePriceIdUsd,
-} from "@/lib/stripe/server"
+import { getStripe, getStripePriceIdUsd } from "@/lib/stripe/server"
 import {
   indiaCheckoutDiscount,
   shouldApplyIndiaPromo,
@@ -15,6 +11,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin"
 export type CreateMacWallCheckoutInput = {
   country: string | null
   requestedPromo?: string | null
+  /** Host that initiated checkout — used for Stripe success/cancel redirects. */
+  siteOrigin: string
 }
 
 export type CreateMacWallCheckoutResult =
@@ -31,16 +29,18 @@ export async function createMacWallCheckoutSession(
   try {
     const stripe = getStripe()
     const supabase = getSupabaseAdmin()
-    const siteOrigin = getSiteOrigin()
+    const siteOrigin = input.siteOrigin.replace(/\/+$/, "")
     const applyIndiaPromo = shouldApplyIndiaPromo(input)
 
     const licenseKey = generateMacWallLicenseKey()
 
-    const { error: insertError } = await supabase.from("macwall_licenses").insert({
-      license_key: licenseKey,
-      source: "stripe",
-      status: "pending",
-    })
+    const { error: insertError } = await supabase
+      .from("macwall_licenses")
+      .insert({
+        license_key: licenseKey,
+        source: "stripe",
+        status: "pending",
+      })
 
     if (insertError) {
       console.error("[checkout] license insert failed", insertError.message)
