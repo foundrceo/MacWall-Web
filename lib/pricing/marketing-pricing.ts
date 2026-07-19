@@ -49,12 +49,14 @@ export function buildDefaultMarketingPricing(): MarketingPricing {
 }
 
 export function buildIndiaMarketingPricingFallback(): MarketingPricing {
+  const listPrice = macwall.pro.price
+
   return {
     region: "india",
-    currency: "inr",
+    currency: "usd",
     isIndia: true,
     salePrice: "50% off",
-    fullPrice: null,
+    fullPrice: listPrice,
     suffix: "one-time",
     getProCta: indiaPromo.pricing.ctaFallback,
     buyProCta: indiaPromo.pricing.ctaFallback,

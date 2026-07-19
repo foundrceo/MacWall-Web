@@ -10,6 +10,7 @@ export function shouldApplyIndiaPromo(input: {
   country: string | null
   requestedPromo?: string | null
 }): boolean {
+  // INDIA50 is geo-gated — non-India visitors always pay full USD price.
   if (!isIndiaCountry(input.country)) return false
 
   const promo = input.requestedPromo?.trim().toUpperCase()
