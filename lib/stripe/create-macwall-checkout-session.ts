@@ -80,10 +80,31 @@ export async function createMacWallCheckoutSession(
       }
     }
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("macwall_licenses")
       .update({ stripe_checkout_session_id: session.id })
       .eq("license_key", licenseKey)
+
+    if (updateError) {
+      console.error(
+        "[checkout] session id update failed",
+        updateError.message
+      )
+      await supabase
+        .from("macwall_licenses")
+        .delete()
+        .eq("license_key", licenseKey)
+      try {
+        await stripe.checkout.sessions.expire(session.id)
+      } catch {
+        /* best-effort cleanup */
+      }
+      return {
+        ok: false,
+        error: "Could not prepare checkout.",
+        status: 500,
+      }
+    }
 
     return { ok: true, url: session.url }
   } catch (error) {
