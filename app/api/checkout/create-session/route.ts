@@ -15,7 +15,6 @@ async function startCheckout(request: Request, requestedPromo: string | null) {
   const country = await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
-    geoCountry: request.headers.get("x-vercel-ip-country"),
   })
 
   return createMacWallCheckoutSession({
