@@ -24,7 +24,7 @@ const NAV = [
   { href: "/admin", label: "Analytics", icon: Analytics01Icon },
   { href: "/admin/wallpapers", label: "Wallpapers", icon: ImageIcon },
   { href: "/admin/uploads", label: "Uploads", icon: Upload01Icon },
-  { href: "/admin/feedback", label: "Feedback", icon: BubbleChatIcon },
+  { href: "/admin/feedback", label: "Live Support", icon: BubbleChatIcon },
 ] as const
 
 function AdminNavLink({
