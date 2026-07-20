@@ -4,8 +4,8 @@ import { FeedbackPanel } from "@/components/admin/feedback-panel"
 export default function AdminFeedbackPage() {
   return (
     <AdminShell
-      title="Feedback"
-      description="In-app messages from MacWall users — what they love, what's off, and ideas. Captured in real time."
+      title="Live Support"
+      description="Support tickets and live chat from MacWall users — manage conversations, reply, and close requests."
     >
       <FeedbackPanel />
     </AdminShell>

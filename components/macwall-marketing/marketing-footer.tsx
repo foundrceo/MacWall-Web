@@ -118,6 +118,11 @@ export default function MacWallMarketingFooter() {
               </p>
               <ul className="space-y-2.5">
                 <li>
+                  <Link href="/support" className={footerLinkClass}>
+                    Live Support
+                  </Link>
+                </li>
+                <li>
                   <a
                     href={macwall.discordInvite}
                     target="_blank"
