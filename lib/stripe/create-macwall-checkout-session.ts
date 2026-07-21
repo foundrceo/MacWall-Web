@@ -7,6 +7,7 @@ import {
   shouldApplyIndiaPromo,
 } from "@/lib/stripe/india-promo"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
+import { queueCheckoutRecovery } from "@/lib/stripe/queue-checkout-recovery"
 
 export type CreateMacWallCheckoutInput = {
   country: string | null
@@ -104,6 +105,19 @@ export async function createMacWallCheckoutSession(
         error: "Could not prepare checkout.",
         status: 500,
       }
+    }
+
+    try {
+      await queueCheckoutRecovery({
+        checkoutSessionId: session.id,
+        licenseKey,
+        reason: "checkout_started",
+      })
+    } catch (queueError) {
+      console.error(
+        "[checkout] recovery queue failed",
+        queueError instanceof Error ? queueError.message : "error"
+      )
     }
 
     return { ok: true, url: session.url }
