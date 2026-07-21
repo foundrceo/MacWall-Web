@@ -82,7 +82,7 @@ export const macwall = {
   fullTagline: MACWALL_FULL_TAGLINE,
   website: "https://macwall.app",
   /** Community invite — matches `discordInviteURLString` in the Mac app. */
-  discordInvite: "https://discord.gg/qhtYwEvHND",
+  discordInvite: "https://discord.gg/ydcrB9WKWP",
   supportEmail: "support@macwall.app",
   /** Reel refund program — 50% at 2k views, 100% at 20k views. */
   reelRefundEmail: "discount@macwall.com",
