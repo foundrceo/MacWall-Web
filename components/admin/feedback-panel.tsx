@@ -172,14 +172,18 @@ export function FeedbackPanel() {
 
   useEffect(() => {
     if (selectedId && !items.some((item) => item.id === selectedId)) {
-      setSelectedId(null)
-      setReplyDraft("")
+      queueMicrotask(() => {
+        setSelectedId((current) => (current === selectedId ? null : current))
+        setReplyDraft("")
+      })
     }
   }, [items, selectedId])
 
   useEffect(() => {
-    setReplyDraft("")
-    setReplyMessage(null)
+    queueMicrotask(() => {
+      setReplyDraft("")
+      setReplyMessage(null)
+    })
   }, [selected?.id, selected?.messages.length])
 
   async function toggleResolved(item: FeedbackItem) {

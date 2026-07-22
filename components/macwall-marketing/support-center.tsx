@@ -209,8 +209,10 @@ export function SupportCenter() {
 
   useEffect(() => {
     const sid = getOrCreateSessionId()
-    setSessionId(sid)
-    void loadTickets(sid)
+    queueMicrotask(() => {
+      setSessionId(sid)
+      void loadTickets(sid)
+    })
   }, [loadTickets])
 
   useEffect(() => {
