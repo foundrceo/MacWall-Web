@@ -277,7 +277,7 @@ export function CatalogBulkUploadPanel({
     }, UPLOAD_SESSION_SAVE_DELAY_MS)
 
     return () => window.clearTimeout(timeout)
-  }, [drafts, persistenceReady, recoverableSession])
+  }, [busy, drafts, persistenceReady, recoverableSession])
 
   const validation = useMemo(() => validateDrafts(drafts), [drafts])
 
@@ -720,8 +720,7 @@ export function CatalogBulkUploadPanel({
     setError(null)
     setNotice(null)
 
-    let publishedCount = 0
-    let failedCount = 0
+    const results: Array<"published" | "failed"> = []
     const failures: string[] = []
 
     setUploadRun({
@@ -803,7 +802,10 @@ export function CatalogBulkUploadPanel({
               liveDraft
           )
 
-          publishedCount += 1
+          results.push("published")
+          const publishedSoFar = results.filter(
+            (result) => result === "published"
+          ).length
           updateDraft(liveDraft.localId, (current) => ({
             ...current,
             status: "committed",
@@ -811,10 +813,13 @@ export function CatalogBulkUploadPanel({
             error: null,
           }))
           setUploadRun((current) =>
-            current ? { ...current, published: publishedCount } : current
+            current ? { ...current, published: publishedSoFar } : current
           )
         } catch (err) {
-          failedCount += 1
+          results.push("failed")
+          const failedSoFar = results.filter(
+            (result) => result === "failed"
+          ).length
           const message = err instanceof Error ? err.message : "Upload failed."
           failures.push(`${draft.name}: ${message}`)
           updateDraft(draft.localId, (current) => ({
@@ -823,7 +828,7 @@ export function CatalogBulkUploadPanel({
             error: message,
           }))
           setUploadRun((current) =>
-            current ? { ...current, failed: failedCount } : current
+            current ? { ...current, failed: failedSoFar } : current
           )
         }
       }
@@ -831,6 +836,10 @@ export function CatalogBulkUploadPanel({
       setUploadRun((current) =>
         current ? { ...current, phase: "complete" } : current
       )
+
+      const publishedCount = results.filter(
+        (result) => result === "published"
+      ).length
 
       if (publishedCount === 0) {
         throw new Error(failures[0] ?? "No wallpapers were published.")

@@ -42,6 +42,8 @@ export async function queueCheckoutRecovery(
     reason: input.reason?.trim() || "checkout_started",
     scheduled_send_at: scheduledAt,
     status: "pending" as const,
+    sent_at: null,
+    skip_reason: null,
     updated_at: new Date().toISOString(),
   }
 
@@ -50,7 +52,6 @@ export async function queueCheckoutRecovery(
       .from("macwall_checkout_recovery_queue")
       .update(row)
       .eq("checkout_session_id", input.checkoutSessionId)
-      .eq("status", "pending")
   } else {
     await supabase.from("macwall_checkout_recovery_queue").insert(row)
   }

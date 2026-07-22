@@ -203,7 +203,6 @@ export function MarketingContainer({
 
 export function SectionEyebrow({
   children,
-  inverted: _inverted,
   className,
 }: Readonly<{
   children: ReactNode
@@ -254,7 +253,6 @@ export function SectionTitle({
 
 export function SectionLead({
   children,
-  inverted: _inverted,
   className,
 }: Readonly<{
   children: ReactNode
@@ -276,7 +274,6 @@ export function SectionLead({
 export function TextLink({
   href,
   children,
-  inverted: _inverted,
   className,
   external,
 }: Readonly<{
