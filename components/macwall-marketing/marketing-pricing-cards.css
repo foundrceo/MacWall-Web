@@ -1,21 +1,25 @@
-.MacWallPricingPlansGrid {
+.MacWallPricingLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.MacWallPricingPlansRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
   align-items: stretch;
 }
 
-.MacWallPricingPlansGrid--three {
-  grid-template-columns: 1fr;
-}
-
 @media (min-width: 48rem) {
-  .MacWallPricingPlansGrid--three {
+  .MacWallPricingPlansRow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 64rem) {
-  .MacWallPricingPlansGrid--three {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+.MacWallPricingPlansRow .MacWallIndiaOfferCard {
+  margin-bottom: 0;
+  height: 100%;
 }
 
 .MacWallPricingPlanCard--highlighted {
@@ -192,4 +196,62 @@
 .MacWallPricingReelFinePrintLabel {
   font-weight: 600;
   color: var(--marketing-muted);
+}
+
+/* Full-width landscape reel row below the two plan cards */
+.MacWallPricingReelCard--landscape {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100%;
+  gap: 1.25rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallPricingReelCard--landscape {
+    display: grid !important;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
+    gap: 1.75rem 2rem;
+    align-items: start;
+  }
+}
+
+.MacWallPricingReelLandscapeIntro {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.MacWallPricingReelLandscapeCta {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.MacWallPricingReelLandscapeBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.MacWallPricingReelSteps--landscape {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 40rem) {
+  .MacWallPricingReelSteps--landscape {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.875rem 1.25rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .MacWallPricingReelSteps--landscape {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.MacWallPricingReelLandscapeFoot {
+  margin-top: 0;
 }
