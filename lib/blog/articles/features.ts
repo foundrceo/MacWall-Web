@@ -66,7 +66,7 @@ export const featureArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "One-time $7.99, not $9.99/month like subscription apps. Lifetime updates. Licensed on 3 personal Macs. Make a Reel with #macwall and earn your money back.",
+        text: "One-time $7.99, not $9.99/month like subscription apps. Lifetime updates. One Mac per license. Make a Reel with #macwall and earn your money back.",
       },
     ],
   },

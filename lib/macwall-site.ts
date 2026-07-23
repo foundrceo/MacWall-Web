@@ -130,7 +130,7 @@ export const macwall = {
   /** India-only flash sale — 50% off, 24hr personal timer (web promo). */
   indiaPromoCode: "INDIA50",
   /** Personal license device limit (`AppBrand.maxLicensedMacs`). */
-  maxLicensedMacs: 3,
+  maxLicensedMacs: 1,
   /** Everything included with a Pro license. */
   proIncludedFeatures: [
     "Cloud catalog: featured, newest, and most popular",

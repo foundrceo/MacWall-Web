@@ -151,7 +151,7 @@ export const comparisonArticles: BlogArticle[] = [
           "Community uploads and personal imports",
           "Reel refund program, earn up to 100% back",
           "Menu bar-first controls that mirror real Mac utilities",
-          "One license covers up to 3 personal Macs",
+          "One license per Mac",
         ],
       },
       {
@@ -172,7 +172,7 @@ export const comparisonArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Both are one-time purchases, but MacWall costs $2 less, covers 3 Macs, and can refund itself through a Reel. If you want the best value, community-driven catalog, and a native app that feels built for your Mac, **MacWall** is the pick. If you need an in-app editor above all else, Backdrop remains excellent.",
+        text: "Both are one-time purchases, but MacWall costs $2 less, one Mac per license, and can refund itself through a Reel. If you want the best value, community-driven catalog, and a native app that feels built for your Mac, **MacWall** is the pick. If you need an in-app editor above all else, Backdrop remains excellent.",
       },
     ],
   },
@@ -243,7 +243,7 @@ export const comparisonArticles: BlogArticle[] = [
       { type: "h2", text: "Quick verdict" },
       {
         type: "p",
-        text: "**MacWall wins for most users.** It costs $2 less, covers 3 Macs, pauses intelligently to protect battery and CPU, and, critically, its Lock Screen and Screen Saver integration keeps working on the new **macOS 27 beta**, where many competitor apps currently break.",
+        text: "**MacWall wins for most users.** It costs $2 less, one Mac per license, pauses intelligently to protect battery and CPU, and, critically, its Lock Screen and Screen Saver integration keeps working on the new **macOS 27 beta**, where many competitor apps currently break.",
       },
       { type: "h2", text: "Feature comparison" },
       {
@@ -252,7 +252,7 @@ export const comparisonArticles: BlogArticle[] = [
           "**Price**: MacWall is $7.99 one-time (early bird). Wallper is $9.99 one-time.",
           "**Catalog**: MacWall offers community uploads plus curated lanes across 9 categories, ranked by likes. Wallper has ~700 curated loops.",
           "**Imports**: both support MP4/MOV imports; MacWall adds GIF.",
-          "**Macs covered**: MacWall licenses up to 3 personal Macs.",
+          "**Macs covered**: One MacWall license per Mac.",
           "**CPU & battery**: MacWall pauses on battery, in full screen, and even on high CPU load (auto-pauses at 80%, resumes at 55%), plus quality capping on battery.",
           "**Lock Screen & Screen Saver**: MacWall plays video natively on macOS 26+, with dedicated macOS 27 beta support.",
           "**Refunds**: MacWall's Reel Refund: 50% back at 2,000 views, 100% at 20,000.",
@@ -271,7 +271,7 @@ export const comparisonArticles: BlogArticle[] = [
       { type: "h2", text: "Bottom line" },
       {
         type: "p",
-        text: "MacWall is a single $7.99 payment for everything, and a Reel with #macwall can earn it all back. Cheaper than Wallper, covers 3 Macs, and it's the only one working on the macOS 27 beta Lock Screen.",
+        text: "MacWall is a single $7.99 payment for everything, and a Reel with #macwall can earn it all back. Cheaper than Wallper, one Mac per license, and it's the only one working on the macOS 27 beta Lock Screen.",
       },
     ],
   },
