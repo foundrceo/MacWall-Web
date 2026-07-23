@@ -42,7 +42,7 @@ export function buildStripeIndiaQuote(): IndiaQuote {
     saleAmount,
     fullDisplay: formatInrWhole(fullAmount),
     saleDisplay: formatInrWhole(saleAmount),
-    ctaLabel: `Get Pro for ${formatInrWhole(saleAmount)}`,
+    ctaLabel: `50% off — from ${formatInrWhole(saleAmount)}`,
     fetchedAt: new Date().toISOString(),
     source: "stripe_pricing",
   }
