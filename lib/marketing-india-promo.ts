@@ -11,7 +11,7 @@ export const INDIA_PROMO_START_KEY = "mw_india_promo_start" as const
 export const indiaPromo = {
   code: INDIA_PROMO_CODE,
   discountPercent: 50,
-  checkoutUrl: `${macwallProCheckoutURL}?promo=${INDIA_PROMO_CODE}`,
+  checkoutUrl: `${macwallProCheckoutURL}?plan=pro&promo=${INDIA_PROMO_CODE}`,
   pricingAnchor: "india-offer",
   banner: {
     headline: "🇮🇳 India-only flash sale — 50% OFF MacWall Pro",

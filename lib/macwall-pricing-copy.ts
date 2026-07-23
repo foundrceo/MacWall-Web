@@ -59,18 +59,18 @@ export const macwallPricingCopy = {
     ],
   },
 
-  proMax: {
-    badge: LICENSE_PLANS.pro_max.badge,
-    title: LICENSE_PLANS.pro_max.name,
-    description: LICENSE_PLANS.pro_max.description,
-    cta: LICENSE_PLANS.pro_max.buyCta,
-    ctaAria: `Buy ${macwall.name} Pro Max for ${LICENSE_PLANS.pro_max.price}`,
+  proPlus: {
+    badge: LICENSE_PLANS.pro_plus.badge,
+    title: LICENSE_PLANS.pro_plus.name,
+    description: LICENSE_PLANS.pro_plus.description,
+    cta: LICENSE_PLANS.pro_plus.buyCta,
+    ctaAria: `Buy ${macwall.name} Pro Plus for ${LICENSE_PLANS.pro_plus.price}`,
     features: [
       "Everything in Pro",
-      `Use on up to ${LICENSE_PLANS.pro_max.maxDevices} personal Macs`,
+      `Use on up to ${LICENSE_PLANS.pro_plus.maxDevices} personal Macs`,
       "Full catalog + Lock Screen video",
       "Lifetime updates with your license",
-      LICENSE_PLANS.pro_max.featureHighlight,
+      LICENSE_PLANS.pro_plus.featureHighlight,
     ],
   },
 
@@ -91,7 +91,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "How many Macs can I use with one license?",
-      a: `Pro (${macwall.pro.price}) covers up to ${LICENSE_PLANS.pro.maxDevices} personal Macs. Pro Max (${LICENSE_PLANS.pro_max.price}) covers up to ${LICENSE_PLANS.pro_max.maxDevices}. Replacing a Mac? Unlink the license on the old machine in Settings → Devices, then activate on the new one.`,
+      a: `Pro (${macwall.pro.price}) covers up to ${LICENSE_PLANS.pro.maxDevices} personal Macs. Pro Plus (${LICENSE_PLANS.pro_plus.price}) covers up to ${LICENSE_PLANS.pro_plus.maxDevices}. Replacing a Mac? Unlink the license on the old machine in Settings → Devices, then activate on the new one.`,
     },
     {
       q: "Does Lock Screen video work on every macOS version?",
@@ -112,7 +112,7 @@ export const macwallPricingCopy = {
   ] as const,
 
   bottomTitle: `Get ${macwall.name}`,
-  bottomDesc: `Pro is ${macwall.pro.price} for ${LICENSE_PLANS.pro.maxDevices} Macs. Pro Max is ${LICENSE_PLANS.pro_max.price} for ${LICENSE_PLANS.pro_max.maxDevices} Macs. Make a Reel and earn up to 100% back.`,
+  bottomDesc: `Pro is ${macwall.pro.price} for ${LICENSE_PLANS.pro.maxDevices} Macs. Pro Plus is ${LICENSE_PLANS.pro_plus.price} for ${LICENSE_PLANS.pro_plus.maxDevices} Macs. Make a Reel and earn up to 100% back.`,
   bottomCtaPro: `Buy Pro for ${macwall.pro.price}`,
   bottomCtaReel: "Get 100% free",
 } as const

@@ -2,11 +2,10 @@ import "server-only"
 
 import { generateMacWallLicenseKey } from "@/lib/license/generate-license-key"
 import {
-  DEFAULT_LICENSE_PLAN_SLUG,
   type LicensePlanSlug,
   getStripePriceIdForPlan,
-  isLicensePlanSlug,
   licensePlanFromSlug,
+  normalizePlanSlug,
 } from "@/lib/license/plans"
 import { getStripe } from "@/lib/stripe/server"
 import {
@@ -39,11 +38,8 @@ export async function createMacWallCheckoutSession(
     const stripe = getStripe()
     const supabase = getSupabaseAdmin()
     const siteOrigin = input.siteOrigin.replace(/\/+$/, "")
-    const applyIndiaPromo = shouldApplyIndiaPromo(input)
-
-    const planSlug: LicensePlanSlug = isLicensePlanSlug(input.planSlug)
-      ? input.planSlug
-      : DEFAULT_LICENSE_PLAN_SLUG
+    const planSlug: LicensePlanSlug = normalizePlanSlug(input.planSlug)
+    const applyIndiaPromo = shouldApplyIndiaPromo({ ...input, planSlug })
     const plan = licensePlanFromSlug(planSlug)
     const stripePriceId = getStripePriceIdForPlan(planSlug)
 

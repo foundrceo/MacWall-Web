@@ -107,6 +107,7 @@ function LicensePlanCard({
 export default function MacWallMarketingPricingPage() {
   const reel = p.reelRefund
   const pricing = useMarketingPricing()
+  const isIndia = pricing.showIndiaOfferCard
 
   return (
     <div className={MARKETING_PAGE_CLASS}>
@@ -126,36 +127,35 @@ export default function MacWallMarketingPricingPage() {
 
             <div
               className={
-                pricing.showIndiaOfferCard
-                  ? "MacWallPricingPlansGrid grid gap-5"
+                isIndia
+                  ? "MacWallPricingPlansGrid grid gap-5 md:grid-cols-2"
                   : "MacWallPricingPlansGrid MacWallPricingPlansGrid--three grid gap-5 lg:grid-cols-3"
               }
             >
-              {!pricing.showIndiaOfferCard ? (
-                <>
-                  <LicensePlanCard
-                    badge={p.pro.badge}
-                    title={p.pro.title}
-                    description={pricing.pricingProDescription}
-                    features={p.pro.features}
-                    ctaHref={licensePlanCheckoutPath("pro")}
-                    ctaLabel={p.pro.cta}
-                    ctaAria={p.pro.ctaAria}
-                    location="pricing_card_pro"
-                    highlighted
-                  />
-                  <LicensePlanCard
-                    badge={p.proMax.badge}
-                    title={p.proMax.title}
-                    description={p.proMax.description}
-                    features={p.proMax.features}
-                    ctaHref={licensePlanCheckoutPath("pro_max")}
-                    ctaLabel={p.proMax.cta}
-                    ctaAria={p.proMax.ctaAria}
-                    location="pricing_card_pro_max"
-                  />
-                </>
+              {!isIndia ? (
+                <LicensePlanCard
+                  badge={p.pro.badge}
+                  title={p.pro.title}
+                  description={pricing.pricingProDescription}
+                  features={p.pro.features}
+                  ctaHref={pricing.checkoutUrl}
+                  ctaLabel={pricing.buyProCta}
+                  ctaAria={pricing.buyProAria}
+                  location="pricing_card_pro"
+                  highlighted
+                />
               ) : null}
+
+              <LicensePlanCard
+                badge={p.proPlus.badge}
+                title={p.proPlus.title}
+                description={p.proPlus.description}
+                features={p.proPlus.features}
+                ctaHref={licensePlanCheckoutPath("pro_plus")}
+                ctaLabel={p.proPlus.cta}
+                ctaAria={p.proPlus.ctaAria}
+                location="pricing_card_pro_plus"
+              />
 
               <MarketingCard
                 id="reel-refund"

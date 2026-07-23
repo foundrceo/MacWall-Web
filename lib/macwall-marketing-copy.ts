@@ -205,7 +205,7 @@ export const macwallExactCopy = {
     disclaimerBullets: [
       `${macwall.name} Pro is a one-time purchase. The price on this page reflects the current early-bird offer. Make a Reel to qualify for up to 100% back. See Pricing for details.`,
       "A compatible Mac, recent builds, and network access are required for catalog sync, updates, and online license checks.",
-      `Pro features, Lock Screen motion, and catalog depth can differ by region and macOS version. Pro covers up to ${macwall.maxLicensedMacs} Macs; Pro Max covers up to 5.`,
+      `Pro features, Lock Screen motion, and catalog depth can differ by region and macOS version. Pro covers up to ${macwall.maxLicensedMacs} Macs; Pro Plus covers up to 5.`,
       `Continued use of ${macwall.name} means you agree to the Terms of Service and Privacy Policy linked in the footer.`,
     ],
   },

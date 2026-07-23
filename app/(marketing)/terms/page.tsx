@@ -112,7 +112,7 @@ export default function TermsPage() {
           <p>
             {macwall.name} Pro is sold through our merchant (Stripe). Checkout,
             receipts, refunds, and taxes may also be governed by the
-            merchant&apos;s policies. Pro covers up to 3 personal Macs; Pro Max
+            merchant&apos;s policies. Pro covers up to 3 personal Macs; Pro Plus
             covers up to 5. Device limits are enforced per license key.
           </p>
           <p>
