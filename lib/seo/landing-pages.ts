@@ -69,7 +69,7 @@ export const downloadPage: SeoContentPage = {
     {
       question: "How much does MacWall cost?",
       answer:
-        "MacWall is a one-time $7.99 purchase (early bird, normally $9.99) with lifetime updates on up to 3 personal Macs. No subscription. Post a Reel with #macwall and earn up to 100% of it back.",
+        `MacWall is a one-time $7.99 purchase (early bird, normally $9.99) with lifetime updates on one Mac per license. No subscription. Post a Reel with #macwall and earn up to 100% of it back.`,
     },
     {
       question: "Is MacWall safe to install?",
@@ -182,7 +182,7 @@ export const lockScreenWallpaperPage: SeoContentPage = {
     },
     {
       type: "p",
-      text: `${macwall.pro.price} ${macwall.pro.suffix}, ${macwall.pro.headline}. Licensed on up to ${macwall.maxLicensedMacs} personal Macs. Make a Reel with ${macwall.reelRefundHashtag} to earn up to 100% back.`,
+      text: `${macwall.pro.price} ${macwall.pro.suffix}, ${macwall.pro.headline}. One Mac per license. Make a Reel with ${macwall.reelRefundHashtag} to earn up to 100% back.`,
     },
   ],
   faq: [
@@ -283,7 +283,7 @@ export const macwallVsBackdropPage: SeoContentPage = {
   title: "Backdrop Alternative for Mac: MacWall",
   headline: "The Backdrop Alternative for Mac",
   description:
-    "Looking for a Backdrop alternative? MacWall costs $2 less, covers 3 Macs, and adds community uploads and a Reel refund. Honest side-by-side.",
+    "Looking for a Backdrop alternative? MacWall costs $2 less, one Mac per license, and adds community uploads and a Reel refund. Honest side-by-side.",
   keywords: [
     "backdrop alternative mac",
     "backdrop alternative",
@@ -347,19 +347,19 @@ export const macwallVsWallperPage: SeoContentPage = {
         "Both: 4K video, Apple Silicon optimized, multi-monitor",
         "MacWall: community uploads + import your own MP4/MOV",
         "MacWall: Reel refund, earn up to 100% of your purchase back",
-        "MacWall: license covers up to 3 personal Macs",
+        "MacWall: one license per Mac",
       ],
     },
     {
       type: "p",
-      text: "Same one-time pricing model, but MacWall costs $2 less, covers 3 Macs, and is the only one that can refund itself through a Reel. For daily menu bar control and multi-category discovery, MacWall is the stronger buy.",
+      text: "Same one-time pricing model, but MacWall costs $2 less, one Mac per license, and is the only one that can refund itself through a Reel. For daily menu bar control and multi-category discovery, MacWall is the stronger buy.",
     },
   ],
   faq: [
     {
       question: "Is MacWall cheaper than Wallper?",
       answer:
-        "Yes. MacWall is $7.99 one-time (early bird, normally $9.99) versus Wallper's $9.99, and the license covers up to 3 personal Macs. Post a Reel with #macwall and you can earn the full price back.",
+        "Yes. MacWall is $7.99 one-time (early bird, normally $9.99) versus Wallper's $9.99, with one Mac per license. Post a Reel with #macwall and you can earn the full price back.",
     },
     {
       question: "Which is better for MacBook battery life?",
@@ -396,7 +396,7 @@ export const macwallVsWallspacePage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "MacWall: $7.99 one-time, everything included, up to 3 Macs",
+        "MacWall: $7.99 one-time, everything included, one Mac per license",
         "Wallspace: $8.99 Pro one-time",
         "Both: native Swift, hardware-accelerated 4K, multi-monitor, battery-aware pause",
         "MacWall: 9-category community catalog with search, filters, and likes",
@@ -486,7 +486,7 @@ export const livelyWallpaperMacPage: SeoContentPage = {
     {
       question: "How much does MacWall cost?",
       answer:
-        "MacWall is a one-time $7.99 purchase (early bird, normally $9.99) with lifetime updates on up to 3 Macs. No subscription, and a Reel with #macwall can earn the full price back.",
+        "MacWall is a one-time $7.99 purchase (early bird, normally $9.99) with lifetime updates on one Mac per license. No subscription, and a Reel with #macwall can earn the full price back.",
     },
   ],
 }

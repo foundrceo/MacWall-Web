@@ -41,6 +41,10 @@ pnpm-debug.log*
 .env
 .env*.local
 
+# local deploy / supabase cli artifacts
+scripts/.deploy-payload.json
+supabase/.temp/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

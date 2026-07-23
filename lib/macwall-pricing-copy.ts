@@ -47,13 +47,13 @@ export const macwallPricingCopy = {
   pro: {
     badge: "Pro",
     title: "Lifetime license",
-    description: `One-time ${macwall.pro.price}. Full catalog, Lock Screen video, unlimited playlists, and lifetime updates on up to ${macwall.maxLicensedMacs} Macs, no subscription, ever.`,
+    description: `One-time ${macwall.pro.price}. Full catalog, Lock Screen video, unlimited playlists, and lifetime updates on one Mac per license, no subscription, ever.`,
     cta: `Buy Pro for ${macwall.pro.price}`,
     ctaAria: `Buy ${macwall.name} Pro for ${macwall.pro.price}`,
     features: [
       ...macwall.pro.features,
       ...macwall.proIncludedFeatures.slice(0, 5),
-      `Use on up to ${macwall.maxLicensedMacs} personal Macs`,
+      "One Mac per license — buy another for a second Mac",
       "Lifetime updates with your license",
     ],
   },
@@ -75,7 +75,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "How many Macs can I use with one Pro license?",
-      a: `Each Pro license may be activated on up to ${macwall.maxLicensedMacs} personal Macs you own. Replace a machine by moving the seat from the old Mac to the new one in line with the terms you agree to at purchase.`,
+      a: `Each Pro license activates on one Mac. Need MacWall on a second Mac? Purchase an additional license. Replacing your Mac? Unlink the license on the old machine in Settings → Devices, then activate on the new one.`,
     },
     {
       q: "Does Lock Screen video work on every macOS version?",
@@ -96,7 +96,7 @@ export const macwallPricingCopy = {
   ] as const,
 
   bottomTitle: `Get ${macwall.name}`,
-  bottomDesc: `Pro is ${macwall.pro.price} one-time. Make a Reel and earn up to 100% back. Up to ${macwall.maxLicensedMacs} Macs with a personal license.`,
+  bottomDesc: `Pro is ${macwall.pro.price} one-time. Make a Reel and earn up to 100% back. One Mac per license — buy another for a second machine.`,
   bottomCtaPro: `Buy Pro for ${macwall.pro.price}`,
   bottomCtaReel: "Get 100% free",
 } as const

@@ -7,7 +7,7 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-const PAGE_DESCRIPTION = `Your ${macwall.name} Pro purchase is complete. Check your inbox for your license key, then activate MacWall on up to ${macwall.maxLicensedMacs} personal Macs and unlock Lock Screen wallpapers.`
+const PAGE_DESCRIPTION = `Your ${macwall.name} Pro purchase is complete. Check your inbox for your license key, then activate MacWall on your Mac and unlock Lock Screen wallpapers. One license per machine.`
 
 export const metadata: Metadata = {
   title: "Thank you",

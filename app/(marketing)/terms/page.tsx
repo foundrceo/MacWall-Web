@@ -112,12 +112,12 @@ export default function TermsPage() {
           <p>
             {macwall.name} Pro is sold through our merchant (Stripe). Checkout,
             receipts, refunds, and taxes may also be governed by the
-            merchant&apos;s policies. License keys and device limits are set by
-            the product you purchase.
+            merchant&apos;s policies. Each Pro license activates on one Mac.
+            Additional Macs require an additional license purchase.
           </p>
           <p>
             You agree to provide accurate information and not to share keys
-            beyond what your purchase allows.
+            beyond the one-Mac limit for each license you purchase.
           </p>
           <p>
             All sales are final and we do not operate a general refund policy.

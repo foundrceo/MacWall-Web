@@ -32,7 +32,7 @@ function DefaultLaunchBanner() {
             {" · "}
           </>
         ) : null}
-        Lifetime updates on {macwall.maxLicensedMacs} Macs
+        One Mac per license
       </span>
     </Link>
   )

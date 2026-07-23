@@ -1,4 +1,4 @@
-import { macwallProCheckoutURL } from "@/lib/macwall-site"
+import { macwall, macwallProCheckoutURL } from "@/lib/macwall-site"
 
 /** Stripe promotion code — 50% off MacWall Pro at checkout. */
 export const INDIA_PROMO_CODE = "INDIA50" as const
@@ -29,7 +29,7 @@ export const indiaPromo = {
     copyLabel: "Copy code",
     copiedLabel: "Copied!",
     checkoutNote: "Apply INDIA50 at Stripe checkout",
-    lifetimeNote: "Lifetime license · up to 3 Macs",
+    lifetimeNote: `Lifetime license · ${macwall.maxLicensedMacs} Mac per key`,
   },
 } as const
 
