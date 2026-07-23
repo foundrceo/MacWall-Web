@@ -1,7 +1,10 @@
-/** License tiers — Pro (3 Macs) and Pro Max (5 Macs). */
+/** License tiers — Pro (3 Macs) and Pro Plus (5 Macs). */
 
-export const LICENSE_PLAN_SLUGS = ["pro", "pro_max"] as const
+export const LICENSE_PLAN_SLUGS = ["pro", "pro_plus"] as const
 export type LicensePlanSlug = (typeof LICENSE_PLAN_SLUGS)[number]
+
+/** Legacy slug from early tier naming — treated as Pro Plus at runtime. */
+export const LEGACY_PRO_PLUS_SLUG = "pro_max" as const
 
 export type LicensePlan = {
   slug: LicensePlanSlug
@@ -28,9 +31,9 @@ export const LICENSE_PLANS: Record<LicensePlanSlug, LicensePlan> = {
     featureHighlight: "Best for most people",
     buyCta: "Buy Pro for $7.99",
   },
-  pro_max: {
-    slug: "pro_max",
-    name: "Pro Max",
+  pro_plus: {
+    slug: "pro_plus",
+    name: "Pro Plus",
     badge: "5 Macs",
     maxDevices: 5,
     price: "$14.99",
@@ -38,7 +41,7 @@ export const LICENSE_PLANS: Record<LicensePlanSlug, LicensePlan> = {
     description:
       "Everything in Pro for up to five personal Macs you own.",
     featureHighlight: "Power users with more machines",
-    buyCta: "Buy Pro Max for $14.99",
+    buyCta: "Buy Pro Plus for $14.99",
   },
 }
 
@@ -51,22 +54,38 @@ export function isLicensePlanSlug(
   return (LICENSE_PLAN_SLUGS as readonly string[]).includes(value)
 }
 
+export function normalizePlanSlug(
+  value: string | null | undefined
+): LicensePlanSlug {
+  if (value === LEGACY_PRO_PLUS_SLUG || value === "pro_plus") return "pro_plus"
+  if (value === "pro") return "pro"
+  return DEFAULT_LICENSE_PLAN_SLUG
+}
+
 export function licensePlanFromSlug(
   slug: string | null | undefined
 ): LicensePlan {
-  if (isLicensePlanSlug(slug)) return LICENSE_PLANS[slug]
-  return LICENSE_PLANS[DEFAULT_LICENSE_PLAN_SLUG]
+  return LICENSE_PLANS[normalizePlanSlug(slug)]
 }
 
-export function licensePlanCheckoutPath(slug: LicensePlanSlug): string {
-  return `/api/checkout/create-session?plan=${slug}`
+export function licensePlanCheckoutPath(
+  slug: LicensePlanSlug,
+  options?: { promo?: string | null }
+): string {
+  const params = new URLSearchParams({ plan: slug })
+  const promo = options?.promo?.trim()
+  if (promo) params.set("promo", promo)
+  return `/api/checkout/create-session?${params.toString()}`
 }
 
 export function deviceLimitUserMessage(maxDevices: number): string {
   if (maxDevices <= 1) {
     return "This license is already in use on another Mac. Buy another license at macwall.app/pricing for your other machine."
   }
-  return `This license is already active on ${maxDevices} Macs. Unlink a device in Settings → Devices on one of your linked Macs, or upgrade to Pro Max at macwall.app/pricing.`
+  if (maxDevices >= 5) {
+    return `This license is already active on ${maxDevices} Macs. Unlink a device in Settings → Devices on one of your linked Macs, then try again.`
+  }
+  return `This license is already active on ${maxDevices} Macs. Unlink a device in Settings → Devices on one of your linked Macs, or upgrade to Pro Plus at macwall.app/pricing.`
 }
 
 export function macsLabel(count: number): string {

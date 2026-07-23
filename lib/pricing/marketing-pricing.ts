@@ -1,5 +1,6 @@
 import { macwall, macwallProCheckoutURL } from "@/lib/macwall-site"
 import { INDIA_PROMO_CODE, indiaPromo } from "@/lib/marketing-india-promo"
+import { LICENSE_PLANS } from "@/lib/license/plans.shared"
 
 export type MarketingPricingRegion = "default" | "india"
 
@@ -63,8 +64,8 @@ export function buildIndiaMarketingPricingFallback(): MarketingPricing {
     buyProAria: indiaPromo.pricing.ctaAria,
     bannerHeadline: indiaPromo.banner.headline,
     priceLine: `Use ${INDIA_PROMO_CODE} at Stripe checkout for 50% off — 24-hour flash deal for India.`,
-    pricingHeroLead: `${macwall.name} Pro is 50% off for India with code ${INDIA_PROMO_CODE}. Apply the code at Stripe checkout — one-time license with lifetime updates.`,
-    pricingProDescription: `50% off with ${INDIA_PROMO_CODE}. Full catalog, Lock Screen video, and lifetime updates on up to 3 personal Macs.`,
+    pricingHeroLead: `${macwall.name} Pro is 50% off for India with code ${INDIA_PROMO_CODE}. Pro Plus (${LICENSE_PLANS.pro_plus.price} for ${LICENSE_PLANS.pro_plus.maxDevices} Macs) is available at full price below.`,
+    pricingProDescription: `50% off Pro with ${INDIA_PROMO_CODE} at checkout. Full catalog, Lock Screen video, and lifetime updates on up to 3 personal Macs.`,
     bottomCtaLabel: indiaPromo.pricing.ctaFallback,
     promoCode: INDIA_PROMO_CODE,
     checkoutUrl: indiaPromo.checkoutUrl,

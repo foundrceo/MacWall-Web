@@ -10,7 +10,7 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-const PAGE_DESCRIPTION = `${macwall.name} Pro is ${macwall.pro.price} for up to ${macwall.maxLicensedMacs} Macs. Pro Max is $14.99 for up to 5 Macs. Make a Reel for up to 100% back.`
+const PAGE_DESCRIPTION = `${macwall.name} Pro is ${macwall.pro.price} for up to ${macwall.maxLicensedMacs} Macs. Pro Plus is $14.99 for up to 5 Macs. Make a Reel for up to 100% back.`
 
 export const metadata: Metadata = {
   title: "Pricing",
