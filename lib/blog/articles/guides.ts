@@ -61,7 +61,7 @@ export const guideArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "MacWall Pro adds Lock Screen live wallpaper on supported Sonoma and Sequoia builds. One-time purchase, lifetime updates, one Mac per license.",
+        text: "MacWall Pro adds Lock Screen live wallpaper on supported Sonoma and Sequoia builds. One-time purchase, lifetime updates, up to 3 Macs per license (Pro Max: 5 Macs).",
       },
     ],
   },
@@ -296,7 +296,7 @@ export const guideArticles: BlogArticle[] = [
           "Desktop live wallpapers plus Lock Screen on supported macOS versions",
           "Import your own MP4/MOV/GIF loops",
           "Unlimited playlists and menu bar controls",
-          "Lifetime updates on one Mac per license",
+          "Lifetime updates on up to 3 Macs per license (Pro Max: 5)",
           "No monthly fee, ever",
         ],
       },

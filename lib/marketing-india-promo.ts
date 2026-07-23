@@ -29,7 +29,7 @@ export const indiaPromo = {
     copyLabel: "Copy code",
     copiedLabel: "Copied!",
     checkoutNote: "Apply INDIA50 at Stripe checkout",
-    lifetimeNote: `Lifetime license · ${macwall.maxLicensedMacs} Mac per key`,
+    lifetimeNote: `Lifetime license · up to ${macwall.maxLicensedMacs} Macs`,
   },
 } as const
 

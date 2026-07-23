@@ -3,12 +3,13 @@ import {
   mailtoReelRefund,
   macwallMinimumMacOSVersion,
 } from "@/lib/macwall-site"
+import { LICENSE_PLANS } from "@/lib/license/plans.shared"
 
 export type ReelRefundStepIcon = "video" | "tag" | "views" | "email"
 
 export const macwallPricingCopy = {
   heroTitle: "One purchase. Earn your money back.",
-  heroLead: `${macwall.name} Pro is a one-time ${macwall.pro.price} license with lifetime updates. Buy once, use the full app, then make a Reel and get up to 100% refunded when your video hits the view targets.`,
+  heroLead: `${macwall.name} Pro is a one-time ${macwall.pro.price} license with lifetime updates on up to ${macwall.maxLicensedMacs} Macs. Buy once, use the full app, then make a Reel and get up to 100% refunded when your video hits the view targets.`,
 
   reelRefund: {
     badge: "Reel refund",
@@ -45,16 +46,31 @@ export const macwallPricingCopy = {
   },
 
   pro: {
-    badge: "Pro",
-    title: "Lifetime license",
-    description: `One-time ${macwall.pro.price}. Full catalog, Lock Screen video, unlimited playlists, and lifetime updates on one Mac per license, no subscription, ever.`,
-    cta: `Buy Pro for ${macwall.pro.price}`,
-    ctaAria: `Buy ${macwall.name} Pro for ${macwall.pro.price}`,
+    badge: LICENSE_PLANS.pro.badge,
+    title: LICENSE_PLANS.pro.name,
+    description: LICENSE_PLANS.pro.description,
+    cta: LICENSE_PLANS.pro.buyCta,
+    ctaAria: `Buy ${macwall.name} Pro for ${LICENSE_PLANS.pro.price}`,
     features: [
       ...macwall.pro.features,
-      ...macwall.proIncludedFeatures.slice(0, 5),
-      "One Mac per license — buy another for a second Mac",
+      ...macwall.proIncludedFeatures.slice(0, 4),
+      `Use on up to ${LICENSE_PLANS.pro.maxDevices} personal Macs`,
       "Lifetime updates with your license",
+    ],
+  },
+
+  proMax: {
+    badge: LICENSE_PLANS.pro_max.badge,
+    title: LICENSE_PLANS.pro_max.name,
+    description: LICENSE_PLANS.pro_max.description,
+    cta: LICENSE_PLANS.pro_max.buyCta,
+    ctaAria: `Buy ${macwall.name} Pro Max for ${LICENSE_PLANS.pro_max.price}`,
+    features: [
+      "Everything in Pro",
+      `Use on up to ${LICENSE_PLANS.pro_max.maxDevices} personal Macs`,
+      "Full catalog + Lock Screen video",
+      "Lifetime updates with your license",
+      LICENSE_PLANS.pro_max.featureHighlight,
     ],
   },
 
@@ -74,8 +90,8 @@ export const macwallPricingCopy = {
       a: "Checkout runs on Stripe. After payment, your license details are delivered to the email you used. Keep that message for reinstalls or device changes.",
     },
     {
-      q: "How many Macs can I use with one Pro license?",
-      a: `Each Pro license activates on one Mac. Need MacWall on a second Mac? Purchase an additional license. Replacing your Mac? Unlink the license on the old machine in Settings → Devices, then activate on the new one.`,
+      q: "How many Macs can I use with one license?",
+      a: `Pro (${macwall.pro.price}) covers up to ${LICENSE_PLANS.pro.maxDevices} personal Macs. Pro Max (${LICENSE_PLANS.pro_max.price}) covers up to ${LICENSE_PLANS.pro_max.maxDevices}. Replacing a Mac? Unlink the license on the old machine in Settings → Devices, then activate on the new one.`,
     },
     {
       q: "Does Lock Screen video work on every macOS version?",
@@ -96,7 +112,7 @@ export const macwallPricingCopy = {
   ] as const,
 
   bottomTitle: `Get ${macwall.name}`,
-  bottomDesc: `Pro is ${macwall.pro.price} one-time. Make a Reel and earn up to 100% back. One Mac per license — buy another for a second machine.`,
+  bottomDesc: `Pro is ${macwall.pro.price} for ${LICENSE_PLANS.pro.maxDevices} Macs. Pro Max is ${LICENSE_PLANS.pro_max.price} for ${LICENSE_PLANS.pro_max.maxDevices} Macs. Make a Reel and earn up to 100% back.`,
   bottomCtaPro: `Buy Pro for ${macwall.pro.price}`,
   bottomCtaReel: "Get 100% free",
 } as const

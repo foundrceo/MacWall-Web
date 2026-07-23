@@ -32,7 +32,7 @@ function DefaultLaunchBanner() {
             {" · "}
           </>
         ) : null}
-        One Mac per license
+        Up to {macwall.maxLicensedMacs} Macs with Pro
       </span>
     </Link>
   )
