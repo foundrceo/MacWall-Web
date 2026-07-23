@@ -124,110 +124,110 @@ export default function MacWallMarketingPricingPage() {
               </SectionLead>
             </div>
 
-            <IndiaPricingOffer />
+            <div className="MacWallPricingLayout">
+              <div className="MacWallPricingPlansRow">
+                {isIndia ? (
+                  <IndiaPricingOffer />
+                ) : (
+                  <LicensePlanCard
+                    badge={p.pro.badge}
+                    title={p.pro.title}
+                    description={pricing.pricingProDescription}
+                    features={p.pro.features}
+                    ctaHref={pricing.checkoutUrl}
+                    ctaLabel={pricing.buyProCta}
+                    ctaAria={pricing.buyProAria}
+                    location="pricing_card_pro"
+                    highlighted
+                  />
+                )}
 
-            <div
-              className={
-                isIndia
-                  ? "MacWallPricingPlansGrid grid gap-5 md:grid-cols-2"
-                  : "MacWallPricingPlansGrid MacWallPricingPlansGrid--three grid gap-5 lg:grid-cols-3"
-              }
-            >
-              {!isIndia ? (
                 <LicensePlanCard
-                  badge={p.pro.badge}
-                  title={p.pro.title}
-                  description={pricing.pricingProDescription}
-                  features={p.pro.features}
-                  ctaHref={pricing.checkoutUrl}
-                  ctaLabel={pricing.buyProCta}
-                  ctaAria={pricing.buyProAria}
-                  location="pricing_card_pro"
-                  highlighted
+                  badge={p.proPlus.badge}
+                  title={p.proPlus.title}
+                  description={
+                    isIndia
+                      ? `50% off with ${indiaPromo.code} at checkout. ${p.proPlus.description}`
+                      : p.proPlus.description
+                  }
+                  features={p.proPlus.features}
+                  ctaHref={
+                    isIndia
+                      ? indiaPromo.proPlusCheckoutUrl
+                      : licensePlanCheckoutPath("pro_plus")
+                  }
+                  ctaLabel={
+                    isIndia
+                      ? indiaPromo.pricing.proPlusCtaFallback
+                      : p.proPlus.cta
+                  }
+                  ctaAria={
+                    isIndia
+                      ? indiaPromo.pricing.proPlusCtaAria
+                      : p.proPlus.ctaAria
+                  }
+                  location="pricing_card_pro_plus"
                 />
-              ) : null}
-
-              <LicensePlanCard
-                badge={p.proPlus.badge}
-                title={p.proPlus.title}
-                description={
-                  isIndia
-                    ? `50% off with ${indiaPromo.code} at checkout. ${p.proPlus.description}`
-                    : p.proPlus.description
-                }
-                features={p.proPlus.features}
-                ctaHref={
-                  isIndia
-                    ? indiaPromo.proPlusCheckoutUrl
-                    : licensePlanCheckoutPath("pro_plus")
-                }
-                ctaLabel={
-                  isIndia ? indiaPromo.pricing.proPlusCtaFallback : p.proPlus.cta
-                }
-                ctaAria={
-                  isIndia
-                    ? indiaPromo.pricing.proPlusCtaAria
-                    : p.proPlus.ctaAria
-                }
-                location="pricing_card_pro_plus"
-              />
+              </div>
 
               <MarketingCard
                 id="reel-refund"
-                className="MacWallPricingPlanCard MacWallPricingReelCard"
+                className="MacWallPricingPlanCard MacWallPricingReelCard MacWallPricingReelCard--landscape"
               >
-                <div className="MacWallPricingPlanHead">
-                  <p className="MacWallPricingPlanBadge">{reel.badge}</p>
-                  <h2 className="MacWallPricingPlanTitle">{reel.title}</h2>
-                  <h3 className="MacWallPricingPlanDescription">
-                    {reel.description}
-                  </h3>
+                <div className="MacWallPricingReelLandscapeIntro">
+                  <div className="MacWallPricingPlanHead">
+                    <p className="MacWallPricingPlanBadge">{reel.badge}</p>
+                    <h2 className="MacWallPricingPlanTitle">{reel.title}</h2>
+                    <h3 className="MacWallPricingPlanDescription">
+                      {reel.description}
+                    </h3>
+                  </div>
+
+                  <div className="MacWallPricingPlanCardCta MacWallPricingReelLandscapeCta">
+                    <TextLink href={reel.ctaHref} external>
+                      {reel.cta}
+                    </TextLink>
+                  </div>
                 </div>
 
-                <div className="MacWallPricingPlanDivider" aria-hidden />
+                <div className="MacWallPricingReelLandscapeBody">
+                  <ul className="MacWallPricingPlanCardFeatures MacWallPricingReelSteps MacWallPricingReelSteps--landscape">
+                    {reel.steps.map((step) => (
+                      <li key={step.title} className="MacWallPricingReelStep">
+                        <ReelStepIcon kind={step.icon} />
+                        <div className="MacWallPricingReelStepCopy">
+                          <p className="MacWallPricingReelStepTitle">
+                            {step.title}
+                          </p>
+                          {step.icon === "tag" ? (
+                            <MarketingReelPostTagsCopy className="MacWallPricingReelStepBody" />
+                          ) : (
+                            <MarketingRichText
+                              as="p"
+                              className="MacWallPricingReelStepBody"
+                            >
+                              {step.body}
+                            </MarketingRichText>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
 
-                <ul className="MacWallPricingPlanCardFeatures MacWallPricingReelSteps">
-                  {reel.steps.map((step) => (
-                    <li key={step.title} className="MacWallPricingReelStep">
-                      <ReelStepIcon kind={step.icon} />
-                      <div className="MacWallPricingReelStepCopy">
-                        <p className="MacWallPricingReelStepTitle">
-                          {step.title}
-                        </p>
-                        {step.icon === "tag" ? (
-                          <MarketingReelPostTagsCopy className="MacWallPricingReelStepBody" />
-                        ) : (
-                          <MarketingRichText
-                            as="p"
-                            className="MacWallPricingReelStepBody"
-                          >
-                            {step.body}
-                          </MarketingRichText>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="MacWallPricingPlanCardFoot">
-                  <p className="MacWallPricingReelInfluencer">
-                    <span className="MacWallPricingReelInfluencerTitle">
-                      {reel.influencerTitle}
-                    </span>{" "}
-                    <MarketingReelInfluencerCopy className="MacWallPricingReelInfluencerBody" />
-                  </p>
-                  <p className="MacWallPricingReelFinePrint">
-                    <span className="MacWallPricingReelFinePrintLabel">
-                      {reel.finePrintLabel}
-                    </span>{" "}
-                    {reel.finePrint}
-                  </p>
-                </div>
-
-                <div className="MacWallPricingPlanCardCta">
-                  <TextLink href={reel.ctaHref} external>
-                    {reel.cta}
-                  </TextLink>
+                  <div className="MacWallPricingPlanCardFoot MacWallPricingReelLandscapeFoot">
+                    <p className="MacWallPricingReelInfluencer">
+                      <span className="MacWallPricingReelInfluencerTitle">
+                        {reel.influencerTitle}
+                      </span>{" "}
+                      <MarketingReelInfluencerCopy className="MacWallPricingReelInfluencerBody" />
+                    </p>
+                    <p className="MacWallPricingReelFinePrint">
+                      <span className="MacWallPricingReelFinePrintLabel">
+                        {reel.finePrintLabel}
+                      </span>{" "}
+                      {reel.finePrint}
+                    </p>
+                  </div>
                 </div>
               </MarketingCard>
             </div>
