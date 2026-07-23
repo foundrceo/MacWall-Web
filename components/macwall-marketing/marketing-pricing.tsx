@@ -10,6 +10,7 @@ import {
   type ReelRefundStepIcon,
 } from "@/lib/macwall-pricing-copy"
 import { licensePlanCheckoutPath } from "@/lib/license/plans-public"
+import { indiaPromo } from "@/lib/marketing-india-promo"
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import IndiaPricingOffer from "@/components/macwall-marketing/IndiaPricingOffer"
 import MarketingSiteChrome, {
@@ -149,11 +150,25 @@ export default function MacWallMarketingPricingPage() {
               <LicensePlanCard
                 badge={p.proPlus.badge}
                 title={p.proPlus.title}
-                description={p.proPlus.description}
+                description={
+                  isIndia
+                    ? `50% off with ${indiaPromo.code} at checkout. ${p.proPlus.description}`
+                    : p.proPlus.description
+                }
                 features={p.proPlus.features}
-                ctaHref={licensePlanCheckoutPath("pro_plus")}
-                ctaLabel={p.proPlus.cta}
-                ctaAria={p.proPlus.ctaAria}
+                ctaHref={
+                  isIndia
+                    ? indiaPromo.proPlusCheckoutUrl
+                    : licensePlanCheckoutPath("pro_plus")
+                }
+                ctaLabel={
+                  isIndia ? indiaPromo.pricing.proPlusCtaFallback : p.proPlus.cta
+                }
+                ctaAria={
+                  isIndia
+                    ? indiaPromo.pricing.proPlusCtaAria
+                    : p.proPlus.ctaAria
+                }
                 location="pricing_card_pro_plus"
               />
 

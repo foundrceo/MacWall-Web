@@ -2,9 +2,8 @@ import "server-only"
 
 import { INDIA_PROMO_CODE } from "@/lib/marketing-india-promo"
 import { isIndiaCountry } from "@/lib/geo/country"
-import { normalizePlanSlug } from "@/lib/license/plans.shared"
 
-/** Live Stripe promotion code for INDIA50 (50% off MacWall Pro). */
+/** Live Stripe promotion code for INDIA50 (50% off all MacWall plans in India). */
 const STRIPE_INDIA_PROMOTION_CODE_ID = "promo_1TlWDRIZgqo0QIlXjugcordH"
 
 export function shouldApplyIndiaPromo(input: {
@@ -14,9 +13,6 @@ export function shouldApplyIndiaPromo(input: {
 }): boolean {
   // INDIA50 is geo-gated — non-India visitors always pay full USD price.
   if (!isIndiaCountry(input.country)) return false
-
-  // INDIA50 applies to Pro only — Pro Plus is always full price.
-  if (normalizePlanSlug(input.planSlug) === "pro_plus") return false
 
   // Distinguish absent param (null) from explicit empty `?promo=`.
   if (input.requestedPromo != null) {

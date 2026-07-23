@@ -28,6 +28,6 @@ export async function resolveMarketingPricing(): Promise<MarketingPricing> {
     return buildDefaultMarketingPricing()
   }
 
-  // India never shows an INR price — only the "50% off" offer + INDIA50 code.
+  // India never shows an INR price — only the 50% off offer + INDIA50 on all plans.
   return buildIndiaMarketingPricingFallback()
 }

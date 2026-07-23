@@ -29,7 +29,7 @@ export type CreateMacWallCheckoutResult =
 
 /**
  * Creates a Stripe Checkout Session for MacWall Pro and a pending license row.
- * INDIA50 is applied only for visitors resolved as India (geo / cookie / dev override).
+ * INDIA50 is applied for India visitors on Pro and Pro Plus (geo / cookie / dev override).
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
