@@ -9,6 +9,7 @@ import {
   macwallPricingCopy as p,
   type ReelRefundStepIcon,
 } from "@/lib/macwall-pricing-copy"
+import { licensePlanCheckoutPath } from "@/lib/license/plans-public"
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import IndiaPricingOffer from "@/components/macwall-marketing/IndiaPricingOffer"
 import MarketingSiteChrome, {
@@ -48,6 +49,61 @@ function ReelStepIcon({ kind }: Readonly<{ kind: ReelRefundStepIcon }>) {
   )
 }
 
+function LicensePlanCard({
+  badge,
+  title,
+  description,
+  features,
+  ctaHref,
+  ctaLabel,
+  ctaAria,
+  location,
+  highlighted = false,
+}: Readonly<{
+  badge: string
+  title: string
+  description: string
+  features: readonly string[]
+  ctaHref: string
+  ctaLabel: string
+  ctaAria: string
+  location: string
+  highlighted?: boolean
+}>) {
+  return (
+    <MarketingCard
+      className={`MacWallPricingPlanCard${highlighted ? " MacWallPricingPlanCard--highlighted" : ""}`}
+    >
+      <div className="MacWallPricingPlanHead">
+        <p className="MacWallPricingPlanBadge">{badge}</p>
+        <h2 className="MacWallPricingPlanTitle">{title}</h2>
+        <h3 className="MacWallPricingPlanDescription">{description}</h3>
+      </div>
+
+      <div className="MacWallPricingPlanDivider" aria-hidden />
+
+      <ul className="MacWallPricingPlanCardFeatures MacWallPricingProFeatures">
+        {features.map((line) => (
+          <li key={line} className="MacWallPricingProFeature">
+            <CheckIcon />
+            <span>{line}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="MacWallPricingPlanCardCta">
+        <TrackedPricingButton
+          href={ctaHref}
+          location={location}
+          ariaLabel={ctaAria}
+        >
+          {ctaLabel}
+        </TrackedPricingButton>
+      </div>
+    </MarketingCard>
+  )
+}
+
 export default function MacWallMarketingPricingPage() {
   const reel = p.reelRefund
   const pricing = useMarketingPricing()
@@ -72,9 +128,35 @@ export default function MacWallMarketingPricingPage() {
               className={
                 pricing.showIndiaOfferCard
                   ? "MacWallPricingPlansGrid grid gap-5"
-                  : "MacWallPricingPlansGrid grid gap-5 md:grid-cols-2"
+                  : "MacWallPricingPlansGrid MacWallPricingPlansGrid--three grid gap-5 lg:grid-cols-3"
               }
             >
+              {!pricing.showIndiaOfferCard ? (
+                <>
+                  <LicensePlanCard
+                    badge={p.pro.badge}
+                    title={p.pro.title}
+                    description={pricing.pricingProDescription}
+                    features={p.pro.features}
+                    ctaHref={licensePlanCheckoutPath("pro")}
+                    ctaLabel={p.pro.cta}
+                    ctaAria={p.pro.ctaAria}
+                    location="pricing_card_pro"
+                    highlighted
+                  />
+                  <LicensePlanCard
+                    badge={p.proMax.badge}
+                    title={p.proMax.title}
+                    description={p.proMax.description}
+                    features={p.proMax.features}
+                    ctaHref={licensePlanCheckoutPath("pro_max")}
+                    ctaLabel={p.proMax.cta}
+                    ctaAria={p.proMax.ctaAria}
+                    location="pricing_card_pro_max"
+                  />
+                </>
+              ) : null}
+
               <MarketingCard
                 id="reel-refund"
                 className="MacWallPricingPlanCard MacWallPricingReelCard"
@@ -133,39 +215,6 @@ export default function MacWallMarketingPricingPage() {
                   </TextLink>
                 </div>
               </MarketingCard>
-
-              {!pricing.showIndiaOfferCard ? (
-                <MarketingCard className="MacWallPricingPlanCard">
-                  <div className="MacWallPricingPlanHead">
-                    <p className="MacWallPricingPlanBadge">{p.pro.badge}</p>
-                    <h2 className="MacWallPricingPlanTitle">{p.pro.title}</h2>
-                    <h3 className="MacWallPricingPlanDescription">
-                      {pricing.pricingProDescription}
-                    </h3>
-                  </div>
-
-                  <div className="MacWallPricingPlanDivider" aria-hidden />
-
-                  <ul className="MacWallPricingPlanCardFeatures MacWallPricingProFeatures">
-                    {p.pro.features.map((line) => (
-                      <li key={line} className="MacWallPricingProFeature">
-                        <CheckIcon />
-                        <span>{line}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="MacWallPricingPlanCardCta">
-                    <TrackedPricingButton
-                      href={pricing.checkoutUrl}
-                      location="pricing_card"
-                      ariaLabel={pricing.buyProAria}
-                    >
-                      {pricing.buyProCta}
-                    </TrackedPricingButton>
-                  </div>
-                </MarketingCard>
-              ) : null}
             </div>
           </MarketingContainer>
         </section>

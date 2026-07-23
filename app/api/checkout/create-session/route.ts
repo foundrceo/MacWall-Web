@@ -10,7 +10,11 @@ import { createMacWallCheckoutSession } from "@/lib/stripe/create-macwall-checko
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-async function startCheckout(request: Request, requestedPromo: string | null) {
+async function startCheckout(
+  request: Request,
+  requestedPromo: string | null,
+  planSlug: string | null
+) {
   const cookieStore = await cookies()
   const country = await resolveVisitorCountry({
     headers: request.headers,
@@ -20,6 +24,7 @@ async function startCheckout(request: Request, requestedPromo: string | null) {
   return createMacWallCheckoutSession({
     country,
     requestedPromo,
+    planSlug,
     siteOrigin: new URL(request.url).origin,
   })
 }
@@ -28,8 +33,9 @@ async function startCheckout(request: Request, requestedPromo: string | null) {
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const requestedPromo = url.searchParams.get("promo")
+  const planSlug = url.searchParams.get("plan")
 
-  const result = await startCheckout(request, requestedPromo)
+  const result = await startCheckout(request, requestedPromo, planSlug)
 
   if (!result.ok) {
     const pricing = new URL("/pricing", url.origin)
@@ -42,14 +48,20 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   let requestedPromo: string | null = null
+  let planSlug: string | null = null
   try {
-    const body = (await request.json()) as { promoCode?: string }
+    const body = (await request.json()) as {
+      promoCode?: string
+      plan?: string
+    }
     requestedPromo = body.promoCode?.trim() || null
+    planSlug = body.plan?.trim() || null
   } catch {
     requestedPromo = null
+    planSlug = null
   }
 
-  const result = await startCheckout(request, requestedPromo)
+  const result = await startCheckout(request, requestedPromo, planSlug)
 
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status })

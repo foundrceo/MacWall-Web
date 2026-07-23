@@ -1,7 +1,14 @@
 import "server-only"
 
 import { generateMacWallLicenseKey } from "@/lib/license/generate-license-key"
-import { getStripe, getStripePriceIdUsd } from "@/lib/stripe/server"
+import {
+  DEFAULT_LICENSE_PLAN_SLUG,
+  type LicensePlanSlug,
+  getStripePriceIdForPlan,
+  isLicensePlanSlug,
+  licensePlanFromSlug,
+} from "@/lib/license/plans"
+import { getStripe } from "@/lib/stripe/server"
 import {
   indiaCheckoutDiscount,
   shouldApplyIndiaPromo,
@@ -12,6 +19,7 @@ import { queueCheckoutRecovery } from "@/lib/stripe/queue-checkout-recovery"
 export type CreateMacWallCheckoutInput = {
   country: string | null
   requestedPromo?: string | null
+  planSlug?: string | null
   /** Host that initiated checkout — used for Stripe success/cancel redirects. */
   siteOrigin: string
 }
@@ -33,15 +41,33 @@ export async function createMacWallCheckoutSession(
     const siteOrigin = input.siteOrigin.replace(/\/+$/, "")
     const applyIndiaPromo = shouldApplyIndiaPromo(input)
 
+    const planSlug: LicensePlanSlug = isLicensePlanSlug(input.planSlug)
+      ? input.planSlug
+      : DEFAULT_LICENSE_PLAN_SLUG
+    const plan = licensePlanFromSlug(planSlug)
+    const stripePriceId = getStripePriceIdForPlan(planSlug)
+
     const licenseKey = generateMacWallLicenseKey()
 
-    const { error: insertError } = await supabase
+    const licenseRow: Record<string, unknown> = {
+      license_key: licenseKey,
+      source: "stripe",
+      status: "pending",
+      plan_slug: plan.slug,
+      max_devices: plan.maxDevices,
+    }
+
+    let { error: insertError } = await supabase
       .from("macwall_licenses")
-      .insert({
+      .insert(licenseRow)
+
+    if (insertError?.message?.includes("plan_slug")) {
+      ;({ error: insertError } = await supabase.from("macwall_licenses").insert({
         license_key: licenseKey,
         source: "stripe",
         status: "pending",
-      })
+      }))
+    }
 
     if (insertError) {
       console.error("[checkout] license insert failed", insertError.message)
@@ -56,12 +82,14 @@ export async function createMacWallCheckoutSession(
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      line_items: [{ price: getStripePriceIdUsd(), quantity: 1 }],
+      line_items: [{ price: stripePriceId, quantity: 1 }],
       success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteOrigin}/pricing`,
       metadata: {
         license_key: licenseKey,
         source: "macwall",
+        plan_slug: plan.slug,
+        max_devices: String(plan.maxDevices),
         ...(applyIndiaPromo ? { promo: "INDIA50", country: "IN" } : {}),
       },
       ...(applyIndiaPromo

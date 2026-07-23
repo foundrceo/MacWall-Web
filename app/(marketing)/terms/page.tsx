@@ -112,12 +112,12 @@ export default function TermsPage() {
           <p>
             {macwall.name} Pro is sold through our merchant (Stripe). Checkout,
             receipts, refunds, and taxes may also be governed by the
-            merchant&apos;s policies. Each Pro license activates on one Mac.
-            Additional Macs require an additional license purchase.
+            merchant&apos;s policies. Pro covers up to 3 personal Macs; Pro Max
+            covers up to 5. Device limits are enforced per license key.
           </p>
           <p>
             You agree to provide accurate information and not to share keys
-            beyond the one-Mac limit for each license you purchase.
+            beyond the Mac limit for the plan you purchased.
           </p>
           <p>
             All sales are final and we do not operate a general refund policy.

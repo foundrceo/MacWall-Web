@@ -2,6 +2,26 @@
   align-items: stretch;
 }
 
+.MacWallPricingPlansGrid--three {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 48rem) {
+  .MacWallPricingPlansGrid--three {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .MacWallPricingPlansGrid--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.MacWallPricingPlanCard--highlighted {
+  outline: 1.5px solid color-mix(in srgb, var(--foreground) 14%, transparent);
+}
+
 .MacWallPricingPlanCard {
   display: flex !important;
   flex-direction: column !important;
