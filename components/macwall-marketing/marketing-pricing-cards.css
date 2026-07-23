@@ -17,19 +17,19 @@
   }
 }
 
-.MacWallPricingPlansRow .MacWallIndiaOfferCard {
-  margin-bottom: 0;
-  height: 100%;
-}
-
 .MacWallPricingPlanCard--highlighted {
   outline: 1.5px solid color-mix(in srgb, var(--foreground) 14%, transparent);
+}
+
+.MacWallIndiaOfferCard.MacWallPricingPlanCard--highlighted {
+  outline: 1.5px solid color-mix(in oklab, #ff9933 40%, transparent);
 }
 
 .MacWallPricingPlanCard {
   display: flex !important;
   flex-direction: column !important;
   height: 100%;
+  min-height: 100%;
   padding: 1.375rem 1.5rem !important;
   border: none !important;
   background: var(--muted) !important;
@@ -43,6 +43,7 @@
 
 .MacWallPricingPlanHead {
   margin: 0;
+  flex-shrink: 0;
 }
 
 .MacWallPricingPlanBadge {
@@ -112,6 +113,42 @@
   min-height: 44px;
   margin-top: auto;
   padding-top: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* ── Reel refund — full width landscape strip below plan row ── */
+
+.MacWallPricingReelCard--landscape {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100%;
+  gap: 1.25rem;
+}
+
+.MacWallPricingReelLandscapeTop {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 48rem) {
+  .MacWallPricingReelLandscapeTop {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .MacWallPricingReelLandscapeTop .MacWallPricingPlanHead {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .MacWallPricingReelLandscapeCta {
+    flex-shrink: 0;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
 }
 
 .MacWallPricingReelSteps {
@@ -123,10 +160,32 @@
   list-style: none;
 }
 
+.MacWallPricingReelSteps--landscape {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.875rem;
+}
+
+@media (min-width: 40rem) {
+  .MacWallPricingReelSteps--landscape {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .MacWallPricingReelSteps--landscape {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
 .MacWallPricingReelStep {
   display: flex;
   align-items: flex-start;
   gap: 0.625rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--background) 50%, transparent);
 }
 
 .MacWallPricingReelStepIconWrap {
@@ -184,8 +243,8 @@
 }
 
 .MacWallPricingReelFinePrint {
-  margin: 0.625rem 0 0;
-  padding: 0.625rem 0.75rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
   border-radius: 0.625rem;
   background: color-mix(in oklab, var(--background) 55%, transparent);
   font-size: 0.6875rem;
@@ -198,60 +257,9 @@
   color: var(--marketing-muted);
 }
 
-/* Full-width landscape reel row below the two plan cards */
-.MacWallPricingReelCard--landscape {
-  display: flex !important;
-  flex-direction: column !important;
-  width: 100%;
-  gap: 1.25rem;
-}
-
-@media (min-width: 48rem) {
-  .MacWallPricingReelCard--landscape {
-    display: grid !important;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
-    gap: 1.75rem 2rem;
-    align-items: start;
-  }
-}
-
-.MacWallPricingReelLandscapeIntro {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.MacWallPricingReelLandscapeCta {
-  margin-top: auto;
-  padding-top: 1rem;
-}
-
-.MacWallPricingReelLandscapeBody {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-width: 0;
-}
-
-.MacWallPricingReelSteps--landscape {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-}
-
-@media (min-width: 40rem) {
-  .MacWallPricingReelSteps--landscape {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.875rem 1.25rem;
-  }
-}
-
-@media (min-width: 64rem) {
-  .MacWallPricingReelSteps--landscape {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
 .MacWallPricingReelLandscapeFoot {
   margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
 }

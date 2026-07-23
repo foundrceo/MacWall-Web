@@ -6,7 +6,11 @@ import { useMarketingPricing } from "@/components/marketing/marketing-pricing-co
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { indiaPromo } from "@/lib/marketing-india-promo"
 import { useIndiaPromoCountdown } from "@/lib/marketing/use-india-promo-countdown"
-import { MarketingCard } from "@/components/macwall-marketing/marketing-primitives"
+import {
+  CheckIcon,
+  MarketingCard,
+} from "@/components/macwall-marketing/marketing-primitives"
+import { macwall } from "@/lib/macwall-site"
 
 import "./marketing-india-offer.css"
 
@@ -38,7 +42,7 @@ function PromoCodeCopy() {
   )
 }
 
-/** India-only flash offer — pricing is prefetched on the server before render. */
+/** India Pro plan card — same shell as Pro / Pro Plus for a balanced two-column row. */
 export default function IndiaPricingOffer() {
   const pricing = useMarketingPricing()
   const {
@@ -51,48 +55,55 @@ export default function IndiaPricingOffer() {
   return (
     <MarketingCard
       id={indiaPromo.pricingAnchor}
-      className="MacWallIndiaOfferCard"
+      className="MacWallPricingPlanCard MacWallIndiaOfferCard MacWallPricingPlanCard--highlighted"
     >
       <div className="MacWallIndiaOfferAccent" aria-hidden />
 
-      <div className="MacWallIndiaOfferLayout">
-        <div className="min-w-0">
-          <p className="MacWallIndiaOfferBadge">{indiaPromo.pricing.badge}</p>
-          <h2 className="MacWallIndiaOfferTitle">{indiaPromo.pricing.title}</h2>
-          <p className="MacWallIndiaOfferHook">{indiaPromo.pricing.hook}</p>
+      <div className="MacWallPricingPlanHead">
+        <p className="MacWallIndiaOfferBadge">{indiaPromo.pricing.badge}</p>
+        <h2 className="MacWallPricingPlanTitle">Pro</h2>
+        <h3 className="MacWallPricingPlanDescription">
+          {indiaPromo.pricing.hook}
+        </h3>
+      </div>
 
-          <div className="MacWallIndiaOfferPriceRow">
-            <span className="MacWallIndiaOfferPrice">
-              {indiaPromo.discountPercent}% OFF
-            </span>
-          </div>
+      <div className="MacWallPricingPlanDivider" aria-hidden />
 
-          <p className="MacWallIndiaOfferCountdown">
+      <ul className="MacWallPricingPlanCardFeatures MacWallPricingProFeatures">
+        <li className="MacWallPricingProFeature">
+          <CheckIcon />
+          <span>
+            <strong>{indiaPromo.discountPercent}% off</strong> with{" "}
+            {indiaPromo.code} at checkout
+          </span>
+        </li>
+        <li className="MacWallPricingProFeature">
+          <CheckIcon />
+          <span>Up to {macwall.maxLicensedMacs} personal Macs</span>
+        </li>
+        <li className="MacWallPricingProFeature">
+          <CheckIcon />
+          <span>Full catalog + Lock Screen video</span>
+        </li>
+        <li className="MacWallPricingProFeature MacWallIndiaOfferCountdownFeature">
+          <CheckIcon />
+          <span className="MacWallIndiaOfferCountdownInline">
             {countdownReady
-              ? `⏳ ${countdownLabel} left on your personal timer`
-              : "⏳ Starting your 24-hour timer…"}
-          </p>
+              ? `${countdownLabel} left on your timer`
+              : "Starting your 24-hour timer…"}
+          </span>
+        </li>
+      </ul>
 
-          <p className="MacWallIndiaOfferMeta">
-            {`Apply ${indiaPromo.code} at Stripe checkout`}
-          </p>
-        </div>
-
-        <div className="MacWallIndiaOfferActions">
-          <PromoCodeCopy />
-          <TrackedPricingButton
-            href={pricing.checkoutUrl}
-            location="india_pricing_offer"
-            ariaLabel={pricing.buyProAria}
-            size="pill"
-            className="MacWallIndiaOfferCta"
-          >
-            {pricing.buyProCta}
-          </TrackedPricingButton>
-          <p className="MacWallIndiaOfferFootnote">
-            {indiaPromo.pricing.checkoutNote}
-          </p>
-        </div>
+      <div className="MacWallPricingPlanCardCta MacWallIndiaOfferCtaStack">
+        <PromoCodeCopy />
+        <TrackedPricingButton
+          href={pricing.checkoutUrl}
+          location="india_pricing_offer"
+          ariaLabel={pricing.buyProAria}
+        >
+          {pricing.buyProCta}
+        </TrackedPricingButton>
       </div>
     </MarketingCard>
   )
