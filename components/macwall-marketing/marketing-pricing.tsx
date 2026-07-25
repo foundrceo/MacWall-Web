@@ -147,7 +147,7 @@ export default function MacWallMarketingPricingPage() {
           />
           <MarketingContainer wide>
             <div className="relative mx-auto max-w-3xl text-center">
-              <span className="inline-flex items-center gap-2 rounded-full bg-muted/50 px-4 py-1.5 text-[13px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/50 px-4 py-1.5 text-[13px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
                 Transparent pricing
               </span>
               <SectionTitle as="h1" className="mt-6">
@@ -157,8 +157,7 @@ export default function MacWallMarketingPricingPage() {
                 {p.heroLead}
               </SectionLead>
               <p className="mt-8 text-[16px] font-medium text-foreground/70">
-                Choose permanent ownership or annual access — both unlock the
-                full Pro experience.
+                {p.heroLead}
               </p>
             </div>
           </MarketingContainer>
