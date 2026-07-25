@@ -24,6 +24,7 @@ export const macwallPricingCopy = {
       {
         icon: "tag" as const,
         title: "Post and tag us",
+        body: `Share on Instagram ${macwall.reelRefundInstagram} or TikTok ${macwall.reelRefundTiktok}, with ${macwall.reelRefundHashtag}.`,
       },
       {
         icon: "views" as const,
