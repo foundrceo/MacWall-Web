@@ -9,13 +9,17 @@ import { createMacWallCheckoutSession } from "@/lib/stripe/create-macwall-checko
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
+const AFFONSO_REFERRAL_COOKIE = "affonso_referral" as const
 
 async function startCheckout(
   request: Request,
-  requestedPromo: string | null,
+  offerSlug: string | null,
   planSlug: string | null
 ) {
   const cookieStore = await cookies()
+  const affonsoReferral =
+    cookieStore.get(AFFONSO_REFERRAL_COOKIE)?.value?.trim().slice(0, 255) ||
+    undefined
   const country = await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
@@ -23,8 +27,9 @@ async function startCheckout(
 
   return createMacWallCheckoutSession({
     country,
-    requestedPromo,
+    offerSlug,
     planSlug,
+    affonsoReferral,
     siteOrigin: new URL(request.url).origin,
   })
 }
@@ -32,10 +37,10 @@ async function startCheckout(
 /** Instant redirect to Stripe Checkout — use this URL in CTAs, not /checkout. */
 export async function GET(request: Request) {
   const url = new URL(request.url)
-  const requestedPromo = url.searchParams.get("promo")
+  const offerSlug = url.searchParams.get("offer")
   const planSlug = url.searchParams.get("plan")
 
-  const result = await startCheckout(request, requestedPromo, planSlug)
+  const result = await startCheckout(request, offerSlug, planSlug)
 
   if (!result.ok) {
     const pricing = new URL("/pricing", url.origin)
@@ -47,21 +52,21 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  let requestedPromo: string | null = null
+  let offerSlug: string | null = null
   let planSlug: string | null = null
   try {
     const body = (await request.json()) as {
-      promoCode?: string
+      offer?: string
       plan?: string
     }
-    requestedPromo = body.promoCode?.trim() || null
+    offerSlug = body.offer?.trim() || null
     planSlug = body.plan?.trim() || null
   } catch {
-    requestedPromo = null
+    offerSlug = null
     planSlug = null
   }
 
-  const result = await startCheckout(request, requestedPromo, planSlug)
+  const result = await startCheckout(request, offerSlug, planSlug)
 
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status })

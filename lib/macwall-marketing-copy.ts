@@ -86,8 +86,7 @@ export const macwallExactCopy = {
   lockScreen: {
     kicker: "PRO",
     title: `Live Lock Screen & Screen Saver on ${macwallMinimumMacOSVersion}`,
-    strong:
-      `Bring real video motion to your Lock Screen and Screen Saver on ${macwallMinimumMacOSVersion} and later, using Apple's own wallpaper system, with no extra installers or extensions.`,
+    strong: `Bring real video motion to your Lock Screen and Screen Saver on ${macwallMinimumMacOSVersion} and later, using Apple's own wallpaper system, with no extra installers or extensions.`,
     rest: "Setup stays reversible: turn it off anytime from Settings and your previous look returns. On earlier macOS, Pro still unlocks the full catalog and desktop motion.",
     linkText: "Lock Screen requirements",
   },

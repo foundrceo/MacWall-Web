@@ -74,6 +74,8 @@ const ahrefsWebAnalyticsKey =
     : undefined
 const tiktokPixelId = resolveTikTokPixelId()
 const xAdsPixelId = resolveXAdsPixelId()
+const AFFONSO_PROGRAM_ID = "cmrezh6d4001kizvt1itcyccb" as const
+const AFFONSO_COOKIE_DURATION_DAYS = "30" as const
 
 export const metadata: Metadata = {
   title: {
@@ -216,6 +218,14 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <Script
+          id="affonso-pixel"
+          async
+          defer
+          src="https://cdn.affonso.io/js/pixel.min.js"
+          data-affonso={AFFONSO_PROGRAM_ID}
+          data-cookie_duration={AFFONSO_COOKIE_DURATION_DAYS}
+        />
         {tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}
         {xAdsPixelId ? <XAdsPixel pixelId={xAdsPixelId} /> : null}
       </head>

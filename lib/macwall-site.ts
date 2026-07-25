@@ -113,10 +113,10 @@ export const macwall = {
     "Cats",
   ],
   pro: {
-    headline: "Early Bird Offer",
-    strikePrice: "$9.99",
-    price: "$7.99",
-    suffix: "one-time",
+    headline: "Permanent License",
+    strikePrice: null,
+    price: "$9.99",
+    suffix: "permanent",
     socialProofMembers: "1,000+",
     features: [
       "Full cloud catalog (1,000+ live wallpapers)",
@@ -125,11 +125,13 @@ export const macwall = {
       "Lifetime updates and future Pro features",
     ],
   },
+  annual: {
+    price: "$4.99",
+    suffix: "per year",
+  },
   /** Shown in Pro discount flows (`AppBrand.proDiscountPromoCode` in Theme.swift). */
   proDiscountPromoCode: "MACWALLPRO",
-  /** India-only flash sale — 50% off, 24hr personal timer (web promo). */
-  indiaPromoCode: "INDIA50",
-  /** Personal license device limit (`AppBrand.maxLicensedMacs`). */
+  /** Personal base-license device limit. The 5-Mac bundle raises it to 5. */
   maxLicensedMacs: 3,
   /** Everything included with a Pro license. */
   proIncludedFeatures: [

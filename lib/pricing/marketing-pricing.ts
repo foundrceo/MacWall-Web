@@ -1,82 +1,99 @@
-import { macwall, macwallProCheckoutURL } from "@/lib/macwall-site"
-import { INDIA_PROMO_CODE, indiaPromo } from "@/lib/marketing-india-promo"
-import { LICENSE_PLANS } from "@/lib/license/plans.shared"
+import {
+  LICENSE_OFFERS,
+  formatUsd,
+  licenseOfferCheckoutPath,
+  licenseOfferPriceCents,
+  type LicenseOfferSlug,
+  type PricingRegion,
+} from "@/lib/license/offers.shared"
+import { macwall } from "@/lib/macwall-site"
 
-export type MarketingPricingRegion = "default" | "india"
+export type MarketingMultiMacOffer = {
+  slug: LicenseOfferSlug
+  macs: 5
+  price: string
+  checkoutUrl: string
+}
 
 export type MarketingPricing = {
-  region: MarketingPricingRegion
-  currency: "usd" | "inr"
+  region: PricingRegion
+  currency: "usd"
   isIndia: boolean
+  permanentPrice: string
+  annualPrice: string
   salePrice: string
-  fullPrice: string | null
+  fullPrice: null
   suffix: string
   getProCta: string
   buyProCta: string
   buyProAria: string
   bannerHeadline: string
+  bannerSubline: string
   priceLine: string
   pricingHeroLead: string
-  pricingProDescription: string
+  pricingPermanentDescription: string
+  pricingAnnualDescription: string
   bottomCtaLabel: string
-  promoCode: string | null
   checkoutUrl: string
-  showIndiaOfferCard: boolean
+  annualCheckoutUrl: string
+  multiMacOffers: MarketingMultiMacOffer[]
+}
+
+/** Only the 5-Mac bundle exists, and it's a flat $14.99 for everyone — no region discount. */
+function buildMultiMacOffers(): MarketingMultiMacOffer[] {
+  const offer = LICENSE_OFFERS.permanent_5
+  return [
+    {
+      slug: offer.slug,
+      macs: 5,
+      price: formatUsd(offer.usdCents),
+      checkoutUrl: licenseOfferCheckoutPath(offer.slug),
+    },
+  ]
+}
+
+export function buildMarketingPricing(region: PricingRegion): MarketingPricing {
+  const isIndia = region === "india"
+  const permanentPrice = formatUsd(
+    licenseOfferPriceCents(LICENSE_OFFERS.permanent, region)
+  )
+  const annualPrice = formatUsd(
+    licenseOfferPriceCents(LICENSE_OFFERS.annual, region)
+  )
+
+  return {
+    region,
+    currency: "usd",
+    isIndia,
+    permanentPrice,
+    annualPrice,
+    salePrice: permanentPrice,
+    fullPrice: null,
+    suffix: "permanent",
+    getProCta: `Get Pro — ${permanentPrice}`,
+    buyProCta: `Buy permanently for ${permanentPrice}`,
+    buyProAria: `Buy a permanent ${macwall.name} Pro license for ${permanentPrice}`,
+    bannerHeadline: isIndia
+      ? "Special pricing for India"
+      : "MacWall Pro now starts at $4.99/year",
+    bannerSubline: isIndia
+      ? `${permanentPrice} permanent or ${annualPrice}/year — automatically applied`
+      : `${permanentPrice} permanent or ${annualPrice}/year`,
+    priceLine: `${permanentPrice} permanent or ${annualPrice} billed annually.`,
+    pricingHeroLead: `Choose a permanent ${permanentPrice} license or pay ${annualPrice} annually. Both unlock the full ${macwall.name} Pro experience on up to 3 Macs, and a 5-Mac permanent license is available below.`,
+    pricingPermanentDescription: `Pay ${permanentPrice} once and keep Pro on up to 3 Macs permanently, with updates included.`,
+    pricingAnnualDescription: `${annualPrice} per year for the full Pro experience on up to 3 Macs. Renews annually until canceled.`,
+    bottomCtaLabel: `Get Pro — ${permanentPrice}`,
+    checkoutUrl: licenseOfferCheckoutPath("permanent"),
+    annualCheckoutUrl: licenseOfferCheckoutPath("annual"),
+    multiMacOffers: buildMultiMacOffers(),
+  }
 }
 
 export function buildDefaultMarketingPricing(): MarketingPricing {
-  const salePrice = macwall.pro.price
-  const fullPrice = macwall.pro.strikePrice
-
-  return {
-    region: "default",
-    currency: "usd",
-    isIndia: false,
-    salePrice,
-    fullPrice,
-    suffix: macwall.pro.suffix,
-    getProCta: `Get Pro — ${salePrice}`,
-    buyProCta: `Buy Pro for ${salePrice}`,
-    buyProAria: `Buy ${macwall.name} Pro for ${salePrice}`,
-    bannerHeadline: "Limited-time launch pricing",
-    priceLine: `${salePrice} one-time (was ${fullPrice}). No subscription, lifetime updates.`,
-    pricingHeroLead: `${macwall.name} Pro is a one-time ${salePrice} license with lifetime updates. Buy once, use the full app, then make a Reel and get up to 100% refunded when your video hits the view targets.`,
-    pricingProDescription: `One-time ${salePrice}. Full catalog, Lock Screen video, unlimited playlists, and lifetime updates on up to 3 personal Macs, no subscription, ever.`,
-    bottomCtaLabel: `Get Pro — ${salePrice}`,
-    promoCode: null,
-    checkoutUrl: macwallProCheckoutURL,
-    showIndiaOfferCard: false,
-  }
+  return buildMarketingPricing("default")
 }
 
-export function buildIndiaMarketingPricingFallback(): MarketingPricing {
-  const listPrice = macwall.pro.price
-
-  return {
-    region: "india",
-    currency: "usd",
-    isIndia: true,
-    salePrice: "50% off",
-    fullPrice: listPrice,
-    suffix: "one-time",
-    getProCta: indiaPromo.pricing.ctaFallback,
-    buyProCta: indiaPromo.pricing.ctaFallback,
-    buyProAria: indiaPromo.pricing.ctaAria,
-    bannerHeadline: indiaPromo.banner.headline,
-    priceLine: `Use ${INDIA_PROMO_CODE} at Stripe checkout for 50% off Pro and Pro Plus — 24-hour flash deal for India.`,
-    pricingHeroLead: `Everything is 50% off for India with code ${INDIA_PROMO_CODE}. Pro drops to ~$4.00; Pro Plus (${LICENSE_PLANS.pro_plus.price}) drops to ~$7.50 — apply the code at Stripe checkout.`,
-    pricingProDescription: `50% off with ${INDIA_PROMO_CODE}. Full catalog, Lock Screen video, and lifetime updates on up to 3 personal Macs.`,
-    bottomCtaLabel: indiaPromo.pricing.ctaFallback,
-    promoCode: INDIA_PROMO_CODE,
-    checkoutUrl: indiaPromo.checkoutUrl,
-    showIndiaOfferCard: true,
-  }
-}
-
-export function indiaBannerSubline(
-  _pricing: MarketingPricing,
-  code: string,
-  countdown: string
-): string {
-  return indiaPromo.banner.subline(code, countdown)
+export function buildIndiaMarketingPricing(): MarketingPricing {
+  return buildMarketingPricing("india")
 }

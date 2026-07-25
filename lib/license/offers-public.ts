@@ -1,0 +1,16 @@
+export {
+  DEFAULT_LICENSE_OFFER_SLUG,
+  LICENSE_OFFERS,
+  LICENSE_OFFER_SLUGS,
+  MULTI_MAC_OFFER_SLUGS,
+  type LicenseBillingModel,
+  type LicenseOffer,
+  type LicenseOfferSlug,
+  type PricingRegion,
+  formatUsd,
+  isLicenseOfferSlug,
+  licenseOfferCheckoutPath,
+  licenseOfferFromSlug,
+  licenseOfferPriceCents,
+  normalizeLicenseOfferSlug,
+} from "@/lib/license/offers.shared"

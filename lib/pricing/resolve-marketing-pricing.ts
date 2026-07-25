@@ -8,7 +8,7 @@ import {
 } from "@/lib/geo/resolve-visitor-country"
 import {
   buildDefaultMarketingPricing,
-  buildIndiaMarketingPricingFallback,
+  buildIndiaMarketingPricing,
   type MarketingPricing,
 } from "@/lib/pricing/marketing-pricing"
 
@@ -28,6 +28,5 @@ export async function resolveMarketingPricing(): Promise<MarketingPricing> {
     return buildDefaultMarketingPricing()
   }
 
-  // India never shows an INR price — only the 50% off offer + INDIA50 on all plans.
-  return buildIndiaMarketingPricingFallback()
+  return buildIndiaMarketingPricing()
 }
