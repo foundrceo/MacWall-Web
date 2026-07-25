@@ -49,22 +49,20 @@ export default function TikTokLandingHero() {
           </h1>
 
           <p className="mt-5 text-[18px] leading-[1.5] text-marketing-muted">
-            1,000+ live wallpapers. Lock Screen support. One-time purchase — no
-            subscription.
+            1,000+ live wallpapers. Lock Screen support. Permanent or annual —
+            your choice.
           </p>
 
           <div className="mt-6 inline-flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-2xl border border-border bg-surface px-5 py-3">
             <span className="text-[32px] font-semibold tracking-[-0.03em] text-foreground">
-              {pricing.salePrice}
+              {pricing.permanentPrice}
             </span>
             <span className="text-[15px] text-marketing-muted">
-              {pricing.suffix}
+              permanent
             </span>
-            {pricing.fullPrice ? (
-              <span className="text-[15px] text-marketing-muted line-through">
-                {pricing.fullPrice}
-              </span>
-            ) : null}
+            <span className="text-[15px] text-marketing-muted">
+              or {pricing.annualPrice}/year
+            </span>
             <span className="w-full text-[13px] text-marketing-muted">
               Early bird · Post a Reel → get up to 100% back
             </span>

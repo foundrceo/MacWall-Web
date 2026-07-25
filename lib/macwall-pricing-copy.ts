@@ -3,13 +3,12 @@ import {
   mailtoReelRefund,
   macwallMinimumMacOSVersion,
 } from "@/lib/macwall-site"
-import { LICENSE_PLANS } from "@/lib/license/plans.shared"
 
 export type ReelRefundStepIcon = "video" | "tag" | "views" | "email"
 
 export const macwallPricingCopy = {
-  heroTitle: "One purchase. Earn your money back.",
-  heroLead: `${macwall.name} Pro is a one-time ${macwall.pro.price} license with lifetime updates on up to ${macwall.maxLicensedMacs} Macs. Buy once, use the full app, then make a Reel and get up to 100% refunded when your video hits the view targets.`,
+  heroTitle: "Pricing. Wallpapers that truly live.",
+  heroLead: `${macwall.name} gives you a permanent license key or an annual plan. Both unlock the full Pro app.`,
 
   reelRefund: {
     badge: "Reel refund",
@@ -45,33 +44,42 @@ export const macwallPricingCopy = {
     ctaHref: mailtoReelRefund,
   },
 
-  pro: {
-    badge: LICENSE_PLANS.pro.badge,
-    title: LICENSE_PLANS.pro.name,
-    description: LICENSE_PLANS.pro.description,
-    cta: LICENSE_PLANS.pro.buyCta,
-    ctaAria: `Buy ${macwall.name} Pro for ${LICENSE_PLANS.pro.price}`,
+  freeTrial: {
     features: [
-      ...macwall.pro.features,
-      ...macwall.proIncludedFeatures.slice(0, 4),
-      `Use on up to ${LICENSE_PLANS.pro.maxDevices} personal Macs`,
-      "Lifetime updates with your license",
+      "6 starter live wallpapers to explore",
+      "Desktop playback and menu bar controls",
+      "No card required to begin",
+      "Upgrade whenever you are ready",
+    ],
+  },
+
+  pro: {
+    features: [
+      "Lifetime license, pay once",
+      "Use on up to 3 personal Macs",
+      "Cloud catalog with 1,000+ live wallpapers",
+      `Live Lock Screen and Screen Saver (${macwallMinimumMacOSVersion}+)`,
+      "Unlimited favorites and playlists",
+      "Music Sync and menu bar quick controls",
     ],
   },
 
   proPlus: {
-    badge: LICENSE_PLANS.pro_plus.badge,
-    title: LICENSE_PLANS.pro_plus.name,
-    description: LICENSE_PLANS.pro_plus.description,
-    cta: LICENSE_PLANS.pro_plus.buyCta,
-    ctaAria: `Buy ${macwall.name} Pro Plus for ${LICENSE_PLANS.pro_plus.price}`,
     features: [
       "Everything in Pro",
-      `Use on up to ${LICENSE_PLANS.pro_plus.maxDevices} personal Macs`,
-      "Full catalog + Lock Screen video",
-      "Lifetime updates with your license",
-      LICENSE_PLANS.pro_plus.featureHighlight,
+      "Use on up to 5 Macs",
+      "Best value for creators and studios",
+      "Lower per-Mac price than single licenses",
+      "Perfect for desk + laptop + team setups",
+      "Same lifetime updates, no subscription",
     ],
+  },
+
+  annual: {
+    line: "Need lower upfront cost?",
+    detail:
+      "Choose annual billing for up to 3 Macs and keep every Pro feature while subscribed.",
+    cta: "Start annual plan",
   },
 
   faqTitle: "Common questions",
@@ -83,7 +91,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "Is Pro a subscription?",
-      a: "No. Pro is a one-time purchase for the current Pro feature set bundled with your license, including updates we ship for that generation of the product.",
+      a: "You choose. The permanent license is a single payment with no renewal. The annual plan renews once per year until canceled.",
     },
     {
       q: "How does checkout work?",
@@ -91,7 +99,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "How many Macs can I use with one license?",
-      a: `Pro (${macwall.pro.price}) covers up to ${LICENSE_PLANS.pro.maxDevices} personal Macs. Pro Plus (${LICENSE_PLANS.pro_plus.price}) covers up to ${LICENSE_PLANS.pro_plus.maxDevices}. Replacing a Mac? Unlink the license on the old machine in Settings → Devices, then activate on the new one.`,
+      a: "The permanent and annual plans cover up to 3 Macs. Need more? The 5-Mac permanent license covers up to 5. Replacing a Mac? Unlink the old machine in Settings → Devices, then activate the new one.",
     },
     {
       q: "Does Lock Screen video work on every macOS version?",
@@ -112,7 +120,7 @@ export const macwallPricingCopy = {
   ] as const,
 
   bottomTitle: `Get ${macwall.name}`,
-  bottomDesc: `Pro is ${macwall.pro.price} for ${LICENSE_PLANS.pro.maxDevices} Macs. Pro Plus is ${LICENSE_PLANS.pro_plus.price} for ${LICENSE_PLANS.pro_plus.maxDevices} Macs. Make a Reel and earn up to 100% back.`,
+  bottomDesc: `Choose ${macwall.pro.price} permanent or ${macwall.annual.price} per year. Make a Reel and earn up to 100% back.`,
   bottomCtaPro: `Buy Pro for ${macwall.pro.price}`,
   bottomCtaReel: "Get 100% free",
 } as const

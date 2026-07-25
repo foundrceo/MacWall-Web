@@ -63,28 +63,12 @@ export default function HeroSection() {
           </p>
 
           <p className="mt-4 text-[15px] font-medium text-foreground/90">
-            {pricing.salePrice} {pricing.suffix}
-            {pricing.fullPrice ? (
-              <>
-                {" "}
-                <span className="font-normal text-marketing-muted line-through">
-                  {pricing.fullPrice}
-                </span>
-              </>
-            ) : null}
+            {pricing.permanentPrice} permanent
             {" · "}
             <span className="font-normal text-marketing-muted">
-              Early bird · Reel earns 100% back
+              {pricing.annualPrice}/year · Reel earns 100% back
             </span>
           </p>
-
-          {pricing.isIndia ? (
-            <p className="mt-4 inline-flex max-w-3xl flex-wrap items-center gap-2 rounded-full border border-[#ff9933]/35 bg-[#ff9933]/10 px-4 py-2 text-[14px] font-medium text-[#ffb366]">
-              <span>{pricing.bannerHeadline}</span>
-              <span className="text-[#ffb366]/70">·</span>
-              <span>Use {pricing.promoCode} at checkout</span>
-            </p>
-          ) : null}
 
           <div className="mt-9 flex flex-wrap items-center gap-2.5 pb-5 md:mt-10">
             <div className="relative inline-block">

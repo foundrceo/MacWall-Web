@@ -37,15 +37,11 @@ export default function MacWallMarketingBottomCta() {
     <section className="bg-background">
       <div className="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 md:py-24">
         <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-normal tracking-[-0.02em] text-foreground">
-          {pricing.isIndia
-            ? `Your Mac deserves this — ${pricing.salePrice} for India`
-            : `Try ${macwall.name} now.`}
+          Try {macwall.name} now.
         </h2>
-        {pricing.isIndia ? (
-          <p className="mx-auto mt-4 max-w-xl text-[16px] leading-relaxed text-marketing-muted">
-            {pricing.priceLine}
-          </p>
-        ) : null}
+        <p className="mx-auto mt-4 max-w-xl text-[16px] leading-relaxed text-marketing-muted">
+          {pricing.priceLine}
+        </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5 pb-5">
           <div className="relative inline-block">
             <TrackedDownloadButton

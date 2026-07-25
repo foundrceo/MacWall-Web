@@ -6,46 +6,9 @@ import {
 } from "@/lib/admin/session"
 import {
   applyCountryCookie,
-  isIndiaCountry,
   MW_RESOLVED_COUNTRY_HEADER,
 } from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
-import {
-  INDIA_QUOTE_COOKIE,
-  INDIA_QUOTE_MAX_AGE_SECONDS,
-  MW_INDIA_QUOTE_HEADER,
-  parseIndiaQuotePayload,
-  serializeIndiaQuote,
-} from "@/lib/pricing/india-quote-transport"
-import { fetchStripeIndiaQuote } from "@/lib/pricing/stripe-india-pricing"
-
-/**
- * India INR display is estimated from USD list price; Stripe Checkout applies
- * INDIA50 and local currency at payment time.
- */
-async function resolveIndiaQuoteOnEdge(_request: NextRequest) {
-  const cached = parseIndiaQuotePayload(
-    _request.cookies.get(INDIA_QUOTE_COOKIE)?.value
-  )
-  if (cached) return cached
-
-  return fetchStripeIndiaQuote()
-}
-
-function applyIndiaQuoteCookie(
-  response: NextResponse,
-  serializedQuote: string
-): NextResponse {
-  response.cookies.set(INDIA_QUOTE_COOKIE, serializedQuote, {
-    maxAge: INDIA_QUOTE_MAX_AGE_SECONDS,
-    path: "/",
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: false,
-  })
-
-  return response
-}
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -60,20 +23,8 @@ export async function proxy(request: NextRequest) {
     requestHeaders.set(MW_RESOLVED_COUNTRY_HEADER, country)
   }
 
-  let indiaQuoteSerialized: string | null = null
-  if (isIndiaCountry(country)) {
-    const quote = await resolveIndiaQuoteOnEdge(request)
-    if (quote) {
-      indiaQuoteSerialized = serializeIndiaQuote(quote)
-      requestHeaders.set(MW_INDIA_QUOTE_HEADER, indiaQuoteSerialized)
-    }
-  }
-
   const withGeoCookies = (response: NextResponse) => {
     applyCountryCookie(response, country)
-    if (indiaQuoteSerialized) {
-      applyIndiaQuoteCookie(response, indiaQuoteSerialized)
-    }
     return response
   }
 

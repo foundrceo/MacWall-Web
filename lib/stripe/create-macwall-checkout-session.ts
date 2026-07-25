@@ -2,23 +2,27 @@ import "server-only"
 
 import { generateMacWallLicenseKey } from "@/lib/license/generate-license-key"
 import {
-  type LicensePlanSlug,
-  getStripePriceIdForPlan,
-  licensePlanFromSlug,
-  normalizePlanSlug,
-} from "@/lib/license/plans"
+  isIndiaDiscountEligible,
+  licenseOfferFromSlug,
+  licenseOfferPriceCents,
+  type PricingRegion,
+} from "@/lib/license/offers.shared"
+import { isIndiaCountry } from "@/lib/geo/country"
 import { getStripe } from "@/lib/stripe/server"
-import {
-  indiaCheckoutDiscount,
-  shouldApplyIndiaPromo,
-} from "@/lib/stripe/india-promo"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { queueCheckoutRecovery } from "@/lib/stripe/queue-checkout-recovery"
+import {
+  INDIA_COUPON_ID,
+  stripePriceIdForOffer,
+} from "@/lib/license/stripe-price-map"
 
 export type CreateMacWallCheckoutInput = {
   country: string | null
-  requestedPromo?: string | null
+  offerSlug?: string | null
+  /** Legacy query parameter retained for old links. */
   planSlug?: string | null
+  /** Affonso referral cookie propagated to Stripe metadata for attribution. */
+  affonsoReferral?: string
   /** Host that initiated checkout — used for Stripe success/cancel redirects. */
   siteOrigin: string
 }
@@ -28,8 +32,13 @@ export type CreateMacWallCheckoutResult =
   | { ok: false; error: string; status: number }
 
 /**
- * Creates a Stripe Checkout Session for MacWall Pro and a pending license row.
- * INDIA50 is applied for India visitors on Pro and Pro Plus (geo / cookie / dev override).
+ * Creates the Stripe Checkout Session and a pending license row.
+ *
+ * Only 3 real Stripe Prices exist (permanent $9.99, annual $4.99/yr,
+ * permanent_5 $14.99 fixed for everyone). India pricing is not a separate
+ * Price — it's the "INDIA" promotion code (20% off, forever) applied
+ * automatically for permanent/annual when the visitor is in India. The
+ * 5-Mac bundle is always $14.99, no discount, for anyone.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
@@ -38,10 +47,17 @@ export async function createMacWallCheckoutSession(
     const stripe = getStripe()
     const supabase = getSupabaseAdmin()
     const siteOrigin = input.siteOrigin.replace(/\/+$/, "")
-    const planSlug: LicensePlanSlug = normalizePlanSlug(input.planSlug)
-    const applyIndiaPromo = shouldApplyIndiaPromo({ ...input, planSlug })
-    const plan = licensePlanFromSlug(planSlug)
-    const stripePriceId = getStripePriceIdForPlan(planSlug)
+    const offer = licenseOfferFromSlug(input.offerSlug ?? input.planSlug)
+    const region: PricingRegion = isIndiaCountry(input.country)
+      ? "india"
+      : "default"
+    const applyIndiaDiscount =
+      region === "india" && isIndiaDiscountEligible(offer.slug)
+    const displayUnitAmount = licenseOfferPriceCents(
+      offer,
+      applyIndiaDiscount ? "india" : "default"
+    )
+    const planSlug = offer.maxDevices === 5 ? "pro_plus" : "pro"
 
     const licenseKey = generateMacWallLicenseKey()
 
@@ -49,8 +65,9 @@ export async function createMacWallCheckoutSession(
       license_key: licenseKey,
       source: "stripe",
       status: "pending",
-      plan_slug: plan.slug,
-      max_devices: plan.maxDevices,
+      plan_slug: planSlug,
+      max_devices: offer.maxDevices,
+      billing_model: offer.billingModel,
     }
 
     let { error: insertError } = await supabase
@@ -58,11 +75,13 @@ export async function createMacWallCheckoutSession(
       .insert(licenseRow)
 
     if (insertError?.message?.includes("plan_slug")) {
-      ;({ error: insertError } = await supabase.from("macwall_licenses").insert({
-        license_key: licenseKey,
-        source: "stripe",
-        status: "pending",
-      }))
+      ;({ error: insertError } = await supabase
+        .from("macwall_licenses")
+        .insert({
+          license_key: licenseKey,
+          source: "stripe",
+          status: "pending",
+        }))
     }
 
     if (insertError) {
@@ -75,22 +94,42 @@ export async function createMacWallCheckoutSession(
     }
 
     const encodedKey = encodeURIComponent(licenseKey)
+    const metadata = {
+      license_key: licenseKey,
+      source: "macwall",
+      ...(input.affonsoReferral
+        ? { affonso_referral: input.affonsoReferral }
+        : {}),
+      offer_slug: offer.slug,
+      billing_model: offer.billingModel,
+      plan_slug: planSlug,
+      max_devices: String(offer.maxDevices),
+      pricing_region: region,
+      india_discount_applied: String(applyIndiaDiscount),
+      unit_amount_usd: String(displayUnitAmount),
+    }
+
+    const stripePriceId = stripePriceIdForOffer(offer.slug)
 
     const session = await stripe.checkout.sessions.create({
-      mode: "payment",
+      mode: offer.billingModel === "annual" ? "subscription" : "payment",
       line_items: [{ price: stripePriceId, quantity: 1 }],
       success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteOrigin}/pricing`,
-      metadata: {
-        license_key: licenseKey,
-        source: "macwall",
-        plan_slug: plan.slug,
-        max_devices: String(plan.maxDevices),
-        ...(applyIndiaPromo ? { promo: "INDIA50", country: "IN" } : {}),
-      },
-      ...(applyIndiaPromo
-        ? { discounts: [indiaCheckoutDiscount()] }
-        : { allow_promotion_codes: true }),
+      client_reference_id: licenseKey,
+      metadata,
+      ...(offer.billingModel === "annual"
+        ? { subscription_data: { metadata } }
+        : { payment_intent_data: { metadata } }),
+      // India gets the INDIA coupon applied automatically — no code entry
+      // needed, and it can't be combined with manual promo code redemption.
+      // The 5-Mac bundle never qualifies (fixed price for everyone), so it
+      // keeps manual promo codes disabled entirely to prevent bypass.
+      ...(applyIndiaDiscount
+        ? { discounts: [{ coupon: INDIA_COUPON_ID }] }
+        : isIndiaDiscountEligible(offer.slug)
+          ? { allow_promotion_codes: true }
+          : {}),
     })
 
     if (!session.url) {
@@ -111,10 +150,7 @@ export async function createMacWallCheckoutSession(
       .eq("license_key", licenseKey)
 
     if (updateError) {
-      console.error(
-        "[checkout] session id update failed",
-        updateError.message
-      )
+      console.error("[checkout] session id update failed", updateError.message)
       await supabase
         .from("macwall_licenses")
         .delete()
