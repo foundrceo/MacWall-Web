@@ -8,7 +8,8 @@ export type ReelRefundStepIcon = "video" | "tag" | "views" | "email"
 
 export const macwallPricingCopy = {
   heroTitle: "Pricing. Wallpapers that truly live.",
-  heroLead: `${macwall.name} gives you a permanent license key or an annual plan. Both unlock the full Pro app.`,
+  heroLead:
+    "One-time purchase or annual subscription — both unlock the full Pro app.",
 
   reelRefund: {
     badge: "Reel refund",
