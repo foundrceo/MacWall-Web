@@ -70,7 +70,7 @@ export default function TikTokLandingHero() {
 
           <div className="mt-8 flex flex-wrap items-center gap-2.5">
             <TrackedPricingButton
-              href={pricing.checkoutUrl}
+              href="/pricing"
               location="tiktok_landing"
               size="pill"
               className={HERO_PRIMARY_BTN_CLASS}

@@ -99,7 +99,7 @@ export default function Navbar() {
     {
       href: "/pricing",
       label: h.navPricing,
-      active: pathname === "/pricing",
+      active: pathname === "/pricing" || pathname.startsWith("/pricing/"),
     },
     {
       href: "/submit",

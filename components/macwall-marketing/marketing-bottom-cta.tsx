@@ -34,15 +34,12 @@ export default function MacWallMarketingBottomCta() {
   const pricing = useMarketingPricing()
 
   return (
-    <section className="bg-background">
-      <div className="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 md:py-24">
-        <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] font-normal tracking-[-0.02em] text-foreground">
+    <section className="bg-secondary">
+      <div className="mx-auto max-w-[1360px] px-6 py-16 text-center sm:px-8 md:py-24 lg:px-10">
+        <h2 className="text-[clamp(2rem,5vw,3rem)] font-normal tracking-[-0.02em] text-foreground">
           Try {macwall.name} now.
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-[16px] leading-relaxed text-marketing-muted">
-          {pricing.priceLine}
-        </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5 pb-5">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 md:mt-10">
           <div className="relative inline-block">
             <TrackedDownloadButton
               href={macwallInstallerLatestPath}
@@ -58,7 +55,7 @@ export default function MacWallMarketingBottomCta() {
             </p>
           </div>
           <TrackedPricingButton
-            href={pricing.checkoutUrl}
+            href="/pricing"
             location="bottom_cta"
             size="pill"
             className={HERO_SECONDARY_BTN_CLASS}

@@ -4,11 +4,12 @@ import MacWallMarketingFooter from "@/components/macwall-marketing/marketing-foo
 /** Bottom CTA + footer rail — identical on home, pricing, terms, and privacy. */
 export default function MacWallMarketingPageEnd({
   showBottomCta = true,
-}: Readonly<{ showBottomCta?: boolean }>) {
+  showFooter = true,
+}: Readonly<{ showBottomCta?: boolean; showFooter?: boolean }>) {
   return (
     <>
       {showBottomCta ? <MacWallMarketingBottomCta /> : null}
-      <MacWallMarketingFooter />
+      {showFooter ? <MacWallMarketingFooter /> : null}
     </>
   )
 }

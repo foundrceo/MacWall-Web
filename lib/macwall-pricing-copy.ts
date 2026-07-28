@@ -7,9 +7,46 @@ import {
 export type ReelRefundStepIcon = "video" | "tag" | "views" | "email"
 
 export const macwallPricingCopy = {
-  heroTitle: "Pricing. Wallpapers that truly live.",
+  pageTitle: "Pricing",
+  billingToggleLabel: "Choose billing",
+  billingPermanent: "Permanent",
+  billingAnnual: "Annual",
+
+  plans: {
+    free: {
+      title: "Free",
+      subtitle: "For exploring live wallpapers",
+      price: "Free",
+      featuresPrefix: "Includes:",
+      cta: "Try MacWall",
+    },
+    pro: {
+      title: "Pro",
+      subtitle: "For your daily Mac setup",
+      badge: "Popular",
+      featuresPrefix: "Everything in Free, plus:",
+      ctaPermanent: "Get Pro",
+      ctaAnnual: "Start annual plan",
+    },
+    proPlus: {
+      title: "Pro Plus",
+      subtitle: "For desks, laptops, and studios",
+      featuresPrefix: "Everything in Pro, plus:",
+      cta: "Get Pro Plus",
+    },
+    reel: {
+      title: "Reel Refund",
+      subtitle: "For creators who share their setup",
+      price: "Up to 100% back",
+      featuresPrefix: "How it works:",
+      cta: "Learn about Reels",
+    },
+  },
+
+  heroKicker: "MacWall Pro",
+  heroTitle: "Choose how you unlock live wallpapers.",
   heroLead:
-    "One-time purchase or annual subscription — both unlock the full Pro app.",
+    "One-time purchase or annual subscription — both unlock the full Pro app on up to 3 Macs.",
 
   reelRefund: {
     badge: "Reel refund",
@@ -20,7 +57,7 @@ export const macwallPricingCopy = {
       {
         icon: "video" as const,
         title: "Create your Reel",
-        body: `Film ${macwall.name} on your Mac, your setup, your wallpaper, your vibe.`,
+        body: `Film ${macwall.name} on your Mac — your setup, wallpaper, and vibe. Keep it short and natural.`,
       },
       {
         icon: "tag" as const,
@@ -38,20 +75,20 @@ export const macwallPricingCopy = {
         body: `Email ${macwall.reelRefundEmail} with your Reel link, view screenshot, and purchase email.`,
       },
     ],
-    influencerTitle: "Got a bigger audience?",
+    influencerTitle: "Bigger audience?",
     finePrintLabel: "The fine print:",
     finePrint:
-      "You can post as many Reels as you want until one hits 2,000 views, no cap on attempts. Views must be organic (no bots, no paid promotion). We reserve the right to verify view counts and decline suspicious activity. Refund is 50% of the purchase price, sent via the original payment method. Offer can be withdrawn at any time.",
+      "Post as many times as you want until one Reel hits 2,000 organic views. No bots or paid promotion. We may verify views and decline suspicious claims. Refunds go to the original payment method. Offer can end anytime.",
     cta: "Email for your refund",
     ctaHref: mailtoReelRefund,
   },
 
   freeTrial: {
     features: [
-      "6 starter live wallpapers to explore",
-      "Desktop playback and menu bar controls",
-      "No card required to begin",
-      "Upgrade whenever you are ready",
+      "6 starter live wallpapers",
+      "Desktop playback & menu bar controls",
+      "No card required",
+      "Upgrade whenever you're ready",
     ],
   },
 
@@ -59,10 +96,10 @@ export const macwallPricingCopy = {
     features: [
       "Lifetime license, pay once",
       "Use on up to 3 personal Macs",
-      "Cloud catalog with 1,000+ live wallpapers",
-      `Live Lock Screen and Screen Saver (${macwallMinimumMacOSVersion}+)`,
+      "1,000+ live wallpapers in the cloud",
+      `Lock Screen & Screen Saver (${macwallMinimumMacOSVersion}+)`,
       "Unlimited favorites and playlists",
-      "Music Sync and menu bar quick controls",
+      "Music Sync & menu bar controls",
     ],
   },
 
@@ -70,10 +107,10 @@ export const macwallPricingCopy = {
     features: [
       "Everything in Pro",
       "Use on up to 5 Macs",
-      "Best value for creators and studios",
-      "Lower per-Mac price than single licenses",
-      "Perfect for desk + laptop + team setups",
-      "Same lifetime updates, no subscription",
+      "Best value for creators & studios",
+      "Lower per-Mac price",
+      "Desk, laptop, and team setups",
+      "Lifetime updates, no subscription",
     ],
   },
 
@@ -82,6 +119,21 @@ export const macwallPricingCopy = {
     detail:
       "Choose annual billing for up to 3 Macs and keep every Pro feature while subscribed.",
     cta: "Start annual plan",
+    features: [
+      "Full Pro access while subscribed",
+      "Use on up to 3 personal Macs",
+      "1,000+ live wallpapers in the cloud",
+      `Lock Screen & Screen Saver (${macwallMinimumMacOSVersion}+)`,
+      "Billed once per year",
+      "Cancel before renewal anytime",
+    ],
+  },
+
+  multiMac: {
+    title: "Got more than one Mac?",
+    lead: "One permanent key for five machines — better per-Mac value for desks, laptops, and studios.",
+    offerLabel: "5 Macs — Permanent",
+    cta: "Buy 5-Mac license",
   },
 
   faqTitle: "Common questions",
@@ -123,6 +175,6 @@ export const macwallPricingCopy = {
 
   bottomTitle: `Get ${macwall.name}`,
   bottomDesc: `Choose ${macwall.pro.price} permanent or ${macwall.annual.price} per year. Make a Reel and earn up to 100% back.`,
-  bottomCtaPro: `Buy Pro for ${macwall.pro.price}`,
+  bottomCtaPro: "Get Pro",
   bottomCtaReel: "Get 100% free",
 } as const

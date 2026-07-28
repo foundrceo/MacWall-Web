@@ -86,7 +86,7 @@ export default function HeroSection() {
               </p>
             </div>
             <TrackedPricingButton
-              href={pricing.checkoutUrl}
+              href="/pricing"
               location="hero"
               size="pill"
               className={HERO_SECONDARY_BTN_CLASS}

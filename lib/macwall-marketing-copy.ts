@@ -74,7 +74,7 @@ export const macwallExactCopy = {
     newBadge: "NEW",
   },
   pricing: {
-    buyCta: `Get Pro — ${macwall.pro.price}`,
+    buyCta: "Get Pro",
     secondaryCta: "Or earn it back free",
     priceLine: `${macwall.pro.price} one-time (was ${macwall.pro.strikePrice}). No subscription, lifetime updates, up to ${macwall.maxLicensedMacs} Macs — and a Reel earns it all back.`,
   },
@@ -171,7 +171,7 @@ export const macwallExactCopy = {
   underFooter: {
     title: "Your desktop deserves better.",
     body: `Join 1,000+ Mac users running live wallpapers with ${macwall.name}. Download free, then unlock Pro once for ${macwall.pro.price} (was ${macwall.pro.strikePrice}) — lifetime updates, and a single Reel can earn the whole thing back.`,
-    cta: `Get Pro — ${macwall.pro.price}`,
+    cta: "Get Pro",
   },
   footer: {
     shopTitle: "Shop",

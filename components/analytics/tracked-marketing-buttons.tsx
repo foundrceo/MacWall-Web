@@ -56,6 +56,7 @@ export function TrackedPricingButton({
   size = "default",
   location,
   ariaLabel,
+  external,
 }: Readonly<{
   href: string
   children: ReactNode
@@ -65,13 +66,19 @@ export function TrackedPricingButton({
   external?: boolean
   ariaLabel?: string
 }>) {
+  const isExternal =
+    external ??
+    (href.startsWith("http") ||
+      href.startsWith("mailto:") ||
+      href.startsWith("/api/"))
+
   return (
     <TrackedLink
       href={href}
       className={buttonClasses(size, className)}
       eventName="pricing_click"
       metadata={{ location }}
-      external
+      external={isExternal}
       ariaLabel={ariaLabel}
     >
       {children}
