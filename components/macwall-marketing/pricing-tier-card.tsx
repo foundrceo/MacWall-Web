@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 
+import { PricingPriceDisplay } from "@/components/macwall-marketing/pricing-price-display"
 import { cn } from "@/lib/utils"
 
 export function PricingTierCard({
@@ -59,9 +60,10 @@ export function PricingTierCard({
           </p>
 
           <p className="mt-3.5 flex flex-wrap items-baseline gap-x-1">
-            <span className="text-[1.75rem] font-normal tracking-tight text-foreground">
-              {price}
-            </span>
+            <PricingPriceDisplay
+              price={price}
+              className="text-[1.75rem] font-normal tracking-tight text-foreground"
+            />
             {priceSuffix ? (
               <span className="text-[12px] text-muted-foreground">
                 {priceSuffix}
