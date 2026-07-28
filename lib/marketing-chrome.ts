@@ -23,4 +23,4 @@ export const HERO_DOWNLOAD_HINT_CLASS =
   "absolute top-full left-1/2 mt-1.5 -translate-x-1/2 whitespace-nowrap text-center text-[12px] text-muted-foreground"
 
 export const MARKETING_INLINE_LINK_CLASS =
-  "text-foreground underline decoration-white/20 underline-offset-4 transition-colors hover:decoration-white/40"
+  "text-[#0066cc] no-underline transition-opacity hover:underline hover:opacity-80"

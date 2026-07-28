@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* Explicit sources: ensures utilities apply across app/components (vendored shell uses static CSS modules). */
 @source "../components/**/*.{tsx,ts,jsx,js}";
 @source "./**/*.{tsx,ts,jsx,js}";
 
@@ -12,7 +11,6 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* Geist from Google Fonts (see root layout <head>); tokens in :root */
   --font-sans: var(--site-font-sans);
   --font-heading: var(--site-font-heading);
   --font-serif: var(--font-sans);
@@ -59,6 +57,12 @@
   --color-marketing-muted: var(--marketing-muted);
   --color-surface: var(--surface);
   --color-surface-elevated: var(--surface-elevated);
+  --spacing-v: 3rem;
+  --spacing-v1: var(--spacing-v);
+  --spacing-v2-12: calc(var(--spacing-v) * 2 / 12);
+  --spacing-v9-12: calc(var(--spacing-v) * 9 / 12);
+  --spacing-g0-75: 0.75rem;
+  --spacing-g1: 1rem;
 }
 
 :root {
@@ -69,7 +73,6 @@
   --site-font-mono:
     var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* Apple-like CTAs (store/product pages): primary blue + secondary charcoal */
   --button-primary-bg: rgb(0, 113, 227);
   --button-primary-hover: rgb(0, 119, 237);
   --button-secondary-bg: rgb(66, 66, 69);
@@ -95,11 +98,11 @@
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
   --radius: 0.625rem;
-  --spacing: 0.25rem;
-  --tracking-normal: 0em;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --marketing-muted: oklch(0.556 0 0);
+  --surface: oklch(1 0 0);
+  --surface-elevated: oklch(0.985 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -118,43 +121,44 @@
 .dark {
   --button-secondary-bg: oklch(0.22 0 0);
   --button-secondary-hover: oklch(0.28 0 0);
-  /* MacWall marketing canvas */
+
   --background: #0c0d0a;
-  --foreground: #fafafa;
-  --marketing-muted: #888888;
+  --foreground: #ffffff;
+  --marketing-muted: rgb(255 255 255 / 68%);
   --surface: #0c0d0a;
   --surface-elevated: #111111;
   --card: #141414;
-  --card-foreground: #fafafa;
+  --card-foreground: #ffffff;
   --popover: #141414;
-  --popover-foreground: #fafafa;
-  --primary: #fafafa;
+  --popover-foreground: #ffffff;
+  --primary: #ffffff;
   --primary-foreground: #0c0d0a;
   --secondary: #1a1a1a;
-  --secondary-foreground: #fafafa;
+  --secondary-foreground: #ffffff;
   --hero-start: oklch(0.28 0.04 265);
   --hero-mid: oklch(0.18 0.02 265);
   --hero-end: #0c0d0a;
   --muted: #1a1a1a;
-  --muted-foreground: #888888;
+  --muted-foreground: rgb(255 255 255 / 68%);
   --accent: #1a1a1a;
-  --accent-foreground: #fafafa;
+  --accent-foreground: #ffffff;
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: rgb(255 255 255 / 8%);
   --input: rgb(255 255 255 / 12%);
   --ring: oklch(0.5 0 0);
+
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-foreground: #ffffff;
   --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-accent-foreground: #ffffff;
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
@@ -163,12 +167,26 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
+
   html {
     font-family: var(--site-font-sans);
   }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  body.__className_f367f3 {
+    font-family: var(--site-font-sans) !important;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--site-font-mono);
+  }
+
   h1,
   h2,
   h3,
@@ -177,11 +195,26 @@
   h6 {
     font-family: var(--site-font-heading);
   }
+
+  .dark {
+    color-scheme: dark;
+  }
 }
 
 @layer utilities {
-  .link-arrow {
-    @apply text-foreground/70 transition-colors hover:text-foreground;
+  .marketing-wallpaper-marquee {
+    animation: marketing-wallpaper-marquee 40s linear infinite;
+  }
+
+  .marketing-wallpaper-marquee-reverse {
+    animation: marketing-wallpaper-marquee-reverse 44s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marketing-wallpaper-marquee,
+    .marketing-wallpaper-marquee-reverse {
+      animation: none;
+    }
   }
 }
 
@@ -202,45 +235,3 @@
     transform: translateX(0);
   }
 }
-
-.marketing-wallpaper-marquee {
-  animation: marketing-wallpaper-marquee 40s linear infinite;
-}
-
-.marketing-wallpaper-marquee-reverse {
-  animation: marketing-wallpaper-marquee-reverse 44s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .marketing-wallpaper-marquee,
-  .marketing-wallpaper-marquee-reverse {
-    animation: none;
-  }
-}
-
-/*
- * Legacy layout stylesheet targets Inter on `body` and `.__className_f367f3` (unlayered).
- * This block keeps Geist everywhere, including nav.
- */
-html,
-body,
-body.__className_f367f3 {
-  font-family: var(--site-font-sans) !important;
-}
-
-code,
-kbd,
-samp,
-pre {
-  font-family: var(--site-font-mono) !important;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--site-font-heading) !important;
-}
-

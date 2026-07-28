@@ -70,7 +70,7 @@ export function buildMarketingPricing(region: PricingRegion): MarketingPricing {
     salePrice: permanentPrice,
     fullPrice: null,
     suffix: "permanent",
-    getProCta: `Get Pro — ${permanentPrice}`,
+    getProCta: "Get Pro",
     buyProCta: `Buy permanently for ${permanentPrice}`,
     buyProAria: `Buy a permanent ${macwall.name} Pro license for ${permanentPrice}`,
     bannerHeadline: isIndia
@@ -83,7 +83,7 @@ export function buildMarketingPricing(region: PricingRegion): MarketingPricing {
     pricingHeroLead: `Choose a permanent ${permanentPrice} license or pay ${annualPrice} annually. Both unlock the full ${macwall.name} Pro experience on up to 3 Macs, and a 5-Mac permanent license is available below.`,
     pricingPermanentDescription: `Pay ${permanentPrice} once and keep Pro on up to 3 Macs permanently, with updates included.`,
     pricingAnnualDescription: `${annualPrice} per year for the full Pro experience on up to 3 Macs. Renews annually until canceled.`,
-    bottomCtaLabel: `Get Pro — ${permanentPrice}`,
+    bottomCtaLabel: "Get Pro",
     checkoutUrl: licenseOfferCheckoutPath("permanent"),
     annualCheckoutUrl: licenseOfferCheckoutPath("annual"),
     multiMacOffers: buildMultiMacOffers(),

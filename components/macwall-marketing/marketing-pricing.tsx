@@ -1,382 +1,237 @@
 "use client"
 
-import { Clapperboard, Flame, Hash, Mail, Check } from "lucide-react"
-import type { ComponentType, ReactNode } from "react"
-import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
+import Link from "next/link"
+import { useState, type ReactNode } from "react"
+
+import {
+  TrackedDownloadButton,
+  TrackedPricingButton,
+} from "@/components/analytics/tracked-marketing-buttons"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import MarketingSiteChrome, {
   MARKETING_MAIN_OFFSET_CLASS,
 } from "@/components/macwall-marketing/MarketingSiteChrome"
+import HomeFaqSection from "@/components/macwall-marketing/HomeFaqSection"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
-import {
-  MarketingContainer,
-  MarketingReelInfluencerCopy,
-  MarketingRichText,
-  SectionLead,
-  SectionTitle,
-  TextLink,
-} from "@/components/macwall-marketing/marketing-primitives"
-import {
-  macwallPricingCopy as p,
-  type ReelRefundStepIcon,
-} from "@/lib/macwall-pricing-copy"
-import {
-  MARKETING_PAGE_CLASS,
-  HERO_SECONDARY_BTN_CLASS,
-  HERO_PRIMARY_BTN_CLASS,
-} from "@/lib/marketing-chrome"
+import { PricingSegmentControl } from "@/components/macwall-marketing/pricing-segment-control"
+import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
+import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
+import { macwall, macwallInstallerLatestPath } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
-const reelStepIcons = {
-  video: Clapperboard,
-  tag: Hash,
-  views: Flame,
-  email: Mail,
-} as const satisfies Record<
-  ReelRefundStepIcon,
-  ComponentType<{ className?: string; strokeWidth?: number }>
->
+type BillingMode = "permanent" | "annual"
 
-function ReelStepIcon({ kind }: Readonly<{ kind: ReelRefundStepIcon }>) {
-  const Icon = reelStepIcons[kind]
+const billingOptions = [
+  { value: "annual" as const, label: p.billingAnnual },
+  { value: "permanent" as const, label: p.billingPermanent },
+]
+
+const pricingPrimaryButtonClass =
+  "inline-flex h-8 min-h-8 items-center justify-center rounded-full bg-white px-3.5 text-[14px] font-normal text-black no-underline transition-opacity hover:opacity-90"
+
+const pricingSecondaryButtonClass =
+  "inline-flex h-8 min-h-8 items-center justify-center rounded-full bg-white px-3.5 text-[14px] font-normal text-black no-underline transition-opacity hover:opacity-90"
+
+function PricingPrimaryButton({
+  href,
+  children,
+  location,
+  ariaLabel,
+  className,
+}: Readonly<{
+  href: string
+  children: ReactNode
+  location: string
+  ariaLabel?: string
+  className?: string
+}>) {
   return (
-    <span
-      className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-muted/50 text-muted-foreground"
-      aria-hidden
+    <TrackedPricingButton
+      href={href}
+      location={location}
+      ariaLabel={ariaLabel}
+      size="pill"
+      className={cn(pricingPrimaryButtonClass, className)}
     >
-      <Icon className="size-3.5" strokeWidth={1.75} />
-    </span>
+      {children}
+    </TrackedPricingButton>
   )
 }
 
-/** Premium pricing tier card — clean, elevated, no heavy borders */
-function PricingTierCard({
-  badge,
-  title,
-  subtitle,
-  priceLine,
-  priceHint,
-  features,
-  action,
-  highlighted = false,
+function PricingSecondaryButton({
+  href,
+  children,
+  location,
+  ariaLabel,
+  className,
+  download = false,
 }: Readonly<{
-  badge: string
-  title: string
-  subtitle: string
-  priceLine: string
-  priceHint: string
-  features: readonly string[]
-  action: ReactNode
-  highlighted?: boolean
+  href: string
+  children: ReactNode
+  location: string
+  ariaLabel?: string
+  className?: string
+  download?: boolean
 }>) {
+  const classes = cn(pricingSecondaryButtonClass, className)
+
+  if (download) {
+    return (
+      <TrackedDownloadButton
+        href={href}
+        location={location}
+        size="pill"
+        className={classes}
+      >
+        {children}
+      </TrackedDownloadButton>
+    )
+  }
+
   return (
-    <article
-      className={cn(
-        "relative flex h-full flex-col rounded-2xl bg-card p-6 transition-all duration-300 md:p-8",
-        highlighted
-          ? "shadow-[0_0_0_1px_rgba(var(--primary)/0.3),_0_8px_30px_rgba(0,0,0,0.12)] ring-1 ring-primary/30"
-          : "shadow-sm hover:shadow-md"
-      )}
+    <TrackedPricingButton
+      href={href}
+      location={location}
+      ariaLabel={ariaLabel}
+      size="pill"
+      className={classes}
     >
-      {/* Highlight indicator — subtle top accent */}
-      {highlighted && (
-        <div className="absolute top-0 left-1/2 size-px -translate-x-1/2 bg-primary" />
-      )}
-
-      {/* Badge + Title */}
-      <div className="mb-6">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold tracking-[0.08em] text-primary uppercase">
-          {badge}
-        </span>
-        <h2 className="mt-4 text-[30px] leading-[1.1] font-normal tracking-[-0.02em] text-foreground">
-          {title}
-        </h2>
-        <p className="mt-2 text-[15px] leading-[1.5] text-muted-foreground">
-          {subtitle}
-        </p>
-      </div>
-
-      {/* Price block — clean, no separator lines */}
-      <div className="mb-6">
-        <p className="text-[42px] leading-[1] font-light tracking-[-0.03em] text-foreground">
-          {priceLine}
-        </p>
-        <p className="mt-1.5 text-[14px] leading-[1.4] text-muted-foreground">
-          {priceHint}
-        </p>
-      </div>
-
-      {/* Features — minimal checkmarks */}
-      <ul className="mb-8 flex flex-1 flex-col gap-3" role="list">
-        {features.map((line) => (
-          <li
-            key={line}
-            className="flex items-start gap-3 text-[14px] leading-[1.5] text-foreground/85"
-          >
-            <Check
-              className="mt-0.5 size-4.5 shrink-0 text-primary"
-              strokeWidth={2.5}
-              aria-hidden="true"
-            />
-            <span>{line}</span>
-          </li>
-        ))}
-      </ul>
-
-      {/* CTA */}
-      <div className="mt-auto">{action}</div>
-    </article>
+      {children}
+    </TrackedPricingButton>
   )
 }
 
 export default function MacWallMarketingPricingPage() {
-  const reel = p.reelRefund
   const pricing = useMarketingPricing()
+  const [billing, setBilling] = useState<BillingMode>("permanent")
   const fiveMacOffer = pricing.multiMacOffers.find((offer) => offer.macs === 5)
+  const isAnnual = billing === "annual"
+  const plans = p.plans
 
   return (
-    <div className={MARKETING_PAGE_CLASS}>
+    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-background text-foreground antialiased">
       <MarketingSiteChrome />
 
       <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
-        {/* Hero Section — spacious, centered, minimal */}
-        <section className="relative py-16 md:py-24 lg:py-32">
-          <div
-            className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/20 to-transparent"
-            aria-hidden="true"
-          />
-          <MarketingContainer wide>
-            <div className="relative mx-auto max-w-3xl text-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/50 px-4 py-1.5 text-[13px] font-medium tracking-[0.06em] text-muted-foreground uppercase">
-                Transparent pricing
-              </span>
-              <SectionTitle as="h1" className="mt-6">
-                {p.heroTitle}
-              </SectionTitle>
-              <SectionLead className="mx-auto mt-6 max-w-2xl text-[19px] leading-[1.55] text-muted-foreground">
-                {p.heroLead}
-              </SectionLead>
-              <p className="mt-8 text-[16px] font-medium text-foreground/70">
-                {p.heroLead}
-              </p>
-            </div>
-          </MarketingContainer>
-        </section>
+        <section className="pt-16 pb-20 md:pt-24 md:pb-28">
+          <div className="mx-auto max-w-[1360px] px-6 sm:px-8 lg:px-10">
+            <h1 className="text-center text-4xl font-normal tracking-tight text-foreground md:text-5xl">
+              {p.pageTitle}
+            </h1>
 
-        {/* Pricing Cards — generous grid, aligned bottom CTAs */}
-        <section className="relative pb-16 md:pb-24 lg:pb-32">
-          <MarketingContainer wide>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 lg:mx-auto lg:max-w-5xl">
-              {/* Permanent — PRIMARY */}
-              <PricingTierCard
-                badge="ONE-TIME"
-                title="Permanent"
-                subtitle="Pay once. Own it forever. Free updates for life."
-                priceLine={`${pricing.permanentPrice}`}
-                priceHint="Up to 3 Macs • Lifetime updates included"
-                features={p.pro.features}
-                action={
-                  <TrackedPricingButton
-                    href={pricing.checkoutUrl}
-                    location="pricing_card_permanent"
-                    ariaLabel={`Buy MacWall permanent license for ${pricing.permanentPrice}`}
-                    size="pill"
-                    className={cn(
-                      HERO_PRIMARY_BTN_CLASS,
-                      "w-full justify-center"
-                    )}
-                  >
-                    Get Permanent License
-                  </TrackedPricingButton>
-                }
-                highlighted
-              />
-
-              {/* Annual — SECONDARY */}
-              <PricingTierCard
-                badge="ANNUAL"
-                title="Annual"
-                subtitle="Lower upfront cost. Same Pro features. Cancel anytime."
-                priceLine={`${pricing.annualPrice}/year`}
-                priceHint="Up to 3 Macs • Renews yearly until canceled"
-                features={[
-                  ...p.pro.features.slice(0, 4),
-                  "Annual billing",
-                  "Cancel before renewal anytime",
-                ]}
-                action={
-                  <TrackedPricingButton
-                    href={pricing.annualCheckoutUrl}
-                    location="pricing_card_annual"
-                    ariaLabel={`Start annual MacWall plan for ${pricing.annualPrice} per year`}
-                    size="pill"
-                    className={cn(
-                      HERO_SECONDARY_BTN_CLASS,
-                      "w-full justify-center"
-                    )}
-                  >
-                    Start Annual Plan
-                  </TrackedPricingButton>
-                }
-              />
-            </div>
-          </MarketingContainer>
-        </section>
-
-        {/* Multi-Mac Upsell — clean card, no heavy borders */}
-        <section className="relative pb-16 md:pb-24 lg:pb-32">
-          <MarketingContainer wide>
-            <div className="mx-auto max-w-3xl text-center">
-              <h2 className="text-[30px] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
-                Got more than one Mac? We&apos;ve got you covered.
-              </h2>
-              <p className="mt-3 text-[16px] leading-[1.55] text-muted-foreground">
-                Save more when you license multiple Macs with a single permanent
-                key.
-              </p>
-            </div>
-
-            {fiveMacOffer && (
-              <div className="mx-auto mt-10 max-w-2xl">
-                <article className="relative rounded-2xl bg-card p-6 shadow-sm ring-1 ring-primary/20 md:p-8">
-                  <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left">
-                    <div className="flex-1">
-                      <p className="text-[22px] leading-tight font-medium text-foreground">
-                        5 Macs — Permanent License
-                      </p>
-                      <p className="mt-2 flex items-baseline justify-center gap-3 text-muted-foreground sm:justify-start">
-                        <span className="text-[36px] leading-none font-light tracking-[-0.02em] text-foreground">
-                          {fiveMacOffer.price}
-                        </span>
-                        <span className="text-[14px] font-medium text-primary">
-                          one-time, permanent
-                        </span>
-                      </p>
-                    </div>
-
-                    <TrackedPricingButton
-                      href={fiveMacOffer.checkoutUrl}
-                      location="pricing_multi_mac_5"
-                      ariaLabel={`Buy permanent MacWall license for 5 Macs for ${fiveMacOffer.price}`}
-                      size="pill"
-                      className={cn(HERO_SECONDARY_BTN_CLASS, "shrink-0")}
+            <div className="mt-12 md:mt-16">
+              <div className="grid grid-cols-1 items-stretch gap-4 pt-3 md:grid-cols-2 md:gap-4 lg:grid-cols-4 lg:gap-5">
+                <PricingTierCard
+                  id="tier-free"
+                  title={plans.free.title}
+                  subtitle={plans.free.subtitle}
+                  price={plans.free.price}
+                  features={p.freeTrial.features}
+                  featuresPrefix={plans.free.featuresPrefix}
+                  action={
+                    <PricingSecondaryButton
+                      href={macwallInstallerLatestPath}
+                      location="pricing_card_free"
+                      download
                     >
-                      Buy 5-Mac License
-                    </TrackedPricingButton>
-                  </div>
-                </article>
-              </div>
-            )}
-          </MarketingContainer>
-        </section>
+                      {plans.free.cta}
+                    </PricingSecondaryButton>
+                  }
+                />
 
-        {/* Reel Refund Section — elevated card */}
-        <section className="relative pb-16 md:pb-24 lg:pb-32">
-          <MarketingContainer wide>
-            <article className="rounded-2xl bg-card p-6 shadow-sm ring-1 ring-muted/30 md:p-8">
-              <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-                <div className="max-w-2xl">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[12px] font-semibold tracking-[0.08em] text-primary uppercase">
-                    {reel.badge}
-                  </span>
-                  <h2 className="mt-4 text-[30px] leading-[1.1] font-normal tracking-[-0.02em] text-foreground">
-                    {reel.title}
-                  </h2>
-                  <p className="mt-3 max-w-xl text-[15px] leading-[1.55] text-muted-foreground">
-                    {reel.description}
-                  </p>
-                </div>
+                <PricingTierCard
+                  id="tier-pro"
+                  title={plans.pro.title}
+                  subtitle={plans.pro.subtitle}
+                  price={
+                    isAnnual ? pricing.annualPrice : pricing.permanentPrice
+                  }
+                  priceSuffix={isAnnual ? "/ yr." : null}
+                  features={isAnnual ? p.annual.features : p.pro.features}
+                  featuresPrefix={plans.pro.featuresPrefix}
+                  highlight
+                  badge={plans.pro.badge}
+                  actionSlot={
+                    <PricingSegmentControl
+                      ariaLabel="Pro billing"
+                      options={billingOptions}
+                      value={billing}
+                      onChange={setBilling}
+                      compact
+                    />
+                  }
+                  showActionSlot
+                  action={
+                    <PricingPrimaryButton
+                      href={
+                        isAnnual
+                          ? pricing.annualCheckoutUrl
+                          : pricing.checkoutUrl
+                      }
+                      location={
+                        isAnnual
+                          ? "pricing_card_annual"
+                          : "pricing_card_permanent"
+                      }
+                      ariaLabel={
+                        isAnnual
+                          ? `Start annual ${macwall.name} plan for ${pricing.annualPrice} per year`
+                          : `Buy ${macwall.name} permanent license for ${pricing.permanentPrice}`
+                      }
+                    >
+                      {isAnnual ? plans.pro.ctaAnnual : plans.pro.ctaPermanent}
+                    </PricingPrimaryButton>
+                  }
+                />
 
-                <div className="shrink-0 pt-2 md:pt-0">
-                  <TextLink href={reel.ctaHref} external>
-                    {reel.cta}
-                  </TextLink>
-                </div>
-              </div>
-
-              {/* Steps — clean grid */}
-              <ul className="mt-10 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-                {reel.steps.map((step) => (
-                  <li
-                    key={step.title}
-                    className="flex items-start gap-3 rounded-xl bg-muted/30 p-4 transition-colors hover:bg-muted/50"
-                  >
-                    <ReelStepIcon kind={step.icon} />
-                    <div className="min-w-0">
-                      <p className="text-[14px] font-medium text-foreground">
-                        {step.title}
-                      </p>
-                      {"body" in step && step.body && (
-                        <MarketingRichText
-                          as="p"
-                          className="mt-1 text-[13px] leading-[1.45] text-muted-foreground"
-                        >
-                          {step.body}
-                        </MarketingRichText>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-8 flex flex-col gap-2">
-                <p className="text-[13px] leading-[1.45] text-muted-foreground">
-                  <span className="font-medium text-foreground">
-                    {reel.influencerTitle}
-                  </span>{" "}
-                  <MarketingReelInfluencerCopy className="inline" />
-                </p>
-                <p className="rounded-xl bg-muted/30 px-4 py-3 text-[12px] leading-[1.45] text-muted-foreground">
-                  <span className="font-medium text-foreground">
-                    {reel.finePrintLabel}
-                  </span>{" "}
-                  {reel.finePrint}
-                </p>
-              </div>
-            </article>
-          </MarketingContainer>
-        </section>
-
-        {/* FAQ Section — minimal, clean */}
-        <section className="relative pb-16 md:pb-24 lg:pb-32">
-          <MarketingContainer wide>
-            <div className="mx-auto max-w-3xl">
-              <div className="text-center">
-                <span className="text-[14px] text-muted-foreground">
-                  {p.faqTitle}
-                </span>
-                <SectionTitle as="h2" className="mt-3">
-                  Common questions
-                </SectionTitle>
-              </div>
-
-              <div className="mt-10 divide-y divide-border/50 border-t border-border/50">
-                {p.faq.map((item) => (
-                  <details key={item.q} className="group">
-                    <summary className="flex cursor-pointer items-center justify-between gap-4 py-6 text-[16px] font-normal text-foreground [&::-webkit-details-marker]:hidden">
-                      {item.q}
-                      <svg
-                        className="size-5 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden
+                {fiveMacOffer ? (
+                  <PricingTierCard
+                    id="tier-pro-plus"
+                    title={plans.proPlus.title}
+                    subtitle={plans.proPlus.subtitle}
+                    price={fiveMacOffer.price}
+                    priceSuffix="one-time"
+                    features={p.proPlus.features}
+                    featuresPrefix={plans.proPlus.featuresPrefix}
+                    action={
+                      <PricingSecondaryButton
+                        href={fiveMacOffer.checkoutUrl}
+                        location="pricing_multi_mac_5"
+                        ariaLabel={`Buy permanent ${macwall.name} license for 5 Macs for ${fiveMacOffer.price}`}
                       >
-                        <path d="M6 9l6 6 6-6" />
-                      </svg>
-                    </summary>
-                    <div className="pb-6 text-[15px] leading-[1.6] text-foreground/70">
-                      <MarketingRichText as="p">{item.a}</MarketingRichText>
-                    </div>
-                  </details>
-                ))}
+                        {plans.proPlus.cta}
+                      </PricingSecondaryButton>
+                    }
+                  />
+                ) : null}
+
+                <PricingTierCard
+                  id="tier-reel"
+                  title={plans.reel.title}
+                  subtitle={plans.reel.subtitle}
+                  price={plans.reel.price}
+                  features={[
+                    "Post with #macwall on IG or TikTok",
+                    `${macwall.reelRefundHalfViews.toLocaleString()} views → 50% refund`,
+                    `${macwall.reelRefundFullViews.toLocaleString()} views → full refund`,
+                    "Organic views only",
+                  ]}
+                  featuresPrefix={plans.reel.featuresPrefix}
+                  action={
+                    <Link
+                      href="/pricing/reel-refund"
+                      className={pricingSecondaryButtonClass}
+                    >
+                      {plans.reel.cta}
+                    </Link>
+                  }
+                />
               </div>
             </div>
-          </MarketingContainer>
+          </div>
         </section>
+
+        <HomeFaqSection />
       </main>
 
       <MacWallMarketingPageEnd />

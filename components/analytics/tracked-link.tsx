@@ -44,7 +44,10 @@ export function TrackedLink({
   const trackNavigation = () => {
     trackSiteEventClient(eventName, metadata)
 
-    if (eventName === "pricing_click") {
+    if (
+      eventName === "pricing_click" &&
+      (href.includes("/api/checkout/") || href.startsWith("http"))
+    ) {
       markCheckoutStartedInSession()
       trackSiteEventClient("checkout_started", metadata)
       void trackTikTokInitiateCheckoutWithIdentify()

@@ -7,6 +7,7 @@ export function indexableMarketingPaths(): string[] {
     "/",
     "/download",
     "/pricing",
+    "/pricing/reel-refund",
     "/blog",
     "/live-wallpaper-mac",
     "/lock-screen-wallpaper",

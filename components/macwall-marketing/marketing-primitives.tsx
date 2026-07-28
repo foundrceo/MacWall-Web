@@ -10,6 +10,8 @@ import {
 } from "react"
 
 const marketingLinkedTokens: Record<string, string> = {
+  [macwall.reelRefundInstagram]: macwall.reelRefundInstagramURL,
+  [macwall.reelRefundTiktok]: macwall.reelRefundTiktokURL,
   [macwall.reelRefundHashtag]: macwall.reelRefundHashtagURL,
   [macwall.reelRefundEmail]: mailtoReelRefund,
 }
@@ -124,8 +126,8 @@ export function MarketingReelInfluencerCopy({
   return (
     <span className={className}>
       DM <MarketingReelAtLink platform="instagram" /> on Instagram or{" "}
-      <MarketingReelAtLink platform="tiktok" /> on TikTok for influencer
-      partnerships.
+      <MarketingReelAtLink platform="tiktok" /> on TikTok — we can set up a
+      custom partnership.
     </span>
   )
 }
@@ -262,7 +264,7 @@ export function SectionLead({
   return (
     <p
       className={cn(
-        "text-[19px] leading-[1.47] md:text-[21px] md:leading-[1.381] text-muted-foreground",
+        "text-[19px] leading-[1.47] text-muted-foreground md:text-[21px] md:leading-[1.381]",
         className
       )}
     >
@@ -284,7 +286,7 @@ export function TextLink({
   external?: boolean
 }>) {
   const classes = cn(
-    "inline-flex items-center gap-0.5 text-[17px] leading-[1.235] hover:underline text-foreground rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    "inline-flex items-center gap-0.5 rounded-sm text-[17px] leading-[1.235] text-foreground outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     className
   )
 
@@ -426,7 +428,10 @@ export function CheckIcon({ className }: Readonly<{ className?: string }>) {
       viewBox="0 0 24 24"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={cn("mt-0.5 size-[14px] shrink-0 text-muted-foreground", className)}
+      className={cn(
+        "mt-0.5 size-[14px] shrink-0 text-muted-foreground",
+        className
+      )}
       aria-hidden
     >
       <polyline points="20 6 9 17 4 12" />
