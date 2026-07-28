@@ -17,4 +17,4 @@ const affiliatePortalFromEnv =
 export const macwallAffiliatePortalURL =
   affiliatePortalFromEnv && affiliatePortalFromEnv.length > 0
     ? affiliatePortalFromEnv
-    : "https://macwall.affonso.io"
+    : "https://affiliates.macwall.app"
