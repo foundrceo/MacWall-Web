@@ -18,7 +18,7 @@ export function AffonsoPixel() {
     <Script
       id="affonso-pixel"
       src={AFFONSO_PIXEL_SRC}
-      strategy="beforeInteractive"
+      strategy="afterInteractive"
       data-affonso={AFFONSO_PROGRAM_ID}
       data-cookie_duration={String(AFFONSO_COOKIE_DURATION_DAYS)}
       data-api-base={AFFONSO_FIRST_PARTY_BASE}
