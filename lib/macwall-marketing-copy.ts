@@ -9,6 +9,7 @@ export const macwallExactCopy = {
     navSupport: "Help",
     navPricing: "Pricing",
     navSubmit: "Submit",
+    navAffiliate: "Affiliate",
     downloadCta: "Get MacWall",
     logoAlt: `${macwall.name} logo`,
   },
@@ -195,6 +196,7 @@ export const macwallExactCopy = {
     },
     connect: {
       discord: "Discord Community",
+      affiliate: "Affiliate Program",
     },
     org: {
       name: macwall.name,

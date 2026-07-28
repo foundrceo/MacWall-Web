@@ -107,6 +107,11 @@ export default function Navbar() {
       active: pathname === "/submit" || pathname.startsWith("/submit/"),
     },
     {
+      href: "/affiliate",
+      label: h.navAffiliate,
+      active: pathname === "/affiliate" || pathname.startsWith("/affiliate/"),
+    },
+    {
       href: "/blog",
       label: h.navBlog,
       active: pathname === "/blog" || pathname.startsWith("/blog/"),

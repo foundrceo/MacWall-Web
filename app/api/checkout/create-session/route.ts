@@ -5,11 +5,11 @@ import {
   COUNTRY_COOKIE,
   resolveVisitorCountry,
 } from "@/lib/geo/resolve-visitor-country"
+import { AFFONSO_REFERRAL_COOKIE } from "@/lib/macwall-affiliate"
 import { createMacWallCheckoutSession } from "@/lib/stripe/create-macwall-checkout-session"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
-const AFFONSO_REFERRAL_COOKIE = "affonso_referral" as const
 
 async function startCheckout(
   request: Request,

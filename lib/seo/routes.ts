@@ -13,7 +13,7 @@ export function indexableMarketingPaths(): string[] {
     "/lock-screen-wallpaper",
     "/best-live-wallpaper-mac",
     "/submit",
-    "/submit",
+    "/affiliate",
     "/alternatives/wallpaper-engine",
     "/alternatives/macwall-vs-backdrop",
     "/alternatives/macwall-vs-wallper",

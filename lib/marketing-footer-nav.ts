@@ -107,6 +107,11 @@ export function getMarketingFooterSections(
           href: macwall.discordInvite,
           kind: "external",
         },
+        {
+          label: foot.connect.affiliate,
+          href: "/affiliate",
+          kind: "internal",
+        },
       ],
     },
   ]

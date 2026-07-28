@@ -10,12 +10,12 @@ const R2_CDN_HOST = "cdn.macwall.app"
  */
 const CONTENT_SECURITY_POLICY_REPORT_ONLY = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://analytics.tiktok.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.googletagmanager.com https://va.vercel-scripts.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://analytics.tiktok.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.googletagmanager.com https://va.vercel-scripts.com https://cdn.affonso.io",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   `img-src 'self' data: blob: https://${R2_CDN_HOST} https://images.unsplash.com https://www.apple.com https://analytics.tiktok.com https://t.co https://analytics.twitter.com https://www.google-analytics.com`,
   `media-src 'self' blob: https://${R2_CDN_HOST} https://*.supabase.co`,
-  "connect-src 'self' https://*.supabase.co https://business-api.tiktok.com https://analytics.tiktok.com https://ads-api.x.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+  "connect-src 'self' https://*.supabase.co https://business-api.tiktok.com https://analytics.tiktok.com https://ads-api.x.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://vitals.vercel-insights.com https://va.vercel-scripts.com https://api.affonso.io https://cdn.affonso.io",
   `frame-src 'self'`,
   "frame-ancestors 'self'",
   "base-uri 'self'",
@@ -79,6 +79,32 @@ const nextConfig = {
       "@hugeicons/core-free-icons",
       "@hugeicons/react",
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: "/affilate",
+        destination: "/affiliate",
+        permanent: true,
+      },
+    ]
+  },
+  /**
+   * Affonso first-party static assets (`/r/*.js`).
+   * `/r/track` and `/r/signups` are App Router proxies that forward client IP.
+   * @see https://affonso.io/help/installation-guides/proxy-setup/pixel-tracking-proxy
+   */
+  async rewrites() {
+    return [
+      {
+        source: "/r/pixel.js",
+        destination: "https://cdn.affonso.io/js/pixel.min.js",
+      },
+      {
+        source: "/r/psl.min.js",
+        destination: "https://cdn.affonso.io/js/psl.min.js",
+      },
+    ]
   },
   async headers() {
     return [
