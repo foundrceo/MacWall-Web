@@ -6,6 +6,10 @@ import {
   resolveVisitorCountry,
 } from "@/lib/geo/resolve-visitor-country"
 import { AFFONSO_REFERRAL_COOKIE } from "@/lib/macwall-affiliate"
+import {
+  DATAFAST_SESSION_COOKIE,
+  DATAFAST_VISITOR_COOKIE,
+} from "@/lib/macwall-datafast"
 import { createMacWallCheckoutSession } from "@/lib/stripe/create-macwall-checkout-session"
 
 export const runtime = "nodejs"
@@ -19,6 +23,10 @@ async function startCheckout(
   const cookieStore = await cookies()
   const affonsoReferral =
     cookieStore.get(AFFONSO_REFERRAL_COOKIE)?.value?.trim().slice(0, 255) || ""
+  const datafastVisitorId =
+    cookieStore.get(DATAFAST_VISITOR_COOKIE)?.value?.trim().slice(0, 255) || ""
+  const datafastSessionId =
+    cookieStore.get(DATAFAST_SESSION_COOKIE)?.value?.trim().slice(0, 255) || ""
   const country = await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
@@ -29,6 +37,8 @@ async function startCheckout(
     offerSlug,
     planSlug,
     affonsoReferral,
+    datafastVisitorId,
+    datafastSessionId,
     siteOrigin: new URL(request.url).origin,
   })
 }

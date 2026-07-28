@@ -242,3 +242,40 @@
     transform: translateX(0);
   }
 }
+
+@keyframes nav-earn-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+.nav-earn-text {
+  animation: nav-earn-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes announcement-india-pulse {
+  0%,
+  100% {
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.06);
+  }
+  50% {
+    box-shadow:
+      inset 0 -1px 0 rgba(0, 0, 0, 0.06),
+      inset 0 0 0 9999px rgba(5, 150, 105, 0.04);
+  }
+}
+
+.announcement-india-banner {
+  animation: announcement-india-pulse 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-earn-text,
+  .announcement-india-banner {
+    animation: none;
+  }
+}
