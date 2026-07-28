@@ -26,6 +26,7 @@
     "aws4fetch": "^1.0.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "datafast": "^3.0.18",
     "geist": "^1.7.2",
     "lucide-react": "^1.14.0",
     "motion": "^12.38.0",

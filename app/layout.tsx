@@ -1,4 +1,5 @@
 import { AffonsoPixel } from "@/components/analytics/affonso-pixel"
+import { DataFastInit } from "@/components/analytics/datafast-init"
 import { PageViewTracker } from "@/components/analytics/page-view-tracker"
 import { CheckoutRetargetingTracker } from "@/components/analytics/checkout-retargeting-tracker"
 import {
@@ -249,6 +250,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <DataFastInit />
           <PageViewTracker />
           <CheckoutRetargetingTracker />
         </ThemeProvider>

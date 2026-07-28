@@ -23,6 +23,10 @@ export type CreateMacWallCheckoutInput = {
   planSlug?: string | null
   /** Affonso referral cookie propagated to Stripe metadata for attribution. */
   affonsoReferral?: string
+  /** DataFast visitor cookie — Stripe metadata for revenue attribution. */
+  datafastVisitorId?: string
+  /** DataFast session cookie — Stripe metadata for revenue attribution. */
+  datafastSessionId?: string
   /** Host that initiated checkout — used for Stripe success/cancel redirects. */
   siteOrigin: string
 }
@@ -99,6 +103,9 @@ export async function createMacWallCheckoutSession(
       source: "macwall",
       // Always set so Affonso can attribute Stripe Checkout (empty = organic).
       affonso_referral: input.affonsoReferral?.trim() || "",
+      // DataFast revenue attribution (empty when cookies missing = organic).
+      datafast_visitor_id: input.datafastVisitorId?.trim() || "",
+      datafast_session_id: input.datafastSessionId?.trim() || "",
       offer_slug: offer.slug,
       billing_model: offer.billingModel,
       plan_slug: planSlug,

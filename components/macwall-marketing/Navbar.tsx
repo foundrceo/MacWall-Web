@@ -85,6 +85,24 @@ function BrandLink() {
   return <MacWallBrandLink variant="nav" priority />
 }
 
+function EarnBadge({
+  className,
+}: Readonly<{
+  className?: string
+}>) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "nav-earn-text font-semibold leading-none tracking-wide text-emerald-400",
+        className
+      )}
+    >
+      Earn $
+    </span>
+  )
+}
+
 export default function Navbar() {
   const pathname = usePathname()
   const h = macwallExactCopy.header
@@ -94,7 +112,12 @@ export default function Navbar() {
   const navLinkClass =
     "text-[15px] text-white transition-opacity hover:opacity-70"
 
-  const navItems = [
+  const navItems: ReadonlyArray<{
+    href: string
+    label: string
+    active: boolean
+    earnBadge?: boolean
+  }> = [
     { href: "/", label: h.navOverview, active: pathname === "/" },
     {
       href: "/pricing",
@@ -110,16 +133,17 @@ export default function Navbar() {
       href: "/affiliate",
       label: h.navAffiliate,
       active: pathname === "/affiliate" || pathname.startsWith("/affiliate/"),
+      earnBadge: true,
     },
     {
       href: "/blog",
       label: h.navBlog,
       active: pathname === "/blog" || pathname.startsWith("/blog/"),
     },
-  ] as const
+  ]
 
   return (
-    <header className={NAVBAR_HEADER_CLASS}>
+    <header className={cn(NAVBAR_HEADER_CLASS, "overflow-visible")}>
       <nav
         className="relative mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 md:hidden"
         aria-label="Main"
@@ -132,16 +156,25 @@ export default function Navbar() {
       </nav>
 
       <nav
-        className="mx-auto hidden h-14 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6 md:grid"
+        className="mx-auto hidden h-14 max-w-7xl grid-cols-[1fr_auto_1fr] items-center overflow-visible px-4 sm:px-6 md:grid"
         aria-label="Main"
       >
         <div className="flex h-full items-center justify-self-start">
           <BrandLink />
         </div>
-        <ul className="flex items-center gap-7 justify-self-center">
+        <ul className="flex items-center gap-7 justify-self-center overflow-visible">
           {navItems.map((item) => (
-            <li key={item.href}>
-              <Link href={item.href} className={navLinkClass}>
+            <li key={item.href} className="overflow-visible">
+              <Link
+                href={item.href}
+                className={cn(
+                  navLinkClass,
+                  item.earnBadge && "relative inline-block"
+                )}
+              >
+                {item.earnBadge ? (
+                  <EarnBadge className="pointer-events-none absolute -top-2.5 right-0 text-[10px]" />
+                ) : null}
                 {item.label}
               </Link>
             </li>
@@ -161,10 +194,16 @@ export default function Navbar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={navLinkClass}
+                  className={cn(
+                    navLinkClass,
+                    item.earnBadge && "inline-flex items-center gap-2"
+                  )}
                   onClick={() => setMenuOpen(false)}
                 >
                   {item.label}
+                  {item.earnBadge ? (
+                    <EarnBadge className="text-[11px]" />
+                  ) : null}
                 </Link>
               </li>
             ))}
