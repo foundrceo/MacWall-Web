@@ -5,7 +5,7 @@ import {
   TrackedDownloadButton,
   TrackedPricingButton,
 } from "@/components/analytics/tracked-marketing-buttons"
-import HeroVideoPlayer from "@/components/macwall-marketing/HeroVideoPlayer"
+import { HeroWalkthroughVideo } from "@/components/macwall-marketing/hero-walkthrough-video"
 import {
   HERO_DOWNLOAD_HINT_CLASS,
   HERO_PRIMARY_BTN_CLASS,
@@ -16,7 +16,6 @@ import {
   macwallInstallerLatestPath,
   macwallMinimumMacOSRequirement,
 } from "@/lib/macwall-site"
-import { marketingWalkthroughVideoSources } from "@/lib/marketing-assets-urls"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -34,7 +33,6 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
 /** TikTok-optimized landing: price above fold, direct Stripe checkout, minimal friction. */
 export default function TikTokLandingHero() {
   const pricing = useMarketingPricing()
-  const videoSources = marketingWalkthroughVideoSources()
 
   return (
     <section className="relative overflow-hidden bg-background">
@@ -94,10 +92,9 @@ export default function TikTokLandingHero() {
           </div>
         </div>
 
-        <HeroVideoPlayer
-          sources={videoSources}
-          ariaLabel={`${macwall.name} preview`}
+        <HeroWalkthroughVideo
           endCaption={`Live wallpapers on your Mac with ${macwall.name}.`}
+          ariaLabel={`${macwall.name} preview`}
         />
       </div>
     </section>

@@ -53,7 +53,13 @@ export function marketingWalkthroughVideoSources(): readonly string[] {
     browserVideoSourceFromEnv(
       "NEXT_PUBLIC_MARKETING_WALKTHROUGH_VIDEO_FALLBACK_URL"
     ),
-    marketingAssetPublicUrl(MARKETING_WALKTHROUGH_VIDEO_PRIMARY_PATH),
+    // Working CDN object first — `Video (1).mov` may be absent and causes a black flash on error.
     marketingAssetPublicUrl(MARKETING_WALKTHROUGH_VIDEO_FALLBACK_PATH),
+    marketingAssetPublicUrl(MARKETING_WALKTHROUGH_VIDEO_PRIMARY_PATH),
   ])
+}
+
+/** First hero clip for `<link rel="preload">`. */
+export function marketingWalkthroughVideoPreloadUrl(): string | null {
+  return marketingWalkthroughVideoSources()[0] ?? null
 }

@@ -1,5 +1,4 @@
 import MacWallMarketingHome from "@/components/macwall-marketing/marketing-home"
-import { HeroVideoPreload } from "@/components/macwall-marketing/hero-video-preload"
 import { JsonLd } from "@/components/seo/json-ld"
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
 import { macwall, macwallMinimumMacOSVersion } from "@/lib/macwall-site"
@@ -75,7 +74,6 @@ export default async function Page() {
 
   return (
     <>
-      <HeroVideoPreload />
       <JsonLd payload={webPageLd} />
       <JsonLd payload={faqPageJsonLd([...HOME_FAQ])} />
       <MacWallMarketingHome />

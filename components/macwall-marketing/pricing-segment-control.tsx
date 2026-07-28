@@ -76,13 +76,12 @@ export function PricingSegmentControl<T extends string>({
         ref={containerRef}
         className={cn(
           "group relative flex w-fit rounded-full",
-          compact ? "bg-background p-0.5" : "bg-card p-1"
+          "bg-background p-0.5"
         )}
       >
         <div
           className={cn(
-            "pointer-events-none absolute rounded-full transition-all duration-300 ease-out",
-            compact ? "inset-y-0.5 bg-foreground/10" : "inset-y-1 bg-secondary"
+            "pointer-events-none absolute rounded-full transition-all duration-300 ease-out inset-y-0.5 bg-foreground/10"
           )}
           style={{
             left: indicator.left,

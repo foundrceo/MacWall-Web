@@ -5,13 +5,14 @@ import {
   type DragEvent,
   type FormEvent,
   type KeyboardEvent,
+  type ReactNode,
   useEffect,
   useRef,
   useState,
 } from "react"
 
-import { MarketingCard } from "@/components/macwall-marketing/marketing-primitives"
 import { SubmitCategorySelect } from "@/components/macwall-marketing/submit-category-select"
+import { SubmitRequirements } from "@/components/macwall-marketing/submit-requirements"
 import { SubmitSuccessMark } from "@/components/macwall-marketing/submit-success-mark"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -21,7 +22,6 @@ import {
   COMMUNITY_TITLE_MAX,
   formatBytesLabel,
   presignErrorMessage,
-  SUBMIT_REQUIREMENTS,
   submitErrorMessage,
   titleFromFileName,
   validateSubmitCategory,
@@ -78,7 +78,7 @@ type FieldErrors = {
 }
 
 const fieldControlClass =
-  "h-auto w-full rounded-2xl border-border bg-surface px-4 py-3 text-[15px] text-foreground shadow-none focus-visible:border-foreground/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+  "h-auto w-full rounded-2xl border-0 bg-background/70 px-4 py-3 text-[15px] text-foreground shadow-none ring-1 ring-foreground/8 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary"
 
 export function SubmitWallpaperForm() {
   const [title, setTitle] = useState("")
@@ -390,12 +390,12 @@ export function SubmitWallpaperForm() {
 
   if (status === "success") {
     return (
-      <MarketingCard className="text-center">
+      <SubmitFormPanel className="text-center">
         <SubmitSuccessMark />
         <h2 className="mt-5 text-[24px] font-semibold tracking-[-0.02em] text-foreground">
           Your wallpaper has been submitted
         </h2>
-        <p className="mx-auto mt-3 max-w-[420px] text-[15px] leading-[1.5] text-muted-foreground">
+        <p className="mx-auto mt-3 max-w-[420px] text-[15px] leading-[1.5] text-marketing-muted">
           Thanks for sharing your wallpaper. Our team reviews every submission
           and usually responds within 24 hours before it goes live in the MacWall
           catalog.
@@ -403,32 +403,18 @@ export function SubmitWallpaperForm() {
         <button
           type="button"
           onClick={submitAnother}
-          className="mt-6 inline-flex min-h-[44px] items-center justify-center rounded-full bg-foreground px-[22px] text-[15px] font-medium text-background transition-colors outline-none hover:bg-foreground/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          className="mt-6 inline-flex min-h-[44px] items-center justify-center rounded-full bg-foreground px-[22px] text-[15px] font-medium text-background transition-colors outline-none hover:bg-foreground/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary"
         >
           Submit another
         </button>
-      </MarketingCard>
+      </SubmitFormPanel>
     )
   }
 
   return (
-    <MarketingCard>
+    <SubmitFormPanel>
       <form className="space-y-6" onSubmit={handleSubmit} noValidate>
-        <div className="rounded-2xl border border-border bg-surface-elevated/40 px-4 py-4">
-          <p className="text-[14px] font-medium text-foreground">
-            Upload requirements
-          </p>
-          <ul className="mt-2.5 space-y-1.5 text-[13px] leading-[1.45] text-muted-foreground">
-            {SUBMIT_REQUIREMENTS.map((item) => (
-              <li key={item} className="flex gap-2">
-                <span aria-hidden className="text-foreground/50">
-                  ·
-                </span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <SubmitRequirements className="lg:hidden" />
 
         <div className="space-y-2">
           <Label htmlFor="submit-title" className="text-[14px] text-foreground">
@@ -506,9 +492,9 @@ export function SubmitWallpaperForm() {
           {inspected && file ? (
             <div
               aria-busy={aiAnalyzing}
-              className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4 sm:flex-row sm:items-center"
+              className="flex flex-col gap-4 rounded-2xl bg-background/60 p-4 ring-1 ring-foreground/8 sm:flex-row sm:items-center"
             >
-              <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-surface-elevated sm:w-40">
+              <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-background sm:w-40">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={inspected.thumbUrl}
@@ -537,7 +523,7 @@ export function SubmitWallpaperForm() {
                   type="button"
                   disabled={busy}
                   onClick={() => fileInputRef.current?.click()}
-                  className="mt-3 inline-flex items-center rounded-full border border-border bg-transparent px-3.5 py-1.5 text-[13px] font-medium text-foreground transition-colors outline-none hover:bg-surface-elevated focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
+                  className="mt-3 inline-flex items-center rounded-full bg-background/80 px-3.5 py-1.5 text-[13px] font-medium text-foreground transition-colors outline-none hover:bg-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary disabled:opacity-50"
                 >
                   Replace video
                 </button>
@@ -557,10 +543,10 @@ export function SubmitWallpaperForm() {
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               className={cn(
-                "flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed px-5 py-8 text-center transition-[color,background-color,border-color,box-shadow,transform] duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                "flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-2xl px-5 py-8 text-center ring-1 transition-[color,background-color,box-shadow,transform] duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary",
                 dragActive
-                  ? "scale-[1.01] border-foreground/60 bg-surface-elevated shadow-sm"
-                  : "border-border bg-surface hover:border-foreground/30 hover:bg-surface-elevated",
+                  ? "bg-background/80 ring-foreground/20"
+                  : "bg-background/50 ring-foreground/10 hover:bg-background/70 hover:ring-foreground/16",
                 busy && "cursor-not-allowed opacity-60"
               )}
             >
@@ -615,7 +601,7 @@ export function SubmitWallpaperForm() {
                 {progress}%
               </span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-surface-elevated">
+            <div className="h-2 overflow-hidden rounded-full bg-background/70">
               <div
                 className="h-full rounded-full bg-foreground transition-[width] duration-300 ease-out"
                 style={{ width: `${progress}%` }}
@@ -627,7 +613,7 @@ export function SubmitWallpaperForm() {
         {error ? (
           <p
             role="alert"
-            className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[14px] text-red-200"
+            className="rounded-2xl bg-red-500/10 px-4 py-3 text-[14px] text-red-200 ring-1 ring-red-500/20"
           >
             {error}
           </p>
@@ -637,17 +623,36 @@ export function SubmitWallpaperForm() {
           type="submit"
           disabled={!canSubmit}
           aria-busy={status === "submitting" || aiAnalyzing}
-          className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 text-[16px] font-medium text-background transition-colors outline-none hover:bg-foreground/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 text-[16px] font-medium text-background transition-colors outline-none hover:bg-foreground/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary disabled:cursor-not-allowed disabled:opacity-50"
         >
           <SubmitButtonContent status={status} analyzing={aiAnalyzing} />
         </button>
 
-        <p className="text-center text-[13px] leading-[1.5] text-marketing-muted">
+        <p className="text-[13px] leading-[1.5] text-marketing-muted">
           By submitting you confirm you have the rights to share this video.
           Submissions are reviewed before publishing.
         </p>
       </form>
-    </MarketingCard>
+    </SubmitFormPanel>
+  )
+}
+
+function SubmitFormPanel({
+  children,
+  className,
+}: Readonly<{
+  children: ReactNode
+  className?: string
+}>) {
+  return (
+    <div
+      className={cn(
+        "rounded-[24px] bg-secondary px-6 py-7 sm:px-8 sm:py-8",
+        className
+      )}
+    >
+      {children}
+    </div>
   )
 }
 

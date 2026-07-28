@@ -11,7 +11,7 @@ export default function FeaturesSection() {
   const native = macwallExactCopy.nativeMac
 
   return (
-    <div id="features">
+    <div id="features" className="bg-surface-elevated">
       <section className="py-12 md:py-20 lg:py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 sm:px-6 md:gap-10 lg:grid-cols-[minmax(0,360px)_1fr] lg:gap-14">
           <div className="w-full max-w-[360px]">

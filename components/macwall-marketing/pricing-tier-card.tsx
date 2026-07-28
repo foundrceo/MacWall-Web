@@ -49,7 +49,7 @@ export function PricingTierCard({
         <div className="flex min-h-0 flex-1 flex-col">
           <h3
             id={id}
-            className="text-[19px] font-normal tracking-tight text-foreground"
+            className="font-sans text-[19px] font-normal tracking-tight text-foreground"
           >
             {title}
           </h3>

@@ -16,7 +16,7 @@ export const macwallPricingCopy = {
     free: {
       title: "Free",
       subtitle: "For exploring live wallpapers",
-      price: "Free",
+      price: "$0",
       featuresPrefix: "Includes:",
       cta: "Try MacWall",
     },
