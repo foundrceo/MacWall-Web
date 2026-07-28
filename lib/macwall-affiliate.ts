@@ -1,5 +1,5 @@
 /** Affonso affiliate program — pixel + Stripe attribution. */
-export const AFFONSO_PROGRAM_ID = "cmrezh6d4001kizvt1itcyccb" as const
+export const AFFONSO_PROGRAM_ID = "cmrp2apws0006aoj6r2v55geo" as const
 
 export const AFFONSO_COOKIE_DURATION_DAYS = 30 as const
 
