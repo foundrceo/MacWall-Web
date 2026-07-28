@@ -18,8 +18,7 @@ async function startCheckout(
 ) {
   const cookieStore = await cookies()
   const affonsoReferral =
-    cookieStore.get(AFFONSO_REFERRAL_COOKIE)?.value?.trim().slice(0, 255) ||
-    undefined
+    cookieStore.get(AFFONSO_REFERRAL_COOKIE)?.value?.trim().slice(0, 255) || ""
   const country = await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
