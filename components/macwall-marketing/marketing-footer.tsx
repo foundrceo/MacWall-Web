@@ -88,6 +88,11 @@ export default function MacWallMarketingFooter() {
                     {foot.explore.blog}
                   </Link>
                 </li>
+                <li>
+                  <Link href="/affiliate" className={footerLinkClass}>
+                    {foot.connect.affiliate}
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
@@ -117,6 +122,11 @@ export default function MacWallMarketingFooter() {
                 {foot.connectTitle}
               </p>
               <ul className="space-y-2.5">
+                <li>
+                  <Link href="/affiliate" className={footerLinkClass}>
+                    {foot.connect.affiliate}
+                  </Link>
+                </li>
                 <li>
                   <Link href="/support" className={footerLinkClass}>
                     Live Support

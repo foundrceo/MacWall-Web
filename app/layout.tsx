@@ -12,6 +12,12 @@ import { ThemeProvider } from "@/components/providers/theme-provider"
 import { JsonLd } from "@/components/seo/json-ld"
 import { macwallSchemaGraph } from "@/lib/macwall-json-ld"
 import {
+  AFFONSO_COOKIE_DURATION_DAYS,
+  AFFONSO_FIRST_PARTY_BASE,
+  AFFONSO_PIXEL_SRC,
+  AFFONSO_PROGRAM_ID,
+} from "@/lib/macwall-affiliate"
+import {
   macwall,
   macwallFavicons,
   macwallMinimumMacOSVersion,
@@ -83,8 +89,6 @@ const ahrefsWebAnalyticsKey =
     : undefined
 const tiktokPixelId = resolveTikTokPixelId()
 const xAdsPixelId = resolveXAdsPixelId()
-const AFFONSO_PROGRAM_ID = "cmrezh6d4001kizvt1itcyccb" as const
-const AFFONSO_COOKIE_DURATION_DAYS = "30" as const
 
 export const metadata: Metadata = {
   title: {
@@ -227,14 +231,6 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <Script
-          id="affonso-pixel"
-          async
-          defer
-          src="https://cdn.affonso.io/js/pixel.min.js"
-          data-affonso={AFFONSO_PROGRAM_ID}
-          data-cookie_duration={AFFONSO_COOKIE_DURATION_DAYS}
-        />
         {tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}
         {xAdsPixelId ? <XAdsPixel pixelId={xAdsPixelId} /> : null}
       </head>
@@ -260,6 +256,14 @@ export default function RootLayout({
           <PageViewTracker />
           <CheckoutRetargetingTracker />
         </ThemeProvider>
+        <Script
+          id="affonso-pixel"
+          src={AFFONSO_PIXEL_SRC}
+          strategy="afterInteractive"
+          data-affonso={AFFONSO_PROGRAM_ID}
+          data-cookie_duration={String(AFFONSO_COOKIE_DURATION_DAYS)}
+          data-api-base={AFFONSO_FIRST_PARTY_BASE}
+        />
         <Analytics />
         <SpeedInsights />
         {gaId ? <GoogleAnalytics gaId={gaId} /> : null}

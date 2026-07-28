@@ -97,9 +97,8 @@ export async function createMacWallCheckoutSession(
     const metadata = {
       license_key: licenseKey,
       source: "macwall",
-      ...(input.affonsoReferral
-        ? { affonso_referral: input.affonsoReferral }
-        : {}),
+      // Always set so Affonso can attribute Stripe Checkout (empty = organic).
+      affonso_referral: input.affonsoReferral?.trim() || "",
       offer_slug: offer.slug,
       billing_model: offer.billingModel,
       plan_slug: planSlug,
