@@ -1,5 +1,6 @@
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
+import { HeroVideoPreload } from "@/components/macwall-marketing/hero-video-preload"
 import { MarketingPricingProvider } from "@/components/marketing/marketing-pricing-context"
 import { resolveMarketingPricing } from "@/lib/pricing/resolve-marketing-pricing"
 import type { ReactNode } from "react"
@@ -23,6 +24,7 @@ export default async function MarketingLayout({
         <link rel="dns-prefetch" href={mediaOrigin} />
         <link rel="preconnect" href={catalogOrigin} crossOrigin="anonymous" />
         <link rel="dns-prefetch" href={catalogOrigin} />
+        <HeroVideoPreload />
         {children}
       </div>
     </MarketingPricingProvider>

@@ -72,6 +72,7 @@ const nextConfig = {
     ],
   },
   turbopack: {},
+  transpilePackages: ["geist"],
   experimental: {
     optimizePackageImports: [
       "lucide-react",

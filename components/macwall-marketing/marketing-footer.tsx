@@ -159,7 +159,7 @@ export default function MacWallMarketingFooter() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-border pt-8">
+        <div className="mt-10 pt-2">
           <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
             <div className="shrink-0 lg:min-w-[17rem]">
               <small className="text-sm text-marketing-muted">

@@ -4,96 +4,51 @@ import MarketingSiteChrome, {
   MARKETING_MAIN_OFFSET_CLASS,
 } from "@/components/macwall-marketing/MarketingSiteChrome"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
-import { blogTileEyebrow, formatTileDateAbsolute } from "@/lib/blog/tile-copy"
+import { formatTileDateCurated } from "@/lib/blog/tile-copy"
 import { blogTilePoster } from "@/lib/blog/tile-media"
 import type { BlogArticle } from "@/lib/content/types"
 import { MARKETING_PAGE_CLASS } from "@/lib/marketing-chrome"
 import { cn } from "@/lib/utils"
 
+/** Curated tile: image full-bleeds card; date + title layered on top. */
 function BlogArticleCard({
   article,
-  featured = false,
   priority = false,
 }: Readonly<{
   article: BlogArticle
-  featured?: boolean
   priority?: boolean
 }>) {
   const href = `/blog/${article.slug}`
-  const poster = blogTilePoster(article.slug, article.category, featured ? "hero" : "tile")
-  const date = formatTileDateAbsolute(article.publishedAt)
-
-  if (featured) {
-    return (
-      <article className="overflow-hidden rounded-2xl border border-border bg-surface">
-        <Link href={href} className="group block">
-          <div className="relative aspect-[16/9] overflow-hidden bg-black/40">
-            <div className="h-full w-full transition duration-300 group-hover:scale-[1.02]">
-              <BlogTilePicture
-                src={poster}
-                alt=""
-                variant="hero"
-                priority={priority}
-              />
-            </div>
-          </div>
-          <div className="space-y-3 p-6 md:p-8">
-            <p className="text-[12px] font-medium tracking-[0.08em] text-marketing-muted uppercase">
-              {blogTileEyebrow(article.category)}
-            </p>
-            <h2 className="text-[clamp(1.5rem,3vw,2rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-foreground">
-              {article.title}
-            </h2>
-            {article.description ? (
-              <p className="max-w-2xl text-[16px] leading-[1.55] text-foreground/70">
-                {article.description}
-              </p>
-            ) : null}
-            {date ? (
-              <time
-                dateTime={article.publishedAt}
-                className="block text-[13px] text-marketing-muted"
-              >
-                {date}
-              </time>
-            ) : null}
-          </div>
-        </Link>
-      </article>
-    )
-  }
+  const poster = blogTilePoster(article.slug, article.category, "tile")
+  const date = formatTileDateCurated(article.publishedAt)
 
   return (
-    <li>
+    <li className="min-w-0 w-full">
       <Link
         href={href}
-        className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface transition hover:border-foreground/20"
+        className="relative block aspect-square w-full cursor-pointer overflow-hidden rounded-2xl border-0 bg-black outline-none ring-0 no-underline transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform hover:-translate-y-0.5 hover:scale-[1.008]"
       >
-        <div className="relative aspect-[16/10] overflow-hidden bg-black/40">
-          <div className="h-full w-full transition duration-300 group-hover:scale-[1.02] [&_img]:h-full [&_img]:w-full [&_img]:object-cover">
-            <BlogTilePicture
-              src={poster}
-              alt=""
-              variant="tile"
-              priority={priority}
-            />
-          </div>
+        <div className="absolute inset-0">
+          <BlogTilePicture
+            src={poster}
+            alt=""
+            variant="curated"
+            priority={priority}
+          />
         </div>
-        <div className="flex flex-1 flex-col gap-2 p-4">
-          <p className="text-[11px] font-medium tracking-[0.08em] text-marketing-muted uppercase">
-            {blogTileEyebrow(article.category)}
-          </p>
-          <h3 className="text-[17px] font-semibold leading-snug tracking-[-0.01em] text-foreground">
-            {article.title}
-          </h3>
+
+        <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col gap-1 bg-gradient-to-t from-black from-40% via-black/85 to-transparent px-4 pb-4 pt-20">
           {date ? (
             <time
               dateTime={article.publishedAt}
-              className="mt-auto text-[12px] text-marketing-muted"
+              className="text-[14px] leading-5 text-white/60"
             >
               {date}
             </time>
           ) : null}
+          <p className="line-clamp-2 text-[14px] leading-5 text-white">
+            {article.title}
+          </p>
         </div>
       </Link>
     </li>
@@ -103,8 +58,6 @@ function BlogArticleCard({
 export function BlogIndexPage({
   articles,
 }: Readonly<{ articles: BlogArticle[] }>) {
-  const [featured, ...rest] = articles
-
   return (
     <div className={MARKETING_PAGE_CLASS}>
       <MarketingSiteChrome />
@@ -112,45 +65,30 @@ export function BlogIndexPage({
       <main
         id="blog-main"
         className={cn(
-          "mx-auto max-w-7xl px-4 pb-20 sm:px-6 md:pb-24",
+          "mx-auto w-full max-w-[1360px] px-6 pb-20 sm:px-8 md:pb-24 lg:px-10",
           MARKETING_MAIN_OFFSET_CLASS,
-          "pt-12 md:pt-16"
+          "pt-14 md:pt-16"
         )}
       >
-        <header className="mb-10 text-center md:mb-14">
-          <p className="text-[15px] text-marketing-muted">Blog</p>
-          <h1 className="mt-3 text-[clamp(2rem,4vw,2.75rem)] font-normal leading-[1.12] tracking-[-0.02em] text-foreground">
-            MacWall Blog
+        <header className="mb-10 max-w-xl text-left md:mb-14">
+          <h1 className="text-[2.5rem] font-normal leading-[1.1] tracking-[-0.02em] text-foreground">
+            Blog
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-[17px] leading-[1.55] text-muted-foreground">
-            Guides, comparisons, and macOS news for live wallpapers on Mac.
+          <p className="mt-2 text-base leading-6 tracking-[0.01em] text-marketing-muted">
+            Written words about live wallpapers on Mac.
           </p>
         </header>
 
-        {featured ? (
-          <section aria-label="Featured article" className="mb-12 md:mb-16">
-            <BlogArticleCard article={featured} featured priority />
-          </section>
-        ) : null}
-
-        {rest.length > 0 ? (
-          <section aria-labelledby="latest-articles-title">
-            <h2
-              id="latest-articles-title"
-              className="mb-6 text-[20px] font-semibold tracking-[-0.02em] text-foreground md:text-[24px]"
-            >
-              Latest
-            </h2>
-            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {rest.map((article, index) => (
-                <BlogArticleCard
-                  key={article.slug}
-                  article={article}
-                  priority={index < 3}
-                />
-              ))}
-            </ul>
-          </section>
+        {articles.length > 0 ? (
+          <ul className="grid grid-cols-1 items-start gap-4 min-[810px]:[grid-template-columns:repeat(auto-fill,minmax(min(380px,100%),1fr))]">
+            {articles.map((article, index) => (
+              <BlogArticleCard
+                key={article.slug}
+                article={article}
+                priority={index < 8}
+              />
+            ))}
+          </ul>
         ) : null}
       </main>
 

@@ -1,10 +1,36 @@
-import { marketingWalkthroughVideoSources } from "@/lib/marketing-assets-urls"
+import {
+  marketingWalkthroughVideoPreloadUrl,
+} from "@/lib/marketing-assets-urls"
+import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 
-/** Preload above-the-fold marketing clips so reserved aspect boxes fill without a late jump. */
+/** Preload above-the-fold marketing clip + warm CDN connection. */
 export function HeroVideoPreload() {
-  const heroSrc = marketingWalkthroughVideoSources()[0]
+  const heroSrc = marketingWalkthroughVideoPreloadUrl()
+  const cdnOrigin = (() => {
+    try {
+      return new URL(getR2PublicBaseUrl()).origin
+    } catch {
+      return null
+    }
+  })()
 
-  return heroSrc ? (
-    <link rel="preload" href={heroSrc} as="video" fetchPriority="high" />
-  ) : null
+  return (
+    <>
+      {cdnOrigin ? (
+        <>
+          <link rel="preconnect" href={cdnOrigin} crossOrigin="anonymous" />
+          <link rel="dns-prefetch" href={cdnOrigin} />
+        </>
+      ) : null}
+      {heroSrc ? (
+        <link
+          rel="preload"
+          href={heroSrc}
+          as="video"
+          type="video/quicktime"
+          fetchPriority="high"
+        />
+      ) : null}
+    </>
+  )
 }

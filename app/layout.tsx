@@ -24,7 +24,8 @@ import {
 } from "@/lib/site-url"
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
-import { Geist, Geist_Mono } from "next/font/google"
+import { geistPixelSquare } from "@/lib/site-fonts"
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -40,6 +41,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-geist-mono",
+})
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-instrument-serif",
 })
 
 const SITE_DESCRIPTION_FALLBACK = `MacWall is the native macOS app for live video wallpapers on your Mac desktop: a curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, intelligent pause on battery and full screen, and optional MacWall Pro for live Lock Screen and Screen Saver wallpapers on ${macwallMinimumMacOSVersion}.`
@@ -214,7 +223,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${geistPixelSquare.variable}`}
       suppressHydrationWarning
     >
       <head>

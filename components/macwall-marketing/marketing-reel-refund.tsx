@@ -129,7 +129,7 @@ function ReelStepCard({
           />
         </div>
 
-        <h2 className="mt-4 text-[18px] font-normal tracking-tight text-foreground">
+        <h2 className="mt-4 font-sans text-[18px] font-normal tracking-tight text-foreground">
           {title}
         </h2>
 

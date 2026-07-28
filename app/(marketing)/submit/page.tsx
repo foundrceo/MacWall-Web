@@ -4,11 +4,7 @@ import MarketingSiteChrome, {
   MARKETING_MAIN_OFFSET_CLASS,
 } from "@/components/macwall-marketing/MarketingSiteChrome"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
-import {
-  MarketingContainer,
-  SectionLead,
-  SectionTitle,
-} from "@/components/macwall-marketing/marketing-primitives"
+import { SubmitRequirements } from "@/components/macwall-marketing/submit-requirements"
 import { SubmitWallpaperForm } from "@/components/macwall-marketing/submit-wallpaper-form"
 import { JsonLd } from "@/components/seo/json-ld"
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
@@ -20,6 +16,7 @@ import {
   openGraphImageAbsoluteUrl,
   openGraphImageSize,
 } from "@/lib/site-url"
+import { cn } from "@/lib/utils"
 
 const PAGE_TITLE = "Submit a Wallpaper"
 const PAGE_DESCRIPTION = `Share your own live wallpaper with the ${macwall.name} community. Upload an MP4, MOV, M4V, or WEBM video and our team will review it for the catalog.`
@@ -64,23 +61,32 @@ export default function SubmitPage() {
     <div className={MARKETING_PAGE_CLASS}>
       <JsonLd payload={jsonLd} />
       <MarketingSiteChrome />
-      <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
-        <section className="py-16 md:py-24">
-          <MarketingContainer>
-            <div className="mx-auto max-w-[640px] text-center">
-              <SectionTitle as="h1">{PAGE_TITLE}</SectionTitle>
-              <SectionLead className="mx-auto mt-4 max-w-[540px] md:mt-5">
+      <main
+        id="main-content"
+        className={cn(
+          "mx-auto w-full max-w-[1360px] px-6 pb-20 sm:px-8 md:pb-24 lg:px-10",
+          MARKETING_MAIN_OFFSET_CLASS,
+          "pt-14 md:pt-16"
+        )}
+      >
+        <div className="lg:grid lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] lg:items-start lg:gap-x-14 xl:grid-cols-[minmax(0,400px)_minmax(0,640px)] xl:gap-x-20">
+          <div className="mb-10 lg:mb-0">
+            <header className="max-w-xl text-left">
+              <h1 className="text-[2.5rem] font-normal leading-[1.1] tracking-[-0.02em] text-foreground">
+                {PAGE_TITLE}
+              </h1>
+              <p className="mt-2 text-base leading-6 tracking-[0.01em] text-marketing-muted">
                 Share a live wallpaper you made or own with the {macwall.name}{" "}
                 community. Add a title, pick a category, and upload your video —
                 we review every submission before it goes live.
-              </SectionLead>
-            </div>
+              </p>
+            </header>
 
-            <div className="mx-auto mt-10 max-w-[560px] md:mt-12">
-              <SubmitWallpaperForm />
-            </div>
-          </MarketingContainer>
-        </section>
+            <SubmitRequirements className="mt-10 hidden lg:block" />
+          </div>
+
+          <SubmitWallpaperForm />
+        </div>
       </main>
       <MacWallMarketingPageEnd showBottomCta={false} />
     </div>

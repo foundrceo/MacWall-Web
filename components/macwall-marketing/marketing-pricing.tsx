@@ -103,7 +103,7 @@ function PricingSecondaryButton({
 
 export default function MacWallMarketingPricingPage() {
   const pricing = useMarketingPricing()
-  const [billing, setBilling] = useState<BillingMode>("permanent")
+  const [billing, setBilling] = useState<BillingMode>("annual")
   const fiveMacOffer = pricing.multiMacOffers.find((offer) => offer.macs === 5)
   const isAnnual = billing === "annual"
   const plans = p.plans
@@ -113,7 +113,10 @@ export default function MacWallMarketingPricingPage() {
       <MarketingSiteChrome />
 
       <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
-        <section className="pt-16 pb-20 md:pt-24 md:pb-28">
+        <section
+          id="india-offer"
+          className="pt-16 pb-20 md:pt-24 md:pb-28"
+        >
           <div className="mx-auto max-w-[1360px] px-6 sm:px-8 lg:px-10">
             <h1 className="text-center text-4xl font-normal tracking-tight text-foreground md:text-5xl">
               {p.pageTitle}

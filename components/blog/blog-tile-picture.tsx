@@ -26,6 +26,9 @@ export function BlogTilePicture({
   const [failed, setFailed] = useState(false)
 
   if (failed || !src) {
+    if (variant === "curated") {
+      return <div className="absolute inset-0 bg-[#f5f5f5]" aria-hidden />
+    }
     return null
   }
 
@@ -37,6 +40,21 @@ export function BlogTilePicture({
         width={120}
         height={120}
         className="viewport-image tile__image tile__image--square"
+        priority={priority}
+        unoptimized={isRemoteBlogTile(src)}
+        onError={() => setFailed(true)}
+      />
+    )
+  }
+
+  if (variant === "curated") {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes="(min-width: 1200px) 410px, (min-width: 810px) 50vw, 100vw"
+        className="size-full object-cover"
         priority={priority}
         unoptimized={isRemoteBlogTile(src)}
         onError={() => setFailed(true)}

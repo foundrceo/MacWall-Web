@@ -15,6 +15,12 @@ export type MarketingMultiMacOffer = {
   checkoutUrl: string
 }
 
+export type MarketingBannerPrice = {
+  label: string
+  price: string
+  strike: string
+}
+
 export type MarketingPricing = {
   region: PricingRegion
   currency: "usd"
@@ -29,6 +35,7 @@ export type MarketingPricing = {
   buyProAria: string
   bannerHeadline: string
   bannerSubline: string
+  bannerPrices: MarketingBannerPrice[]
   priceLine: string
   pricingHeroLead: string
   pricingPermanentDescription: string
@@ -73,12 +80,20 @@ export function buildMarketingPricing(region: PricingRegion): MarketingPricing {
     getProCta: "Get Pro",
     buyProCta: `Buy permanently for ${permanentPrice}`,
     buyProAria: `Buy a permanent ${macwall.name} Pro license for ${permanentPrice}`,
-    bannerHeadline: isIndia
-      ? "Special pricing for India"
-      : "MacWall Pro now starts at $4.99/year",
-    bannerSubline: isIndia
-      ? `${permanentPrice} permanent or ${annualPrice}/year — automatically applied`
-      : `${permanentPrice} permanent or ${annualPrice}/year`,
+    bannerHeadline: "Limited-time launch pricing",
+    bannerSubline: `Pro ${annualPrice}/yr · Forever ${permanentPrice}`,
+    bannerPrices: [
+      {
+        label: "Pro",
+        price: `${annualPrice}/yr`,
+        strike: "$9.99",
+      },
+      {
+        label: "Forever",
+        price: permanentPrice,
+        strike: "$14.99",
+      },
+    ],
     priceLine: `${permanentPrice} permanent or ${annualPrice} billed annually.`,
     pricingHeroLead: `Choose a permanent ${permanentPrice} license or pay ${annualPrice} annually. Both unlock the full ${macwall.name} Pro experience on up to 3 Macs, and a 5-Mac permanent license is available below.`,
     pricingPermanentDescription: `Pay ${permanentPrice} once and keep Pro on up to 3 Macs permanently, with updates included.`,

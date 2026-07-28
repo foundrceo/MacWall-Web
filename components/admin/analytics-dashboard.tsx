@@ -394,7 +394,7 @@ export function AnalyticsDashboard() {
               <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr] lg:gap-5">
                 <AdminSurface>
                   <AdminSurfaceHeader
-                    title="India audience (INDIA50 promo)"
+                    title="India audience (INDIA promo)"
                     description="Visitors from India tracked via geo + promo funnel"
                   />
                   <AdminSurfaceBody>

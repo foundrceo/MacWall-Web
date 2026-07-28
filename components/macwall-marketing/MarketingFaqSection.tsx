@@ -21,7 +21,7 @@ function FaqAnswer({ question, answer }: Readonly<{ question: string; answer: st
 
 export default function MarketingFaqSection() {
   return (
-    <section className="border-t border-border bg-surface-elevated py-16 md:py-24">
+    <section className="bg-surface-elevated py-16 md:py-24">
       <div className="mx-auto max-w-[1360px] px-6 sm:px-8 lg:px-10">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-[15px] text-marketing-muted">FAQ</p>
