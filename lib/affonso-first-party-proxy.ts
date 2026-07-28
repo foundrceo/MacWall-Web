@@ -55,10 +55,23 @@ export async function proxyAffonsoApi(
     init.body = await request.arrayBuffer()
   }
 
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Accept",
+        "Access-Control-Max-Age": "86400",
+      },
+    })
+  }
+
   const upstream = await fetch(target, init)
   const responseHeaders = new Headers()
   const upstreamType = upstream.headers.get("content-type")
   if (upstreamType) responseHeaders.set("content-type", upstreamType)
+  responseHeaders.set("Access-Control-Allow-Origin", "*")
 
   return new Response(upstream.body, {
     status: upstream.status,
