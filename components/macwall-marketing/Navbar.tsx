@@ -6,7 +6,6 @@ import { useState } from "react"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { MacWallBrandLink } from "@/components/macwall-marketing/MacWallBrandLink"
 import {
-  macwall,
   macwallInstallerLatestPath,
   mailtoSupport,
 } from "@/lib/macwall-site"
