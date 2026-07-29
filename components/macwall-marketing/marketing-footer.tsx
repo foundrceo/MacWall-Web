@@ -11,18 +11,6 @@ import { cn } from "@/lib/utils"
 
 const socialIconClass = "block size-[18px] shrink-0"
 
-function DiscordIcon({ className }: Readonly<{ className?: string }>) {
-  return (
-    <svg
-      className={cn(socialIconClass, className)}
-      viewBox="-1 3 26 18"
-      fill="currentColor"
-      aria-hidden
-    >
-      <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037 12.683 12.683 0 00-.608 1.25 18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
-    </svg>
-  )
-}
 
 function MailIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -133,16 +121,6 @@ export default function MacWallMarketingFooter() {
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href={macwall.discordInvite}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={footerLinkClass}
-                  >
-                    {foot.connect.discord}
-                  </a>
-                </li>
-                <li>
                   <a href={mailtoSupport} className={footerLinkClass}>
                     {macwall.supportEmail}
                   </a>
@@ -179,15 +157,6 @@ export default function MacWallMarketingFooter() {
             <div className="grid w-full grid-cols-2 gap-x-8 sm:gap-x-12 md:grid-cols-4 md:gap-x-10 lg:flex-1 lg:justify-center xl:gap-x-16">
               <div className="col-span-2 md:col-span-1 md:col-start-4">
                 <div className="ml-1 flex items-center gap-2">
-                  <a
-                    href={macwall.discordInvite}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Discord"
-                    className={socialLinkClass}
-                  >
-                    <DiscordIcon />
-                  </a>
                   <a
                     href={mailtoSupport}
                     aria-label={macwall.supportEmail}
