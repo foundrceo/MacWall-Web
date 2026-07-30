@@ -24,12 +24,12 @@ export const LICENSE_PLANS: Record<LicensePlanSlug, LicensePlan> = {
     name: "Pro",
     badge: "3 Macs",
     maxDevices: 3,
-    price: "$7.99",
-    strikePrice: "$9.99",
+    price: "$9.99",
+    strikePrice: null,
     description:
       "Full catalog, Lock Screen video, and lifetime updates on up to 3 personal Macs.",
     featureHighlight: "Best for most people",
-    buyCta: "Buy Pro for $7.99",
+    buyCta: "Buy Pro for $9.99",
   },
   pro_plus: {
     slug: "pro_plus",

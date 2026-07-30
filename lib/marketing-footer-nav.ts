@@ -103,13 +103,13 @@ export function getMarketingFooterSections(
       title: foot.connectTitle,
       links: [
         {
-          label: foot.connect.discord,
-          href: macwall.discordInvite,
-          kind: "external",
-        },
-        {
           label: foot.connect.affiliate,
           href: "/affiliate",
+          kind: "internal",
+        },
+        {
+          label: "Live Support",
+          href: "/support",
           kind: "internal",
         },
       ],

@@ -77,7 +77,7 @@ export const macwallExactCopy = {
   pricing: {
     buyCta: "Get Pro",
     secondaryCta: "Or earn it back free",
-    priceLine: `${macwall.pro.price} one-time (was ${macwall.pro.strikePrice}). No subscription, lifetime updates, up to ${macwall.maxLicensedMacs} Macs — and a Reel earns it all back.`,
+    priceLine: `${macwall.pro.price} one-time. No subscription, lifetime updates, up to ${macwall.maxLicensedMacs} Macs — and a Reel earns it all back.`,
   },
   gallery: {
     kicker: "Gallery",
@@ -171,7 +171,7 @@ export const macwallExactCopy = {
   },
   underFooter: {
     title: "Your desktop deserves better.",
-    body: `Join 1,000+ Mac users running live wallpapers with ${macwall.name}. Download free, then unlock Pro once for ${macwall.pro.price} (was ${macwall.pro.strikePrice}) — lifetime updates, and a single Reel can earn the whole thing back.`,
+    body: `Join 1,000+ Mac users running live wallpapers with ${macwall.name}. Download free, then unlock Pro once for ${macwall.pro.price} — lifetime updates, and a single Reel can earn the whole thing back.`,
     cta: "Get Pro",
   },
   footer: {
@@ -195,7 +195,6 @@ export const macwallExactCopy = {
       terms: "Terms of Service",
     },
     connect: {
-      discord: "Discord Community",
       affiliate: "Affiliate Program",
     },
     org: {
@@ -204,7 +203,7 @@ export const macwallExactCopy = {
     },
     copyrightName: macwall.legalCompanyName,
     disclaimerBullets: [
-      `${macwall.name} Pro is a one-time purchase. The price on this page reflects the current early-bird offer. Make a Reel to qualify for up to 100% back. See Pricing for details.`,
+      `${macwall.name} Pro is a one-time permanent purchase or an annual plan — see Pricing for current options. Make a Reel to qualify for up to 100% back.`,
       "A compatible Mac, recent builds, and network access are required for catalog sync, updates, and online license checks.",
       `Pro features, Lock Screen motion, and catalog depth can differ by region and macOS version. Pro covers up to ${macwall.maxLicensedMacs} Macs; Pro Plus covers up to 5.`,
       `Continued use of ${macwall.name} means you agree to the Terms of Service and Privacy Policy linked in the footer.`,

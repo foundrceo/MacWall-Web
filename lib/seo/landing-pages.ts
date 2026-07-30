@@ -11,7 +11,7 @@ export const downloadPage: SeoContentPage = {
   title: "Download MacWall for Mac",
   headline: "Download MacWall for Mac",
   description:
-    "Download MacWall for macOS. Native live motion wallpapers with hardware decode, menu bar controls, and a curated catalog. One-time $7.99.",
+    "Download MacWall for macOS. Native live motion wallpapers with hardware decode, menu bar controls, and a curated catalog. One-time $9.99.",
   keywords: [
     "macwall download",
     "download live wallpaper mac",
@@ -21,7 +21,7 @@ export const downloadPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "**MacWall** is the native macOS app for live motion wallpapers. Download, install in seconds, and transform your desktop with cinematic video loops. One payment of $7.99 unlocks everything, with lifetime updates and no subscription.",
+      text: "**MacWall** is the native macOS app for live motion wallpapers. Download, install in seconds, and transform your desktop with cinematic video loops. One payment of $9.99 unlocks everything, with lifetime updates and no subscription.",
     },
     {
       type: "h2",
@@ -69,7 +69,7 @@ export const downloadPage: SeoContentPage = {
     {
       question: "How much does MacWall cost?",
       answer:
-        `MacWall is a one-time $7.99 purchase (early bird, normally $9.99) with lifetime updates on up to 3 Macs per license (Pro Plus: 5 Macs). No subscription. Post a Reel with #macwall and earn up to 100% of it back.`,
+        `MacWall is a one-time $9.99 purchase with lifetime updates on up to 3 Macs per license (Pro Plus: 5 Macs). No subscription. Post a Reel with #macwall and earn up to 100% of it back.`,
     },
     {
       question: "Is MacWall safe to install?",
@@ -111,7 +111,7 @@ export const liveWallpaperMacPage: SeoContentPage = {
       type: "ul",
       items: [
         "**Native performance**: SwiftUI + AVFoundation hardware decode",
-        "**Pay once, own it**: $7.99 one-time, never a monthly fee",
+        "**Pay once, own it**: $9.99 one-time, never a monthly fee",
         "**Community catalog**: Nature, Space, Anime, and six more categories",
         "**Your clips**: import any compatible MP4 or MOV",
         "**Menu bar first**: pause, switch, and control without a window",
@@ -132,7 +132,7 @@ export const liveWallpaperMacPage: SeoContentPage = {
     },
     {
       type: "p",
-      text: "Download at macwall.app/download and unlock everything with one $7.99 payment, Lock Screen included. Read our blog for guides, comparisons, and category picks.",
+      text: "Download at macwall.app/download and unlock everything with one $9.99 payment, Lock Screen included. Read our blog for guides, comparisons, and category picks.",
     },
   ],
   faq: [
@@ -258,7 +258,7 @@ export const wallpaperEngineAlternativePage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "Wallpaper Engine has no official Mac app. **MacWall** is the native alternative for video live wallpapers, built for macOS with a growing community catalog. One-time $7.99, cheaper than Wallpaper Engine itself, with lifetime updates.",
+      text: "Wallpaper Engine has no official Mac app. **MacWall** is the native alternative for video live wallpapers, built for macOS with a growing community catalog. One-time $9.99, cheaper than Wallpaper Engine itself, with lifetime updates.",
     },
     {
       type: "h2",
@@ -283,7 +283,7 @@ export const macwallVsBackdropPage: SeoContentPage = {
   title: "Backdrop Alternative for Mac: MacWall",
   headline: "The Backdrop Alternative for Mac",
   description:
-    "Looking for a Backdrop alternative? MacWall costs $2 less, covers up to 3 Macs per license (Pro Plus: 5), and adds community uploads and a Reel refund. Honest side-by-side.",
+    "Looking for a Backdrop alternative? MacWall matches the one-time price, covers up to 3 Macs per license (Pro Plus: 5), and adds community uploads and a Reel refund. Honest side-by-side.",
   keywords: [
     "backdrop alternative mac",
     "backdrop alternative",
@@ -294,7 +294,7 @@ export const macwallVsBackdropPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "Two excellent native apps. **MacWall** wins on value ($7.99 Pro), community uploads, and the Reel refund program. **Backdrop** wins on built-in editor and established library size.",
+      text: "Two excellent native apps. **MacWall** wins on value ($9.99 Pro), community uploads, and the Reel refund program. **Backdrop** wins on built-in editor and established library size.",
     },
     {
       type: "h2",
@@ -303,7 +303,7 @@ export const macwallVsBackdropPage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "MacWall: $7.99 one-time, everything included",
+        "MacWall: $9.99 one-time, everything included",
         "Backdrop: $9.99 one-time",
         `Both: 4K video, multi-monitor, Lock Screen on ${macwallMinimumMacOSVersion}`,
         "MacWall: personal video imports + community catalog",
@@ -321,7 +321,7 @@ export const macwallVsWallperPage: SeoContentPage = {
   title: "Wallper Alternative for Mac: MacWall",
   headline: "The Wallper Alternative for Mac",
   description:
-    `Looking for a Wallper alternative? MacWall costs less, has a bigger community catalog, and brings live Lock Screen wallpapers to ${macwallMinimumMacOSVersion}.`,
+    `Looking for a Wallper alternative? MacWall matches the one-time price, has a bigger community catalog, and brings live Lock Screen wallpapers to ${macwallMinimumMacOSVersion}.`,
   keywords: [
     "wallper alternative",
     "wallper alternative mac",
@@ -333,7 +333,7 @@ export const macwallVsWallperPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "**Wallper** offers SwiftUI playback with a curated library of around 700 loops at $9.99. **MacWall** costs less at $7.99 one-time, adds a larger community catalog, a Reel refund program that can pay the whole license back, and a menu bar-first workflow.",
+      text: "**Wallper** offers SwiftUI playback with a curated library of around 700 loops at $9.99. **MacWall** is also $9.99 one-time, with a larger community catalog, a Reel refund program that can pay the whole license back, and a menu bar-first workflow.",
     },
     {
       type: "h2",
@@ -342,7 +342,7 @@ export const macwallVsWallperPage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "MacWall: $7.99 one-time, everything included, lifetime updates",
+        "MacWall: $9.99 one-time, everything included, lifetime updates",
         "Wallper: $9.99 one-time license",
         "Both: 4K video, Apple Silicon optimized, multi-monitor",
         "MacWall: community uploads + import your own MP4/MOV",
@@ -352,14 +352,14 @@ export const macwallVsWallperPage: SeoContentPage = {
     },
     {
       type: "p",
-      text: "Same one-time pricing model, but MacWall costs $2 less, covers up to 3 Macs per license (Pro Plus: 5), and is the only one that can refund itself through a Reel. For daily menu bar control and multi-category discovery, MacWall is the stronger buy.",
+      text: "Same one-time pricing model. MacWall covers up to 3 Macs per license (Pro Plus: 5), offers annual billing, and can refund itself through a Reel. For daily menu bar control and multi-category discovery, MacWall is the stronger buy.",
     },
   ],
   faq: [
     {
-      question: "Is MacWall cheaper than Wallper?",
+      question: "How does MacWall compare to Wallper on price?",
       answer:
-        "Yes. MacWall is $7.99 one-time (early bird, normally $9.99) versus Wallper's $9.99, with up to 3 Macs per license (Pro Plus: 5). Post a Reel with #macwall and you can earn the full price back.",
+        "Same sticker price ($9.99 one-time), but MacWall includes up to 3 Macs per license (Pro Plus: 5) and a Reel refund that can earn the full price back. Annual billing is also available if you want a lower upfront cost.",
     },
     {
       question: "Which is better for MacBook battery life?",
@@ -375,7 +375,7 @@ export const macwallVsWallspacePage: SeoContentPage = {
   title: "Wallspace Alternative for Mac: MacWall",
   headline: "The Wallspace Alternative for Mac",
   description:
-    `Looking for a Wallspace alternative? MacWall costs less, adds a deeper catalog with community uploads, and brings live Lock Screen wallpapers to ${macwallMinimumMacOSVersion}.`,
+    `Looking for a Wallspace alternative? MacWall adds a deeper catalog with community uploads and brings live Lock Screen wallpapers to ${macwallMinimumMacOSVersion}.`,
   keywords: [
     "wallspace alternative",
     "wallspace alternative mac",
@@ -396,7 +396,7 @@ export const macwallVsWallspacePage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "MacWall: $7.99 one-time, everything included, up to 3 Macs per license (Pro Plus: 5)",
+        "MacWall: $9.99 one-time, everything included, up to 3 Macs per license (Pro Plus: 5)",
         "Wallspace: $8.99 Pro one-time",
         "Both: native Swift, hardware-accelerated 4K, multi-monitor, battery-aware pause",
         "MacWall: 9-category community catalog with search, filters, and likes",
@@ -445,7 +445,7 @@ export const livelyWallpaperMacPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "Searching for **Lively Wallpaper on Mac**? Lively is a popular live wallpaper app, but it's Windows-only and has no macOS version. **MacWall** is the closest native equivalent: desktop video wallpapers, your own MP4 and MOV imports, and a curated community catalog, all for a one-time $7.99.",
+      text: "Searching for **Lively Wallpaper on Mac**? Lively is a popular live wallpaper app, but it's Windows-only and has no macOS version. **MacWall** is the closest native equivalent: desktop video wallpapers, your own MP4 and MOV imports, and a curated community catalog, all for a one-time $9.99.",
     },
     {
       type: "h2",
@@ -454,7 +454,7 @@ export const livelyWallpaperMacPage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "One-time $7.99, no subscription, lifetime updates",
+        "One-time $9.99, no subscription, lifetime updates",
         "Native Swift app, built only for macOS",
         "Import the same video files you used in Lively",
         "Curated 4K catalog across Nature, Space, Anime, and more",
@@ -486,7 +486,7 @@ export const livelyWallpaperMacPage: SeoContentPage = {
     {
       question: "How much does MacWall cost?",
       answer:
-        "MacWall is a one-time $7.99 purchase (early bird, normally $9.99) with lifetime updates on up to 3 Macs per license (Pro Plus: 5 Macs). No subscription, and a Reel with #macwall can earn the full price back.",
+        "MacWall is a one-time $9.99 purchase with lifetime updates on up to 3 Macs per license (Pro Plus: 5 Macs). No subscription, and a Reel with #macwall can earn the full price back.",
     },
   ],
 }
@@ -552,7 +552,7 @@ export function wallpaperCategoryPage(categoryName: string): SeoContentPage {
       {
         question: `How do I get ${categoryName} live wallpapers on my Mac?`,
         answer:
-          "Download MacWall, unlock it with a one-time $7.99 license, and the full catalog including Lock Screen wallpapers is yours, with lifetime updates and no subscription.",
+          "Download MacWall, unlock it with a one-time $9.99 license, and the full catalog including Lock Screen wallpapers is yours, with lifetime updates and no subscription.",
       },
     ],
   }
