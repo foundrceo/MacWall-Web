@@ -6,6 +6,11 @@ This is the marketing + commerce site for MacWall, a native macOS app for cinema
 
 If you just want to try the product, open the link above — no local setup required.
 
+## Download (DMG)
+
+Latest Mac app installer: **[MacWall 2.9 DMG](https://github.com/foundrceo/MacWall-Web/releases/tag/v2.9)**  
+(`MacWall.dmg` on the GitHub Release — or grab it from https://macwall.app/download)
+
 ## Screenshots
 
 Homepage:
