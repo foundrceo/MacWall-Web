@@ -44,7 +44,7 @@ Next.js (App Router), Stripe, Supabase, Vercel, Tailwind / shadcn.
 
 ```bash
 npm install
-cp .env.example .env   # fill in Stripe / Supabase / etc.
+# copy your real secrets into .env (local only — never commit)
 npm run dev
 ```
 
