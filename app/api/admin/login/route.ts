@@ -49,9 +49,10 @@ export async function POST(request: Request) {
       adminSessionCookieOptions()
     )
     return response
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Admin login unavailable"
-    return NextResponse.json({ error: message }, { status: 503 })
+  } catch {
+    return NextResponse.json(
+      { error: "Admin login unavailable" },
+      { status: 503 }
+    )
   }
 }

@@ -151,13 +151,11 @@ export async function POST(request: Request) {
     )
 
     if (error) {
-      return bad(500, error.message)
+      return bad(500, "submit_failed")
     }
 
     return NextResponse.json({ ok: true, uploadId, status: "pending" })
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to register submission"
-    return bad(500, message)
+  } catch {
+    return bad(500, "submit_failed")
   }
 }

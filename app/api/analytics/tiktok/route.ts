@@ -75,17 +75,14 @@ export async function POST(request: Request) {
     })
 
     if (!result.ok && !result.skipped) {
-      return NextResponse.json(
-        { ok: false, error: result.error },
-        { status: 502 }
-      )
+      return NextResponse.json({ ok: false }, { status: 502 })
     }
 
     return NextResponse.json({ ok: true, skipped: result.skipped ?? false })
   } catch (error) {
     if (error instanceof HttpRequestError) {
       return NextResponse.json(
-        { error: error.message },
+        { error: "invalid_request" },
         { status: error.status }
       )
     }

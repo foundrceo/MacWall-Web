@@ -12,10 +12,8 @@ export async function GET() {
   try {
     const target = await r2InstallersPresignGetUrl(DMG_KEY, PRESIGN_SECONDS)
     return NextResponse.redirect(target, 302)
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to presign installer"
-    return new NextResponse(message, {
+  } catch {
+    return new NextResponse("Installer unavailable", {
       status: 502,
       headers: { "Content-Type": "text/plain;charset=utf-8" },
     })

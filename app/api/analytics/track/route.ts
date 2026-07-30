@@ -66,7 +66,7 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof HttpRequestError) {
       return NextResponse.json(
-        { error: error.message },
+        { error: "invalid_request" },
         { status: error.status }
       )
     }
