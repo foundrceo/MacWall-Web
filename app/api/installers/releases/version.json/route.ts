@@ -41,11 +41,9 @@ export async function GET() {
         },
       }
     )
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to read version.json"
+  } catch {
     return NextResponse.json(
-      { error: message },
+      { error: "version_unavailable" },
       { status: 502, headers: { "Cache-Control": "no-store" } }
     )
   }

@@ -10,13 +10,14 @@ export const runtime = "nodejs"
 export const maxDuration = 60
 
 const RATE_LIMIT_WINDOW_MS = 60_000
-const RATE_LIMIT_MAX = 12
+const RATE_LIMIT_MAX = 5
 const checkRateLimit = createInMemoryRateLimiter({
   max: RATE_LIMIT_MAX,
   windowMs: RATE_LIMIT_WINDOW_MS,
 })
 
 const TITLE_MAX = 140
+const THUMB_DATA_URL_MAX_CHARS = 400_000
 
 type AnalyzeRequest = {
   thumbDataUrl?: unknown
@@ -35,8 +36,8 @@ function optionalString(value: unknown, max: number): string {
  * Reuses the same OpenAI vision pipeline as the admin bulk uploader, but is
  * rate limited per IP, requires no admin auth, and only ever accepts a single
  * client-captured thumbnail (never the full video). The OpenAI key stays on
- * the server. Failures are intentionally surfaced as plain errors so the
- * client can fall back to manual entry without blocking the upload.
+ * the server. Failures are intentionally opaque so clients can fall back to
+ * manual entry without leaking provider details.
  */
 export async function POST(request: Request) {
   const ip = clientIpFromRequest(request)
@@ -63,6 +64,12 @@ export async function POST(request: Request) {
   if (!thumbDataUrl) {
     return NextResponse.json({ error: "thumbnail_required" }, { status: 400 })
   }
+  if (
+    !thumbDataUrl.startsWith("data:image/") ||
+    thumbDataUrl.length > THUMB_DATA_URL_MAX_CHARS
+  ) {
+    return NextResponse.json({ error: "invalid_thumbnail" }, { status: 400 })
+  }
 
   try {
     const result = await analyzeWallpaperMetadataBatch([
@@ -86,9 +93,7 @@ export async function POST(request: Request) {
       category: item.category,
       tags: item.tags,
     })
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "analysis_failed"
-    return NextResponse.json({ error: message }, { status: 502 })
+  } catch {
+    return NextResponse.json({ error: "analysis_failed" }, { status: 502 })
   }
 }

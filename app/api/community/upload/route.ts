@@ -102,9 +102,7 @@ export async function POST(request: Request) {
         Date.now() + PRESIGN_EXPIRY_SECONDS * 1000
       ).toISOString(),
     })
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to presign upload"
-    return bad(500, message)
+  } catch {
+    return bad(500, "presign_failed")
   }
 }

@@ -188,9 +188,14 @@ export async function createMacWallCheckoutSession(
 
     return { ok: true, url: session.url }
   } catch (error) {
-    const message =
+    console.error(
+      "[checkout]",
       error instanceof Error ? error.message : "Checkout session failed."
-    console.error("[checkout]", message)
-    return { ok: false, error: message, status: 500 }
+    )
+    return {
+      ok: false,
+      error: "Could not start checkout.",
+      status: 500,
+    }
   }
 }
