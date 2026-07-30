@@ -37,8 +37,9 @@ yarn-error.log*
 pnpm-debug.log*
 *.log
 
-# env files (keep .env.example committed)
+# env files
 .env
+.env.example
 .env*.local
 
 # local deploy / supabase cli artifacts
