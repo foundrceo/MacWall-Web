@@ -61,7 +61,7 @@ export const guideArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "MacWall Pro adds Lock Screen live wallpaper on supported Sonoma and Sequoia builds. One-time purchase, lifetime updates, up to 3 Macs per license (Pro Plus: 5 Macs).",
+        text: "MacWall Pro adds Lock Screen live wallpaper on macOS 26 (Tahoe) and later. One-time purchase, lifetime updates, up to 3 Macs per license (Pro Plus: 5 Macs).",
       },
     ],
   },
@@ -269,7 +269,7 @@ export const guideArticles: BlogArticle[] = [
     title: "Animated Mac Backgrounds Without a Subscription",
     headline: "Animated Desktop Backgrounds Without a Subscription",
     description:
-      "Searching for free animated wallpapers on Mac? Why a one-time $7.99 app beats free Electron tools, and how a Reel can make MacWall free.",
+      "Searching for free animated wallpapers on Mac? Why a one-time $9.99 app beats free Electron tools, and how a Reel can make MacWall free.",
     excerpt:
       "Why pay-once beats free wallpaper tools on Mac, and how to earn the whole price back with a Reel.",
     category: "guides",
@@ -283,7 +283,7 @@ export const guideArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Searching for free animated wallpapers usually lands you on heavy Electron apps, ad-filled sites, or watermarked downloads. **MacWall** takes the honest route: one $7.99 payment, and you own a native macOS app with the full catalog, imports, menu bar controls, multi-display support, and smart pause. No subscription, no ads, lifetime updates.",
+        text: "Searching for free animated wallpapers usually lands you on heavy Electron apps, ad-filled sites, or watermarked downloads. **MacWall** takes the honest route: one $9.99 payment, and you own a native macOS app with the full catalog, imports, menu bar controls, multi-display support, and smart pause. No subscription, no ads, lifetime updates.",
       },
       {
         type: "h2",

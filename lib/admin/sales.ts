@@ -2,7 +2,7 @@ import type { AnalyticsEventRow } from "@/lib/analytics/admin-metrics"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 /** MacWall Pro one-time price (USD). */
-export const PRO_PRICE_USD = 7.99
+export const PRO_PRICE_USD = 9.99
 
 /**
  * Stripe fee estimate: ~2.9% + $0.30 processing.

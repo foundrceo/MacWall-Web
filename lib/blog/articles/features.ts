@@ -66,7 +66,7 @@ export const featureArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "One-time $7.99, not $9.99/month like subscription apps. Lifetime updates on up to 3 Macs (Pro Plus: 5). Make a Reel with #macwall and earn your money back.",
+        text: "One-time $9.99 — not a monthly subscription. Lifetime updates on up to 3 Macs (Pro Plus: 5). Make a Reel with #macwall and earn your money back.",
       },
     ],
   },
@@ -76,7 +76,7 @@ export const featureArticles: BlogArticle[] = [
     title: "Lock Screen Live Wallpaper on macOS (MacWall Pro)",
     headline: "Lock Screen Live Wallpaper on macOS",
     description:
-      "MacWall Pro brings live video motion to your Mac Lock Screen on supported macOS Sonoma and Sequoia builds, with a one-time price and lifetime updates.",
+      "MacWall Pro brings live video motion to your Mac Lock Screen on macOS 26 (Tahoe) and later, with a one-time price and lifetime updates.",
     excerpt:
       "Motion on your Lock Screen, the Pro feature that makes MacWall stand out.",
     category: "features",
@@ -90,7 +90,7 @@ export const featureArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Your desktop is only half the canvas. **MacWall Pro** extends live motion to the Lock Screen on macOS versions where Apple allows custom video backgrounds, including recent Sonoma and Sequoia builds.",
+        text: "Your desktop is only half the canvas. **MacWall Pro** extends live motion to the Lock Screen on macOS 26 (Tahoe) and later, where Apple allows custom video backgrounds.",
       },
       {
         type: "h2",

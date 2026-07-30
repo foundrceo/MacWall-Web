@@ -30,7 +30,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
   const siteId = `${origin}/#website`
   const appId = `${origin}/#softwareapplication`
 
-  const proPriceUsd = macwall.pro.price.replace(/[^\d.]/g, "") || "7.99"
+  const proPriceUsd = macwall.pro.price.replace(/[^\d.]/g, "") || "9.99"
 
   return {
     "@context": "https://schema.org",

@@ -45,7 +45,7 @@ export const comparisonArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "MacWall checks every box above. It feels like Apple software: quiet background operation, crisp UI, and intelligent pause rules. The catalog spans Nature, Space, Anime, and more, plus you can import anything. Pro adds Lock Screen motion on Sonoma and Sequoia for a single $7.99 payment.",
+        text: "MacWall checks every box above. It feels like Apple software: quiet background operation, crisp UI, and intelligent pause rules. The catalog spans Nature, Space, Anime, and more, plus you can import anything. Pro adds Lock Screen motion on macOS 26 (Tahoe) and later for a single $9.99 payment.",
       },
       {
         type: "h2",
@@ -61,7 +61,7 @@ export const comparisonArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Get MacWall for a one-time $7.99, everything included, Lock Screen and all, with lifetime updates. For Wallpaper Engine migrants, read our dedicated alternative guide first.",
+        text: "Get MacWall for a one-time $9.99, everything included, Lock Screen and all, with lifetime updates. For Wallpaper Engine migrants, read our dedicated alternative guide first.",
       },
     ],
   },
@@ -147,7 +147,7 @@ export const comparisonArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          "Early-bird Pro at $7.99 one-time (vs Backdrop at $9.99)",
+          "Pro at $9.99 one-time (same ballpark as Backdrop), with a Reel refund path",
           "Community uploads and personal imports",
           "Reel refund program, earn up to 100% back",
           "Menu bar-first controls that mirror real Mac utilities",
@@ -172,7 +172,7 @@ export const comparisonArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Both are one-time purchases, but MacWall costs $2 less, covers up to 3 Macs per license (Pro Plus: 5), and can refund itself through a Reel. If you want the best value, community-driven catalog, and a native app that feels built for your Mac, **MacWall** is the pick. If you need an in-app editor above all else, Backdrop remains excellent.",
+        text: "Both are one-time purchases at similar prices. MacWall covers up to 3 Macs per license (Pro Plus: 5), and can refund itself through a Reel. If you want the best value, community-driven catalog, and a native app that feels built for your Mac, **MacWall** is the pick. If you need an in-app editor above all else, Backdrop remains excellent.",
       },
     ],
   },
@@ -238,18 +238,18 @@ export const comparisonArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "**Wallper** is a curated live wallpaper app with roughly 700 loops at $9.99. **MacWall** costs less at $7.99 one-time and adds a community-driven catalog across 9 categories, video imports, and a refund program that can pay the license back. Here's the honest breakdown.",
+        text: "**Wallper** is a curated live wallpaper app with roughly 700 loops at $9.99. **MacWall** is also $9.99 one-time and adds a community-driven catalog across 9 categories, video imports, and a refund program that can pay the license back. Here's the honest breakdown.",
       },
       { type: "h2", text: "Quick verdict" },
       {
         type: "p",
-        text: "**MacWall wins for most users.** It costs $2 less, covers up to 3 Macs per license (Pro Plus: 5), pauses intelligently to protect battery and CPU, and, critically, its Lock Screen and Screen Saver integration keeps working on the new **macOS 27 beta**, where many competitor apps currently break.",
+        text: "**MacWall wins for most users.** It matches Wallper's $9.99 price, covers up to 3 Macs per license (Pro Plus: 5), pauses intelligently to protect battery and CPU, and ships Lock Screen and Screen Saver integration that keeps working through recent Apple wallpaper API changes.",
       },
       { type: "h2", text: "Feature comparison" },
       {
         type: "ul",
         items: [
-          "**Price**: MacWall is $7.99 one-time (early bird). Wallper is $9.99 one-time.",
+          "**Price**: Both are $9.99 one-time. MacWall also offers annual billing and a Reel refund.",
           "**Catalog**: MacWall offers community uploads plus curated lanes across 9 categories, ranked by likes. Wallper has ~700 curated loops.",
           "**Imports**: both support MP4/MOV imports; MacWall adds GIF.",
           "**Macs covered**: Pro — up to 3 Macs; Pro Plus — up to 5 Macs.",
@@ -271,7 +271,7 @@ export const comparisonArticles: BlogArticle[] = [
       { type: "h2", text: "Bottom line" },
       {
         type: "p",
-        text: "MacWall is a single $7.99 payment for everything, and a Reel with #macwall can earn it all back. Cheaper than Wallper, up to 3 Macs per license (Pro Plus: 5), and it's the only one working on the macOS 27 beta Lock Screen.",
+        text: "MacWall is a single $9.99 payment for everything, and a Reel with #macwall can earn it all back. Same sticker price as Wallper, up to 3 Macs per license (Pro Plus: 5), and dedicated Lock Screen support on macOS 26 (Tahoe) and later betas.",
       },
     ],
   },
@@ -302,13 +302,13 @@ export const comparisonArticles: BlogArticle[] = [
       { type: "h2", text: "Quick verdict" },
       {
         type: "p",
-        text: "**MacWall wins on depth and compatibility.** Both are lightweight native apps, but MacWall costs less ($7.99 vs $8.99), includes far more in that one payment, and its Lock Screen integration ships dedicated macOS 27 beta support, where competitors' Lock Screen features broke after the latest Apple beta.",
+        text: "**MacWall wins on depth and compatibility.** Both are lightweight native apps. MacWall is $9.99 vs Wallspace's $8.99, but includes far more in that one payment, and its Lock Screen integration ships dedicated macOS 26 (Tahoe) support, where competitors' Lock Screen features broke after recent Apple betas.",
       },
       { type: "h2", text: "Side by side" },
       {
         type: "ul",
         items: [
-          "**Price**: MacWall Pro $7.99 one-time vs Wallspace Pro $8.99 one-time",
+          "**Price**: MacWall Pro $9.99 one-time vs Wallspace Pro $8.99 one-time",
           "**Catalog**: MacWall: community catalog, 9 categories, search, likes. Wallspace: smaller built-in set",
           "**Lock Screen**: both target macOS 26+; MacWall adds explicit macOS 27 beta fixes",
           "**Extras MacWall has**: playlists, music sync (Apple Music/Spotify gradients), per-display controls, synced multi-monitor playback, menu bar Now Playing preview",
@@ -343,7 +343,7 @@ export const comparisonArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "**Lively Wallpaper** is the go-to free live wallpaper app on Windows, but it has no Mac version and never will. **MacWall** is its natural macOS counterpart: desktop video wallpapers, your own imports, and a community catalog, all in a native Swift app for a one-time $7.99.",
+        text: "**Lively Wallpaper** is the go-to free live wallpaper app on Windows, but it has no Mac version and never will. **MacWall** is its natural macOS counterpart: desktop video wallpapers, your own imports, and a community catalog, all in a native Swift app for a one-time $9.99.",
       },
       { type: "h2", text: "Feature mapping for switchers" },
       {

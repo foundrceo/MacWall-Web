@@ -51,7 +51,7 @@ function fireGoogleCheckoutAbandonment(): void {
   window.gtag("event", "checkout_abandoned", {
     send_to: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
     currency: "USD",
-    value: 7.99,
+    value: 9.99,
     items: [{ item_id: "macwall-pro", item_name: "MacWall Pro" }],
   })
 }

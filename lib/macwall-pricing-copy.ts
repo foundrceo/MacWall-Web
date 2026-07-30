@@ -105,7 +105,6 @@ export const macwallPricingCopy = {
 
   proPlus: {
     features: [
-      "Everything in Pro",
       "Use on up to 5 Macs",
       "Best value for creators & studios",
       "Lower per-Mac price",
