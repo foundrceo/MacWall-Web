@@ -1,14 +1,9 @@
-/** Shipped default when env vars are unset. Set empty to disable. */
-export const TIKTOK_PIXEL_ID_FALLBACK = "YOUR_TIKTOK_PIXEL_ID" as const
-
 export function resolveTikTokPixelId(): string | undefined {
   const server = process.env.TIKTOK_PIXEL_ID?.trim()
   if (server) return server
 
-  const raw = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID
-  if (raw === undefined) return TIKTOK_PIXEL_ID_FALLBACK
-  const trimmed = raw.trim()
-  return trimmed.length > 0 ? trimmed : undefined
+  const raw = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID?.trim()
+  return raw && raw.length > 0 ? raw : undefined
 }
 
 export function resolveTikTokEventsApiAccessToken(): string | undefined {

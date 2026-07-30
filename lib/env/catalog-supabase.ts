@@ -1,19 +1,17 @@
 /**
  * Public Supabase catalog env — URL is safe to expose (NEXT_PUBLIC_*).
  * No service keys; aligns with anon Storage reads on the macOS app / marketing clips.
+ * Values come from env only (no baked-in project IDs for open-source safety).
  */
 
-export const CATALOG_SUPABASE_DEFAULT_ORIGIN =
-  "https://YOUR_SUPABASE_PROJECT_REF.supabase.co" as const
-
 /** Validated HTTPS project origin for catalog + Storage URLs. */
-export function getCatalogSupabaseOrigin(): string {
+export function getCatalogSupabaseOrigin(): string | null {
   const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
-  if (!raw?.startsWith("https://")) return CATALOG_SUPABASE_DEFAULT_ORIGIN
+  if (!raw?.startsWith("https://")) return null
   try {
     return new URL(raw).origin
   } catch {
-    return CATALOG_SUPABASE_DEFAULT_ORIGIN
+    return null
   }
 }
 

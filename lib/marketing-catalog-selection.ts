@@ -73,6 +73,9 @@ export async function fetchMarketingCatalogRows(): Promise<
   MarketingCatalogWallpaperRow[]
 > {
   const origin = getCatalogSupabaseOrigin()
+  if (!origin) {
+    throw new Error("NEXT_PUBLIC_SUPABASE_URL is required for catalog reads.")
+  }
   const key = getCatalogSupabaseAnonKey()
   const params = new URLSearchParams({
     select:
@@ -106,6 +109,9 @@ export async function fetchLatestMarketingCatalogRows(): Promise<
   MarketingCatalogWallpaperRow[]
 > {
   const origin = getCatalogSupabaseOrigin()
+  if (!origin) {
+    throw new Error("NEXT_PUBLIC_SUPABASE_URL is required for catalog reads.")
+  }
   const key = getCatalogSupabaseAnonKey()
   const params = new URLSearchParams({
     select:
