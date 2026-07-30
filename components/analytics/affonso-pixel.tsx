@@ -4,7 +4,7 @@ import {
   AFFONSO_COOKIE_DURATION_DAYS,
   AFFONSO_FIRST_PARTY_BASE,
   AFFONSO_PIXEL_SRC,
-  AFFONSO_PROGRAM_ID,
+  getAffonsoProgramId,
 } from "@/lib/macwall-affiliate"
 
 /**
@@ -14,12 +14,15 @@ import {
  * @see https://affonso.io/help/installation-guides/proxy-setup/pixel-tracking-proxy
  */
 export function AffonsoPixel() {
+  const programId = getAffonsoProgramId()
+  if (!programId) return null
+
   return (
     <Script
       id="affonso-pixel"
       src={AFFONSO_PIXEL_SRC}
       strategy="afterInteractive"
-      data-affonso={AFFONSO_PROGRAM_ID}
+      data-affonso={programId}
       data-cookie_duration={String(AFFONSO_COOKIE_DURATION_DAYS)}
       data-api-base={AFFONSO_FIRST_PARTY_BASE}
     />

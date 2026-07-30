@@ -22,8 +22,16 @@ export default async function MarketingLayout({
       <div className="dark min-h-screen bg-background text-foreground">
         <link rel="preconnect" href={mediaOrigin} crossOrigin="anonymous" />
         <link rel="dns-prefetch" href={mediaOrigin} />
-        <link rel="preconnect" href={catalogOrigin} crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href={catalogOrigin} />
+        {catalogOrigin ? (
+          <>
+            <link
+              rel="preconnect"
+              href={catalogOrigin}
+              crossOrigin="anonymous"
+            />
+            <link rel="dns-prefetch" href={catalogOrigin} />
+          </>
+        ) : null}
         <HeroVideoPreload />
         {children}
       </div>

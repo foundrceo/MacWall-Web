@@ -69,14 +69,10 @@ const gaId =
     ? gaMeasurementId
     : undefined
 
-/** Shipped default when `NEXT_PUBLIC_AHREFS_WEB_ANALYTICS_KEY` is unset. Set the env empty to disable. */
-const AHREFS_WEB_ANALYTICS_KEY_FALLBACK = "YOUR_AHREFS_ANALYTICS_KEY" as const
-
+/** Ahrefs Web Analytics key from env only (no baked-in production fallback). */
 function resolveAhrefsWebAnalyticsKey(): string | undefined {
-  const raw = process.env.NEXT_PUBLIC_AHREFS_WEB_ANALYTICS_KEY
-  if (raw === undefined) return AHREFS_WEB_ANALYTICS_KEY_FALLBACK
-  const trimmed = raw.trim()
-  return trimmed.length > 0 ? trimmed : undefined
+  const trimmed = process.env.NEXT_PUBLIC_AHREFS_WEB_ANALYTICS_KEY?.trim()
+  return trimmed && trimmed.length > 0 ? trimmed : undefined
 }
 
 const ahrefsWebAnalyticsKey =

@@ -1,5 +1,8 @@
-/** Affonso affiliate program — pixel + Stripe attribution. */
-export const AFFONSO_PROGRAM_ID = "YOUR_AFFONSO_PROGRAM_ID" as const
+/** Affonso affiliate program — pixel + Stripe attribution (env only). */
+export function getAffonsoProgramId(): string | undefined {
+  const id = process.env.NEXT_PUBLIC_AFFONSO_PROGRAM_ID?.trim()
+  return id && id.length > 0 ? id : undefined
+}
 
 export const AFFONSO_COOKIE_DURATION_DAYS = 30 as const
 
