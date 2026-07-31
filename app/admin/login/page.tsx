@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { Suspense } from "react"
 
 import { AdminLoginForm } from "@/components/admin/admin-login-form"
+import { Skeleton } from "@/components/ui/skeleton"
 import { isAdminAuthenticated } from "@/lib/admin/auth"
 
 type AdminLoginPageProps = {
@@ -22,7 +23,13 @@ export default async function AdminLoginPage({
   }
 
   return (
-    <Suspense fallback={<p className="p-8 text-sm text-[#86868b]">Loading…</p>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-svh items-center justify-center px-4 py-12">
+          <Skeleton className="h-80 w-full max-w-sm rounded-2xl" />
+        </div>
+      }
+    >
       <AdminLoginForm nextPath={nextPath} />
     </Suspense>
   )
