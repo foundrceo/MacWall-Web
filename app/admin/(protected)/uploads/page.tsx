@@ -3,7 +3,7 @@
 /**
  * Uploads — community submission review plus the bulk catalog uploader.
  * The review queue lives inline here; the uploader keeps its own file because
- * it is a self-contained pipeline (chunking, thumbnails, retries).
+ * it is a self-contained pipeline (parallel multipart R2 uploads, thumbnails, retries).
  */
 
 import { useCallback, useEffect, useRef, useState } from "react"
