@@ -1,104 +1,110 @@
-import type {
-  ButtonHTMLAttributes,
-  InputHTMLAttributes,
-  ReactNode,
-} from "react"
+import type { ReactNode } from "react"
 
 import { MacWallAppIcon } from "@/components/macwall-app-icon"
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
-const iconSizes = {
-  sm: 20,
-  md: 32,
-  lg: 56,
-} as const
+const iconSizes = { sm: 22, md: 32, lg: 56 } as const
 
 export function AdminAppIcon({
   size = "sm",
   className,
 }: Readonly<{ size?: keyof typeof iconSizes; className?: string }>) {
-  const px = iconSizes[size]
   return (
     <MacWallAppIcon
-      size={px}
+      size={iconSizes[size]}
       className={className}
       priority={size === "lg"}
     />
   )
 }
 
-export function AdminAppMark({
-  subtitle,
-  iconSize = "sm",
-}: Readonly<{ subtitle?: string; iconSize?: keyof typeof iconSizes }>) {
+export function AdminAppMark({ subtitle }: Readonly<{ subtitle?: string }>) {
   return (
     <div className="flex min-w-0 items-center gap-2.5">
-      <AdminAppIcon size={iconSize} />
-      <div className="min-w-0">
-        <p className="truncate text-[14px] font-medium tracking-[-0.01em] text-[#1d1d1f]">
+      <AdminAppIcon />
+      <div className="min-w-0 leading-tight">
+        <p className="truncate text-sm font-semibold text-[var(--admin-fg)]">
           {macwall.name}
         </p>
         {subtitle ? (
-          <p className="truncate text-[12px] text-[#86868b]">{subtitle}</p>
+          <p className="truncate text-xs text-[var(--admin-muted)]">
+            {subtitle}
+          </p>
         ) : null}
       </div>
     </div>
   )
 }
 
-export function AdminSurface({
+/* --- Badges --------------------------------------------------------------
+ * A single tone scale so status colours never drift between pages.
+ * ---------------------------------------------------------------------- */
+
+export type Tone = "neutral" | "blue" | "green" | "amber" | "red" | "violet"
+
+const toneClass: Record<Tone, string> = {
+  neutral: "bg-[var(--admin-fill)] text-[var(--admin-fg-soft)]",
+  blue: "bg-[var(--admin-blue-soft)] text-[var(--admin-blue)]",
+  green: "bg-[var(--admin-green-soft)] text-[var(--admin-green)]",
+  amber: "bg-[var(--admin-amber-soft)] text-[var(--admin-amber)]",
+  red: "bg-[var(--admin-red-soft)] text-[var(--admin-red)]",
+  violet: "bg-[#f1efff] text-[var(--admin-violet)]",
+}
+
+export function AdminBadge({
+  tone = "neutral",
   className,
   children,
-}: Readonly<{ className?: string; children: ReactNode }>) {
+}: Readonly<{ tone?: Tone; className?: string; children: ReactNode }>) {
   return (
-    <div
+    <Badge
+      variant="secondary"
       className={cn(
-        "rounded-[20px] bg-white",
+        "rounded-md px-1.5 font-medium",
+        toneClass[tone],
         className
       )}
     >
       {children}
-    </div>
+    </Badge>
   )
 }
 
-export function AdminFadeIn({
-  children,
-  className,
-  delay = 0,
-}: Readonly<{
-  children: ReactNode
-  className?: string
-  delay?: number
-}>) {
+/** Small coloured dot — for inline live/idle status next to a label. */
+export function AdminStatusDot({
+  tone = "neutral",
+  pulse,
+}: Readonly<{ tone?: Tone; pulse?: boolean }>) {
+  const dot: Record<Tone, string> = {
+    neutral: "bg-[var(--admin-border-strong)]",
+    blue: "bg-[var(--admin-blue)]",
+    green: "bg-[var(--admin-green)]",
+    amber: "bg-[var(--admin-amber)]",
+    red: "bg-[var(--admin-red)]",
+    violet: "bg-[var(--admin-violet)]",
+  }
   return (
-    <div
-      className={cn("admin-fade-in", className)}
-      style={delay > 0 ? { animationDelay: `${delay}ms` } : undefined}
-    >
-      {children}
-    </div>
+    <span className="relative flex size-1.5 shrink-0">
+      {pulse ? (
+        <span
+          className={cn(
+            "absolute inline-flex size-full animate-ping rounded-full opacity-60",
+            dot[tone]
+          )}
+        />
+      ) : null}
+      <span className={cn("inline-flex size-1.5 rounded-full", dot[tone])} />
+    </span>
   )
 }
 
-export function AdminToolbar({
-  children,
-  className,
-}: Readonly<{ children: ReactNode; className?: string }>) {
-  return (
-    <div
-      className={cn(
-        "flex flex-wrap items-center gap-2 sm:gap-2.5",
-        className
-      )}
-    >
-      {children}
-    </div>
-  )
-}
+/* --- Structure ----------------------------------------------------------- */
 
-export function AdminSurfaceHeader({
+export function SectionHeading({
   title,
   description,
   action,
@@ -112,317 +118,218 @@ export function AdminSurfaceHeader({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-start justify-between gap-3 px-5 pt-5 sm:px-6 sm:pt-6",
+        "flex flex-wrap items-end justify-between gap-x-4 gap-y-2",
         className
       )}
     >
-      <div>
-        <h2 className="text-[17px] font-semibold tracking-[-0.022em] text-[#1d1d1f]">
+      <div className="min-w-0">
+        <h2 className="text-[15px] font-semibold text-[var(--admin-fg)]">
           {title}
         </h2>
         {description ? (
-          <p className="mt-1 text-[14px] leading-snug text-[#86868b]">
+          <p className="mt-0.5 text-[13px] text-[var(--admin-muted)]">
             {description}
           </p>
         ) : null}
       </div>
-      {action}
+      {action ? <div className="shrink-0">{action}</div> : null}
     </div>
   )
 }
 
-export function AdminSurfaceBody({
-  className,
-  children,
-}: Readonly<{ className?: string; children: ReactNode }>) {
-  return (
-    <div className={cn("px-5 pt-3 pb-5 sm:px-6 sm:pt-4 sm:pb-6", className)}>
-      {children}
-    </div>
-  )
-}
-
-export function AdminPageIntro({
+/** Card header used by every panel — title left, optional action right. */
+export function PanelHeader({
   title,
   description,
-}: Readonly<{ title: string; description?: string }>) {
-  return (
-    <div className="mb-6 sm:mb-8">
-      <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-[#1d1d1f] sm:text-[32px] md:text-[40px]">
-        {title}
-      </h1>
-      {description ? (
-        <p className="mt-2 max-w-2xl text-[15px] leading-snug text-[#86868b] sm:text-[17px]">
-          {description}
-        </p>
-      ) : null}
-    </div>
-  )
-}
-
-const buttonBase =
-  "inline-flex items-center justify-center rounded-full font-normal transition-all duration-200 ease-out outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)] focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-45 disabled:active:scale-100"
-
-const buttonSizes = {
-  sm: "min-h-[32px] px-4 text-[12px]",
-  md: "min-h-[36px] px-5 text-[14px]",
-  lg: "min-h-[44px] px-[22px] text-[17px] tracking-[-0.022em]",
-} as const
-
-export function AdminButton({
-  variant = "primary",
-  size = "md",
-  className,
-  children,
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "secondary" | "ghost" | "danger"
-  size?: keyof typeof buttonSizes
-}) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        buttonBase,
-        buttonSizes[size],
-        variant === "primary" &&
-          "bg-[var(--admin-blue)] text-white hover:bg-[var(--admin-blue-hover)]",
-        variant === "secondary" &&
-          "bg-[#f5f5f7] text-[#1d1d1f] hover:bg-[#e8e8ed]",
-        variant === "ghost" &&
-          "bg-transparent text-[#1d1d1f]/70 hover:bg-[#f5f5f7] hover:text-[#1d1d1f]",
-        variant === "danger" &&
-          "bg-[#ff3b30]/12 text-[#ff3b30] hover:bg-[#ff3b30]/18",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </button>
-  )
-}
-
-export function AdminPill({
-  active,
-  children,
-  className,
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { active?: boolean }) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        buttonBase,
-        "min-h-[32px] gap-1.5 px-4 text-[13px]",
-        active
-          ? "bg-[#1d1d1f] text-white"
-          : "bg-[#f5f5f7] text-[#1d1d1f]/75 hover:bg-[#e8e8ed] hover:text-[#1d1d1f]",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </button>
-  )
-}
-
-export function AdminInput({
-  className,
-  ...props
-}: InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      className={cn(
-        "h-11 w-full rounded-full bg-[#f5f5f7] px-5 text-[15px] text-[#1d1d1f] transition-all duration-200 outline-none placeholder:text-[#86868b] focus:bg-[#ebebed] focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-export function AdminTextarea({
-  className,
-  ...props
-}: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return (
-    <textarea
-      className={cn(
-        "min-h-24 w-full rounded-2xl bg-[#f5f5f7] px-4 py-3 text-[15px] text-[#1d1d1f] transition-all duration-200 outline-none placeholder:text-[#86868b] focus:bg-[#ebebed] focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-export function AdminLabel({
-  htmlFor,
-  children,
-}: Readonly<{ htmlFor?: string; children: ReactNode }>) {
-  return (
-    <label
-      htmlFor={htmlFor}
-      className="text-[13px] font-medium text-[#1d1d1f]/80"
-    >
-      {children}
-    </label>
-  )
-}
-
-export function AdminBadge({
-  tone = "neutral",
-  children,
+  action,
   className,
 }: Readonly<{
-  tone?: "neutral" | "blue" | "green" | "amber" | "red"
-  children: ReactNode
+  title: string
+  description?: string
+  action?: ReactNode
   className?: string
 }>) {
   return (
-    <span
+    <div
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium",
-        tone === "neutral" && "bg-[#f5f5f7] text-[#1d1d1f]/80",
-        tone === "blue" && "bg-[#0071e3]/10 text-[#0071e3]",
-        tone === "green" && "bg-[#34c759]/12 text-[#248a3d]",
-        tone === "amber" && "bg-[#ff9500]/12 text-[#c93400]",
-        tone === "red" && "bg-[#ff3b30]/12 text-[#d70015]",
+        // min-h matches a header holding a 36px control, so panel headers sitting
+        // side by side line up whether they hold text or a segmented control
+        "flex min-h-16 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--admin-border)] px-5 py-3",
         className
       )}
     >
-      {children}
-    </span>
+      <div className="min-w-0">
+        <h3 className="text-sm font-semibold text-[var(--admin-fg)]">
+          {title}
+        </h3>
+        {description ? (
+          <p className="mt-1 text-[13px] leading-relaxed text-[var(--admin-muted)]">
+            {description}
+          </p>
+        ) : null}
+      </div>
+      {action ? <div className="shrink-0">{action}</div> : null}
+    </div>
   )
 }
 
-export function AdminMetricTile({
+/* --- Metrics -------------------------------------------------------------- */
+
+export function StatCard({
   label,
   value,
   hint,
   icon,
+  trend,
+  className,
 }: Readonly<{
   label: string
   value: number | string
   hint?: string
   icon?: ReactNode
+  trend?: { value: number; label?: string }
+  className?: string
 }>) {
+  const trendUp = (trend?.value ?? 0) >= 0
   return (
-    <div className="rounded-[20px] bg-white p-4 sm:p-5">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-[12px] font-medium text-[#86868b] sm:text-[13px]">
+    <Card className={cn("gap-0 rounded-xl p-4", className)}>
+      <div className="flex items-center justify-between gap-2">
+        <p className="truncate text-[13px] font-medium text-[var(--admin-muted)]">
           {label}
         </p>
-        {icon}
+        {icon ? (
+          <span className="shrink-0 text-[var(--admin-muted)]">{icon}</span>
+        ) : null}
       </div>
-      <p className="mt-2 text-[28px] font-semibold tracking-[-0.03em] text-[#1d1d1f] tabular-nums sm:text-[32px]">
-        {typeof value === "number" ? value.toLocaleString() : value}
-      </p>
+      <div className="mt-2 flex items-baseline gap-2">
+        <p className="text-2xl leading-none font-semibold tracking-tight text-[var(--admin-fg)] tabular-nums">
+          {typeof value === "number" ? value.toLocaleString() : value}
+        </p>
+        {trend ? (
+          <span
+            className={cn(
+              "text-xs font-medium tabular-nums",
+              trendUp ? "text-[var(--admin-green)]" : "text-[var(--admin-red)]"
+            )}
+          >
+            {trendUp ? "+" : "−"}
+            {Math.abs(trend.value)}%
+          </span>
+        ) : null}
+      </div>
       {hint ? (
-        <p className="mt-1.5 text-[12px] text-[#86868b]">{hint}</p>
+        <p className="mt-1.5 truncate text-xs text-[var(--admin-muted)]">
+          {hint}
+        </p>
       ) : null}
-    </div>
+    </Card>
   )
 }
 
-export function AdminSectionHeading({
-  eyebrow,
-  title,
-  icon,
-}: Readonly<{ eyebrow: string; title: string; icon?: ReactNode }>) {
+export function StatCardSkeleton() {
   return (
-    <div>
-      <p className="text-[12px] font-medium tracking-wide text-[#86868b] uppercase">
-        {eyebrow}
-      </p>
-      <h2 className="mt-1 flex items-center gap-2 text-[19px] font-semibold tracking-[-0.022em] text-[#1d1d1f] sm:text-[21px]">
-        {icon}{title}
-      </h2>
-    </div>
+    <Card className="gap-0 rounded-xl p-4">
+      <Skeleton className="h-3.5 w-24 rounded-md" />
+      <Skeleton className="mt-3 h-6 w-16 rounded-md" />
+      <Skeleton className="mt-2.5 h-3 w-28 rounded-md" />
+    </Card>
   )
 }
 
-export function AdminNotice({
-  tone = "info",
-  children,
+/* --- Avatar --------------------------------------------------------------- */
+
+const avatarPalette = [
+  "bg-[#eaf3ff] text-[#0060c0]",
+  "bg-[#e7f6ed] text-[#17864a]",
+  "bg-[#fdf3e6] text-[#b54708]",
+  "bg-[#f1efff] text-[#5f52d6]",
+  "bg-[#fdecec] text-[#c0322b]",
+  "bg-[#e6f6f7] text-[#0e7490]",
+]
+
+function hashString(value: string) {
+  let hash = 0
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(i)
+    hash |= 0
+  }
+  return Math.abs(hash)
+}
+
+export function initialsFromName(name?: string | null) {
+  const trimmed = name?.trim()
+  if (!trimmed) return "?"
+  const parts = trimmed.split(/\s+/).slice(0, 2)
+  return parts.map((part) => part[0]?.toUpperCase() ?? "").join("") || "?"
+}
+
+export function AdminAvatar({
+  name,
+  size = "md",
+  className,
 }: Readonly<{
-  tone?: "info" | "success" | "warning"
-  children: ReactNode
+  name?: string | null
+  size?: "sm" | "md" | "lg"
+  className?: string
 }>) {
+  const palette =
+    avatarPalette[hashString(name?.trim() || "anon") % avatarPalette.length]
+  return (
+    <span
+      className={cn(
+        "flex shrink-0 items-center justify-center rounded-full font-semibold select-none",
+        palette,
+        size === "sm" && "size-7 text-[11px]",
+        size === "md" && "size-9 text-xs",
+        size === "lg" && "size-10 text-sm",
+        className
+      )}
+    >
+      {initialsFromName(name)}
+    </span>
+  )
+}
+
+/* --- Misc ----------------------------------------------------------------- */
+
+export function AdminFadeIn({
+  children,
+  className,
+  delay = 0,
+}: Readonly<{ children: ReactNode; className?: string; delay?: number }>) {
   return (
     <div
-      className={cn(
-        "flex items-start gap-2.5 rounded-2xl px-4 py-3 text-[14px] leading-snug",
-        tone === "info" && "bg-[#f5f5f7] text-[#1d1d1f]/80",
-        tone === "success" && "bg-[#34c759]/10 text-[#248a3d]",
-        tone === "warning" && "bg-[#ff9500]/10 text-[#9a3412]"
-      )}
+      className={cn("admin-fade-in", className)}
+      style={delay > 0 ? { animationDelay: `${delay}ms` } : undefined}
     >
       {children}
     </div>
   )
 }
 
-export function AdminRowListItem({
-  active,
-  title,
-  meta,
-  badge,
-  onClick,
-}: Readonly<{
-  active?: boolean
-  title: string
-  meta?: ReactNode
-  badge?: ReactNode
-  onClick?: () => void
-}>) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "w-full rounded-2xl px-3.5 py-3 text-left transition-colors duration-200",
-        active ? "bg-[#0071e3]/10" : "bg-[#f5f5f7] hover:bg-[#ebebed]"
-      )}
-    >
-      <p className="truncate text-[14px] font-medium text-[#1d1d1f]">{title}</p>
-      {meta || badge ? (
-        <div className="mt-1.5 flex items-center gap-2">
-          {meta}
-          {badge}
-        </div>
-      ) : null}
-    </button>
-  )
-}
-
+/** Key/value pair used in detail panels. */
 export function AdminInfoGrid({
   items,
-}: Readonly<{ items: Array<{ label: string; value: string }> }>) {
+  columns = 2,
+}: Readonly<{
+  items: Array<{ label: string; value: ReactNode }>
+  columns?: 2 | 3
+}>) {
   return (
-    <div className="grid gap-2.5 sm:grid-cols-2">
+    <dl
+      className={cn(
+        "grid gap-x-6 gap-y-4",
+        columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"
+      )}
+    >
       {items.map((item) => (
-        <div
-          key={item.label}
-          className="rounded-2xl bg-[#f5f5f7] px-3.5 py-2.5"
-        >
-          <p className="text-[12px] text-[#86868b]">{item.label}</p>
-          <p className="mt-0.5 text-[14px] font-medium text-[#1d1d1f]">
+        <div key={item.label} className="min-w-0">
+          <dt className="text-xs text-[var(--admin-muted)]">{item.label}</dt>
+          <dd className="mt-1 truncate text-[13px] font-medium text-[var(--admin-fg)]">
             {item.value}
-          </p>
+          </dd>
         </div>
       ))}
-    </div>
-  )
-}
-
-export function AdminSkeleton({ className }: Readonly<{ className?: string }>) {
-  return (
-    <div
-      className={cn(
-        "admin-skeleton-pulse rounded-[20px] bg-[#e8e8ed]/70",
-        className
-      )}
-    />
+    </dl>
   )
 }
