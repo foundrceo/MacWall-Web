@@ -1,57 +1,106 @@
-# MacWall (web)
+# MacWall Web
 
-Live site: **[https://macwall.app](https://macwall.app)**
+Live site: https://macwall.app
 
-This is the marketing + commerce site for MacWall, a native macOS app for cinematic live wallpapers. Download the free app, browse the catalog, then unlock Pro (permanent or annual) through Stripe on this site. Licenses activate in-app via a deep link after checkout.
+This is the web side of MacWall, a native macOS app for cinematic live wallpapers.
 
-If you just want to try the product, open the link above — no local setup required.
+You can download the free app, browse all the wallpapers and upgrade to Pro from the website. We have both annual and permanent plans, payments are handled with Stripe.
 
-## Download (DMG)
+After checkout the license activates inside the Mac app using a `macwall://activate` deep link.
 
-Latest Mac app installer: **[MacWall 2.9 DMG](https://github.com/foundrceo/MacWall-Web/releases/tag/v2.9)**  
-(`MacWall.dmg` on the GitHub Release — or grab it from https://macwall.app/download)
+If you just want to try MacWall, open the website and download it. You dont need to setup this repo locally.
+
+## Download
+
+Latest Mac installer:
+
+**MacWall 2.9 DMG**
+
+You can get `MacWall.dmg` from the latest GitHub release or download it here:
+
+https://macwall.app/download
 
 ## Screenshots
 
-Homepage:
+### Homepage
 
-![MacWall homepage](public/screenshots/homepage.png)
+MacWall homepage
 
-Pricing:
+### Pricing
 
-![MacWall pricing](public/screenshots/pricing.png)
+MacWall pricing
 
-App settings / battery controls:
+### App settings
 
-![MacWall settings](public/screenshots/settings.jpg)
+Battery and playback controls inside the app.
 
-## What it does
+MacWall settings
 
-- Landing pages for the Mac app (hero demo, Lock Screen pitch, FAQ)
-- Pricing + Stripe Checkout (permanent, annual, 5-Mac bundle; India coupon support)
-- Post-purchase thank-you / activate flow (`macwall://activate`)
-- Blog, SEO landings, wallpaper category pages
-- Community wallpaper submit + affiliate program
-- Support inbox UI, admin catalog tools, license emails (Supabase)
+## What this repo includes
 
-The actual Mac app (Swift) is a separate repo. This repo is everything on the web.
+This repo has pretty much everything related to the MacWall website:
+
+Main homepage and product pages
+Live wallpaper hero demo
+Lock Screen and Screen Saver pages
+Pricing and Stripe Checkout
+Annual, permanent and 5 Mac plans
+India coupon support
+Thank you and license activation flow
+Blog and SEO pages
+Wallpaper category pages
+Community wallpaper submissions
+Affiliate program
+Support inbox
+Admin tools for managing wallpapers
+License emails using Supabase
+
+The actual Mac app is written in Swift and is in a seperate repo. This repository is only for the website and commerce side.
 
 ## Stack
 
-Next.js (App Router), Stripe, Supabase, Vercel, Tailwind / shadcn.
+Next.js App Router
+Stripe
+Supabase
+Vercel
+Tailwind CSS
+shadcn/ui
 
-## Local
+## Run locally
 
 ```bash
 npm install
-# copy your real secrets into .env (local only — never commit)
+```
+
+Copy your actual secrets into `.env` for local development only. Dont commit them.
+
+```bash
 npm run dev
 ```
 
-Then open [http://localhost:3000](http://localhost:3000).
+Then open:
 
-Useful routes: `/`, `/pricing`, `/download`, `/blog`, `/submit`, `/affiliate`, `/support`.
+```text
+http://localhost:3000
+```
+
+Some useful routes:
+
+```text
+/
+/pricing
+/download
+/blog
+/submit
+/affiliate
+/support
+```
 
 ## AI use
 
-I used Cursor (AI coding assistant) while building this site — components, checkout wiring, SEO pages, admin tooling, copy drafts. Product direction, pricing, brand, and the Mac app are mine. I wrote this README myself; it is not AI-generated boilerplate.
+I used Cursor while building this website. Mostly for helping with components, Stripe checkout wiring, SEO pages, admin tools and some early copy drafts.
+
+The idea, product direction, pricing, branding and design decisions are mine. The native Mac app is also built seperately by me.
+
+Cursor helped me move faster, but I still reviewed and changed the code based on what MacWall actually needed. This README was also written and edited by me, its not just generated boilerplate.
+
