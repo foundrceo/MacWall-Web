@@ -88,6 +88,180 @@ export function r2PresignGetUrl(key: string, expiresSeconds = 3600) {
   return presign(key, "GET", expiresSeconds)
 }
 
+export type R2CompletedPart = {
+  partNumber: number
+  etag: string
+}
+
+/**
+ * Start an S3-compatible multipart upload.
+ * Content-Type / Cache-Control are set on the final object at create time.
+ */
+export async function r2CreateMultipartUpload(
+  key: string,
+  options: { contentType: string; cacheControl?: string }
+): Promise<{ uploadId: string }> {
+  const { client, config } = requireR2()
+  const url = new URL(objectEndpoint(config, key))
+  url.searchParams.set("uploads", "")
+
+  const headers: Record<string, string> = {
+    "Content-Type": options.contentType,
+  }
+  if (options.cacheControl) {
+    headers["Cache-Control"] = options.cacheControl
+  }
+
+  const response = await client.fetch(url.toString(), {
+    method: "POST",
+    headers,
+  })
+  if (!response.ok) {
+    const body = await response.text().catch(() => "")
+    throw new Error(
+      `R2 multipart create failed for ${key}: HTTP ${response.status} ${body}`
+    )
+  }
+
+  const xml = await response.text()
+  const uploadId = xml.match(/<UploadId>([^<]+)<\/UploadId>/)?.[1]
+  if (!uploadId) {
+    throw new Error(`R2 multipart create missing UploadId for ${key}.`)
+  }
+  return { uploadId }
+}
+
+/** Presigned PUT URL for a single multipart part (browser → R2 direct). */
+export async function r2PresignUploadPartUrl(
+  key: string,
+  uploadId: string,
+  partNumber: number,
+  expiresSeconds = 3600
+): Promise<string> {
+  if (!Number.isInteger(partNumber) || partNumber < 1 || partNumber > 10_000) {
+    throw new Error(`Invalid multipart part number: ${partNumber}`)
+  }
+
+  const { client, config } = requireR2()
+  const url = new URL(objectEndpoint(config, key))
+  url.searchParams.set("partNumber", String(partNumber))
+  url.searchParams.set("uploadId", uploadId)
+  url.searchParams.set("X-Amz-Expires", String(expiresSeconds))
+  const signed = await client.sign(url.toString(), {
+    method: "PUT",
+    aws: { signQuery: true },
+  })
+  return signed.url
+}
+
+/** List uploaded parts for an in-progress multipart upload. */
+export async function r2ListMultipartParts(
+  key: string,
+  uploadId: string
+): Promise<R2CompletedPart[]> {
+  const { client, config } = requireR2()
+  const parts: R2CompletedPart[] = []
+  let partNumberMarker = 0
+
+  // Paginate until IsTruncated is false (R2 returns up to 1000 parts/page).
+  for (let page = 0; page < 20; page += 1) {
+    const url = new URL(objectEndpoint(config, key))
+    url.searchParams.set("uploadId", uploadId)
+    if (partNumberMarker > 0) {
+      url.searchParams.set("part-number-marker", String(partNumberMarker))
+    }
+
+    const response = await client.fetch(url.toString(), { method: "GET" })
+    if (!response.ok) {
+      const body = await response.text().catch(() => "")
+      throw new Error(
+        `R2 list parts failed for ${key}: HTTP ${response.status} ${body}`
+      )
+    }
+
+    const xml = await response.text()
+    const partBlocks = xml.match(/<Part>[\s\S]*?<\/Part>/g) ?? []
+    for (const block of partBlocks) {
+      const partNumber = Number(
+        block.match(/<PartNumber>(\d+)<\/PartNumber>/)?.[1]
+      )
+      const etag = block.match(/<ETag>([^<]+)<\/ETag>/)?.[1]
+      if (!Number.isInteger(partNumber) || !etag) continue
+      parts.push({ partNumber, etag })
+    }
+
+    const truncated = /<IsTruncated>\s*true\s*<\/IsTruncated>/i.test(xml)
+    if (!truncated) break
+
+    const nextMarker = Number(
+      xml.match(/<NextPartNumberMarker>(\d+)<\/NextPartNumberMarker>/)?.[1]
+    )
+    if (!Number.isInteger(nextMarker) || nextMarker <= partNumberMarker) {
+      break
+    }
+    partNumberMarker = nextMarker
+  }
+
+  return parts.sort((a, b) => a.partNumber - b.partNumber)
+}
+
+/** Finish a multipart upload. Prefers client-provided ETags; falls back to ListParts. */
+export async function r2CompleteMultipartUpload(
+  key: string,
+  uploadId: string,
+  parts?: R2CompletedPart[]
+): Promise<void> {
+  const { client, config } = requireR2()
+  const completed =
+    parts && parts.length > 0
+      ? [...parts].sort((a, b) => a.partNumber - b.partNumber)
+      : await r2ListMultipartParts(key, uploadId)
+
+  if (!completed.length) {
+    throw new Error(`R2 multipart complete has no parts for ${key}.`)
+  }
+
+  const body = [
+    "<CompleteMultipartUpload>",
+    ...completed.map(
+      ({ partNumber, etag }) =>
+        `<Part><PartNumber>${partNumber}</PartNumber><ETag>${etag}</ETag></Part>`
+    ),
+    "</CompleteMultipartUpload>",
+  ].join("")
+
+  const url = new URL(objectEndpoint(config, key))
+  url.searchParams.set("uploadId", uploadId)
+  const response = await client.fetch(url.toString(), {
+    method: "POST",
+    headers: { "Content-Type": "application/xml" },
+    body,
+  })
+  if (!response.ok) {
+    const text = await response.text().catch(() => "")
+    throw new Error(
+      `R2 multipart complete failed for ${key}: HTTP ${response.status} ${text}`
+    )
+  }
+}
+
+/** Abort an incomplete multipart upload (best-effort cleanup). */
+export async function r2AbortMultipartUpload(
+  key: string,
+  uploadId: string
+): Promise<void> {
+  const { client, config } = requireR2()
+  const url = new URL(objectEndpoint(config, key))
+  url.searchParams.set("uploadId", uploadId)
+  const response = await client.fetch(url.toString(), { method: "DELETE" })
+  if (!response.ok && response.status !== 404) {
+    const text = await response.text().catch(() => "")
+    throw new Error(
+      `R2 multipart abort failed for ${key}: HTTP ${response.status} ${text}`
+    )
+  }
+}
+
 /** Delete an object (idempotent — a missing object is treated as success). */
 export async function r2DeleteObject(key: string): Promise<void> {
   const { client, config } = requireR2()
