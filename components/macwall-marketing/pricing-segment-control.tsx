@@ -42,25 +42,24 @@ export function PricingSegmentControl<T extends string>({
   const labelRefs = useRef(new Map<string, HTMLLabelElement>())
   const [indicator, setIndicator] = useState({ left: 0, width: 0 })
 
-  const syncIndicator = () => {
+  useLayoutEffect(() => {
     const container = containerRef.current
     const label = labelRefs.current.get(value)
     if (!container || !label) return
     setIndicator(measureIndicator(container, label))
-  }
-
-  useLayoutEffect(() => {
-    syncIndicator()
   }, [value, options])
 
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
-    const observer = new ResizeObserver(() => {
-      syncIndicator()
-    })
+    const syncIndicator = () => {
+      const label = labelRefs.current.get(value)
+      if (!label) return
+      setIndicator(measureIndicator(container, label))
+    }
 
+    const observer = new ResizeObserver(syncIndicator)
     observer.observe(container)
     window.addEventListener("resize", syncIndicator)
 
