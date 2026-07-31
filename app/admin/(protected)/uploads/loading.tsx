@@ -1,14 +1,16 @@
 import { AdminShell } from "@/components/admin/admin-shell"
-import { AdminSkeleton } from "@/components/admin/admin-ui"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Loading() {
   return (
-    <AdminShell
-      title="Uploads"
-      description="Bulk upload catalog videos, review pending community wallpapers, approve to publish, or reject with notes."
-    >
-      <AdminSkeleton className="h-48 w-full" />
-      <AdminSkeleton className="h-64 w-full" />
+    <AdminShell title="Uploads">
+      <div className="space-y-5">
+        <Skeleton className="h-9 w-64 rounded-full" />
+        <div className="grid gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
+          <Skeleton className="h-96 rounded-2xl" />
+          <Skeleton className="h-96 rounded-2xl" />
+        </div>
+      </div>
     </AdminShell>
   )
 }

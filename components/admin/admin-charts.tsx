@@ -28,53 +28,64 @@ import {
 } from "@/components/ui/chart"
 import { cn } from "@/lib/utils"
 
-const APPLE = {
+/* Shared visual language ---------------------------------------------------- */
+
+const C = {
   blue: "#0071e3",
-  green: "#34c759",
-  orange: "#ff9500",
-  pink: "#ff2d55",
-  purple: "#af52de",
-  teal: "#5ac8fa",
-  yellow: "#ffcc00",
-  gray: "#8e8e93",
-  indigo: "#5856d6",
-  fill: "#f5f5f7",
-  grid: "#ebebed",
-  muted: "#86868b",
-  text: "#1d1d1f",
+  green: "#17b26a",
+  amber: "#f79009",
+  violet: "#7a5af8",
+  red: "#f04438",
+  cyan: "#06aed4",
+  pink: "#ee46bc",
+  slate: "#98a2b3",
+  grid: "#e4e7ec",
+  cursor: "#f2f4f7",
+  muted: "#667085",
+  fg: "#101828",
 } as const
 
-const CATEGORY_COLORS = [
-  APPLE.blue,
-  APPLE.green,
-  APPLE.orange,
-  APPLE.purple,
-  APPLE.pink,
-  APPLE.teal,
-  APPLE.yellow,
-  APPLE.gray,
-  APPLE.indigo,
+const SERIES_COLORS = [
+  C.blue,
+  C.green,
+  C.amber,
+  C.violet,
+  C.pink,
+  C.cyan,
+  C.red,
+  C.slate,
 ]
 
-const chartShell = "h-[280px] w-full aspect-auto"
+const CHART_HEIGHT = "aspect-auto h-[260px] w-full"
+const TOOLTIP_CLASS =
+  "rounded-lg border border-[#e4e7ec] bg-white text-[13px] shadow-[0_8px_24px_-6px_rgba(16,24,40,0.12)] ring-0"
+
+const axisTick = { fill: C.muted, fontSize: 11 } as const
 
 function ChartEmpty({ message }: Readonly<{ message: string }>) {
   return (
-    <div className="flex h-[220px] items-center justify-center rounded-2xl bg-[#f5f5f7]">
-      <p className="text-[14px] text-[#86868b]">{message}</p>
+    <div className="flex h-[220px] items-center justify-center rounded-lg border border-dashed border-[var(--admin-border)] bg-[var(--admin-canvas)]">
+      <p className="text-[13px] text-[var(--admin-muted)]">{message}</p>
     </div>
   )
 }
 
-function formatDayLabel(day: string) {
+function formatDayTick(day: string) {
   const date = new Date(`${day}T12:00:00`)
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
 }
 
-function lastNDays<T extends { day: string }>(rows: T[], days: number) {
-  const sorted = [...rows].sort((a, b) => a.day.localeCompare(b.day))
-  return sorted.slice(-days)
+function compact(value: number) {
+  return value >= 10_000
+    ? `${Math.round(value / 1000)}k`
+    : value.toLocaleString()
 }
+
+function lastNDays<T extends { day: string }>(rows: T[], days: number) {
+  return [...rows].sort((a, b) => a.day.localeCompare(b.day)).slice(-days)
+}
+
+/* Daily activity ------------------------------------------------------------ */
 
 type EventCountKey =
   | "page_view"
@@ -84,10 +95,9 @@ type EventCountKey =
   | "cta_click"
   | "purchase_complete"
 
-type DailySeriesRow = {
-  day: string
-  label: string
-} & Partial<Record<EventCountKey, number>>
+type DailySeriesRow = { day: string; label: string } & Partial<
+  Record<EventCountKey, number>
+>
 
 const EVENT_COUNT_KEYS: EventCountKey[] = [
   "page_view",
@@ -102,60 +112,13 @@ function isEventCountKey(name: string): name is EventCountKey {
   return (EVENT_COUNT_KEYS as string[]).includes(name)
 }
 
-function buildDailySeries(
-  rows: Array<{ day: string; event_name: string; count: number }>,
-  days = 14
-) {
-  const byDay = new Map<string, DailySeriesRow>()
-
-  for (const row of rows) {
-    const bucket = byDay.get(row.day) ?? {
-      day: row.day,
-      label: formatDayLabel(row.day),
-    }
-    if (isEventCountKey(row.event_name)) {
-      bucket[row.event_name] = (bucket[row.event_name] ?? 0) + row.count
-    }
-    byDay.set(row.day, bucket)
-  }
-
-  return lastNDays([...byDay.values()], days)
-}
-
-function buildDownloadSeries(
-  rows: Array<{ day: string; event_name: string; count: number }>,
-  days = 14
-) {
-  const byDay = new Map<
-    string,
-    { day: string; label: string; clicks: number; redirects: number }
-  >()
-
-  for (const row of rows) {
-    const existing = byDay.get(row.day) ?? {
-      day: row.day,
-      label: formatDayLabel(row.day),
-      clicks: 0,
-      redirects: 0,
-    }
-    if (row.event_name === "download_click") {
-      existing.clicks += row.count
-    } else if (row.event_name === "download_redirect") {
-      existing.redirects += row.count
-    }
-    byDay.set(row.day, existing)
-  }
-
-  return lastNDays([...byDay.values()], days)
-}
-
 const dailyActivityConfig = {
-  page_view: { label: "Page views", color: APPLE.blue },
-  download_click: { label: "Download clicks", color: APPLE.green },
-  download_redirect: { label: "Redirects", color: APPLE.teal },
-  pricing_click: { label: "Pricing clicks", color: APPLE.orange },
-  cta_click: { label: "CTA clicks", color: APPLE.purple },
-  purchase_complete: { label: "Purchases", color: APPLE.pink },
+  page_view: { label: "Page views", color: C.blue },
+  download_click: { label: "Download clicks", color: C.green },
+  download_redirect: { label: "Redirects", color: C.cyan },
+  pricing_click: { label: "Pricing clicks", color: C.amber },
+  cta_click: { label: "CTA clicks", color: C.violet },
+  purchase_complete: { label: "Purchases", color: C.pink },
 } satisfies ChartConfig
 
 export function DailyActivityChart({
@@ -165,20 +128,31 @@ export function DailyActivityChart({
   rows: Array<{ day: string; event_name: string; count: number }>
   days?: number
 }>) {
-  const data = buildDailySeries(rows, days)
-  const seriesKeys = EVENT_COUNT_KEYS.filter((key) =>
+  const byDay = new Map<string, DailySeriesRow>()
+  for (const row of rows) {
+    const bucket = byDay.get(row.day) ?? {
+      day: row.day,
+      label: formatDayTick(row.day),
+    }
+    if (isEventCountKey(row.event_name)) {
+      bucket[row.event_name] = (bucket[row.event_name] ?? 0) + row.count
+    }
+    byDay.set(row.day, bucket)
+  }
+  const data = lastNDays([...byDay.values()], days)
+  const keys = EVENT_COUNT_KEYS.filter((key) =>
     data.some((row) => (row[key] ?? 0) > 0)
   )
 
-  if (data.length === 0 || seriesKeys.length === 0) {
+  if (data.length === 0 || keys.length === 0) {
     return <ChartEmpty message="No activity in this range." />
   }
 
   return (
-    <ChartContainer config={dailyActivityConfig} className={chartShell}>
-      <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+    <ChartContainer config={dailyActivityConfig} className={CHART_HEIGHT}>
+      <AreaChart data={data} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
         <defs>
-          {seriesKeys.map((key) => (
+          {keys.map((key) => (
             <linearGradient
               key={key}
               id={`fill-${key}`}
@@ -188,49 +162,43 @@ export function DailyActivityChart({
               y2="1"
             >
               <stop
-                offset="5%"
+                offset="0%"
                 stopColor={`var(--color-${key})`}
-                stopOpacity={0.35}
+                stopOpacity={0.28}
               />
               <stop
-                offset="95%"
+                offset="100%"
                 stopColor={`var(--color-${key})`}
                 stopOpacity={0.02}
               />
             </linearGradient>
           ))}
         </defs>
-        <CartesianGrid
-          vertical={false}
-          stroke={APPLE.grid}
-          strokeDasharray="4 4"
-        />
+        <CartesianGrid vertical={false} stroke={C.grid} strokeDasharray="3 3" />
         <XAxis
           dataKey="label"
           tickLine={false}
           axisLine={false}
-          tickMargin={8}
+          tickMargin={10}
           minTickGap={24}
-          tick={{ fill: APPLE.muted, fontSize: 11 }}
+          tick={axisTick}
         />
         <YAxis
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          width={36}
-          tick={{ fill: APPLE.muted, fontSize: 11 }}
+          width={42}
+          tick={axisTick}
+          tickFormatter={compact}
         />
         <ChartTooltip
-          cursor={{ stroke: APPLE.grid, strokeWidth: 1 }}
+          cursor={{ stroke: C.grid, strokeWidth: 1 }}
           content={
-            <ChartTooltipContent
-              className="rounded-2xl border border-black/[0.06] bg-white ring-0 shadow-none"
-              indicator="dot"
-            />
+            <ChartTooltipContent className={TOOLTIP_CLASS} indicator="dot" />
           }
         />
         <ChartLegend content={<ChartLegendContent />} />
-        {seriesKeys.map((key) => (
+        {keys.map((key) => (
           <Area
             key={key}
             type="monotone"
@@ -246,9 +214,11 @@ export function DailyActivityChart({
   )
 }
 
+/* Download activity --------------------------------------------------------- */
+
 const downloadActivityConfig = {
-  clicks: { label: "Download clicks", color: APPLE.green },
-  redirects: { label: "Installer redirects", color: APPLE.blue },
+  clicks: { label: "Download clicks", color: C.green },
+  redirects: { label: "Installer redirects", color: C.blue },
 } satisfies ChartConfig
 
 export function DownloadActivityChart({
@@ -258,212 +228,239 @@ export function DownloadActivityChart({
   rows: Array<{ day: string; event_name: string; count: number }>
   days?: number
 }>) {
-  const data = buildDownloadSeries(rows, days)
+  const byDay = new Map<
+    string,
+    { day: string; label: string; clicks: number; redirects: number }
+  >()
+  for (const row of rows) {
+    const bucket = byDay.get(row.day) ?? {
+      day: row.day,
+      label: formatDayTick(row.day),
+      clicks: 0,
+      redirects: 0,
+    }
+    if (row.event_name === "download_click") bucket.clicks += row.count
+    else if (row.event_name === "download_redirect")
+      bucket.redirects += row.count
+    byDay.set(row.day, bucket)
+  }
+  const data = lastNDays([...byDay.values()], days)
 
   if (
     data.length === 0 ||
-    data.every((row) => row.clicks === 0 && row.redirects === 0)
+    data.every((r) => r.clicks === 0 && r.redirects === 0)
   ) {
     return <ChartEmpty message="No download activity in this range." />
   }
 
   return (
-    <ChartContainer config={downloadActivityConfig} className={chartShell}>
-      <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-        <CartesianGrid
-          vertical={false}
-          stroke={APPLE.grid}
-          strokeDasharray="4 4"
-        />
+    <ChartContainer config={downloadActivityConfig} className={CHART_HEIGHT}>
+      <BarChart data={data} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
+        <CartesianGrid vertical={false} stroke={C.grid} strokeDasharray="3 3" />
         <XAxis
           dataKey="label"
           tickLine={false}
           axisLine={false}
-          tickMargin={8}
+          tickMargin={10}
           minTickGap={24}
-          tick={{ fill: APPLE.muted, fontSize: 11 }}
+          tick={axisTick}
         />
         <YAxis
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          width={36}
-          tick={{ fill: APPLE.muted, fontSize: 11 }}
+          width={42}
+          tick={axisTick}
+          tickFormatter={compact}
         />
         <ChartTooltip
-          cursor={{ fill: APPLE.fill }}
+          cursor={{ fill: C.cursor }}
           content={
-            <ChartTooltipContent
-              className="rounded-2xl border border-black/[0.06] bg-white ring-0 shadow-none"
-              indicator="dot"
-            />
+            <ChartTooltipContent className={TOOLTIP_CLASS} indicator="dot" />
           }
         />
         <ChartLegend content={<ChartLegendContent />} />
         <Bar
           dataKey="clicks"
           fill="var(--color-clicks)"
-          radius={[6, 6, 0, 0]}
+          radius={[4, 4, 0, 0]}
+          maxBarSize={28}
         />
         <Bar
           dataKey="redirects"
           fill="var(--color-redirects)"
-          radius={[6, 6, 0, 0]}
+          radius={[4, 4, 0, 0]}
+          maxBarSize={28}
         />
       </BarChart>
     </ChartContainer>
   )
 }
 
-export function HorizontalBarChart({
+/* Ranked list — replaces the old horizontal bar chart with a denser,
+ * easier-to-scan progress list. */
+
+export function RankedBarList({
   rows,
   formatLabel,
-  maxBars = 8,
-  color = APPLE.blue,
+  max = 8,
+  color = C.blue,
+  emptyMessage = "No data for this period.",
 }: Readonly<{
   rows: Array<{ label: string; value: number }>
   formatLabel?: (label: string) => string
-  maxBars?: number
+  max?: number
   color?: string
+  emptyMessage?: string
 }>) {
   const visible = rows
     .slice()
     .sort((a, b) => b.value - a.value)
-    .slice(0, maxBars)
-    .map((row) => ({
-      label: formatLabel ? formatLabel(row.label) : row.label,
-      value: row.value,
-    }))
+    .slice(0, max)
 
-  if (visible.length === 0) {
-    return <ChartEmpty message="No data for this period." />
-  }
+  if (visible.length === 0) return <ChartEmpty message={emptyMessage} />
 
-  const config = {
-    value: { label: "Count", color },
-  } satisfies ChartConfig
-
-  const height = Math.max(220, visible.length * 44)
+  const peak = Math.max(...visible.map((row) => row.value), 1)
 
   return (
-    <ChartContainer
-      config={config}
-      className="aspect-auto w-full"
-      style={{ height }}
-    >
-      <BarChart
-        data={visible}
-        layout="vertical"
-        margin={{ top: 0, right: 16, left: 0, bottom: 0 }}
-      >
-        <CartesianGrid
-          horizontal={false}
-          stroke={APPLE.grid}
-          strokeDasharray="4 4"
-        />
-        <XAxis type="number" hide />
-        <YAxis
-          type="category"
-          dataKey="label"
-          tickLine={false}
-          axisLine={false}
-          width={132}
-          tick={{ fill: APPLE.muted, fontSize: 12 }}
-        />
-        <ChartTooltip
-          cursor={{ fill: APPLE.fill }}
-          content={
-            <ChartTooltipContent
-              className="rounded-2xl border border-black/[0.06] bg-white ring-0 shadow-none"
-              hideLabel
+    <ul className="space-y-2.5">
+      {visible.map((row) => (
+        <li key={row.label} className="space-y-1.5">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="min-w-0 truncate text-[13px] text-[var(--admin-fg-soft)]">
+              {formatLabel ? formatLabel(row.label) : row.label}
+            </span>
+            <span className="shrink-0 text-[13px] font-semibold text-[var(--admin-fg)] tabular-nums">
+              {row.value.toLocaleString()}
+            </span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-[var(--admin-fill)]">
+            <div
+              className="h-full rounded-full transition-[width] duration-500"
+              style={{
+                width: `${Math.max(2, (row.value / peak) * 100)}%`,
+                backgroundColor: color,
+              }}
             />
-          }
-        />
-        <Bar
-          dataKey="value"
-          fill="var(--color-value)"
-          radius={[0, 8, 8, 0]}
-          barSize={22}
-        />
-      </BarChart>
-    </ChartContainer>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+export function TopPagesList({
+  rows,
+}: Readonly<{ rows: Array<{ path: string; count: number }> }>) {
+  return (
+    <RankedBarList
+      rows={rows.map((row) => ({ label: row.path, value: row.count }))}
+      color={C.violet}
+      emptyMessage="No page views in this range."
+    />
+  )
+}
+
+export function EventsSummaryList({
+  rows,
+}: Readonly<{ rows: Array<{ label: string; value: number }> }>) {
+  return (
+    <RankedBarList
+      rows={rows.map((row) => ({
+        label: row.label.replaceAll("_", " "),
+        value: row.value,
+      }))}
+      max={10}
+      emptyMessage="No events in this range."
+    />
+  )
+}
+
+/* Radial gauges -------------------------------------------------------------- */
+
+function Gauge({
+  percent,
+  color,
+  center,
+  caption,
+}: Readonly<{
+  percent: number
+  color: string
+  center: (cx: number, cy: number) => React.ReactElement
+  caption?: string
+}>) {
+  const config = { value: { label: "value", color } } satisfies ChartConfig
+
+  return (
+    <div className="flex flex-col items-center">
+      <ChartContainer
+        config={config}
+        className="mx-auto aspect-auto h-[168px] w-[168px]"
+      >
+        <RadialBarChart
+          data={[{ name: "value", value: percent, fill: color }]}
+          startAngle={90}
+          endAngle={-270}
+          innerRadius={62}
+          outerRadius={82}
+        >
+          <PolarGrid
+            gridType="circle"
+            radialLines={false}
+            stroke="none"
+            className="fill-[#f2f4f7]"
+          />
+          <RadialBar dataKey="value" background cornerRadius={9} />
+          <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
+            <Label
+              content={({ viewBox }) => {
+                if (!viewBox || !("cx" in viewBox) || !("cy" in viewBox))
+                  return null
+                return center(viewBox.cx ?? 0, viewBox.cy ?? 0)
+              }}
+            />
+          </PolarRadiusAxis>
+        </RadialBarChart>
+      </ChartContainer>
+      {caption ? (
+        <p className="-mt-1 text-xs text-[var(--admin-muted)]">{caption}</p>
+      ) : null}
+    </div>
   )
 }
 
 export function RingGauge({
   value,
   max = 100,
-  label,
-  sublabel,
-  color = APPLE.blue,
+  caption,
+  color = C.blue,
   className,
 }: Readonly<{
   value: number
   max?: number
-  label: string
-  sublabel?: string
+  caption?: string
   color?: string
   className?: string
 }>) {
   const pct = max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 0
-  const data = [{ name: label, value: pct, fill: color }]
-
-  const config = {
-    value: { label, color },
-  } satisfies ChartConfig
-
   return (
-    <div className={cn("flex flex-col items-center gap-3", className)}>
-      <ChartContainer
-        config={config}
-        className="mx-auto aspect-auto h-[180px] w-[180px]"
-      >
-        <RadialBarChart
-          data={data}
-          startAngle={90}
-          endAngle={-270}
-          innerRadius={62}
-          outerRadius={86}
-        >
-          <PolarGrid
-            gridType="circle"
-            radialLines={false}
-            stroke="none"
-            className="fill-[#f5f5f7]"
-          />
-          <RadialBar dataKey="value" background cornerRadius={10} />
-          <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-            <Label
-              content={({ viewBox }) => {
-                if (!viewBox || !("cx" in viewBox) || !("cy" in viewBox))
-                  return null
-                return (
-                  <text
-                    x={viewBox.cx}
-                    y={viewBox.cy}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                  >
-                    <tspan
-                      x={viewBox.cx}
-                      y={viewBox.cy}
-                      className="fill-[#1d1d1f] text-3xl font-semibold"
-                    >
-                      {Math.round(pct)}%
-                    </tspan>
-                  </text>
-                )
-              }}
-            />
-          </PolarRadiusAxis>
-        </RadialBarChart>
-      </ChartContainer>
-      <div className="text-center">
-        <p className="text-[14px] font-medium text-[#1d1d1f]">{label}</p>
-        {sublabel ? (
-          <p className="mt-0.5 text-[12px] text-[#86868b]">{sublabel}</p>
-        ) : null}
-      </div>
+    <div className={cn("flex justify-center", className)}>
+      <Gauge
+        percent={pct}
+        color={color}
+        caption={caption}
+        center={(cx, cy) => (
+          <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
+            <tspan
+              x={cx}
+              y={cy}
+              className="fill-[#101828] text-[28px] font-semibold"
+            >
+              {Math.round(pct)}%
+            </tspan>
+          </text>
+        )}
+      />
     </div>
   )
 }
@@ -471,120 +468,68 @@ export function RingGauge({
 export function StatRing({
   value,
   max,
-  label,
-  sublabel,
-  color = APPLE.blue,
+  caption,
+  color = C.blue,
 }: Readonly<{
   value: number
   max?: number
-  label: string
-  sublabel?: string
+  caption?: string
   color?: string
 }>) {
   const ringMax = max && max > 0 ? max : Math.max(value, 1)
-  const pct = Math.min(100, (value / ringMax) * 100)
-  const data = [{ name: label, value: pct, fill: color }]
-
-  const config = {
-    value: { label, color },
-  } satisfies ChartConfig
-
   return (
-    <div className="flex flex-col items-center gap-3">
-      <ChartContainer
-        config={config}
-        className="mx-auto aspect-auto h-[180px] w-[180px]"
-      >
-        <RadialBarChart
-          data={data}
-          startAngle={90}
-          endAngle={-270}
-          innerRadius={62}
-          outerRadius={86}
-        >
-          <PolarGrid
-            gridType="circle"
-            radialLines={false}
-            stroke="none"
-            className="fill-[#f5f5f7]"
-          />
-          <RadialBar dataKey="value" background cornerRadius={10} />
-          <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-            <Label
-              content={({ viewBox }) => {
-                if (!viewBox || !("cx" in viewBox) || !("cy" in viewBox))
-                  return null
-                return (
-                  <text
-                    x={viewBox.cx}
-                    y={viewBox.cy}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                  >
-                    <tspan
-                      x={viewBox.cx}
-                      y={(viewBox.cy ?? 0) - 4}
-                      className="fill-[#1d1d1f] text-2xl font-semibold"
-                    >
-                      {value.toLocaleString()}
-                    </tspan>
-                    <tspan
-                      x={viewBox.cx}
-                      y={(viewBox.cy ?? 0) + 16}
-                      className="fill-[#86868b] text-[11px]"
-                    >
-                      of {ringMax.toLocaleString()}
-                    </tspan>
-                  </text>
-                )
-              }}
-            />
-          </PolarRadiusAxis>
-        </RadialBarChart>
-      </ChartContainer>
-      <div className="text-center">
-        <p className="text-[14px] font-medium text-[#1d1d1f]">{label}</p>
-        {sublabel ? (
-          <p className="mt-0.5 text-[12px] text-[#86868b]">{sublabel}</p>
-        ) : null}
-      </div>
+    <div className="flex justify-center">
+      <Gauge
+        percent={Math.min(100, (value / ringMax) * 100)}
+        color={color}
+        caption={caption}
+        center={(cx, cy) => (
+          <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
+            <tspan
+              x={cx}
+              y={cy - 5}
+              className="fill-[#101828] text-[22px] font-semibold"
+            >
+              {value.toLocaleString()}
+            </tspan>
+            <tspan x={cx} y={cy + 15} className="fill-[#667085] text-[11px]">
+              of {ringMax.toLocaleString()}
+            </tspan>
+          </text>
+        )}
+      />
     </div>
   )
 }
 
+/* Category donut ------------------------------------------------------------- */
+
 export function CategoryDonut({
   rows,
-}: Readonly<{
-  rows: Array<{ label: string; value: number }>
-}>) {
+}: Readonly<{ rows: Array<{ label: string; value: number }> }>) {
   const sorted = rows.slice().sort((a, b) => b.value - a.value)
   const total = sorted.reduce((sum, row) => sum + row.value, 0)
 
-  if (total === 0) {
-    return <ChartEmpty message="No catalog data." />
-  }
+  if (total === 0) return <ChartEmpty message="No catalog data." />
 
   const config = Object.fromEntries(
     sorted.map((row, index) => [
       row.label,
-      {
-        label: row.label,
-        color: CATEGORY_COLORS[index % CATEGORY_COLORS.length],
-      },
+      { label: row.label, color: SERIES_COLORS[index % SERIES_COLORS.length] },
     ])
   ) satisfies ChartConfig
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
+    <div className="flex flex-col items-center gap-5 lg:flex-row lg:items-center lg:gap-6">
       <ChartContainer
         config={config}
-        className="mx-auto aspect-auto h-[240px] w-[240px]"
+        className="aspect-auto h-[196px] w-[196px] shrink-0"
       >
         <PieChart>
           <ChartTooltip
             content={
               <ChartTooltipContent
-                className="rounded-2xl border border-black/[0.06] bg-white ring-0 shadow-none"
+                className={TOOLTIP_CLASS}
                 hideLabel
                 nameKey="label"
               />
@@ -595,38 +540,40 @@ export function CategoryDonut({
             dataKey="value"
             nameKey="label"
             innerRadius={58}
-            outerRadius={92}
+            outerRadius={86}
             paddingAngle={2}
             strokeWidth={0}
           >
             {sorted.map((row, index) => (
               <Cell
                 key={row.label}
-                fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]}
+                fill={SERIES_COLORS[index % SERIES_COLORS.length]}
               />
             ))}
             <Label
               content={({ viewBox }) => {
                 if (!viewBox || !("cx" in viewBox) || !("cy" in viewBox))
                   return null
+                const cx = viewBox.cx ?? 0
+                const cy = viewBox.cy ?? 0
                 return (
                   <text
-                    x={viewBox.cx}
-                    y={viewBox.cy}
+                    x={cx}
+                    y={cy}
                     textAnchor="middle"
                     dominantBaseline="middle"
                   >
                     <tspan
-                      x={viewBox.cx}
-                      y={(viewBox.cy ?? 0) - 2}
-                      className="fill-[#1d1d1f] text-2xl font-semibold"
+                      x={cx}
+                      y={cy - 4}
+                      className="fill-[#101828] text-[22px] font-semibold"
                     >
-                      {total}
+                      {total.toLocaleString()}
                     </tspan>
                     <tspan
-                      x={viewBox.cx}
-                      y={(viewBox.cy ?? 0) + 18}
-                      className="fill-[#86868b] text-[11px]"
+                      x={cx}
+                      y={cy + 16}
+                      className="fill-[#667085] text-[11px]"
                     >
                       wallpapers
                     </tspan>
@@ -638,108 +585,38 @@ export function CategoryDonut({
         </PieChart>
       </ChartContainer>
 
-      <div className="min-w-0 flex-1 space-y-2">
+      <ul className="grid min-w-0 flex-1 gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
         {sorted.map((row, index) => (
-          <div
+          <li
             key={row.label}
-            className="flex items-center justify-between gap-3 rounded-2xl bg-[#f5f5f7] px-3.5 py-2"
+            className="flex items-center justify-between gap-3"
           >
             <span className="flex min-w-0 items-center gap-2">
               <span
-                className="size-2.5 shrink-0 rounded-full"
+                className="size-2 shrink-0 rounded-full"
                 style={{
-                  backgroundColor:
-                    CATEGORY_COLORS[index % CATEGORY_COLORS.length],
+                  backgroundColor: SERIES_COLORS[index % SERIES_COLORS.length],
                 }}
               />
-              <span className="truncate text-[14px] text-[#1d1d1f]">
+              <span className="truncate text-[13px] text-[var(--admin-fg-soft)]">
                 {row.label}
               </span>
             </span>
-            <span className="shrink-0 text-[14px] font-medium text-[#1d1d1f] tabular-nums">
+            <span className="shrink-0 text-[13px] font-medium text-[var(--admin-fg)] tabular-nums">
               {row.value}
             </span>
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   )
 }
 
-export function EventsSummaryChart({
-  rows,
-}: Readonly<{ rows: Array<{ label: string; value: number }> }>) {
-  const data = rows
-    .slice()
-    .sort((a, b) => b.value - a.value)
-    .map((row) => ({ label: row.label.replaceAll("_", " "), value: row.value }))
-
-  if (data.length === 0) {
-    return <ChartEmpty message="No events in this range." />
-  }
-
-  const config = {
-    value: { label: "Events", color: APPLE.blue },
-  } satisfies ChartConfig
-
-  return (
-    <ChartContainer config={config} className={chartShell}>
-      <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-        <CartesianGrid
-          vertical={false}
-          stroke={APPLE.grid}
-          strokeDasharray="4 4"
-        />
-        <XAxis
-          dataKey="label"
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-          minTickGap={16}
-          tick={{ fill: APPLE.muted, fontSize: 11 }}
-        />
-        <YAxis
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-          width={36}
-          tick={{ fill: APPLE.muted, fontSize: 11 }}
-        />
-        <ChartTooltip
-          cursor={{ fill: APPLE.fill }}
-          content={
-            <ChartTooltipContent
-              className="rounded-2xl border border-black/[0.06] bg-white ring-0 shadow-none"
-              hideLabel
-            />
-          }
-        />
-        <Bar dataKey="value" fill="var(--color-value)" radius={[8, 8, 0, 0]} />
-      </BarChart>
-    </ChartContainer>
-  )
-}
-
-export function TopPagesChart({
-  rows,
-}: Readonly<{ rows: Array<{ path: string; count: number }> }>) {
-  return (
-    <HorizontalBarChart
-      rows={rows.map((row) => ({ label: row.path, value: row.count }))}
-      maxBars={8}
-      color={APPLE.indigo}
-    />
-  )
-}
-
-/* ---------------------------------------------------------------------------
- * Shopify-style sales comparison chart
- * Solid line + gradient fill for current period, dotted line for previous.
- * ------------------------------------------------------------------------- */
+/* Sales comparison ----------------------------------------------------------- */
 
 type DailySalesRow = { day: string; sales: number; revenue: number }
 
-function isoDay(date: Date): string {
+function isoDay(date: Date) {
   return date.toISOString().slice(0, 10)
 }
 
@@ -754,15 +631,14 @@ function zeroFilledRange(
     const date = new Date(endExclusive)
     date.setUTCDate(date.getUTCDate() - 1 - i)
     const day = isoDay(date)
-    const found = byDay.get(day)
-    out.push(found ?? { day, sales: 0, revenue: 0 })
+    out.push(byDay.get(day) ?? { day, sales: 0, revenue: 0 })
   }
   return out
 }
 
-const salesComparisonConfig = {
-  current: { label: "This period", color: "#0091ff" },
-  previous: { label: "Previous period", color: "#9ecdf5" },
+const salesConfig = {
+  current: { label: "This period", color: C.blue },
+  previous: { label: "Previous period", color: "#b2ddff" },
 } satisfies ChartConfig
 
 export function SalesComparisonChart({
@@ -785,7 +661,7 @@ export function SalesComparisonChart({
   const prevSeries = zeroFilledRange(prevDaily, periodStart, days)
 
   const data = currentSeries.map((row, index) => ({
-    label: formatDayLabel(row.day),
+    label: formatDayTick(row.day),
     current: metric === "revenue" ? row.revenue : row.sales,
     previous:
       metric === "revenue"
@@ -793,65 +669,55 @@ export function SalesComparisonChart({
         : (prevSeries[index]?.sales ?? 0),
   }))
 
-  const hasAny = data.some((row) => row.current > 0 || row.previous > 0)
-  if (!hasAny) {
+  if (!data.some((row) => row.current > 0 || row.previous > 0)) {
     return <ChartEmpty message="No sales in this range yet." />
   }
 
   const prefix = metric === "revenue" ? "$" : ""
 
   return (
-    <ChartContainer config={salesComparisonConfig} className={chartShell}>
-      <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+    <ChartContainer config={salesConfig} className={CHART_HEIGHT}>
+      <AreaChart data={data} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
         <defs>
           <linearGradient id="fill-sales-current" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#0091ff" stopOpacity={0.22} />
-            <stop offset="95%" stopColor="#0091ff" stopOpacity={0.01} />
+            <stop offset="0%" stopColor={C.blue} stopOpacity={0.22} />
+            <stop offset="100%" stopColor={C.blue} stopOpacity={0.01} />
           </linearGradient>
         </defs>
-        <CartesianGrid
-          vertical={false}
-          stroke={APPLE.grid}
-          strokeDasharray="4 4"
-        />
+        <CartesianGrid vertical={false} stroke={C.grid} strokeDasharray="3 3" />
         <XAxis
           dataKey="label"
           tickLine={false}
           axisLine={false}
-          tickMargin={8}
+          tickMargin={10}
           minTickGap={28}
-          tick={{ fill: APPLE.muted, fontSize: 11 }}
+          tick={axisTick}
         />
         <YAxis
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          width={44}
-          tick={{ fill: APPLE.muted, fontSize: 11 }}
-          tickFormatter={(value: number) =>
-            `${prefix}${value.toLocaleString()}`
-          }
+          width={48}
+          tick={axisTick}
+          tickFormatter={(value: number) => `${prefix}${compact(value)}`}
         />
         <ChartTooltip
-          cursor={{ stroke: APPLE.grid, strokeWidth: 1 }}
+          cursor={{ stroke: C.grid, strokeWidth: 1 }}
           content={
             <ChartTooltipContent
-              className="rounded-2xl border border-black/[0.06] bg-white ring-0 shadow-none"
+              className={TOOLTIP_CLASS}
               indicator="dot"
               formatter={(value, name, item) => (
-                <div className="flex w-full items-center justify-between gap-4">
-                  <span className="flex items-center gap-1.5 text-[#86868b]">
+                <div className="flex w-full items-center justify-between gap-6">
+                  <span className="flex items-center gap-1.5 text-[var(--admin-muted)]">
                     <span
                       className="size-2 rounded-full"
-                      style={{
-                        backgroundColor: item.color,
-                      }}
+                      style={{ backgroundColor: item.color }}
                     />
-                    {salesComparisonConfig[
-                      name as keyof typeof salesComparisonConfig
-                    ]?.label ?? name}
+                    {salesConfig[name as keyof typeof salesConfig]?.label ??
+                      name}
                   </span>
-                  <span className="font-medium text-[#1d1d1f] tabular-nums">
+                  <span className="font-semibold text-[var(--admin-fg)] tabular-nums">
                     {prefix}
                     {Number(value).toLocaleString(undefined, {
                       maximumFractionDigits: 2,
@@ -872,32 +738,23 @@ export function SalesComparisonChart({
           strokeLinecap="round"
           fill="none"
           dot={false}
-          isAnimationActive
         />
         <Area
           type="natural"
           dataKey="current"
-          stroke="#0091ff"
+          stroke={C.blue}
           strokeWidth={2.5}
           strokeLinecap="round"
           fill="url(#fill-sales-current)"
           dot={false}
-          activeDot={{
-            r: 4.5,
-            fill: "#fff",
-            stroke: "#0091ff",
-            strokeWidth: 2.5,
-          }}
-          isAnimationActive
+          activeDot={{ r: 4, fill: "#fff", stroke: C.blue, strokeWidth: 2.5 }}
         />
       </AreaChart>
     </ChartContainer>
   )
 }
 
-/* ---------------------------------------------------------------------------
- * Conversion funnel — gradient step bars with stage-to-stage rates
- * ------------------------------------------------------------------------- */
+/* Conversion funnel ---------------------------------------------------------- */
 
 export function ConversionFunnelChart({
   steps,
@@ -907,42 +764,40 @@ export function ConversionFunnelChart({
   const peak = Math.max(1, ...steps.map((step) => step.value))
 
   return (
-    <div className="space-y-3.5">
+    <ol className="space-y-3.5">
       {steps.map((step, index) => {
         const prev = index > 0 ? steps[index - 1].value : null
-        const stepRate =
+        const rate =
           prev && prev > 0 ? Math.round((step.value / prev) * 1000) / 10 : null
         return (
-          <div key={step.label} className="space-y-1.5">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-[13px] text-[#86868b]">
+          <li key={step.label} className="space-y-1.5">
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="min-w-0 truncate text-[13px] text-[var(--admin-fg-soft)]">
                 {step.label}
                 {step.hint ? (
-                  <span className="ml-1.5 text-[11px] text-[#86868b]/70">
+                  <span className="ml-1.5 text-[11px] text-[var(--admin-muted)]">
                     {step.hint}
                   </span>
                 ) : null}
               </span>
-              <span className="text-[14px] font-medium text-[#1d1d1f] tabular-nums">
+              <span className="shrink-0 text-[13px] font-semibold text-[var(--admin-fg)] tabular-nums">
                 {step.value.toLocaleString()}
-                {stepRate != null ? (
-                  <span className="ml-2 text-[11px] font-normal text-[#86868b]">
-                    {stepRate}% of prev
+                {rate != null ? (
+                  <span className="ml-2 text-[11px] font-normal text-[var(--admin-muted)]">
+                    {rate}%
                   </span>
                 ) : null}
               </span>
             </div>
-            <div className="h-3 overflow-hidden rounded-full bg-[#f5f5f7]">
+            <div className="h-2 overflow-hidden rounded-full bg-[var(--admin-fill)]">
               <div
-                className="h-full rounded-full bg-linear-to-r from-[#0071e3] to-[#34c759] transition-all duration-500"
-                style={{
-                  width: `${Math.max(1.5, (step.value / peak) * 100)}%`,
-                }}
+                className="h-full rounded-full bg-[var(--admin-blue)] transition-[width] duration-500"
+                style={{ width: `${Math.max(2, (step.value / peak) * 100)}%` }}
               />
             </div>
-          </div>
+          </li>
         )
       })}
-    </div>
+    </ol>
   )
 }

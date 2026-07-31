@@ -1,15 +1,17 @@
 "use client"
 
-import { HugeiconsIcon } from "@hugeicons/react"
 import {
-  AlertCircleIcon,
-  CheckmarkCircle01Icon,
-  FilesIcon,
-  ImageAddIcon,
-  Loading01Icon,
-  Delete01Icon,
-  Upload01Icon,
-} from "@hugeicons/core-free-icons"
+  CircleAlert,
+  CircleCheck,
+  Files,
+  ImagePlus,
+  Loader2,
+  RotateCcw,
+  Scissors,
+  Sparkles,
+  Trash2,
+  Upload,
+} from "lucide-react"
 import {
   type ChangeEvent,
   type DragEvent,
@@ -21,16 +23,15 @@ import {
   useState,
 } from "react"
 
+import { AdminBadge, PanelHeader, type Tone } from "@/components/admin/admin-ui"
 import {
-  AdminBadge,
-  AdminButton,
-  AdminInput,
-  AdminLabel,
-  AdminNotice,
-  AdminSurface,
-  AdminSurfaceBody,
-  AdminSurfaceHeader,
-} from "@/components/admin/admin-ui"
+  VideoEditorModal,
+  type VideoTrimRange,
+} from "@/components/admin/video-editor-modal"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -92,6 +93,8 @@ type CatalogDraft = {
   isPro: boolean
   isFeatured: boolean
   isCuratedPick: boolean
+  trimStartSeconds: number
+  trimEndSeconds: number | null
   status: DraftStatus
   progress: number
   error: string | null
@@ -214,6 +217,7 @@ export function CatalogBulkUploadPanel({
   const [dragDepth, setDragDepth] = useState(0)
   const [notice, setNotice] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [editorDraftId, setEditorDraftId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const draftsRef = useRef<CatalogDraft[]>([])
 
@@ -867,42 +871,37 @@ export function CatalogBulkUploadPanel({
   }
 
   return (
-    <AdminSurface>
-      <AdminSurfaceHeader
+    <Card className="gap-0 py-0">
+      <PanelHeader
         title="Bulk catalog upload"
-        description="Stage up to 300 videos, let AI analyze thumbnails for metadata, then publish one-by-one directly to Cloudflare R2."
+        description="Stage up to 300 videos, let AI read the thumbnails for metadata, then publish straight to Cloudflare R2."
         action={
           <div className="flex flex-wrap gap-2">
-            <AdminButton
-              variant="secondary"
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => void pickFiles()}
               disabled={busy || analyzing || drafts.length >= MAX_FILES}
-              className="gap-1.5"
             >
-              <HugeiconsIcon icon={FilesIcon} className="size-3.5" />
+              <Files className="size-3.5" />
               Select videos
-            </AdminButton>
-            <AdminButton
+            </Button>
+            <Button
               size="sm"
               onClick={() => void handleUpload()}
               disabled={busy || analyzing || readyCount === 0}
-              className="gap-1.5"
             >
               {busy ? (
-                <HugeiconsIcon
-                  icon={Loading01Icon}
-                  className="size-3.5 animate-spin"
-                />
+                <Loader2 className="size-3.5 animate-spin" />
               ) : (
-                <HugeiconsIcon icon={Upload01Icon} className="size-3.5" />
+                <Upload className="size-3.5" />
               )}
               Upload {readyCount ? readyCount.toLocaleString() : ""}
-            </AdminButton>
+            </Button>
           </div>
         }
       />
-      <AdminSurfaceBody className="space-y-4 sm:space-y-5">
+      <div className="space-y-4 p-5">
         <input
           ref={fileInputRef}
           type="file"
@@ -912,7 +911,7 @@ export function CatalogBulkUploadPanel({
           onChange={(event) => void handleFilesSelected(event)}
         />
 
-        <div className="grid gap-2 text-[13px] text-[#86868b] sm:grid-cols-3">
+        <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg bg-[var(--admin-border)]">
           <StatPill label="Staged" value={drafts.length.toLocaleString()} />
           <StatPill label="Ready" value={readyCount.toLocaleString()} />
           <StatPill label="Published" value={committedCount.toLocaleString()} />
@@ -927,8 +926,17 @@ export function CatalogBulkUploadPanel({
           />
         ) : null}
 
-        {notice ? <AdminNotice tone="success">{notice}</AdminNotice> : null}
-        {error ? <AdminNotice tone="warning">{error}</AdminNotice> : null}
+        {notice ? (
+          <p className="rounded-lg bg-[var(--admin-green-soft)] px-3.5 py-2.5 text-[13px] text-[var(--admin-green)]">
+            {notice}
+          </p>
+        ) : null}
+        {error ? (
+          <p className="flex items-start gap-2 rounded-lg bg-[var(--admin-red-soft)] px-3.5 py-2.5 text-[13px] text-[var(--admin-red)]">
+            <CircleAlert className="mt-0.5 size-4 shrink-0" />
+            {error}
+          </p>
+        ) : null}
         {uploadRun ? <UploadPipelineProgress run={uploadRun} /> : null}
 
         <div
@@ -944,50 +952,53 @@ export function CatalogBulkUploadPanel({
           onDragLeave={handleDragLeave}
           onDrop={(event) => void handleDrop(event)}
           className={cn(
-            "flex min-h-36 w-full cursor-pointer flex-col items-center justify-center rounded-[20px] border border-dashed px-5 py-6 text-center transition-all duration-200 ease-out outline-none sm:min-h-40",
+            "flex min-h-36 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-5 py-8 text-center transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]/30",
             dragActive
-              ? "border-[#0071e3] bg-[#e8f2ff]"
-              : "border-[#d2d2d7] bg-[#f5f5f7] hover:bg-[#ebebed]",
+              ? "border-[var(--admin-blue)] bg-[var(--admin-blue-soft)]"
+              : "border-[var(--admin-border-strong)] bg-[var(--admin-canvas)] hover:border-[var(--admin-blue)]/50 hover:bg-[var(--admin-fill)]",
             !canStageMore && "cursor-not-allowed opacity-60"
           )}
         >
-          {analyzing ? (
-            <HugeiconsIcon
-              icon={Loading01Icon}
-              className="size-7 animate-spin text-[#0071e3]"
-            />
-          ) : (
-            <HugeiconsIcon
-              icon={Upload01Icon}
-              className="size-7 text-[#0071e3]"
-            />
-          )}
-          <span className="mt-3 text-[17px] font-medium tracking-[-0.02em] text-[#1d1d1f]">
-            {dragActive ? "Drop videos to stage" : "Drag videos here"}
+          <span className="flex size-10 items-center justify-center rounded-xl bg-white ring-1 ring-[var(--admin-border)]">
+            {analyzing ? (
+              <Loader2 className="size-4 animate-spin text-[var(--admin-blue)]" />
+            ) : (
+              <Upload className="size-4 text-[var(--admin-blue)]" />
+            )}
           </span>
-          <span className="mt-1 text-[13px] text-[#86868b]">
-            Select or drop MP4, MOV, M4V, and WEBM files.
+          <span className="mt-3 text-sm font-semibold text-[var(--admin-fg)]">
+            {dragActive ? "Drop to stage videos" : "Drag videos here"}
+          </span>
+          <span className="mt-1 text-[13px] text-[var(--admin-muted)]">
+            MP4, MOV, M4V and WEBM · up to {MAX_FILES} files
           </span>
         </div>
 
         {drafts.length ? (
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-[13px] text-[#86868b]">
-                Direct paths: <span className="font-medium">videos/</span> and{" "}
-                <span className="font-medium">thumbs/</span>
+              <p className="text-[13px] text-[var(--admin-muted)]">
+                Uploading to{" "}
+                <span className="font-medium text-[var(--admin-fg-soft)]">
+                  videos/
+                </span>{" "}
+                and{" "}
+                <span className="font-medium text-[var(--admin-fg-soft)]">
+                  thumbs/
+                </span>
               </p>
-              <AdminButton
+              <Button
                 size="sm"
                 variant="ghost"
                 onClick={clearDrafts}
                 disabled={busy}
               >
-                Clear
-              </AdminButton>
+                <Trash2 className="size-3.5" />
+                Clear all
+              </Button>
             </div>
 
-            <div className="max-h-[720px] space-y-3 overflow-y-auto pr-1">
+            <div className="admin-scroll max-h-[42rem] space-y-3 overflow-y-auto pr-1">
               {drafts.map((draft) => (
                 <DraftRow
                   key={draft.localId}
@@ -1000,13 +1011,58 @@ export function CatalogBulkUploadPanel({
                   onReplaceThumb={(file) =>
                     void replaceThumb(draft.localId, file)
                   }
+                  onAnalyze={() => void analyzeDraftMetadata([draft])}
+                  onOpenEditor={() => setEditorDraftId(draft.localId)}
                 />
               ))}
             </div>
           </div>
         ) : null}
-      </AdminSurfaceBody>
-    </AdminSurface>
+        <VideoEditorModal
+          open={Boolean(editorDraftId)}
+          onOpenChange={(open) => {
+            if (!open) setEditorDraftId(null)
+          }}
+          file={
+            drafts.find((draft) => draft.localId === editorDraftId)?.file ??
+            null
+          }
+          title={drafts.find((draft) => draft.localId === editorDraftId)?.name}
+          initialTrim={
+            editorDraftId
+              ? (() => {
+                  const draft = drafts.find(
+                    (item) => item.localId === editorDraftId
+                  )
+                  if (!draft) return null
+                  return {
+                    startSeconds: draft.trimStartSeconds,
+                    endSeconds:
+                      draft.trimEndSeconds ?? (draft.durationSeconds || 0),
+                  } satisfies VideoTrimRange
+                })()
+              : null
+          }
+          onApply={(trim, thumbBlob, thumbUrl) => {
+            if (!editorDraftId) return
+            updateDraft(editorDraftId, (draft) => {
+              if (draft.thumbUrl) URL.revokeObjectURL(draft.thumbUrl)
+              return {
+                ...draft,
+                trimStartSeconds: trim.startSeconds,
+                trimEndSeconds: trim.endSeconds,
+                durationSeconds: trim.endSeconds - trim.startSeconds,
+                thumbBlob,
+                thumbUrl,
+                status: draft.status === "error" ? "ready" : draft.status,
+                error: null,
+              }
+            })
+            setEditorDraftId(null)
+          }}
+        />
+      </div>
+    </Card>
   )
 }
 
@@ -1018,6 +1074,8 @@ function DraftRow({
   onUpdateId,
   onRemove,
   onReplaceThumb,
+  onAnalyze,
+  onOpenEditor,
 }: Readonly<{
   draft: CatalogDraft
   validation: DraftValidation | null
@@ -1029,8 +1087,10 @@ function DraftRow({
   onUpdateId: (localId: string, rawId: string) => void
   onRemove: (localId: string) => void
   onReplaceThumb: (file: File | undefined) => void
+  onAnalyze: () => void
+  onOpenEditor: () => void
 }>) {
-  const statusTone =
+  const statusTone: Tone =
     draft.status === "committed"
       ? "green"
       : draft.status === "uploaded"
@@ -1042,10 +1102,10 @@ function DraftRow({
   const idLocked = disabled || draft.status === "uploaded"
 
   return (
-    <div className="rounded-[20px] bg-[#f5f5f7] p-3 transition-colors duration-200 sm:p-4">
-      <div className="grid gap-3 lg:grid-cols-[148px_1fr_auto]">
+    <div className="rounded-xl border border-[var(--admin-border)] bg-white p-4">
+      <div className="grid gap-4 lg:grid-cols-[9rem_minmax(0,1fr)_auto]">
         <div className="space-y-2">
-          <div className="relative aspect-video overflow-hidden rounded-2xl bg-black/[0.04]">
+          <div className="relative aspect-video overflow-hidden rounded-lg bg-[var(--admin-fill)]">
             {draft.thumbUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -1056,22 +1116,38 @@ function DraftRow({
             ) : (
               <div className="flex h-full items-center justify-center">
                 {draft.status === "analyzing" ? (
-                  <HugeiconsIcon
-                    icon={Loading01Icon}
-                    className="size-5 animate-spin text-[#86868b]"
-                  />
+                  <Loader2 className="size-4 animate-spin text-[var(--admin-muted)]" />
                 ) : (
-                  <HugeiconsIcon
-                    icon={ImageAddIcon}
-                    className="size-5 text-[#86868b]"
-                  />
+                  <ImagePlus className="size-4 text-[var(--admin-muted)]" />
                 )}
               </div>
             )}
           </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={disabled || draft.status === "analyzing"}
+              onClick={onOpenEditor}
+            >
+              <Scissors className="size-3.5" />
+              Trim
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={
+                disabled || !draft.thumbBlob || draft.status === "analyzing"
+              }
+              onClick={onAnalyze}
+            >
+              <Sparkles className="size-3.5" />
+              AI
+            </Button>
+          </div>
           <label
             className={cn(
-              "inline-flex min-h-8 w-full cursor-pointer items-center justify-center rounded-full bg-white px-3 text-[12px] text-[#1d1d1f]/80 transition-colors hover:bg-[#ebebed]",
+              "inline-flex h-8 w-full cursor-pointer items-center justify-center rounded-lg bg-[var(--admin-fill)] px-3 text-xs font-medium text-[var(--admin-fg-soft)] transition-colors hover:bg-[var(--admin-fill-hover)]",
               disabled && "pointer-events-none opacity-50"
             )}
           >
@@ -1091,10 +1167,11 @@ function DraftRow({
 
         <div className="grid gap-3 xl:grid-cols-2">
           <Field label="Title">
-            <AdminInput
+            <Input
+              className="h-9"
               value={draft.name}
               disabled={disabled}
-              onChange={(event) =>
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 onUpdate(draft.localId, (current) => ({
                   ...current,
                   name: event.target.value,
@@ -1104,10 +1181,11 @@ function DraftRow({
           </Field>
 
           <Field label="Wallpaper ID">
-            <AdminInput
+            <Input
+              className="h-9 font-mono text-xs"
               value={draft.id}
               disabled={idLocked}
-              onChange={(event) =>
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 onUpdateId(draft.localId, event.target.value)
               }
             />
@@ -1124,7 +1202,7 @@ function DraftRow({
                 }))
               }
             >
-              <SelectTrigger className="h-11 w-full rounded-xl">
+              <SelectTrigger className="h-9 w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1138,11 +1216,12 @@ function DraftRow({
           </Field>
 
           <Field label="Tags">
-            <AdminInput
+            <Input
+              className="h-9"
               value={draft.tagsText}
               disabled={disabled}
               placeholder="comma, separated, tags"
-              onChange={(event) =>
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
                 onUpdate(draft.localId, (current) => ({
                   ...current,
                   tagsText: event.target.value,
@@ -1152,7 +1231,7 @@ function DraftRow({
           </Field>
 
           <div className="xl:col-span-2">
-            <div className="grid gap-2 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg bg-[var(--admin-border)] sm:grid-cols-4">
               <Info label="Resolution" value={draft.resolution} />
               <Info
                 label="Duration"
@@ -1200,7 +1279,8 @@ function DraftRow({
           </div>
 
           {validation?.message || draft.error ? (
-            <p className="text-[12px] text-[#d70015] xl:col-span-2">
+            <p className="flex items-start gap-1.5 text-xs text-[var(--admin-red)] xl:col-span-2">
+              <CircleAlert className="mt-px size-3.5 shrink-0" />
               {validation?.message ?? draft.error}
             </p>
           ) : null}
@@ -1208,36 +1288,27 @@ function DraftRow({
 
         <div className="flex items-start gap-2 lg:flex-col lg:items-end">
           <AdminBadge tone={statusTone}>
-            <span className="inline-flex items-center gap-1">
-              {draft.status === "uploading" || draft.status === "analyzing" ? (
-                <HugeiconsIcon
-                  icon={Loading01Icon}
-                  className="size-3 animate-spin"
-                />
-              ) : draft.status === "committed" ||
-                draft.status === "uploaded" ? (
-                <HugeiconsIcon
-                  icon={CheckmarkCircle01Icon}
-                  className="size-3"
-                />
-              ) : draft.status === "error" || validation?.ok === false ? (
-                <HugeiconsIcon icon={AlertCircleIcon} className="size-3" />
-              ) : null}
-              {statusLabel(draft.status, draft.progress)}
-            </span>
+            {draft.status === "uploading" || draft.status === "analyzing" ? (
+              <Loader2 className="size-3 animate-spin" />
+            ) : draft.status === "committed" || draft.status === "uploaded" ? (
+              <CircleCheck className="size-3" />
+            ) : draft.status === "error" || validation?.ok === false ? (
+              <CircleAlert className="size-3" />
+            ) : null}
+            {statusLabel(draft.status, draft.progress)}
           </AdminBadge>
-          <AdminButton
-            size="sm"
+          <Button
+            size="icon-sm"
             variant="ghost"
             aria-label={`Remove ${draft.name}`}
             disabled={disabled}
             onClick={() => onRemove(draft.localId)}
           >
-            <HugeiconsIcon icon={Delete01Icon} className="size-4" />
-          </AdminButton>
+            <Trash2 className="size-4" />
+          </Button>
         </div>
       </div>
-      <p className="mt-2 truncate text-[11px] text-[#86868b]">
+      <p className="mt-3 truncate border-t border-[var(--admin-border)] pt-2 text-[11px] text-[var(--admin-muted)]">
         Source: {draft.sourceFileName}
       </p>
     </div>
@@ -1250,7 +1321,7 @@ function Field({
 }: Readonly<{ label: string; children: ReactNode }>) {
   return (
     <div className="space-y-1.5">
-      <AdminLabel>{label}</AdminLabel>
+      <Label className="text-xs text-[var(--admin-muted)]">{label}</Label>
       {children}
     </div>
   )
@@ -1268,7 +1339,7 @@ function TogglePill({
   onChange: (checked: boolean) => void
 }>) {
   return (
-    <label className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-[12px] text-[#1d1d1f]">
+    <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--admin-border)] px-2.5 py-1.5 text-xs font-medium text-[var(--admin-fg-soft)]">
       <Switch
         size="sm"
         checked={checked}
@@ -1285,9 +1356,9 @@ function StatPill({
   value,
 }: Readonly<{ label: string; value: string }>) {
   return (
-    <div className="rounded-2xl bg-[#f5f5f7] px-4 py-3">
-      <p className="text-[12px] text-[#86868b]">{label}</p>
-      <p className="mt-0.5 text-[18px] font-semibold text-[#1d1d1f] tabular-nums">
+    <div className="bg-white px-4 py-3">
+      <p className="text-xs text-[var(--admin-muted)]">{label}</p>
+      <p className="mt-0.5 text-lg font-semibold text-[var(--admin-fg)] tabular-nums">
         {value}
       </p>
     </div>
@@ -1306,38 +1377,40 @@ function RecoverUploadSessionNotice({
   onDiscard: () => void
 }>) {
   return (
-    <div className="rounded-2xl border border-[#0071e3]/25 bg-[#e8f2ff] p-4">
+    <div className="rounded-lg border border-[var(--admin-blue)]/20 bg-[var(--admin-blue-soft)] p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[13px] font-semibold text-[#1d1d1f]">
+          <p className="text-[13px] font-semibold text-[var(--admin-fg)]">
             Recover last upload session
           </p>
-          <p className="mt-0.5 text-[12px] text-[#3f6f9f]">
+          <p className="mt-0.5 text-xs text-[var(--admin-fg-soft)]">
             {session.count.toLocaleString()} staged wallpapers saved{" "}
             {formatRecoveryTime(session.updatedAt)}.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <AdminButton
+          <Button
             size="sm"
-            variant="secondary"
+            variant="outline"
             disabled={disabled}
             onClick={() => void onRestore()}
           >
+            <RotateCcw className="size-3.5" />
             Restore
-          </AdminButton>
-          <AdminButton
+          </Button>
+          <Button
             size="sm"
             variant="ghost"
             disabled={disabled}
             onClick={onDiscard}
           >
+            <Trash2 className="size-3.5" />
             Discard
-          </AdminButton>
+          </Button>
         </div>
       </div>
       {disabled ? (
-        <p className="mt-2 text-[12px] text-[#3f6f9f]">
+        <p className="mt-2 text-xs text-[var(--admin-fg-soft)]">
           Clear the current staged list before restoring the saved session.
         </p>
       ) : null}
@@ -1349,19 +1422,19 @@ function UploadPipelineProgress({ run }: Readonly<{ run: UploadRun }>) {
   const left = Math.max(0, run.total - run.published - run.failed)
 
   return (
-    <div className="rounded-2xl border border-[#d2d2d7] bg-white p-4">
+    <div className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-canvas)] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-[13px] font-semibold text-[#1d1d1f]">
+          <p className="text-[13px] font-semibold text-[var(--admin-fg)]">
             {uploadPhaseLabel(run.phase)}
           </p>
-          <p className="mt-0.5 text-[12px] text-[#86868b]">
+          <p className="mt-0.5 text-xs text-[var(--admin-muted)]">
             Processing wallpaper {run.current.toLocaleString()} of{" "}
             {run.total.toLocaleString()}
           </p>
         </div>
         <AdminBadge tone={run.failed ? "red" : "blue"}>
-          {run.published.toLocaleString()} published / {left.toLocaleString()}{" "}
+          {run.published.toLocaleString()} published · {left.toLocaleString()}{" "}
           left
         </AdminBadge>
       </div>
@@ -1375,7 +1448,7 @@ function UploadPipelineProgress({ run }: Readonly<{ run: UploadRun }>) {
       </div>
 
       {run.failed ? (
-        <p className="mt-3 text-[12px] text-[#d70015]">
+        <p className="mt-3 text-xs text-[var(--admin-red)]">
           {run.failed.toLocaleString()} failed. Fix the row error and upload
           again to retry only those wallpapers.
         </p>
@@ -1393,15 +1466,15 @@ function ProgressLine({
 
   return (
     <div>
-      <div className="mb-1 flex items-center justify-between gap-2 text-[12px]">
-        <span className="font-medium text-[#1d1d1f]">{label}</span>
-        <span className="text-[#86868b] tabular-nums">
+      <div className="mb-1.5 flex items-center justify-between gap-2 text-xs">
+        <span className="font-medium text-[var(--admin-fg)]">{label}</span>
+        <span className="text-[var(--admin-muted)] tabular-nums">
           {value.toLocaleString()} / {total.toLocaleString()}
         </span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-[#e8e8ed]">
+      <div className="h-2 overflow-hidden rounded-full bg-[var(--admin-fill-hover)]">
         <div
-          className="h-full rounded-full bg-[#0071e3] transition-[width] duration-300 ease-out"
+          className="h-full rounded-full bg-[var(--admin-blue)] transition-[width] duration-300 ease-out"
           style={{ width: `${percent}%` }}
         />
       </div>
@@ -1411,10 +1484,10 @@ function ProgressLine({
 
 function Info({ label, value }: Readonly<{ label: string; value: string }>) {
   return (
-    <div className="min-w-0 rounded-2xl bg-white px-3 py-2">
-      <p className="text-[11px] text-[#86868b]">{label}</p>
-      <p className="mt-0.5 truncate text-[12px] font-medium text-[#1d1d1f] tabular-nums">
-        {value || "-"}
+    <div className="min-w-0 bg-white px-3 py-2">
+      <p className="text-[11px] text-[var(--admin-muted)]">{label}</p>
+      <p className="mt-0.5 truncate text-xs font-medium text-[var(--admin-fg)] tabular-nums">
+        {value || "—"}
       </p>
     </div>
   )
@@ -1456,6 +1529,8 @@ function createInitialDraft(
     isPro: false,
     isFeatured: false,
     isCuratedPick: false,
+    trimStartSeconds: 0,
+    trimEndSeconds: null,
     status: "analyzing",
     progress: 0,
     error: null,
@@ -1486,6 +1561,8 @@ async function recoverPersistedDrafts(
     restored.push({
       ...draft,
       file,
+      trimStartSeconds: draft.trimStartSeconds ?? 0,
+      trimEndSeconds: draft.trimEndSeconds ?? null,
       thumbUrl: draft.thumbBlob ? URL.createObjectURL(draft.thumbBlob) : null,
       status,
       progress: status === "uploaded" || status === "committed" ? 100 : 0,
@@ -2249,6 +2326,8 @@ function serializeDraftForPersistence(
     isPro: draft.isPro,
     isFeatured: draft.isFeatured,
     isCuratedPick: draft.isCuratedPick,
+    trimStartSeconds: draft.trimStartSeconds,
+    trimEndSeconds: draft.trimEndSeconds,
     status: draft.status,
     progress: draft.progress,
     error: draft.error,

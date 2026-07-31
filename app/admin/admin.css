@@ -1,96 +1,447 @@
-/* MacWall admin — Apple-like surfaces (flat borders, pill CTAs, site icon). */
+/* ---------------------------------------------------------------------------
+ * MacWall Admin — light design system
+ *
+ * Everything inside `.admin-portal` runs on one light token set so that every
+ * shadcn primitive (Button, Card, Select, DropdownMenu, Table, Tabs…) renders
+ * correctly without per-component overrides.
+ * ------------------------------------------------------------------------- */
 
 .admin-portal {
-  --admin-bg: #f5f5f7;
-  --admin-fg: #1d1d1f;
-  --admin-muted: #86868b;
-  --admin-blue: #0071e3;
-  --admin-blue-hover: #0077ed;
+  /* Palette */
+  --admin-canvas: #f7f8fa;
   --admin-surface: #ffffff;
-  --admin-fill: #f5f5f7;
-  --admin-fill-hover: #e8e8ed;
-  --admin-border: rgba(0, 0, 0, 0.06);
+  --admin-fill: #f2f4f7;
+  --admin-fill-hover: #e9ecf1;
+  --admin-border: #e4e7ec;
+  --admin-border-strong: #d3d8e0;
+  --admin-fg: #101828;
+  --admin-fg-soft: #475467;
+  --admin-muted: #667085;
+  --admin-blue: #0071e3;
+  --admin-blue-hover: #0062c4;
+  --admin-blue-soft: #eaf3ff;
+  --admin-green: #17864a;
+  --admin-green-soft: #e7f6ed;
+  --admin-amber: #b54708;
+  --admin-amber-soft: #fdf3e6;
+  --admin-red: #d0322b;
+  --admin-red-soft: #fdecec;
+  --admin-violet: #5f52d6;
+
+  /* Elevation — one shadow, used sparingly */
+  --admin-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --admin-shadow-pop:
+    0 8px 24px -6px rgba(16, 24, 40, 0.12),
+    0 2px 6px -2px rgba(16, 24, 40, 0.06);
+
+  /* Layout rhythm */
+  --admin-page-px: 1.25rem;
+  --admin-page-py: 1.5rem;
+  --admin-page-max: 88rem;
+  --admin-sidebar-width: 15rem;
+  --admin-topbar-height: 3.5rem;
+
+  /* shadcn token bridge */
+  --background: var(--admin-surface);
+  --foreground: var(--admin-fg);
+  --card: var(--admin-surface);
+  --card-foreground: var(--admin-fg);
+  --popover: var(--admin-surface);
+  --popover-foreground: var(--admin-fg);
+  --primary: var(--admin-blue);
+  --primary-foreground: #ffffff;
+  --secondary: var(--admin-fill);
+  --secondary-foreground: var(--admin-fg);
+  --muted: var(--admin-fill);
+  --muted-foreground: var(--admin-muted);
+  --accent: var(--admin-fill);
+  --accent-foreground: var(--admin-fg);
+  --destructive: var(--admin-red);
+  --destructive-foreground: #ffffff;
+  --border: var(--admin-border);
+  --input: var(--admin-fill);
+  --ring: var(--admin-blue);
+  --radius: 0.625rem;
+
+  /* shadcn Button reads these; keep primary brand-blue, secondary neutral */
+  --button-primary-bg: var(--admin-blue);
+  --button-primary-hover: var(--admin-blue-hover);
+  --button-secondary-bg: var(--admin-fill);
+  --button-secondary-hover: var(--admin-fill-hover);
+
+  --sidebar: var(--admin-surface);
+  --sidebar-foreground: var(--admin-fg);
+  --sidebar-primary: var(--admin-blue);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--admin-fill);
+  --sidebar-accent-foreground: var(--admin-fg);
+  --sidebar-border: var(--admin-border);
+  --sidebar-ring: var(--admin-blue);
 
   --chart-1: #0071e3;
-  --chart-2: #34c759;
-  --chart-3: #ff9500;
-  --chart-4: #af52de;
-  --chart-5: #ff2d55;
+  --chart-2: #17b26a;
+  --chart-3: #f79009;
+  --chart-4: #7a5af8;
+  --chart-5: #f04438;
 
+  font-family: var(--site-font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   color: var(--admin-fg);
-  background: var(--admin-bg);
+  background: var(--admin-canvas);
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
 }
 
+.admin-portal h1,
+.admin-portal h2,
+.admin-portal h3,
+.admin-portal h4,
+.admin-portal h5,
+.admin-portal h6 {
+  font-family: var(--site-font-sans);
+  letter-spacing: -0.011em;
+}
+
+/* --- Layout ------------------------------------------------------------- */
+
+.admin-portal .admin-page {
+  width: 100%;
+  min-width: 0;
+  max-width: var(--admin-page-max);
+  margin-inline: auto;
+  padding: var(--admin-page-py) var(--admin-page-px);
+}
+
+@media (min-width: 640px) {
+  .admin-portal {
+    --admin-page-px: 1.5rem;
+    --admin-page-py: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-portal {
+    --admin-page-px: 2rem;
+    --admin-page-py: 2rem;
+  }
+}
+
+/* --- shadcn primitive tuning -------------------------------------------- */
+
+/* Cards: hairline + one soft shadow, calmer radius than the marketing site */
+.admin-portal [data-slot="card"] {
+  border-radius: 1rem;
+  box-shadow: var(--admin-shadow);
+  --tw-ring-color: var(--admin-border);
+}
+
+/* --- Capsule controls (Apple-like) ---------------------------------------
+ * Pills are only for single-line controls: buttons, text fields, selects,
+ * tabs, switches, badges. Every container surface stays a rounded rectangle.
+ * ------------------------------------------------------------------------ */
+
+.admin-portal [data-slot="button"],
+.admin-portal [data-slot="input"],
+.admin-portal [data-slot="select-trigger"],
+.admin-portal [data-slot="badge"],
+.admin-portal [data-slot="tabs-list"],
+.admin-portal [data-slot="tabs-trigger"],
 .admin-portal [data-slot="switch"] {
-  border: none !important;
+  border-radius: 9999px;
+}
+
+/* Segmented controls.
+ * Radix emits data-state="active" while the shadcn component styles
+ * data-active, so the selected tab is coloured here instead. */
+.admin-portal [data-slot="tabs-list"][data-variant="default"] {
+  background: var(--admin-fill);
+  padding: 0.1875rem;
+}
+
+.admin-portal [data-slot="tabs-trigger"] {
+  color: var(--admin-muted);
+  font-weight: 500;
+}
+
+.admin-portal [data-slot="tabs-trigger"]:hover {
+  color: var(--admin-fg-soft);
+}
+
+.admin-portal
+  [data-slot="tabs-list"][data-variant="default"]
+  [data-slot="tabs-trigger"][data-state="active"] {
+  background: var(--admin-surface);
+  color: var(--admin-fg);
+  font-weight: 600;
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.1),
+    0 0 0 0.5px rgba(16, 24, 40, 0.06);
+}
+
+/* Counts sit beside the label and must stay quiet in both states */
+.admin-portal [data-slot="tabs-trigger"] [data-count] {
+  color: var(--admin-muted);
+  font-weight: 500;
+}
+
+.admin-portal [data-slot="tabs-trigger"][data-state="active"] [data-count] {
+  color: var(--admin-fg-soft);
+}
+
+/* Line tabs get an underline rather than a pill */
+.admin-portal
+  [data-slot="tabs-list"][data-variant="line"]
+  [data-slot="tabs-trigger"][data-state="active"] {
+  color: var(--admin-fg);
+}
+
+.admin-portal
+  [data-slot="tabs-list"][data-variant="line"]
+  [data-slot="tabs-trigger"][data-state="active"]::after {
+  opacity: 1;
+}
+
+/* Pills need a little more breathing room on the ends than a rounded rect */
+.admin-portal [data-slot="button"][data-size="sm"] {
+  padding-inline: 0.875rem;
+}
+
+.admin-portal [data-slot="button"][data-size="xs"] {
+  padding-inline: 0.625rem;
+}
+
+.admin-portal [data-slot="button"][data-size^="icon"] {
+  padding-inline: 0;
+}
+
+.admin-portal [data-slot="textarea"] {
+  border-radius: 1.125rem;
+}
+
+.admin-portal [data-slot="alert"] {
+  border-radius: 1rem;
+}
+
+/* --- Switch (macOS toggle) ----------------------------------------------
+ * Apple's 51x31 track with a 27px knob, scaled down for this dense UI.
+ * Radix reports state as data-state, which the primitive's own
+ * data-checked utilities never match — appearance is driven from here.
+ * ---------------------------------------------------------------------- */
+
+.admin-portal [data-slot="switch"][data-size] {
+  border-color: transparent;
+  background: var(--admin-border-strong);
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.15s ease;
+}
+
+.admin-portal [data-slot="switch"][data-size][data-state="checked"] {
+  border-color: transparent;
+  background: var(--admin-green);
+}
+
+.admin-portal [data-slot="switch"][data-size]:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-blue) 30%, transparent);
+}
+
+.admin-portal [data-slot="switch"][data-size="default"] {
+  width: 2.5rem;
+  height: 1.5rem;
+}
+
+.admin-portal [data-slot="switch"][data-size="sm"] {
+  width: 2rem;
+  height: 1.25rem;
+}
+
+.admin-portal [data-slot="switch"][data-size] [data-slot="switch-thumb"] {
+  border-radius: 9999px;
+  background: var(--admin-surface);
+  box-shadow:
+    0 3px 6px rgba(16, 24, 40, 0.16),
+    0 1px 1px rgba(16, 24, 40, 0.1);
+  transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.admin-portal
+  [data-slot="switch"][data-size="default"]
+  [data-slot="switch-thumb"] {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.admin-portal
+  [data-slot="switch"][data-size="default"]
+  [data-slot="switch-thumb"][data-state="checked"] {
+  transform: translateX(1rem);
+}
+
+.admin-portal [data-slot="switch"][data-size="sm"] [data-slot="switch-thumb"] {
+  width: 1rem;
+  height: 1rem;
+}
+
+.admin-portal
+  [data-slot="switch"][data-size="sm"]
+  [data-slot="switch-thumb"][data-state="checked"] {
+  transform: translateX(0.75rem);
+}
+
+.admin-portal
+  [data-slot="switch"][data-size]
+  [data-slot="switch-thumb"][data-state="unchecked"] {
+  transform: translateX(0);
+}
+
+/* Neutral buttons keep dark text (the marketing theme assumes white on dark) */
+.admin-portal [data-slot="button"][data-variant="secondary"],
+.admin-portal [data-slot="button"][data-variant="outline"] {
+  color: var(--admin-fg);
+}
+
+.admin-portal [data-slot="button"][data-variant="outline"] {
+  background: var(--admin-surface);
+  border-color: var(--admin-border-strong);
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-portal [data-slot="button"][data-variant="outline"]:hover {
+  background: var(--admin-fill);
+  color: var(--admin-fg);
+}
+
+/* --- Menus & floating surfaces ------------------------------------------ */
+
+.admin-portal [data-slot="select-content"],
+.admin-portal [data-slot="dropdown-menu-content"],
+.admin-portal [data-slot="popover-content"] {
+  border-radius: 0.875rem;
+  padding: 0.3125rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  box-shadow: var(--admin-shadow-pop);
+}
+
+.admin-portal [data-slot="tooltip-content"] {
+  box-shadow: var(--admin-shadow-pop);
+}
+
+.admin-portal [data-slot="select-item"],
+.admin-portal [data-slot="dropdown-menu-item"],
+.admin-portal [data-slot="dropdown-menu-checkbox-item"],
+.admin-portal [data-slot="dropdown-menu-radio-item"] {
+  border-radius: 0.625rem;
+  min-height: 2rem;
+  padding-block: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--admin-fg);
+}
+
+.admin-portal [data-slot="select-item"] svg,
+.admin-portal [data-slot="dropdown-menu-item"] svg {
+  color: var(--admin-muted);
+}
+
+.admin-portal [data-slot="select-item"][data-highlighted],
+.admin-portal [data-slot="dropdown-menu-item"][data-highlighted],
+.admin-portal [data-slot="dropdown-menu-checkbox-item"][data-highlighted],
+.admin-portal [data-slot="dropdown-menu-radio-item"][data-highlighted] {
+  background: var(--admin-fill);
+  color: var(--admin-fg);
+}
+
+.admin-portal [data-slot="dropdown-menu-item"][data-variant="destructive"] svg {
+  color: var(--admin-red);
+}
+
+.admin-portal [data-slot="dropdown-menu-separator"],
+.admin-portal [data-slot="select-separator"] {
+  margin-block: 0.3125rem;
+  margin-inline: -0.3125rem;
+  background: var(--admin-border);
+}
+
+.admin-portal [data-slot="dropdown-menu-label"],
+.admin-portal [data-slot="select-label"] {
+  padding-inline: 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--admin-muted);
 }
 
 .admin-portal [data-slot="select-trigger"] {
-  border: none !important;
-  background: var(--admin-fill) !important;
-  box-shadow: none !important;
+  background: var(--admin-surface);
+  border-color: var(--admin-border-strong);
+  box-shadow: var(--admin-shadow);
 }
 
-.admin-portal [data-slot="select-trigger"]:hover {
-  background: var(--admin-fill-hover) !important;
+.admin-portal [data-slot="input"],
+.admin-portal [data-slot="textarea"] {
+  background: var(--admin-surface);
+  border-color: var(--admin-border-strong);
+  box-shadow: var(--admin-shadow);
 }
 
+.admin-portal [data-slot="input"]::placeholder,
+.admin-portal [data-slot="textarea"]::placeholder {
+  color: var(--admin-muted);
+}
+
+/* Charts */
 .admin-portal [data-slot="chart"] .recharts-cartesian-grid line {
-  stroke: #ebebed;
-}
-
-.admin-portal [data-slot="chart"] .recharts-default-legend {
-  padding-top: 12px !important;
+  stroke: var(--admin-border);
 }
 
 .admin-portal [data-slot="chart"] .recharts-legend-item-text {
-  color: #86868b !important;
+  color: var(--admin-muted) !important;
   font-size: 12px !important;
 }
+
+/* --- Motion -------------------------------------------------------------- */
 
 @keyframes admin-fade-in {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.98);
+    transform: translateY(3px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes admin-shimmer {
-  0%,
-  100% {
-    opacity: 0.45;
-  }
-  50% {
-    opacity: 0.85;
+    transform: none;
   }
 }
 
 .admin-fade-in {
-  animation: admin-fade-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.admin-portal .admin-skeleton-pulse {
-  animation: admin-shimmer 2s ease-in-out infinite;
-}
-
-.admin-portal [data-slot="select-content"] {
-  border: none !important;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
-  border-radius: 1rem !important;
-  overflow: hidden;
+  animation: admin-fade-in 0.2s ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .admin-fade-in {
     animation: none;
   }
+}
 
-  .admin-portal .admin-skeleton-pulse {
-    animation: none;
-    opacity: 0.7;
-  }
+/* Chat scroll area: hide the scrollbar chrome without losing scrolling */
+.admin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--admin-border-strong) transparent;
+  overscroll-behavior: contain;
+}
+
+.admin-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.admin-scroll::-webkit-scrollbar-thumb {
+  background-clip: padding-box;
+  border: 3px solid transparent;
+  border-radius: 9999px;
+  background-color: var(--admin-border-strong);
+}
+
+.admin-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }

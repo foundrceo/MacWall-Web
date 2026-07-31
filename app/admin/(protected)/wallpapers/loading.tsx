@@ -1,17 +1,15 @@
 import { AdminShell } from "@/components/admin/admin-shell"
-import { AdminSkeleton } from "@/components/admin/admin-ui"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Loading() {
   return (
-    <AdminShell
-      title="Wallpapers"
-      description="Bulk upload catalog videos, review likes, and edit wallpaper metadata."
-    >
-      <AdminSkeleton className="h-12 w-full" />
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 9 }).map((_, index) => (
-          <AdminSkeleton key={index} className="h-40 w-full" />
-        ))}
+    <AdminShell title="Wallpapers">
+      <div className="space-y-4">
+        <Skeleton className="h-28 w-full rounded-2xl" />
+        <div className="grid gap-4 min-[1200px]:grid-cols-[minmax(0,1fr)_22rem]">
+          <Skeleton className="h-[560px] rounded-2xl" />
+          <Skeleton className="hidden h-[520px] rounded-2xl min-[1200px]:block" />
+        </div>
       </div>
     </AdminShell>
   )
