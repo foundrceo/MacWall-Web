@@ -51,14 +51,22 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.9",
     "png-to-ico": "^3.0.1",
-    "postcss": "8.5.14",
+    "postcss": "8.5.23",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "sharp": "^0.34.5",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3"
   },
   "overrides": {
-    "postcss": "8.5.14"
+    "postcss": "$postcss",
+    "sharp": "$sharp",
+    "@hono/node-server": "2.0.11",
+    "brace-expansion": "5.0.8",
+    "minimatch": "10.2.5"
+  },
+  "allowScripts": {
+    "sharp@0.35.3": true,
+    "unrs-resolver@1.11.1": true
   }
 }

@@ -73,13 +73,6 @@ const nextConfig = {
   },
   turbopack: {},
   transpilePackages: ["geist"],
-  experimental: {
-    optimizePackageImports: [
-      "lucide-react",
-      "@hugeicons/core-free-icons",
-      "@hugeicons/react",
-    ],
-  },
   async redirects() {
     return [
       {
