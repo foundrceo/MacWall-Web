@@ -40,6 +40,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import {
+  MULTIPART_THRESHOLD_BYTES,
+  UPLOAD_FILE_CONCURRENCY,
+  uploadR2ObjectDirect,
+  uploadR2VideoMultipart,
+} from "@/lib/admin/r2-browser-upload"
 import { cn } from "@/lib/utils"
 import {
   DEFAULT_WALLPAPER_CATEGORY,
@@ -50,8 +56,6 @@ const MAX_FILES = 300
 const METADATA_READ_CONCURRENCY = 3
 const AI_ANALYSIS_CHUNK_SIZE = 6
 const AI_ANALYSIS_CONCURRENCY = 2
-const UPLOAD_RETRY_ATTEMPTS = 3
-const UPLOAD_RETRY_BASE_DELAY_MS = 800
 const THUMB_MAX_WIDTH = 1280
 const THUMB_QUALITY = 0.86
 const AI_THUMB_MAX_WIDTH = 512
@@ -736,10 +740,12 @@ export function CatalogBulkUploadPanel({
     })
 
     try {
-      for (let index = 0; index < candidates.length; index += 1) {
-        const draft = candidates[index]
+      let startedCount = 0
+      await runPool(candidates, UPLOAD_FILE_CONCURRENCY, async (draft) => {
+        startedCount += 1
+        const startedAt = startedCount
         setUploadRun((current) =>
-          current ? { ...current, current: index + 1 } : current
+          current ? { ...current, current: startedAt } : current
         )
 
         try {
@@ -767,36 +773,47 @@ export function CatalogBulkUploadPanel({
 
             updateDraft(liveDraft.localId, (current) => ({
               ...current,
-              progress: 15,
+              progress: 10,
             }))
 
             await uploadStorageTarget({
               target: upload.video,
               fileBody: liveDraft.file,
               contentType: liveDraft.videoContentType,
+              objectKey: liveDraft.videoKey,
+              onProgress: ({ loadedBytes, totalBytes }) => {
+                const ratio = totalBytes > 0 ? loadedBytes / totalBytes : 0
+                // Video is ~10% → 80% of the row progress bar.
+                const progress = Math.min(80, Math.round(10 + ratio * 70))
+                updateDraft(liveDraft.localId, (current) => ({
+                  ...current,
+                  progress: Math.max(current.progress, progress),
+                }))
+              },
             })
 
             updateDraft(liveDraft.localId, (current) => ({
               ...current,
-              progress: 55,
+              progress: 82,
             }))
 
             await uploadStorageTarget({
               target: upload.thumb,
               fileBody: liveDraft.thumbBlob!,
               contentType: "image/jpeg",
+              objectKey: liveDraft.thumbKey,
             })
 
             updateDraft(liveDraft.localId, (current) => ({
               ...current,
               status: "uploaded",
-              progress: 85,
+              progress: 90,
             }))
           } else {
             updateDraft(liveDraft.localId, (current) => ({
               ...current,
               status: "uploading",
-              progress: 85,
+              progress: 90,
               error: null,
             }))
           }
@@ -835,7 +852,7 @@ export function CatalogBulkUploadPanel({
             current ? { ...current, failed: failedSoFar } : current
           )
         }
-      }
+      })
 
       setUploadRun((current) =>
         current ? { ...current, phase: "complete" } : current
@@ -874,7 +891,7 @@ export function CatalogBulkUploadPanel({
     <Card className="gap-0 py-0">
       <PanelHeader
         title="Bulk catalog upload"
-        description="Stage up to 300 videos, let AI read the thumbnails for metadata, then publish straight to Cloudflare R2."
+        description="Stage up to 300 videos, let AI read the thumbnails for metadata, then publish in parallel with R2 multipart uploads."
         action={
           <div className="flex flex-wrap gap-2">
             <Button
@@ -1429,8 +1446,9 @@ function UploadPipelineProgress({ run }: Readonly<{ run: UploadRun }>) {
             {uploadPhaseLabel(run.phase)}
           </p>
           <p className="mt-0.5 text-xs text-[var(--admin-muted)]">
-            Processing wallpaper {run.current.toLocaleString()} of{" "}
-            {run.total.toLocaleString()}
+            Started {run.current.toLocaleString()} of{" "}
+            {run.total.toLocaleString()} · up to {UPLOAD_FILE_CONCURRENCY} at
+            once
           </p>
         </div>
         <AdminBadge tone={run.failed ? "red" : "blue"}>
@@ -1894,51 +1912,48 @@ async function uploadStorageTarget({
   target,
   fileBody,
   contentType,
+  objectKey,
+  onProgress,
 }: {
   target: SignedUploadTarget
   fileBody: File | Blob
   contentType: string
+  objectKey: string
+  onProgress?: (event: { loadedBytes: number; totalBytes: number }) => void
 }) {
-  if (target.alreadyUploaded) return
-  await uploadR2Target({ target, fileBody, contentType })
-}
-
-async function uploadR2Target({
-  target,
-  fileBody,
-  contentType,
-}: {
-  target: SignedUploadTarget
-  fileBody: File | Blob
-  contentType: string
-}) {
-  if (!target.signedUrl) {
-    throw new Error(`Missing presigned upload URL for ${target.path}.`)
+  if (target.alreadyUploaded) {
+    onProgress?.({ loadedBytes: fileBody.size, totalBytes: fileBody.size })
+    return
   }
 
-  let lastError: unknown = null
-  for (let attempt = 1; attempt <= UPLOAD_RETRY_ATTEMPTS; attempt += 1) {
-    try {
-      const response = await fetch(target.signedUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": contentType,
-          "Cache-Control": "public, max-age=31536000, immutable",
-        },
-        body: fileBody,
+  try {
+    const useMultipart =
+      objectKey.startsWith("videos/") &&
+      fileBody.size >= MULTIPART_THRESHOLD_BYTES
+
+    if (useMultipart) {
+      await uploadR2VideoMultipart({
+        key: objectKey,
+        file: fileBody,
+        contentType,
+        onProgress,
       })
-      if (response.ok) return
-      lastError = new Error(`HTTP ${response.status}`)
-    } catch (err) {
-      lastError = err
+      return
     }
 
-    if (attempt < UPLOAD_RETRY_ATTEMPTS) {
-      await sleep(UPLOAD_RETRY_BASE_DELAY_MS * 2 ** (attempt - 1))
+    if (!target.signedUrl) {
+      throw new Error(`Missing presigned upload URL for ${target.path}.`)
     }
+
+    await uploadR2ObjectDirect({
+      signedUrl: target.signedUrl,
+      body: fileBody,
+      contentType,
+      onProgress,
+    })
+  } catch (error) {
+    throw new Error(`${target.path}: ${storageErrorMessage(error)}`)
   }
-
-  throw new Error(`${target.path}: ${storageErrorMessage(lastError)}`)
 }
 
 function storageErrorMessage(error: unknown) {
@@ -1963,10 +1978,6 @@ function storageErrorMessage(error: unknown) {
     .filter((value) => value && value !== message)
 
   return details.length ? `${message} (${details.join(", ")})` : message
-}
-
-function sleep(ms: number) {
-  return new Promise<void>((resolve) => window.setTimeout(resolve, ms))
 }
 
 function runPool<T>(
@@ -2133,7 +2144,7 @@ function statusLabel(status: DraftStatus, progress: number) {
 function uploadPhaseLabel(phase: UploadRunPhase) {
   switch (phase) {
     case "processing":
-      return "Publishing one wallpaper at a time"
+      return "Publishing in parallel to Cloudflare R2"
     case "complete":
       return "Upload complete"
   }
