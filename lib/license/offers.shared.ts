@@ -73,6 +73,9 @@ export function isLicenseOfferSlug(
 export function normalizeLicenseOfferSlug(
   value: string | null | undefined
 ): LicenseOfferSlug {
+  // Annual is retired — old ?offer=annual links become permanent one-time.
+  if (value === "annual") return "permanent"
+
   if (isLicenseOfferSlug(value)) return value
 
   // Preserve old shared checkout links while moving off Pro / Pro Plus.
