@@ -91,6 +91,14 @@ function BannerCountdown() {
   )
 }
 
+function Dot() {
+  return (
+    <span className="shrink-0 text-black/25" aria-hidden>
+      ·
+    </span>
+  )
+}
+
 /** Launch offer strip above the navbar — tease the deal, drive to pricing. */
 export default function AnnouncementBanner() {
   const pricing = useMarketingPricing()
@@ -99,9 +107,9 @@ export default function AnnouncementBanner() {
     <div id="launch-banner" className={LAUNCH_BANNER_CLASS}>
       <Link
         href="/pricing"
-        className="mx-auto flex h-full max-w-7xl items-center justify-center gap-x-1.5 overflow-hidden px-3 text-center transition-opacity hover:opacity-80 sm:gap-x-2 sm:px-4"
+        className="mx-auto flex h-full max-w-7xl flex-col items-center justify-center gap-y-0.5 px-3 text-center transition-opacity hover:opacity-80 sm:flex-row sm:flex-wrap sm:gap-x-2 sm:gap-y-0 sm:px-4"
       >
-        <span className="truncate text-[11px] font-semibold tracking-tight text-black sm:text-[13px]">
+        <span className="max-w-full text-[11px] font-semibold tracking-tight text-balance text-black sm:truncate sm:text-[13px]">
           {pricing.isIndia ? (
             <span aria-hidden className="mr-1">
               🇮🇳
@@ -110,32 +118,30 @@ export default function AnnouncementBanner() {
           {pricing.bannerHeadline}
         </span>
 
-        <span className="shrink-0 text-black/25" aria-hidden>
-          ·
+        <span className="hidden sm:inline" aria-hidden>
+          <Dot />
         </span>
 
-        <span className="inline-flex shrink-0 items-baseline gap-x-1 text-[11px] sm:text-[13px]">
-          <span className="font-medium text-black/55">Pro</span>
-          <span className="text-black/40 line-through decoration-black/45 decoration-1">
-            {pricing.permanentStrikePrice}
+        <span className="inline-flex max-w-full flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 sm:gap-x-2">
+          <span className="inline-flex shrink-0 items-baseline gap-x-1 text-[11px] sm:text-[13px]">
+            <span className="font-medium text-black/55">Pro</span>
+            <span className="text-black/40 line-through decoration-black/45 decoration-1">
+              {pricing.bannerStrikePrice}
+            </span>
+            <span className="font-semibold text-black tabular-nums">
+              {pricing.bannerSalePrice}
+            </span>
           </span>
-          <span className="font-semibold text-black tabular-nums">
-            {pricing.permanentPrice}
+
+          <Dot />
+
+          <BannerCountdown />
+
+          <Dot />
+
+          <span className="shrink-0 text-[11px] font-semibold text-black sm:text-[13px]">
+            {pricing.bannerCta}
           </span>
-        </span>
-
-        <span className="shrink-0 text-black/25" aria-hidden>
-          ·
-        </span>
-
-        <BannerCountdown />
-
-        <span className="hidden shrink-0 text-black/25 sm:inline" aria-hidden>
-          ·
-        </span>
-
-        <span className="hidden truncate text-[11px] font-semibold text-black sm:inline sm:text-[13px]">
-          {pricing.bannerCta}
         </span>
       </Link>
     </div>

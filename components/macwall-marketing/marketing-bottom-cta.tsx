@@ -38,8 +38,8 @@ export default function MacWallMarketingBottomCta() {
         <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-normal tracking-[-0.02em] text-foreground">
           Try {macwall.name}.
         </h2>
-        <div className="mt-7 flex flex-col items-center gap-2 md:mt-10">
-          <div className="flex flex-row flex-nowrap items-center justify-center gap-2">
+        <div className="mt-7 flex flex-row flex-nowrap items-start justify-center gap-2 md:mt-10">
+          <div className="flex flex-col items-center gap-2">
             <TrackedDownloadButton
               href={macwallInstallerLatestPath}
               size="pill"
@@ -49,18 +49,18 @@ export default function MacWallMarketingBottomCta() {
               <AppleIcon className="size-3.5" />
               Download for macOS
             </TrackedDownloadButton>
-            <TrackedPricingButton
-              href="/pricing"
-              location="bottom_cta"
-              size="pill"
-              className={`${HERO_SECONDARY_BTN_CLASS} shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]`}
-            >
-              {pricing.bottomCtaLabel}
-            </TrackedPricingButton>
+            <p className="max-w-full text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
+              {macwallMinimumMacOSVersionLabel}
+            </p>
           </div>
-          <p className="text-center text-[12px] text-marketing-muted">
-            {macwallMinimumMacOSVersionLabel}
-          </p>
+          <TrackedPricingButton
+            href="/pricing"
+            location="bottom_cta"
+            size="pill"
+            className={`${HERO_SECONDARY_BTN_CLASS} shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]`}
+          >
+            {pricing.bottomCtaLabel}
+          </TrackedPricingButton>
         </div>
       </div>
     </section>

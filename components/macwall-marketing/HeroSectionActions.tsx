@@ -32,8 +32,8 @@ export default function HeroSectionActions() {
   const pricing = useMarketingPricing()
 
   return (
-    <div className="mt-8 flex flex-col items-start gap-2 pb-5 md:mt-10">
-      <div className="flex flex-row flex-nowrap items-center gap-2">
+    <div className="mt-8 flex flex-row flex-nowrap items-start gap-2 pb-5 md:mt-10">
+      <div className="flex flex-col items-center gap-2">
         <TrackedDownloadButton
           href={macwallInstallerLatestPath}
           size="pill"
@@ -46,21 +46,21 @@ export default function HeroSectionActions() {
           <AppleIcon className="size-3.5" />
           Download for macOS
         </TrackedDownloadButton>
-        <TrackedPricingButton
-          href="/pricing"
-          location="hero"
-          size="pill"
-          className={cn(
-            HERO_SECONDARY_BTN_CLASS,
-            "shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]"
-          )}
-        >
-          {pricing.getProCta}
-        </TrackedPricingButton>
+        <p className="max-w-full text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
+          {macwallMinimumMacOSVersionLabel}
+        </p>
       </div>
-      <p className="text-[12px] text-marketing-muted">
-        {macwallMinimumMacOSVersionLabel}
-      </p>
+      <TrackedPricingButton
+        href="/pricing"
+        location="hero"
+        size="pill"
+        className={cn(
+          HERO_SECONDARY_BTN_CLASS,
+          "shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]"
+        )}
+      >
+        {pricing.getProCta}
+      </TrackedPricingButton>
     </div>
   )
 }

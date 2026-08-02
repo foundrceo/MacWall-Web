@@ -43,6 +43,12 @@ export type MarketingPricing = {
   permanentOffLabel: string
   /** Non-US only: ≈ ₹… · charged in INR */
   permanentLocalHint: string | null
+  /**
+   * Banner strip prices — India uses local INR for sale + strike when FX
+   * is available; otherwise catalog USD (India $3.99 / strike $14.99).
+   */
+  bannerSalePrice: string
+  bannerStrikePrice: string
   annualPrice: string
   annualPriceMajor: number
   salePrice: string
@@ -115,10 +121,18 @@ function localHintForUsdCents(
   usdCents: number,
   fx: MarketingFxRate | null | undefined
 ): string | null {
+  const formatted = formatLocalUsdCents(usdCents, fx)
+  if (!formatted || !fx) return null
+  return `≈ ${formatted} · charged in ${fx.currency.toUpperCase()}`
+}
+
+function formatLocalUsdCents(
+  usdCents: number,
+  fx: MarketingFxRate | null | undefined
+): string | null {
   if (!fx || fx.currency === "usd") return null
   const major = convertUsdCentsWithRate(usdCents, fx.currency, fx.usdPerUnit)
-  const formatted = formatMoney(major, fx.currency, fx.locale)
-  return `≈ ${formatted} · charged in ${fx.currency.toUpperCase()}`
+  return formatMoney(major, fx.currency, fx.locale)
 }
 
 export function buildMarketingPricingFromLocalized(
@@ -139,6 +153,15 @@ export function buildMarketingPricingFromLocalized(
   const permanentStrikePrice = permanentStrike.formatted
   const permanentLocalHint = localHint(permanentLocal)
   const permanentOffLabel = offLabel(PRO_STRIKE_USD_CENTS, permanentSaleCents)
+
+  // Banner: India shows local INR for sale + cutted strike when FX is available.
+  const indiaFx = india ? fx : null
+  const bannerSalePrice =
+    (india && permanentLocal?.isLocalized ? permanentLocal.formatted : null) ??
+    formatLocalUsdCents(permanentSaleCents, indiaFx) ??
+    permanentPrice
+  const bannerStrikePrice =
+    formatLocalUsdCents(PRO_STRIKE_USD_CENTS, indiaFx) ?? permanentStrikePrice
 
   const multiMacOffers: MarketingMultiMacOffer[] = MULTI_MAC_OFFER_SLUGS.map(
     (slug) => {
@@ -175,6 +198,8 @@ export function buildMarketingPricingFromLocalized(
     permanentStrikePriceMajor: permanentStrike.major,
     permanentOffLabel,
     permanentLocalHint,
+    bannerSalePrice,
+    bannerStrikePrice,
     annualPrice: annual.formatted,
     annualPriceMajor: annual.major,
     salePrice: permanentPrice,
