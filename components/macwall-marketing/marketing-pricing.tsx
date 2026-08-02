@@ -7,7 +7,6 @@ import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-b
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import { CheckoutPrefetchWarmup } from "@/components/macwall-marketing/checkout-prefetch-warmup"
-import { DiscordPricingPerk } from "@/components/macwall-marketing/discord-pricing-perk"
 import HomeFaqSection from "@/components/macwall-marketing/HomeFaqSection"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
@@ -64,8 +63,6 @@ export default function MacWallMarketingPricingPage() {
             <p className="mx-auto mt-4 max-w-2xl text-center text-[16px] leading-relaxed text-marketing-muted sm:text-[17px]">
               {p.heroLead}
             </p>
-
-            <DiscordPricingPerk />
 
             <div className="mt-8 md:mt-10">
               <div className="mx-auto grid max-w-3xl grid-cols-1 items-stretch gap-4 sm:gap-5 lg:grid-cols-2">
