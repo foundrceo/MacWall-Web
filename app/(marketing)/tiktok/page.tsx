@@ -1,7 +1,5 @@
 import TikTokLandingHero from "@/components/macwall-marketing/marketing-tiktok-landing"
-import MarketingSiteChrome, {
-  MARKETING_MAIN_OFFSET_CLASS,
-} from "@/components/macwall-marketing/MarketingSiteChrome"
+import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import {
   macwall,
@@ -40,12 +38,12 @@ export const metadata: Metadata = {
 
 export default function TikTokLandingPage() {
   return (
-    <>
+    <div className="marketing-page">
       <MarketingSiteChrome />
-      <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
+      <main id="main-content" className="marketing-main-offset">
         <TikTokLandingHero />
       </main>
       <MacWallMarketingPageEnd showBottomCta={false} />
-    </>
+    </div>
   )
 }

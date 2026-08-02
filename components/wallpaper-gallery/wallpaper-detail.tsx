@@ -24,10 +24,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import {
-  GALLERY_BREADCRUMB_TOP_CLASS,
   GALLERY_MEDIA_RADIUS_CLASS,
   GALLERY_PANEL_RADIUS_CLASS,
-  GALLERY_SHELL_CLASS,
   GALLERY_TEXT_PRIMARY_CLASS,
   GALLERY_TEXT_SECONDARY_CLASS,
   GALLERY_TEXT_TERTIARY_CLASS,
@@ -124,8 +122,8 @@ export function WallpaperDetail({
   const { lead: detailLead, detail: detailBody } = buildDetailCopy(wallpaper)
 
   return (
-    <div className={cn(WALLPAPER_SECTION_FONT_CLASS, GALLERY_SHELL_CLASS)}>
-      <Breadcrumb className={GALLERY_BREADCRUMB_TOP_CLASS}>
+    <div className={WALLPAPER_SECTION_FONT_CLASS}>
+      <Breadcrumb>
         <BreadcrumbList
           className={cn(
             "flex-wrap gap-y-1 text-[13px]",

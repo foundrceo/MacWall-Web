@@ -1,11 +1,10 @@
-import { MARKETING_SECTION_CLASS } from "@/lib/marketing-chrome"
 
 /** Layout placeholder while carousel wallpapers load — keeps #features stable on refresh. */
 export default function BrowseCarouselFeatureRowFallback() {
   return (
-    <section className="py-12 md:py-20 lg:py-24" aria-hidden>
+    <section className="marketing-section" aria-hidden>
       <div
-        className={`${MARKETING_SECTION_CLASS} grid items-center gap-8 md:gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)] lg:gap-14`}
+        className="marketing-container grid items-center gap-8 md:gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)] lg:gap-14"
       >
         <div className="order-2 lg:order-none lg:col-start-2">
           <div className="w-full lg:max-w-[360px]">

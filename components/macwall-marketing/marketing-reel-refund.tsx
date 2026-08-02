@@ -9,9 +9,7 @@ import {
   Mail01Icon,
 } from "@hugeicons/core-free-icons"
 
-import MarketingSiteChrome, {
-  MARKETING_MAIN_OFFSET_CLASS,
-} from "@/components/macwall-marketing/MarketingSiteChrome"
+import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import {
   MarketingReelInfluencerCopy,
   MarketingReelPostTagsCopy,
@@ -143,17 +141,15 @@ function ReelStepCard({
 
 export default function MacWallMarketingReelRefundPage() {
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-background text-foreground antialiased">
+    <div className="marketing-page antialiased">
       <MarketingSiteChrome />
 
-      <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
-        <section className="pt-16 pb-20 md:pt-24 md:pb-28">
-          <div className="mx-auto max-w-[1360px] px-6 sm:px-8 lg:px-10">
-            <h1 className="text-center text-4xl font-normal tracking-tight text-foreground md:text-5xl">
-              {p.reelRefund.title}
-            </h1>
+      <main id="main-content" className="marketing-main">
+        <h1 className="text-center text-4xl font-normal tracking-tight text-foreground md:text-5xl">
+          {p.reelRefund.title}
+        </h1>
 
-            <div className="mt-12 md:mt-16">
+        <div className="mt-12 md:mt-16">
               <ol className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 md:gap-4 lg:grid-cols-4 lg:gap-5">
                 {p.reelRefund.steps.map((step, index) => (
                   <li key={step.title} className="h-full min-w-0">
@@ -190,8 +186,6 @@ export default function MacWallMarketingReelRefundPage() {
                 </Link>
               </p>
             </div>
-          </div>
-        </section>
       </main>
     </div>
   )

@@ -10,8 +10,8 @@ export default function CategoriesSection() {
   const { categoriesTitle, categoriesSubtitle } = macwallExactCopy.demoBrowse
 
   return (
-    <section className="py-12 md:py-20 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+    <section className="marketing-section">
+      <div className="marketing-container">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-[clamp(1.625rem,2.8vw,2.25rem)] font-normal leading-[1.2] tracking-[-0.02em]">
             {categoriesTitle}

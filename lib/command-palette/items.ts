@@ -74,6 +74,9 @@ export function getCommandPaletteStaticItems(): {
     page("page-blog", h.navBlog, "/blog", {
       keywords: ["news", "articles", "updates"],
     }),
+    page("page-changelog", "Changelog", "/changelog", {
+      keywords: ["release notes", "updates", "history", "github"],
+    }),
     page("page-download", "Download", "/download", {
       keywords: ["installer", "get macwall", "app"],
     }),

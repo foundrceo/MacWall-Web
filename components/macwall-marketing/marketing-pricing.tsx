@@ -5,9 +5,7 @@ import type { ReactNode } from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
-import MarketingSiteChrome, {
-  MARKETING_MAIN_OFFSET_CLASS,
-} from "@/components/macwall-marketing/MarketingSiteChrome"
+import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import { CheckoutPrefetchWarmup } from "@/components/macwall-marketing/checkout-prefetch-warmup"
 import { DiscordPricingPerk } from "@/components/macwall-marketing/discord-pricing-perk"
 import HomeFaqSection from "@/components/macwall-marketing/HomeFaqSection"
@@ -53,13 +51,13 @@ export default function MacWallMarketingPricingPage() {
   const plans = p.plans
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-background text-foreground antialiased">
+    <div className="marketing-page antialiased">
       <CheckoutPrefetchWarmup />
       <MarketingSiteChrome />
 
-      <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
-        <section className="pt-12 pb-16 sm:pt-16 sm:pb-20 md:pt-24 md:pb-28">
-          <div className="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-10">
+      <main id="main-content" className="marketing-main-offset">
+        <section className="marketing-hero-section">
+          <div className="marketing-container">
             <h1 className="text-center text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight text-foreground md:text-5xl">
               {p.heroTitle}
             </h1>

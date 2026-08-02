@@ -6,10 +6,6 @@ import {
   TrackedPricingButton,
 } from "@/components/analytics/tracked-marketing-buttons"
 import {
-  HERO_PRIMARY_BTN_CLASS,
-  HERO_SECONDARY_BTN_CLASS,
-} from "@/lib/marketing-chrome"
-import {
   macwall,
   macwallInstallerLatestPath,
   macwallMinimumMacOSVersionLabel,
@@ -33,8 +29,8 @@ export default function MacWallMarketingBottomCta() {
   const pricing = useMarketingPricing()
 
   return (
-    <section className="bg-background">
-      <div className="mx-auto max-w-[1360px] px-4 py-14 text-center sm:px-6 md:py-24 lg:px-10">
+    <section className="marketing-section-elevated bg-background">
+      <div className="marketing-container text-center">
         <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-normal tracking-[-0.02em] text-foreground">
           Try {macwall.name}.
         </h2>
@@ -44,7 +40,7 @@ export default function MacWallMarketingBottomCta() {
               href={macwallInstallerLatestPath}
               size="pill"
               location="bottom_cta"
-              className={`${HERO_PRIMARY_BTN_CLASS} shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]`}
+              className="marketing-hero-primary-btn shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]"
             >
               <AppleIcon className="size-3.5" />
               Download for macOS
@@ -57,7 +53,7 @@ export default function MacWallMarketingBottomCta() {
             href="/pricing"
             location="bottom_cta"
             size="pill"
-            className={`${HERO_SECONDARY_BTN_CLASS} shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]`}
+            className="marketing-hero-secondary-btn shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]"
           >
             {pricing.bottomCtaLabel}
           </TrackedPricingButton>

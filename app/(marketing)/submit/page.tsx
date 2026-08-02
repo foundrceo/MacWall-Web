@@ -1,22 +1,18 @@
 import type { Metadata } from "next"
 
-import MarketingSiteChrome, {
-  MARKETING_MAIN_OFFSET_CLASS,
-} from "@/components/macwall-marketing/MarketingSiteChrome"
+import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { SubmitRequirements } from "@/components/macwall-marketing/submit-requirements"
 import { SubmitWallpaperForm } from "@/components/macwall-marketing/submit-wallpaper-form"
 import { JsonLd } from "@/components/seo/json-ld"
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
 import { macwall } from "@/lib/macwall-site"
-import { MARKETING_PAGE_CLASS } from "@/lib/marketing-chrome"
 import {
   canonicalSiteOrigin,
   canonicalSitePath,
   openGraphImageAbsoluteUrl,
   openGraphImageSize,
 } from "@/lib/site-url"
-import { cn } from "@/lib/utils"
 
 const PAGE_TITLE = "Submit a Wallpaper"
 const PAGE_DESCRIPTION = `Share your own live wallpaper with the ${macwall.name} community. Upload an MP4, MOV, M4V, or WEBM video and our team will review it for the catalog.`
@@ -58,17 +54,10 @@ export default function SubmitPage() {
   })
 
   return (
-    <div className={MARKETING_PAGE_CLASS}>
+    <div className="marketing-page">
       <JsonLd payload={jsonLd} />
       <MarketingSiteChrome />
-      <main
-        id="main-content"
-        className={cn(
-          "mx-auto w-full max-w-[1360px] px-6 pb-20 sm:px-8 md:pb-24 lg:px-10",
-          MARKETING_MAIN_OFFSET_CLASS,
-          "pt-14 md:pt-16"
-        )}
-      >
+      <main id="main-content" className="marketing-main">
         <div className="lg:grid lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] lg:items-start lg:gap-x-14 xl:grid-cols-[minmax(0,400px)_minmax(0,640px)] xl:gap-x-20">
           <div className="mb-10 lg:mb-0">
             <header className="max-w-xl text-left">

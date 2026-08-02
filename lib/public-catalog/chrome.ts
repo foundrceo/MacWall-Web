@@ -3,13 +3,6 @@
  * Apple-inspired: capsules for controls, continuous media radii, crisp type.
  */
 
-/** Page shell width + bottom rhythm. */
-export const GALLERY_SHELL_CLASS =
-  "mx-auto w-full max-w-[1360px] px-4 pb-24 sm:px-6 lg:px-10"
-
-/** Breadcrumb top inset from main content area. */
-export const GALLERY_BREADCRUMB_TOP_CLASS = "pt-8 sm:pt-10"
-
 /** Space from breadcrumb row to page title (H1). */
 export const GALLERY_TITLE_AFTER_BREADCRUMB_CLASS = "mt-5"
 
