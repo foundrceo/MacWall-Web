@@ -27,9 +27,11 @@ async function startCheckout(
     cookieStore.get(DATAFAST_VISITOR_COOKIE)?.value?.trim().slice(0, 255) || ""
   const datafastSessionId =
     cookieStore.get(DATAFAST_SESSION_COOKIE)?.value?.trim().slice(0, 255) || ""
+  // Fast path: Vercel/edge headers + cookie only — never wait on IP whois.
   const country = await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
+    skipIpLookup: true,
   })
 
   return createMacWallCheckoutSession({

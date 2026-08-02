@@ -1,5 +1,7 @@
 import "server-only"
 
+import { after } from "next/server"
+
 import { isIndiaCountry } from "@/lib/geo/country"
 import { generateMacWallLicenseKey } from "@/lib/license/generate-license-key"
 import {
@@ -31,12 +33,21 @@ export type CreateMacWallCheckoutResult =
   | { ok: true; url: string }
   | { ok: false; error: string; status: number }
 
+function checkoutIntegrationIdentifier(): string {
+  const suffix = Math.random().toString(36).slice(2, 10)
+  return `macwall_hosted_${suffix}`
+}
+
 /**
  * Creates the Stripe Checkout Session and a pending license row.
+ *
+ * Critical path: generate key → create Stripe Session (+ license insert in parallel).
+ * Non-critical: attach session id + recovery queue run after the redirect response.
  *
  * Catalog Price IDs only (full payment-method support + Adaptive Pricing).
  * India → $3.99 / $6.99 Prices. Everyone else → $7.99 / $12.99.
  * Customers can enter a Discord promo code at Checkout (`allow_promotion_codes`).
+ * Omits `payment_method_types` so Stripe Dynamic Payment Methods apply.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
@@ -55,39 +66,6 @@ export async function createMacWallCheckoutSession(
     const stripePriceId = stripePriceIdForOffer(offer.slug, region)
 
     const licenseKey = generateMacWallLicenseKey()
-
-    const licenseRow: Record<string, unknown> = {
-      license_key: licenseKey,
-      source: "stripe",
-      status: "pending",
-      plan_slug: planSlug,
-      max_devices: offer.maxDevices,
-      billing_model: offer.billingModel,
-    }
-
-    let { error: insertError } = await supabase
-      .from("macwall_licenses")
-      .insert(licenseRow)
-
-    if (insertError?.message?.includes("plan_slug")) {
-      ;({ error: insertError } = await supabase
-        .from("macwall_licenses")
-        .insert({
-          license_key: licenseKey,
-          source: "stripe",
-          status: "pending",
-        }))
-    }
-
-    if (insertError) {
-      console.error("[checkout] license insert failed", insertError.message)
-      return {
-        ok: false,
-        error: "Could not prepare checkout.",
-        status: 500,
-      }
-    }
-
     const encodedKey = encodeURIComponent(licenseKey)
     const metadata = {
       license_key: licenseKey,
@@ -106,25 +84,72 @@ export async function createMacWallCheckoutSession(
       visitor_country: input.country?.trim().toUpperCase() || "",
     }
 
-    const session = await stripe.checkout.sessions.create({
-      mode: offer.billingModel === "annual" ? "subscription" : "payment",
-      line_items: [{ price: stripePriceId, quantity: 1 }],
-      success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteOrigin}/pricing`,
-      client_reference_id: licenseKey,
-      // Collect email early so abandoned-checkout recovery can send.
-      billing_address_collection: "required",
-      allow_promotion_codes: true,
-      // Stripe-hosted Checkout localizes presentment (INR/EUR/…) from USD.
-      adaptive_pricing: { enabled: true },
-      metadata,
-      ...(offer.billingModel === "annual"
-        ? { subscription_data: { metadata } }
-        : {
-            customer_creation: "always",
-            payment_intent_data: { metadata },
-          }),
-    })
+    const licenseRow: Record<string, unknown> = {
+      license_key: licenseKey,
+      source: "stripe",
+      status: "pending",
+      plan_slug: planSlug,
+      max_devices: offer.maxDevices,
+      billing_model: offer.billingModel,
+    }
+
+    const insertLicense = async () => {
+      let { error: insertError } = await supabase
+        .from("macwall_licenses")
+        .insert(licenseRow)
+
+      if (insertError?.message?.includes("plan_slug")) {
+        ;({ error: insertError } = await supabase
+          .from("macwall_licenses")
+          .insert({
+            license_key: licenseKey,
+            source: "stripe",
+            status: "pending",
+          }))
+      }
+
+      return insertError
+    }
+
+    // Parallelize the two network hops that gate the redirect.
+    const [insertError, session] = await Promise.all([
+      insertLicense(),
+      stripe.checkout.sessions.create({
+        mode: offer.billingModel === "annual" ? "subscription" : "payment",
+        line_items: [{ price: stripePriceId, quantity: 1 }],
+        success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${siteOrigin}/pricing`,
+        client_reference_id: licenseKey,
+        billing_address_collection: "required",
+        allow_promotion_codes: true,
+        adaptive_pricing: { enabled: true },
+        // Tag hosted Checkout flows in the Dashboard (API 2026-03-25+).
+        integration_identifier: checkoutIntegrationIdentifier(),
+        metadata,
+        ...(offer.billingModel === "annual"
+          ? { subscription_data: { metadata } }
+          : {
+              customer_creation: "always",
+              payment_intent_data: { metadata },
+            }),
+      }),
+    ])
+
+    if (insertError) {
+      console.error("[checkout] license insert failed", insertError.message)
+      if (session.id) {
+        try {
+          await stripe.checkout.sessions.expire(session.id)
+        } catch {
+          /* best-effort */
+        }
+      }
+      return {
+        ok: false,
+        error: "Could not prepare checkout.",
+        status: 500,
+      }
+    }
 
     if (!session.url) {
       await supabase
@@ -138,41 +163,34 @@ export async function createMacWallCheckoutSession(
       }
     }
 
-    const { error: updateError } = await supabase
-      .from("macwall_licenses")
-      .update({ stripe_checkout_session_id: session.id })
-      .eq("license_key", licenseKey)
-
-    if (updateError) {
-      console.error("[checkout] session id update failed", updateError.message)
-      await supabase
+    // Don't block the 303 redirect on bookkeeping — finish after the response.
+    after(async () => {
+      const { error: updateError } = await supabase
         .from("macwall_licenses")
-        .delete()
+        .update({ stripe_checkout_session_id: session.id })
         .eq("license_key", licenseKey)
-      try {
-        await stripe.checkout.sessions.expire(session.id)
-      } catch {
-        /* best-effort cleanup */
-      }
-      return {
-        ok: false,
-        error: "Could not prepare checkout.",
-        status: 500,
-      }
-    }
 
-    try {
-      await queueCheckoutRecovery({
-        checkoutSessionId: session.id,
-        licenseKey,
-        reason: "checkout_started",
-      })
-    } catch (queueError) {
-      console.error(
-        "[checkout] recovery queue failed",
-        queueError instanceof Error ? queueError.message : "error"
-      )
-    }
+      if (updateError) {
+        console.error(
+          "[checkout] session id update failed",
+          updateError.message
+        )
+        return
+      }
+
+      try {
+        await queueCheckoutRecovery({
+          checkoutSessionId: session.id,
+          licenseKey,
+          reason: "checkout_started",
+        })
+      } catch (queueError) {
+        console.error(
+          "[checkout] recovery queue failed",
+          queueError instanceof Error ? queueError.message : "error"
+        )
+      }
+    })
 
     return { ok: true, url: session.url }
   } catch (error) {
