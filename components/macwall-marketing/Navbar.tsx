@@ -390,12 +390,13 @@ export default function Navbar() {
             </li>
           ))}
         </ul>
-        <NavActions
-          menuOpen={menuOpen}
-          reduceMotion={reduceMotion}
-          onMenuToggle={() => setMenuOpen((open) => !open)}
-          className="justify-self-end"
-        />
+        <div className="flex items-center gap-2 justify-self-end">
+          <NavActions
+            menuOpen={menuOpen}
+            reduceMotion={reduceMotion}
+            onMenuToggle={() => setMenuOpen((open) => !open)}
+          />
+        </div>
       </nav>
 
       <MobileNavSheet
