@@ -52,7 +52,7 @@ export const GALLERY_DIVIDER_CLASS = "bg-white/[0.08]"
 
 /** Capsule search field — custom clear only (no native WebKit cancel). */
 export const GALLERY_SEARCH_INPUT_CLASS =
-  "h-11 w-full rounded-full border-0 bg-white/[0.08] pl-11 pr-11 text-[15px] text-white shadow-none ring-0 placeholder:text-white/45 focus-visible:border-0 focus-visible:bg-white/[0.11] focus-visible:ring-2 focus-visible:ring-white/25 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-webkit-search-results-button]:hidden"
+  "h-11 w-full rounded-full border-0 bg-white/[0.08] py-0 pl-11 text-[15px] text-white shadow-none ring-0 placeholder:text-white/45 focus-visible:border-0 focus-visible:bg-white/[0.11] focus-visible:ring-2 focus-visible:ring-white/25 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-webkit-search-results-button]:hidden"
 
 /** Inactive capsule chip — icon + label. */
 export const GALLERY_CHIP_CLASS =

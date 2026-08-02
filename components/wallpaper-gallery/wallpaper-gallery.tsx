@@ -13,6 +13,11 @@ import {
 } from "react"
 import { Loading03Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import {
+  KbdShortcut,
+  useCommandPaletteShortcutLabel,
+} from "@/components/command-palette/kbd-badge"
+import { useCommandPalette } from "@/components/command-palette/command-palette-provider"
 import { ChevronDown, Search, X } from "lucide-react"
 import { CategoryIcon } from "@/components/wallpaper-gallery/category-icons"
 import { WallpaperCard } from "@/components/wallpaper-gallery/wallpaper-card"
@@ -153,6 +158,8 @@ export function WallpaperGallery({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const { setOpen: openCommandPalette } = useCommandPalette()
+  const paletteShortcut = useCommandPaletteShortcutLabel()
   const [isPending, startTransition] = useTransition()
 
   const qParam = searchParams.get("q") ?? ""
@@ -398,21 +405,35 @@ export function WallpaperGallery({
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search by name, style, or mood…"
             aria-label="Search wallpapers"
-            className={GALLERY_SEARCH_INPUT_CLASS}
+            className={cn(
+              GALLERY_SEARCH_INPUT_CLASS,
+              query ? "pr-12" : "pr-[4.5rem]"
+            )}
           />
-          {query ? (
-            <button
-              type="button"
-              onClick={clearSearch}
-              className={cn(
-                "absolute top-1/2 right-2 inline-flex size-7 -translate-y-1/2 items-center justify-center bg-white/[0.08] text-white/55 transition duration-200 hover:bg-white/[0.14] hover:text-white focus-visible:ring-2 focus-visible:ring-white/25",
-                GALLERY_CAPSULE_CLASS
-              )}
-              aria-label="Clear search"
-            >
-              <X className="size-3.5" />
-            </button>
-          ) : null}
+          <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+            {query ? (
+              <button
+                type="button"
+                onClick={clearSearch}
+                className={cn(
+                  "pointer-events-auto flex size-7 shrink-0 appearance-none items-center justify-center border-0 bg-white/[0.08] p-0 leading-none text-white/55 transition duration-200 hover:bg-white/[0.14] hover:text-white focus-visible:ring-2 focus-visible:ring-white/25",
+                  GALLERY_CAPSULE_CLASS
+                )}
+                aria-label="Clear search"
+              >
+                <X className="size-3.5" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openCommandPalette(true)}
+                className="pointer-events-auto flex h-[22px] shrink-0 appearance-none items-center justify-center border-0 bg-transparent p-0 leading-none transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25"
+                aria-label={`Open command palette (${paletteShortcut})`}
+              >
+                <KbdShortcut size="md" />
+              </button>
+            )}
+          </div>
         </form>
       </header>
 
