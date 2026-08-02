@@ -27,7 +27,7 @@ export function BlogTilePicture({
 
   if (failed || !src) {
     if (variant === "curated") {
-      return <div className="absolute inset-0 bg-[#f5f5f5]" aria-hidden />
+      return <div className="absolute inset-0 bg-white/[0.06]" aria-hidden />
     }
     return null
   }
@@ -53,7 +53,7 @@ export function BlogTilePicture({
         src={src}
         alt={alt}
         fill
-        sizes="(min-width: 1200px) 410px, (min-width: 810px) 50vw, 100vw"
+        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
         className="size-full object-cover"
         priority={priority}
         unoptimized={isRemoteBlogTile(src)}

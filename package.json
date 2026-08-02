@@ -6,14 +6,15 @@
   "scripts": {
     "dev": "next dev",
     "dev:webpack": "next dev --webpack",
-    "prebuild": "node scripts/generate-changelog.mjs",
+    "prebuild": "node scripts/generate-changelog.mjs && node scripts/generate-blog-thumbs.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "changelog:generate": "node scripts/generate-changelog.mjs",
-    "changelog:check": "node scripts/generate-changelog.mjs"
+    "changelog:check": "node scripts/generate-changelog.mjs",
+    "blog-thumbs:generate": "node scripts/generate-blog-thumbs.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
