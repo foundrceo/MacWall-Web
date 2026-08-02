@@ -12,10 +12,13 @@ import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const isCheckoutApi = pathname.startsWith("/api/checkout/")
   const country = await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: request.cookies.get("mw_country")?.value,
     geoCountry: request.headers.get("x-vercel-ip-country"),
+    // Checkout must not wait on IP whois — cookie / edge headers only.
+    skipIpLookup: isCheckoutApi,
   })
 
   const requestHeaders = new Headers(request.headers)

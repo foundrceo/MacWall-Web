@@ -6,6 +6,7 @@ import {
   TrackedPricingButton,
 } from "@/components/analytics/tracked-marketing-buttons"
 import { HeroWalkthroughVideo } from "@/components/macwall-marketing/hero-walkthrough-video"
+import { CheckoutPrefetchWarmup } from "@/components/macwall-marketing/checkout-prefetch-warmup"
 import {
   HERO_PRIMARY_BTN_CLASS,
   HERO_SECONDARY_BTN_CLASS,
@@ -31,6 +32,7 @@ export default function TikTokLandingHero() {
 
   return (
     <section className="relative overflow-hidden bg-background">
+      <CheckoutPrefetchWarmup offers={["permanent"]} />
       <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
         <div className="max-w-3xl pt-10 pb-6 md:pt-14 md:pb-8">
           <p className="text-[13px] font-semibold tracking-[0.08em] text-marketing-muted uppercase">
