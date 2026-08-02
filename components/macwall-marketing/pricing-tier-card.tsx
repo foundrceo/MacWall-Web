@@ -9,7 +9,7 @@ function highlightFeatureText(
   feature: string,
   highlightMacsLabel?: string
 ): ReactNode {
-  const needle = highlightMacsLabel?.trim() || "5 Macs"
+  const needle = highlightMacsLabel?.trim() || "5 Mac"
   const index = feature.indexOf(needle)
   if (index === -1) return feature
 
@@ -43,6 +43,7 @@ export function PricingTierCard({
   badge,
   badgeAlt,
   highlightMacsLabel,
+  topCenter,
   className,
 }: Readonly<{
   id: string
@@ -66,6 +67,8 @@ export function PricingTierCard({
   badgeAlt?: string
   /** Yellow-mark this Macs label inside features (e.g. "10 Macs"). */
   highlightMacsLabel?: string
+  /** Above the card, right-aligned (e.g. Pro+ Mac pack picker). */
+  topCenter?: ReactNode
   className?: string
 }>) {
   const badgeLabels = [
@@ -77,6 +80,12 @@ export function PricingTierCard({
     <div className={cn("relative h-full pt-2.5", className)}>
       {badgeLabels.length > 0 ? (
         <PricingRotatingBadge labels={badgeLabels} />
+      ) : null}
+
+      {topCenter ? (
+        <div className="absolute top-0 right-3 z-10 sm:right-4">
+          {topCenter}
+        </div>
       ) : null}
 
       <article

@@ -26,7 +26,9 @@ function featureLinesForMacs(
   macs: number
 ): string[] {
   return baseFeatures.map((feature) =>
-    feature.includes("5 Macs") ? `Up to ${macs} Macs` : feature
+    feature.includes("5 Macs") || feature.includes("5 Mac")
+      ? `Up to ${macs} Mac`
+      : feature
   )
 }
 
@@ -81,7 +83,7 @@ function MacPackPillPicker({
   return (
     <div
       ref={trackRef}
-      className="relative flex w-fit rounded-full bg-white/10 p-0.5 text-center"
+      className="relative flex w-fit rounded-full bg-secondary p-0.5 text-center ring-1 ring-white/15"
       role="radiogroup"
       aria-label="Choose how many Macs"
     >
@@ -103,7 +105,7 @@ function MacPackPillPicker({
             ref={(el) => {
               labelRefs.current[index] = el
             }}
-            className="group relative cursor-pointer rounded-full border border-transparent px-2.5 py-1 text-[11px] leading-none"
+            className="group relative cursor-pointer whitespace-nowrap rounded-full border border-transparent px-2 py-1 text-[10px] leading-none"
             onPointerEnter={() => {
               void prefetchCheckoutSession(offer.slug)
             }}
@@ -118,13 +120,13 @@ function MacPackPillPicker({
             />
             <span
               className={cn(
-                "relative z-10 transition-colors",
+                "relative z-10 whitespace-nowrap transition-colors",
                 active
                   ? "text-black"
                   : "text-foreground/70 group-hover:text-foreground"
               )}
             >
-              {offer.macs} Macs
+              {offer.macs} Mac
             </span>
           </label>
         )
@@ -176,25 +178,24 @@ export function ProPlusPackCard({
       priceSuffix="one-time"
       features={featureLinesForMacs(features, selected.macs)}
       featuresPrefix={featuresPrefix}
-      badge={selected.offLabel}
-      highlightMacsLabel={`${selected.macs} Macs`}
+      highlightMacsLabel={`${selected.macs} Mac`}
+      topCenter={
+        <MacPackPillPicker
+          offers={sorted}
+          selectedMacs={selected.macs}
+          onSelect={setMacs}
+        />
+      }
       showActionSlot
       actionSlot={
-        <div className="flex w-full flex-col gap-2.5">
-          <MacPackPillPicker
-            offers={sorted}
-            selectedMacs={selected.macs}
-            onSelect={setMacs}
-          />
-          <GradientTracing
-            width={160}
-            height={12}
-            baseColor="white"
-            gradientColors={["#F1C40F", "#F1C40F", "#E67E22"]}
-            strokeWidth={1.5}
-            animationDuration={2.2}
-          />
-        </div>
+        <GradientTracing
+          width={160}
+          height={12}
+          baseColor="white"
+          gradientColors={["#F1C40F", "#F1C40F", "#E67E22"]}
+          strokeWidth={1.5}
+          animationDuration={2.2}
+        />
       }
       action={
         <TrackedPricingButton
