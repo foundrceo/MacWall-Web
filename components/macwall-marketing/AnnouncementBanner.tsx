@@ -25,7 +25,7 @@ export default function AnnouncementBanner() {
 
         <span className="inline-flex items-baseline gap-x-1 text-[12px] sm:text-[13px]">
           <span className="font-medium text-black/55">Pro</span>
-          <span className="text-black/35 line-through decoration-black/30">
+          <span className="text-black/40 line-through decoration-black/45 decoration-1">
             {pricing.permanentStrikePrice}
           </span>
           <span className="font-semibold tabular-nums text-black">

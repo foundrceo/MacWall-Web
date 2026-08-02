@@ -33,6 +33,7 @@ export type CreateMacWallCheckoutResult =
  * Creates the Stripe Checkout Session and a pending license row.
  *
  * Stripe Prices: permanent $9.99, annual $4.99/yr, permanent_5 $14.99.
+ * Adaptive Pricing localizes presentment currency on Checkout itself.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
@@ -94,6 +95,7 @@ export async function createMacWallCheckoutSession(
       max_devices: String(offer.maxDevices),
       pricing_region: "default",
       unit_amount_usd: String(displayUnitAmount),
+      visitor_country: input.country?.trim().toUpperCase() || "",
     }
 
     const stripePriceId = stripePriceIdForOffer(offer.slug)
@@ -107,6 +109,8 @@ export async function createMacWallCheckoutSession(
       // Collect email early so abandoned-checkout recovery can send.
       billing_address_collection: "required",
       allow_promotion_codes: true,
+      // Stripe-hosted Checkout localizes presentment (INR/EUR/…) from the USD Price.
+      adaptive_pricing: { enabled: true },
       metadata,
       ...(offer.billingModel === "annual"
         ? { subscription_data: { metadata } }

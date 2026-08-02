@@ -5,7 +5,7 @@ import { MarketingPricingProvider } from "@/components/marketing/marketing-prici
 import { resolveMarketingPricing } from "@/lib/pricing/resolve-marketing-pricing"
 import type { ReactNode } from "react"
 
-/** Geo-aware pricing is resolved on the server so India INR prices render on first paint. */
+/** Geo + Stripe FX localize marketing prices on first paint (Adaptive Pricing at Checkout). */
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 export const fetchCache = "force-no-store"
