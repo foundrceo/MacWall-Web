@@ -15,15 +15,18 @@ export type LicenseOffer = {
   maxDevices: 3 | 5
   usdCents: number
   /**
-   * India display amount (50% of usdCents). Checkout uses the same catalog
-   * Stripe Price + INDIA50 coupon — no separate Price objects.
+   * India display amount (charm price). Checkout uses the same catalog
+   * Stripe Price + INDIA50 — Stripe rounds 50% to these cents ($4.99 / $7.49).
    */
   indiaUsdCents: number
 }
 
-/** Simple half for India display (matches Stripe percent_off: 50). */
-function halfUsdCents(cents: number): number {
-  return Math.round(cents / 2)
+/**
+ * Half-price charm amount matching Stripe's INDIA50 rounding
+ * (999 → 499, 1499 → 749 — never round up to .00).
+ */
+function indiaHalfUsdCents(cents: number): number {
+  return Math.floor(cents / 2)
 }
 
 export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
@@ -33,7 +36,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 3,
     usdCents: 999,
-    indiaUsdCents: halfUsdCents(999),
+    indiaUsdCents: indiaHalfUsdCents(999), // $4.99
   },
   annual: {
     slug: "annual",
@@ -41,7 +44,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "annual",
     maxDevices: 3,
     usdCents: 499,
-    indiaUsdCents: halfUsdCents(499),
+    indiaUsdCents: indiaHalfUsdCents(499), // $2.49
   },
   permanent_5: {
     slug: "permanent_5",
@@ -49,7 +52,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 5,
     usdCents: 1499,
-    indiaUsdCents: halfUsdCents(1499),
+    indiaUsdCents: indiaHalfUsdCents(1499), // $7.49
   },
 }
 
