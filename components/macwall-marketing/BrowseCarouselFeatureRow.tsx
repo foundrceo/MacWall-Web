@@ -1,5 +1,9 @@
+import Link from "next/link"
 import WallpaperBrowseCarousel from "@/components/macwall-marketing/WallpaperBrowseCarousel"
-import { MARKETING_SECTION_CLASS } from "@/lib/marketing-chrome"
+import {
+  MARKETING_INLINE_LINK_CLASS,
+  MARKETING_SECTION_CLASS,
+} from "@/lib/marketing-chrome"
 import { fetchMarketingFeatureCarouselWallpapers } from "@/lib/fetch-marketing-feature-carousel-wallpapers"
 
 export default async function BrowseCarouselFeatureRow() {
@@ -19,6 +23,11 @@ export default async function BrowseCarouselFeatureRow() {
               Scroll a curated cloud catalog across every genre — nature, space,
               anime, sci-fi, and more. Pick one and it becomes your desktop
               background instantly with a single click.
+            </p>
+            <p className="mt-4">
+              <Link href="/wallpapers" className={MARKETING_INLINE_LINK_CLASS}>
+                Open the full gallery
+              </Link>
             </p>
           </div>
         </div>
