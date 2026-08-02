@@ -14,15 +14,24 @@ export async function POST(
 
   try {
     const { id } = await context.params
-    const body = (await request.json()) as { reply?: string }
-    if (!body.reply?.trim()) {
+    const body = (await request.json()) as {
+      reply?: string
+      imageUrl?: string | null
+    }
+    const reply = typeof body.reply === "string" ? body.reply : ""
+    const imageUrl =
+      typeof body.imageUrl === "string" && body.imageUrl.trim()
+        ? body.imageUrl.trim()
+        : null
+
+    if (!reply.trim() && !imageUrl) {
       return NextResponse.json(
         { error: "reply is required" },
         { status: 400 }
       )
     }
 
-    const feedback = await replyToFeedback(id, body.reply)
+    const feedback = await replyToFeedback(id, reply, imageUrl)
     return NextResponse.json({ feedback })
   } catch (error) {
     const message =
