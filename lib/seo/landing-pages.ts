@@ -1,5 +1,4 @@
 import {
-  macwall,
   macwallLockScreenMacOSVersion,
   macwallMinimumMacOSRequirementOrLater,
 } from "@/lib/macwall-site"
@@ -76,121 +75,6 @@ export const downloadPage: SeoContentPage = {
       question: "Is MacWall safe to install?",
       answer:
         "MacWall is distributed from macwall.app. macOS may ask you to confirm the developer on first launch, this is normal for apps outside the Mac App Store.",
-    },
-  ],
-}
-
-export const liveWallpaperMacPage: SeoContentPage = {
-  slug: "live-wallpaper-mac",
-  pathname: "/live-wallpaper-mac",
-  title: "Live Wallpaper for Mac: Native & Smooth | MacWall",
-  headline: "Live Wallpaper for Mac",
-  description:
-    "The #1 native live wallpaper app for macOS. Hardware decode, menu bar controls, community catalog, and the smoothest motion desktops on Apple Silicon.",
-  keywords: [
-    "live wallpaper for mac",
-    "live wallpaper mac",
-    "live wallpaper macbook",
-    "animated wallpaper macos",
-    "moving wallpaper mac",
-    "video wallpaper mac",
-    "dynamic wallpaper mac",
-    "free live wallpaper mac",
-    "4k live wallpaper mac",
-    "motion desktop mac",
-  ],
-  sections: [
-    {
-      type: "p",
-      text: "Your Mac desktop should move. **MacWall** is the native live wallpaper app built exclusively for macOS, not a port, not a web view, not a subscription trap. Video loops play behind your windows with GPU decode, intelligent pause, and menu bar control.",
-    },
-    {
-      type: "h2",
-      text: "Why MacWall is the best live wallpaper for Mac",
-    },
-    {
-      type: "ul",
-      items: [
-        "**Native performance**: SwiftUI + AVFoundation hardware decode",
-        "**Pay once, own it**: $7.99 one-time, never a monthly fee",
-        "**Community catalog**: Nature, Space, Anime, and six more categories",
-        "**Your clips**: import any compatible MP4 or MOV",
-        "**Menu bar first**: pause, switch, and control without a window",
-        `**Lock Screen Pro**: live Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion}`,
-      ],
-    },
-    {
-      type: "h2",
-      text: "Built for real Mac workflows",
-    },
-    {
-      type: "p",
-      text: "Pause on battery. Pause in full screen. One decoder per display. MacWall respects how you actually use a MacBook and a desk setup, beauty without compromise.",
-    },
-    {
-      type: "h2",
-      text: "Get started",
-    },
-    {
-      type: "p",
-      text: "Download at macwall.app/download and unlock everything with one $7.99 payment, Lock Screen included. Read our blog for guides, comparisons, and category picks.",
-    },
-  ],
-  faq: [
-    {
-      question: "What is the best live wallpaper app for Mac?",
-      answer:
-        "MacWall is the top native choice for smooth video wallpapers, fair pricing, and macOS integration. See our 2026 comparison article for an honest look at alternatives.",
-    },
-    {
-      question: "Does live wallpaper work on M1/M2/M3 Macs?",
-      answer:
-        "Yes. MacWall uses hardware video decode on all Apple Silicon Macs for efficient playback.",
-    },
-  ],
-}
-
-export const lockScreenWallpaperPage: SeoContentPage = {
-  slug: "lock-screen-wallpaper",
-  pathname: "/lock-screen-wallpaper",
-  title: "Lock Screen Live Wallpaper for Mac | MacWall Pro",
-  headline: "Lock Screen Live Wallpaper for Mac",
-  description:
-    `MacWall Pro brings live video to your Mac Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion}, using Apple's own wallpaper system. One-time purchase, lifetime updates.`,
-  keywords: [
-    "lock screen live wallpaper mac",
-    "animated lock screen macos",
-    "mac lock screen video",
-    "macos 26 tahoe lock screen wallpaper",
-    "mac screen saver video",
-  ],
-  sections: [
-    {
-      type: "p",
-      text: `Desktop motion is just the beginning. On **${macwallLockScreenMacOSVersion}**, **MacWall Pro** extends live video wallpapers to your **Lock Screen and Screen Saver**, the screen you see dozens of times a day before you even log in. It plugs into Apple's native wallpaper system, so there are no extra installers or extensions.`,
-    },
-    {
-      type: "h2",
-      text: "Pro features",
-    },
-    {
-      type: "ul",
-      items: macwall.pro.features.map((f) => f),
-    },
-    {
-      type: "h2",
-      text: "Pricing",
-    },
-    {
-      type: "p",
-      text: `${macwall.pro.price} ${macwall.pro.suffix}, ${macwall.pro.headline}. Up to 3 Macs per license (Pro Plus: 5). Make a Reel with ${macwall.reelRefundHashtag} to earn up to 100% back.`,
-    },
-  ],
-  faq: [
-    {
-      question: "Which macOS versions support Lock Screen video?",
-      answer:
-        `Live Lock Screen and Screen Saver wallpapers require ${macwallLockScreenMacOSVersion} or later, where Apple exposes the native wallpaper APIs MacWall uses.`,
     },
   ],
 }
@@ -546,7 +430,7 @@ export function wallpaperCategoryPage(categoryName: string): SeoContentPage {
       },
       {
         type: "p",
-        text: `Want the full picture first? See the [best live wallpaper app for Mac](/best-live-wallpaper-mac) and our [live wallpaper for Mac](/live-wallpaper-mac) guide, or read the [MacWall blog](/blog) for ${categoryName.toLowerCase()} tips and macOS how-tos.`,
+        text: `Want the full picture first? See the [best live wallpaper app for Mac](/best-live-wallpaper-mac) and our [how to set live wallpaper on Mac](/blog/how-to-set-live-wallpaper-mac) guide, or read the [MacWall blog](/blog) for ${categoryName.toLowerCase()} tips and macOS how-tos.`,
       },
     ],
     faq: [

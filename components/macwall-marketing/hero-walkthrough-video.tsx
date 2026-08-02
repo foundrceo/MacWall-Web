@@ -21,7 +21,7 @@ export function HeroWalkthroughVideo({
   const fallbackSources = sources.slice(1)
 
   return (
-    <div className="pb-10 pt-4">
+    <div>
       <div
         className={cn(
           "group relative w-full overflow-hidden rounded-2xl bg-surface-elevated",

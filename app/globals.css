@@ -194,7 +194,7 @@
 
   /* Position lives on the component — utilities must not fight fixed/sticky here. */
   .navbar-header {
-    @apply border-b border-transparent bg-background/45 backdrop-blur-xl backdrop-saturate-150;
+    @apply bg-background/45 backdrop-blur-xl backdrop-saturate-150;
   }
 
   .mobile-nav-sheet {
@@ -240,12 +240,12 @@
 
   /* Default vertical section rhythm */
   .marketing-section {
-    @apply py-12 md:py-20 lg:py-24;
+    @apply py-16 md:py-24 lg:py-28;
   }
 
   /* Elevated bands — FAQ, community, bottom CTA */
   .marketing-section-elevated {
-    @apply py-14 sm:py-16 md:py-24;
+    @apply py-16 md:py-24 lg:py-28;
   }
 
   .marketing-prose-rail {
