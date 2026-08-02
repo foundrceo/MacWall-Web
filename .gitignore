@@ -37,22 +37,29 @@ yarn-error.log*
 pnpm-debug.log*
 *.log
 
-# env files
+# env / secrets — never commit real values
 .env
-.env.example
+.env.*
+!.env.example
+.env.local
+.env.development
+.env.production
 .env*.local
+*.pem
+credentials.json
+*-credentials.json
+service-account*.json
+.secrets/
 
 # local AI agent skills / lockfiles (never publish)
 .agents/
 skills/
 skills-lock.json
 
-# local backend source already deployed remotely
+# local backend source / private ops docs (deployed remotely)
 supabase/
+.supabase/
 STRIPE_SETUP.md
-
-# local deploy / supabase cli artifacts
-scripts/.deploy-payload.json
 
 # typescript
 *.tsbuildinfo
