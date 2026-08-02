@@ -37,7 +37,7 @@ Affiliate landing + Affonso first-party pixel (`/r` proxy) so attribution surviv
 Homepage and pricing screenshots in the README. GitHub Release with `MacWall.dmg` only (no app source in the release tag). Removed Discord from nav/footer when it stopped being the main support channel. Support lives at `/support` + email.
 
 **Open source cleanup**  
-Stripped skills folders, local supabase deploy sources, and ops docs from the public repo. Scrubbed old commits that had baked-in project IDs / anon key leftovers. Production secrets stay in `.env` / Vercel only.
+Stripped skills folders, local supabase deploy sources, and ops docs from the public repo. Scrubbed old commits that had baked-in project IDs / anon key leftovers. Production secrets stay in `.env` / Vercel only. Removed all `scripts/` ops tooling, purged historical `.env.example` / `STRIPE_SETUP.md` / `scripts/**` from git history, and shipped a sanitized empty `.env.example`.
 
 ## Hard parts
 
