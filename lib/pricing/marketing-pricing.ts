@@ -60,7 +60,7 @@ const PRO_PLUS_USD_CENTS = LICENSE_OFFERS.permanent_5.usdCents
 const PRO_PLUS_STRIKE_USD_CENTS = 2499
 const ANNUAL_USD_CENTS = LICENSE_OFFERS.annual.usdCents
 
-/** India = simple 50% of catalog sale prices (matches INDIA50 coupon). */
+/** India list prices = half of catalog sale (charm: $4.99 / $7.49). */
 const PRO_INDIA_USD_CENTS = LICENSE_OFFERS.permanent.indiaUsdCents
 const PRO_PLUS_INDIA_USD_CENTS = LICENSE_OFFERS.permanent_5.indiaUsdCents
 

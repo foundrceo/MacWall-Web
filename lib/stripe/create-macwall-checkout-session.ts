@@ -8,7 +8,7 @@ import {
   licenseOfferPriceCents,
 } from "@/lib/license/offers.shared"
 import {
-  INDIA_COUPON_ID,
+  MACWALL_PRO_PRODUCT_ID,
   stripePriceIdForOffer,
 } from "@/lib/license/stripe-price-map"
 import { getStripe } from "@/lib/stripe/server"
@@ -37,8 +37,9 @@ export type CreateMacWallCheckoutResult =
 /**
  * Creates the Stripe Checkout Session and a pending license row.
  *
- * Same catalog Prices for everyone. India: 50% off via INDIA50 coupon
- * (no new Products/Prices). Adaptive Pricing localizes presentment.
+ * Default: catalog Price IDs. India: same existing Product with inline
+ * `price_data` at $4.99 / $7.49 — no coupon, no new Product/Price objects.
+ * Adaptive Pricing still localizes presentment currency.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
@@ -49,7 +50,7 @@ export async function createMacWallCheckoutSession(
     const siteOrigin = input.siteOrigin.replace(/\/+$/, "")
     const offer = licenseOfferFromSlug(input.offerSlug ?? input.planSlug)
     const region = isIndiaCountry(input.country) ? "india" : "default"
-    const applyIndiaDiscount =
+    const useIndiaPrice =
       region === "india" && isIndiaDiscountEligible(offer.slug)
     const displayUnitAmount = licenseOfferPriceCents(offer, region)
     const planSlug = offer.maxDevices === 5 ? "pro_plus" : "pro"
@@ -102,26 +103,35 @@ export async function createMacWallCheckoutSession(
       plan_slug: planSlug,
       max_devices: String(offer.maxDevices),
       pricing_region: region,
-      india_discount_applied: applyIndiaDiscount ? "true" : "false",
+      india_fixed_price: useIndiaPrice ? "true" : "false",
       unit_amount_usd: String(displayUnitAmount),
       visitor_country: input.country?.trim().toUpperCase() || "",
     }
 
-    const stripePriceId = stripePriceIdForOffer(offer.slug)
+    const lineItems = useIndiaPrice
+      ? [
+          {
+            quantity: 1,
+            // Existing product + custom amount — no coupon, no new catalog Price.
+            price_data: {
+              currency: "usd",
+              product: MACWALL_PRO_PRODUCT_ID,
+              unit_amount: displayUnitAmount,
+            },
+          },
+        ]
+      : [{ price: stripePriceIdForOffer(offer.slug), quantity: 1 }]
 
     const sessionParams: Parameters<typeof stripe.checkout.sessions.create>[0] = {
       mode: offer.billingModel === "annual" ? "subscription" : "payment",
-      line_items: [{ price: stripePriceId, quantity: 1 }],
+      line_items: lineItems,
       success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteOrigin}/pricing`,
       client_reference_id: licenseKey,
       // Collect email early so abandoned-checkout recovery can send.
       billing_address_collection: "required",
-      // Stripe can't combine discounts[] with allow_promotion_codes.
-      ...(applyIndiaDiscount
-        ? { discounts: [{ coupon: INDIA_COUPON_ID }] }
-        : { allow_promotion_codes: true }),
-      // Stripe-hosted Checkout localizes presentment (INR/EUR/…) from the USD Price.
+      allow_promotion_codes: true,
+      // Stripe-hosted Checkout localizes presentment (INR/EUR/…) from USD.
       adaptive_pricing: { enabled: true },
       metadata,
       ...(offer.billingModel === "annual"

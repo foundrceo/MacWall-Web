@@ -15,15 +15,14 @@ export type LicenseOffer = {
   maxDevices: 3 | 5
   usdCents: number
   /**
-   * India display amount (charm price). Checkout uses the same catalog
-   * Stripe Price + INDIA50 — Stripe rounds 50% to these cents ($4.99 / $7.49).
+   * India list price in USD cents (charm: $4.99 / $7.49).
+   * Checkout charges this via price_data on the existing Product — no coupon.
    */
   indiaUsdCents: number
 }
 
 /**
- * Half-price charm amount matching Stripe's INDIA50 rounding
- * (999 → 499, 1499 → 749 — never round up to .00).
+ * Half-price charm amounts for India ($4.99 / $7.49).
  */
 function indiaHalfUsdCents(cents: number): number {
   return Math.floor(cents / 2)
