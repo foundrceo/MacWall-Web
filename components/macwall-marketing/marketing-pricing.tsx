@@ -119,6 +119,8 @@ export default function MacWallMarketingPricingPage() {
                   title={plans.free.title}
                   subtitle={plans.free.subtitle}
                   price={plans.free.price}
+                  priceMajor={0}
+                  currency="usd"
                   features={p.freeTrial.features}
                   featuresPrefix={plans.free.featuresPrefix}
                   action={
@@ -137,12 +139,16 @@ export default function MacWallMarketingPricingPage() {
                   title={plans.pro.title}
                   subtitle={plans.pro.subtitle}
                   price={pricing.permanentPrice}
+                  priceMajor={pricing.permanentPriceMajor}
+                  currency="usd"
                   strikePrice={pricing.permanentStrikePrice}
+                  localPriceHint={pricing.permanentLocalHint}
                   priceSuffix="one-time"
                   features={p.pro.features}
                   featuresPrefix={plans.pro.featuresPrefix}
                   highlight
                   badge={plans.pro.badge}
+                  badgeAlt={plans.pro.badgeAlt}
                   action={
                     <PricingPrimaryButton
                       href={pricing.checkoutUrl}
@@ -160,7 +166,10 @@ export default function MacWallMarketingPricingPage() {
                     title={plans.proPlus.title}
                     subtitle={plans.proPlus.subtitle}
                     price={fiveMacOffer.price}
+                    priceMajor={fiveMacOffer.priceMajor}
+                    currency="usd"
                     strikePrice={fiveMacOffer.strikePrice}
+                    localPriceHint={fiveMacOffer.localPriceHint}
                     priceSuffix="one-time"
                     features={p.proPlus.features}
                     featuresPrefix={plans.proPlus.featuresPrefix}

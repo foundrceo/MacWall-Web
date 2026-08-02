@@ -25,7 +25,8 @@ export const macwallPricingCopy = {
     pro: {
       title: "Pro",
       subtitle: "Limited price — pay once",
-      badge: "33% off",
+      badge: "Most Popular",
+      badgeAlt: "33% off",
       featuresPrefix: "Everything in Free, plus:",
       ctaPermanent: "Get Pro",
       ctaAnnual: "Start annual plan",
@@ -86,33 +87,31 @@ export const macwallPricingCopy = {
 
   freeTrial: {
     features: [
-      "Curated free live wallpapers",
-      "Desktop playback & menu bar controls",
+      "Curated free wallpapers",
+      "Menu bar controls",
       "Multi-display support",
-      "No card or login required",
-      "Upgrade whenever you're ready",
+      "No card required",
+      "Community uploads",
     ],
   },
 
   pro: {
     features: [
-      "Lifetime license, pay once",
-      "Use on up to 3 personal Macs",
-      "Full cloud catalog (1,000+ wallpapers)",
-      `Lock Screen & Screen Saver (${macwallLockScreenMacOSVersion}+)`,
+      "1,000+ live wallpapers",
+      "Lock Screen & Screen Saver",
       "Import your own videos",
-      "Auto-change, Music Sync & menu bar",
-      "Community uploads & future Pro features",
+      "Up to 3 personal Macs",
+      "Lifetime updates",
+      "Music Sync",
     ],
   },
 
   proPlus: {
     features: [
       "Everything in Pro",
-      "Use on up to 5 Macs",
-      "Best value for desks, laptops & studios",
-      "Lower per-Mac price",
-      "Lifetime updates, no subscription",
+      "Up to 5 Macs",
+      "Best multi-Mac value",
+      "Same Pro features forever",
     ],
   },
 
