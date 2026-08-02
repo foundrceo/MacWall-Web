@@ -3,14 +3,12 @@ import "server-only"
 import { isIndiaCountry } from "@/lib/geo/country"
 import { generateMacWallLicenseKey } from "@/lib/license/generate-license-key"
 import {
+  INDIA_CHECKOUT_COUPON_ID,
   isIndiaDiscountEligible,
   licenseOfferFromSlug,
   licenseOfferPriceCents,
 } from "@/lib/license/offers.shared"
-import {
-  MACWALL_PRO_PRODUCT_ID,
-  stripePriceIdForOffer,
-} from "@/lib/license/stripe-price-map"
+import { stripePriceIdForOffer } from "@/lib/license/stripe-price-map"
 import { getStripe } from "@/lib/stripe/server"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { queueCheckoutRecovery } from "@/lib/stripe/queue-checkout-recovery"
@@ -37,9 +35,8 @@ export type CreateMacWallCheckoutResult =
 /**
  * Creates the Stripe Checkout Session and a pending license row.
  *
- * Default: catalog Price IDs. India: same existing Product with inline
- * `price_data` at India list ($3.99 / $5.99) — no coupon, no new Product/Price objects.
- * Adaptive Pricing still localizes presentment currency.
+ * Always uses catalog Price IDs (full payment-method support).
+ * India: auto-applies INDIA50 (50% off). Adaptive Pricing still localizes.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
@@ -50,10 +47,11 @@ export async function createMacWallCheckoutSession(
     const siteOrigin = input.siteOrigin.replace(/\/+$/, "")
     const offer = licenseOfferFromSlug(input.offerSlug ?? input.planSlug)
     const region = isIndiaCountry(input.country) ? "india" : "default"
-    const useIndiaPrice =
+    const applyIndiaCoupon =
       region === "india" && isIndiaDiscountEligible(offer.slug)
     const displayUnitAmount = licenseOfferPriceCents(offer, region)
     const planSlug = offer.maxDevices === 5 ? "pro_plus" : "pro"
+    const stripePriceId = stripePriceIdForOffer(offer.slug)
 
     const licenseKey = generateMacWallLicenseKey()
 
@@ -103,44 +101,34 @@ export async function createMacWallCheckoutSession(
       plan_slug: planSlug,
       max_devices: String(offer.maxDevices),
       pricing_region: region,
-      india_fixed_price: useIndiaPrice ? "true" : "false",
+      india_coupon: applyIndiaCoupon ? INDIA_CHECKOUT_COUPON_ID : "",
       unit_amount_usd: String(displayUnitAmount),
       visitor_country: input.country?.trim().toUpperCase() || "",
     }
 
-    const lineItems = useIndiaPrice
-      ? [
-          {
-            quantity: 1,
-            // Existing product + custom amount — no coupon, no new catalog Price.
-            price_data: {
-              currency: "usd",
-              product: MACWALL_PRO_PRODUCT_ID,
-              unit_amount: displayUnitAmount,
-            },
-          },
-        ]
-      : [{ price: stripePriceIdForOffer(offer.slug), quantity: 1 }]
-
-    const sessionParams: Parameters<typeof stripe.checkout.sessions.create>[0] = {
-      mode: offer.billingModel === "annual" ? "subscription" : "payment",
-      line_items: lineItems,
-      success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteOrigin}/pricing`,
-      client_reference_id: licenseKey,
-      // Collect email early so abandoned-checkout recovery can send.
-      billing_address_collection: "required",
-      allow_promotion_codes: true,
-      // Stripe-hosted Checkout localizes presentment (INR/EUR/…) from USD.
-      adaptive_pricing: { enabled: true },
-      metadata,
-      ...(offer.billingModel === "annual"
-        ? { subscription_data: { metadata } }
-        : {
-            customer_creation: "always",
-            payment_intent_data: { metadata },
-          }),
-    }
+    const sessionParams: Parameters<typeof stripe.checkout.sessions.create>[0] =
+      {
+        mode: offer.billingModel === "annual" ? "subscription" : "payment",
+        line_items: [{ price: stripePriceId, quantity: 1 }],
+        success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${siteOrigin}/pricing`,
+        client_reference_id: licenseKey,
+        // Collect email early so abandoned-checkout recovery can send.
+        billing_address_collection: "required",
+        // Stripe-hosted Checkout localizes presentment (INR/EUR/…) from USD.
+        adaptive_pricing: { enabled: true },
+        metadata,
+        ...(offer.billingModel === "annual"
+          ? { subscription_data: { metadata } }
+          : {
+              customer_creation: "always",
+              payment_intent_data: { metadata },
+            }),
+        // India: fixed INDIA50. Cannot combine with allow_promotion_codes.
+        ...(applyIndiaCoupon
+          ? { discounts: [{ coupon: INDIA_CHECKOUT_COUPON_ID }] }
+          : { allow_promotion_codes: true }),
+      }
 
     const session = await stripe.checkout.sessions.create(sessionParams)
 
