@@ -208,6 +208,7 @@
   font-style: normal;
 }
 
+
 @layer utilities {
   .marketing-wallpaper-marquee {
     animation: marketing-wallpaper-marquee 40s linear infinite;

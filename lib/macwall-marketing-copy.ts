@@ -8,6 +8,7 @@ import {
 export const macwallExactCopy = {
   header: {
     navOverview: "Overview",
+    navGallery: "Wallpapers",
     navBlog: "Blog",
     navSocials: "Community",
     navSupport: "Help",
@@ -84,7 +85,7 @@ export const macwallExactCopy = {
     priceLine: `${macwall.pro.price} limited offer. No subscription — and a Reel can earn 100% back.`,
   },
   gallery: {
-    kicker: "Gallery",
+    kicker: "Wallpapers",
     title: "Wallpapers you'll love",
     lead: "A growing collection of cinematic live wallpapers, curated for quality and performance.",
   },
