@@ -22,7 +22,9 @@ const HUMAN: ChatQuickReply = {
   prompt: "I want to talk to a human",
 }
 
+/** Greeting chips only — human first so handoff is always the priority path. */
 const QUICK_START: ChatQuickReply[] = [
+  HUMAN,
   { id: "pricing", label: "Pricing", prompt: "How much does Pro cost?" },
   {
     id: "license",
@@ -34,24 +36,31 @@ const QUICK_START: ChatQuickReply[] = [
     label: "Download",
     prompt: "Where can I download MacWall?",
   },
-  HUMAN,
 ]
 
-/** Always useful next steps after any Assist reply. */
+/**
+ * Next steps after an Assist answer.
+ * Human is always first. Topic chips from the FAQ only — never re-attach the
+ * full greeting menu (that created a select-again loop).
+ */
 export function defaultFollowUps(
-  extra: ChatQuickReply[] = []
+  extra: ChatQuickReply[] = [],
+  options?: { excludeIds?: string[] }
 ): ChatQuickReply[] {
-  const merged = [...extra, ...QUICK_START]
-  const seen = new Set<string>()
-  const out: ChatQuickReply[] = []
-  for (const item of merged) {
-    if (seen.has(item.id)) continue
+  const exclude = new Set(options?.excludeIds ?? [])
+  const seen = new Set<string>(["human"])
+  const out: ChatQuickReply[] = [HUMAN]
+
+  for (const item of extra) {
+    if (item.id === "human" || exclude.has(item.id) || seen.has(item.id)) {
+      continue
+    }
     seen.add(item.id)
     out.push(item)
     if (out.length >= 4) break
   }
-  if (!out.some((i) => i.id === "human")) out.push(HUMAN)
-  return out.slice(0, 4)
+
+  return out
 }
 
 const FAQS: Array<{
@@ -239,13 +248,16 @@ export function matchFaqReply(raw: string): FaqMatch | null {
     return {
       id: "goto-pricing",
       reply: `Here’s pricing: /pricing — Pro and Pro+ are both one-time. Want help choosing between 3 Macs and 5?`,
-      followUps: defaultFollowUps([
-        {
-          id: "devices",
-          label: "3 vs 5 Macs",
-          prompt: "How many Macs does Pro cover?",
-        },
-      ]),
+      followUps: defaultFollowUps(
+        [
+          {
+            id: "devices",
+            label: "3 vs 5 Macs",
+            prompt: "How many Macs does Pro cover?",
+          },
+        ],
+        { excludeIds: ["pricing"] }
+      ),
     }
   }
 
@@ -265,7 +277,9 @@ export function matchFaqReply(raw: string): FaqMatch | null {
   return {
     id: best.faq.id,
     reply: best.faq.reply,
-    followUps: defaultFollowUps(best.faq.followUps ?? []),
+    followUps: defaultFollowUps(best.faq.followUps ?? [], {
+      excludeIds: [best.faq.id],
+    }),
   }
 }
 

@@ -223,6 +223,17 @@ export function MacWallChatWidget() {
   const founderJoined = active?.founderJoined ?? false
   const chatId = active?.id ?? ""
 
+  /** Only the newest Assist chips stay tappable — blocks the option-loop. */
+  const activeFollowUpsMessageId = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i]
+      if (m?.role === "assist" && m.followUps && m.followUps.length > 0) {
+        return m.id
+      }
+    }
+    return null
+  }, [messages])
+
   activeIdRef.current = active?.id ?? ""
   handoffRef.current = handoff
   openRef.current = open
@@ -403,10 +414,20 @@ export function MacWallChatWidget() {
 
   const pushMessage = useCallback(
     (msg: ChatMessage) => {
-      patchActive((c) => ({
-        ...c,
-        messages: [...c.messages, msg],
-      }))
+      patchActive((c) => {
+        // Once the user picks a path, retire older chips so they can't loop
+        // back through previous menus.
+        const prior =
+          msg.role === "user"
+            ? c.messages.map((m) =>
+                m.followUps?.length ? { ...m, followUps: undefined } : m
+              )
+            : c.messages
+        return {
+          ...c,
+          messages: [...prior, msg],
+        }
+      })
     },
     [patchActive]
   )
@@ -1621,7 +1642,9 @@ export function MacWallChatWidget() {
                     <span className="px-1 text-[10px] text-white/30">
                       {formatTime(m.createdAt)}
                     </span>
-                    {m.followUps && m.followUps.length > 0 ? (
+                    {m.followUps &&
+                    m.followUps.length > 0 &&
+                    m.id === activeFollowUpsMessageId ? (
                       <div className="flex max-w-full flex-wrap gap-1.5 pt-0.5">
                         {m.followUps.map((chip) => (
                           <button
