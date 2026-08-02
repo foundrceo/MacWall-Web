@@ -7,7 +7,7 @@ export function indexableMarketingPaths(): string[] {
     "/",
     "/download",
     "/pricing",
-    "/pricing/reel-refund",
+    "/creator",
     "/blog",
     "/changelog",
     "/wallpapers",

@@ -98,6 +98,11 @@ const nextConfig = {
         destination: "/blog/lock-screen-live-wallpaper-macos",
         permanent: true,
       },
+      {
+        source: "/pricing/reel-refund",
+        destination: "/creator",
+        permanent: true,
+      },
     ]
   },
   /**

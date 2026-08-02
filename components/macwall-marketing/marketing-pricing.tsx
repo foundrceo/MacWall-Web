@@ -121,10 +121,10 @@ export default function MacWallMarketingPricingPage() {
               <p className="mt-8 text-center text-[14px] text-marketing-muted">
                 Creators:{" "}
                 <Link
-                  href="/pricing/reel-refund"
+                  href="/creator"
                   className="text-foreground underline-offset-4 hover:underline"
                 >
-                  earn up to 100% back with a Reel
+                  earn up to 100% back with a video
                 </Link>
                 .
               </p>
