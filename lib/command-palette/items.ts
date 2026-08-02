@@ -1,4 +1,4 @@
-import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
+import { getMarketingNavItems } from "@/lib/marketing-nav"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import {
   macwall,
@@ -58,41 +58,48 @@ export function getCommandPaletteStaticItems(): {
   const h = macwallExactCopy.header
   const ho = macwallExactCopy.hover
 
+  const navPages = getMarketingNavItems().map((item) =>
+    page(`page-${item.href.slice(1).replace(/\//g, "-")}`, item.label, item.href, {
+      keywords:
+        item.href === "/wallpapers"
+          ? ["gallery", "catalog", "live wallpaper", "browse"]
+          : item.href === "/pricing"
+            ? ["pro", "license", "buy", "upgrade"]
+            : item.href === "/blog"
+              ? ["news", "articles", "updates"]
+              : item.href === "/submit"
+                ? ["upload", "community", "creator"]
+                : ["earn", "referral", "partner"],
+    })
+  )
+
   const pages: CommandPaletteStaticItem[] = [
     page("page-overview", h.navOverview, "/", {
       keywords: ["home", "macwall", "overview"],
     }),
-    page("page-wallpapers", h.navGallery, "/wallpapers", {
-      keywords: ["gallery", "catalog", "live wallpaper", "browse"],
-    }),
-    page("page-pricing", h.navPricing, "/pricing", {
-      keywords: ["pro", "license", "buy", "upgrade"],
-    }),
-    page("page-submit", h.navSubmit, "/submit", {
-      keywords: ["upload", "community", "creator"],
-    }),
-    page("page-blog", h.navBlog, "/blog", {
-      keywords: ["news", "articles", "updates"],
-    }),
+    ...navPages,
     page("page-changelog", "Changelog", "/changelog", {
       keywords: ["release notes", "updates", "history", "github"],
     }),
     page("page-download", "Download", "/download", {
       keywords: ["installer", "get macwall", "app"],
     }),
-    page("page-live-wallpaper", "Live Wallpaper for Mac", "/live-wallpaper-mac", {
-      keywords: ["desktop", "animated", "4k"],
-    }),
-    page("page-lock-screen", "Lock Screen Wallpapers", "/lock-screen-wallpaper", {
-      keywords: ["screensaver", "tahoe", "lock screen"],
-    }),
-    ...(AFFILIATE_UI_VISIBLE
-      ? [
-          page("page-affiliate", h.navAffiliate, "/affiliate", {
-            keywords: ["earn", "referral", "partner"],
-          }),
-        ]
-      : []),
+    page(
+      "page-live-wallpaper",
+      "How to Set Live Wallpaper on Mac",
+      "/blog/how-to-set-live-wallpaper-mac",
+      {
+        keywords: ["live wallpaper for mac", "animated wallpaper mac", "guide"],
+      }
+    ),
+    page(
+      "page-lock-screen",
+      "Lock Screen Live Wallpaper on macOS",
+      "/blog/lock-screen-live-wallpaper-macos",
+      {
+        keywords: ["lock screen live wallpaper mac", "macos tahoe", "pro"],
+      }
+    ),
   ]
 
   const actions: CommandPaletteStaticItem[] = [

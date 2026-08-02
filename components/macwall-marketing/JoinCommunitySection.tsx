@@ -5,12 +5,20 @@ export default function JoinCommunitySection() {
   return (
     <section className="marketing-section-elevated bg-background">
       <div className="marketing-container">
-        <div className="mx-auto max-w-none text-center">
-          <h2 className="text-[clamp(1.6rem,4.5vw,2.5rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-[13px] font-medium text-marketing-muted sm:text-[14px]">
+            Community
+          </p>
+          <h2 className="mt-3 text-[clamp(1.75rem,4vw,2.25rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
             {macwall.name} is building the future of live desktops.
           </h2>
+          <p className="mx-auto mt-4 max-w-[36rem] text-[16px] leading-[1.55] text-foreground/70 sm:text-[17px]">
+            Join thousands of Mac users sharing setups, new drops, and tips in
+            our Discord — or follow along on social for the latest wallpapers.
+          </p>
         </div>
-        <div className="relative mx-auto mt-8 max-w-4xl overflow-hidden rounded-2xl md:mt-12">
+
+        <div className="relative mx-auto mt-10 max-w-5xl overflow-hidden rounded-2xl md:mt-14">
           <Image
             alt={`${macwall.name} live wallpapers on a MacBook`}
             src="/Img.png"

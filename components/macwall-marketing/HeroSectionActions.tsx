@@ -28,35 +28,35 @@ export default function HeroSectionActions() {
   const pricing = useMarketingPricing()
 
   return (
-    <div className="mt-8 flex flex-row flex-nowrap items-start gap-2 pb-5 md:mt-10">
-      <div className="flex flex-col items-center gap-2">
-        <TrackedDownloadButton
-          href={macwallInstallerLatestPath}
-          size="pill"
+    <div className="mt-8 sm:mt-10">
+      <div className="flex flex-wrap items-start gap-3">
+        <div className="flex flex-col items-center">
+          <TrackedDownloadButton
+            href={macwallInstallerLatestPath}
+            size="pill"
+            location="hero"
+            className={cn(
+              "marketing-hero-primary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
+            )}
+          >
+            <AppleIcon className="size-3.5" />
+            Download for macOS
+          </TrackedDownloadButton>
+          <p className="mt-2 text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
+            {macwallMinimumMacOSVersionLabel}
+          </p>
+        </div>
+        <TrackedPricingButton
+          href="/pricing"
           location="hero"
+          size="pill"
           className={cn(
-            "marketing-hero-primary-btn",
-            "shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]"
+            "marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
           )}
         >
-          <AppleIcon className="size-3.5" />
-          Download for macOS
-        </TrackedDownloadButton>
-        <p className="max-w-full text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
-          {macwallMinimumMacOSVersionLabel}
-        </p>
+          {pricing.getProCta}
+        </TrackedPricingButton>
       </div>
-      <TrackedPricingButton
-        href="/pricing"
-        location="hero"
-        size="pill"
-        className={cn(
-          "marketing-hero-secondary-btn",
-          "shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]"
-        )}
-      >
-        {pricing.getProCta}
-      </TrackedPricingButton>
     </div>
   )
 }

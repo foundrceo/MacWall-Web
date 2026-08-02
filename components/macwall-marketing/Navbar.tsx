@@ -12,8 +12,11 @@ import {
   macwallInstallerLatestPath,
   mailtoSupport,
 } from "@/lib/macwall-site"
-import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import {
+  getMarketingNavItems,
+  isMarketingNavActive,
+} from "@/lib/marketing-nav"
 import { cn } from "@/lib/utils"
 
 function DiscordIcon({ className }: Readonly<{ className?: string }>) {
@@ -271,62 +274,14 @@ export default function Navbar() {
   const h = macwallExactCopy.header
   const ho = macwallExactCopy.hover
   const [menuOpen, setMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 8)
-    }
-
-    onScroll()
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
 
   const navLinkClass =
     "text-[15px] text-white/80 transition-opacity hover:text-white hover:opacity-100"
 
-  const navItems: ReadonlyArray<{
-    href: string
-    label: string
-    active: boolean
-    earnBadge?: boolean
-  }> = [
-    {
-      href: "/wallpapers",
-      label: h.navGallery,
-      active:
-        pathname === "/wallpapers" ||
-        pathname.startsWith("/wallpapers/") ||
-        pathname.startsWith("/wallpaper/"),
-    },
-    {
-      href: "/pricing",
-      label: h.navPricing,
-      active: pathname === "/pricing" || pathname.startsWith("/pricing/"),
-    },
-    {
-      href: "/submit",
-      label: h.navSubmit,
-      active: pathname === "/submit" || pathname.startsWith("/submit/"),
-    },
-    ...(AFFILIATE_UI_VISIBLE
-      ? [
-          {
-            href: "/affiliate",
-            label: h.navAffiliate,
-            active:
-              pathname === "/affiliate" || pathname.startsWith("/affiliate/"),
-            earnBadge: true as const,
-          },
-        ]
-      : []),
-    {
-      href: "/blog",
-      label: h.navBlog,
-      active: pathname === "/blog" || pathname.startsWith("/blog/"),
-    },
-  ]
+  const navItems = getMarketingNavItems().map((item) => ({
+    ...item,
+    active: isMarketingNavActive(pathname, item.href),
+  }))
 
   useEffect(() => {
     setMenuOpen(false)
@@ -354,9 +309,8 @@ export default function Navbar() {
       className={cn(
         "navbar-header",
         "fixed inset-x-0 top-[var(--marketing-banner-height)] z-50 w-full lg:sticky lg:top-0",
-        scrolled && !menuOpen && "border-white/10",
         menuOpen &&
-          "z-[91] border-white/10 bg-[#050505]/80 backdrop-blur-[32px] lg:z-50 lg:bg-background/45 lg:backdrop-blur-xl"
+          "z-[91] bg-[#050505]/80 backdrop-blur-[32px] lg:z-50 lg:bg-background/45 lg:backdrop-blur-xl"
       )}
     >
       <nav

@@ -112,14 +112,14 @@ export default function MarketingFaqSection({
   return (
     <section className={cn("marketing-section-elevated bg-surface-elevated", className)}>
       <div className="marketing-container">
-        <div className="mx-auto max-w-4xl text-center">
-          <p className="text-[13px] font-medium uppercase tracking-[0.08em] text-marketing-muted sm:text-[14px]">
-            FAQ
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-[13px] font-medium text-marketing-muted sm:text-[14px]">
+            Questions
           </p>
-          <h2 className="mt-3 text-[clamp(1.6rem,4vw,2.25rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
+          <h2 className="mt-3 text-[clamp(1.75rem,4vw,2.25rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
             {pricingCopy.faqTitle}
           </h2>
-          <div className="mt-10 border-t border-border/70 text-left md:mt-14">
+          <div className="mt-10 border-t border-border/70 text-left md:mt-12">
             {pricingCopy.faq.map((item) => (
               <FaqItem
                 key={item.q}

@@ -88,6 +88,16 @@ const nextConfig = {
         destination: "/affiliate",
         permanent: true,
       },
+      {
+        source: "/live-wallpaper-mac",
+        destination: "/blog/how-to-set-live-wallpaper-mac",
+        permanent: true,
+      },
+      {
+        source: "/lock-screen-wallpaper",
+        destination: "/blog/lock-screen-live-wallpaper-macos",
+        permanent: true,
+      },
     ]
   },
   /**
