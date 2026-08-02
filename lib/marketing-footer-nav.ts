@@ -1,5 +1,5 @@
-import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
+import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import { macwall, macwallProCheckoutURL } from "@/lib/macwall-site"
 import { categorySlugFromName } from "@/lib/seo/category-slugs"
 import { SUPPORT_CHAT_HREF } from "@/lib/support/shared"
@@ -17,7 +17,92 @@ export type FooterNavSection = {
   links: readonly FooterNavLink[]
 }
 
-/** SEO comparison pages — crawlable from every marketing page. */
+export type MarketingFooterLink = {
+  label: string
+  href: string
+  external?: boolean
+}
+
+export type MarketingFooterColumn = {
+  title: string
+  links: readonly MarketingFooterLink[]
+}
+
+export type MarketingFooterSocialBrand = "Discord" | "Instagram" | "TikTok"
+
+export type MarketingFooterSocialLink = {
+  brand: MarketingFooterSocialBrand
+  label: string
+  href: string
+}
+
+export type MarketingFooterLegalLink = {
+  label: string
+  href: string
+}
+
+/** Visible footer columns — mirrors header nav funnel + resources + support. */
+export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
+  const foot = macwallExactCopy.footer
+
+  return [
+    {
+      title: "Products",
+      links: [
+        { label: "Wallpapers", href: "/wallpapers" },
+        { label: foot.shop.pricing, href: "/pricing" },
+        { label: foot.shop.download, href: "/download" },
+        { label: "Upload Wallpaper", href: "/submit" },
+        ...(AFFILIATE_UI_VISIBLE
+          ? [{ label: foot.connect.affiliate, href: "/affiliate" }]
+          : []),
+      ],
+    },
+    {
+      title: "Resources",
+      links: [
+        { label: "Blogs", href: "/blog" },
+        { label: "Changelog", href: "/changelog" },
+      ],
+    },
+    {
+      title: "Support",
+      links: [
+        { label: "Live Support", href: SUPPORT_CHAT_HREF },
+        {
+          label: "Email us",
+          href: `mailto:${macwall.supportEmail}`,
+          external: true,
+        },
+        { label: foot.legal.privacy, href: "/privacy" },
+        { label: foot.legal.terms, href: "/terms" },
+      ],
+    },
+  ]
+}
+
+export function getMarketingFooterSocialLinks(): readonly MarketingFooterSocialLink[] {
+  return [
+    { brand: "Discord", label: "Discord", href: macwall.discordInvite },
+    {
+      brand: "Instagram",
+      label: "Instagram",
+      href: macwall.reelRefundInstagramURL,
+    },
+    { brand: "TikTok", label: "TikTok", href: macwall.reelRefundTiktokURL },
+  ]
+}
+
+export function getMarketingFooterLegalLinks(): readonly MarketingFooterLegalLink[] {
+  const foot = macwallExactCopy.footer
+
+  return [
+    { label: foot.legal.privacy, href: "/privacy" },
+    { label: foot.legal.terms, href: "/terms" },
+  ]
+}
+
+/** SEO comparison pages — crawlable from expanded footer surfaces. */
 export const footerCompareLinks = [
   { href: "/best-live-wallpaper-mac", label: "Best Live Wallpaper for Mac" },
   { href: "/alternatives/wallpaper-engine", label: "Wallpaper Engine for Mac" },
@@ -43,6 +128,7 @@ export const footerCategoryLinks: { href: string; label: string }[] =
     return slug ? [{ href: `/wallpapers/${slug}`, label: name as string }] : []
   })
 
+/** Expanded footer sections for SEO-heavy layouts and future surfaces. */
 export function getMarketingFooterSections(
   shopPricingHref: string
 ): readonly FooterNavSection[] {
@@ -75,16 +161,6 @@ export function getMarketingFooterSections(
         { label: "Wallpapers", href: "/wallpapers", kind: "internal" },
         { label: foot.explore.blog, href: "/blog", kind: "internal" },
         { label: "Changelog", href: "/changelog", kind: "internal" },
-        {
-          label: foot.explore.liveWallpaper,
-          href: "/live-wallpaper-mac",
-          kind: "internal",
-        },
-        {
-          label: foot.explore.lockScreen,
-          href: "/lock-screen-wallpaper",
-          kind: "internal",
-        },
       ],
     },
     {

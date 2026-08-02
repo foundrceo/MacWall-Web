@@ -24,39 +24,41 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
-/** Shared pre-footer CTA — Palmier-style download strip. */
+/** Shared pre-footer CTA — download strip before footer. */
 export default function MacWallMarketingBottomCta() {
   const pricing = useMarketingPricing()
 
   return (
-    <section className="marketing-section-elevated bg-background">
+    <section className="marketing-section-elevated border-t border-border/60 bg-background">
       <div className="marketing-container text-center">
-        <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-normal tracking-[-0.02em] text-foreground">
+        <h2 className="text-[clamp(1.875rem,5vw,2.75rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
           Try {macwall.name}.
         </h2>
-        <div className="mt-7 flex flex-row flex-nowrap items-start justify-center gap-2 md:mt-10">
-          <div className="flex flex-col items-center gap-2">
-            <TrackedDownloadButton
-              href={macwallInstallerLatestPath}
-              size="pill"
+        <div className="mt-8 sm:mt-10">
+          <div className="flex flex-wrap items-start justify-center gap-3">
+            <div className="flex flex-col items-center">
+              <TrackedDownloadButton
+                href={macwallInstallerLatestPath}
+                size="pill"
+                location="bottom_cta"
+                className="marketing-hero-primary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
+              >
+                <AppleIcon className="size-3.5" />
+                Download for macOS
+              </TrackedDownloadButton>
+              <p className="mt-2 text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
+                {macwallMinimumMacOSVersionLabel}
+              </p>
+            </div>
+            <TrackedPricingButton
+              href="/pricing"
               location="bottom_cta"
-              className="marketing-hero-primary-btn shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]"
+              size="pill"
+              className="marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
             >
-              <AppleIcon className="size-3.5" />
-              Download for macOS
-            </TrackedDownloadButton>
-            <p className="max-w-full text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
-              {macwallMinimumMacOSVersionLabel}
-            </p>
+              {pricing.bottomCtaLabel}
+            </TrackedPricingButton>
           </div>
-          <TrackedPricingButton
-            href="/pricing"
-            location="bottom_cta"
-            size="pill"
-            className="marketing-hero-secondary-btn shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]"
-          >
-            {pricing.bottomCtaLabel}
-          </TrackedPricingButton>
         </div>
       </div>
     </section>
