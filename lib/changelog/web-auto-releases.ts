@@ -6,6 +6,19 @@ import type { ChangelogRelease } from "@/lib/changelog/types"
 
 export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
   {
+    id: "web-2026-08-02",
+    version: "2026.8.2",
+    date: "2026-08-02T12:00:00.000Z",
+    sections: [
+      {
+        kind: "features",
+        items: [
+          "Add compact hero license modal and rename Get Pro to Get License.",
+        ],
+      },
+    ],
+  },
+  {
     id: "web-2026-08-01",
     version: "2026.8.1",
     date: "2026-08-01T12:00:00.000Z",
@@ -13,6 +26,7 @@ export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
       {
         kind: "features",
         items: [
+          "Add overview articles and footer AI summary for discovery.",
           "Add standalone creator offer page at /creator.",
           "Command palette to jump anywhere on macwall.app.",
           "Public wallpaper gallery with search, SEO, and app deep links.",
@@ -22,6 +36,7 @@ export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
       {
         kind: "improvements",
         items: [
+          "Redesign blog UI with MacBook mockup thumbnails and cleaner article layout.",
           "Polish marketing homepage layout and simplify footer/navigation.",
           "Public changelog page synced with shipping updates.",
           "Limited-time sale banner with responsive layout.",
