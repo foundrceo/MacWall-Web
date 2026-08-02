@@ -21,6 +21,8 @@ export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
       {
         kind: "improvements",
         items: [
+          "Polish marketing homepage layout and simplify footer/navigation.",
+          "Public changelog page synced with shipping updates.",
           "Limited-time sale banner with responsive layout.",
           "Pro+ licenses for 10, 15, or 20 Macs with clearer pack picking.",
           "Faster checkout when upgrading to Pro.",

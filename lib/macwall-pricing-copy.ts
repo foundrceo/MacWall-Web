@@ -32,11 +32,11 @@ export const macwallPricingCopy = {
       cta: "Get Pro+",
     },
     reel: {
-      title: "Reel Refund",
+      title: "Creator Offer",
       subtitle: "For creators who share their setup",
       price: "Up to 100% back",
       featuresPrefix: "How it works:",
-      cta: "Learn about Reels",
+      cta: "Learn about the offer",
     },
   },
 
@@ -154,5 +154,5 @@ export const macwallPricingCopy = {
   bottomTitle: `Try ${macwall.name}`,
   bottomDesc: `Claim the limited Pro price — or make a Reel and earn up to 100% back.`,
   bottomCtaPro: "Get Pro",
-  bottomCtaReel: "Earn 100% back",
+  bottomCtaReel: "Creator offer",
 } as const
