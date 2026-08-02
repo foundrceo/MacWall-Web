@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 
 const TIMER_STORAGE_KEY = "macwall_sale_deadline_ms"
+/** Fixed window length — never auto-resets after expiry (avoids fake urgency). */
 const DAY_MS = 24 * 60 * 60 * 1000
 
 type Remaining = {
@@ -34,7 +35,7 @@ function readOrCreateDeadline(nowMs: number): number {
   try {
     const raw = window.localStorage.getItem(TIMER_STORAGE_KEY)
     const parsed = raw ? Number(raw) : NaN
-    if (Number.isFinite(parsed) && parsed > nowMs) {
+    if (Number.isFinite(parsed)) {
       return parsed
     }
   } catch {
@@ -52,20 +53,19 @@ function readOrCreateDeadline(nowMs: number): number {
 
 function BannerCountdown() {
   const [remaining, setRemaining] = useState<Remaining | null>(null)
+  const [expired, setExpired] = useState(false)
 
   useEffect(() => {
-    let deadline = readOrCreateDeadline(Date.now())
+    const deadline = readOrCreateDeadline(Date.now())
 
     const tick = () => {
       const now = Date.now()
       if (deadline <= now) {
-        deadline = now + DAY_MS
-        try {
-          window.localStorage.setItem(TIMER_STORAGE_KEY, String(deadline))
-        } catch {
-          // ignore
-        }
+        setExpired(true)
+        setRemaining(null)
+        return
       }
+      setExpired(false)
       setRemaining(remainingFromDeadline(deadline, now))
     }
 
@@ -74,15 +74,27 @@ function BannerCountdown() {
     return () => window.clearInterval(id)
   }, [])
 
-  const time = remaining ?? { hours: "24", minutes: "00", seconds: "00" }
+  if (expired) {
+    return (
+      <span className="inline-flex shrink-0 items-center text-[11px] font-semibold tracking-tight text-black sm:text-[13px]">
+        Sale on now
+      </span>
+    )
+  }
+
+  const time = remaining ?? { hours: "--", minutes: "--", seconds: "--" }
 
   return (
     <span
       className="inline-flex shrink-0 items-center gap-x-1 text-[11px] font-semibold tabular-nums tracking-tight text-black sm:text-[13px]"
-      aria-label={`Sale ends in ${time.hours} hours ${time.minutes} minutes ${time.seconds} seconds`}
+      aria-label={
+        remaining
+          ? `Sale ends in ${time.hours} hours ${time.minutes} minutes ${time.seconds} seconds`
+          : undefined
+      }
       aria-hidden={!remaining}
     >
-      <span className="font-medium text-black/55">Ends in</span>
+      <span className="font-medium text-black/70">Ends in</span>
       <span>
         {time.hours}:{time.minutes}:{time.seconds}
       </span>
@@ -92,7 +104,7 @@ function BannerCountdown() {
 
 function Dot() {
   return (
-    <span className="shrink-0 text-black/25" aria-hidden>
+    <span className="shrink-0 text-black/40" aria-hidden>
       ·
     </span>
   )
@@ -106,13 +118,16 @@ export default function AnnouncementBanner() {
     <div id="launch-banner" className="launch-banner">
       <Link
         href="/pricing"
-        className="mx-auto flex h-full max-w-7xl flex-col items-center justify-center gap-y-0.5 px-3 text-center transition-opacity hover:opacity-80 sm:flex-row sm:flex-wrap sm:gap-x-2 sm:gap-y-0 sm:px-4"
+        className="mx-auto flex h-full max-w-7xl flex-col items-center justify-center gap-y-0.5 px-3 text-center transition-opacity outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-black/30 sm:flex-row sm:flex-wrap sm:gap-x-2 sm:gap-y-0 sm:px-4"
       >
         <span className="max-w-full text-[11px] font-semibold tracking-tight text-balance text-black sm:truncate sm:text-[13px]">
           {pricing.isIndia ? (
-            <span aria-hidden className="mr-1">
-              🇮🇳
-            </span>
+            <>
+              <span aria-hidden className="mr-1">
+                🇮🇳
+              </span>
+              <span className="sr-only">India offer: </span>
+            </>
           ) : null}
           {pricing.bannerHeadline}
         </span>
@@ -123,8 +138,8 @@ export default function AnnouncementBanner() {
 
         <span className="inline-flex max-w-full flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 sm:gap-x-2">
           <span className="inline-flex shrink-0 items-baseline gap-x-1 text-[11px] sm:text-[13px]">
-            <span className="font-medium text-black/55">Pro</span>
-            <span className="text-black/40 line-through decoration-black/45 decoration-1">
+            <span className="font-medium text-black/70">Pro</span>
+            <span className="text-black/55 line-through decoration-black/50 decoration-1">
               {pricing.bannerStrikePrice}
             </span>
             <span className="font-semibold text-black tabular-nums">

@@ -120,6 +120,15 @@ const nextConfig = {
         source: "/r/psl.min.js",
         destination: "https://cdn.affonso.io/js/psl.min.js",
       },
+      /**
+       * Markdown twin of every content page: `/blog/example.md` is served by
+       * `app/md/[...path]/route.ts`. A dynamic App Router segment cannot carry
+       * a file extension, so the public `.md` URL is a rewrite.
+       */
+      {
+        source: "/:path(.+)\\.md",
+        destination: "/md/:path",
+      },
     ]
   },
   async headers() {
@@ -138,6 +147,10 @@ const nextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+          },
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin-allow-popups",
           },
           {
             key: "Content-Security-Policy-Report-Only",

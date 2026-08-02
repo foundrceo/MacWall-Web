@@ -19,6 +19,7 @@ import {
 } from "@/lib/macwall-site"
 import {
   canonicalSiteOrigin,
+  feedAlternateTypes,
   metadataBaseUrl,
   openGraphImageAbsoluteUrl,
   openGraphImageSize,
@@ -52,7 +53,7 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
 })
 
-const SITE_DESCRIPTION_FALLBACK = `MacWall is the native macOS app for live video wallpapers on your Mac desktop: a curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, intelligent pause on battery and full screen, and optional MacWall Pro for live Lock Screen and Screen Saver wallpapers on macOS 26 (Tahoe). Desktop wallpapers run on macOS 14+.`
+const SITE_DESCRIPTION_FALLBACK = `MacWall is the native macOS app for cinematic live wallpapers — curated catalog, menu bar control, multi-display playback, and optional Lock Screen video on macOS 26. Desktop wallpapers on macOS 14+.`
 
 const SITE_TITLE_DEFAULT = macwall.fullTagline
 
@@ -135,6 +136,9 @@ export const metadata: Metadata = {
     "screen saver video mac",
     `${macwall.name}`,
   ],
+  alternates: {
+    types: feedAlternateTypes(),
+  },
   icons: {
     icon: [
       { url: macwallFavicons.ico, sizes: "any" },
@@ -146,6 +150,16 @@ export const metadata: Metadata = {
       {
         url: macwallFavicons.icon32,
         sizes: "32x32",
+        type: "image/png",
+      },
+      {
+        url: macwallFavicons.android192,
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        url: macwallFavicons.android512,
+        sizes: "512x512",
         type: "image/png",
       },
     ],
@@ -196,6 +210,7 @@ export const metadata: Metadata = {
       index: true,
       follow: true,
       "max-image-preview": "large",
+      "max-video-preview": -1,
       "max-snippet": -1,
     },
   },

@@ -73,7 +73,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         screenshot: `${origin}/og.jpg`,
         downloadUrl: `${origin}/download`,
         installUrl: `${origin}/download`,
-        softwareVersion: "1.7",
+        softwareVersion: "2.9",
         featureList: [
           "Live video wallpapers for the Mac desktop, up to 4K",
           "Curated cloud catalog with search, filters, and 9 categories",

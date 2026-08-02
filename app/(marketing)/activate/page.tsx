@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: `Open ${macwall.name} and activate Pro instantly after checkout.`,
   alternates: { canonical: canonicalSitePath(macwallActivatePath) },
   robots: { index: false, follow: false },
+  // License keys may appear in the URL — never leak via Referer.
+  referrer: "no-referrer",
 }
 
 export default function ActivatePage() {

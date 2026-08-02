@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 
 import { requireAdminApi } from "@/lib/admin/auth"
 import { replyToFeedback } from "@/lib/admin/feedback"
+import { sanitizeSupportImageUrl } from "@/lib/support/image-url"
 
 export const runtime = "nodejs"
 
@@ -19,10 +20,9 @@ export async function POST(
       imageUrl?: string | null
     }
     const reply = typeof body.reply === "string" ? body.reply : ""
-    const imageUrl =
-      typeof body.imageUrl === "string" && body.imageUrl.trim()
-        ? body.imageUrl.trim()
-        : null
+    const imageUrl = sanitizeSupportImageUrl(
+      typeof body.imageUrl === "string" ? body.imageUrl : null
+    )
 
     if (!reply.trim() && !imageUrl) {
       return NextResponse.json(

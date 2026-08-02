@@ -94,12 +94,12 @@ export function PricingTierCard({
         data-highlight={highlight || undefined}
       >
         <div className="flex min-h-0 flex-1 flex-col">
-          <h3
+          <h2
             id={id}
             className="font-sans text-[19px] font-normal tracking-tight text-foreground"
           >
             {title}
-          </h3>
+          </h2>
 
           <p className="mt-1 text-[12px] leading-snug text-muted-foreground">
             {subtitle}

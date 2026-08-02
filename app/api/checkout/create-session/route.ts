@@ -5,21 +5,41 @@ import {
   COUNTRY_COOKIE,
   resolveVisitorCountry,
 } from "@/lib/geo/resolve-visitor-country"
+import {
+  clientIpFromRequest,
+  createInMemoryRateLimiter,
+} from "@/lib/http/rate-limit"
 import { AFFONSO_REFERRAL_COOKIE } from "@/lib/macwall-affiliate"
 import {
   DATAFAST_SESSION_COOKIE,
   DATAFAST_VISITOR_COOKIE,
 } from "@/lib/macwall-datafast"
+import { resolveCheckoutSiteOrigin } from "@/lib/stripe/checkout-origin"
 import { createMacWallCheckoutSession } from "@/lib/stripe/create-macwall-checkout-session"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
+
+/** Cheap per-instance brake against Stripe session / pending-license spam. */
+const checkCheckoutRateLimit = createInMemoryRateLimiter({
+  max: 12,
+  windowMs: 60_000,
+})
 
 async function startCheckout(
   request: Request,
   offerSlug: string | null,
   planSlug: string | null
 ) {
+  const rate = checkCheckoutRateLimit(clientIpFromRequest(request))
+  if (rate.limited) {
+    return {
+      ok: false as const,
+      error: "Too many checkout attempts. Please wait a moment.",
+      status: 429,
+    }
+  }
+
   const cookieStore = await cookies()
   const affonsoReferral =
     cookieStore.get(AFFONSO_REFERRAL_COOKIE)?.value?.trim().slice(0, 255) || ""
@@ -41,7 +61,7 @@ async function startCheckout(
     affonsoReferral,
     datafastVisitorId,
     datafastSessionId,
-    siteOrigin: new URL(request.url).origin,
+    siteOrigin: resolveCheckoutSiteOrigin(request.url),
   })
 }
 
@@ -54,7 +74,8 @@ export async function GET(request: Request) {
   const result = await startCheckout(request, offerSlug, planSlug)
 
   if (!result.ok) {
-    const pricing = new URL("/pricing", url.origin)
+    const origin = resolveCheckoutSiteOrigin(request.url)
+    const pricing = new URL("/pricing", origin)
     pricing.searchParams.set("checkout_error", result.error.slice(0, 120))
     return NextResponse.redirect(pricing)
   }

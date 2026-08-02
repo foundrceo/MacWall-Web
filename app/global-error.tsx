@@ -18,7 +18,15 @@ export default function GlobalError({
       >
         <h2 style={{ fontSize: 20, fontWeight: 600 }}>Something went wrong</h2>
         <p style={{ color: "#555", maxWidth: 480 }}>
-          {error.message || "An unexpected error occurred."}
+          An unexpected error occurred. Please try again.
+          {error.digest ? (
+            <>
+              {" "}
+              <span style={{ fontSize: 12, color: "#888" }}>
+                (Ref: {error.digest})
+              </span>
+            </>
+          ) : null}
         </p>
         <button
           type="button"

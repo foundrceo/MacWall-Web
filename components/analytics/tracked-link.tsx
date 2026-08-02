@@ -17,7 +17,7 @@ import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-
 import {
   offerSlugFromCheckoutHref,
   prefetchCheckoutSession,
-  takePrefetchedCheckoutUrl,
+  waitForPrefetchedCheckoutUrl,
 } from "@/lib/checkout/prefetch-checkout"
 
 type TrackedLinkProps = {
@@ -90,14 +90,14 @@ export function TrackedLink({
 
     if (isCheckoutClick && checkoutOffer) {
       trackNavigation()
-      const ready = takePrefetchedCheckoutUrl(checkoutOffer)
-      if (ready) {
-        // Instant — Session was created on hover / idle prefetch.
-        event.preventDefault()
-        window.location.assign(ready)
-        return
-      }
-      // Miss: let the browser hit GET /api/checkout (303 to Stripe).
+      // Always await in-flight prefetch so a fast click doesn't create a
+      // second Stripe session while the first is still resolving.
+      event.preventDefault()
+      void waitForPrefetchedCheckoutUrl(checkoutOffer).then((url) => {
+        window.location.assign(
+          url ?? withMarketingAttribution(href)
+        )
+      })
       return
     }
 

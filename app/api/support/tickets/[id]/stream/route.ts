@@ -34,8 +34,9 @@ export async function GET(
     return bad(429, "rate_limited")
   }
 
-  const { id: ticketId } = await context.params
-  if (!ticketId?.trim()) {
+  const { id: rawTicketId } = await context.params
+  const ticketId = rawTicketId?.trim() ?? ""
+  if (!isValidSupportSessionId(ticketId)) {
     return bad(400, "invalid_ticket")
   }
 

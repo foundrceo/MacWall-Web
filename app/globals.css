@@ -253,15 +253,15 @@
   }
 
   .marketing-hero-primary-btn {
-    @apply inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-[15px] font-medium text-black transition-opacity hover:opacity-90;
+    @apply inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-[15px] font-medium text-black transition-opacity outline-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   .marketing-hero-secondary-btn {
-    @apply inline-flex items-center rounded-full bg-[#222222] px-4 py-2.5 text-[15px] font-medium text-white transition-colors hover:bg-[#2a2a2a];
+    @apply inline-flex items-center rounded-full bg-[#222222] px-4 py-2.5 text-[15px] font-medium text-white transition-colors outline-none hover:bg-[#2a2a2a] focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   .marketing-inline-link {
-    @apply text-[#0066cc] no-underline transition-opacity hover:underline hover:opacity-80;
+    @apply text-[#4da3ff] no-underline transition-opacity outline-none hover:underline hover:opacity-90 focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   .marketing-skip-link {

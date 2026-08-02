@@ -27,13 +27,13 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   })
 
   const { pathname } = request.nextUrl
-  const isCheckoutApi = pathname.startsWith("/api/checkout/")
+  // Never block HTML / API on IP whois — Vercel edge geo + cookie only.
+  // (Checkout, pricing API, and page renders all stay sub-second.)
   const country = await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: request.cookies.get("mw_country")?.value,
     geoCountry: request.headers.get("x-vercel-ip-country"),
-    // Checkout must not wait on IP whois — cookie / edge headers only.
-    skipIpLookup: isCheckoutApi,
+    skipIpLookup: true,
   })
 
   const requestHeaders = new Headers(request.headers)
