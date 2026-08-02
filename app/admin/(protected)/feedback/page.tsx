@@ -31,8 +31,6 @@ import {
   RotateCcw,
   Search,
   Send,
-  ThumbsDown,
-  ThumbsUp,
   TriangleAlert,
 } from "lucide-react"
 
@@ -68,7 +66,7 @@ import { cn } from "@/lib/utils"
 /* -------------------------------------------------------------------------- */
 
 type Sentiment = "like" | "dislike" | "neutral"
-type Filter = "all" | "unread" | "like" | "dislike"
+type Filter = "unread" | "open" | "closed" | "all"
 
 type FeedbackMessage = {
   id: string
@@ -107,10 +105,10 @@ type Totals = {
 }
 
 const FILTERS: Array<{ id: Filter; label: string }> = [
+  { id: "unread", label: "Reply" },
+  { id: "open", label: "Open" },
+  { id: "closed", label: "Closed" },
   { id: "all", label: "All" },
-  { id: "unread", label: "Needs reply" },
-  { id: "like", label: "Praise" },
-  { id: "dislike", label: "Issues" },
 ]
 
 const NEAR_BOTTOM_PX = 140
@@ -130,8 +128,31 @@ const SENTIMENT: Record<Sentiment, { label: string; tone: Tone }> = {
 function readableOsVersion(raw: string): string {
   const fromUserAgent = /Mac OS X (\d+[._]\d+(?:[._]\d+)?)/.exec(raw)
   if (fromUserAgent) return fromUserAgent[1].replaceAll("_", ".")
-  if (/mozilla\//i.test(raw)) return "Unknown"
+  if (/mozilla\//i.test(raw)) return "Web browser"
   return raw.replace(/^macOS\s*/i, "")
+}
+
+/** Public Chat ID from web widget ticket body (`Chat ID: MW-XXXXXX`). */
+function extractChatId(text: string | null | undefined): string | null {
+  if (!text) return null
+  const match = /Chat ID:\s*(MW-[A-Z0-9]+)/i.exec(text)
+  return match?.[1]?.toUpperCase() ?? null
+}
+
+function chatIdForItem(item: FeedbackItem): string | null {
+  // Prefer first user message (stable Chat ID line), then root message column
+  const firstUser = item.messages.find((m) => m.author === "user")
+  return extractChatId(firstUser?.body ?? null) ?? extractChatId(item.message)
+}
+
+/** Cleaner “original issue” without Chat ID header / transcript dump. */
+function originalIssuePreview(item: FeedbackItem): string {
+  const source =
+    item.messages.find((m) => m.author === "user")?.body ?? item.message
+  let body = source.replace(/^Chat ID:\s*MW-[A-Z0-9]+\s*/i, "").trim()
+  const cut = body.search(/\n—\s*Chat transcript\s*—/i)
+  if (cut >= 0) body = body.slice(0, cut).trim()
+  return body || source
 }
 
 function deviceSpecs(item: FeedbackItem) {
@@ -153,8 +174,67 @@ function deviceSpecs(item: FeedbackItem) {
   if (item.osVersion) {
     specs.push({ label: "macOS", value: readableOsVersion(item.osVersion) })
   }
-  if (item.appVersion) specs.push({ label: "App", value: item.appVersion })
+  if (item.appVersion) {
+    specs.push({
+      label: "App",
+      value: item.appVersion === "Web" ? "MacWall Web" : item.appVersion,
+    })
+  } else if (!item.deviceModel && !item.modelIdentifier) {
+    specs.push({ label: "Source", value: "Web chat" })
+  }
   return specs
+}
+
+function matchesSearch(item: FeedbackItem, term: string): boolean {
+  const haystacks: string[] = [
+    item.name ?? "",
+    item.message,
+    item.id,
+    item.deviceId ?? "",
+    chatIdForItem(item) ?? "",
+    item.appVersion ?? "",
+    item.osVersion ?? "",
+    item.deviceModel ?? "",
+    item.modelIdentifier ?? "",
+    item.chip ?? "",
+    ...item.messages.map((m) => m.body),
+  ]
+  return haystacks.some((value) => value.toLowerCase().includes(term))
+}
+
+function ticketNeedsReply(item: FeedbackItem): boolean {
+  if (item.isResolved) return false
+  if (item.needsAdminReply) return true
+  const last = item.messages.at(-1)
+  // Derive from thread — DB flag can lag after user follow-ups / new tickets
+  if (!last) return Boolean(item.message.trim())
+  return last.author === "user"
+}
+
+function sortInbox(a: FeedbackItem, b: FeedbackItem): number {
+  const aNeeds = ticketNeedsReply(a)
+  const bNeeds = ticketNeedsReply(b)
+  if (aNeeds !== bNeeds) return aNeeds ? -1 : 1
+  if (a.isResolved !== b.isResolved) {
+    return a.isResolved ? 1 : -1
+  }
+  const aLast = a.messages.at(-1)?.createdAt ?? a.createdAt
+  const bLast = b.messages.at(-1)?.createdAt ?? b.createdAt
+  return new Date(bLast).getTime() - new Date(aLast).getTime()
+}
+
+/** Ensure thread UI always has something to render even if messages failed to load. */
+function threadMessages(item: FeedbackItem): FeedbackMessage[] {
+  if (item.messages.length > 0) return item.messages
+  if (!item.message.trim()) return []
+  return [
+    {
+      id: `root-${item.id}`,
+      author: "user",
+      body: item.message,
+      createdAt: item.createdAt,
+    },
+  ]
 }
 
 type MessageGroup = { author: "user" | "admin"; messages: FeedbackMessage[] }
@@ -232,7 +312,7 @@ function bubbleShape(
 /* -------------------------------------------------------------------------- */
 
 export default function AdminFeedbackPage() {
-  const [filter, setFilter] = useState<Filter>("all")
+  const [filter, setFilter] = useState<Filter>("open")
   const [search, setSearch] = useState("")
   const [items, setItems] = useState<FeedbackItem[]>([])
   const [totals, setTotals] = useState<Totals | null>(null)
@@ -246,7 +326,7 @@ export default function AdminFeedbackPage() {
   const [composerError, setComposerError] = useState<string | null>(null)
   const [live, setLive] = useState(false)
   const [atBottom, setAtBottom] = useState(true)
-  const [copied, setCopied] = useState(false)
+  const [copiedField, setCopiedField] = useState<string | null>(null)
 
   const endRef = useRef<HTMLDivElement | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -256,12 +336,17 @@ export default function AdminFeedbackPage() {
 
   /* --- data ------------------------------------------------------------- */
 
-  const load = useCallback(async (next: Filter, silent = false) => {
+  const loadSeqRef = useRef(0)
+  const sendingRef = useRef(false)
+
+  const load = useCallback(async (silent = false) => {
+    const seq = ++loadSeqRef.current
     if (silent) setRefreshing(true)
     else setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/admin/feedback?filter=${next}`, {
+      // Always load the full inbox so search + tab filters work client-side
+      const res = await fetch(`/api/admin/feedback?filter=all`, {
         cache: "no-store",
         credentials: "same-origin",
       })
@@ -271,14 +356,17 @@ export default function AdminFeedbackPage() {
         error?: string
       }
       if (!res.ok) throw new Error(json.error ?? "Failed to load feedback")
+      if (seq !== loadSeqRef.current) return
       setItems(json.feedback ?? [])
       setTotals(json.totals ?? null)
     } catch (err) {
+      if (seq !== loadSeqRef.current) return
       if (!silent) {
         setError(err instanceof Error ? err.message : "Failed to load feedback")
         setItems([])
       }
     } finally {
+      if (seq !== loadSeqRef.current) return
       if (silent) setRefreshing(false)
       else setLoading(false)
     }
@@ -286,17 +374,34 @@ export default function AdminFeedbackPage() {
 
   useEffect(() => {
     queueMicrotask(() => {
-      void load(filter)
+      void load()
     })
-  }, [filter, load])
+  }, [load])
 
   useAdminFeedbackStream((event) => {
+    if (event.type === "connected") {
+      setLive(true)
+      return
+    }
+    if (event.type === "offline") {
+      setLive(false)
+      return
+    }
     setLive(true)
     if (event.type === "message" && event.author === "user") {
       playAdminNotificationSound()
     }
-    void load(filter, true)
+    void load(true)
   })
+
+  // Safety-net poll so new web chats appear even if SSE is quiet
+  useEffect(() => {
+    const ms = live ? 20_000 : 6_000
+    const id = window.setInterval(() => {
+      void load(true)
+    }, ms)
+    return () => window.clearInterval(id)
+  }, [live, load])
 
   /* --- selection + scrolling -------------------------------------------- */
 
@@ -318,7 +423,7 @@ export default function AdminFeedbackPage() {
     endRef.current?.scrollIntoView({ block: "end" })
   }, [selectedId])
 
-  const messageCount = selected?.messages.length ?? 0
+  const messageCount = selected ? threadMessages(selected).length : 0
   useEffect(() => {
     if (atBottom) {
       endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
@@ -334,33 +439,61 @@ export default function AdminFeedbackPage() {
   }, [draft])
 
   useEffect(() => {
-    if (!copied) return
-    const timer = window.setTimeout(() => setCopied(false), 1600)
+    if (!copiedField) return
+    const timer = window.setTimeout(() => setCopiedField(null), 1600)
     return () => window.clearTimeout(timer)
-  }, [copied])
+  }, [copiedField])
 
   const visibleItems = useMemo(() => {
     const term = search.trim().toLowerCase()
-    if (!term) return items
-    return items.filter((item) => {
-      const last = item.messages.at(-1)?.body ?? item.message
-      return (
-        (item.name ?? "").toLowerCase().includes(term) ||
-        item.message.toLowerCase().includes(term) ||
-        last.toLowerCase().includes(term)
-      )
-    })
-  }, [items, search])
+    let list = items
+    if (term) {
+      // Search across the full inbox (name, Chat ID, device, messages)
+      list = list.filter((item) => matchesSearch(item, term))
+    } else if (filter === "unread") {
+      list = list.filter((item) => ticketNeedsReply(item))
+    } else if (filter === "open") {
+      // Continue conversations — all open tickets
+      list = list.filter((item) => !item.isResolved)
+    } else if (filter === "closed") {
+      list = list.filter((item) => item.isResolved)
+    }
+    return [...list].sort(sortInbox)
+  }, [items, search, filter])
+
+  const selectedChatId = selected ? chatIdForItem(selected) : null
+
+  const copyValue = useCallback(async (field: string, value: string) => {
+    try {
+      await navigator.clipboard.writeText(value)
+      setCopiedField(field)
+    } catch {
+      setComposerError("Couldn’t copy to clipboard")
+    }
+  }, [])
 
   const timeline = useMemo(
-    () => (selected ? buildTimeline(selected.messages) : []),
+    () => (selected ? buildTimeline(threadMessages(selected)) : []),
     [selected]
   )
 
   /* --- actions ----------------------------------------------------------- */
 
   async function toggleResolved(item: FeedbackItem) {
+    if (pendingId === item.id) return
     const nextResolved = !item.isResolved
+    const snapshot = {
+      isResolved: item.isResolved,
+      needsAdminReply: item.needsAdminReply,
+    }
+    // On reopen, if last message is from user, surface Reply again
+    const lastAuthor = item.messages.at(-1)?.author
+    const nextNeedsReply = nextResolved
+      ? false
+      : lastAuthor === "user"
+        ? true
+        : item.needsAdminReply
+
     setPendingId(item.id)
     setItems((current) =>
       current.map((row) =>
@@ -368,7 +501,7 @@ export default function AdminFeedbackPage() {
           ? {
               ...row,
               isResolved: nextResolved,
-              needsAdminReply: nextResolved ? false : row.needsAdminReply,
+              needsAdminReply: nextNeedsReply,
             }
           : row
       )
@@ -385,11 +518,17 @@ export default function AdminFeedbackPage() {
         const json = (await res.json()) as { error?: string }
         throw new Error(json.error ?? "Update failed")
       }
-      void load(filter, true)
+      void load(true)
     } catch (err) {
       setItems((current) =>
         current.map((row) =>
-          row.id === item.id ? { ...row, isResolved: item.isResolved } : row
+          row.id === item.id
+            ? {
+                ...row,
+                isResolved: snapshot.isResolved,
+                needsAdminReply: snapshot.needsAdminReply,
+              }
+            : row
         )
       )
       setError(err instanceof Error ? err.message : "Update failed")
@@ -399,18 +538,21 @@ export default function AdminFeedbackPage() {
   }
 
   async function sendReply() {
-    if (!selected) return
+    if (!selected || sendingRef.current) return
     const body = draft.trim()
     if (!body) return
 
+    const ticketId = selected.id
+    const priorNeedsReply = selected.needsAdminReply
     const optimisticId = `optimistic-${Date.now()}`
+    sendingRef.current = true
     setSending(true)
     setComposerError(null)
     setDraft("")
     setAtBottom(true)
     setItems((current) =>
       current.map((row) =>
-        row.id === selected.id
+        row.id === ticketId
           ? {
               ...row,
               needsAdminReply: false,
@@ -429,7 +571,7 @@ export default function AdminFeedbackPage() {
     )
 
     try {
-      const res = await fetch(`/api/admin/feedback/${selected.id}/reply`, {
+      const res = await fetch(`/api/admin/feedback/${ticketId}/reply`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
@@ -437,13 +579,14 @@ export default function AdminFeedbackPage() {
       })
       const json = (await res.json()) as { error?: string }
       if (!res.ok) throw new Error(json.error ?? "Reply failed")
-      void load(filter, true)
+      void load(true)
     } catch (err) {
       setItems((current) =>
         current.map((row) =>
-          row.id === selected.id
+          row.id === ticketId
             ? {
                 ...row,
+                needsAdminReply: priorNeedsReply,
                 messages: row.messages.filter((m) => m.id !== optimisticId),
               }
             : row
@@ -452,6 +595,7 @@ export default function AdminFeedbackPage() {
       setDraft(body)
       setComposerError(err instanceof Error ? err.message : "Reply failed")
     } finally {
+      sendingRef.current = false
       setSending(false)
     }
   }
@@ -459,6 +603,7 @@ export default function AdminFeedbackPage() {
   function onComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault()
+      if (sendingRef.current || sending) return
       void sendReply()
     }
   }
@@ -471,12 +616,19 @@ export default function AdminFeedbackPage() {
     )
   }
 
-  const filterCounts: Record<Filter, number | undefined> = {
-    all: totals?.total,
-    unread: totals?.awaitingReply,
-    like: totals?.like,
-    dislike: totals?.dislike,
-  }
+  const inboxCounts = useMemo(() => {
+    const open = items.filter((item) => !item.isResolved).length
+    const closed = items.filter((item) => item.isResolved).length
+    const needsReply = items.filter((item) => ticketNeedsReply(item)).length
+    return {
+      unread: needsReply,
+      open,
+      closed,
+      all: items.length,
+    } satisfies Record<Filter, number>
+  }, [items])
+
+  const filterCounts: Record<Filter, number | undefined> = inboxCounts
 
   /* --- render ------------------------------------------------------------ */
 
@@ -501,7 +653,7 @@ export default function AdminFeedbackPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => void load(filter, true)}
+            onClick={() => void load(true)}
             disabled={refreshing}
           >
             <RefreshCw
@@ -528,7 +680,7 @@ export default function AdminFeedbackPage() {
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search conversations"
+                placeholder="Search name, Chat ID…"
                 className="h-9 rounded-full pl-9"
               />
             </div>
@@ -545,7 +697,7 @@ export default function AdminFeedbackPage() {
                     className="h-7 flex-1 gap-1 px-2 text-xs"
                   >
                     <span className="truncate">{item.label}</span>
-                    {filterCounts[item.id] ? (
+                    {typeof filterCounts[item.id] === "number" ? (
                       <span data-count className="text-[11px] tabular-nums">
                         {filterCounts[item.id]}
                       </span>
@@ -570,23 +722,45 @@ export default function AdminFeedbackPage() {
                 ))}
               </div>
             ) : visibleItems.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 px-6 py-16 text-center">
+              <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
                 <Inbox className="size-7 text-[var(--admin-border-strong)]" />
-                <p className="text-[13px] font-medium text-[var(--admin-fg)]">
-                  Nothing here
-                </p>
-                <p className="text-xs text-[var(--admin-muted)]">
-                  {search
-                    ? "No conversation matches your search."
-                    : "No tickets match this filter."}
-                </p>
+                <div>
+                  <p className="text-[13px] font-medium text-[var(--admin-fg)]">
+                    {search
+                      ? "No matches"
+                      : filter === "unread"
+                        ? "Nothing needs a reply"
+                        : filter === "open"
+                          ? "No open conversations"
+                          : filter === "closed"
+                            ? "No closed conversations"
+                            : "Nothing here"}
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--admin-muted)]">
+                    {search
+                      ? "Try another name or Chat ID."
+                      : filter === "unread"
+                        ? "Open tickets waiting on the customer are under Open."
+                        : "New chats from the website will show up here live."}
+                  </p>
+                </div>
+                {!search && filter === "unread" ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFilter("open")}
+                  >
+                    View open conversations
+                  </Button>
+                ) : null}
               </div>
             ) : (
               <ul className="space-y-0.5">
                 {visibleItems.map((item) => {
                   const last = item.messages.at(-1)
-                  const preview = last?.body ?? item.message
+                  const preview = last?.body ?? originalIssuePreview(item)
                   const active = selectedId === item.id
+                  const chatId = chatIdForItem(item)
                   return (
                     <li key={item.id}>
                       <button
@@ -618,10 +792,15 @@ export default function AdminFeedbackPage() {
                               )}
                             </span>
                           </div>
+                          {chatId ? (
+                            <p className="mt-0.5 font-mono text-[10px] tracking-wide text-[var(--admin-muted)] tabular-nums">
+                              {chatId}
+                            </p>
+                          ) : null}
                           <p
                             className={cn(
                               "mt-0.5 line-clamp-2 text-xs leading-relaxed",
-                              item.needsAdminReply
+                              ticketNeedsReply(item)
                                 ? "text-[var(--admin-fg-soft)]"
                                 : "text-[var(--admin-muted)]"
                             )}
@@ -633,8 +812,8 @@ export default function AdminFeedbackPage() {
                             <AdminBadge tone={SENTIMENT[item.sentiment].tone}>
                               {SENTIMENT[item.sentiment].label}
                             </AdminBadge>
-                            {item.needsAdminReply ? (
-                              <AdminBadge tone="blue">Needs reply</AdminBadge>
+                            {ticketNeedsReply(item) ? (
+                              <AdminBadge tone="blue">Reply</AdminBadge>
                             ) : null}
                             {item.isResolved ? (
                               <AdminBadge tone="neutral">Closed</AdminBadge>
@@ -707,9 +886,17 @@ export default function AdminFeedbackPage() {
                     ) : null}
                   </div>
                   <p className="truncate text-xs text-[var(--admin-muted)]">
+                    {selectedChatId ? (
+                      <>
+                        <span className="font-mono tabular-nums">
+                          {selectedChatId}
+                        </span>
+                        {" · "}
+                      </>
+                    ) : null}
                     Opened {formatRelativeTime(selected.createdAt)} ·{" "}
-                    {selected.messages.length} message
-                    {selected.messages.length === 1 ? "" : "s"}
+                    {threadMessages(selected).length} message
+                    {threadMessages(selected).length === 1 ? "" : "s"}
                   </p>
                 </div>
 
@@ -742,6 +929,7 @@ export default function AdminFeedbackPage() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-52">
                     <DropdownMenuItem
+                      disabled={pendingId === selected.id}
                       onSelect={() => void toggleResolved(selected)}
                     >
                       {selected.isResolved ? <RotateCcw /> : <CircleCheck />}
@@ -749,19 +937,32 @@ export default function AdminFeedbackPage() {
                         ? "Reopen conversation"
                         : "Mark as resolved"}
                     </DropdownMenuItem>
+                    {selectedChatId ? (
+                      <DropdownMenuItem
+                        onSelect={() =>
+                          void copyValue("chatId", selectedChatId)
+                        }
+                      >
+                        {copiedField === "chatId" ? <Check /> : <Copy />}
+                        {copiedField === "chatId"
+                          ? "Chat ID copied"
+                          : "Copy Chat ID"}
+                      </DropdownMenuItem>
+                    ) : null}
                     <DropdownMenuItem
                       disabled={!selected.deviceId}
                       onSelect={() => {
                         if (!selected.deviceId) return
-                        void navigator.clipboard.writeText(selected.deviceId)
-                        setCopied(true)
+                        void copyValue("deviceId", selected.deviceId)
                       }}
                     >
-                      {copied ? <Check /> : <Copy />}
-                      {copied ? "Device ID copied" : "Copy device ID"}
+                      {copiedField === "deviceId" ? <Check /> : <Copy />}
+                      {copiedField === "deviceId"
+                        ? "Device ID copied"
+                        : "Copy device ID"}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={() => void load(filter, true)}>
+                    <DropdownMenuItem onSelect={() => void load(true)}>
                       <RefreshCw />
                       Refresh thread
                     </DropdownMenuItem>
@@ -897,7 +1098,7 @@ export default function AdminFeedbackPage() {
                   <div className="flex items-end gap-2">
                     <div
                       className={cn(
-                        "flex min-w-0 flex-1 items-end gap-1 rounded-[1.25rem] border bg-white pl-3.5 pr-1.5 shadow-[var(--admin-shadow)] transition-colors",
+                        "flex min-w-0 flex-1 items-end gap-1 rounded-[1.25rem] border bg-white pr-1.5 pl-3.5 shadow-[var(--admin-shadow)] transition-colors",
                         "border-[var(--admin-border-strong)] focus-within:border-[var(--admin-blue)]"
                       )}
                     >
@@ -951,25 +1152,24 @@ export default function AdminFeedbackPage() {
               <dl className="space-y-3">
                 {[
                   {
-                    label: "Total tickets",
-                    value: totals?.total ?? 0,
-                    icon: Inbox,
+                    label: "Reply",
+                    value: inboxCounts.unread,
+                    icon: Send,
                   },
                   {
                     label: "Open",
-                    value: totals?.unresolved ?? 0,
+                    value: inboxCounts.open,
                     icon: MessageSquare,
                   },
                   {
-                    label: "Needs reply",
-                    value: totals?.awaitingReply ?? 0,
-                    icon: Send,
+                    label: "Closed",
+                    value: inboxCounts.closed,
+                    icon: CircleCheck,
                   },
-                  { label: "Praise", value: totals?.like ?? 0, icon: ThumbsUp },
                   {
-                    label: "Issues",
-                    value: totals?.dislike ?? 0,
-                    icon: ThumbsDown,
+                    label: "All",
+                    value: inboxCounts.all,
+                    icon: Inbox,
                   },
                 ].map(({ label, value, icon: Icon }) => (
                   <div
@@ -1003,58 +1203,159 @@ export default function AdminFeedbackPage() {
                     First seen {formatRelativeTime(selected.createdAt)}
                   </p>
                 </div>
-                <AdminBadge tone={SENTIMENT[selected.sentiment].tone}>
-                  {SENTIMENT[selected.sentiment].label}
-                </AdminBadge>
+                <div className="flex flex-wrap items-center justify-center gap-1">
+                  <AdminBadge tone={SENTIMENT[selected.sentiment].tone}>
+                    {SENTIMENT[selected.sentiment].label}
+                  </AdminBadge>
+                  {ticketNeedsReply(selected) ? (
+                    <AdminBadge tone="blue">Reply</AdminBadge>
+                  ) : null}
+                  <AdminBadge tone={selected.isResolved ? "neutral" : "green"}>
+                    {selected.isResolved ? "Closed" : "Open"}
+                  </AdminBadge>
+                </div>
               </div>
 
-              {deviceSpecs(selected).length > 0 ? (
-                <div className="space-y-3 px-5 py-4">
-                  <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-[var(--admin-muted)] uppercase">
-                    <Cpu className="size-3.5" />
-                    Device
-                  </p>
-                  <dl className="space-y-2">
-                    {deviceSpecs(selected).map((spec) => (
-                      <div
-                        key={spec.label}
-                        className="flex items-start justify-between gap-3"
-                      >
-                        <dt className="shrink-0 text-xs text-[var(--admin-muted)]">
-                          {spec.label}
-                        </dt>
-                        <dd
-                          title={spec.value}
-                          className="line-clamp-2 min-w-0 text-right text-xs font-medium break-words text-[var(--admin-fg)]"
+              <div className="space-y-3 px-5 py-4">
+                <p className="text-[11px] font-semibold tracking-wider text-[var(--admin-muted)] uppercase">
+                  Conversation
+                </p>
+                <dl className="space-y-2.5">
+                  <div className="flex items-start justify-between gap-3">
+                    <dt className="shrink-0 pt-0.5 text-xs text-[var(--admin-muted)]">
+                      Chat ID
+                    </dt>
+                    <dd className="min-w-0 text-right">
+                      {selectedChatId ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void copyValue("rail-chatId", selectedChatId)
+                          }
+                          className="inline-flex max-w-full items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono text-xs font-medium text-[var(--admin-fg)] tabular-nums transition hover:bg-[var(--admin-fill)]"
+                          title="Copy Chat ID"
                         >
-                          {spec.value}
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-              ) : null}
+                          <span className="truncate">{selectedChatId}</span>
+                          {copiedField === "rail-chatId" ? (
+                            <Check className="size-3 shrink-0 text-[var(--admin-green)]" />
+                          ) : (
+                            <Copy className="size-3 shrink-0 text-[var(--admin-muted)]" />
+                          )}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-[var(--admin-muted)]">
+                          —
+                        </span>
+                      )}
+                    </dd>
+                  </div>
+                  <div className="flex items-start justify-between gap-3">
+                    <dt className="shrink-0 pt-0.5 text-xs text-[var(--admin-muted)]">
+                      Status
+                    </dt>
+                    <dd className="text-right text-xs font-medium text-[var(--admin-fg)]">
+                      {selected.isResolved
+                        ? "Closed"
+                        : ticketNeedsReply(selected)
+                          ? "Reply"
+                          : "Waiting on customer"}
+                    </dd>
+                  </div>
+                  <div className="flex items-start justify-between gap-3">
+                    <dt className="shrink-0 pt-0.5 text-xs text-[var(--admin-muted)]">
+                      Messages
+                    </dt>
+                    <dd className="text-right text-xs font-medium text-[var(--admin-fg)] tabular-nums">
+                      {threadMessages(selected).length}
+                    </dd>
+                  </div>
+                  <div className="flex items-start justify-between gap-3">
+                    <dt className="shrink-0 pt-0.5 text-xs text-[var(--admin-muted)]">
+                      Ticket
+                    </dt>
+                    <dd className="min-w-0 text-right">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          void copyValue("rail-ticketId", selected.id)
+                        }
+                        className="inline-flex max-w-full items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono text-[11px] text-[var(--admin-fg-soft)] transition hover:bg-[var(--admin-fill)]"
+                        title="Copy ticket ID"
+                      >
+                        <span className="truncate">
+                          {selected.id.slice(0, 8)}…
+                        </span>
+                        {copiedField === "rail-ticketId" ? (
+                          <Check className="size-3 shrink-0 text-[var(--admin-green)]" />
+                        ) : (
+                          <Copy className="size-3 shrink-0 text-[var(--admin-muted)]" />
+                        )}
+                      </button>
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div className="space-y-3 px-5 py-4">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-[var(--admin-muted)] uppercase">
+                  <Cpu className="size-3.5" />
+                  Device
+                </p>
+                <dl className="space-y-2">
+                  {deviceSpecs(selected).map((spec) => (
+                    <div
+                      key={spec.label}
+                      className="flex items-start justify-between gap-3"
+                    >
+                      <dt className="shrink-0 text-xs text-[var(--admin-muted)]">
+                        {spec.label}
+                      </dt>
+                      <dd
+                        title={spec.value}
+                        className="line-clamp-2 min-w-0 text-right text-xs font-medium break-words text-[var(--admin-fg)]"
+                      >
+                        {spec.value}
+                      </dd>
+                    </div>
+                  ))}
+                  {selected.deviceId ? (
+                    <div className="flex items-start justify-between gap-3">
+                      <dt className="shrink-0 pt-0.5 text-xs text-[var(--admin-muted)]">
+                        Device ID
+                      </dt>
+                      <dd className="min-w-0 text-right">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void copyValue("rail-deviceId", selected.deviceId!)
+                          }
+                          className="inline-flex max-w-full items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono text-[11px] break-all text-[var(--admin-fg-soft)] transition hover:bg-[var(--admin-fill)]"
+                          title="Copy device ID"
+                        >
+                          <span className="line-clamp-2 text-left">
+                            {selected.deviceId}
+                          </span>
+                          {copiedField === "rail-deviceId" ? (
+                            <Check className="size-3 shrink-0 text-[var(--admin-green)]" />
+                          ) : (
+                            <Copy className="size-3 shrink-0 text-[var(--admin-muted)]" />
+                          )}
+                        </button>
+                      </dd>
+                    </div>
+                  ) : null}
+                </dl>
+              </div>
 
               <div className="space-y-2 px-5 py-4">
                 <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-[var(--admin-muted)] uppercase">
                   <MonitorSmartphone className="size-3.5" />
-                  Original feedback
+                  Original message
                 </p>
-                <p className="text-xs leading-relaxed text-[var(--admin-fg-soft)]">
-                  {selected.message}
+                <p className="text-xs leading-relaxed whitespace-pre-wrap text-[var(--admin-fg-soft)]">
+                  {originalIssuePreview(selected)}
                 </p>
               </div>
-
-              {selected.deviceId ? (
-                <div className="space-y-2 px-5 py-4">
-                  <p className="text-[11px] font-semibold tracking-wider text-[var(--admin-muted)] uppercase">
-                    Device ID
-                  </p>
-                  <p className="font-mono text-[11px] break-all text-[var(--admin-fg-soft)]">
-                    {selected.deviceId}
-                  </p>
-                </div>
-              ) : null}
             </div>
           )}
         </aside>

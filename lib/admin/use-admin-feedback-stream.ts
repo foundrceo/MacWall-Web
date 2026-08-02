@@ -3,8 +3,10 @@
 import { useEffect, useRef } from "react"
 
 type FeedbackStreamEvent =
+  | { type: "connected" }
   | { type: "feedback" }
   | { type: "message"; author?: string }
+  | { type: "offline" }
 
 export function useAdminFeedbackStream(
   onEvent: (event: FeedbackStreamEvent) => void
@@ -27,6 +29,10 @@ export function useAdminFeedbackStream(
         withCredentials: true,
       })
 
+      source.addEventListener("connected", () => {
+        callbackRef.current({ type: "connected" })
+      })
+
       source.addEventListener("feedback", () => {
         callbackRef.current({ type: "feedback" })
       })
@@ -44,9 +50,14 @@ export function useAdminFeedbackStream(
         callbackRef.current({ type: "message", author })
       })
 
+      source.onopen = () => {
+        callbackRef.current({ type: "connected" })
+      }
+
       source.onerror = () => {
         source?.close()
         source = null
+        callbackRef.current({ type: "offline" })
         if (!disposed) {
           retryTimer = window.setTimeout(connect, 4000)
         }
