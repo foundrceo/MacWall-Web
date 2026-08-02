@@ -1,4 +1,9 @@
-import { NextResponse, type NextRequest } from "next/server"
+import { trackAICrawlerRequest } from "@datafast/ai-crawl"
+import {
+  NextResponse,
+  type NextFetchEvent,
+  type NextRequest,
+} from "next/server"
 
 import {
   ADMIN_SESSION_COOKIE,
@@ -9,8 +14,18 @@ import {
   MW_RESOLVED_COUNTRY_HEADER,
 } from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
+import {
+  DATAFAST_BOT_TOKEN_ENV,
+  DATAFAST_WEBSITE_ID,
+} from "@/lib/macwall-datafast"
 
-export async function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest, event: NextFetchEvent) {
+  const botAuthToken = process.env[DATAFAST_BOT_TOKEN_ENV]?.trim()
+  trackAICrawlerRequest(request, event, {
+    websiteId: DATAFAST_WEBSITE_ID,
+    ...(botAuthToken ? { authToken: botAuthToken } : {}),
+  })
+
   const { pathname } = request.nextUrl
   const isCheckoutApi = pathname.startsWith("/api/checkout/")
   const country = await resolveVisitorCountry({
