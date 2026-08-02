@@ -1,12 +1,10 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import {
   ArrowUpRight,
   BadgeCheck,
   Check,
-  Share2,
   X,
 } from "lucide-react"
 
@@ -50,6 +48,9 @@ function DiscordMark({ className }: Readonly<{ className?: string }>) {
   )
 }
 
+const PRO_MODAL_WIDTH =
+  "w-[min(calc(100%-2rem),380px)] max-w-[min(calc(100%-2rem),380px)] sm:max-w-[min(calc(100%-2rem),380px)]"
+
 export function ProModal({
   open,
   onOpenChange,
@@ -69,64 +70,65 @@ export function ProModal({
       <DialogContent
         showCloseButton={false}
         className={cn(
-          "max-h-[min(90vh,520px)] max-w-[min(100%-1.5rem,380px)] gap-0 overflow-y-auto rounded-3xl border border-white/10 bg-secondary p-0 shadow-2xl ring-0"
+          PRO_MODAL_WIDTH,
+          "max-h-[min(90vh,540px)] gap-0 overflow-y-auto rounded-3xl border border-white/10 bg-secondary p-0 shadow-2xl ring-0"
         )}
       >
         <button
           type="button"
           onClick={() => onOpenChange(false)}
-          className="absolute top-3 right-3 z-10 inline-flex size-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+          className="absolute top-4 right-4 z-10 inline-flex size-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
           aria-label="Close"
         >
           <X className="size-4" strokeWidth={2} />
         </button>
 
-        <div className="px-5 pt-5 pb-4">
-          <div className="flex items-center gap-3 pr-7">
+        <div className="px-5 pt-5 pb-5">
+          <div className="flex items-center gap-3.5 pr-8">
             <Image
               src={macwallAppIconPath}
               alt=""
-              width={48}
-              height={48}
-              className={cn("size-12 shrink-0", macwallAppIconRadiusClass)}
+              width={44}
+              height={44}
+              className={cn("size-11 shrink-0", macwallAppIconRadiusClass)}
             />
             <div className="min-w-0">
               <DialogTitle
                 id="pro-modal-title"
-                className="flex items-center gap-1 font-sans text-[18px] font-semibold tracking-tight text-foreground"
+                className="flex items-center gap-1.5 font-sans text-[17px] font-semibold tracking-tight text-foreground"
               >
                 {macwall.name} Pro
-                <BadgeCheck className="size-3.5 shrink-0 text-[#0071e3]" aria-hidden />
+                <BadgeCheck className="size-4 shrink-0 text-[#0071e3]" aria-hidden />
               </DialogTitle>
-              <p className="mt-0.5 text-[12px] leading-snug text-marketing-muted">
+              <p className="mt-1 text-[13px] leading-snug text-marketing-muted">
                 {macwall.tagline}
               </p>
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="text-[24px] font-semibold tracking-tight text-foreground">
+          <div className="mt-5 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+            <span className="text-[26px] font-semibold tracking-tight text-foreground">
               {pricing.permanentPrice}
             </span>
             {pricing.permanentStrikePrice ? (
-              <span className="text-[13px] text-marketing-muted line-through">
+              <span className="text-[14px] text-marketing-muted line-through">
                 {pricing.permanentStrikePrice}
               </span>
             ) : null}
-            <span className="w-full text-[11px] text-marketing-muted">
+            <span className="w-full text-[12px] text-marketing-muted">
               one-time · no subscription
             </span>
           </div>
 
-          <ul className="mt-3.5 space-y-2">
+          <ul className="mt-5 space-y-2.5">
             {PRO_MODAL_FEATURES.map((label) => (
-              <li key={label} className="flex items-center gap-2">
+              <li key={label} className="flex items-start gap-2.5">
                 <Check
-                  className="size-3 shrink-0 text-marketing-muted"
+                  className="mt-0.5 size-3.5 shrink-0 text-marketing-muted"
                   strokeWidth={2.5}
                   aria-hidden
                 />
-                <span className="text-[12px] leading-snug text-foreground/85">
+                <span className="text-[13px] leading-snug text-foreground/90">
                   {label}
                 </span>
               </li>
@@ -137,38 +139,10 @@ export function ProModal({
             href={pricing.checkoutUrl}
             location="hero_pro_modal"
             ariaLabel={pricing.buyProAria}
-            className="mt-4 flex h-9 w-full items-center justify-center rounded-full bg-white text-[14px] font-medium text-black no-underline transition-opacity hover:opacity-90"
+            className="mt-5 flex h-10 w-full items-center justify-center rounded-full bg-white text-[14px] font-medium text-black no-underline transition-opacity hover:opacity-90"
           >
             Buy {macwall.name}
           </TrackedPricingButton>
-
-          <div className="mt-3 rounded-xl border border-white/10 bg-background/35 p-3">
-            <div className="flex items-center justify-between gap-2">
-              <span className="inline-flex items-center gap-1 text-[12px] font-medium text-foreground">
-                <Share2 className="size-3" aria-hidden />
-                Share &amp; save
-              </span>
-              <span className="rounded-full bg-white/10 px-1.5 py-px text-[10px] font-medium text-foreground">
-                100% back
-              </span>
-            </div>
-            <p className="mt-1.5 text-[11px] leading-snug text-marketing-muted">
-              Post with {macwall.reelRefundHashtag} — refund at{" "}
-              {macwall.reelRefundFullViews.toLocaleString()} views.
-            </p>
-            <Link
-              href="/creator"
-              onClick={() =>
-                trackSiteEventClient("cta_click", {
-                  location: "hero_pro_modal_creator",
-                })
-              }
-              className="mt-2 inline-flex h-8 w-full items-center justify-center gap-1 rounded-full bg-white text-[12px] font-medium text-black no-underline transition-opacity hover:opacity-90"
-            >
-              Creator offer
-              <ArrowUpRight className="size-3" aria-hidden />
-            </Link>
-          </div>
 
           <a
             href={macwall.discordInvite}
@@ -179,19 +153,19 @@ export function ProModal({
                 location: "hero_pro_modal_discord",
               })
             }
-            className="mt-2 flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-background/25 px-3 py-2.5 text-[11px] text-foreground no-underline transition-colors hover:bg-background/40"
+            className="mt-4 flex w-full items-center justify-between gap-3 rounded-xl border border-white/10 bg-background/25 px-3.5 py-2.5 text-[12px] text-foreground no-underline transition-colors hover:bg-background/40"
           >
             <span className="inline-flex items-center gap-1.5 font-medium">
               <DiscordMark className="size-3.5 text-[#5865F2]" />
-              Discord {DISCORD_MEMBER_PERCENT_OFF}% off
+              Join Discord, get {DISCORD_MEMBER_PERCENT_OFF}%
             </span>
             <span className="inline-flex items-center gap-0.5 text-marketing-muted">
-              {discordPrice}
+              from {discordPrice}
               <ArrowUpRight className="size-2.5" aria-hidden />
             </span>
           </a>
 
-          <p className="mt-3 text-center text-[10px] text-marketing-muted">
+          <p className="mt-4 text-center text-[11px] text-marketing-muted">
             Free download · pay once
           </p>
         </div>
