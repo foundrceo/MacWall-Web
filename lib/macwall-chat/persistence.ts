@@ -16,6 +16,7 @@ export type ChatMessage = {
 export type HandoffStep =
   | "idle"
   | "ask_name"
+  | "ask_email"
   | "ask_issue"
   | "live"
   | "closed"
@@ -28,6 +29,8 @@ export type ChatConversation = {
   messages: ChatMessage[]
   handoff: HandoffStep
   visitorName: string
+  /** Collected during human handoff for follow-up. */
+  visitorEmail: string
   founderJoined: boolean
   seenRemoteIds: string[]
   createdAt: number
@@ -73,6 +76,7 @@ export function normalizeHandoffStep(value: unknown): HandoffStep {
   if (
     value === "idle" ||
     value === "ask_name" ||
+    value === "ask_email" ||
     value === "ask_issue" ||
     value === "live" ||
     value === "closed"
@@ -93,6 +97,7 @@ export function createEmptyConversation(
     messages: greeting,
     handoff: "idle",
     visitorName: "",
+    visitorEmail: "",
     founderJoined: false,
     seenRemoteIds: [],
     createdAt: now,
@@ -136,6 +141,10 @@ export function loadPersistedChatStore(
         const conversations = parsed.conversations.map((c) => ({
           ...c,
           handoff: normalizeHandoffStep(c.handoff),
+          visitorEmail:
+            typeof (c as ChatConversation).visitorEmail === "string"
+              ? (c as ChatConversation).visitorEmail
+              : "",
           messages: Array.isArray(c.messages) ? c.messages.slice(-120) : greeting,
           seenRemoteIds: Array.isArray(c.seenRemoteIds) ? c.seenRemoteIds : [],
         }))
@@ -157,6 +166,7 @@ export function loadPersistedChatStore(
         messages?: ChatMessage[]
         handoff?: HandoffStep
         visitorName?: string
+        visitorEmail?: string
         ticketId?: string | null
         founderJoined?: boolean
         seenRemoteIds?: string[]
@@ -182,6 +192,7 @@ export function loadPersistedChatStore(
         messages,
         handoff: normalizeHandoffStep(legacy.handoff),
         visitorName: legacy.visitorName ?? "",
+        visitorEmail: legacy.visitorEmail ?? "",
         founderJoined: Boolean(legacy.founderJoined),
         seenRemoteIds: Array.isArray(legacy.seenRemoteIds)
           ? legacy.seenRemoteIds
