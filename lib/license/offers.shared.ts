@@ -8,8 +8,23 @@ export type LicenseOfferSlug = (typeof LICENSE_OFFER_SLUGS)[number]
 export type LicenseBillingModel = "permanent" | "annual"
 export type PricingRegion = "default" | "india"
 
-/** Stripe coupon auto-applied for India Checkout (catalog Prices + all PM). */
-export const INDIA_CHECKOUT_COUPON_ID = "INDIA60"
+/**
+ * Per-offer amount-off coupons so India totals charm at .99
+ * (percent coupons round to $4 / $6). Catalog Prices stay the same.
+ */
+export const INDIA_CHECKOUT_COUPON_BY_OFFER: Partial<
+  Record<LicenseOfferSlug, string>
+> = {
+  permanent: "INDIA_PRO_399", // $9.99 − $6.00 = $3.99
+  permanent_5: "INDIA_PLUS_599", // $14.99 − $9.00 = $5.99
+  annual: "INDIA_PRO_399", // legacy → permanent; unused for new buys
+}
+
+export function indiaCheckoutCouponForOffer(
+  slug: LicenseOfferSlug
+): string | null {
+  return INDIA_CHECKOUT_COUPON_BY_OFFER[slug] ?? null
+}
 
 export type LicenseOffer = {
   slug: LicenseOfferSlug
@@ -18,13 +33,13 @@ export type LicenseOffer = {
   maxDevices: 3 | 5
   usdCents: number
   /**
-   * India display amount after INDIA60 (60% off catalog).
-   * Matches Stripe rounding: $9.99→$4.00, $14.99→$6.00.
+   * India display / charged amount (~60% off catalog, charm .99).
+   * Checkout: catalog Price + amount-off coupon.
    */
   indiaUsdCents: number
 }
 
-/** Percent off vs catalog USD (rounded). INDIA60 = 60%. */
+/** Percent off vs catalog USD (rounded). $9.99→$3.99 and $14.99→$5.99 ≈ 60%. */
 export function indiaDiscountPercentOff(
   usdCents: number,
   indiaUsdCents: number
@@ -40,7 +55,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 3,
     usdCents: 999,
-    indiaUsdCents: 400, // $4.00 — INDIA60 on $9.99
+    indiaUsdCents: 399, // $3.99
   },
   annual: {
     slug: "annual",
@@ -48,7 +63,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "annual",
     maxDevices: 3,
     usdCents: 499,
-    indiaUsdCents: 200, // $2.00 — INDIA60 on $4.99
+    indiaUsdCents: 199, // $1.99
   },
   permanent_5: {
     slug: "permanent_5",
@@ -56,7 +71,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 5,
     usdCents: 1499,
-    indiaUsdCents: 600, // $6.00 — INDIA60 on $14.99
+    indiaUsdCents: 599, // $5.99
   },
 }
 
@@ -65,7 +80,7 @@ export const MULTI_MAC_OFFER_SLUGS = [
   "permanent_5",
 ] as const satisfies readonly LicenseOfferSlug[]
 
-/** Paid offers that auto-get INDIA60 at Checkout. */
+/** Paid offers that auto-get India charm coupons at Checkout. */
 export const INDIA_DISCOUNT_ELIGIBLE_OFFER_SLUGS = [
   "permanent",
   "annual",
