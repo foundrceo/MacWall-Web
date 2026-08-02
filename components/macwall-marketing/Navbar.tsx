@@ -17,8 +17,8 @@ import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import { NAVBAR_HEADER_CLASS } from "@/lib/marketing-chrome"
 import { cn } from "@/lib/utils"
 
-/** Banner (h-9) + nav (h-14) — sheet fills the rest of the viewport. */
-const MOBILE_MENU_TOP = "top-[calc(2.25rem+3.5rem)]"
+/** Banner (3.25rem mobile / h-9 sm+) + nav (h-14) — sheet fills the rest. */
+const MOBILE_MENU_TOP = "top-[calc(3.25rem+3.5rem)]"
 
 function DiscordIcon({ className }: Readonly<{ className?: string }>) {
   return (
