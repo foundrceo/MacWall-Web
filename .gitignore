@@ -59,8 +59,6 @@ skills-lock.json
 # local backend source / private ops docs (deployed remotely)
 supabase/
 .supabase/
-STRIPE_SETUP.md
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts

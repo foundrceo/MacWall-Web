@@ -154,31 +154,23 @@ export async function fetchAllSales(): Promise<SaleRow[]> {
 
 async function fetchSalesFromEmailFallback(): Promise<SaleRow[]> {
   const supabase = getSupabaseAdmin()
-  const tables = [
-    "macwall_stripe_license_emails",
-    "macwall_whop_license_emails",
-  ] as const
-  const all: SaleRow[] = []
+  const { data, error } = await supabase
+    .from("macwall_stripe_license_emails")
+    .select("sent_at")
+    .order("sent_at", { ascending: true })
+    .limit(10000)
 
-  for (const table of tables) {
-    const { data, error } = await supabase
-      .from(table)
-      .select("sent_at")
-      .order("sent_at", { ascending: true })
-      .limit(10000)
-
-    if (error) {
-      if (error.message.includes("does not exist")) continue
-      throw new Error(error.message)
-    }
-    for (const row of data ?? []) {
-      if (typeof row.sent_at === "string") {
-        all.push({ sent_at: row.sent_at, amountUsd: PRO_PRICE_USD })
-      }
-    }
+  if (error) {
+    if (error.message.includes("does not exist")) return []
+    throw new Error(error.message)
   }
 
-  return all.sort((a, b) => a.sent_at.localeCompare(b.sent_at))
+  return (data ?? [])
+    .filter((row) => typeof row.sent_at === "string")
+    .map((row) => ({
+      sent_at: row.sent_at as string,
+      amountUsd: PRO_PRICE_USD,
+    }))
 }
 
 /**
