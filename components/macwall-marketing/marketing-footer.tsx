@@ -3,9 +3,9 @@
 import Link from "next/link"
 
 import { MacWallBrandLink } from "@/components/macwall-marketing/MacWallBrandLink"
+import MarketingFooterAiSummary from "@/components/macwall-marketing/marketing-footer-ai-summary"
 import { MarketingSocialBrandIcon } from "@/components/macwall-marketing/marketing-social-icons"
 import { macwall } from "@/lib/macwall-site"
-import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import {
   getMarketingFooterColumns,
   getMarketingFooterSocialLinks,
@@ -44,8 +44,6 @@ function FooterLink({ link }: Readonly<{ link: MarketingFooterLink }>) {
 }
 
 export default function MacWallMarketingFooter() {
-  const foot = macwallExactCopy.footer
-  const year = new Date().getFullYear()
   const columns = getMarketingFooterColumns()
   const socialLinks = getMarketingFooterSocialLinks()
 
@@ -56,14 +54,9 @@ export default function MacWallMarketingFooter() {
           <div className="max-w-[18rem] shrink-0">
             <MacWallBrandLink variant="footer" priority />
 
-            <div className="mt-4 space-y-1.5">
-              <p className="text-[14px] leading-[1.55] text-marketing-muted">
-                {macwall.tagline}
-              </p>
-              <p className="text-[13px] leading-[1.45] text-white/40">
-                © {year} {foot.copyrightName}
-              </p>
-            </div>
+            <p className="mt-4 text-[14px] leading-[1.55] text-marketing-muted">
+              {macwall.tagline}
+            </p>
 
             <div className="-ml-[9px] mt-5 flex items-center gap-0.5">
               {socialLinks.map((social) => (
@@ -97,6 +90,8 @@ export default function MacWallMarketingFooter() {
           </div>
         </div>
       </div>
+
+      <MarketingFooterAiSummary className="border-t border-border/60" />
     </footer>
   )
 }

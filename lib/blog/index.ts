@@ -2,6 +2,7 @@ import { comparisonArticles } from "@/lib/blog/articles/comparisons"
 import { featureArticles } from "@/lib/blog/articles/features"
 import { guideArticles } from "@/lib/blog/articles/guides"
 import { macosArticles } from "@/lib/blog/articles/macos"
+import { overviewArticles } from "@/lib/blog/articles/overview"
 import { wallpaperArticles } from "@/lib/blog/articles/wallpapers"
 import type { BlogArticle } from "@/lib/content/types"
 
@@ -11,6 +12,8 @@ import type { BlogArticle } from "@/lib/content/types"
  * are pinned first; everything else falls back to date order.
  */
 const featuredSlugs = [
+  "what-is-macwall-complete-guide",
+  "macwall-performance-zero-overhead-guide",
   "macos-27-beta-live-wallpaper-not-working",
   "macos-27-lock-screen-live-wallpaper",
   "macwall-vs-wallper",
@@ -27,6 +30,7 @@ function featuredRank(slug: string): number {
 }
 
 export const blogArticles: BlogArticle[] = [
+  ...overviewArticles,
   ...guideArticles,
   ...comparisonArticles,
   ...featureArticles,

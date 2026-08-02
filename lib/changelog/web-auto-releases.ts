@@ -33,6 +33,12 @@ export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
           "Discord members get 10% off on the pricing page.",
         ],
       },
+      {
+        kind: "fixes",
+        items: [
+          "Fix step 6 pin board alignment on creator page.",
+        ],
+      },
     ],
   },
   {
