@@ -347,6 +347,9 @@ export default function AdminFeedbackPage() {
   const sendingRef = useRef(false)
 
   const load = useCallback(async (silent = false) => {
+    // Don't wipe an in-flight optimistic reply (esp. image uploads).
+    if (silent && sendingRef.current) return
+
     const seq = ++loadSeqRef.current
     if (silent) setRefreshing(true)
     else setLoading(true)
@@ -364,6 +367,7 @@ export default function AdminFeedbackPage() {
       }
       if (!res.ok) throw new Error(json.error ?? "Failed to load feedback")
       if (seq !== loadSeqRef.current) return
+      if (sendingRef.current) return
       setItems(json.feedback ?? [])
       setTotals(json.totals ?? null)
     } catch (err) {
@@ -639,6 +643,22 @@ export default function AdminFeedbackPage() {
       let imageUrl: string | null = null
       if (imageFile) {
         imageUrl = await uploadAdminImage(ticketId, imageFile)
+        // Swap blob preview for the durable public URL before the network reply.
+        if (imageUrl) {
+          setItems((current) =>
+            current.map((row) =>
+              row.id === ticketId
+                ? {
+                    ...row,
+                    messages: row.messages.map((m) =>
+                      m.id === optimisticId ? { ...m, imageUrl } : m
+                    ),
+                  }
+                : row
+            )
+          )
+          if (localPreview) URL.revokeObjectURL(localPreview)
+        }
       }
 
       const res = await fetch(`/api/admin/feedback/${ticketId}/reply`, {
@@ -647,9 +667,19 @@ export default function AdminFeedbackPage() {
         credentials: "same-origin",
         body: JSON.stringify({ reply: body, imageUrl }),
       })
-      const json = (await res.json()) as { error?: string }
+      const json = (await res.json()) as {
+        feedback?: FeedbackItem
+        error?: string
+      }
       if (!res.ok) throw new Error(json.error ?? "Reply failed")
-      void load(true)
+
+      if (json.feedback) {
+        setItems((current) =>
+          current.map((row) => (row.id === ticketId ? json.feedback! : row))
+        )
+      } else {
+        void load(true)
+      }
     } catch (err) {
       setItems((current) =>
         current.map((row) =>
@@ -663,11 +693,14 @@ export default function AdminFeedbackPage() {
         )
       )
       setDraft(body)
+      if (imageFile) {
+        setPendingImage({
+          file: imageFile,
+          previewUrl: URL.createObjectURL(imageFile),
+        })
+      }
       setComposerError(err instanceof Error ? err.message : "Reply failed")
     } finally {
-      if (localPreview) {
-        window.setTimeout(() => URL.revokeObjectURL(localPreview), 8_000)
-      }
       sendingRef.current = false
       setSending(false)
     }

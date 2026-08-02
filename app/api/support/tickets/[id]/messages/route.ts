@@ -56,7 +56,12 @@ export async function POST(
   }
 
   try {
-    await appendSupportMessage({ sessionId, ticketId, message, imageUrl })
+    await appendSupportMessage({
+      sessionId,
+      ticketId,
+      message: message || (imageUrl ? " " : ""),
+      imageUrl,
+    })
     const tickets = await listSupportTickets(sessionId)
     const ticket = tickets.find((t) => t.id === ticketId) ?? null
     return NextResponse.json({ ticket })
