@@ -3,7 +3,6 @@ import "server-only"
 import { isIndiaCountry } from "@/lib/geo/country"
 import { generateMacWallLicenseKey } from "@/lib/license/generate-license-key"
 import {
-  indiaCheckoutCouponForOffer,
   isIndiaDiscountEligible,
   licenseOfferFromSlug,
   licenseOfferPriceCents,
@@ -35,9 +34,8 @@ export type CreateMacWallCheckoutResult =
 /**
  * Creates the Stripe Checkout Session and a pending license row.
  *
- * Always uses catalog Price IDs (full payment-method support).
- * India: amount-off coupons → $3.99 Pro / $5.99 Pro+ (~60% charm).
- * Adaptive Pricing still localizes.
+ * Catalog Price IDs only (full payment-method support + Adaptive Pricing).
+ * India → $3.99 / $6.99 Prices. Everyone else → $9.99 / $14.99. No coupon.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
@@ -47,14 +45,13 @@ export async function createMacWallCheckoutSession(
     const supabase = getSupabaseAdmin()
     const siteOrigin = input.siteOrigin.replace(/\/+$/, "")
     const offer = licenseOfferFromSlug(input.offerSlug ?? input.planSlug)
-    const region = isIndiaCountry(input.country) ? "india" : "default"
-    const indiaCoupon =
-      region === "india" && isIndiaDiscountEligible(offer.slug)
-        ? indiaCheckoutCouponForOffer(offer.slug)
-        : null
+    const region =
+      isIndiaCountry(input.country) && isIndiaDiscountEligible(offer.slug)
+        ? "india"
+        : "default"
     const displayUnitAmount = licenseOfferPriceCents(offer, region)
     const planSlug = offer.maxDevices === 5 ? "pro_plus" : "pro"
-    const stripePriceId = stripePriceIdForOffer(offer.slug)
+    const stripePriceId = stripePriceIdForOffer(offer.slug, region)
 
     const licenseKey = generateMacWallLicenseKey()
 
@@ -104,36 +101,29 @@ export async function createMacWallCheckoutSession(
       plan_slug: planSlug,
       max_devices: String(offer.maxDevices),
       pricing_region: region,
-      india_coupon: indiaCoupon ?? "",
       unit_amount_usd: String(displayUnitAmount),
       visitor_country: input.country?.trim().toUpperCase() || "",
     }
 
-    const sessionParams: Parameters<typeof stripe.checkout.sessions.create>[0] =
-      {
-        mode: offer.billingModel === "annual" ? "subscription" : "payment",
-        line_items: [{ price: stripePriceId, quantity: 1 }],
-        success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${siteOrigin}/pricing`,
-        client_reference_id: licenseKey,
-        // Collect email early so abandoned-checkout recovery can send.
-        billing_address_collection: "required",
-        // Stripe-hosted Checkout localizes presentment (INR/EUR/…) from USD.
-        adaptive_pricing: { enabled: true },
-        metadata,
-        ...(offer.billingModel === "annual"
-          ? { subscription_data: { metadata } }
-          : {
-              customer_creation: "always",
-              payment_intent_data: { metadata },
-            }),
-        // India: fixed amount-off → .99 charm. Cannot combine with promo codes.
-        ...(indiaCoupon
-          ? { discounts: [{ coupon: indiaCoupon }] }
-          : { allow_promotion_codes: true }),
-      }
-
-    const session = await stripe.checkout.sessions.create(sessionParams)
+    const session = await stripe.checkout.sessions.create({
+      mode: offer.billingModel === "annual" ? "subscription" : "payment",
+      line_items: [{ price: stripePriceId, quantity: 1 }],
+      success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${siteOrigin}/pricing`,
+      client_reference_id: licenseKey,
+      // Collect email early so abandoned-checkout recovery can send.
+      billing_address_collection: "required",
+      allow_promotion_codes: true,
+      // Stripe-hosted Checkout localizes presentment (INR/EUR/…) from USD.
+      adaptive_pricing: { enabled: true },
+      metadata,
+      ...(offer.billingModel === "annual"
+        ? { subscription_data: { metadata } }
+        : {
+            customer_creation: "always",
+            payment_intent_data: { metadata },
+          }),
+    })
 
     if (!session.url) {
       await supabase
