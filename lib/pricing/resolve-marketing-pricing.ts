@@ -36,8 +36,8 @@ function toLocalMoney(
 }
 
 /**
- * Catalog prices stay USD. India visitors see $3.99 / $5.99 (~60% off, charm).
- * Checkout uses catalog Prices + amount-off coupons (all payment methods).
+ * Catalog prices stay USD. India → $3.99 Pro / $6.99 Pro+ (separate Prices).
+ * Everyone else → $9.99 / $14.99. No coupon.
  */
 export async function resolveMarketingPricing(): Promise<MarketingPricing> {
   await connection()
