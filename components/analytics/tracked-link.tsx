@@ -26,6 +26,10 @@ type TrackedLinkProps = {
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
 }
 
+function isCheckoutApiHref(href: string): boolean {
+  return href.includes("/api/checkout/")
+}
+
 export function TrackedLink({
   href,
   children,
@@ -37,8 +41,12 @@ export function TrackedLink({
   onClick,
 }: TrackedLinkProps) {
   const isDownloadClick = eventName === "download_click"
+  const isCheckoutClick = isCheckoutApiHref(href)
   const isExternalHref =
-    external || href.startsWith("http") || href.startsWith("mailto:")
+    external ||
+    href.startsWith("http") ||
+    href.startsWith("mailto:") ||
+    isCheckoutClick
 
   const resolvedHref =
     eventName === "pricing_click" ? withMarketingAttribution(href) : href
@@ -48,7 +56,7 @@ export function TrackedLink({
 
     if (
       eventName === "pricing_click" &&
-      (href.includes("/api/checkout/") || href.startsWith("http"))
+      (isCheckoutClick || href.startsWith("http"))
     ) {
       markCheckoutStartedInSession()
       trackSiteEventClient("checkout_started", metadata)
@@ -67,16 +75,23 @@ export function TrackedLink({
     onClick?.(event)
     if (event.defaultPrevented) return
 
+    // Checkout: never block the browser — fire analytics and let the
+    // native navigation hit /api/checkout → 303 Stripe as fast as possible.
+    if (isCheckoutClick) {
+      trackNavigation()
+      return
+    }
+
     trackNavigation()
 
     if (!isDownloadClick) return
 
-    const resolvedHref = withAnalyticsSessionHref(href)
-    event.currentTarget.href = resolvedHref
+    const nextHref = withAnalyticsSessionHref(href)
+    event.currentTarget.href = nextHref
 
     if (
       isExternalHref ||
-      resolvedHref === href ||
+      nextHref === href ||
       event.button !== 0 ||
       event.metaKey ||
       event.ctrlKey ||
@@ -87,7 +102,7 @@ export function TrackedLink({
     }
 
     event.preventDefault()
-    window.location.assign(resolvedHref)
+    window.location.assign(nextHref)
   }
 
   const trackProps = {
