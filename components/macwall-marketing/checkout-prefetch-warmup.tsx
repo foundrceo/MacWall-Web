@@ -4,11 +4,9 @@ import { useEffect } from "react"
 
 import { prefetchCheckoutSession } from "@/lib/checkout/prefetch-checkout"
 
-const DEFAULT_OFFERS = ["permanent", "permanent_5"] as const
-
-/** Warm Pro / Pro+ Checkout Sessions while the visitor reads the page. */
+/** Warm the primary Checkout Session after idle — one offer only to limit Stripe load. */
 export function CheckoutPrefetchWarmup({
-  offers = DEFAULT_OFFERS,
+  offers = ["permanent"] as const,
 }: Readonly<{
   offers?: readonly string[]
 }>) {
@@ -17,23 +15,15 @@ export function CheckoutPrefetchWarmup({
 
     const warm = () => {
       if (cancelled) return
-      for (const offer of offers) {
-        void prefetchCheckoutSession(offer)
-      }
+      const primary = offers[0]
+      if (primary) void prefetchCheckoutSession(primary)
     }
 
     const ric =
       typeof window.requestIdleCallback === "function"
-        ? window.requestIdleCallback(warm, { timeout: 1200 })
+        ? window.requestIdleCallback(warm, { timeout: 2500 })
         : null
-    const timeout =
-      ric == null ? window.setTimeout(warm, 400) : undefined
-
-    const onMove = () => {
-      warm()
-      window.removeEventListener("pointermove", onMove)
-    }
-    window.addEventListener("pointermove", onMove, { passive: true })
+    const timeout = ric == null ? window.setTimeout(warm, 1200) : undefined
 
     return () => {
       cancelled = true
@@ -41,7 +31,6 @@ export function CheckoutPrefetchWarmup({
         window.cancelIdleCallback(ric)
       }
       if (timeout != null) window.clearTimeout(timeout)
-      window.removeEventListener("pointermove", onMove)
     }
   }, [offers])
 

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: `Sign in or create an account for ${macwall.name}.`,
   robots: {
     index: false,
-    follow: true,
+    follow: false,
   },
 }
 

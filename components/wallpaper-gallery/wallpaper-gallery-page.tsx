@@ -1,4 +1,4 @@
-import { Suspense } from "react"
+import { Suspense, type ReactNode } from "react"
 import Link from "next/link"
 import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
@@ -38,11 +38,16 @@ export function WallpaperGalleryPageShell({
   activeCategory = null,
   title,
   subtitle,
+  loadError = false,
+  afterGallery,
 }: Readonly<{
   initial: PublicWallpaperListResult
   activeCategory?: string | null
   title?: string
   subtitle?: string
+  loadError?: boolean
+  /** Crawlable SEO copy below the grid (category landings). */
+  afterGallery?: ReactNode
 }>) {
   return (
     <div className="marketing-page">
@@ -61,8 +66,10 @@ export function WallpaperGalleryPageShell({
             activeCategory={activeCategory}
             title={title}
             subtitle={subtitle}
+            loadError={loadError}
           />
         </Suspense>
+        {afterGallery}
       </main>
       <MacWallMarketingPageEnd />
     </div>
@@ -124,7 +131,7 @@ function GalleryFallback({
         <p
           className={cn(
             GALLERY_SUBTITLE_AFTER_TITLE_CLASS,
-            "text-[15px] leading-[1.5] sm:text-[16px] sm:leading-[1.55] sm:whitespace-nowrap",
+            "text-[15px] leading-[1.5] sm:text-[16px] sm:leading-[1.55]",
             GALLERY_TEXT_SECONDARY_CLASS
           )}
         >

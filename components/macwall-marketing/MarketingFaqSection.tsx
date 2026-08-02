@@ -59,7 +59,7 @@ function FaqItem({
         aria-controls={panelId}
         onClick={onToggle}
         className={cn(
-          "flex min-h-11 w-full cursor-pointer items-center justify-between gap-4 py-4 text-left text-[15px] font-normal transition-colors duration-200 sm:gap-4 sm:py-5 sm:text-[16px]",
+          "flex min-h-11 w-full cursor-pointer items-center justify-between gap-4 rounded-sm py-4 text-left text-[15px] font-normal transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:gap-4 sm:py-5 sm:text-[16px]",
           isOpen ? "text-foreground" : "text-foreground/90",
         )}
       >

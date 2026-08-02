@@ -52,7 +52,7 @@ export function BlogArticleShell({
   return (
     <MarketingProseShell
       width="article"
-      mainId="blog-article-main"
+      mainId="main-content"
       labelledBy={titleId}
       showBottomCta={false}
     >
@@ -84,7 +84,7 @@ export function BlogArticleShell({
           <div className={blogCover}>
             <BlogTilePicture
               src={coverSrc}
-              alt=""
+              alt={headline}
               variant="curated"
               priority
             />

@@ -10,9 +10,17 @@ function priorityForPath(path: string): number {
     path === "/best-live-wallpaper-mac"
   )
     return 0.95
-  if (path === "/pricing" || path === "/blog" || path === "/wallpapers")
+  if (
+    path === "/pricing" ||
+    path === "/blog" ||
+    path === "/wallpapers" ||
+    path === "/docs"
+  )
     return 0.9
-  if (path.startsWith("/blog/")) return 0.8
+  if (path === "/learn") return 0.85
+  if (path.startsWith("/blog/") || path.startsWith("/docs/")) return 0.8
+  if (path.startsWith("/learn/")) return 0.75
+  if (path === "/crawlers") return 0.2
   if (
     path.startsWith("/wallpapers/") ||
     path.startsWith("/wallpaper/") ||

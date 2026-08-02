@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
-import { useEffect, useId, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { MacWallBrandLink } from "@/components/macwall-marketing/MacWallBrandLink"
@@ -66,11 +66,13 @@ function MenuIcon({
 
 function NavActions({
   menuOpen,
+  menuId,
   onMenuToggle,
   reduceMotion,
   className,
 }: Readonly<{
   menuOpen: boolean
+  menuId: string
   onMenuToggle: () => void
   reduceMotion: boolean | null
   className?: string
@@ -82,7 +84,7 @@ function NavActions({
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Join Discord"
-        className="inline-flex size-7 items-center justify-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-white"
+        className="inline-flex size-7 items-center justify-center rounded-full text-white/80 transition outline-none hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
       >
         <DiscordIcon />
       </a>
@@ -90,15 +92,16 @@ function NavActions({
         href={macwallInstallerLatestPath}
         size="sm"
         location="header_desktop"
-        className="inline-flex h-7 items-center rounded-full bg-white px-2.5 text-[13px] font-medium text-black transition-opacity hover:opacity-90"
+        className="inline-flex h-7 items-center rounded-full bg-white px-2.5 text-[13px] font-medium text-black transition-opacity outline-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         Download
       </TrackedDownloadButton>
       <button
         type="button"
-        className="relative z-[70] inline-flex size-8 items-center justify-center rounded-full text-white transition hover:bg-white/10 lg:hidden"
+        className="relative z-[70] inline-flex size-8 items-center justify-center rounded-full text-white transition outline-none hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/40 lg:hidden"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
         aria-expanded={menuOpen}
+        aria-controls={menuId}
         onClick={onMenuToggle}
       >
         <MenuIcon open={menuOpen} reduceMotion={reduceMotion} />
@@ -152,10 +155,40 @@ function MobileNavSheet({
   onClose: () => void
 }>) {
   const [mounted, setMounted] = useState(false)
+  const sheetRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (!open) return
+    const sheet = sheetRef.current
+    if (!sheet) return
+
+    const focusable = sheet.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    first?.focus()
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Tab" || focusable.length === 0) return
+      if (event.shiftKey) {
+        if (document.activeElement === first) {
+          event.preventDefault()
+          last?.focus()
+        }
+      } else if (document.activeElement === last) {
+        event.preventDefault()
+        first?.focus()
+      }
+    }
+
+    sheet.addEventListener("keydown", onKeyDown)
+    return () => sheet.removeEventListener("keydown", onKeyDown)
+  }, [open])
 
   if (!mounted) return null
 
@@ -164,6 +197,7 @@ function MobileNavSheet({
       {open ? (
         <motion.div
           key="nav-sheet"
+          ref={sheetRef}
           id={menuId}
           role="dialog"
           aria-modal="true"
@@ -200,7 +234,7 @@ function MobileNavSheet({
                   <Link
                     href={item.href}
                     className={cn(
-                      "flex items-center justify-between rounded-xl px-3.5 py-3.5 text-[17px] text-white transition hover:bg-white/[0.08]",
+                      "flex items-center justify-between rounded-xl px-3.5 py-3.5 text-[17px] text-white transition outline-none hover:bg-white/[0.08] focus-visible:ring-2 focus-visible:ring-white/40",
                       item.active && "bg-white/[0.1]"
                     )}
                     onClick={onClose}
@@ -276,7 +310,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const navLinkClass =
-    "text-[15px] text-white/80 transition-opacity hover:text-white hover:opacity-100"
+    "rounded-sm text-[15px] text-white/80 transition-opacity outline-none hover:text-white hover:opacity-100 focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 
   const navItems = getMarketingNavItems().map((item) => ({
     ...item,
@@ -320,6 +354,7 @@ export default function Navbar() {
         <BrandLink />
         <NavActions
           menuOpen={menuOpen}
+          menuId={menuId}
           reduceMotion={reduceMotion}
           onMenuToggle={() => setMenuOpen((open) => !open)}
         />
@@ -354,6 +389,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2 justify-self-end">
           <NavActions
             menuOpen={menuOpen}
+            menuId={menuId}
             reduceMotion={reduceMotion}
             onMenuToggle={() => setMenuOpen((open) => !open)}
           />

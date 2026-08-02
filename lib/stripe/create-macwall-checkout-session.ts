@@ -33,10 +33,8 @@ export type CreateMacWallCheckoutResult =
   | { ok: true; url: string }
   | { ok: false; error: string; status: number }
 
-function checkoutIntegrationIdentifier(): string {
-  const suffix = Math.random().toString(36).slice(2, 10)
-  return `macwall_hosted_${suffix}`
-}
+/** Stable Dashboard label for this web Checkout surface. */
+const CHECKOUT_INTEGRATION_ID = "macwall_web_checkout_v1"
 
 /**
  * Creates the Stripe Checkout Session ASAP, then persists the pending license
@@ -78,24 +76,32 @@ export async function createMacWallCheckoutSession(
     }
 
     // Critical path: Stripe only. Localhost measured ~1.1–1.2s for this hop.
-    const session = await stripe.checkout.sessions.create({
-      mode: offer.billingModel === "annual" ? "subscription" : "payment",
-      line_items: [{ price: stripePriceId, quantity: 1 }],
-      success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteOrigin}/pricing`,
-      client_reference_id: licenseKey,
-      billing_address_collection: "required",
-      allow_promotion_codes: true,
-      adaptive_pricing: { enabled: true },
-      integration_identifier: checkoutIntegrationIdentifier(),
-      metadata,
-      ...(offer.billingModel === "annual"
-        ? { subscription_data: { metadata } }
-        : {
-            customer_creation: "always",
-            payment_intent_data: { metadata },
-          }),
-    })
+    // Idempotency key is unique per license key so retries of the same intent
+    // reuse the session; a new click mints a new key → new session (correct).
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: offer.billingModel === "annual" ? "subscription" : "payment",
+        line_items: [{ price: stripePriceId, quantity: 1 }],
+        success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${siteOrigin}/pricing`,
+        client_reference_id: licenseKey,
+        // `auto` is faster at Checkout than always requiring a full address.
+        billing_address_collection: "auto",
+        allow_promotion_codes: true,
+        adaptive_pricing: { enabled: true },
+        integration_identifier: CHECKOUT_INTEGRATION_ID,
+        metadata,
+        ...(offer.billingModel === "annual"
+          ? { subscription_data: { metadata } }
+          : {
+              customer_creation: "always",
+              payment_intent_data: { metadata },
+            }),
+      },
+      {
+        idempotencyKey: `mw_checkout_${offer.slug}_${region}_${licenseKey}`,
+      }
+    )
 
     if (!session.url) {
       return {
@@ -106,9 +112,9 @@ export async function createMacWallCheckoutSession(
     }
 
     // Persist license + recovery after we already have a redirect URL.
-    // Buyers spend seconds on Stripe Checkout before paying, so this is safe.
     after(async () => {
       const supabase = getSupabaseAdmin()
+      const visitorCountry = input.country?.trim().toUpperCase() || null
       const licenseRow: Record<string, unknown> = {
         license_key: licenseKey,
         source: "stripe",
@@ -117,11 +123,21 @@ export async function createMacWallCheckoutSession(
         max_devices: offer.maxDevices,
         billing_model: offer.billingModel,
         stripe_checkout_session_id: session.id,
+        ...(visitorCountry && /^[A-Z]{2}$/.test(visitorCountry)
+          ? { visitor_country: visitorCountry }
+          : {}),
       }
 
       let { error: insertError } = await supabase
         .from("macwall_licenses")
         .insert(licenseRow)
+
+      if (insertError?.message?.includes("visitor_country")) {
+        const { visitor_country: _drop, ...withoutCountry } = licenseRow
+        ;({ error: insertError } = await supabase
+          .from("macwall_licenses")
+          .insert(withoutCountry))
+      }
 
       if (insertError?.message?.includes("plan_slug")) {
         ;({ error: insertError } = await supabase

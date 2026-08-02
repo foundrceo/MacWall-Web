@@ -82,3 +82,24 @@ export function takePrefetchedCheckoutUrl(offer: string): string | null {
   cache.delete(key)
   return url
 }
+
+/**
+ * Prefer a ready URL; otherwise wait for an in-flight prefetch (or start one)
+ * so a fast click doesn't spawn a duplicate Stripe session.
+ */
+export async function waitForPrefetchedCheckoutUrl(
+  offer: string
+): Promise<string | null> {
+  const ready = takePrefetchedCheckoutUrl(offer)
+  if (ready) return ready
+
+  const key = cacheKey(offer)
+  const pending = inflight.get(key)
+  if (pending) {
+    await pending
+    return takePrefetchedCheckoutUrl(offer)
+  }
+
+  await prefetchCheckoutSession(offer)
+  return takePrefetchedCheckoutUrl(offer)
+}

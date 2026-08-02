@@ -9,6 +9,7 @@ import {
   listSupportTickets,
   markSupportTicketSeen,
 } from "@/lib/support/feedback"
+import { sanitizeSupportImageUrl } from "@/lib/support/image-url"
 import {
   isValidSupportSessionId,
   normalizeSupportSessionId,
@@ -80,10 +81,9 @@ export async function POST(request: Request) {
   const name = nameRaw.slice(0, 120)
 
   const message = typeof body.message === "string" ? body.message.trim() : ""
-  const imageUrl =
-    typeof body.imageUrl === "string" && body.imageUrl.trim()
-      ? body.imageUrl.trim()
-      : null
+  const imageUrl = sanitizeSupportImageUrl(
+    typeof body.imageUrl === "string" ? body.imageUrl : null
+  )
   if (!message && !imageUrl) {
     return bad(400, "message_required")
   }

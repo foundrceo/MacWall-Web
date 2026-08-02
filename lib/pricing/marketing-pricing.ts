@@ -208,7 +208,7 @@ export function buildMarketingPricingFromLocalized(
     getProCta: "Get Pro",
     buyProCta: `Unlock Pro forever for ${permanentPrice}`,
     buyProAria: `Buy a permanent ${macwall.name} Pro license for ${permanentPrice}`,
-    bannerHeadline: "Limited sale is live — buy before it ends",
+    bannerHeadline: "Limited launch sale — lock in Pro pricing",
     bannerSubline: "Limited sale is live — buy before it ends",
     bannerCta: "Buy now 🔥",
     priceLine: india

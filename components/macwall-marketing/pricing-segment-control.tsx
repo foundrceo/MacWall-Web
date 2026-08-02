@@ -104,6 +104,7 @@ export function PricingSegmentControl<T extends string>({
               }}
               className={cn(
                 "relative rounded-full leading-none transition-colors",
+                "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/50 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background",
                 compact ? "px-2.5 py-0.5 text-[13px]" : "px-4 py-2 text-base",
                 selected
                   ? "text-foreground"
@@ -116,7 +117,7 @@ export function PricingSegmentControl<T extends string>({
                 value={option.value}
                 checked={selected}
                 onChange={() => onChange(option.value)}
-                className="absolute inset-0 appearance-none rounded-full opacity-0 outline-none focus-visible:outline-none"
+                className="absolute inset-0 appearance-none rounded-full opacity-0"
               />
               <span>{option.label}</span>
             </label>

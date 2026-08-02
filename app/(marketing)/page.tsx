@@ -1,6 +1,5 @@
 import MacWallMarketingHome from "@/components/macwall-marketing/marketing-home"
 import { JsonLd } from "@/components/seo/json-ld"
-import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
 import {
   macwall,
   macwallLockScreenMacOSVersion,
@@ -8,16 +7,15 @@ import {
 import { macwallPricingCopy as pricingCopy } from "@/lib/macwall-pricing-copy"
 import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import {
-  canonicalSiteOrigin,
   canonicalSitePath,
   openGraphImageAbsoluteUrl,
   openGraphImageSize,
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-/** ≤158 chars; leads with the app entity to disambiguate from the unrelated "MACWALL" retaining-wall product. */
+/** ≤155 chars; leads with the app entity to disambiguate from the unrelated "MACWALL" retaining-wall product. */
 const PAGE_DESCRIPTION =
-  `MacWall is the native macOS app for cinematic live wallpapers, controlled from the menu bar, with near-zero battery impact and Lock Screen on ${macwallLockScreenMacOSVersion}. One-time $7.99, no subs.`
+  `MacWall is the native macOS app for cinematic live wallpapers — menu bar control, near-zero battery impact, Lock Screen on ${macwallLockScreenMacOSVersion}. One-time $7.99.`
 
 export const metadata: Metadata = {
   title: { absolute: macwall.fullTagline },
@@ -65,19 +63,8 @@ const HOME_FAQ = pricingCopy.faq.map((item) => ({
 }))
 
 export default async function Page() {
-  const origin = canonicalSiteOrigin()
-
-  const webPageLd = webPageWithBreadcrumbsJsonLd({
-    origin,
-    pathname: "/",
-    pageTitle: macwall.name,
-    headline: macwall.fullTagline,
-    description: PAGE_DESCRIPTION,
-  })
-
   return (
     <>
-      <JsonLd payload={webPageLd} />
       <JsonLd payload={faqPageJsonLd([...HOME_FAQ])} />
       <MacWallMarketingHome />
     </>

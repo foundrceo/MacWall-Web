@@ -26,27 +26,28 @@ export async function generateMetadata({
   const article = getBlogArticle(slug)
   if (!article) return {}
 
-  const base = createSeoPageMetadata({
-    ...article,
-    title: article.title,
-  })
-
   const poster = blogTilePoster(slug, article.category, "og")
   const posterUrl = poster.startsWith("http")
     ? poster
     : `${canonicalSiteOrigin()}${poster}`
-  const posterImage = {
-    url: posterUrl,
-    width: 1200,
-    height: 630,
-    alt: article.headline,
-  }
 
-  return {
-    ...base,
-    openGraph: { ...base.openGraph, images: [posterImage] },
-    twitter: { ...base.twitter, images: [posterUrl] },
-  }
+  return createSeoPageMetadata(
+    {
+      ...article,
+      title: article.title,
+    },
+    {
+      openGraphType: "article",
+      publishedTime: article.publishedAt,
+      modifiedTime: article.updatedAt ?? article.publishedAt,
+      image: {
+        url: posterUrl,
+        width: 1200,
+        height: 630,
+        alt: article.headline,
+      },
+    }
+  )
 }
 
 export default async function BlogArticlePage({ params }: PageProps) {
@@ -55,6 +56,10 @@ export default async function BlogArticlePage({ params }: PageProps) {
   if (!article) notFound()
 
   const origin = canonicalSiteOrigin()
+  const poster = blogTilePoster(slug, article.category, "og")
+  const posterUrl = poster.startsWith("http")
+    ? poster
+    : `${origin}${poster}`
   const articleLd = articleJsonLd({
     origin,
     pathname: article.pathname,
@@ -62,6 +67,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
     description: article.description,
     datePublished: article.publishedAt ?? "2026-03-01",
     dateModified: article.updatedAt,
+    image: posterUrl,
   })
 
   const relatedArticles = getRelatedBlogArticles(slug)

@@ -28,7 +28,8 @@ export function MacWallBrandLink({
       href={href}
       className={cn(
         "inline-flex min-h-[20px] min-w-0 shrink-0 items-center gap-2",
-        "rounded-sm transition-opacity hover:opacity-80",
+        "rounded-sm transition-opacity outline-none hover:opacity-80",
+        "focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         className
       )}
       aria-label={macwall.name}

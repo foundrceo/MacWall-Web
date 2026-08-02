@@ -12,11 +12,11 @@ declare global {
   }
 }
 
-const purchaseValue = Number.parseFloat(
+const fallbackPurchaseValue = Number.parseFloat(
   macwall.pro.price.replace(/[^0-9.]/g, "")
 )
 
-function fireGoogleAdsConversion() {
+function fireGoogleAdsConversion(value: number, currency: string) {
   const conversionId = process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_ID?.trim()
   const conversionLabel =
     process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL?.trim()
@@ -27,32 +27,41 @@ function fireGoogleAdsConversion() {
 
   window.gtag("event", "conversion", {
     send_to: `${conversionId}/${conversionLabel}`,
-    value: Number.isFinite(purchaseValue) ? purchaseValue : undefined,
-    currency: "USD",
+    value: Number.isFinite(value) ? value : undefined,
+    currency,
   })
 }
 
-function fireGa4Purchase() {
+function fireGa4Purchase(value: number, currency: string) {
   if (typeof window.gtag !== "function") return
 
   window.gtag("event", "purchase", {
-    currency: "USD",
-    value: Number.isFinite(purchaseValue) ? purchaseValue : 7.99,
+    currency,
+    value: Number.isFinite(value) ? value : 7.99,
     items: [
       {
         item_id: "macwall-pro",
         item_name: `${macwall.name} Pro`,
-        price: Number.isFinite(purchaseValue) ? purchaseValue : 7.99,
+        price: Number.isFinite(value) ? value : 7.99,
         quantity: 1,
       },
     ],
   })
 }
 
-/** Fires once per purchase success visit — internal analytics + optional Google Ads / GA4.
- * Mounted on `/activate` (Stripe success) and `/thank-you`.
+/** Fires once per verified purchase success visit — GA4 / Google Ads.
+ * Mounted on `/activate` (after Stripe verify) and `/thank-you`.
  */
-export function PurchaseConversionTracker() {
+export function PurchaseConversionTracker({
+  amount,
+  currency,
+  verified = false,
+}: Readonly<{
+  amount?: number
+  currency?: string
+  /** When true, session was server-verified paid. */
+  verified?: boolean
+}> = {}) {
   const fired = useRef(false)
 
   useEffect(() => {
@@ -61,23 +70,36 @@ export function PurchaseConversionTracker() {
 
     const params = new URLSearchParams(window.location.search)
     const sessionId = params.get("session_id")?.trim() || undefined
-    const hasKey = Boolean(params.get("key")?.trim() || params.get("license")?.trim())
+    const hasKey = Boolean(
+      params.get("key")?.trim() || params.get("license")?.trim()
+    )
+
+    // Refuse to fire ads conversions for unverified session_id visits.
+    if (sessionId && !verified) return
+
+    const value =
+      typeof amount === "number" && Number.isFinite(amount)
+        ? amount
+        : Number.isFinite(fallbackPurchaseValue)
+          ? fallbackPurchaseValue
+          : 7.99
+    const curr = (currency || "USD").toUpperCase()
 
     trackSiteEventClient("purchase_complete", {
       product: "macwall_pro",
       path: window.location.pathname,
       ...(sessionId ? { session_id: sessionId } : {}),
       ...(hasKey ? { has_license_key: true } : {}),
+      ...(verified ? { verified: true } : {}),
+      value,
+      currency: curr,
     })
     markPurchaseCompleteInSession()
 
-    // TikTok Purchase/CompletePayment fires server-side from the Stripe webhook
-    // (stripe-license-email edge function) where the verified buyer email is
-    // always available — see lib/analytics for the Events API client. Firing it
-    // here too would double-count, so the browser only handles GA4 / Google Ads.
+    // TikTok Purchase fires server-side from the Stripe webhook — don't double-count.
     const run = () => {
-      fireGoogleAdsConversion()
-      fireGa4Purchase()
+      fireGoogleAdsConversion(value, curr)
+      fireGa4Purchase(value, curr)
     }
 
     if (typeof window.gtag === "function") {
@@ -87,7 +109,7 @@ export function PurchaseConversionTracker() {
 
     const timer = window.setTimeout(run, 1200)
     return () => window.clearTimeout(timer)
-  }, [])
+  }, [amount, currency, verified])
 
   return null
 }

@@ -477,7 +477,9 @@ export function SubmitWallpaperForm() {
         </div>
 
         <div className="space-y-2">
-          <Label className="text-[14px] text-foreground">Wallpaper video</Label>
+          <Label htmlFor="submit-file" className="text-[14px] text-foreground">
+            Wallpaper video
+          </Label>
           <input
             ref={fileInputRef}
             id="submit-file"
@@ -498,7 +500,7 @@ export function SubmitWallpaperForm() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={inspected.thumbUrl}
-                  alt=""
+                  alt={`Preview of ${file.name}`}
                   className="h-full w-full object-cover"
                 />
                 {aiAnalyzing ? (

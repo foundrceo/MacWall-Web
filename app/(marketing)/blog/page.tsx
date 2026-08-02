@@ -6,6 +6,7 @@ import {
 } from "@/lib/macwall-site"
 import {
   canonicalSitePath,
+  feedAlternateTypes,
   openGraphImageAbsoluteUrl,
   openGraphImageSize,
 } from "@/lib/site-url"
@@ -17,7 +18,13 @@ const PAGE_DESCRIPTION =
 export const metadata: Metadata = {
   title: "Blog: Mac Live Wallpaper Guides, Comparisons & News",
   description: PAGE_DESCRIPTION,
-  alternates: { canonical: canonicalSitePath("/blog") },
+  alternates: {
+    canonical: canonicalSitePath("/blog"),
+    types: {
+      ...feedAlternateTypes(),
+      "text/markdown": canonicalSitePath("/blog.md"),
+    },
+  },
   keywords: [
     "mac wallpaper blog",
     "live wallpaper guides mac",

@@ -1316,6 +1316,16 @@ export function MacWallChatWidget() {
     void handleUserText(draft)
   }
 
+  // Lets other bottom-right widgets (social proof popup) step aside.
+  useEffect(() => {
+    const root = document.documentElement
+    if (open) root.dataset.macwallChatOpen = "true"
+    else delete root.dataset.macwallChatOpen
+    return () => {
+      delete root.dataset.macwallChatOpen
+    }
+  }, [open])
+
   const toggle = () => {
     setOpen((prev) => {
       const next = !prev

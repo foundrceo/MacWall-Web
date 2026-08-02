@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { HeroVideoControls } from "@/components/macwall-marketing/hero-video-controls"
 import {
   HERO_VIDEO_ASPECT_CLASS,
@@ -19,6 +20,15 @@ export function HeroWalkthroughVideo({
   const sources = marketingWalkthroughVideoSources()
   const primarySrc = sources[0] ?? ""
   const fallbackSources = sources.slice(1)
+  const [reduceMotion, setReduceMotion] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const update = () => setReduceMotion(mq.matches)
+    update()
+    mq.addEventListener("change", update)
+    return () => mq.removeEventListener("change", update)
+  }, [])
 
   return (
     <div>
@@ -32,10 +42,10 @@ export function HeroWalkthroughVideo({
           <video
             id={HERO_WALKTHROUGH_VIDEO_ID}
             src={primarySrc}
-            autoPlay
+            autoPlay={!reduceMotion}
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
             className="absolute inset-0 h-full w-full object-cover"
             aria-label={ariaLabel}
           />
