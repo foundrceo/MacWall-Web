@@ -57,7 +57,7 @@ export async function createMacWallCheckoutSession(
         ? "india"
         : "default"
     const displayUnitAmount = licenseOfferPriceCents(offer, region)
-    const planSlug = offer.maxDevices === 5 ? "pro_plus" : "pro"
+    const planSlug = offer.maxDevices >= 5 ? "pro_plus" : "pro"
     const stripePriceId = stripePriceIdForOffer(offer.slug, region)
 
     const licenseKey = generateMacWallLicenseKey()

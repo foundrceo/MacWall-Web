@@ -14,6 +14,7 @@ import { CheckoutPrefetchWarmup } from "@/components/macwall-marketing/checkout-
 import HomeFaqSection from "@/components/macwall-marketing/HomeFaqSection"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
+import { ProPlusPackCard } from "@/components/macwall-marketing/pro-plus-pack-card"
 import { GradientTracing } from "@/components/ui/gradient-tracing"
 import {
   Tooltip,
@@ -57,7 +58,6 @@ function PricingPrimaryButton({
 
 export default function MacWallMarketingPricingPage() {
   const pricing = useMarketingPricing()
-  const fiveMacOffer = pricing.multiMacOffers.find((offer) => offer.macs === 5)
   const plans = p.plans
 
   return (
@@ -155,40 +155,14 @@ export default function MacWallMarketingPricingPage() {
                   }
                 />
 
-                {fiveMacOffer ? (
-                  <PricingTierCard
-                    id="tier-pro-plus"
+                {pricing.multiMacOffers.length > 0 ? (
+                  <ProPlusPackCard
+                    offers={pricing.multiMacOffers}
                     title={plans.proPlus.title}
                     subtitle={plans.proPlus.subtitle}
-                    price={fiveMacOffer.price}
-                    priceMajor={fiveMacOffer.priceMajor}
-                    currency="usd"
-                    strikePrice={fiveMacOffer.strikePrice}
-                    localPriceHint={fiveMacOffer.localPriceHint}
-                    priceSuffix="one-time"
-                    features={p.proPlus.features}
                     featuresPrefix={plans.proPlus.featuresPrefix}
-                    badge={fiveMacOffer.offLabel}
-                    showActionSlot
-                    actionSlot={
-                      <GradientTracing
-                        width={160}
-                        height={12}
-                        baseColor="white"
-                        gradientColors={["#F1C40F", "#F1C40F", "#E67E22"]}
-                        strokeWidth={1.5}
-                        animationDuration={2.2}
-                      />
-                    }
-                    action={
-                      <PricingPrimaryButton
-                        href={fiveMacOffer.checkoutUrl}
-                        location="pricing_multi_mac_5"
-                        ariaLabel={`Buy ${macwall.name} Pro Plus for ${fiveMacOffer.price}`}
-                      >
-                        {plans.proPlus.cta}
-                      </PricingPrimaryButton>
-                    }
+                    features={p.proPlus.features}
+                    cta={plans.proPlus.cta}
                   />
                 ) : null}
               </div>

@@ -5,8 +5,11 @@ import { PricingRotatingBadge } from "@/components/macwall-marketing/pricing-rot
 import { cn } from "@/lib/utils"
 
 /** Newspaper-style yellow marker on key phrases inside feature lines. */
-function highlightFeatureText(feature: string): ReactNode {
-  const needle = "5 Macs"
+function highlightFeatureText(
+  feature: string,
+  highlightMacsLabel?: string
+): ReactNode {
+  const needle = highlightMacsLabel?.trim() || "5 Macs"
   const index = feature.indexOf(needle)
   if (index === -1) return feature
 
@@ -39,6 +42,7 @@ export function PricingTierCard({
   highlight = false,
   badge,
   badgeAlt,
+  highlightMacsLabel,
   className,
 }: Readonly<{
   id: string
@@ -60,6 +64,8 @@ export function PricingTierCard({
   badge?: string
   /** Optional second label — rotates with `badge` via motion */
   badgeAlt?: string
+  /** Yellow-mark this Macs label inside features (e.g. "10 Macs"). */
+  highlightMacsLabel?: string
   className?: string
 }>) {
   const badgeLabels = [
@@ -152,7 +158,7 @@ export function PricingTierCard({
                   ✓
                 </span>
                 <span className="line-clamp-2 min-w-0">
-                  {highlightFeatureText(feature)}
+                  {highlightFeatureText(feature, highlightMacsLabel)}
                 </span>
               </li>
             ))}
