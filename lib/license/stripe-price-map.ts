@@ -10,7 +10,7 @@ import type { LicenseOfferSlug } from "@/lib/license/offers.shared"
  *   - permanent_5:  price_1TrfXxIZgqo0QIlXSFDQfPsu  ($14.99, one-time)
  *
  * India does NOT use a coupon or extra Prices. Checkout passes
- * `price_data` with this same product + indiaUsdCents ($3.99 Pro / $7.49 Pro+).
+ * `price_data` with this same product + indiaUsdCents ($3.99 Pro / $5.99 Pro+).
  */
 export const MACWALL_PRO_PRODUCT_ID = "prod_UrOJX8fIfNB2Gs"
 

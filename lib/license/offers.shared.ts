@@ -17,12 +17,12 @@ export type LicenseOffer = {
   /**
    * India list price in USD cents (charm pricing).
    * Checkout charges this via price_data on the existing Product — no coupon.
-   * Pro $3.99 · Pro+ $7.49
+   * Pro $3.99 · Pro+ $5.99 (both ~60% off global sale).
    */
   indiaUsdCents: number
 }
 
-/** Percent off vs catalog USD (rounded). Pro $9.99→$3.99 = 60%. */
+/** Percent off vs catalog USD (rounded). $9.99→$3.99 and $14.99→$5.99 ≈ 60%. */
 export function indiaDiscountPercentOff(
   usdCents: number,
   indiaUsdCents: number
@@ -46,7 +46,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "annual",
     maxDevices: 3,
     usdCents: 499,
-    indiaUsdCents: 249, // $2.49
+    indiaUsdCents: 199, // $1.99 — ~60% off
   },
   permanent_5: {
     slug: "permanent_5",
@@ -54,7 +54,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 5,
     usdCents: 1499,
-    indiaUsdCents: 749, // $7.49 — ~50% off $14.99
+    indiaUsdCents: 599, // $5.99 — 60% off $14.99
   },
 }
 
