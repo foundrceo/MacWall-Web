@@ -4,7 +4,7 @@
  * Temporary UI kill-switch for affiliate entry points (nav, footer, etc.).
  * Page + tracking code stay live — flip to `true` to show links again.
  */
-export const AFFILIATE_UI_VISIBLE = false
+export const AFFILIATE_UI_VISIBLE = true
 
 export function getAffonsoProgramId(): string | undefined {
   const id = process.env.NEXT_PUBLIC_AFFONSO_PROGRAM_ID?.trim()
