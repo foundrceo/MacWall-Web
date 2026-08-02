@@ -52,13 +52,13 @@ battery + playback controls inside the Mac app (what the site is selling).
 
 ## pricing model (current)
 
-| plan | price | what you get |
-| --- | --- | --- |
-| **Free** | $0 | curated free wallpapers, menu bar, multi-display, community uploads |
-| **Pro** | **$9.99** one-time (was $14.99) | 1,000+ live wallpapers, Lock Screen & Screen Saver, import videos, up to **3 Macs**, Music Sync, lifetime updates |
-| **Pro+** | **$14.99** one-time (was $24.99) | everything in Pro on up to **5 Macs** |
+| plan | price | India (50% off) | what you get |
+| --- | --- | --- | --- |
+| **Free** | $0 | $0 | curated free wallpapers, menu bar, multi-display, community uploads |
+| **Pro** | **$9.99** one-time (was $14.99) | **$5.00** | 1,000+ live wallpapers, Lock Screen & Screen Saver, import videos, up to **3 Macs**, Music Sync, lifetime updates |
+| **Pro+** | **$14.99** one-time (was $24.99) | **$7.50** | everything in Pro on up to **5 Macs** |
 
-headline on `/pricing`: **Pay once. Pro forever.** — limited price, no subscriptions for new buyers.
+headline on `/pricing`: **Pay once. Pro forever.** — limited price, no subscriptions for new buyers. India visitors see simple **50% off** on the same Stripe Prices (coupon `INDIA50` — no extra products).
 
 creators can still earn up to 100% back via the [Reel Refund](https://macwall.app/pricing/reel-refund) offer.
 

@@ -1,14 +1,19 @@
 import "server-only"
 
+import { isIndiaCountry } from "@/lib/geo/country"
 import { generateMacWallLicenseKey } from "@/lib/license/generate-license-key"
 import {
+  isIndiaDiscountEligible,
   licenseOfferFromSlug,
   licenseOfferPriceCents,
 } from "@/lib/license/offers.shared"
+import {
+  INDIA_COUPON_ID,
+  stripePriceIdForOffer,
+} from "@/lib/license/stripe-price-map"
 import { getStripe } from "@/lib/stripe/server"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { queueCheckoutRecovery } from "@/lib/stripe/queue-checkout-recovery"
-import { stripePriceIdForOffer } from "@/lib/license/stripe-price-map"
 
 export type CreateMacWallCheckoutInput = {
   country: string | null
@@ -32,8 +37,8 @@ export type CreateMacWallCheckoutResult =
 /**
  * Creates the Stripe Checkout Session and a pending license row.
  *
- * Stripe Prices: permanent $9.99, annual $4.99/yr, permanent_5 $14.99.
- * Adaptive Pricing localizes presentment currency on Checkout itself.
+ * Same catalog Prices for everyone. India: 50% off via INDIA50 coupon
+ * (no new Products/Prices). Adaptive Pricing localizes presentment.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
@@ -43,7 +48,10 @@ export async function createMacWallCheckoutSession(
     const supabase = getSupabaseAdmin()
     const siteOrigin = input.siteOrigin.replace(/\/+$/, "")
     const offer = licenseOfferFromSlug(input.offerSlug ?? input.planSlug)
-    const displayUnitAmount = licenseOfferPriceCents(offer, "default")
+    const region = isIndiaCountry(input.country) ? "india" : "default"
+    const applyIndiaDiscount =
+      region === "india" && isIndiaDiscountEligible(offer.slug)
+    const displayUnitAmount = licenseOfferPriceCents(offer, region)
     const planSlug = offer.maxDevices === 5 ? "pro_plus" : "pro"
 
     const licenseKey = generateMacWallLicenseKey()
@@ -93,7 +101,8 @@ export async function createMacWallCheckoutSession(
       billing_model: offer.billingModel,
       plan_slug: planSlug,
       max_devices: String(offer.maxDevices),
-      pricing_region: "default",
+      pricing_region: region,
+      india_discount_applied: applyIndiaDiscount ? "true" : "false",
       unit_amount_usd: String(displayUnitAmount),
       visitor_country: input.country?.trim().toUpperCase() || "",
     }
@@ -108,7 +117,10 @@ export async function createMacWallCheckoutSession(
       client_reference_id: licenseKey,
       // Collect email early so abandoned-checkout recovery can send.
       billing_address_collection: "required",
-      allow_promotion_codes: true,
+      // Stripe can't combine discounts[] with allow_promotion_codes.
+      ...(applyIndiaDiscount
+        ? { discounts: [{ coupon: INDIA_COUPON_ID }] }
+        : { allow_promotion_codes: true }),
       // Stripe-hosted Checkout localizes presentment (INR/EUR/…) from the USD Price.
       adaptive_pricing: { enabled: true },
       metadata,
