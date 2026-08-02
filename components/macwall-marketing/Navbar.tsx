@@ -7,13 +7,31 @@ import { useEffect, useId, useState } from "react"
 import { createPortal } from "react-dom"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { MacWallBrandLink } from "@/components/macwall-marketing/MacWallBrandLink"
-import { macwallInstallerLatestPath, mailtoSupport } from "@/lib/macwall-site"
+import {
+  macwall,
+  macwallInstallerLatestPath,
+  mailtoSupport,
+} from "@/lib/macwall-site"
+import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import { NAVBAR_HEADER_CLASS } from "@/lib/marketing-chrome"
 import { cn } from "@/lib/utils"
 
 /** Banner (h-9) + nav (h-14) — sheet fills the rest of the viewport. */
 const MOBILE_MENU_TOP = "top-[calc(2.25rem+3.5rem)]"
+
+function DiscordIcon({ className }: Readonly<{ className?: string }>) {
+  return (
+    <svg
+      className={cn("size-[15px] shrink-0", className)}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M20.317 4.37a19.79 19.79 0 00-4.885-1.515.074.074 0 00-.079.037c-.211.375-.445.865-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.028C.533 9.046-.319 13.58.099 18.058a.082.082 0 00.031.056 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.873-1.295 1.226-1.994a.076.076 0 00-.042-.106 12.3 12.3 0 01-1.872-.892.077.077 0 01-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 01.078-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 01.079.01c.12.099.246.198.373.292a.077.077 0 01-.007.128 12.3 12.3 0 01-1.873.891.076.076 0 00-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 00.084.029 19.84 19.84 0 006.002-3.03.077.077 0 00.032-.055c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.331c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.211 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.211 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+    </svg>
+  )
+}
 
 function MenuIcon({
   open,
@@ -60,6 +78,15 @@ function NavActions({
 }>) {
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
+      <a
+        href={macwall.discordInvite}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Join Discord"
+        className="inline-flex size-7 items-center justify-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-white"
+      >
+        <DiscordIcon />
+      </a>
       <TrackedDownloadButton
         href={macwallInstallerLatestPath}
         size="sm"
@@ -270,12 +297,17 @@ export default function Navbar() {
       label: h.navSubmit,
       active: pathname === "/submit" || pathname.startsWith("/submit/"),
     },
-    {
-      href: "/affiliate",
-      label: h.navAffiliate,
-      active: pathname === "/affiliate" || pathname.startsWith("/affiliate/"),
-      earnBadge: true,
-    },
+    ...(AFFILIATE_UI_VISIBLE
+      ? [
+          {
+            href: "/affiliate",
+            label: h.navAffiliate,
+            active:
+              pathname === "/affiliate" || pathname.startsWith("/affiliate/"),
+            earnBadge: true as const,
+          },
+        ]
+      : []),
     {
       href: "/blog",
       label: h.navBlog,
