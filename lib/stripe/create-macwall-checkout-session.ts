@@ -38,7 +38,7 @@ export type CreateMacWallCheckoutResult =
  * Creates the Stripe Checkout Session and a pending license row.
  *
  * Default: catalog Price IDs. India: same existing Product with inline
- * `price_data` at $4.99 / $7.49 — no coupon, no new Product/Price objects.
+ * `price_data` at India list ($3.99 / $7.49) — no coupon, no new Product/Price objects.
  * Adaptive Pricing still localizes presentment currency.
  */
 export async function createMacWallCheckoutSession(

@@ -36,7 +36,7 @@ function toLocalMoney(
 }
 
 /**
- * Catalog prices stay USD. India visitors see $4.99 / $7.49 list prices.
+ * Catalog prices stay USD. India visitors see $3.99 Pro / $7.49 Pro+.
  * Checkout charges those amounts via price_data on the existing Product.
  */
 export async function resolveMarketingPricing(): Promise<MarketingPricing> {

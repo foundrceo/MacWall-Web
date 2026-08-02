@@ -15,17 +15,20 @@ export type LicenseOffer = {
   maxDevices: 3 | 5
   usdCents: number
   /**
-   * India list price in USD cents (charm: $4.99 / $7.49).
+   * India list price in USD cents (charm pricing).
    * Checkout charges this via price_data on the existing Product — no coupon.
+   * Pro $3.99 · Pro+ $7.49
    */
   indiaUsdCents: number
 }
 
-/**
- * Half-price charm amounts for India ($4.99 / $7.49).
- */
-function indiaHalfUsdCents(cents: number): number {
-  return Math.floor(cents / 2)
+/** Percent off vs catalog USD (rounded). Pro $9.99→$3.99 = 60%. */
+export function indiaDiscountPercentOff(
+  usdCents: number,
+  indiaUsdCents: number
+): number {
+  if (usdCents <= 0) return 0
+  return Math.round((1 - indiaUsdCents / usdCents) * 100)
 }
 
 export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
@@ -35,7 +38,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 3,
     usdCents: 999,
-    indiaUsdCents: indiaHalfUsdCents(999), // $4.99
+    indiaUsdCents: 399, // $3.99 — 60% off $9.99
   },
   annual: {
     slug: "annual",
@@ -43,7 +46,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "annual",
     maxDevices: 3,
     usdCents: 499,
-    indiaUsdCents: indiaHalfUsdCents(499), // $2.49
+    indiaUsdCents: 249, // $2.49
   },
   permanent_5: {
     slug: "permanent_5",
@@ -51,7 +54,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 5,
     usdCents: 1499,
-    indiaUsdCents: indiaHalfUsdCents(1499), // $7.49
+    indiaUsdCents: 749, // $7.49 — ~50% off $14.99
   },
 }
 
@@ -60,7 +63,7 @@ export const MULTI_MAC_OFFER_SLUGS = [
   "permanent_5",
 ] as const satisfies readonly LicenseOfferSlug[]
 
-/** All paid offers get automatic 50% off for India visitors. */
+/** All paid offers use India fixed list prices (price_data, no coupon). */
 export const INDIA_DISCOUNT_ELIGIBLE_OFFER_SLUGS = [
   "permanent",
   "annual",
