@@ -1025,7 +1025,7 @@ export function MacWallChatWidget() {
         }
         pushEvent("You’re in the queue — keep chatting here")
         await pushAssist(
-          `Thanks, ${name}. You’re connected with our team in this chat.\n\nYour Chat ID is ${idForTicket} — share it with the team if you reach out another way.\n\nWe’ll reply ASAP — typically within 24 hours. Leave this window open or come back anytime; your conversation is saved.`,
+          `Got it — ${email.trim() || "thanks"}. You’re in the queue with our team.\n\nYour Chat ID is ${idForTicket} — share it if you reach out another way.\n\nWhat do you need help with? Add as much detail as you like — our team will see this chat. You can also attach a screenshot.\n\nWe’ll reply ASAP — typically within 24 hours. Leave this window open or come back anytime; your conversation is saved.`,
           []
         )
       } catch (e) {
@@ -1174,18 +1174,30 @@ export function MacWallChatWidget() {
             return
           }
           const email = text.trim().toLowerCase().slice(0, 254)
+          const convo = conversationsRef.current.find(
+            (c) => c.id === activeIdRef.current
+          )
+          const savedName =
+            (convo?.visitorName || visitorName).trim() || "Visitor"
+
           patchActive((c) => ({
             ...c,
             visitorEmail: email,
-            handoff: "ask_issue",
           }))
-          await pushAssist(
-            `Got it — ${email}.\n\nWhat do you need help with? Add as much detail as you like — our team will see this chat. You can also attach a screenshot.`,
-            []
+
+          // Queue immediately after email — details come next in live chat.
+          const transcript = [...(convo?.messages ?? []), userMessage]
+          await createTicket(
+            savedName,
+            email,
+            "Joined the support queue. Visitor will share details in this chat.",
+            null,
+            transcript
           )
           return
         }
 
+        // Legacy mid-flow: anyone still on ask_issue gets queued from their message.
         if (handoff === "ask_issue") {
           const convo = conversationsRef.current.find(
             (c) => c.id === activeIdRef.current
@@ -1333,7 +1345,7 @@ export function MacWallChatWidget() {
         live: true,
       }
     }
-    if (handoff === "ask_name" || handoff === "ask_email" || handoff === "ask_issue") {
+    if (handoff === "ask_name" || handoff === "ask_email") {
       return { label: "Connecting you to the team…", live: true }
     }
     return {
