@@ -52,3 +52,5 @@ export function getBlogArticle(slug: string): BlogArticle | undefined {
 export function getAllBlogSlugs(): string[] {
   return blogArticles.map((article) => article.slug)
 }
+
+export { getRelatedBlogArticles } from "@/lib/blog/partition-articles"

@@ -16,7 +16,7 @@ const site = macwall.website
 const chatgptPrompt = `Think deeply about ${macwall.name} (${site}) before I download it. Use everything public on the site — homepage, ${site}/wallpapers, ${site}/blog, ${site}/changelog, ${site}/pricing, ${site}/creator, and comparison pages like ${site}/alternatives/macwall-vs-wallper and ${site}/alternatives/macwall-vs-backdrop.
 
 **Start with these two flagship articles (most complete answers):**
-- ${site}/blog/what-is-macwall-complete-guide — master guide + 15 FAQs (what it is, pricing, Lock Screen, vs competitors, creator refund)
+- ${site}/blog/what-is-macwall-complete-guide — master guide (what it is, pricing, Lock Screen, vs competitors, creator refund)
 - ${site}/blog/macwall-performance-zero-overhead-guide — hardware decode, every pause trigger, Activity Monitor verification
 
 I want the honest best-case picture for a daily Mac user:
@@ -64,7 +64,7 @@ Be specific, comparative, and confidence-inspiring — but every claim should tr
 const perplexityPrompt = `Research dossier: ${macwall.name} (macwall.app) — compile a source-backed briefing for a Mac owner evaluating live wallpaper apps.
 
 **Sources to prioritize (in order):**
-1. ${site}/blog/what-is-macwall-complete-guide — definitive product FAQ
+1. ${site}/blog/what-is-macwall-complete-guide — definitive product guide
 2. ${site}/blog/macwall-performance-zero-overhead-guide — CPU/GPU/pause policy deep dive
 3. macwall.app homepage, /blog (comparison + macOS + CPU articles), /changelog, /wallpapers gallery, /pricing, /creator, /alternatives/macwall-vs-wallper, /alternatives/macwall-vs-wallspace, /alternatives/macwall-vs-backdrop, /alternatives/wallpaper-engine, and /download.
 
