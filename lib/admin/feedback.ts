@@ -198,12 +198,23 @@ export async function getFeedbackTotals(): Promise<FeedbackTotals> {
   return totals
 }
 
-export async function replyToFeedback(id: string, reply: string) {
+export async function replyToFeedback(
+  id: string,
+  reply: string,
+  imageUrl?: string | null
+) {
   const trimmed = reply.trim()
-  if (!trimmed) throw new Error("Reply message is required")
+  const trimmedImage =
+    typeof imageUrl === "string" && imageUrl.trim() ? imageUrl.trim() : null
+  if (trimmedImage && !/^https:\/\//i.test(trimmedImage)) {
+    throw new Error("Invalid image URL")
+  }
+  if (!trimmed && !trimmedImage) {
+    throw new Error("Reply message is required")
+  }
 
   const supabase = getSupabaseAdmin()
-  const body = trimmed.slice(0, 4000)
+  const body = (trimmed || " ").slice(0, 4000)
   const now = new Date().toISOString()
 
   const { error: insertError } = await supabase
@@ -212,13 +223,14 @@ export async function replyToFeedback(id: string, reply: string) {
       feedback_id: id,
       author: "admin",
       body,
+      image_url: trimmedImage,
     })
   if (insertError) throw new Error(insertError.message)
 
   const { data, error } = await supabase
     .from("app_feedback")
     .update({
-      admin_reply: body,
+      admin_reply: trimmed || (trimmedImage ? "(image)" : body),
       admin_replied_at: now,
       user_has_unread: true,
       user_has_seen_reply: false,
