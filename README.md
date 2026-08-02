@@ -55,10 +55,10 @@ battery + playback controls inside the Mac app (what the site is selling).
 | plan | price | India | discount vs global | what you get |
 | --- | --- | --- | --- | --- |
 | **Free** | $0 | $0 | — | curated free wallpapers, menu bar, multi-display, community uploads |
-| **Pro** | **$9.99** one-time (was $14.99) | **$3.99** | **60% off** | 1,000+ live wallpapers, Lock Screen & Screen Saver, import videos, up to **3 Macs**, Music Sync, lifetime updates |
-| **Pro+** | **$14.99** one-time (was $24.99) | **$5.99** | **60% off** | everything in Pro on up to **5 Macs** |
+| **Pro** | **$9.99** one-time (was $14.99) | **$4.99** | **50% off** | 1,000+ live wallpapers, Lock Screen & Screen Saver, import videos, up to **3 Macs**, Music Sync, lifetime updates |
+| **Pro+** | **$14.99** one-time (was $24.99) | **$7.49** | **50% off** | everything in Pro on up to **5 Macs** |
 
-headline on `/pricing`: **Pay once. Pro forever.** — limited price, no subscriptions for new buyers. India visitors see **$3.99 / $5.99** on the cards; Checkout charges those amounts via `price_data` on the existing Product (no coupon, no extra catalog Prices).
+headline on `/pricing`: **Pay once. Pro forever.** — limited price, no subscriptions for new buyers. India visitors see **$4.99 / $7.49** on the cards; Checkout uses the same catalog Prices as everyone else and auto-applies coupon **INDIA50** (full payment-method support + Adaptive Pricing).
 
 creators can still earn up to 100% back via the [Reel Refund](https://macwall.app/pricing/reel-refund) offer.
 

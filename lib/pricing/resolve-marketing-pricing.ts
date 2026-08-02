@@ -36,8 +36,8 @@ function toLocalMoney(
 }
 
 /**
- * Catalog prices stay USD. India visitors see $3.99 Pro / $5.99 Pro+ (60% off).
- * Checkout charges those amounts via price_data on the existing Product.
+ * Catalog prices stay USD. India visitors see 50% off (INDIA50 at Checkout).
+ * Other non-US visitors get a local ≈ hint under the card price.
  */
 export async function resolveMarketingPricing(): Promise<MarketingPricing> {
   await connection()

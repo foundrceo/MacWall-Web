@@ -8,6 +8,9 @@ export type LicenseOfferSlug = (typeof LICENSE_OFFER_SLUGS)[number]
 export type LicenseBillingModel = "permanent" | "annual"
 export type PricingRegion = "default" | "india"
 
+/** Stripe coupon auto-applied for India Checkout (catalog Prices + all PM). */
+export const INDIA_CHECKOUT_COUPON_ID = "INDIA50"
+
 export type LicenseOffer = {
   slug: LicenseOfferSlug
   name: string
@@ -15,14 +18,13 @@ export type LicenseOffer = {
   maxDevices: 3 | 5
   usdCents: number
   /**
-   * India list price in USD cents (charm pricing).
-   * Checkout charges this via price_data on the existing Product — no coupon.
-   * Pro $3.99 · Pro+ $5.99 (both ~60% off global sale).
+   * India display amount after INDIA50 (50% off catalog).
+   * Matches Stripe half-cent rounding: $9.99→$4.99, $14.99→$7.49.
    */
   indiaUsdCents: number
 }
 
-/** Percent off vs catalog USD (rounded). $9.99→$3.99 and $14.99→$5.99 ≈ 60%. */
+/** Percent off vs catalog USD (rounded). INDIA50 = 50%. */
 export function indiaDiscountPercentOff(
   usdCents: number,
   indiaUsdCents: number
@@ -38,7 +40,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 3,
     usdCents: 999,
-    indiaUsdCents: 399, // $3.99 — 60% off $9.99
+    indiaUsdCents: 499, // $4.99 — INDIA50 on $9.99
   },
   annual: {
     slug: "annual",
@@ -46,7 +48,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "annual",
     maxDevices: 3,
     usdCents: 499,
-    indiaUsdCents: 199, // $1.99 — ~60% off
+    indiaUsdCents: 249, // $2.49 — INDIA50 on $4.99
   },
   permanent_5: {
     slug: "permanent_5",
@@ -54,7 +56,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 5,
     usdCents: 1499,
-    indiaUsdCents: 599, // $5.99 — 60% off $14.99
+    indiaUsdCents: 749, // $7.49 — INDIA50 on $14.99
   },
 }
 
@@ -63,7 +65,7 @@ export const MULTI_MAC_OFFER_SLUGS = [
   "permanent_5",
 ] as const satisfies readonly LicenseOfferSlug[]
 
-/** All paid offers use India fixed list prices (price_data, no coupon). */
+/** Paid offers that auto-get INDIA50 at Checkout. */
 export const INDIA_DISCOUNT_ELIGIBLE_OFFER_SLUGS = [
   "permanent",
   "annual",
