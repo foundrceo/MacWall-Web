@@ -8,38 +8,17 @@ export type LicenseOfferSlug = (typeof LICENSE_OFFER_SLUGS)[number]
 export type LicenseBillingModel = "permanent" | "annual"
 export type PricingRegion = "default" | "india"
 
-/**
- * Per-offer amount-off coupons so India totals charm at .99
- * (percent coupons round to $4 / $6). Catalog Prices stay the same.
- */
-export const INDIA_CHECKOUT_COUPON_BY_OFFER: Partial<
-  Record<LicenseOfferSlug, string>
-> = {
-  permanent: "INDIA_PRO_399", // $9.99 − $6.00 = $3.99
-  permanent_5: "INDIA_PLUS_599", // $14.99 − $9.00 = $5.99
-  annual: "INDIA_PRO_399", // legacy → permanent; unused for new buys
-}
-
-export function indiaCheckoutCouponForOffer(
-  slug: LicenseOfferSlug
-): string | null {
-  return INDIA_CHECKOUT_COUPON_BY_OFFER[slug] ?? null
-}
-
 export type LicenseOffer = {
   slug: LicenseOfferSlug
   name: string
   billingModel: LicenseBillingModel
   maxDevices: 3 | 5
   usdCents: number
-  /**
-   * India display / charged amount (~60% off catalog, charm .99).
-   * Checkout: catalog Price + amount-off coupon.
-   */
+  /** India catalog Price amount (separate Stripe Prices, no coupon). */
   indiaUsdCents: number
 }
 
-/** Percent off vs catalog USD (rounded). $9.99→$3.99 and $14.99→$5.99 ≈ 60%. */
+/** Percent off vs catalog USD (rounded). */
 export function indiaDiscountPercentOff(
   usdCents: number,
   indiaUsdCents: number
@@ -54,8 +33,8 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     name: "Permanent license",
     billingModel: "permanent",
     maxDevices: 3,
-    usdCents: 999,
-    indiaUsdCents: 399, // $3.99
+    usdCents: 999, // $9.99 global
+    indiaUsdCents: 399, // $3.99 India
   },
   annual: {
     slug: "annual",
@@ -63,15 +42,15 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "annual",
     maxDevices: 3,
     usdCents: 499,
-    indiaUsdCents: 199, // $1.99
+    indiaUsdCents: 199,
   },
   permanent_5: {
     slug: "permanent_5",
     name: "5-Mac permanent license",
     billingModel: "permanent",
     maxDevices: 5,
-    usdCents: 1499,
-    indiaUsdCents: 599, // $5.99
+    usdCents: 1499, // $14.99 global
+    indiaUsdCents: 699, // $6.99 India
   },
 }
 
@@ -80,7 +59,6 @@ export const MULTI_MAC_OFFER_SLUGS = [
   "permanent_5",
 ] as const satisfies readonly LicenseOfferSlug[]
 
-/** Paid offers that auto-get India charm coupons at Checkout. */
 export const INDIA_DISCOUNT_ELIGIBLE_OFFER_SLUGS = [
   "permanent",
   "annual",
