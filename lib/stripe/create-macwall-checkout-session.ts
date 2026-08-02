@@ -36,7 +36,7 @@ export type CreateMacWallCheckoutResult =
  * Creates the Stripe Checkout Session and a pending license row.
  *
  * Always uses catalog Price IDs (full payment-method support).
- * India: auto-applies INDIA50 (50% off). Adaptive Pricing still localizes.
+ * India: auto-applies INDIA60 (60% off). Adaptive Pricing still localizes.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
@@ -124,7 +124,7 @@ export async function createMacWallCheckoutSession(
               customer_creation: "always",
               payment_intent_data: { metadata },
             }),
-        // India: fixed INDIA50. Cannot combine with allow_promotion_codes.
+        // India: fixed INDIA60. Cannot combine with allow_promotion_codes.
         ...(applyIndiaCoupon
           ? { discounts: [{ coupon: INDIA_CHECKOUT_COUPON_ID }] }
           : { allow_promotion_codes: true }),

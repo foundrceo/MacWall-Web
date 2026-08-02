@@ -36,7 +36,7 @@ function toLocalMoney(
 }
 
 /**
- * Catalog prices stay USD. India visitors see 50% off (INDIA50 at Checkout).
+ * Catalog prices stay USD. India visitors see 60% off (INDIA60 at Checkout).
  * Other non-US visitors get a local ≈ hint under the card price.
  */
 export async function resolveMarketingPricing(): Promise<MarketingPricing> {
