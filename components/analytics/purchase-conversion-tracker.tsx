@@ -37,12 +37,12 @@ function fireGa4Purchase() {
 
   window.gtag("event", "purchase", {
     currency: "USD",
-    value: Number.isFinite(purchaseValue) ? purchaseValue : 9.99,
+    value: Number.isFinite(purchaseValue) ? purchaseValue : 7.99,
     items: [
       {
         item_id: "macwall-pro",
         item_name: `${macwall.name} Pro`,
-        price: Number.isFinite(purchaseValue) ? purchaseValue : 9.99,
+        price: Number.isFinite(purchaseValue) ? purchaseValue : 7.99,
         quantity: 1,
       },
     ],

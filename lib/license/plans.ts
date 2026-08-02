@@ -28,8 +28,8 @@ const STRIPE_PRICE_ENV_BY_SLUG: Record<LicensePlanSlug, string> = {
 }
 
 const DEFAULT_STRIPE_PRICE_BY_SLUG: Record<LicensePlanSlug, string> = {
-  pro: "price_1TlWD3IZgqo0QIlX5ZpOgLSn",
-  pro_plus: "price_1TpUUZIZgqo0QIlXY2Ym4gub",
+  pro: "price_1TzXi9IZgqo0QIlXq15x1mQM",
+  pro_plus: "price_1TzXi9IZgqo0QIlXDYmQvXI2",
 }
 
 export function getStripePriceIdForPlan(slug: LicensePlanSlug): string {

@@ -66,7 +66,7 @@ export const featureArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "One-time $9.99 — not a monthly subscription. Lifetime updates on up to 3 Macs (Pro Plus: 5). Make a Reel with #macwall and earn your money back.",
+        text: "One-time $7.99 — not a monthly subscription. Lifetime updates on up to 3 Macs (Pro Plus: 5). Make a Reel with #macwall and earn your money back.",
       },
     ],
   },

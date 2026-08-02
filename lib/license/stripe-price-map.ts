@@ -10,8 +10,8 @@ import type {
  * (prod_UrOJX8fIfNB2Gs):
  *
  * Global:
- *   - permanent:    price_1TrfXjIZgqo0QIlXBoimbJ17  ($9.99, 3 Macs)
- *   - permanent_5:  price_1TrfXxIZgqo0QIlXSFDQfPsu  ($14.99, 5 Macs)
+ *   - permanent:    price_1TzXi9IZgqo0QIlXq15x1mQM  ($7.99, 3 Macs)
+ *   - permanent_5:  price_1TzXi9IZgqo0QIlXDYmQvXI2  ($12.99, 5 Macs)
  *   - annual:       price_1TrfXPIZgqo0QIlXvzJrJgPU  ($4.99/year, archived)
  *
  * India (same product, separate Prices — no coupon):
@@ -21,9 +21,9 @@ import type {
 export const MACWALL_PRO_PRODUCT_ID = "prod_UrOJX8fIfNB2Gs"
 
 const STRIPE_PRICE_IDS: Record<LicenseOfferSlug, string> = {
-  permanent: "price_1TrfXjIZgqo0QIlXBoimbJ17",
+  permanent: "price_1TzXi9IZgqo0QIlXq15x1mQM",
   annual: "price_1TrfXPIZgqo0QIlXvzJrJgPU",
-  permanent_5: "price_1TrfXxIZgqo0QIlXSFDQfPsu",
+  permanent_5: "price_1TzXi9IZgqo0QIlXDYmQvXI2",
 }
 
 const STRIPE_INDIA_PRICE_IDS: Partial<Record<LicenseOfferSlug, string>> = {

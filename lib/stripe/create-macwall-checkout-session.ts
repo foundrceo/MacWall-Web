@@ -35,7 +35,7 @@ export type CreateMacWallCheckoutResult =
  * Creates the Stripe Checkout Session and a pending license row.
  *
  * Catalog Price IDs only (full payment-method support + Adaptive Pricing).
- * India → $3.99 / $6.99 Prices. Everyone else → $9.99 / $14.99.
+ * India → $3.99 / $6.99 Prices. Everyone else → $7.99 / $12.99.
  * Customers can enter a Discord promo code at Checkout (`allow_promotion_codes`).
  */
 export async function createMacWallCheckoutSession(

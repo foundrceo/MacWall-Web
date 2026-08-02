@@ -2,9 +2,9 @@ import type { AnalyticsEventRow } from "@/lib/analytics/admin-metrics"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 /** Default MacWall Pro permanent price (USD) — most common SKU. */
-export const PRO_PRICE_USD = 9.99
+export const PRO_PRICE_USD = 7.99
 /** 5-Mac permanent license. */
-export const PRO_PLUS_PRICE_USD = 14.99
+export const PRO_PLUS_PRICE_USD = 12.99
 /** Legacy annual plan (still active for existing subscribers). */
 export const ANNUAL_PRICE_USD = 4.99
 
