@@ -3,7 +3,7 @@ import "server-only"
 import { isIndiaCountry } from "@/lib/geo/country"
 import { generateMacWallLicenseKey } from "@/lib/license/generate-license-key"
 import {
-  INDIA_CHECKOUT_COUPON_ID,
+  indiaCheckoutCouponForOffer,
   isIndiaDiscountEligible,
   licenseOfferFromSlug,
   licenseOfferPriceCents,
@@ -36,7 +36,8 @@ export type CreateMacWallCheckoutResult =
  * Creates the Stripe Checkout Session and a pending license row.
  *
  * Always uses catalog Price IDs (full payment-method support).
- * India: auto-applies INDIA60 (60% off). Adaptive Pricing still localizes.
+ * India: amount-off coupons → $3.99 Pro / $5.99 Pro+ (~60% charm).
+ * Adaptive Pricing still localizes.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
@@ -47,8 +48,10 @@ export async function createMacWallCheckoutSession(
     const siteOrigin = input.siteOrigin.replace(/\/+$/, "")
     const offer = licenseOfferFromSlug(input.offerSlug ?? input.planSlug)
     const region = isIndiaCountry(input.country) ? "india" : "default"
-    const applyIndiaCoupon =
+    const indiaCoupon =
       region === "india" && isIndiaDiscountEligible(offer.slug)
+        ? indiaCheckoutCouponForOffer(offer.slug)
+        : null
     const displayUnitAmount = licenseOfferPriceCents(offer, region)
     const planSlug = offer.maxDevices === 5 ? "pro_plus" : "pro"
     const stripePriceId = stripePriceIdForOffer(offer.slug)
@@ -101,7 +104,7 @@ export async function createMacWallCheckoutSession(
       plan_slug: planSlug,
       max_devices: String(offer.maxDevices),
       pricing_region: region,
-      india_coupon: applyIndiaCoupon ? INDIA_CHECKOUT_COUPON_ID : "",
+      india_coupon: indiaCoupon ?? "",
       unit_amount_usd: String(displayUnitAmount),
       visitor_country: input.country?.trim().toUpperCase() || "",
     }
@@ -124,9 +127,9 @@ export async function createMacWallCheckoutSession(
               customer_creation: "always",
               payment_intent_data: { metadata },
             }),
-        // India: fixed INDIA60. Cannot combine with allow_promotion_codes.
-        ...(applyIndiaCoupon
-          ? { discounts: [{ coupon: INDIA_CHECKOUT_COUPON_ID }] }
+        // India: fixed amount-off → .99 charm. Cannot combine with promo codes.
+        ...(indiaCoupon
+          ? { discounts: [{ coupon: indiaCoupon }] }
           : { allow_promotion_codes: true }),
       }
 
