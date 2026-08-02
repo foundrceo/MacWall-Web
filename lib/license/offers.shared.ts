@@ -14,8 +14,16 @@ export type LicenseOffer = {
   billingModel: LicenseBillingModel
   maxDevices: 3 | 5
   usdCents: number
-  /** Display-only: actual India charge is usdCents with the INDIA coupon applied at checkout. */
+  /**
+   * India display amount (50% of usdCents). Checkout uses the same catalog
+   * Stripe Price + INDIA50 coupon — no separate Price objects.
+   */
   indiaUsdCents: number
+}
+
+/** Simple half for India display (matches Stripe percent_off: 50). */
+function halfUsdCents(cents: number): number {
+  return Math.round(cents / 2)
 }
 
 export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
@@ -25,7 +33,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 3,
     usdCents: 999,
-    indiaUsdCents: 799,
+    indiaUsdCents: halfUsdCents(999),
   },
   annual: {
     slug: "annual",
@@ -33,16 +41,15 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "annual",
     maxDevices: 3,
     usdCents: 499,
-    indiaUsdCents: 399,
+    indiaUsdCents: halfUsdCents(499),
   },
   permanent_5: {
     slug: "permanent_5",
     name: "5-Mac permanent license",
     billingModel: "permanent",
     maxDevices: 5,
-    // Fixed price for everyone — no India discount on the 5-Mac bundle.
     usdCents: 1499,
-    indiaUsdCents: 1499,
+    indiaUsdCents: halfUsdCents(1499),
   },
 }
 
@@ -51,10 +58,11 @@ export const MULTI_MAC_OFFER_SLUGS = [
   "permanent_5",
 ] as const satisfies readonly LicenseOfferSlug[]
 
-/** Offers eligible for the automatic INDIA coupon (5-Mac bundle is excluded — fixed price for everyone). */
+/** All paid offers get automatic 50% off for India visitors. */
 export const INDIA_DISCOUNT_ELIGIBLE_OFFER_SLUGS = [
   "permanent",
   "annual",
+  "permanent_5",
 ] as const satisfies readonly LicenseOfferSlug[]
 
 export function isIndiaDiscountEligible(slug: LicenseOfferSlug): boolean {
