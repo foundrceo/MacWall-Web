@@ -1,16 +1,17 @@
 import Image from "next/image"
+import { MARKETING_SECTION_CLASS } from "@/lib/marketing-chrome"
 import { macwall } from "@/lib/macwall-site"
 
 export default function JoinCommunitySection() {
   return (
     <section className="bg-background py-14 md:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className={MARKETING_SECTION_CLASS}>
         <div className="mx-auto max-w-none text-center">
-          <h2 className="text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
+          <h2 className="text-[clamp(1.6rem,4.5vw,2.5rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
             {macwall.name} is building the future of live desktops.
           </h2>
         </div>
-        <div className="relative mx-auto mt-10 max-w-4xl overflow-hidden rounded-2xl md:mt-12">
+        <div className="relative mx-auto mt-8 max-w-4xl overflow-hidden rounded-2xl md:mt-12">
           <Image
             alt={`${macwall.name} live wallpapers on a MacBook`}
             src="/Img.png"

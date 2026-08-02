@@ -9,7 +9,11 @@ import {
   HERO_PRIMARY_BTN_CLASS,
   HERO_SECONDARY_BTN_CLASS,
 } from "@/lib/marketing-chrome"
-import { macwallInstallerLatestPath, macwallMinimumMacOSVersionLabel } from "@/lib/macwall-site"
+import {
+  macwallInstallerLatestPath,
+  macwallMinimumMacOSVersionLabel,
+} from "@/lib/macwall-site"
+import { cn } from "@/lib/utils"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -28,29 +32,35 @@ export default function HeroSectionActions() {
   const pricing = useMarketingPricing()
 
   return (
-    <div className="mt-9 flex flex-wrap items-start gap-2.5 pb-5 md:mt-10">
-      <div className="flex flex-col items-center">
+    <div className="mt-8 flex flex-col items-start gap-2 pb-5 md:mt-10">
+      <div className="flex flex-row flex-nowrap items-center gap-2">
         <TrackedDownloadButton
           href={macwallInstallerLatestPath}
           size="pill"
           location="hero"
-          className={HERO_PRIMARY_BTN_CLASS}
+          className={cn(
+            HERO_PRIMARY_BTN_CLASS,
+            "shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]"
+          )}
         >
           <AppleIcon className="size-3.5" />
           Download for macOS
         </TrackedDownloadButton>
-        <p className="mt-2.5 text-center text-[12px] text-marketing-muted">
-          {macwallMinimumMacOSVersionLabel}
-        </p>
+        <TrackedPricingButton
+          href="/pricing"
+          location="hero"
+          size="pill"
+          className={cn(
+            HERO_SECONDARY_BTN_CLASS,
+            "shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]"
+          )}
+        >
+          {pricing.getProCta}
+        </TrackedPricingButton>
       </div>
-      <TrackedPricingButton
-        href="/pricing"
-        location="hero"
-        size="pill"
-        className={HERO_SECONDARY_BTN_CLASS}
-      >
-        {pricing.getProCta}
-      </TrackedPricingButton>
+      <p className="text-[12px] text-marketing-muted">
+        {macwallMinimumMacOSVersionLabel}
+      </p>
     </div>
   )
 }

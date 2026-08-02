@@ -2,15 +2,11 @@
 
 import Link from "next/link"
 import { MacWallBrandLink } from "@/components/macwall-marketing/MacWallBrandLink"
-import {
-  macwall,
-  mailtoSupport,
-} from "@/lib/macwall-site"
+import { macwall, mailtoSupport } from "@/lib/macwall-site"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import { cn } from "@/lib/utils"
 
 const socialIconClass = "block size-[18px] shrink-0"
-
 
 function MailIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -55,12 +51,12 @@ export default function MacWallMarketingFooter() {
         <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
           <div className="shrink-0 lg:min-w-[17rem]">
             <MacWallBrandLink variant="footer" priority />
-            <p className="mt-2.5 text-[14px] leading-snug text-marketing-muted max-sm:whitespace-normal sm:whitespace-nowrap">
+            <p className="mt-2.5 max-w-sm text-[14px] leading-snug text-marketing-muted">
               {macwall.tagline}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-8 gap-y-8 sm:gap-x-12 md:grid-cols-4 md:gap-x-10 lg:flex-1 lg:justify-center xl:gap-x-16">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:gap-x-12 md:grid-cols-4 md:gap-x-10 lg:flex-1 lg:justify-center xl:gap-x-16">
             <div>
               <p className="mb-3 text-[15px] font-medium text-foreground">
                 Product

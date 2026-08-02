@@ -280,7 +280,11 @@ export function MacWallChatWidget() {
       lastActivityRef.current = Date.now()
       lastReopenAtRef.current = 0
       ticketResolvedRef.current =
-        convo.handoff === "closed" ? true : convo.handoff === "live" ? false : null
+        convo.handoff === "closed"
+          ? true
+          : convo.handoff === "live"
+            ? false
+            : null
       handoffRef.current = convo.handoff
       setPresence(convo.handoff === "closed" ? "offline" : "active")
     },
@@ -470,9 +474,7 @@ export function MacWallChatWidget() {
             .map((p) => p.remoteId)
             .filter((id): id is string => Boolean(id)),
         ])
-        const fresh = next.filter(
-          (m) => !m.remoteId || !live.has(m.remoteId)
-        )
+        const fresh = next.filter((m) => !m.remoteId || !live.has(m.remoteId))
         if (fresh.length === 0) return c
         for (const m of fresh) {
           if (m.remoteId) live.add(m.remoteId)
@@ -587,8 +589,7 @@ export function MacWallChatWidget() {
         return {
           ...c,
           handoff: "closed" as const,
-          messages:
-            extras.length > 0 ? [...c.messages, ...extras] : c.messages,
+          messages: extras.length > 0 ? [...c.messages, ...extras] : c.messages,
         }
       })
 
@@ -1272,7 +1273,7 @@ export function MacWallChatWidget() {
   if (hidden || !hydrated || !active) return null
 
   return (
-    <div className="pointer-events-none fixed right-4 bottom-4 z-[80] flex flex-col items-end gap-3 sm:right-5 sm:bottom-5">
+    <div className="pointer-events-none fixed right-3 bottom-[max(1rem,env(safe-area-inset-bottom))] z-[80] flex flex-col items-end gap-3 sm:right-5 sm:bottom-5">
       <AnimatePresence>
         {open ? (
           <motion.section
@@ -1293,7 +1294,7 @@ export function MacWallChatWidget() {
                 : { opacity: 0, y: 14, scale: 0.96, filter: "blur(5px)" }
             }
             transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-            className="pointer-events-auto relative flex h-[min(36rem,calc(100dvh-6rem))] w-[min(26rem,calc(100vw-1.75rem))] flex-col overflow-hidden rounded-[28px] border border-white/[0.09] bg-[#0e0e0c] font-sans shadow-[0_28px_90px_rgba(0,0,0,0.62)]"
+            className="pointer-events-auto relative flex h-[min(36rem,calc(100dvh-7.5rem))] w-[min(26rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-[28px] border border-white/[0.09] bg-[#0e0e0c] font-sans shadow-[0_28px_90px_rgba(0,0,0,0.62)]"
             onDragEnter={onDragEnter}
             onDragLeave={onDragLeave}
             onDragOver={onDragOver}
