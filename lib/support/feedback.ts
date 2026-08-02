@@ -91,7 +91,7 @@ export async function createSupportTicket(input: {
     p_device_id: input.sessionId,
     p_sentiment: input.sentiment,
     p_name: input.name ?? null,
-    p_message: trimmedMessage,
+    p_message: trimmedMessage || (trimmedImage ? " " : ""),
     p_image_url: trimmedImage,
     p_app_version: "Web",
     p_os_version: input.userAgent?.slice(0, 80) ?? null,
@@ -117,7 +117,7 @@ export async function appendSupportMessage(input: {
   const { error } = await supabase.rpc("append_app_feedback_message", {
     p_device_id: input.sessionId,
     p_feedback_id: input.ticketId,
-    p_message: trimmedMessage,
+    p_message: trimmedMessage || (trimmedImage ? " " : ""),
     p_image_url: trimmedImage,
   })
   if (error) {
