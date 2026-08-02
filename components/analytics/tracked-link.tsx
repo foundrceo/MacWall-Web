@@ -23,6 +23,7 @@ type TrackedLinkProps = {
   metadata?: SiteAnalyticsMetadata
   external?: boolean
   ariaLabel?: string
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
 }
 
 export function TrackedLink({
@@ -33,6 +34,7 @@ export function TrackedLink({
   metadata,
   external,
   ariaLabel,
+  onClick,
 }: TrackedLinkProps) {
   const isDownloadClick = eventName === "download_click"
   const isExternalHref =
@@ -62,6 +64,9 @@ export function TrackedLink({
   }
 
   const onNavigate = (event: MouseEvent<HTMLAnchorElement>) => {
+    onClick?.(event)
+    if (event.defaultPrevented) return
+
     trackNavigation()
 
     if (!isDownloadClick) return

@@ -9,7 +9,11 @@ import {
   HERO_PRIMARY_BTN_CLASS,
   HERO_SECONDARY_BTN_CLASS,
 } from "@/lib/marketing-chrome"
-import { macwall, macwallInstallerLatestPath, macwallMinimumMacOSVersionLabel } from "@/lib/macwall-site"
+import {
+  macwall,
+  macwallInstallerLatestPath,
+  macwallMinimumMacOSVersionLabel,
+} from "@/lib/macwall-site"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -30,33 +34,33 @@ export default function MacWallMarketingBottomCta() {
 
   return (
     <section className="bg-background">
-      <div className="mx-auto max-w-[1360px] px-6 py-16 text-center sm:px-8 md:py-24 lg:px-10">
-        <h2 className="text-[clamp(2rem,5vw,3rem)] font-normal tracking-[-0.02em] text-foreground">
+      <div className="mx-auto max-w-[1360px] px-4 py-14 text-center sm:px-6 md:py-24 lg:px-10">
+        <h2 className="text-[clamp(1.75rem,5vw,3rem)] font-normal tracking-[-0.02em] text-foreground">
           Try {macwall.name}.
         </h2>
-        <div className="mt-8 flex flex-wrap items-start justify-center gap-3 md:mt-10">
-          <div className="flex flex-col items-center">
+        <div className="mt-7 flex flex-col items-center gap-2 md:mt-10">
+          <div className="flex flex-row flex-nowrap items-center justify-center gap-2">
             <TrackedDownloadButton
               href={macwallInstallerLatestPath}
               size="pill"
               location="bottom_cta"
-              className={HERO_PRIMARY_BTN_CLASS}
+              className={`${HERO_PRIMARY_BTN_CLASS} shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]`}
             >
               <AppleIcon className="size-3.5" />
               Download for macOS
             </TrackedDownloadButton>
-            <p className="mt-2.5 text-center text-[12px] text-marketing-muted">
-              {macwallMinimumMacOSVersionLabel}
-            </p>
+            <TrackedPricingButton
+              href="/pricing"
+              location="bottom_cta"
+              size="pill"
+              className={`${HERO_SECONDARY_BTN_CLASS} shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]`}
+            >
+              {pricing.bottomCtaLabel}
+            </TrackedPricingButton>
           </div>
-          <TrackedPricingButton
-            href="/pricing"
-            location="bottom_cta"
-            size="pill"
-            className={HERO_SECONDARY_BTN_CLASS}
-          >
-            {pricing.bottomCtaLabel}
-          </TrackedPricingButton>
+          <p className="text-center text-[12px] text-marketing-muted">
+            {macwallMinimumMacOSVersionLabel}
+          </p>
         </div>
       </div>
     </section>
