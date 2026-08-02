@@ -35,7 +35,7 @@ export function PricingRotatingBadge({
   return (
     <span
       className={cn(
-        "absolute top-0 right-4 z-10 inline-flex min-w-[6.75rem] items-center justify-center overflow-hidden rounded-full bg-foreground px-2.5 py-1 text-[11px] font-medium tracking-wide text-background",
+        "absolute top-0 right-4 z-10 inline-flex min-w-[5.75rem] items-center justify-center overflow-hidden rounded-full bg-foreground px-2 py-1 text-[11px] font-medium tracking-wide text-background",
         className
       )}
     >

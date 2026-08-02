@@ -63,10 +63,9 @@ stack is pretty straightforward once you see the pieces:
 
 a few things that actually took work:
 
-1. **Whop → Stripe migration** — old users still have Whop license keys. the verify path has to accept both so nobody gets locked out.
-2. **abandoned checkout recovery** — Stripe does not tell you “this person abandoned after 5 minutes.” I ended up with a DB queue + cron edge function that sends a recovery email if payment never completed.
-3. **making the hero feel like the real app** — the homepage demo uses real catalog clips (not fake mockups), so the marketing site matches what you get after download.
-4. **keeping secrets out of the public repo** — Stripe / Supabase / R2 keys stay in env only. the open-source tree should be safe to clone without leaking production credentials.
+1. **abandoned checkout recovery** — Stripe does not tell you “this person abandoned after 5 minutes.” I ended up with a DB queue + cron edge function that sends a recovery email if payment never completed.
+2. **making the hero feel like the real app** — the homepage demo uses real catalog clips (not fake mockups), so the marketing site matches what you get after download.
+3. **keeping secrets out of the public repo** — Stripe / Supabase / R2 keys stay in env only. the open-source tree should be safe to clone without leaking production credentials.
 
 ## tech stack
 
