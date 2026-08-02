@@ -6,11 +6,14 @@
   "scripts": {
     "dev": "next dev",
     "dev:webpack": "next dev --webpack",
+    "prebuild": "node scripts/generate-changelog.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "changelog:generate": "node scripts/generate-changelog.mjs",
+    "changelog:check": "node scripts/generate-changelog.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

@@ -64,9 +64,21 @@
   --spacing-v9-12: calc(var(--spacing-v) * 9 / 12);
   --spacing-g0-75: 0.75rem;
   --spacing-g1: 1rem;
+  --spacing-marketing-section: 3rem;
+  --spacing-marketing-section-md: 4rem;
+  --spacing-marketing-section-lg: 5rem;
+  --spacing-marketing-section-xl: 6rem;
 }
 
 :root {
+  --marketing-banner-height: 3.25rem;
+  --marketing-nav-height: 3.5rem;
+  --marketing-chrome-height: calc(
+    var(--marketing-banner-height) + var(--marketing-nav-height)
+  );
+  --macwall-marketing-banner-height: var(--marketing-banner-height);
+  --macwall-marketing-nav-height: var(--marketing-nav-height);
+
   --site-font-sans:
     var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --site-font-heading:
@@ -119,6 +131,12 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+@media (min-width: 640px) {
+  :root {
+    --marketing-banner-height: 2.25rem;
+  }
+}
+
 .dark {
   --button-secondary-bg: oklch(0.22 0 0);
   --button-secondary-hover: oklch(0.28 0 0);
@@ -162,6 +180,93 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer components {
+  /* No overflow on this shell — overflow-x-clip breaks position:sticky on the nav. */
+  .marketing-page {
+    @apply min-h-screen w-full max-w-full bg-background text-foreground;
+  }
+
+  .launch-banner {
+    @apply fixed inset-x-0 top-0 z-[51] h-[var(--marketing-banner-height)] border-b border-black/10 bg-white lg:static lg:z-auto;
+  }
+
+  /* Position lives on the component — utilities must not fight fixed/sticky here. */
+  .navbar-header {
+    @apply border-b border-transparent bg-background/45 backdrop-blur-xl backdrop-saturate-150;
+  }
+
+  .mobile-nav-sheet {
+    top: var(--marketing-chrome-height);
+  }
+
+  .marketing-container {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-6 xl:px-8;
+  }
+
+  /*
+   * Main content shells.
+   * Mobile/tablet: pad below fixed banner + nav.
+   * Desktop (lg+): nav is in flow — add comfortable top rhythm (was pt-14 md:pt-16 on every page).
+   */
+  .marketing-main {
+    @apply mx-auto box-border w-full max-w-7xl px-4 pb-20 outline-none sm:px-6 md:pb-24 lg:px-6 xl:px-8;
+    padding-top: var(--marketing-chrome-height);
+  }
+
+  .marketing-main-offset {
+    padding-top: var(--marketing-chrome-height);
+  }
+
+  @media (min-width: 1024px) {
+    .marketing-main {
+      @apply pt-14 lg:pt-16;
+    }
+
+    .marketing-main-offset {
+      padding-top: 0;
+    }
+  }
+
+  .marketing-page-header {
+    @apply mb-10 md:mb-14;
+  }
+
+  /* Page hero blocks — pricing, intros, etc. */
+  .marketing-hero-section {
+    @apply pt-12 pb-16 sm:pt-16 sm:pb-20 md:pt-24 md:pb-28;
+  }
+
+  /* Default vertical section rhythm */
+  .marketing-section {
+    @apply py-12 md:py-20 lg:py-24;
+  }
+
+  /* Elevated bands — FAQ, community, bottom CTA */
+  .marketing-section-elevated {
+    @apply py-14 sm:py-16 md:py-24;
+  }
+
+  .marketing-prose-rail {
+    @apply mx-auto w-full max-w-[42rem];
+  }
+
+  .marketing-hero-primary-btn {
+    @apply inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-[15px] font-medium text-black transition-opacity hover:opacity-90;
+  }
+
+  .marketing-hero-secondary-btn {
+    @apply inline-flex items-center rounded-full bg-[#222222] px-4 py-2.5 text-[15px] font-medium text-white transition-colors hover:bg-[#2a2a2a];
+  }
+
+  .marketing-inline-link {
+    @apply text-[#0066cc] no-underline transition-opacity hover:underline hover:opacity-80;
+  }
+
+  .marketing-skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-[calc(3.25rem+3.5rem+0.75rem)] focus:z-[10000] focus:rounded-md focus:bg-card focus:px-4 focus:py-2 focus:text-[15px] focus:font-medium focus:text-foreground focus:shadow-md focus:outline-none focus:ring-2 focus:ring-ring/40 sm:focus:top-[calc(2.25rem+3.5rem+0.75rem)] lg:focus:top-[calc(3.5rem+0.75rem)];
+  }
 }
 
 @layer base {

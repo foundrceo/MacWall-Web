@@ -8,9 +8,7 @@ import { Mail } from "lucide-react"
 import { PurchaseConversionTracker } from "@/components/analytics/purchase-conversion-tracker"
 import { ThankYouDeepLinkRedirect } from "@/components/analytics/thank-you-deep-link-redirect"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
-import MarketingSiteChrome, {
-  MARKETING_MAIN_OFFSET_CLASS,
-} from "@/components/macwall-marketing/MarketingSiteChrome"
+import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { ThankYouSuccessMark } from "@/components/macwall-marketing/thank-you-success-mark"
 import {
@@ -19,10 +17,6 @@ import {
   SectionTitle,
 } from "@/components/macwall-marketing/marketing-primitives"
 import { macwallThankYouCopy as copy } from "@/lib/macwall-thank-you-copy"
-import {
-  MARKETING_PAGE_CLASS,
-  MARKETING_INLINE_LINK_CLASS,
-} from "@/lib/marketing-chrome"
 import { prosePrimaryBtn } from "@/lib/marketing-prose-classes"
 import { macwall, mailtoSupport } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
@@ -73,7 +67,7 @@ function ThankYouActions() {
           {copy.supportLabel}{" "}
           <Link
             href={mailtoSupport}
-            className={cn(MARKETING_INLINE_LINK_CLASS, "whitespace-nowrap")}
+            className={cn("marketing-inline-link", "whitespace-nowrap")}
           >
             {macwall.supportEmail}
           </Link>
@@ -92,13 +86,13 @@ function ThankYouActions() {
 
 export default function MacWallMarketingThankYouPage() {
   return (
-    <div className={MARKETING_PAGE_CLASS}>
+    <div className="marketing-page">
       <Suspense fallback={null}>
         <PurchaseConversionTracker />
         <ThankYouDeepLinkRedirect />
       </Suspense>
       <MarketingSiteChrome />
-      <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
+      <main id="main-content" className="marketing-main">
         <MarketingContainer>
           <div className="mx-auto max-w-[640px] text-center">
             <ThankYouSuccessMark />

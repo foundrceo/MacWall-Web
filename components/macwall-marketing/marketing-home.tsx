@@ -3,16 +3,13 @@ import HeroSection from "@/components/macwall-marketing/HeroSection"
 import HomeFaqSection from "@/components/macwall-marketing/HomeFaqSection"
 import JoinCommunitySection from "@/components/macwall-marketing/JoinCommunitySection"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
-import MarketingSiteChrome, {
-  MARKETING_MAIN_OFFSET_CLASS,
-} from "@/components/macwall-marketing/MarketingSiteChrome"
-import { MARKETING_PAGE_CLASS } from "@/lib/marketing-chrome"
+import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 
 export default function MacWallMarketingHome() {
   return (
-    <div className={MARKETING_PAGE_CLASS}>
+    <div className="marketing-page">
       <MarketingSiteChrome />
-      <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
+      <main id="main-content" className="marketing-main-offset">
         <HeroSection />
         <FeaturesSection />
         <JoinCommunitySection />

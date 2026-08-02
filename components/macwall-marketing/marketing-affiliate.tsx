@@ -11,9 +11,7 @@ import {
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { AffiliateHeroVisual } from "@/components/macwall-marketing/affiliate-hero-visual"
 import { ShaderBackground } from "@/components/macwall-marketing/shader-background"
-import MarketingSiteChrome, {
-  MARKETING_MAIN_OFFSET_CLASS,
-} from "@/components/macwall-marketing/MarketingSiteChrome"
+import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { AFFILIATE_SHADER_PRESETS } from "@/lib/affiliate-shader-presets"
 import { macwallAffiliateCopy as copy } from "@/lib/macwall-affiliate-copy"
@@ -86,81 +84,75 @@ function StepCard({
 
 export default function MacWallMarketingAffiliatePage() {
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-black text-white antialiased">
+    <div className="marketing-page bg-black text-white antialiased">
       <MarketingSiteChrome />
 
-      <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
-        <section>
-          <div className="mx-auto max-w-[1360px] px-6 pb-16 pt-10 sm:px-8 sm:pb-20 sm:pt-12 lg:px-10 lg:pb-24 lg:pt-14">
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:items-stretch lg:gap-10 xl:gap-14">
-              <div className="flex min-w-0 flex-col justify-center">
-                <h1 className="text-[clamp(2.35rem,4.8vw,3.75rem)] font-normal leading-[1.08] tracking-[-0.03em] text-white">
-                  {copy.heroTitleLines[0]}
-                  <br />
-                  {copy.heroTitleLines[1]}
-                </h1>
+      <main id="main-content" className="marketing-main">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:items-stretch lg:gap-10 xl:gap-14">
+          <div className="flex min-w-0 flex-col justify-center">
+            <h1 className="text-[clamp(2.35rem,4.8vw,3.75rem)] font-normal leading-[1.08] tracking-[-0.03em] text-white">
+              {copy.heroTitleLines[0]}
+              <br />
+              {copy.heroTitleLines[1]}
+            </h1>
 
-                <AffiliateHeroVisual className="mt-8 lg:hidden" />
+            <AffiliateHeroVisual className="mt-8 lg:hidden" />
 
-                <ul className="mt-8 space-y-3.5 lg:mt-9">
-                  {copy.perks.map((perk) => (
-                    <PerkRow key={perk.id} {...perk} />
-                  ))}
-                </ul>
+            <ul className="mt-8 space-y-3.5 lg:mt-9">
+              {copy.perks.map((perk) => (
+                <PerkRow key={perk.id} {...perk} />
+              ))}
+            </ul>
 
-                <div className="mt-9 sm:mt-10">
-                  <TrackedPricingButton
-                    href={macwallAffiliatePortalURL}
-                    location="affiliate_hero_partner"
-                    external
-                    size="pill"
-                    className={partnerPrimaryBtnClass}
-                    ariaLabel="Get your MacWall partner link"
-                  >
-                    {copy.primaryCta}
-                  </TrackedPricingButton>
-                </div>
-              </div>
-
-              <AffiliateHeroVisual className="hidden lg:block" />
-            </div>
-          </div>
-        </section>
-
-        <section className="pb-20 pt-16 md:pb-28 md:pt-20">
-          <div className="mx-auto max-w-[1360px] px-6 sm:px-8 lg:px-10">
-            <div className="flex flex-col gap-7 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
-              <h2 className="max-w-[15ch] text-[clamp(1.85rem,4vw,3rem)] font-normal leading-[1.08] tracking-[-0.03em] text-white">
-                {copy.socialProofTitle}
-              </h2>
+            <div className="mt-9 sm:mt-10">
               <TrackedPricingButton
                 href={macwallAffiliatePortalURL}
-                location="affiliate_steps_apply"
+                location="affiliate_hero_partner"
                 external
                 size="pill"
-                className={partnerSecondaryBtnClass}
-                ariaLabel="Apply to the MacWall affiliate program"
+                className={partnerPrimaryBtnClass}
+                ariaLabel="Get your MacWall partner link"
               >
-                {copy.secondaryCta}
+                {copy.primaryCta}
               </TrackedPricingButton>
             </div>
-
-            <div className="mt-11 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
-              {copy.steps.map((step) => (
-                <StepCard key={step.id} {...step} />
-              ))}
-            </div>
-
-            <p className="mt-11 text-[13px] font-normal text-white/40">
-              Questions?{" "}
-              <a
-                href={copy.contactHref}
-                className="text-white/60 underline-offset-2 hover:text-white/80 hover:underline"
-              >
-                {copy.contactLabel}
-              </a>
-            </p>
           </div>
+
+          <AffiliateHeroVisual className="hidden lg:block" />
+        </div>
+
+        <section className="mt-16 pb-4 md:mt-20">
+          <div className="flex flex-col gap-7 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
+            <h2 className="max-w-[15ch] text-[clamp(1.85rem,4vw,3rem)] font-normal leading-[1.08] tracking-[-0.03em] text-white">
+              {copy.socialProofTitle}
+            </h2>
+            <TrackedPricingButton
+              href={macwallAffiliatePortalURL}
+              location="affiliate_steps_apply"
+              external
+              size="pill"
+              className={partnerSecondaryBtnClass}
+              ariaLabel="Apply to the MacWall affiliate program"
+            >
+              {copy.secondaryCta}
+            </TrackedPricingButton>
+          </div>
+
+          <div className="mt-11 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
+            {copy.steps.map((step) => (
+              <StepCard key={step.id} {...step} />
+            ))}
+          </div>
+
+          <p className="mt-11 text-[13px] font-normal text-white/40">
+            Questions?{" "}
+            <a
+              href={copy.contactHref}
+              className="text-white/60 underline-offset-2 hover:text-white/80 hover:underline"
+            >
+              {copy.contactLabel}
+            </a>
+          </p>
         </section>
       </main>
 

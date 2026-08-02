@@ -1,8 +1,6 @@
 import { Suspense } from "react"
 import Link from "next/link"
-import MarketingSiteChrome, {
-  MARKETING_MAIN_OFFSET_CLASS,
-} from "@/components/macwall-marketing/MarketingSiteChrome"
+import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { WallpaperGallery } from "@/components/wallpaper-gallery/wallpaper-gallery"
 import {
@@ -14,12 +12,9 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Skeleton } from "@/components/ui/skeleton"
-import { MARKETING_PAGE_CLASS } from "@/lib/marketing-chrome"
 import {
-  GALLERY_BREADCRUMB_TOP_CLASS,
   GALLERY_CONTROLS_AFTER_TITLE_BLOCK_CLASS,
   GALLERY_MEDIA_RADIUS_CLASS,
-  GALLERY_SHELL_CLASS,
   GALLERY_SUBTITLE_AFTER_TITLE_CLASS,
   GALLERY_TEXT_PRIMARY_CLASS,
   GALLERY_TEXT_SECONDARY_CLASS,
@@ -50,12 +45,9 @@ export function WallpaperGalleryPageShell({
   subtitle?: string
 }>) {
   return (
-    <div className={MARKETING_PAGE_CLASS}>
+    <div className="marketing-page">
       <MarketingSiteChrome />
-      <main
-        id="main-content"
-        className={cn(MARKETING_MAIN_OFFSET_CLASS, "min-h-[70vh]")}
-      >
+      <main id="main-content" className="marketing-main min-h-[70vh]">
         <Suspense
           fallback={
             <GalleryFallback
@@ -85,8 +77,8 @@ function GalleryFallback({
   activeCategory?: string | null
 }>) {
   return (
-    <div className={cn(WALLPAPER_SECTION_FONT_CLASS, GALLERY_SHELL_CLASS)}>
-      <Breadcrumb className={GALLERY_BREADCRUMB_TOP_CLASS}>
+    <div className={WALLPAPER_SECTION_FONT_CLASS}>
+      <Breadcrumb>
         <BreadcrumbList
           className={cn(
             "flex-wrap gap-y-1 text-[13px]",

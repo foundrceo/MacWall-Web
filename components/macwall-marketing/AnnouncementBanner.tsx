@@ -4,7 +4,6 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
-import { LAUNCH_BANNER_CLASS } from "@/lib/marketing-chrome"
 
 const TIMER_STORAGE_KEY = "macwall_sale_deadline_ms"
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -104,7 +103,7 @@ export default function AnnouncementBanner() {
   const pricing = useMarketingPricing()
 
   return (
-    <div id="launch-banner" className={LAUNCH_BANNER_CLASS}>
+    <div id="launch-banner" className="launch-banner">
       <Link
         href="/pricing"
         className="mx-auto flex h-full max-w-7xl flex-col items-center justify-center gap-y-0.5 px-3 text-center transition-opacity hover:opacity-80 sm:flex-row sm:flex-wrap sm:gap-x-2 sm:gap-y-0 sm:px-4"

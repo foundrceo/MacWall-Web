@@ -1,7 +1,6 @@
 import HeroSectionActions from "@/components/macwall-marketing/HeroSectionActions"
 import { HeroWalkthroughVideo } from "@/components/macwall-marketing/hero-walkthrough-video"
 import { geistPixelSquare } from "@/lib/site-fonts"
-import { MARKETING_CONTAINER_CLASS } from "@/lib/marketing-chrome"
 import { macwall } from "@/lib/macwall-site"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 
@@ -21,7 +20,7 @@ export default function HeroSection() {
 
   return (
     <section className="relative overflow-hidden bg-background">
-      <div className={`relative ${MARKETING_CONTAINER_CLASS}`}>
+      <div className="marketing-container relative">
         <div className="max-w-3xl pt-10 pb-8 sm:pt-12 md:max-w-none md:pt-16 md:pb-10">
           <p className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-marketing-muted sm:text-[14px]">
             <span>{ix.kicker}</span>

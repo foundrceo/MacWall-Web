@@ -74,6 +74,7 @@ export function getMarketingFooterSections(
       links: [
         { label: "Wallpapers", href: "/wallpapers", kind: "internal" },
         { label: foot.explore.blog, href: "/blog", kind: "internal" },
+        { label: "Changelog", href: "/changelog", kind: "internal" },
         {
           label: foot.explore.liveWallpaper,
           href: "/live-wallpaper-mac",

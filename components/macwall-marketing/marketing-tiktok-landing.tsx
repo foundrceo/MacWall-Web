@@ -7,10 +7,6 @@ import {
 } from "@/components/analytics/tracked-marketing-buttons"
 import { HeroWalkthroughVideo } from "@/components/macwall-marketing/hero-walkthrough-video"
 import { CheckoutPrefetchWarmup } from "@/components/macwall-marketing/checkout-prefetch-warmup"
-import {
-  HERO_PRIMARY_BTN_CLASS,
-  HERO_SECONDARY_BTN_CLASS,
-} from "@/lib/marketing-chrome"
 import { macwall, macwallInstallerLatestPath } from "@/lib/macwall-site"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
@@ -33,7 +29,7 @@ export default function TikTokLandingHero() {
   return (
     <section className="relative overflow-hidden bg-background">
       <CheckoutPrefetchWarmup offers={["permanent"]} />
-      <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
+      <div className="marketing-container max-w-5xl">
         <div className="max-w-3xl pt-10 pb-6 md:pt-14 md:pb-8">
           <p className="text-[13px] font-semibold tracking-[0.08em] text-marketing-muted uppercase">
             Live wallpapers for Mac
@@ -65,7 +61,7 @@ export default function TikTokLandingHero() {
               href={pricing.checkoutUrl}
               location="tiktok_landing"
               size="pill"
-              className={HERO_PRIMARY_BTN_CLASS}
+              className="marketing-hero-primary-btn"
             >
               {pricing.getProCta}
             </TrackedPricingButton>
@@ -73,7 +69,7 @@ export default function TikTokLandingHero() {
               href={macwallInstallerLatestPath}
               size="pill"
               location="tiktok_landing"
-              className={HERO_SECONDARY_BTN_CLASS}
+              className="marketing-hero-secondary-btn"
             >
               <AppleIcon className="size-3.5" />
               Download for macOS

@@ -2,7 +2,6 @@ import Image from "next/image"
 import BrowseCarouselFeatureRow from "@/components/macwall-marketing/BrowseCarouselFeatureRow"
 import BrowseCarouselFeatureRowFallback from "@/components/macwall-marketing/BrowseCarouselFeatureRowFallback"
 import LockScreenFeatureVideo from "@/components/macwall-marketing/LockScreenFeatureVideo"
-import { MARKETING_SECTION_CLASS } from "@/lib/marketing-chrome"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
 import { Suspense } from "react"
 
@@ -13,9 +12,9 @@ export default function FeaturesSection() {
 
   return (
     <div id="features" className="bg-surface-elevated">
-      <section className="py-12 md:py-20 lg:py-24">
+      <section className="marketing-section">
         <div
-          className={`${MARKETING_SECTION_CLASS} grid items-center gap-8 md:gap-10 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] lg:gap-14`}
+        className="marketing-container grid items-center gap-8 md:gap-10 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] lg:gap-14"
         >
           {/* Mobile: media first, then copy */}
           <div className="order-2 w-full min-w-0 lg:order-none lg:max-w-[360px]">
@@ -36,9 +35,9 @@ export default function FeaturesSection() {
         <BrowseCarouselFeatureRow />
       </Suspense>
 
-      <section className="py-12 md:py-20 lg:py-24">
+      <section className="marketing-section">
         <div
-          className={`${MARKETING_SECTION_CLASS} grid items-center gap-8 md:gap-10 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] lg:gap-14`}
+        className="marketing-container grid items-center gap-8 md:gap-10 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] lg:gap-14"
         >
           <div className="order-2 w-full min-w-0 lg:order-none lg:max-w-[360px]">
             <h2 className="text-[clamp(1.5rem,4vw,2.25rem)] leading-[1.2] font-normal tracking-[-0.02em]">
