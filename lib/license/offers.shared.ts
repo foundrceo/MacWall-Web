@@ -33,7 +33,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     name: "Permanent license",
     billingModel: "permanent",
     maxDevices: 3,
-    usdCents: 999, // $9.99 global
+    usdCents: 799, // $7.99 global
     indiaUsdCents: 399, // $3.99 India
   },
   annual: {
@@ -49,7 +49,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     name: "5-Mac permanent license",
     billingModel: "permanent",
     maxDevices: 5,
-    usdCents: 1499, // $14.99 global
+    usdCents: 1299, // $12.99 global
     indiaUsdCents: 699, // $6.99 India
   },
 }
