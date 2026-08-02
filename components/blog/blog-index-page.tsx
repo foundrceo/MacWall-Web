@@ -1,14 +1,10 @@
 import Link from "next/link"
 import { BlogTilePicture } from "@/components/blog/blog-tile-picture"
-import MarketingSiteChrome, {
-  MARKETING_MAIN_OFFSET_CLASS,
-} from "@/components/macwall-marketing/MarketingSiteChrome"
+import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { formatTileDateCurated } from "@/lib/blog/tile-copy"
 import { blogTilePoster } from "@/lib/blog/tile-media"
 import type { BlogArticle } from "@/lib/content/types"
-import { MARKETING_PAGE_CLASS } from "@/lib/marketing-chrome"
-import { cn } from "@/lib/utils"
 
 /** Curated tile: image full-bleeds card; date + title layered on top. */
 function BlogArticleCard({
@@ -59,18 +55,11 @@ export function BlogIndexPage({
   articles,
 }: Readonly<{ articles: BlogArticle[] }>) {
   return (
-    <div className={MARKETING_PAGE_CLASS}>
+    <div className="marketing-page">
       <MarketingSiteChrome />
 
-      <main
-        id="blog-main"
-        className={cn(
-          "mx-auto w-full max-w-[1360px] px-6 pb-20 sm:px-8 md:pb-24 lg:px-10",
-          MARKETING_MAIN_OFFSET_CLASS,
-          "pt-14 md:pt-16"
-        )}
-      >
-        <header className="mb-10 max-w-xl text-left md:mb-14">
+      <main id="blog-main" className="marketing-main">
+        <header className="marketing-page-header max-w-xl">
           <h1 className="text-[2.5rem] font-normal leading-[1.1] tracking-[-0.02em] text-foreground">
             Blog
           </h1>

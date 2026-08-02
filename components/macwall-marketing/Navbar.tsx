@@ -14,11 +14,7 @@ import {
 } from "@/lib/macwall-site"
 import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
-import { NAVBAR_HEADER_CLASS } from "@/lib/marketing-chrome"
 import { cn } from "@/lib/utils"
-
-/** Banner (3.25rem mobile / h-9 sm+) + nav (h-14) — sheet fills the rest. */
-const MOBILE_MENU_TOP = "top-[calc(3.25rem+3.5rem)]"
 
 function DiscordIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -170,8 +166,7 @@ function MobileNavSheet({
           aria-modal="true"
           aria-label="Site navigation"
           className={cn(
-            "fixed inset-x-0 bottom-0 z-[90] flex flex-col lg:hidden",
-            MOBILE_MENU_TOP,
+            "mobile-nav-sheet fixed inset-x-0 bottom-0 z-[90] flex flex-col lg:hidden",
             "border-t border-white/10 bg-[#050505]/80 backdrop-blur-[32px] backdrop-saturate-150"
           )}
           style={{ WebkitBackdropFilter: "blur(32px) saturate(1.5)" }}
@@ -276,9 +271,20 @@ export default function Navbar() {
   const h = macwallExactCopy.header
   const ho = macwallExactCopy.hover
   const [menuOpen, setMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 8)
+    }
+
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
 
   const navLinkClass =
-    "text-[15px] text-white transition-opacity hover:opacity-70"
+    "text-[15px] text-white/80 transition-opacity hover:text-white hover:opacity-100"
 
   const navItems: ReadonlyArray<{
     href: string
@@ -286,7 +292,6 @@ export default function Navbar() {
     active: boolean
     earnBadge?: boolean
   }> = [
-    { href: "/", label: h.navOverview, active: pathname === "/" },
     {
       href: "/wallpapers",
       label: h.navGallery,
@@ -347,10 +352,11 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-        NAVBAR_HEADER_CLASS,
-        "relative overflow-visible",
+        "navbar-header",
+        "fixed inset-x-0 top-[var(--marketing-banner-height)] z-50 w-full lg:sticky lg:top-0",
+        scrolled && !menuOpen && "border-white/10",
         menuOpen &&
-          "z-[91] bg-[#050505]/80 backdrop-blur-[32px] lg:z-50 lg:bg-background/45 lg:backdrop-blur-xl"
+          "z-[91] border-white/10 bg-[#050505]/80 backdrop-blur-[32px] lg:z-50 lg:bg-background/45 lg:backdrop-blur-xl"
       )}
     >
       <nav
@@ -379,6 +385,7 @@ export default function Navbar() {
                 href={item.href}
                 className={cn(
                   navLinkClass,
+                  item.active && "text-white opacity-100",
                   item.earnBadge && "relative inline-block"
                 )}
               >

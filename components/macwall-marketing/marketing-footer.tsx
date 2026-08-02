@@ -55,6 +55,11 @@ export default function MacWallMarketingFooter() {
                     {foot.explore.blog}
                   </Link>
                 </li>
+                <li>
+                  <Link href="/changelog" className={footerLinkClass}>
+                    Changelog
+                  </Link>
+                </li>
                 {AFFILIATE_UI_VISIBLE ? (
                   <li>
                     <Link href="/affiliate" className={footerLinkClass}>

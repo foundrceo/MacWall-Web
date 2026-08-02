@@ -1,12 +1,9 @@
-import MarketingSiteChrome, {
-  MARKETING_MAIN_OFFSET_CLASS,
-} from "@/components/macwall-marketing/MarketingSiteChrome"
+import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { WallpaperDetail } from "@/components/wallpaper-gallery/wallpaper-detail"
 import { JsonLd } from "@/components/seo/json-ld"
 import { wallpaperDetailPageJsonLd } from "@/lib/seo/wallpaper-json-ld"
 import { wallpaperDetailMetadata } from "@/lib/seo/wallpaper-metadata"
-import { MARKETING_PAGE_CLASS } from "@/lib/marketing-chrome"
 import {
   getPublicWallpaperByDetailSlug,
   listSimilarPublicWallpapers,
@@ -15,7 +12,6 @@ import { resolvePreviewVideoUrl } from "@/lib/public-catalog/preview-video-url"
 import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
 import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
-import { cn } from "@/lib/utils"
 import type { Metadata } from "next"
 import { notFound, permanentRedirect } from "next/navigation"
 
@@ -68,7 +64,7 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
   const detailDescription = `${wallpaper.name} live wallpaper for Mac in ${wallpaper.category}. Preview the loop and set it with ${macwall.name}.`
 
   return (
-    <div className={MARKETING_PAGE_CLASS}>
+    <div className="marketing-page">
       <JsonLd
         payload={wallpaperDetailPageJsonLd({
           origin,
@@ -78,10 +74,7 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
         })}
       />
       <MarketingSiteChrome />
-      <main
-        id="main-content"
-        className={cn(MARKETING_MAIN_OFFSET_CLASS, "min-h-[70vh]")}
-      >
+      <main id="main-content" className="marketing-main min-h-[70vh]">
         <WallpaperDetail
           wallpaper={wallpaper}
           similar={similar}

@@ -39,7 +39,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import {
-  GALLERY_BREADCRUMB_TOP_CLASS,
   GALLERY_CAPSULE_BTN_CLASS,
   GALLERY_CAPSULE_CLASS,
   GALLERY_MEDIA_RADIUS_CLASS,
@@ -48,7 +47,6 @@ import {
   GALLERY_CONTROLS_AFTER_TITLE_BLOCK_CLASS,
   GALLERY_DIVIDER_CLASS,
   GALLERY_SEARCH_INPUT_CLASS,
-  GALLERY_SHELL_CLASS,
   GALLERY_SORT_MENU_CLASS,
   GALLERY_SORT_MENU_ITEM_CLASS,
   GALLERY_SORT_TRIGGER_CLASS,
@@ -323,8 +321,8 @@ export function WallpaperGallery({
   }
 
   return (
-    <div className={cn(WALLPAPER_SECTION_FONT_CLASS, GALLERY_SHELL_CLASS)}>
-      <Breadcrumb className={GALLERY_BREADCRUMB_TOP_CLASS}>
+    <div className={WALLPAPER_SECTION_FONT_CLASS}>
+      <Breadcrumb>
         <BreadcrumbList
           className={cn(
             "flex-wrap gap-y-1 text-[13px]",

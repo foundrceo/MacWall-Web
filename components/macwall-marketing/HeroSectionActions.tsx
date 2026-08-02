@@ -6,10 +6,6 @@ import {
   TrackedPricingButton,
 } from "@/components/analytics/tracked-marketing-buttons"
 import {
-  HERO_PRIMARY_BTN_CLASS,
-  HERO_SECONDARY_BTN_CLASS,
-} from "@/lib/marketing-chrome"
-import {
   macwallInstallerLatestPath,
   macwallMinimumMacOSVersionLabel,
 } from "@/lib/macwall-site"
@@ -39,7 +35,7 @@ export default function HeroSectionActions() {
           size="pill"
           location="hero"
           className={cn(
-            HERO_PRIMARY_BTN_CLASS,
+            "marketing-hero-primary-btn",
             "shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]"
           )}
         >
@@ -55,7 +51,7 @@ export default function HeroSectionActions() {
         location="hero"
         size="pill"
         className={cn(
-          HERO_SECONDARY_BTN_CLASS,
+          "marketing-hero-secondary-btn",
           "shrink-0 px-3 py-2 text-[13px] sm:px-4 sm:py-2.5 sm:text-[15px]"
         )}
       >

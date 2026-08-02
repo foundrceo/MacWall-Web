@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { MARKETING_INLINE_LINK_CLASS } from "@/lib/marketing-chrome"
 import { macwall, mailtoReelRefund } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 import {
@@ -49,7 +48,7 @@ export function MarketingRichText({
           <a
             key={`${part}-${index}`}
             href={href}
-            className={MARKETING_INLINE_LINK_CLASS}
+            className="marketing-inline-link"
             {...(external
               ? { target: "_blank", rel: "noopener noreferrer" }
               : {})}
@@ -72,7 +71,7 @@ function MarketingInlineExternalLink({
   return (
     <a
       href={href}
-      className={MARKETING_INLINE_LINK_CLASS}
+      className="marketing-inline-link"
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -141,7 +140,7 @@ export function MarketingReelFaqRefundCopy({
       <MarketingReelAtLink platform="instagram" /> or TikTok{" "}
       <MarketingReelAtLink platform="tiktok" /> with{" "}
       <MarketingReelHashtagLink />, then email{" "}
-      <a href={mailtoReelRefund} className={MARKETING_INLINE_LINK_CLASS}>
+      <a href={mailtoReelRefund} className="marketing-inline-link">
         {macwall.reelRefundEmail}
       </a>{" "}
       once you hit {macwall.reelRefundHalfViews.toLocaleString()} views for 50%
@@ -193,7 +192,7 @@ export function MarketingContainer({
   return (
     <div
       className={cn(
-        "mx-auto w-full min-w-0 px-6 md:px-8",
+        "mx-auto w-full min-w-0",
         wide ? "max-w-[1080px]" : "max-w-[980px]",
         className
       )}

@@ -1,6 +1,12 @@
+import path from "node:path"
+import { fileURLToPath } from "node:url"
+
 /** @type {import('next').NextConfig} */
 
 const R2_CDN_HOST = "cdn.macwall.app"
+
+/** Pin Turbopack to this app — ignore parent lockfiles outside the repo. */
+const projectRoot = path.dirname(fileURLToPath(import.meta.url))
 
 /**
  * Report-only CSP. Inline analytics pixels (TikTok, X) plus Next.js runtime
@@ -71,7 +77,9 @@ const nextConfig = {
       },
     ],
   },
-  turbopack: {},
+  turbopack: {
+    root: projectRoot,
+  },
   transpilePackages: ["geist"],
   async redirects() {
     return [
