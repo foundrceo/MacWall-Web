@@ -1,6 +1,6 @@
 "use client"
 
-import type { ReactNode } from "react"
+import type { MouseEvent, ReactNode } from "react"
 
 import { TrackedLink } from "@/components/analytics/tracked-link"
 import { prosePrimaryBtn } from "@/lib/marketing-prose-classes"
@@ -30,12 +30,14 @@ export function TrackedDownloadButton({
   className,
   size = "default",
   location,
+  onClick,
 }: Readonly<{
   href: string
   children: ReactNode
   className?: string
   size?: ButtonSize
   location: string
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
 }>) {
   return (
     <TrackedLink
@@ -43,6 +45,7 @@ export function TrackedDownloadButton({
       className={buttonClasses(size, className)}
       eventName="download_click"
       metadata={{ location }}
+      onClick={onClick}
     >
       {children}
     </TrackedLink>

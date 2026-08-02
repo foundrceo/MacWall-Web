@@ -15,10 +15,7 @@ import HomeFaqSection from "@/components/macwall-marketing/HomeFaqSection"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
-import {
-  macwall,
-  macwallInstallerLatestPath,
-} from "@/lib/macwall-site"
+import { macwall, macwallInstallerLatestPath } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 const pricingPrimaryButtonClass =
@@ -103,17 +100,17 @@ export default function MacWallMarketingPricingPage() {
       <MarketingSiteChrome />
 
       <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
-        <section className="pt-16 pb-20 md:pt-24 md:pb-28">
-          <div className="mx-auto max-w-[1360px] px-6 sm:px-8 lg:px-10">
-            <h1 className="text-center text-4xl font-normal tracking-tight text-foreground md:text-5xl">
+        <section className="pt-12 pb-16 sm:pt-16 sm:pb-20 md:pt-24 md:pb-28">
+          <div className="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-10">
+            <h1 className="text-center text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight text-foreground md:text-5xl">
               {p.heroTitle}
             </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-center text-[17px] leading-relaxed text-marketing-muted">
+            <p className="mx-auto mt-4 max-w-2xl text-center text-[16px] leading-relaxed text-marketing-muted sm:text-[17px]">
               {p.heroLead}
             </p>
 
-            <div className="mt-12 md:mt-16">
-              <div className="mx-auto grid max-w-5xl grid-cols-1 items-stretch gap-4 md:grid-cols-3 md:gap-5">
+            <div className="mt-10 md:mt-16">
+              <div className="mx-auto grid max-w-5xl grid-cols-1 items-stretch gap-4 sm:gap-5 lg:grid-cols-3">
                 <PricingTierCard
                   id="tier-free"
                   title={plans.free.title}
