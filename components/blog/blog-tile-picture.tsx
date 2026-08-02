@@ -1,7 +1,6 @@
 "use client"
 
 import {
-  isRemoteBlogTile,
   type BlogTileImageVariant,
 } from "@/lib/blog/tile-media"
 import Image from "next/image"
@@ -41,7 +40,7 @@ export function BlogTilePicture({
         height={120}
         className="viewport-image tile__image tile__image--square"
         priority={priority}
-        unoptimized={isRemoteBlogTile(src)}
+        unoptimized
         onError={() => setFailed(true)}
       />
     )
@@ -56,7 +55,7 @@ export function BlogTilePicture({
         sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
         className="size-full object-cover"
         priority={priority}
-        unoptimized={isRemoteBlogTile(src)}
+        unoptimized
         onError={() => setFailed(true)}
       />
     )
@@ -72,7 +71,7 @@ export function BlogTilePicture({
           height={HERO_HEIGHT}
           className="viewport-image tile__image"
           priority={priority}
-          unoptimized={isRemoteBlogTile(src)}
+          unoptimized
           onError={() => setFailed(true)}
         />
       </picture>
@@ -88,7 +87,7 @@ export function BlogTilePicture({
         height={TILE_HEIGHT}
         className="viewport-image tile__image"
         priority={priority}
-        unoptimized={isRemoteBlogTile(src)}
+        unoptimized
         onError={() => setFailed(true)}
       />
     </picture>
