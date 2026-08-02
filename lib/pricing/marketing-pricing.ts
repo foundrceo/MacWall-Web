@@ -1,5 +1,6 @@
 import {
   LICENSE_OFFERS,
+  indiaDiscountPercentOff,
   licenseOfferCheckoutPath,
   type LicenseOfferSlug,
 } from "@/lib/license/offers.shared"
@@ -60,9 +61,13 @@ const PRO_PLUS_USD_CENTS = LICENSE_OFFERS.permanent_5.usdCents
 const PRO_PLUS_STRIKE_USD_CENTS = 2499
 const ANNUAL_USD_CENTS = LICENSE_OFFERS.annual.usdCents
 
-/** India list prices = half of catalog sale (charm: $4.99 / $7.49). */
+/** India list prices (Pro $3.99 · Pro+ $7.49). */
 const PRO_INDIA_USD_CENTS = LICENSE_OFFERS.permanent.indiaUsdCents
 const PRO_PLUS_INDIA_USD_CENTS = LICENSE_OFFERS.permanent_5.indiaUsdCents
+const PRO_INDIA_OFF_PERCENT = indiaDiscountPercentOff(
+  PRO_USD_CENTS,
+  PRO_INDIA_USD_CENTS
+)
 
 function usdMoney(cents: number, locale = "en-US"): LocalizedMoney {
   const major = cents / 100
@@ -93,8 +98,7 @@ export function buildMarketingPricingFromLocalized(
   const { country, permanentLocal, proPlusLocal } = bundle
   const india = isIndiaCountry(country)
 
-  // India: show half of the live sale price; strike = full sale price.
-  // Rest of world: limited-sale price with higher “was” strike.
+  // India: fixed charm prices; strike = full global sale price.
   const permanent = usdMoney(india ? PRO_INDIA_USD_CENTS : PRO_USD_CENTS)
   const permanentStrike = usdMoney(
     india ? PRO_USD_CENTS : PRO_STRIKE_USD_CENTS
@@ -111,6 +115,7 @@ export function buildMarketingPricingFromLocalized(
   const permanentStrikePrice = permanentStrike.formatted
   const permanentLocalHint = localHint(permanentLocal)
   const proPlusLocalHint = localHint(proPlusLocal)
+  const indiaOffLabel = `${PRO_INDIA_OFF_PERCENT}% off`
 
   return {
     country,
@@ -132,20 +137,20 @@ export function buildMarketingPricingFromLocalized(
     buyProCta: `Unlock Pro forever for ${permanentPrice}`,
     buyProAria: `Buy a permanent ${macwall.name} Pro license for ${permanentPrice}`,
     bannerHeadline: india
-      ? "India price — 50% off Pro"
+      ? `India price — ${indiaOffLabel} Pro`
       : "Limited sale is live — buy before it ends",
     bannerSubline: india
-      ? "India price — 50% off Pro"
+      ? `India price — ${indiaOffLabel} Pro`
       : "Limited sale is live — buy before it ends",
     bannerCta: "Buy now 🔥",
     priceLine: india
-      ? `India Pro ${permanentPrice} (50% off ${permanentStrikePrice}). No subscription.`
+      ? `India Pro ${permanentPrice} (${indiaOffLabel} ${permanentStrikePrice}). No subscription.`
       : `Limited Pro ${permanentPrice} (was ${permanentStrikePrice}). No subscription.`,
     pricingHeroLead: india
       ? `Claim Pro at the India price — or earn 100% back with a Reel.`
       : `Claim Pro at the limited price — or earn 100% back with a Reel.`,
     pricingPermanentDescription: india
-      ? `Pay ${permanentPrice} once (50% off ${permanentStrikePrice}) and keep Pro forever, with updates included.`
+      ? `Pay ${permanentPrice} once (${indiaOffLabel} ${permanentStrikePrice}) and keep Pro forever, with updates included.`
       : `Pay ${permanentPrice} once (was ${permanentStrikePrice}) and keep Pro forever, with updates included.`,
     pricingAnnualDescription: `Legacy annual plans are no longer offered for new purchases. Choose the permanent ${permanentPrice} license instead.`,
     bottomCtaLabel: "Get Pro",
