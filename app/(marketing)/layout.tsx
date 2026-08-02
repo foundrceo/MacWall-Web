@@ -23,6 +23,10 @@ export default async function MarketingLayout({
       <div className="dark min-h-screen bg-background text-foreground">
         <link rel="preconnect" href={mediaOrigin} crossOrigin="anonymous" />
         <link rel="dns-prefetch" href={mediaOrigin} />
+        <link rel="preconnect" href="https://checkout.stripe.com" />
+        <link rel="dns-prefetch" href="https://checkout.stripe.com" />
+        <link rel="preconnect" href="https://js.stripe.com" />
+        <link rel="dns-prefetch" href="https://js.stripe.com" />
         {catalogOrigin ? (
           <>
             <link

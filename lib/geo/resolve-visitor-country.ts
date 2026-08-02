@@ -12,6 +12,11 @@ export type ResolveVisitorCountryInput = {
   cookieCountry?: string | null
   /** Vercel middleware `request.geo.country` — most reliable on production. */
   geoCountry?: string | null
+  /**
+   * Skip outbound IP / egress lookups (can take up to ~2.5s).
+   * Use on latency-sensitive paths like Stripe Checkout redirect.
+   */
+  skipIpLookup?: boolean
 }
 
 const IP_LOOKUP_TIMEOUT_MS = 2500
@@ -159,6 +164,17 @@ export async function resolveVisitorCountry(
   const fromEdge = resolveCountryFromHeaders(input.headers)
   if (fromEdge) return fromEdge
 
+  // Cookie before slow IP lookup so Checkout can redirect immediately.
+  const fromCookie = normalizeCountry(input.cookieCountry)
+  if (fromCookie) return fromCookie
+
+  const fromLanguage = resolveCountryFromAcceptLanguage(
+    input.headers.get("accept-language")
+  )
+  if (fromLanguage) return fromLanguage
+
+  if (input.skipIpLookup) return null
+
   const ip = clientIpFromRequest({ headers: input.headers } as Request)
   const fromIp = await resolveCountryFromIp(ip)
   if (fromIp) return fromIp
@@ -167,15 +183,6 @@ export async function resolveVisitorCountry(
     const fromDevEgress = await resolveCountryFromDevServerEgress()
     if (fromDevEgress) return fromDevEgress
   }
-
-  // Cookie is a weak fallback — IP/geo above are preferred so travel/VPN changes apply.
-  const fromCookie = normalizeCountry(input.cookieCountry)
-  if (fromCookie) return fromCookie
-
-  const fromLanguage = resolveCountryFromAcceptLanguage(
-    input.headers.get("accept-language")
-  )
-  if (fromLanguage) return fromLanguage
 
   return null
 }
