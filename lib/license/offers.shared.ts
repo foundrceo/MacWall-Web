@@ -2,6 +2,9 @@ export const LICENSE_OFFER_SLUGS = [
   "permanent",
   "annual",
   "permanent_5",
+  "permanent_10",
+  "permanent_15",
+  "permanent_20",
 ] as const
 
 export type LicenseOfferSlug = (typeof LICENSE_OFFER_SLUGS)[number]
@@ -12,10 +15,12 @@ export type LicenseOffer = {
   slug: LicenseOfferSlug
   name: string
   billingModel: LicenseBillingModel
-  maxDevices: 3 | 5
+  maxDevices: number
   usdCents: number
   /** India catalog Price amount (separate Stripe Prices, no coupon). */
   indiaUsdCents: number
+  /** Marketing strike / “was” price (USD cents). */
+  strikeUsdCents: number
 }
 
 /** Percent off vs catalog USD (rounded). */
@@ -35,6 +40,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     maxDevices: 3,
     usdCents: 799, // $7.99 global
     indiaUsdCents: 399, // $3.99 India
+    strikeUsdCents: 1499,
   },
   annual: {
     slug: "annual",
@@ -43,32 +49,74 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     maxDevices: 3,
     usdCents: 499,
     indiaUsdCents: 199,
+    strikeUsdCents: 499,
   },
   permanent_5: {
     slug: "permanent_5",
     name: "5-Mac permanent license",
     billingModel: "permanent",
     maxDevices: 5,
-    usdCents: 1299, // $12.99 global
-    indiaUsdCents: 699, // $6.99 India
+    usdCents: 1299, // $12.99
+    indiaUsdCents: 699, // $6.99
+    strikeUsdCents: 2499,
+  },
+  /** Volume packs — discount steps up ~+2pts vs 5-Mac after each tier. */
+  permanent_10: {
+    slug: "permanent_10",
+    name: "10-Mac permanent license",
+    billingModel: "permanent",
+    maxDevices: 10,
+    usdCents: 2499, // $24.99 (~50% off)
+    indiaUsdCents: 1299, // $12.99
+    strikeUsdCents: 4999,
+  },
+  permanent_15: {
+    slug: "permanent_15",
+    name: "15-Mac permanent license",
+    billingModel: "permanent",
+    maxDevices: 15,
+    usdCents: 3399, // $33.99 (~55% off)
+    indiaUsdCents: 1799, // $17.99
+    strikeUsdCents: 7499,
+  },
+  permanent_20: {
+    slug: "permanent_20",
+    name: "20-Mac permanent license",
+    billingModel: "permanent",
+    maxDevices: 20,
+    usdCents: 3999, // $39.99 (~60% off)
+    indiaUsdCents: 2199, // $21.99
+    strikeUsdCents: 9999,
   },
 }
 
 export const DEFAULT_LICENSE_OFFER_SLUG: LicenseOfferSlug = "permanent"
 export const MULTI_MAC_OFFER_SLUGS = [
   "permanent_5",
+  "permanent_10",
+  "permanent_15",
+  "permanent_20",
 ] as const satisfies readonly LicenseOfferSlug[]
 
 export const INDIA_DISCOUNT_ELIGIBLE_OFFER_SLUGS = [
   "permanent",
   "annual",
   "permanent_5",
+  "permanent_10",
+  "permanent_15",
+  "permanent_20",
 ] as const satisfies readonly LicenseOfferSlug[]
 
 export function isIndiaDiscountEligible(slug: LicenseOfferSlug): boolean {
   return (INDIA_DISCOUNT_ELIGIBLE_OFFER_SLUGS as readonly string[]).includes(
     slug
   )
+}
+
+export function isMultiMacOfferSlug(
+  value: string | null | undefined
+): value is (typeof MULTI_MAC_OFFER_SLUGS)[number] {
+  return (MULTI_MAC_OFFER_SLUGS as readonly string[]).includes(value ?? "")
 }
 
 export function isLicenseOfferSlug(

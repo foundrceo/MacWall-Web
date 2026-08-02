@@ -1,21 +1,27 @@
 import {
   LICENSE_OFFERS,
+  MULTI_MAC_OFFER_SLUGS,
   indiaDiscountPercentOff,
   licenseOfferCheckoutPath,
+  licenseOfferPriceCents,
   type LicenseOfferSlug,
 } from "@/lib/license/offers.shared"
 import { isIndiaCountry } from "@/lib/geo/country"
 import { macwall } from "@/lib/macwall-site"
-import { formatMoney, type LocalizedMoney } from "@/lib/pricing/money"
+import {
+  convertUsdCentsWithRate,
+  formatMoney,
+  type LocalizedMoney,
+} from "@/lib/pricing/money"
 
 export type MarketingMultiMacOffer = {
   slug: LicenseOfferSlug
-  macs: 5
+  macs: number
   price: string
   priceMajor: number
   strikePrice: string
   strikePriceMajor: number
-  /** e.g. "40% off" — matches sale vs cutted price */
+  /** e.g. "50% off" — matches sale vs cutted price */
   offLabel: string
   /** Non-US only: ≈ local · charged in INR */
   localPriceHint: string | null
@@ -60,12 +66,12 @@ export type MarketingPricing = {
 
 /** Global catalog USD amounts. */
 const PRO_USD_CENTS = LICENSE_OFFERS.permanent.usdCents
-const PRO_STRIKE_USD_CENTS = 1499 // was $14.99 — sale vs strike
+const PRO_STRIKE_USD_CENTS = LICENSE_OFFERS.permanent.strikeUsdCents
 const PRO_PLUS_USD_CENTS = LICENSE_OFFERS.permanent_5.usdCents
-const PRO_PLUS_STRIKE_USD_CENTS = 2499 // was $24.99
+const PRO_PLUS_STRIKE_USD_CENTS = LICENSE_OFFERS.permanent_5.strikeUsdCents
 const ANNUAL_USD_CENTS = LICENSE_OFFERS.annual.usdCents
 
-/** India catalog Prices ($3.99 Pro · $6.99 Pro+). */
+/** India catalog Prices ($3.99 Pro · $6.99 Pro+ 5-Mac). */
 const PRO_INDIA_USD_CENTS = LICENSE_OFFERS.permanent.indiaUsdCents
 const PRO_PLUS_INDIA_USD_CENTS = LICENSE_OFFERS.permanent_5.indiaUsdCents
 
@@ -89,36 +95,73 @@ function localHint(local: LocalizedMoney | null | undefined): string | null {
   return `≈ ${local.formatted} · charged in ${local.currency.toUpperCase()}`
 }
 
+export type MarketingFxRate = {
+  currency: string
+  locale: string
+  usdPerUnit: number
+}
+
 export type MarketingPriceBundle = {
   country: string | null
   /** Optional Stripe FX local equivalents (null / USD → no hint). */
   permanentLocal: LocalizedMoney | null
+  /** @deprecated Prefer `fx` + per-pack conversion. Kept for Pro+ 5-Mac callers. */
   proPlusLocal: LocalizedMoney | null
+  /** When set, every multi-Mac pack gets an ≈ local · charged in CUR hint. */
+  fx?: MarketingFxRate | null
+}
+
+function localHintForUsdCents(
+  usdCents: number,
+  fx: MarketingFxRate | null | undefined
+): string | null {
+  if (!fx || fx.currency === "usd") return null
+  const major = convertUsdCentsWithRate(usdCents, fx.currency, fx.usdPerUnit)
+  const formatted = formatMoney(major, fx.currency, fx.locale)
+  return `≈ ${formatted} · charged in ${fx.currency.toUpperCase()}`
 }
 
 export function buildMarketingPricingFromLocalized(
   bundle: MarketingPriceBundle
 ): MarketingPricing {
-  const { country, permanentLocal, proPlusLocal } = bundle
+  const { country, permanentLocal, proPlusLocal, fx } = bundle
   const india = isIndiaCountry(country)
+  const region = india ? "india" : "default"
 
-  // India: $3.99 / $6.99 sale; same higher cutted “was” prices as everyone else.
   const permanentSaleCents = india ? PRO_INDIA_USD_CENTS : PRO_USD_CENTS
-  const proPlusSaleCents = india ? PRO_PLUS_INDIA_USD_CENTS : PRO_PLUS_USD_CENTS
   const permanent = usdMoney(permanentSaleCents)
   const permanentStrike = usdMoney(PRO_STRIKE_USD_CENTS)
   const annual = usdMoney(
     india ? LICENSE_OFFERS.annual.indiaUsdCents : ANNUAL_USD_CENTS
   )
-  const proPlus = usdMoney(proPlusSaleCents)
-  const proPlusStrike = usdMoney(PRO_PLUS_STRIKE_USD_CENTS)
 
   const permanentPrice = permanent.formatted
   const permanentStrikePrice = permanentStrike.formatted
   const permanentLocalHint = localHint(permanentLocal)
-  const proPlusLocalHint = localHint(proPlusLocal)
   const permanentOffLabel = offLabel(PRO_STRIKE_USD_CENTS, permanentSaleCents)
-  const proPlusOffLabel = offLabel(PRO_PLUS_STRIKE_USD_CENTS, proPlusSaleCents)
+
+  const multiMacOffers: MarketingMultiMacOffer[] = MULTI_MAC_OFFER_SLUGS.map(
+    (slug) => {
+      const offer = LICENSE_OFFERS[slug]
+      const saleCents = licenseOfferPriceCents(offer, region)
+      const sale = usdMoney(saleCents)
+      const strike = usdMoney(offer.strikeUsdCents)
+      const packLocalHint =
+        localHintForUsdCents(saleCents, fx) ??
+        (slug === "permanent_5" ? localHint(proPlusLocal) : null)
+      return {
+        slug: offer.slug,
+        macs: offer.maxDevices,
+        price: sale.formatted,
+        priceMajor: sale.major,
+        strikePrice: strike.formatted,
+        strikePriceMajor: strike.major,
+        offLabel: offLabel(offer.strikeUsdCents, saleCents),
+        localPriceHint: packLocalHint,
+        checkoutUrl: licenseOfferCheckoutPath(slug),
+      }
+    }
+  )
 
   return {
     country,
@@ -156,19 +199,7 @@ export function buildMarketingPricingFromLocalized(
     bottomCtaLabel: "Get Pro",
     checkoutUrl: licenseOfferCheckoutPath("permanent"),
     annualCheckoutUrl: licenseOfferCheckoutPath("permanent"),
-    multiMacOffers: [
-      {
-        slug: LICENSE_OFFERS.permanent_5.slug,
-        macs: 5,
-        price: proPlus.formatted,
-        priceMajor: proPlus.major,
-        strikePrice: proPlusStrike.formatted,
-        strikePriceMajor: proPlusStrike.major,
-        offLabel: proPlusOffLabel,
-        localPriceHint: proPlusLocalHint,
-        checkoutUrl: licenseOfferCheckoutPath("permanent_5"),
-      },
-    ],
+    multiMacOffers,
   }
 }
 

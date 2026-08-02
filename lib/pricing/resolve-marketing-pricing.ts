@@ -86,6 +86,11 @@ export async function resolveMarketingPricing(): Promise<MarketingPricing> {
         fx.locale,
         fx.usdPerUnit
       ),
+      fx: {
+        currency: fx.currency,
+        locale: fx.locale,
+        usdPerUnit: fx.usdPerUnit,
+      },
     })
   } catch (error) {
     console.error(
