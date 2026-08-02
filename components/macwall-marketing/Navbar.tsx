@@ -288,6 +288,14 @@ export default function Navbar() {
   }> = [
     { href: "/", label: h.navOverview, active: pathname === "/" },
     {
+      href: "/wallpapers",
+      label: h.navGallery,
+      active:
+        pathname === "/wallpapers" ||
+        pathname.startsWith("/wallpapers/") ||
+        pathname.startsWith("/wallpaper/"),
+    },
+    {
       href: "/pricing",
       label: h.navPricing,
       active: pathname === "/pricing" || pathname.startsWith("/pricing/"),

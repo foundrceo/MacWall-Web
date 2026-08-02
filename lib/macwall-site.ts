@@ -40,6 +40,37 @@ export function macwallLicenseActivationDeepLink(
   return `macwall://activate?key=${encodeURIComponent(trimmed)}`
 }
 
+/**
+ * Opens a catalog wallpaper in the Mac app (`macwall://wallpaper?id=…`).
+ * The app opens that wallpaper’s detail surface and starts download if needed.
+ */
+export function macwallWallpaperDeepLink(wallpaperId: string): string {
+  const id = wallpaperId.trim()
+  if (!id) return "macwall://wallpaper"
+  return `macwall://wallpaper?id=${encodeURIComponent(id)}`
+}
+
+/**
+ * HTTPS bridge that attempts the wallpaper deep link, then offers installer download.
+ * Mirror of `/activate` for license keys.
+ */
+export const macwallOpenWallpaperPath = "/open" as const
+
+export function macwallOpenWallpaperHref(
+  wallpaperId: string,
+  options?: { name?: string | null }
+): string {
+  const id = wallpaperId.trim()
+  const params = new URLSearchParams()
+  if (id) params.set("id", id)
+  const name = options?.name?.trim()
+  if (name) params.set("name", name)
+  const qs = params.toString()
+  return qs
+    ? `${macwallOpenWallpaperPath}?${qs}`
+    : macwallOpenWallpaperPath
+}
+
 /** UI/marketing app icon (`public/MacWall.png`, 1024×1024). Not for favicons — use `macwallFavicons`. */
 export const macwallAppIconPath = "/MacWall.png" as const
 

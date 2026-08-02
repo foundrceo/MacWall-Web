@@ -72,6 +72,7 @@ export function getMarketingFooterSections(
     {
       title: foot.exploreTitle,
       links: [
+        { label: "Wallpapers", href: "/wallpapers", kind: "internal" },
         { label: foot.explore.blog, href: "/blog", kind: "internal" },
         {
           label: foot.explore.liveWallpaper,

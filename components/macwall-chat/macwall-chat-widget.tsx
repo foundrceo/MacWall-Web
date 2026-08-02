@@ -56,7 +56,12 @@ import {
 import { useSupportTicketStream } from "@/lib/macwall-chat/use-support-ticket-stream"
 import { isAllowedChatImage, uploadChatImage } from "@/lib/macwall-chat/upload"
 import { macwall } from "@/lib/macwall-site"
-import { supportErrorMessage, SUPPORT_CHAT_QUERY } from "@/lib/support/shared"
+import {
+  supportErrorMessage,
+  SUPPORT_CHAT_MESSAGE_QUERY,
+  SUPPORT_CHAT_NEW_QUERY,
+  SUPPORT_CHAT_QUERY,
+} from "@/lib/support/shared"
 import { cn } from "@/lib/utils"
 
 /** Safety-net poll when SSE is live; faster when offline / closed. */
@@ -353,13 +358,38 @@ export function MacWallChatWidget() {
 
   // Open from `?support-chat` on any navigation (footer Link, /support redirect, typed URL).
   useEffect(() => {
-    if (!searchParams.has(SUPPORT_CHAT_QUERY)) return
+    if (!hydrated || !searchParams.has(SUPPORT_CHAT_QUERY)) return
+
+    const message = searchParams.get(SUPPORT_CHAT_MESSAGE_QUERY)?.trim() ?? ""
+    const wantsNew =
+      searchParams.has(SUPPORT_CHAT_NEW_QUERY) || message.length > 0
+
     setOpen(true)
+
+    if (wantsNew) {
+      const greeting = greetingMessages()
+      const next = createEmptyConversation(greeting)
+      setConversations((prev) => [next, ...prev])
+      loadConversationFields(next)
+    }
+
+    if (message) {
+      setDraft(message)
+      window.setTimeout(() => {
+        const el = inputRef.current
+        if (!el) return
+        el.focus()
+        el.setSelectionRange(message.length, message.length)
+      }, 280)
+    }
+
     const params = new URLSearchParams(searchParams.toString())
     params.delete(SUPPORT_CHAT_QUERY)
+    params.delete(SUPPORT_CHAT_MESSAGE_QUERY)
+    params.delete(SUPPORT_CHAT_NEW_QUERY)
     const next = params.toString()
     router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false })
-  }, [searchParams, pathname, router])
+  }, [searchParams, pathname, router, hydrated, loadConversationFields])
 
   useEffect(() => {
     if (!hydrated || !activeId || conversations.length === 0) return

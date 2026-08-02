@@ -1,4 +1,11 @@
-/** Public catalog media URLs — Cloudflare R2 via `cdn.macwall.app`. */
+/**
+ * Public catalog media URLs — Cloudflare R2 via `cdn.macwall.app`.
+ *
+ * Videos are served from a public CDN base URL today. Player UI hardening and
+ * short-lived presigned preview URLs (see `lib/public-catalog/preview-video-url.ts`)
+ * reduce casual saving; true anti-hotlink still needs CDN signed URLs and/or
+ * referrer policy on the bucket.
+ */
 
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 
@@ -42,8 +49,13 @@ function publicObjectUrlFromPath(path: string): string {
   return `${getR2PublicBaseUrl()}/${encodeObjectPath(path)}`
 }
 
+/** Bucket-relative object key for a catalog video (used for presigned GET). */
+export function catalogVideoObjectKey(videoKey: string): string {
+  return normalizeVideosPath(videoKey)
+}
+
 export function catalogPublicVideoUrlFromKey(videoKey: string): string {
-  return publicObjectUrlFromPath(normalizeVideosPath(videoKey))
+  return publicObjectUrlFromPath(catalogVideoObjectKey(videoKey))
 }
 
 export function catalogPublicThumbUrlFromKey(thumbKey: string): string {
