@@ -218,6 +218,7 @@ export function MacWallChatWidget() {
   const openRef = useRef(false)
   const ticketResolvedRef = useRef<boolean | null>(null)
   const lastReopenAtRef = useRef(0)
+  const sendingRef = useRef(false)
 
   const active = useMemo(() => {
     if (conversations.length === 0) return null
@@ -573,6 +574,14 @@ export function MacWallChatWidget() {
       if (!file) return
       if (handoff === "closed") {
         setError("This chat is closed. Start a new chat to send images.")
+        return
+      }
+      if (handoff === "ask_name" || handoff === "ask_email") {
+        setError(
+          handoff === "ask_name"
+            ? "Type your name first — you can attach a screenshot with your issue next."
+            : "Type your email first — you can attach a screenshot with your issue next."
+        )
         return
       }
       if (!isAllowedChatImage(file)) {
@@ -978,7 +987,7 @@ export function MacWallChatWidget() {
       setError(null)
       try {
         const contactName = email.trim()
-          ? `${name} · ${email.trim()}`.slice(0, 120)
+          ? `${name.slice(0, 70)} · ${email.trim()}`.slice(0, 120)
           : name
         const res = await fetch("/api/support/tickets", {
           method: "POST",
@@ -1089,131 +1098,159 @@ export function MacWallChatWidget() {
     async (raw: string) => {
       const text = raw.trim()
       const hasImage = Boolean(pendingImage)
-      if ((!text && !hasImage) || busy || typing) return
+      if ((!text && !hasImage) || busy || typing || sendingRef.current) return
 
       if (handoff === "closed") {
         setError("This chat is closed. Start a new chat to continue.")
         return
       }
 
+      sendingRef.current = true
+      setBusy(true)
       setDraft("")
       setError(null)
 
-      let imageUrl: string | null = null
-      const localPreview = pendingImage?.previewUrl ?? null
-      const fileToUpload = pendingImage?.file ?? null
+      try {
+        let imageUrl: string | null = null
+        const localPreview = pendingImage?.previewUrl ?? null
+        const fileToUpload = pendingImage?.file ?? null
+        const collectingContact =
+          handoff === "ask_name" || handoff === "ask_email"
 
-      if (fileToUpload) {
-        setBusy(true)
-        try {
-          imageUrl = await uploadChatImage(
-            getOrCreateChatSessionId(),
-            fileToUpload
-          )
-        } catch {
-          setError(
-            "Couldn’t upload that image. Try jpg, png, or webp under 4MB."
-          )
-          setBusy(false)
-          return
+        if (fileToUpload && !collectingContact) {
+          try {
+            imageUrl = await uploadChatImage(
+              getOrCreateChatSessionId(),
+              fileToUpload
+            )
+          } catch {
+            setError(
+              "Couldn’t upload that image. Try jpg, png, or webp under 4MB."
+            )
+            return
+          }
+          clearPendingImage()
+        } else if (fileToUpload && collectingContact) {
+          clearPendingImage()
         }
-        clearPendingImage()
-        setBusy(false)
-      }
 
-      const userMessage: ChatMessage = {
-        id: chatMessageId(),
-        role: "user",
-        body: text,
-        createdAt: Date.now(),
-        imageUrl: imageUrl || localPreview,
-      }
-      pushMessage(userMessage)
-      void playChatSendSound()
+        const userMessage: ChatMessage = {
+          id: chatMessageId(),
+          role: "user",
+          body: text,
+          createdAt: Date.now(),
+          imageUrl: imageUrl || (collectingContact ? null : localPreview),
+        }
+        pushMessage(userMessage)
+        void playChatSendSound()
 
-      if (handoff === "ask_name") {
-        if (!text) {
+        if (handoff === "ask_name") {
+          if (!text) {
+            await pushAssist(
+              "Please type your name so our team knows who you are.",
+              []
+            )
+            return
+          }
+          const name = text.slice(0, 120)
+          patchActive((c) => ({
+            ...c,
+            visitorName: name,
+            handoff: "ask_email",
+          }))
           await pushAssist(
-            "Please type your name so our team knows who you are.",
+            `Nice to meet you, ${name}.\n\nWhat’s the best email to reach you at? We’ll save it with this chat so our team can follow up if needed.`,
             []
           )
           return
         }
-        const name = text.slice(0, 120)
-        patchActive((c) => ({
-          ...c,
-          visitorName: name,
-          handoff: "ask_email",
-        }))
-        await pushAssist(
-          `Nice to meet you, ${name}.\n\nWhat’s the best email to reach you at? We’ll save it with this chat so our team can follow up if needed.`,
-          []
-        )
-        return
-      }
 
-      if (handoff === "ask_email") {
-        if (!text || !isValidVisitorEmail(text)) {
+        if (handoff === "ask_email") {
+          if (!text || !isValidVisitorEmail(text)) {
+            await pushAssist(
+              "Please enter a valid email address (for example, you@icloud.com) so we can save it with your chat.",
+              []
+            )
+            return
+          }
+          const email = text.trim().toLowerCase().slice(0, 254)
+          patchActive((c) => ({
+            ...c,
+            visitorEmail: email,
+            handoff: "ask_issue",
+          }))
           await pushAssist(
-            "Please enter a valid email address (for example, you@icloud.com) so we can save it with your chat.",
+            `Got it — ${email}.\n\nWhat do you need help with? Add as much detail as you like — our team will see this chat. You can also attach a screenshot.`,
             []
           )
           return
         }
-        const email = text.trim().toLowerCase().slice(0, 254)
-        patchActive((c) => ({
-          ...c,
-          visitorEmail: email,
-          handoff: "ask_issue",
-        }))
-        await pushAssist(
-          `Got it — ${email}.\n\nWhat do you need help with? Add as much detail as you like — our team will see this chat. You can also attach a screenshot.`,
-          []
-        )
-        return
-      }
 
-      if (handoff === "ask_issue") {
-        await createTicket(
-          visitorName || "Visitor",
-          visitorEmail,
-          text || "See attached screenshot",
-          imageUrl,
-          [...messages, userMessage]
-        )
-        return
-      }
+        if (handoff === "ask_issue") {
+          const convo = conversationsRef.current.find(
+            (c) => c.id === activeIdRef.current
+          )
+          const savedEmail = (convo?.visitorEmail || visitorEmail).trim()
+          const savedName =
+            (convo?.visitorName || visitorName).trim() || "Visitor"
 
-      if (handoff === "live") {
-        await replyOnTicket(text || " ", imageUrl)
-        return
-      }
+          if (!savedEmail || !isValidVisitorEmail(savedEmail)) {
+            patchActive((c) => ({
+              ...c,
+              handoff: "ask_email",
+            }))
+            await pushAssist(
+              "What’s the best email to reach you at? We’ll save it with this chat so our team can follow up if needed.",
+              []
+            )
+            return
+          }
 
-      if (text && wantsHumanHandoff(text)) {
-        await startHandoff()
-        return
-      }
+          const transcript = [...(convo?.messages ?? []), userMessage]
+          await createTicket(
+            savedName,
+            savedEmail,
+            text || "See attached screenshot",
+            imageUrl,
+            transcript
+          )
+          return
+        }
 
-      if (!text && imageUrl) {
-        await pushAssist(
-          "Got the screenshot. Tell me what’s going on, or tap Talk to a human and our team will take it from here."
-        )
-        return
-      }
+        if (handoff === "live") {
+          await replyOnTicket(text || " ", imageUrl)
+          return
+        }
 
-      const match = matchFaqReply(text)
-      if (match) {
-        if (match.id === "human") {
+        if (text && wantsHumanHandoff(text)) {
           await startHandoff()
           return
         }
-        await pushAssist(match.reply, match.followUps)
-        return
-      }
 
-      await pushAssist(
-        `Hmm — I don’t have a sharp answer for that.\n\nPick a topic, or talk to a human and our team will continue with you here (typically within 24 hours).`
-      )
+        if (!text && imageUrl) {
+          await pushAssist(
+            "Got the screenshot. Tell me what’s going on, or tap Talk to a human and our team will take it from here."
+          )
+          return
+        }
+
+        const match = matchFaqReply(text)
+        if (match) {
+          if (match.id === "human") {
+            await startHandoff()
+            return
+          }
+          await pushAssist(match.reply, match.followUps)
+          return
+        }
+
+        await pushAssist(
+          `Hmm — I don’t have a sharp answer for that.\n\nPick a topic, or talk to a human and our team will continue with you here (typically within 24 hours).`
+        )
+      } finally {
+        sendingRef.current = false
+        setBusy(false)
+      }
     },
     [
       busy,
@@ -1837,11 +1874,19 @@ export function MacWallChatWidget() {
                   />
                   <button
                     type="button"
-                    disabled={busy}
+                    disabled={
+                      busy ||
+                      handoff === "ask_name" ||
+                      handoff === "ask_email"
+                    }
                     onClick={() => fileRef.current?.click()}
                     className="mb-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[#0a84ff] transition hover:bg-[#0a84ff]/12 disabled:opacity-35"
                     aria-label="Attach photo"
-                    title="Attach photo"
+                    title={
+                      handoff === "ask_name" || handoff === "ask_email"
+                        ? "Attach a screenshot with your issue next"
+                        : "Attach photo"
+                    }
                   >
                     <HugeiconsIcon
                       icon={Camera01Icon}
