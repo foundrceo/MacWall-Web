@@ -30,7 +30,7 @@ const CREATOR_STEP_POSITIONS: StepPosition[] = [
   { className: "absolute top-[380px] left-[12%]", rotate: "rotate-6" },
   { className: "absolute top-[480px] right-[10%]", rotate: "-rotate-6" },
   { className: "absolute top-[760px] left-[12%]", rotate: "rotate-6" },
-  { className: "absolute top-[980px] right-[10%]", rotate: "-rotate-6" },
+  { className: "absolute top-[1060px] right-[12%]", rotate: "-rotate-6" },
 ]
 
 function themeClasses(theme: ColorTheme) {
@@ -98,6 +98,14 @@ function CreatorStepDescription({
   stepId: string
   body: string
 }>) {
+  if (stepId === "6") {
+    return (
+      <p className="text-[13px] leading-[1.45] tracking-tight text-foreground/65">
+        {body}
+      </p>
+    )
+  }
+
   if (stepId === "3") {
     return (
       <p className={stepDescriptionClassName}>
@@ -187,7 +195,7 @@ function boardHeight(count: number) {
   if (count === 3) return 720
   if (count === 4) return 820
   if (count === 5) return 1080
-  return 1280
+  return 1420
 }
 
 function connectorPath(count: number) {
@@ -205,7 +213,7 @@ function connectorPath(count: number) {
       "C 850 270, 500 350, 290 450",
       "C 290 600, 550 720, 750 720",
       "C 950 720, 500 800, 290 850",
-      "C 120 850, 560 950, 740 950",
+      "C 120 880, 560 1020, 720 1120",
     ].join(" ")
   }
   return [

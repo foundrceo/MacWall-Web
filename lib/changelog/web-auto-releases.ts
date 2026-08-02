@@ -13,6 +13,7 @@ export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
       {
         kind: "features",
         items: [
+          "Add standalone creator offer page at /creator.",
           "Command palette to jump anywhere on macwall.app.",
           "Public wallpaper gallery with search, SEO, and app deep links.",
           "Affiliate partner entry points in navigation and footer.",
