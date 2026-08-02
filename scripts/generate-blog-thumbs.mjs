@@ -262,12 +262,14 @@ async function writeDerivedVariants(slug, mainPath) {
 async function main() {
   if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true })
 
+  const force = process.argv.includes("--force")
   const slugs = collectSlugs()
   console.log(
     `Generating ${slugs.length} blog mockups (+ OG + list) → public/blog/thumbs/`
   )
 
   let ok = 0
+  let skipped = 0
   let failed = 0
 
   for (let i = 0; i < slugs.length; i++) {
@@ -275,6 +277,15 @@ async function main() {
     const key = thumbKeyForSlug(slug, i)
     const url = thumbUrl(key)
     const out = join(outDir, `${slug}.jpg`)
+    const og = join(outDir, `${slug}-og.jpg`)
+    const list = join(outDir, `${slug}-list.jpg`)
+
+    if (!force && existsSync(out) && existsSync(og) && existsSync(list)) {
+      process.stdout.write(`  ${slug} … skip (exists)\n`)
+      skipped++
+      ok++
+      continue
+    }
 
     try {
       process.stdout.write(`  ${slug} … `)
@@ -288,8 +299,26 @@ async function main() {
     }
   }
 
-  console.log(`\nDone: ${ok} posts (${ok * 3} files), ${failed} failed.`)
-  if (failed > 0) process.exit(1)
+  const missing = slugs.filter(
+    (slug) =>
+      !existsSync(join(outDir, `${slug}.jpg`)) ||
+      !existsSync(join(outDir, `${slug}-og.jpg`)) ||
+      !existsSync(join(outDir, `${slug}-list.jpg`))
+  )
+
+  console.log(
+    `\nDone: ${ok} posts (${ok * 3} files), ${skipped} skipped, ${failed} failed.`
+  )
+
+  if (missing.length > 0) {
+    console.error(`Missing thumbs for ${missing.length} slug(s): ${missing.join(", ")}`)
+    console.error("Run `npm run blog-thumbs:generate` with network access, or restore public/blog/thumbs from git.")
+    process.exit(1)
+  }
+
+  if (failed > 0) {
+    console.warn("Some regenerations failed; kept existing committed thumbs.")
+  }
 }
 
 main()
