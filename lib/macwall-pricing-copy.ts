@@ -26,7 +26,7 @@ export const macwallPricingCopy = {
     },
     proPlus: {
       title: "Pro+",
-      subtitle: "Limited deal for more Macs",
+      subtitle: "5–20 Macs — bigger packs, bigger discount",
       badge: "40% off",
       featuresPrefix: "Everything in Pro, plus:",
       cta: "Get Pro+",
@@ -98,7 +98,7 @@ export const macwallPricingCopy = {
       "More features than other apps",
       "Everything in Pro",
       "Up to 5 Macs",
-      "Best multi-Mac value",
+      "Bigger packs unlock bigger discounts",
       "Same Pro features forever",
     ],
   },
