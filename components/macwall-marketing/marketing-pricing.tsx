@@ -10,6 +10,7 @@ import { useMarketingPricing } from "@/components/marketing/marketing-pricing-co
 import MarketingSiteChrome, {
   MARKETING_MAIN_OFFSET_CLASS,
 } from "@/components/macwall-marketing/MarketingSiteChrome"
+import { CheckoutPrefetchWarmup } from "@/components/macwall-marketing/checkout-prefetch-warmup"
 import HomeFaqSection from "@/components/macwall-marketing/HomeFaqSection"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
@@ -61,6 +62,7 @@ export default function MacWallMarketingPricingPage() {
 
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-clip bg-background text-foreground antialiased">
+      <CheckoutPrefetchWarmup />
       <MarketingSiteChrome />
 
       <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>

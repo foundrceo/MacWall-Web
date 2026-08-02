@@ -14,6 +14,11 @@ import type {
 import { withMarketingAttribution } from "@/lib/analytics/marketing-attribution"
 import { markCheckoutStartedInSession } from "@/lib/analytics/retargeting"
 import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
+import {
+  offerSlugFromCheckoutHref,
+  prefetchCheckoutSession,
+  takePrefetchedCheckoutUrl,
+} from "@/lib/checkout/prefetch-checkout"
 
 type TrackedLinkProps = {
   href: string
@@ -42,6 +47,9 @@ export function TrackedLink({
 }: TrackedLinkProps) {
   const isDownloadClick = eventName === "download_click"
   const isCheckoutClick = isCheckoutApiHref(href)
+  const checkoutOffer = isCheckoutClick
+    ? offerSlugFromCheckoutHref(href)
+    : null
   const isExternalHref =
     external ||
     href.startsWith("http") ||
@@ -71,14 +79,25 @@ export function TrackedLink({
     event.currentTarget.href = withAnalyticsSessionHref(href)
   }
 
+  const warmCheckout = () => {
+    if (!checkoutOffer) return
+    void prefetchCheckoutSession(checkoutOffer)
+  }
+
   const onNavigate = (event: MouseEvent<HTMLAnchorElement>) => {
     onClick?.(event)
     if (event.defaultPrevented) return
 
-    // Checkout: never block the browser — fire analytics and let the
-    // native navigation hit /api/checkout → 303 Stripe as fast as possible.
-    if (isCheckoutClick) {
+    if (isCheckoutClick && checkoutOffer) {
       trackNavigation()
+      const ready = takePrefetchedCheckoutUrl(checkoutOffer)
+      if (ready) {
+        // Instant — Session was created on hover / idle prefetch.
+        event.preventDefault()
+        window.location.assign(ready)
+        return
+      }
+      // Miss: let the browser hit GET /api/checkout (303 to Stripe).
       return
     }
 
@@ -107,7 +126,12 @@ export function TrackedLink({
 
   const trackProps = {
     onMouseDown: prepareDownloadHref,
-    onTouchStart: prepareDownloadHref,
+    onTouchStart: (event: TouchEvent<HTMLAnchorElement>) => {
+      prepareDownloadHref(event)
+      warmCheckout()
+    },
+    onPointerEnter: warmCheckout,
+    onFocus: warmCheckout,
     onClick: onNavigate,
     onAuxClick: onNavigate,
   }
