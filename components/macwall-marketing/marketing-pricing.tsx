@@ -148,7 +148,7 @@ export default function MacWallMarketingPricingPage() {
                   featuresPrefix={plans.pro.featuresPrefix}
                   highlight
                   badge={plans.pro.badge}
-                  badgeAlt={plans.pro.badgeAlt}
+                  badgeAlt={pricing.permanentOffLabel}
                   action={
                     <PricingPrimaryButton
                       href={pricing.checkoutUrl}
@@ -173,7 +173,7 @@ export default function MacWallMarketingPricingPage() {
                     priceSuffix="one-time"
                     features={p.proPlus.features}
                     featuresPrefix={plans.proPlus.featuresPrefix}
-                    badge={plans.proPlus.badge}
+                    badge={fiveMacOffer.offLabel}
                     action={
                       <PricingPrimaryButton
                         href={fiveMacOffer.checkoutUrl}

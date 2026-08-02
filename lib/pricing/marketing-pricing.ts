@@ -15,6 +15,8 @@ export type MarketingMultiMacOffer = {
   priceMajor: number
   strikePrice: string
   strikePriceMajor: number
+  /** e.g. "40% off" — matches sale vs cutted price */
+  offLabel: string
   /** Non-US only: ≈ local · charged in INR */
   localPriceHint: string | null
   checkoutUrl: string
@@ -31,6 +33,8 @@ export type MarketingPricing = {
   permanentPriceMajor: number
   permanentStrikePrice: string
   permanentStrikePriceMajor: number
+  /** e.g. "33% off" — matches sale vs cutted price */
+  permanentOffLabel: string
   /** Non-US only: ≈ ₹… · charged in INR */
   permanentLocalHint: string | null
   annualPrice: string
@@ -64,10 +68,10 @@ const ANNUAL_USD_CENTS = LICENSE_OFFERS.annual.usdCents
 /** India catalog Prices ($3.99 Pro · $6.99 Pro+). */
 const PRO_INDIA_USD_CENTS = LICENSE_OFFERS.permanent.indiaUsdCents
 const PRO_PLUS_INDIA_USD_CENTS = LICENSE_OFFERS.permanent_5.indiaUsdCents
-const PRO_INDIA_OFF_PERCENT = indiaDiscountPercentOff(
-  PRO_USD_CENTS,
-  PRO_INDIA_USD_CENTS
-)
+
+function offLabel(strikeCents: number, saleCents: number): string {
+  return `${indiaDiscountPercentOff(strikeCents, saleCents)}% off`
+}
 
 function usdMoney(cents: number, locale = "en-US"): LocalizedMoney {
   const major = cents / 100
@@ -98,24 +102,23 @@ export function buildMarketingPricingFromLocalized(
   const { country, permanentLocal, proPlusLocal } = bundle
   const india = isIndiaCountry(country)
 
-  // India: dedicated $3.99 / $6.99 Prices; strike = full global sale price.
-  const permanent = usdMoney(india ? PRO_INDIA_USD_CENTS : PRO_USD_CENTS)
-  const permanentStrike = usdMoney(
-    india ? PRO_USD_CENTS : PRO_STRIKE_USD_CENTS
-  )
+  // India: $3.99 / $6.99 sale; same higher cutted “was” prices as everyone else.
+  const permanentSaleCents = india ? PRO_INDIA_USD_CENTS : PRO_USD_CENTS
+  const proPlusSaleCents = india ? PRO_PLUS_INDIA_USD_CENTS : PRO_PLUS_USD_CENTS
+  const permanent = usdMoney(permanentSaleCents)
+  const permanentStrike = usdMoney(PRO_STRIKE_USD_CENTS)
   const annual = usdMoney(
     india ? LICENSE_OFFERS.annual.indiaUsdCents : ANNUAL_USD_CENTS
   )
-  const proPlus = usdMoney(india ? PRO_PLUS_INDIA_USD_CENTS : PRO_PLUS_USD_CENTS)
-  const proPlusStrike = usdMoney(
-    india ? PRO_PLUS_USD_CENTS : PRO_PLUS_STRIKE_USD_CENTS
-  )
+  const proPlus = usdMoney(proPlusSaleCents)
+  const proPlusStrike = usdMoney(PRO_PLUS_STRIKE_USD_CENTS)
 
   const permanentPrice = permanent.formatted
   const permanentStrikePrice = permanentStrike.formatted
   const permanentLocalHint = localHint(permanentLocal)
   const proPlusLocalHint = localHint(proPlusLocal)
-  const indiaOffLabel = `${PRO_INDIA_OFF_PERCENT}% off`
+  const permanentOffLabel = offLabel(PRO_STRIKE_USD_CENTS, permanentSaleCents)
+  const proPlusOffLabel = offLabel(PRO_PLUS_STRIKE_USD_CENTS, proPlusSaleCents)
 
   return {
     country,
@@ -127,6 +130,7 @@ export function buildMarketingPricingFromLocalized(
     permanentPriceMajor: permanent.major,
     permanentStrikePrice,
     permanentStrikePriceMajor: permanentStrike.major,
+    permanentOffLabel,
     permanentLocalHint,
     annualPrice: annual.formatted,
     annualPriceMajor: annual.major,
@@ -140,13 +144,13 @@ export function buildMarketingPricingFromLocalized(
     bannerSubline: "Limited sale is live — buy before it ends",
     bannerCta: "Buy now 🔥",
     priceLine: india
-      ? `India Pro ${permanentPrice} (${indiaOffLabel} ${permanentStrikePrice}). No subscription.`
+      ? `India Pro ${permanentPrice} (${permanentOffLabel} ${permanentStrikePrice}). No subscription.`
       : `Limited Pro ${permanentPrice} (was ${permanentStrikePrice}). No subscription.`,
     pricingHeroLead: india
       ? `Claim Pro at the India price — or earn 100% back with a Reel.`
       : `Claim Pro at the limited price — or earn 100% back with a Reel.`,
     pricingPermanentDescription: india
-      ? `Pay ${permanentPrice} once (${indiaOffLabel} ${permanentStrikePrice}) and keep Pro forever, with updates included.`
+      ? `Pay ${permanentPrice} once (${permanentOffLabel} ${permanentStrikePrice}) and keep Pro forever, with updates included.`
       : `Pay ${permanentPrice} once (was ${permanentStrikePrice}) and keep Pro forever, with updates included.`,
     pricingAnnualDescription: `Legacy annual plans are no longer offered for new purchases. Choose the permanent ${permanentPrice} license instead.`,
     bottomCtaLabel: "Get Pro",
@@ -160,6 +164,7 @@ export function buildMarketingPricingFromLocalized(
         priceMajor: proPlus.major,
         strikePrice: proPlusStrike.formatted,
         strikePriceMajor: proPlusStrike.major,
+        offLabel: proPlusOffLabel,
         localPriceHint: proPlusLocalHint,
         checkoutUrl: licenseOfferCheckoutPath("permanent_5"),
       },
