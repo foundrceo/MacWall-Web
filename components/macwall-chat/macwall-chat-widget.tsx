@@ -145,7 +145,8 @@ function handoffStatusLabel(handoff: HandoffStep): "Open" | "Live" | "Closed" {
 function buildTicketMessage(
   chatId: string,
   messages: ChatMessage[],
-  issue: string
+  issue: string,
+  email?: string
 ) {
   const recent = messages
     .filter((m) => m.role === "user" || m.role === "assist")
@@ -154,12 +155,21 @@ function buildTicketMessage(
     .join("\n")
   return [
     `Chat ID: ${chatId}`,
+    email?.trim() ? `Email: ${email.trim()}` : null,
     "",
     issue.trim(),
     "",
     "— Chat transcript —",
     recent || "(no prior messages)",
-  ].join("\n")
+  ]
+    .filter((line) => line !== null)
+    .join("\n")
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function isValidVisitorEmail(value: string): boolean {
+  return EMAIL_RE.test(value.trim()) && value.trim().length <= 254
 }
 
 export function MacWallChatWidget() {
@@ -219,6 +229,7 @@ export function MacWallChatWidget() {
   const messages = active?.messages ?? []
   const handoff = active?.handoff ?? "idle"
   const visitorName = active?.visitorName ?? ""
+  const visitorEmail = active?.visitorEmail ?? ""
   const ticketId = active?.ticketId ?? null
   const founderJoined = active?.founderJoined ?? false
   const chatId = active?.id ?? ""
@@ -944,6 +955,7 @@ export function MacWallChatWidget() {
     patchActive((c) => ({
       ...c,
       visitorName: "",
+      visitorEmail: "",
       handoff: "ask_name",
     }))
     await pushAssist(
@@ -955,6 +967,7 @@ export function MacWallChatWidget() {
   const createTicket = useCallback(
     async (
       name: string,
+      email: string,
       issue: string,
       imageUrl?: string | null,
       transcript: ChatMessage[] = messages
@@ -964,13 +977,21 @@ export function MacWallChatWidget() {
       setBusy(true)
       setError(null)
       try {
+        const contactName = email.trim()
+          ? `${name} · ${email.trim()}`.slice(0, 120)
+          : name
         const res = await fetch("/api/support/tickets", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             sessionId: getOrCreateChatSessionId(),
-            name,
-            message: buildTicketMessage(idForTicket, transcript, issue),
+            name: contactName,
+            message: buildTicketMessage(
+              idForTicket,
+              transcript,
+              issue,
+              email
+            ),
             imageUrl: imageUrl || null,
             sentiment: "neutral",
           }),
@@ -987,6 +1008,7 @@ export function MacWallChatWidget() {
           ticketId: data.ticket!.id,
           handoff: "live",
           visitorName: name,
+          visitorEmail: email.trim(),
         }))
         if (activeIdRef.current === idForTicket) {
           handoffRef.current = "live"
@@ -1121,10 +1143,31 @@ export function MacWallChatWidget() {
         patchActive((c) => ({
           ...c,
           visitorName: name,
+          handoff: "ask_email",
+        }))
+        await pushAssist(
+          `Nice to meet you, ${name}.\n\nWhat’s the best email to reach you at? We’ll save it with this chat so our team can follow up if needed.`,
+          []
+        )
+        return
+      }
+
+      if (handoff === "ask_email") {
+        if (!text || !isValidVisitorEmail(text)) {
+          await pushAssist(
+            "Please enter a valid email address (for example, you@icloud.com) so we can save it with your chat.",
+            []
+          )
+          return
+        }
+        const email = text.trim().toLowerCase().slice(0, 254)
+        patchActive((c) => ({
+          ...c,
+          visitorEmail: email,
           handoff: "ask_issue",
         }))
         await pushAssist(
-          `Nice to meet you, ${name}.\n\nWhat do you need help with? Add as much detail as you like — our team will see this chat. You can also attach a screenshot.`,
+          `Got it — ${email}.\n\nWhat do you need help with? Add as much detail as you like — our team will see this chat. You can also attach a screenshot.`,
           []
         )
         return
@@ -1133,6 +1176,7 @@ export function MacWallChatWidget() {
       if (handoff === "ask_issue") {
         await createTicket(
           visitorName || "Visitor",
+          visitorEmail,
           text || "See attached screenshot",
           imageUrl,
           [...messages, userMessage]
@@ -1176,6 +1220,7 @@ export function MacWallChatWidget() {
       typing,
       handoff,
       visitorName,
+      visitorEmail,
       pendingImage,
       pushMessage,
       pushAssist,
@@ -1251,7 +1296,7 @@ export function MacWallChatWidget() {
         live: true,
       }
     }
-    if (handoff === "ask_name" || handoff === "ask_issue") {
+    if (handoff === "ask_name" || handoff === "ask_email" || handoff === "ask_issue") {
       return { label: "Connecting you to the team…", live: true }
     }
     return {
@@ -1773,13 +1818,22 @@ export function MacWallChatWidget() {
                     placeholder={
                       handoff === "ask_name"
                         ? "Your name…"
-                        : handoff === "ask_issue"
-                          ? "Describe what you need…"
-                          : "Message…"
+                        : handoff === "ask_email"
+                          ? "Your email…"
+                          : handoff === "ask_issue"
+                            ? "Describe what you need…"
+                            : "Message…"
                     }
                     disabled={busy}
+                    autoComplete={
+                      handoff === "ask_email"
+                        ? "email"
+                        : handoff === "ask_name"
+                          ? "name"
+                          : "off"
+                    }
+                    inputMode={handoff === "ask_email" ? "email" : undefined}
                     className="max-h-24 min-h-[36px] min-w-0 flex-1 resize-none bg-transparent px-2.5 py-2 font-sans text-[15px] leading-snug font-normal text-white outline-none placeholder:text-white/30 disabled:opacity-55"
-                    autoComplete="off"
                   />
                   <button
                     type="button"
