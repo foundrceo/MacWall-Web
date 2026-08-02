@@ -30,7 +30,7 @@ const HIDDEN_PATH_PREFIXES = [
 const FIRST_DELAY_RANGE: readonly [number, number] = [10_000, 20_000]
 /** ~20–30s between starts → 2–3 / minute. */
 const GAP_RANGE: readonly [number, number] = [20_000, 30_000]
-const VISIBLE_MS = 3_000
+const VISIBLE_MS = 4_500
 const HIDDEN_RETRY_MS = 8_000
 const REFRESH_MS = 120_000
 
