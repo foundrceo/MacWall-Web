@@ -80,10 +80,13 @@ export const macwallPricingCopy = {
 
   pro: {
     features: [
+      "Cheaper than other wallpaper apps",
+      "More features than other apps",
       "1,000+ live wallpapers",
       "Lock Screen & Screen Saver",
       "Import your own videos",
       "Up to 3 personal Macs",
+      "Pay once — no subscription",
       "Lifetime updates",
       "Music Sync",
     ],
@@ -91,6 +94,8 @@ export const macwallPricingCopy = {
 
   proPlus: {
     features: [
+      "Cheaper than other wallpaper apps",
+      "More features than other apps",
       "Everything in Pro",
       "Up to 5 Macs",
       "Best multi-Mac value",
