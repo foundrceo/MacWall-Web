@@ -16,6 +16,12 @@ export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
           "Add compact hero license modal and rename Get Pro to Get License.",
         ],
       },
+      {
+        kind: "improvements",
+        items: [
+          "Polish hero license modal layout and Discord perk copy.",
+        ],
+      },
     ],
   },
   {
