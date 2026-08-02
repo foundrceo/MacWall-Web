@@ -22,6 +22,7 @@ import {
   CircleCheck,
   Copy,
   Cpu,
+  ImagePlus,
   Inbox,
   Loader2,
   MessageSquare,
@@ -32,6 +33,7 @@ import {
   Search,
   Send,
   TriangleAlert,
+  X,
 } from "lucide-react"
 
 import { AdminShell } from "@/components/admin/admin-shell"
@@ -324,6 +326,10 @@ export default function AdminFeedbackPage() {
   const [draft, setDraft] = useState("")
   const [sending, setSending] = useState(false)
   const [composerError, setComposerError] = useState<string | null>(null)
+  const [pendingImage, setPendingImage] = useState<{
+    file: File
+    previewUrl: string
+  } | null>(null)
   const [live, setLive] = useState(false)
   const [atBottom, setAtBottom] = useState(true)
   const [copiedField, setCopiedField] = useState<string | null>(null)
@@ -331,6 +337,7 @@ export default function AdminFeedbackPage() {
   const endRef = useRef<HTMLDivElement | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const composerRef = useRef<HTMLTextAreaElement | null>(null)
+  const fileRef = useRef<HTMLInputElement | null>(null)
 
   const selected = items.find((item) => item.id === selectedId) ?? null
 
@@ -410,6 +417,10 @@ export default function AdminFeedbackPage() {
       queueMicrotask(() => {
         setSelectedId((current) => (current === selectedId ? null : current))
         setDraft("")
+        setPendingImage((prev) => {
+          if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl)
+          return null
+        })
       })
     }
   }, [items, selectedId])
@@ -419,6 +430,10 @@ export default function AdminFeedbackPage() {
       setDraft("")
       setComposerError(null)
       setAtBottom(true)
+      setPendingImage((prev) => {
+        if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl)
+        return null
+      })
     })
     endRef.current?.scrollIntoView({ block: "end" })
   }, [selectedId])
@@ -537,10 +552,56 @@ export default function AdminFeedbackPage() {
     }
   }
 
+  function clearPendingImage() {
+    setPendingImage((prev) => {
+      if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl)
+      return null
+    })
+    if (fileRef.current) fileRef.current.value = ""
+  }
+
+  function acceptComposerImage(file: File | null | undefined) {
+    if (!file) return
+    const type = file.type.toLowerCase()
+    const ext = file.name.split(".").pop()?.toLowerCase()
+    const allowedType =
+      type === "image/jpeg" || type === "image/png" || type === "image/webp"
+    const allowedExt = Boolean(
+      ext && ["jpg", "jpeg", "png", "webp"].includes(ext)
+    )
+    if ((!allowedType && !allowedExt) || file.size <= 0 || file.size > 4 * 1024 * 1024) {
+      setComposerError("Images only — jpg, png, or webp under 4MB.")
+      return
+    }
+    setComposerError(null)
+    setPendingImage((prev) => {
+      if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl)
+      return { file, previewUrl: URL.createObjectURL(file) }
+    })
+  }
+
+  async function uploadAdminImage(ticketId: string, file: File): Promise<string> {
+    const form = new FormData()
+    form.append("file", file)
+    form.append("ticketId", ticketId)
+    const res = await fetch("/api/admin/feedback/upload", {
+      method: "POST",
+      body: form,
+      credentials: "same-origin",
+    })
+    const json = (await res.json()) as { publicUrl?: string; error?: string }
+    if (!res.ok || !json.publicUrl) {
+      throw new Error(json.error ?? "Couldn’t upload image")
+    }
+    return json.publicUrl
+  }
+
   async function sendReply() {
     if (!selected || sendingRef.current) return
     const body = draft.trim()
-    if (!body) return
+    const imageFile = pendingImage?.file ?? null
+    const localPreview = pendingImage?.previewUrl ?? null
+    if (!body && !imageFile) return
 
     const ticketId = selected.id
     const priorNeedsReply = selected.needsAdminReply
@@ -550,6 +611,7 @@ export default function AdminFeedbackPage() {
     setComposerError(null)
     setDraft("")
     setAtBottom(true)
+
     setItems((current) =>
       current.map((row) =>
         row.id === ticketId
@@ -561,7 +623,8 @@ export default function AdminFeedbackPage() {
                 {
                   id: optimisticId,
                   author: "admin" as const,
-                  body,
+                  body: body || " ",
+                  imageUrl: localPreview,
                   createdAt: new Date().toISOString(),
                 },
               ],
@@ -569,13 +632,20 @@ export default function AdminFeedbackPage() {
           : row
       )
     )
+    setPendingImage(null)
+    if (fileRef.current) fileRef.current.value = ""
 
     try {
+      let imageUrl: string | null = null
+      if (imageFile) {
+        imageUrl = await uploadAdminImage(ticketId, imageFile)
+      }
+
       const res = await fetch(`/api/admin/feedback/${ticketId}/reply`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({ reply: body }),
+        body: JSON.stringify({ reply: body, imageUrl }),
       })
       const json = (await res.json()) as { error?: string }
       if (!res.ok) throw new Error(json.error ?? "Reply failed")
@@ -595,6 +665,9 @@ export default function AdminFeedbackPage() {
       setDraft(body)
       setComposerError(err instanceof Error ? err.message : "Reply failed")
     } finally {
+      if (localPreview) {
+        window.setTimeout(() => URL.revokeObjectURL(localPreview), 8_000)
+      }
       sendingRef.current = false
       setSending(false)
     }
@@ -1023,7 +1096,7 @@ export default function AdminFeedbackPage() {
                               <div
                                 key={msg.id}
                                 className={cn(
-                                  "px-3.5 py-2 text-[15px] leading-snug whitespace-pre-wrap",
+                                  "overflow-hidden text-[15px] leading-snug",
                                   bubbleShape(
                                     item.group.author,
                                     index,
@@ -1034,14 +1107,27 @@ export default function AdminFeedbackPage() {
                                     : "bg-[#e9e9eb] text-[var(--admin-fg)]"
                                 )}
                               >
-                                {msg.body}
                                 {msg.imageUrl ? (
                                   // eslint-disable-next-line @next/next/no-img-element
                                   <img
                                     src={msg.imageUrl}
                                     alt="Attachment"
-                                    className="mt-2 max-h-64 w-auto max-w-full rounded-lg object-cover"
+                                    className={cn(
+                                      "max-h-64 w-auto max-w-full object-cover",
+                                      msg.body.trim() ? "rounded-t-[inherit]" : ""
+                                    )}
                                   />
+                                ) : null}
+                                {msg.body.trim() ? (
+                                  <div
+                                    className={cn(
+                                      "px-3.5 py-2 whitespace-pre-wrap",
+                                      msg.imageUrl &&
+                                        "border-t border-black/10"
+                                    )}
+                                  >
+                                    {msg.body}
+                                  </div>
                                 ) : null}
                               </div>
                             ))}
@@ -1095,20 +1181,72 @@ export default function AdminFeedbackPage() {
                     </p>
                   ) : null}
 
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(event) => {
+                      acceptComposerImage(event.target.files?.[0])
+                      event.target.value = ""
+                    }}
+                  />
+
+                  {pendingImage ? (
+                    <div className="mb-2 flex items-start gap-2 px-1">
+                      <div className="relative overflow-hidden rounded-xl border border-[var(--admin-border)] bg-white shadow-sm">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={pendingImage.previewUrl}
+                          alt="Attachment preview"
+                          className="max-h-28 w-auto max-w-[12rem] object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={clearPendingImage}
+                          disabled={sending}
+                          className="absolute top-1.5 right-1.5 flex size-6 items-center justify-center rounded-full bg-black/55 text-white transition hover:bg-black/75 disabled:opacity-50"
+                          aria-label="Remove attachment"
+                        >
+                          <X className="size-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+
                   <div className="flex items-end gap-2">
                     <div
                       className={cn(
-                        "flex min-w-0 flex-1 items-end gap-1 rounded-[1.25rem] border bg-white pr-1.5 pl-3.5 shadow-[var(--admin-shadow)] transition-colors",
+                        "flex min-w-0 flex-1 items-end gap-1 rounded-[1.25rem] border bg-white pr-1.5 pl-2 shadow-[var(--admin-shadow)] transition-colors",
                         "border-[var(--admin-border-strong)] focus-within:border-[var(--admin-blue)]"
                       )}
                     >
+                      <button
+                        type="button"
+                        disabled={sending}
+                        onClick={() => fileRef.current?.click()}
+                        className="mb-1 flex size-8 shrink-0 items-center justify-center rounded-full text-[var(--admin-blue)] transition hover:bg-[var(--admin-blue-soft)] disabled:opacity-40"
+                        aria-label="Attach image"
+                        title="Attach image"
+                      >
+                        <ImagePlus className="size-4" />
+                      </button>
                       <textarea
                         ref={composerRef}
                         value={draft}
                         onChange={(event) => setDraft(event.target.value)}
                         onKeyDown={onComposerKeyDown}
+                        onPaste={(event) => {
+                          const file = Array.from(
+                            event.clipboardData?.files ?? []
+                          ).find((f) => f.type.startsWith("image/"))
+                          if (file) {
+                            event.preventDefault()
+                            acceptComposerImage(file)
+                          }
+                        }}
                         rows={1}
-                        placeholder="iMessage"
+                        placeholder="Message…"
                         aria-label="Write a reply"
                         title="Enter to send · Shift+Enter for a new line"
                         className="admin-scroll max-h-36 min-h-9 flex-1 resize-none bg-transparent py-2.5 text-[15px] leading-snug text-[var(--admin-fg)] outline-none placeholder:text-[var(--admin-muted)]"
@@ -1116,11 +1254,13 @@ export default function AdminFeedbackPage() {
                       <button
                         type="button"
                         aria-label="Send reply"
-                        disabled={sending || !draft.trim()}
+                        disabled={
+                          sending || (!draft.trim() && !pendingImage)
+                        }
                         onClick={() => void sendReply()}
                         className={cn(
                           "mb-1 flex size-8 shrink-0 items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]/35",
-                          draft.trim()
+                          draft.trim() || pendingImage
                             ? "bg-[var(--admin-blue)] text-white hover:bg-[var(--admin-blue-hover)]"
                             : "bg-[var(--admin-fill)] text-[var(--admin-muted)]",
                           "disabled:pointer-events-none"
