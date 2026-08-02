@@ -15,19 +15,12 @@ export const macwallPricingCopy = {
   billingAnnual: "Annual",
 
   plans: {
-    free: {
-      title: "Free",
-      subtitle: "No card needed",
-      price: "$0",
-      featuresPrefix: "Includes:",
-      cta: "Download",
-    },
     pro: {
       title: "Pro",
       subtitle: "Limited price — pay once",
       badge: "Most Popular",
       badgeAlt: "33% off",
-      featuresPrefix: "Everything in Free, plus:",
+      featuresPrefix: "Includes:",
       ctaPermanent: "Get Pro",
       ctaAnnual: "Start annual plan",
     },
@@ -83,16 +76,6 @@ export const macwallPricingCopy = {
       "Post as many times as you want until one Reel hits 2,000 organic views. No bots or paid promotion. We may verify views and decline suspicious claims. Refunds go to the original payment method. Offer can end anytime.",
     cta: "Email for your refund",
     ctaHref: mailtoReelRefund,
-  },
-
-  freeTrial: {
-    features: [
-      "Curated free wallpapers",
-      "Menu bar controls",
-      "Multi-display support",
-      "No card required",
-      "Community uploads",
-    ],
   },
 
   pro: {

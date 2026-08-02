@@ -11,6 +11,12 @@ export function normalizeSupportSessionId(value: string): string {
 
 export const SUPPORT_SESSION_STORAGE_KEY = "macwall_support_session_id"
 
+/** Query flag that auto-opens the live chat popup (`/?support-chat`). */
+export const SUPPORT_CHAT_QUERY = "support-chat"
+
+/** Prefer this for in-app links so the chat opens on soft navigation too. */
+export const SUPPORT_CHAT_HREF = `/?${SUPPORT_CHAT_QUERY}=1`
+
 export type SupportSentiment = "like" | "dislike" | "neutral"
 
 export function parseSupportSentiment(value: unknown): SupportSentiment {

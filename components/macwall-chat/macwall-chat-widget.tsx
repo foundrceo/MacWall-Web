@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import {
   type DragEvent,
@@ -56,7 +56,7 @@ import {
 import { useSupportTicketStream } from "@/lib/macwall-chat/use-support-ticket-stream"
 import { isAllowedChatImage, uploadChatImage } from "@/lib/macwall-chat/upload"
 import { macwall } from "@/lib/macwall-site"
-import { supportErrorMessage } from "@/lib/support/shared"
+import { supportErrorMessage, SUPPORT_CHAT_QUERY } from "@/lib/support/shared"
 import { cn } from "@/lib/utils"
 
 /** Safety-net poll when SSE is live; faster when offline / closed. */
@@ -164,6 +164,8 @@ function buildTicketMessage(
 
 export function MacWallChatWidget() {
   const pathname = usePathname()
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const reduceMotion = useReducedMotion()
   const titleId = useId()
   const panelId = useId()
@@ -176,7 +178,7 @@ export function MacWallChatWidget() {
   const seenRemoteRef = useRef<Set<string>>(new Set())
   const activeIdRef = useRef<string>("")
 
-  const hidden = pathname === "/support" || pathname?.startsWith("/admin")
+  const hidden = pathname?.startsWith("/admin") ?? false
 
   const [open, setOpen] = useState(false)
   const [hydrated, setHydrated] = useState(false)
@@ -325,6 +327,16 @@ export function MacWallChatWidget() {
     }
     setHydrated(true)
   }, [loadConversationFields])
+
+  // Open from `?support-chat` on any navigation (footer Link, /support redirect, typed URL).
+  useEffect(() => {
+    if (!searchParams.has(SUPPORT_CHAT_QUERY)) return
+    setOpen(true)
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete(SUPPORT_CHAT_QUERY)
+    const next = params.toString()
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false })
+  }, [searchParams, pathname, router])
 
   useEffect(() => {
     if (!hydrated || !activeId || conversations.length === 0) return

@@ -94,8 +94,8 @@ export const macwall = {
   supportEmail: "support@macwall.app",
   /** Reel refund program — 50% at 2k views, 100% at 20k views. */
   reelRefundEmail: "discount@macwall.com",
-  reelRefundInstagram: "@macwallapp",
-  reelRefundInstagramURL: "https://www.instagram.com/macwallapp",
+  reelRefundInstagram: "@macwallapp_",
+  reelRefundInstagramURL: "https://www.instagram.com/macwallapp_",
   reelRefundTiktok: "@macwall.app",
   reelRefundTiktokURL: "https://www.tiktok.com/@macwall.app",
   reelRefundHashtag: "#macwall",
