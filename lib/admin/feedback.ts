@@ -104,7 +104,9 @@ function mapFeedback(
   }
 }
 
-async function loadMessagesForFeedback(ids: string[]): Promise<Map<string, FeedbackMessage[]>> {
+async function loadMessagesForFeedback(
+  ids: string[]
+): Promise<Map<string, FeedbackMessage[]>> {
   const grouped = new Map<string, FeedbackMessage[]>()
   if (ids.length === 0) return grouped
 
@@ -132,6 +134,8 @@ export async function listAppFeedback(
   let query = supabase
     .from("app_feedback")
     .select(COLUMNS)
+    .order("needs_admin_reply", { ascending: false })
+    .order("is_resolved", { ascending: true })
     .order("created_at", { ascending: false })
     .limit(300)
 
@@ -145,10 +149,23 @@ export async function listAppFeedback(
   if (error) throw new Error(error.message)
 
   const rows = (data ?? []) as FeedbackRow[]
-  const messagesByFeedback = await loadMessagesForFeedback(rows.map((r) => r.id))
-  return rows.map((row) =>
-    mapFeedback(row, messagesByFeedback.get(row.id) ?? [])
-  )
+  const messages = await loadMessagesForFeedback(rows.map((r) => r.id))
+  return rows.map((row) => {
+    const thread = messages.get(row.id) ?? []
+    const mapped = mapFeedback(row, thread)
+    const last = thread.at(-1)
+    // Keep Reply inbox accurate even if the column lagged
+    if (!mapped.isResolved && last?.author === "user") {
+      mapped.needsAdminReply = true
+    } else if (
+      !mapped.isResolved &&
+      thread.length === 0 &&
+      mapped.message.trim()
+    ) {
+      mapped.needsAdminReply = true
+    }
+    return mapped
+  })
 }
 
 export async function getFeedbackTotals(): Promise<FeedbackTotals> {
@@ -189,11 +206,13 @@ export async function replyToFeedback(id: string, reply: string) {
   const body = trimmed.slice(0, 4000)
   const now = new Date().toISOString()
 
-  const { error: insertError } = await supabase.from("app_feedback_messages").insert({
-    feedback_id: id,
-    author: "admin",
-    body,
-  })
+  const { error: insertError } = await supabase
+    .from("app_feedback_messages")
+    .insert({
+      feedback_id: id,
+      author: "admin",
+      body,
+    })
   if (insertError) throw new Error(insertError.message)
 
   const { data, error } = await supabase
@@ -218,11 +237,31 @@ export async function replyToFeedback(id: string, reply: string) {
 
 export async function setFeedbackResolved(id: string, resolved: boolean) {
   const supabase = getSupabaseAdmin()
+
+  let needsAdminReply: boolean | undefined
+  if (!resolved) {
+    // Reopen: if last message is from the user, put ticket back in Needs reply
+    const { data: lastMsg } = await supabase
+      .from("app_feedback_messages")
+      .select("author")
+      .eq("feedback_id", id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (lastMsg?.author === "user") needsAdminReply = true
+  }
+
   const { error } = await supabase
     .from("app_feedback")
     .update({
       is_resolved: resolved,
-      ...(resolved ? { needs_admin_reply: false } : {}),
+      ...(resolved
+        ? { needs_admin_reply: false }
+        : {
+            user_has_unread: true,
+            user_has_seen_reply: false,
+            ...(needsAdminReply ? { needs_admin_reply: true } : {}),
+          }),
     })
     .eq("id", id)
 

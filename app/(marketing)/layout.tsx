@@ -1,5 +1,6 @@
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
+import { MacWallChatMount } from "@/components/macwall-chat/macwall-chat-mount"
 import { HeroVideoPreload } from "@/components/macwall-marketing/hero-video-preload"
 import { MarketingPricingProvider } from "@/components/marketing/marketing-pricing-context"
 import { resolveMarketingPricing } from "@/lib/pricing/resolve-marketing-pricing"
@@ -34,6 +35,7 @@ export default async function MarketingLayout({
         ) : null}
         <HeroVideoPreload />
         {children}
+        <MacWallChatMount />
       </div>
     </MarketingPricingProvider>
   )
