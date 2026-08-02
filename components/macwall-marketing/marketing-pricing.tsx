@@ -2,8 +2,6 @@
 
 import Link from "next/link"
 import type { ReactNode } from "react"
-import { InformationCircleIcon } from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
@@ -11,18 +9,12 @@ import MarketingSiteChrome, {
   MARKETING_MAIN_OFFSET_CLASS,
 } from "@/components/macwall-marketing/MarketingSiteChrome"
 import { CheckoutPrefetchWarmup } from "@/components/macwall-marketing/checkout-prefetch-warmup"
+import { DiscordPricingPerk } from "@/components/macwall-marketing/discord-pricing-perk"
 import HomeFaqSection from "@/components/macwall-marketing/HomeFaqSection"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
 import { ProPlusPackCard } from "@/components/macwall-marketing/pro-plus-pack-card"
 import { GradientTracing } from "@/components/ui/gradient-tracing"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { DISCORD_MEMBER_PERCENT_OFF } from "@/lib/discord/discount-public"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
@@ -75,46 +67,7 @@ export default function MacWallMarketingPricingPage() {
               {p.heroLead}
             </p>
 
-            <div className="mx-auto mt-4 flex w-fit max-w-full flex-wrap items-center justify-center gap-x-2.5 gap-y-2 rounded-full border border-border bg-secondary px-3 py-2 sm:gap-x-3 sm:px-3.5">
-              <p className="inline-flex items-center gap-x-1.5 text-[13px] leading-none text-foreground sm:text-[14px]">
-                Extra {DISCORD_MEMBER_PERCENT_OFF}% off in Discord
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        className="inline-flex size-4 shrink-0 items-center justify-center rounded-full text-marketing-muted transition-colors hover:text-foreground"
-                        aria-label="How the Discord discount works"
-                      >
-                        <HugeiconsIcon
-                          icon={InformationCircleIcon}
-                          size={14}
-                          strokeWidth={1.75}
-                          aria-hidden
-                        />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="bottom"
-                      sideOffset={6}
-                      className="max-w-[220px] text-left leading-snug"
-                    >
-                      Join Discord, copy the code from the discount channel,
-                      then enter it at checkout for {DISCORD_MEMBER_PERCENT_OFF}
-                      % off.
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </p>
-              <a
-                href={macwall.discordInvite}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-7 shrink-0 items-center justify-center rounded-full bg-white px-3 text-[12px] font-medium text-black no-underline transition-opacity hover:opacity-90 sm:text-[13px]"
-              >
-                Join for {DISCORD_MEMBER_PERCENT_OFF}% off
-              </a>
-            </div>
+            <DiscordPricingPerk />
 
             <div className="mt-8 md:mt-10">
               <div className="mx-auto grid max-w-3xl grid-cols-1 items-stretch gap-4 sm:gap-5 lg:grid-cols-2">
