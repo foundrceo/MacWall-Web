@@ -1,16 +1,12 @@
-import { SeoPageShell } from "@/components/content/seo-page-shell"
-import {
-  ProseActionRow,
-  ProseSecondaryLink,
-} from "@/components/content/prose-action-row"
+import { BlogArticleShell } from "@/components/blog/blog-article-shell"
+import { BlogRelatedArticles } from "@/components/blog/blog-related-articles"
 import { JsonLd } from "@/components/seo/json-ld"
-import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { getAllBlogSlugs, getBlogArticle } from "@/lib/blog"
+import { getRelatedBlogArticles } from "@/lib/blog/partition-articles"
 import { blogTilePoster } from "@/lib/blog/tile-media"
 import { BLOG_CATEGORY_LABELS, type BlogCategory } from "@/lib/content/types"
-import { articleJsonLd, faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
+import { articleJsonLd } from "@/lib/seo/json-ld-helpers"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
-import { macwallInstallerLatestPath } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
@@ -53,15 +49,6 @@ export async function generateMetadata({
   }
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
-}
-
-
 export default async function BlogArticlePage({ params }: PageProps) {
   const { slug } = await params
   const article = getBlogArticle(slug)
@@ -77,43 +64,28 @@ export default async function BlogArticlePage({ params }: PageProps) {
     dateModified: article.updatedAt,
   })
 
-  const faqLd =
-    article.faq && article.faq.length > 0 ? faqPageJsonLd(article.faq) : null
+  const relatedArticles = getRelatedBlogArticles(slug)
+  const coverSrc = blogTilePoster(slug, article.category, "tile")
 
   return (
     <>
       <JsonLd payload={articleLd} />
-      {faqLd ? <JsonLd payload={faqLd} /> : null}
-      <SeoPageShell
-        showBottomCta={false}
+      <BlogArticleShell
         headline={article.headline}
         description={article.description}
         sections={article.sections}
-        faq={article.faq}
+        categoryLabel={BLOG_CATEGORY_LABELS[article.category as BlogCategory]}
+        readMinutes={article.readMinutes}
+        publishedAt={article.publishedAt}
+        coverSrc={coverSrc}
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Blog", href: "/blog" },
           { label: article.title, href: article.pathname },
         ]}
-        meta={
-          <>
-            {BLOG_CATEGORY_LABELS[article.category as BlogCategory]} ·{" "}
-            {article.readMinutes} min read ·{" "}
-            {article.publishedAt ? formatDate(article.publishedAt) : null}
-          </>
-        }
       >
-        <ProseActionRow>
-          <TrackedDownloadButton
-            href={macwallInstallerLatestPath}
-            size="lg"
-            location="blog_article"
-          >
-            Download for Mac
-          </TrackedDownloadButton>
-          <ProseSecondaryLink href="/blog">All articles</ProseSecondaryLink>
-        </ProseActionRow>
-      </SeoPageShell>
+        <BlogRelatedArticles articles={relatedArticles} />
+      </BlogArticleShell>
     </>
   )
 }

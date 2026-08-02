@@ -184,83 +184,6 @@ export const overviewArticles: BlogArticle[] = [
         text: "Download at [macwall.app/download](/download). Browse wallpapers at [macwall.app/wallpapers](/wallpapers). Questions? [Support](/support) or email support@macwall.app.",
       },
     ],
-    faq: [
-      {
-        question: "What is MacWall?",
-        answer:
-          "MacWall is a native macOS app that plays live video wallpapers on your desktop (and Lock Screen with Pro on macOS 26+). It uses hardware video decode, runs from the menu bar, and includes a curated catalog plus personal imports.",
-      },
-      {
-        question: "Does MacWall slow down my Mac?",
-        answer:
-          "When built correctly, live wallpapers use minimal resources. MacWall decodes on GPU via VideoToolbox and auto-pauses on battery, full screen, high CPU, lock, and sleep — so during focused work the cost is effectively zero.",
-      },
-      {
-        question: "How much CPU does MacWall use?",
-        answer:
-          "Typically under 1% CPU on Apple Silicon when plugged in and wallpaper is visible. Zero when paused (battery, full screen, sleep, or manual pause). See our CPU usage article for the full pause policy list.",
-      },
-      {
-        question: "Does MacWall drain MacBook battery?",
-        answer:
-          "Enable pause-on-battery and MacWall uses no energy while unplugged. Optional Reduce Quality on Battery caps to 1080p/30fps if you prefer motion on battery with lower draw.",
-      },
-      {
-        question: "Is MacWall free?",
-        answer:
-          "Download is free. Pro is a one-time purchase (currently $7.99) for the full catalog, Lock Screen, and lifetime updates. No subscription.",
-      },
-      {
-        question: "Does MacWall require an account?",
-        answer:
-          "No account is required to browse the catalog or use imported wallpapers. Checkout uses email for license delivery only.",
-      },
-      {
-        question: "What macOS versions are supported?",
-        answer:
-          "Desktop live wallpapers: macOS 14.0+. Lock Screen live video: macOS 26 (Tahoe)+ with Pro.",
-      },
-      {
-        question: "Can I use my own videos?",
-        answer:
-          "Yes. Import MP4, MOV, M4V, or GIF via drag-and-drop. Files stay on your Mac in your Library.",
-      },
-      {
-        question: "Does MacWall work with multiple monitors?",
-        answer:
-          "Yes. Independent wallpaper per display with one decoder each — dual 4K, ultrawide + laptop, etc.",
-      },
-      {
-        question: "How is MacWall different from Wallpaper Engine?",
-        answer:
-          "Wallpaper Engine has no native Mac app. MacWall is Mac-native, focused on smooth video loops, menu bar control, and intelligent pause — not interactive Windows-first scenes.",
-      },
-      {
-        question: "MacWall vs Backdrop — which is better?",
-        answer:
-          "Both are excellent native apps. MacWall stands out on community uploads, web gallery integration, Reel refund program, and menu-bar-first UX. Compare in our vs Backdrop article.",
-      },
-      {
-        question: "Can I get MacWall Pro for free?",
-        answer:
-          "Post a public video featuring MacWall with #macwall. At 2,000 organic views earn 50% back; at 20,000 views earn a full refund. Details at macwall.app/creator.",
-      },
-      {
-        question: "How do I upload a wallpaper to the community?",
-        answer:
-          "Submit at macwall.app/submit or in-app. MP4/MOV, seamless loop, 1080p minimum. Human review before publish.",
-      },
-      {
-        question: "Does MacWall support Lock Screen live wallpaper?",
-        answer:
-          "Yes, with Pro on macOS 26+ using Apple's wallpaper APIs. Desktop motion works on macOS 14+.",
-      },
-      {
-        question: "Is there a Windows version?",
-        answer:
-          "MacWall is Mac-only by design — native Swift, Metal, and VideoToolbox integration that Windows ports cannot match on macOS.",
-      },
-    ],
   },
   {
     slug: "macwall-performance-zero-overhead-guide",
@@ -405,28 +328,6 @@ export const overviewArticles: BlogArticle[] = [
       {
         type: "p",
         text: "Live wallpapers are not inherently heavy. **Native hardware decode + aggressive pause policy** makes them a background luxury, not a performance tax. That is the engineering bet MacWall is built on — and why it outperforms cross-platform alternatives on Mac in 2026.",
-      },
-    ],
-    faq: [
-      {
-        question: "What is the lightest live wallpaper app for Mac?",
-        answer:
-          "Among native video wallpaper apps, MacWall is among the lightest due to VideoToolbox decode and comprehensive auto-pause (battery, full screen, sleep, high CPU). Electron-based tools are consistently heavier.",
-      },
-      {
-        question: "Does MacWall use GPU or CPU?",
-        answer:
-          "Primarily GPU and Apple's media engine for decode/composite. CPU involvement is minimal — scheduling, UI, and catalog sync.",
-      },
-      {
-        question: "Can I cap wallpaper quality for performance?",
-        answer:
-          "Yes. Reduce Quality on Battery (1080p/30fps) and Performance Mode (720p/24fps) are built in.",
-      },
-      {
-        question: "Does 4K wallpaper use more CPU than 1080p?",
-        answer:
-          "Decode cost scales with resolution, but hardware decode keeps 4K manageable on Apple Silicon. On older Intel Macs, 1440p or Performance Mode is recommended.",
       },
     ],
   },
