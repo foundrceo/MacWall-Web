@@ -1,6 +1,7 @@
 import {
   macwall,
   macwallAppIconPath,
+  macwallLockScreenMacOSVersion,
   macwallMinimumMacOSVersion,
   macwallMinimumMacOSRequirementOrLater,
 } from "@/lib/macwall-site"
@@ -45,7 +46,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         image: logoUrl,
         email: macwall.supportEmail,
         description:
-          `Maker of MacWall, the native macOS app for live video wallpapers on the Mac desktop, with menu bar control and Lock Screen motion on ${macwallMinimumMacOSVersion}.`,
+          `Maker of MacWall, the native macOS app for live video wallpapers on the Mac desktop, with menu bar control and Lock Screen motion on ${macwallLockScreenMacOSVersion}.`,
         sameAs: [...MACWALL_SAME_AS],
       },
       {
@@ -55,7 +56,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         name: `${macwall.name} App`,
         alternateName: [...MACWALL_ALTERNATE_NAMES],
         description:
-          `Native macOS app for live video wallpapers behind your windows: curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, and optional MacWall Pro for Lock Screen and Screen Saver motion on ${macwallMinimumMacOSVersion}.`,
+          `Native macOS app for live video wallpapers behind your windows: curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, and optional MacWall Pro for Lock Screen and Screen Saver motion on ${macwallLockScreenMacOSVersion}.`,
         publisher: { "@id": orgId },
       },
       {
@@ -66,7 +67,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         applicationCategory: "MultimediaApplication",
         applicationSubCategory: "Desktop Wallpaper / Live Wallpaper",
         operatingSystem: macwallMinimumMacOSRequirementOrLater,
-        description: `${macwall.name} is a native macOS app that brings live video wallpapers and a curated cloud catalog to Apple Silicon and Intel Macs running ${macwallMinimumMacOSVersion} or later, including live Lock Screen and Screen Saver wallpapers.`,
+        description: `${macwall.name} is a native macOS app that brings live video wallpapers and a curated cloud catalog to Apple Silicon and Intel Macs running ${macwallMinimumMacOSVersion} or later, including live Lock Screen and Screen Saver wallpapers on ${macwallLockScreenMacOSVersion}+.`,
         url: origin,
         image: logoUrl,
         screenshot: `${origin}/og.jpg`,
@@ -80,7 +81,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
           "Multi-display playback, synced or solo, with hardware decoding",
           "Menu bar control and auto-pause on battery, full screen, and high CPU",
           "Music Sync: album-art gradients from Apple Music and Spotify",
-          `MacWall Pro: live Lock Screen and Screen Saver on ${macwallMinimumMacOSVersion}`,
+          `MacWall Pro: live Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion}`,
         ],
         publisher: { "@id": orgId },
         isPartOf: { "@id": siteId },

@@ -1,6 +1,8 @@
 import {
   macwall,
   mailtoReelRefund,
+  macwallLockScreenMacOSVersion,
+  macwallMacOSRequirementsHint,
   macwallMinimumMacOSVersion,
 } from "@/lib/macwall-site"
 
@@ -15,24 +17,25 @@ export const macwallPricingCopy = {
   plans: {
     free: {
       title: "Free",
-      subtitle: "For exploring live wallpapers",
+      subtitle: "No card needed",
       price: "$0",
       featuresPrefix: "Includes:",
-      cta: "Try MacWall",
+      cta: "Download",
     },
     pro: {
       title: "Pro",
-      subtitle: "For your daily Mac setup",
-      badge: "Popular",
+      subtitle: "Limited price — pay once",
+      badge: "33% off",
       featuresPrefix: "Everything in Free, plus:",
       ctaPermanent: "Get Pro",
       ctaAnnual: "Start annual plan",
     },
     proPlus: {
-      title: "Pro Plus",
-      subtitle: "For desks, laptops, and studios",
+      title: "Pro+",
+      subtitle: "Limited deal for more Macs",
+      badge: "40% off",
       featuresPrefix: "Everything in Pro, plus:",
-      cta: "Get Pro Plus",
+      cta: "Get Pro+",
     },
     reel: {
       title: "Reel Refund",
@@ -43,10 +46,8 @@ export const macwallPricingCopy = {
     },
   },
 
-  heroKicker: "MacWall Pro",
-  heroTitle: "Choose how you unlock live wallpapers.",
-  heroLead:
-    "One-time purchase or annual subscription — both unlock the full Pro app on up to 3 Macs.",
+  heroTitle: "Pay once. Pro forever.",
+  heroLead: "Limited price. No subscriptions.",
 
   reelRefund: {
     badge: "Reel refund",
@@ -85,9 +86,10 @@ export const macwallPricingCopy = {
 
   freeTrial: {
     features: [
-      "6 starter live wallpapers",
+      "Curated free live wallpapers",
       "Desktop playback & menu bar controls",
-      "No card required",
+      "Multi-display support",
+      "No card or login required",
       "Upgrade whenever you're ready",
     ],
   },
@@ -96,41 +98,27 @@ export const macwallPricingCopy = {
     features: [
       "Lifetime license, pay once",
       "Use on up to 3 personal Macs",
-      "1,000+ live wallpapers in the cloud",
-      `Lock Screen & Screen Saver (${macwallMinimumMacOSVersion}+)`,
-      "Unlimited favorites and playlists",
-      "Music Sync & menu bar controls",
+      "Full cloud catalog (1,000+ wallpapers)",
+      `Lock Screen & Screen Saver (${macwallLockScreenMacOSVersion}+)`,
+      "Import your own videos",
+      "Auto-change, Music Sync & menu bar",
+      "Community uploads & future Pro features",
     ],
   },
 
   proPlus: {
     features: [
+      "Everything in Pro",
       "Use on up to 5 Macs",
-      "Best value for creators & studios",
+      "Best value for desks, laptops & studios",
       "Lower per-Mac price",
-      "Desk, laptop, and team setups",
       "Lifetime updates, no subscription",
-    ],
-  },
-
-  annual: {
-    line: "Need lower upfront cost?",
-    detail:
-      "Choose annual billing for up to 3 Macs and keep every Pro feature while subscribed.",
-    cta: "Start annual plan",
-    features: [
-      "Full Pro access while subscribed",
-      "Use on up to 3 personal Macs",
-      "1,000+ live wallpapers in the cloud",
-      `Lock Screen & Screen Saver (${macwallMinimumMacOSVersion}+)`,
-      "Billed once per year",
-      "Cancel before renewal anytime",
     ],
   },
 
   multiMac: {
     title: "Got more than one Mac?",
-    lead: "One permanent key for five machines — better per-Mac value for desks, laptops, and studios.",
+    lead: "Save more when you license multiple Macs. Same Pro features, more devices.",
     offerLabel: "5 Macs — Permanent",
     cta: "Buy 5-Mac license",
   },
@@ -144,7 +132,11 @@ export const macwallPricingCopy = {
     },
     {
       q: "Is Pro a subscription?",
-      a: "You choose. The permanent license is a single payment with no renewal. The annual plan renews once per year until canceled.",
+      a: "No. MacWall Pro is a one-time purchase. Pay once and keep the app forever, including lifetime updates. No recurring fees.",
+    },
+    {
+      q: "Can I try before upgrading?",
+      a: "Yes. Download MacWall free and apply curated free wallpapers with full desktop playback. Upgrade to Pro whenever you want the full catalog, custom imports, and Lock Screen.",
     },
     {
       q: "How does checkout work?",
@@ -152,11 +144,11 @@ export const macwallPricingCopy = {
     },
     {
       q: "How many Macs can I use with one license?",
-      a: "The permanent and annual plans cover up to 3 Macs. Need more? The 5-Mac permanent license covers up to 5. Replacing a Mac? Unlink the old machine in Settings → Devices, then activate the new one.",
+      a: "Pro covers up to 3 Macs. Need more? The 5-Mac permanent license covers up to 5. Replacing a Mac? Unlink the old machine in Settings → Devices, then activate the new one.",
     },
     {
       q: "Does Lock Screen video work on every macOS version?",
-      a: `Live Lock Screen and Screen Saver wallpapers require ${macwallMinimumMacOSVersion} or later, where Apple exposes the native wallpaper APIs.`,
+      a: `Live Lock Screen and Screen Saver wallpapers require ${macwallLockScreenMacOSVersion} or later, where Apple exposes the native wallpaper APIs. Desktop live wallpapers work on ${macwallMinimumMacOSVersion}+.`,
     },
     {
       q: "Can I get a refund without making a Reel?",
@@ -168,12 +160,12 @@ export const macwallPricingCopy = {
     },
     {
       q: "Which macOS releases are supported?",
-      a: `MacWall runs on ${macwallMinimumMacOSVersion} or later on Apple silicon and Intel Macs. Download the latest build from the site for the freshest compatibility notes.`,
+      a: `${macwallMacOSRequirementsHint}. Apple silicon and Intel Macs. Download the latest build from the site for the freshest compatibility notes.`,
     },
   ] as const,
 
-  bottomTitle: `Get ${macwall.name}`,
-  bottomDesc: `Choose ${macwall.pro.price} permanent or ${macwall.annual.price} per year. Make a Reel and earn up to 100% back.`,
+  bottomTitle: `Try ${macwall.name}`,
+  bottomDesc: `Claim the limited Pro price — or make a Reel and earn up to 100% back.`,
   bottomCtaPro: "Get Pro",
-  bottomCtaReel: "Get 100% free",
+  bottomCtaReel: "Earn 100% back",
 } as const

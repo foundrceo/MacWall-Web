@@ -6,14 +6,10 @@ import {
   TrackedPricingButton,
 } from "@/components/analytics/tracked-marketing-buttons"
 import {
-  HERO_DOWNLOAD_HINT_CLASS,
   HERO_PRIMARY_BTN_CLASS,
   HERO_SECONDARY_BTN_CLASS,
 } from "@/lib/marketing-chrome"
-import {
-  macwallInstallerLatestPath,
-  macwallMinimumMacOSRequirement,
-} from "@/lib/macwall-site"
+import { macwallInstallerLatestPath, macwallMinimumMacOSVersionLabel } from "@/lib/macwall-site"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -32,8 +28,8 @@ export default function HeroSectionActions() {
   const pricing = useMarketingPricing()
 
   return (
-    <div className="mt-9 flex flex-wrap items-center gap-2.5 pb-5 md:mt-10">
-      <div className="relative inline-block">
+    <div className="mt-9 flex flex-wrap items-start gap-2.5 pb-5 md:mt-10">
+      <div className="flex flex-col items-center">
         <TrackedDownloadButton
           href={macwallInstallerLatestPath}
           size="pill"
@@ -43,8 +39,8 @@ export default function HeroSectionActions() {
           <AppleIcon className="size-3.5" />
           Download for macOS
         </TrackedDownloadButton>
-        <p className={HERO_DOWNLOAD_HINT_CLASS}>
-          {macwallMinimumMacOSRequirement}
+        <p className="mt-2.5 text-center text-[12px] text-marketing-muted">
+          {macwallMinimumMacOSVersionLabel}
         </p>
       </div>
       <TrackedPricingButton

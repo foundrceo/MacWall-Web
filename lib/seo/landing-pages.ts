@@ -1,6 +1,6 @@
 import {
   macwall,
-  macwallMinimumMacOSVersion,
+  macwallLockScreenMacOSVersion,
   macwallMinimumMacOSRequirementOrLater,
 } from "@/lib/macwall-site"
 import type { SeoContentPage } from "@/lib/content/types"
@@ -47,6 +47,7 @@ export const downloadPage: SeoContentPage = {
       type: "ul",
       items: [
         macwallMinimumMacOSRequirementOrLater,
+        "Lock Screen & Screen Saver video: macOS 26 (Tahoe) or later",
         "Apple Silicon or Intel Mac",
         "Network for catalog sync (offline playback after download)",
       ],
@@ -115,7 +116,7 @@ export const liveWallpaperMacPage: SeoContentPage = {
         "**Community catalog**: Nature, Space, Anime, and six more categories",
         "**Your clips**: import any compatible MP4 or MOV",
         "**Menu bar first**: pause, switch, and control without a window",
-        `**Lock Screen Pro**: live Lock Screen and Screen Saver on ${macwallMinimumMacOSVersion}`,
+        `**Lock Screen Pro**: live Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion}`,
       ],
     },
     {
@@ -155,7 +156,7 @@ export const lockScreenWallpaperPage: SeoContentPage = {
   title: "Lock Screen Live Wallpaper for Mac | MacWall Pro",
   headline: "Lock Screen Live Wallpaper for Mac",
   description:
-    `MacWall Pro brings live video to your Mac Lock Screen and Screen Saver on ${macwallMinimumMacOSVersion}, using Apple's own wallpaper system. One-time purchase, lifetime updates.`,
+    `MacWall Pro brings live video to your Mac Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion}, using Apple's own wallpaper system. One-time purchase, lifetime updates.`,
   keywords: [
     "lock screen live wallpaper mac",
     "animated lock screen macos",
@@ -166,7 +167,7 @@ export const lockScreenWallpaperPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: `Desktop motion is just the beginning. On **${macwallMinimumMacOSVersion}**, **MacWall Pro** extends live video wallpapers to your **Lock Screen and Screen Saver**, the screen you see dozens of times a day before you even log in. It plugs into Apple's native wallpaper system, so there are no extra installers or extensions.`,
+      text: `Desktop motion is just the beginning. On **${macwallLockScreenMacOSVersion}**, **MacWall Pro** extends live video wallpapers to your **Lock Screen and Screen Saver**, the screen you see dozens of times a day before you even log in. It plugs into Apple's native wallpaper system, so there are no extra installers or extensions.`,
     },
     {
       type: "h2",
@@ -189,7 +190,7 @@ export const lockScreenWallpaperPage: SeoContentPage = {
     {
       question: "Which macOS versions support Lock Screen video?",
       answer:
-        `Live Lock Screen and Screen Saver wallpapers require ${macwallMinimumMacOSVersion} or later, where Apple exposes the native wallpaper APIs MacWall uses.`,
+        `Live Lock Screen and Screen Saver wallpapers require ${macwallLockScreenMacOSVersion} or later, where Apple exposes the native wallpaper APIs MacWall uses.`,
     },
   ],
 }
@@ -305,7 +306,7 @@ export const macwallVsBackdropPage: SeoContentPage = {
       items: [
         "MacWall: $9.99 one-time, everything included",
         "Backdrop: $9.99 one-time",
-        `Both: 4K video, multi-monitor, Lock Screen on ${macwallMinimumMacOSVersion}`,
+        `Both: 4K video, multi-monitor, Lock Screen on ${macwallLockScreenMacOSVersion}`,
         "MacWall: personal video imports + community catalog",
         "MacWall: Reel refund, earn up to 100% back",
         "Backdrop: in-app backdrop editor",
@@ -321,7 +322,7 @@ export const macwallVsWallperPage: SeoContentPage = {
   title: "Wallper Alternative for Mac: MacWall",
   headline: "The Wallper Alternative for Mac",
   description:
-    `Looking for a Wallper alternative? MacWall matches the one-time price, has a bigger community catalog, and brings live Lock Screen wallpapers to ${macwallMinimumMacOSVersion}.`,
+    `Looking for a Wallper alternative? MacWall matches the one-time price, has a bigger community catalog, and brings live Lock Screen wallpapers to ${macwallLockScreenMacOSVersion}.`,
   keywords: [
     "wallper alternative",
     "wallper alternative mac",
@@ -375,7 +376,7 @@ export const macwallVsWallspacePage: SeoContentPage = {
   title: "Wallspace Alternative for Mac: MacWall",
   headline: "The Wallspace Alternative for Mac",
   description:
-    `Looking for a Wallspace alternative? MacWall adds a deeper catalog with community uploads and brings live Lock Screen wallpapers to ${macwallMinimumMacOSVersion}.`,
+    `Looking for a Wallspace alternative? MacWall adds a deeper catalog with community uploads and brings live Lock Screen wallpapers to ${macwallLockScreenMacOSVersion}.`,
   keywords: [
     "wallspace alternative",
     "wallspace alternative mac",
@@ -400,7 +401,7 @@ export const macwallVsWallspacePage: SeoContentPage = {
         "Wallspace: $8.99 Pro one-time",
         "Both: native Swift, hardware-accelerated 4K, multi-monitor, battery-aware pause",
         "MacWall: 9-category community catalog with search, filters, and likes",
-        `Both: live Lock Screen on ${macwallMinimumMacOSVersion}. MacWall adds Screen Saver video too`,
+        `Both: live Lock Screen on ${macwallLockScreenMacOSVersion}. MacWall adds Screen Saver video too`,
         "MacWall: Reel refund. 50% back at 2k views, 100% at 20k views",
       ],
     },
@@ -459,7 +460,7 @@ export const livelyWallpaperMacPage: SeoContentPage = {
         "Import the same video files you used in Lively",
         "Curated 4K catalog across Nature, Space, Anime, and more",
         "Pause on battery, full screen, and high CPU. MacBook-friendly",
-        `Live Lock Screen and Screen Saver on ${macwallMinimumMacOSVersion}`,
+        `Live Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion}`,
         "Post a Reel with #macwall and earn up to 100% back",
       ],
     },
@@ -529,7 +530,7 @@ export function wallpaperCategoryPage(categoryName: string): SeoContentPage {
       },
       {
         type: "p",
-        text: `Run ${categoryName.toLowerCase()} loops in crisp 4K with hardware-accelerated decode on Apple Silicon and Intel Macs. MacWall pauses automatically on battery, full screen, and high CPU, so your ${categoryName.toLowerCase()} desktop looks cinematic without draining your MacBook. Set a different ${categoryName.toLowerCase()} wallpaper on each monitor, and unlock live Lock Screen motion with MacWall Pro on ${macwallMinimumMacOSVersion}.`,
+        text: `Run ${categoryName.toLowerCase()} loops in crisp 4K with hardware-accelerated decode on Apple Silicon and Intel Macs. MacWall pauses automatically on battery, full screen, and high CPU, so your ${categoryName.toLowerCase()} desktop looks cinematic without draining your MacBook. Set a different ${categoryName.toLowerCase()} wallpaper on each monitor, and unlock live Lock Screen motion with MacWall Pro on ${macwallLockScreenMacOSVersion}.`,
       },
       {
         type: "h2",
