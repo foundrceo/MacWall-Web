@@ -182,7 +182,7 @@ const FAQS: Array<{
   {
     id: "refund",
     keywords: ["refund", "money back", "reel", "cancel"],
-    reply: `Sales are generally final. The Reel Refund program can get you up to 100% back if you post and hit the view targets.\n\nDetails: /pricing/reel-refund — or email ${macwall.reelRefundEmail} with your Reel link and purchase email.`,
+    reply: `Sales are generally final. The Creator Offer can get you up to 100% back if you post and hit the view targets.\n\nDetails: /creator — or email ${macwall.reelRefundEmail} with your video link and purchase email.`,
     followUps: [
       {
         id: "reel",

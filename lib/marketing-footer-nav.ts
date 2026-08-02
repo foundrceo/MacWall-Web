@@ -63,6 +63,7 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
       links: [
         { label: "Blogs", href: "/blog" },
         { label: "Changelog", href: "/changelog" },
+        { label: "Creator Offer", href: "/creator" },
       ],
     },
     {
