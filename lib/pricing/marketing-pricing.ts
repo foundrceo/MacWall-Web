@@ -61,7 +61,7 @@ const PRO_PLUS_USD_CENTS = LICENSE_OFFERS.permanent_5.usdCents
 const PRO_PLUS_STRIKE_USD_CENTS = 2499
 const ANNUAL_USD_CENTS = LICENSE_OFFERS.annual.usdCents
 
-/** India list prices (Pro $3.99 · Pro+ $5.99 — both 60% off). */
+/** India display after INDIA50 ($4.99 Pro · $7.49 Pro+). */
 const PRO_INDIA_USD_CENTS = LICENSE_OFFERS.permanent.indiaUsdCents
 const PRO_PLUS_INDIA_USD_CENTS = LICENSE_OFFERS.permanent_5.indiaUsdCents
 const PRO_INDIA_OFF_PERCENT = indiaDiscountPercentOff(
@@ -98,7 +98,7 @@ export function buildMarketingPricingFromLocalized(
   const { country, permanentLocal, proPlusLocal } = bundle
   const india = isIndiaCountry(country)
 
-  // India: fixed charm prices; strike = full global sale price.
+  // India: INDIA50 half-price display; strike = full global sale price.
   const permanent = usdMoney(india ? PRO_INDIA_USD_CENTS : PRO_USD_CENTS)
   const permanentStrike = usdMoney(
     india ? PRO_USD_CENTS : PRO_STRIKE_USD_CENTS
