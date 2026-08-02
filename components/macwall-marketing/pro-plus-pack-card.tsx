@@ -1,6 +1,12 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
@@ -13,12 +19,117 @@ import { cn } from "@/lib/utils"
 const pricingPrimaryButtonClass =
   "inline-flex h-8 min-h-8 items-center justify-center rounded-full bg-white px-3.5 text-[14px] font-normal text-black no-underline transition-opacity hover:opacity-90"
 
+const PICKER_NAME = "tier-picker-pro-plus-macs"
+
 function featureLinesForMacs(
   baseFeatures: readonly string[],
   macs: number
 ): string[] {
   return baseFeatures.map((feature) =>
     feature.includes("5 Macs") ? `Up to ${macs} Macs` : feature
+  )
+}
+
+/** Sliding pill radio control — same pattern as the Pro / Pro+ / Ultra picker. */
+function MacPackPillPicker({
+  offers,
+  selectedMacs,
+  onSelect,
+}: Readonly<{
+  offers: readonly MarketingMultiMacOffer[]
+  selectedMacs: number
+  onSelect: (macs: number) => void
+}>) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const labelRefs = useRef<(HTMLLabelElement | null)[]>([])
+  const [thumb, setThumb] = useState({ left: 2, width: 0 })
+
+  const selectedIndex = Math.max(
+    0,
+    offers.findIndex((o) => o.macs === selectedMacs)
+  )
+
+  useLayoutEffect(() => {
+    const track = trackRef.current
+    const label = labelRefs.current[selectedIndex]
+    if (!track || !label) return
+
+    const trackBox = track.getBoundingClientRect()
+    const labelBox = label.getBoundingClientRect()
+    setThumb({
+      left: labelBox.left - trackBox.left,
+      width: labelBox.width,
+    })
+  }, [selectedIndex, offers])
+
+  useEffect(() => {
+    const onResize = () => {
+      const track = trackRef.current
+      const label = labelRefs.current[selectedIndex]
+      if (!track || !label) return
+      const trackBox = track.getBoundingClientRect()
+      const labelBox = label.getBoundingClientRect()
+      setThumb({
+        left: labelBox.left - trackBox.left,
+        width: labelBox.width,
+      })
+    }
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [selectedIndex])
+
+  return (
+    <div
+      ref={trackRef}
+      className="relative flex w-fit rounded-full bg-white/10 p-0.5 text-center"
+      role="radiogroup"
+      aria-label="Choose how many Macs"
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute rounded-full bg-white transition-all duration-300 ease-out"
+        style={{
+          left: thumb.left,
+          width: thumb.width,
+          top: 2,
+          bottom: 2,
+        }}
+      />
+      {offers.map((offer, index) => {
+        const active = offer.macs === selectedMacs
+        return (
+          <label
+            key={offer.slug}
+            ref={(el) => {
+              labelRefs.current[index] = el
+            }}
+            className="group relative cursor-pointer rounded-full border border-transparent px-2.5 py-1 text-[11px] leading-none"
+            onPointerEnter={() => {
+              void prefetchCheckoutSession(offer.slug)
+            }}
+          >
+            <input
+              className="absolute inset-0 cursor-pointer appearance-none rounded-full outline-none focus:outline-none focus-visible:outline-none"
+              type="radio"
+              name={PICKER_NAME}
+              value={String(offer.macs)}
+              checked={active}
+              onChange={() => onSelect(offer.macs)}
+            />
+            <span
+              className={cn(
+                "relative z-10 transition-colors",
+                active
+                  ? "text-black"
+                  : "text-foreground/70 group-hover:text-foreground"
+              )}
+            >
+              {offer.macs} Macs
+            </span>
+          </label>
+        )
+      })}
+    </div>
   )
 }
 
@@ -70,34 +181,11 @@ export function ProPlusPackCard({
       showActionSlot
       actionSlot={
         <div className="flex w-full flex-col gap-2.5">
-          <div
-            className="flex flex-wrap gap-1.5"
-            role="group"
-            aria-label="Choose how many Macs"
-          >
-            {sorted.map((offer) => {
-              const active = offer.macs === selected.macs
-              return (
-                <button
-                  key={offer.slug}
-                  type="button"
-                  onClick={() => setMacs(offer.macs)}
-                  onPointerEnter={() => {
-                    void prefetchCheckoutSession(offer.slug)
-                  }}
-                  className={cn(
-                    "inline-flex h-6 items-center rounded-full px-2 text-[11px] transition",
-                    active
-                      ? "bg-white text-black"
-                      : "bg-white/10 text-foreground/80 hover:bg-white/15"
-                  )}
-                  aria-pressed={active}
-                >
-                  {offer.macs} Macs
-                </button>
-              )
-            })}
-          </div>
+          <MacPackPillPicker
+            offers={sorted}
+            selectedMacs={selected.macs}
+            onSelect={setMacs}
+          />
           <GradientTracing
             width={160}
             height={12}
