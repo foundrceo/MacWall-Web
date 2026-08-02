@@ -1,8 +1,21 @@
 import type { AnalyticsEventRow } from "@/lib/analytics/admin-metrics"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
-/** MacWall Pro one-time price (USD). */
+/** Default MacWall Pro permanent price (USD) — most common SKU. */
 export const PRO_PRICE_USD = 9.99
+/** 5-Mac permanent license. */
+export const PRO_PLUS_PRICE_USD = 14.99
+/** Legacy annual plan (still active for existing subscribers). */
+export const ANNUAL_PRICE_USD = 4.99
+
+export function priceUsdForPlan(
+  planSlug: string | null | undefined,
+  billingModel: string | null | undefined
+): number {
+  if (planSlug === "pro_plus") return PRO_PLUS_PRICE_USD
+  if (billingModel === "annual") return ANNUAL_PRICE_USD
+  return PRO_PRICE_USD
+}
 
 /**
  * Stripe fee estimate: ~2.9% + $0.30 processing.
@@ -15,12 +28,16 @@ const STRIPE_FEE_FIXED = Number.parseFloat(
   process.env.STRIPE_FEE_FIXED ?? "0.30"
 )
 
-export function netRevenuePerSale(): number {
-  const fee = PRO_PRICE_USD * (STRIPE_FEE_PERCENT / 100) + STRIPE_FEE_FIXED
-  return Math.max(0, PRO_PRICE_USD - fee)
+export function netRevenueForAmount(amountUsd: number): number {
+  const fee = amountUsd * (STRIPE_FEE_PERCENT / 100) + STRIPE_FEE_FIXED
+  return Math.max(0, amountUsd - fee)
 }
 
-export type SaleRow = { sent_at: string }
+export function netRevenuePerSale(): number {
+  return netRevenueForAmount(PRO_PRICE_USD)
+}
+
+export type SaleRow = { sent_at: string; amountUsd: number }
 export type DeviceRow = { activated_at: string }
 
 export type DailySalesRow = { day: string; sales: number; revenue: number }
@@ -73,47 +90,95 @@ function rate(numerator: number, denominator: number): number {
 }
 
 function bucketByDay(rows: SaleRow[]): DailySalesRow[] {
-  const totals = new Map<string, number>()
+  const totals = new Map<string, { sales: number; revenue: number }>()
   for (const row of rows) {
     const day = row.sent_at.slice(0, 10)
-    totals.set(day, (totals.get(day) ?? 0) + 1)
+    const prev = totals.get(day) ?? { sales: 0, revenue: 0 }
+    totals.set(day, {
+      sales: prev.sales + 1,
+      revenue: prev.revenue + row.amountUsd,
+    })
   }
   return [...totals.entries()]
-    .map(([day, sales]) => ({
+    .map(([day, { sales, revenue }]) => ({
       day,
       sales,
-      revenue: round2(sales * PRO_PRICE_USD),
+      revenue: round2(revenue),
     }))
     .sort((a, b) => a.day.localeCompare(b.day))
 }
 
-async function fetchSalesFromTable(
-  table: "macwall_stripe_license_emails" | "macwall_whop_license_emails"
-): Promise<SaleRow[]> {
+function sumGross(rows: SaleRow[]): number {
+  return round2(rows.reduce((sum, row) => sum + row.amountUsd, 0))
+}
+
+function sumNet(rows: SaleRow[]): number {
+  return round2(
+    rows.reduce((sum, row) => sum + netRevenueForAmount(row.amountUsd), 0)
+  )
+}
+
+/**
+ * Active licenses with plan-aware pricing (falls back to license-email tables).
+ */
+export async function fetchAllSales(): Promise<SaleRow[]> {
   const supabase = getSupabaseAdmin()
   const { data, error } = await supabase
-    .from(table)
-    .select("sent_at")
-    .order("sent_at", { ascending: true })
+    .from("macwall_licenses")
+    .select("activated_at, plan_slug, billing_model, status")
+    .eq("status", "active")
+    .not("activated_at", "is", null)
+    .order("activated_at", { ascending: true })
     .limit(10000)
 
   if (error) {
-    if (error.message.includes("does not exist")) return []
+    if (error.message.includes("does not exist")) {
+      return fetchSalesFromEmailFallback()
+    }
     throw new Error(error.message)
   }
-  return (data ?? []) as SaleRow[]
+
+  const rows = (data ?? [])
+    .filter((row) => typeof row.activated_at === "string")
+    .map((row) => ({
+      sent_at: row.activated_at as string,
+      amountUsd: priceUsdForPlan(
+        row.plan_slug as string | null,
+        row.billing_model as string | null
+      ),
+    }))
+
+  if (rows.length > 0) return rows
+  return fetchSalesFromEmailFallback()
 }
 
-/** Stripe + legacy Whop sales (low volume tables). */
-export async function fetchAllSales(): Promise<SaleRow[]> {
-  const [stripeSales, whopSales] = await Promise.all([
-    fetchSalesFromTable("macwall_stripe_license_emails"),
-    fetchSalesFromTable("macwall_whop_license_emails"),
-  ])
+async function fetchSalesFromEmailFallback(): Promise<SaleRow[]> {
+  const supabase = getSupabaseAdmin()
+  const tables = [
+    "macwall_stripe_license_emails",
+    "macwall_whop_license_emails",
+  ] as const
+  const all: SaleRow[] = []
 
-  return [...stripeSales, ...whopSales].sort((a, b) =>
-    a.sent_at.localeCompare(b.sent_at)
-  )
+  for (const table of tables) {
+    const { data, error } = await supabase
+      .from(table)
+      .select("sent_at")
+      .order("sent_at", { ascending: true })
+      .limit(10000)
+
+    if (error) {
+      if (error.message.includes("does not exist")) continue
+      throw new Error(error.message)
+    }
+    for (const row of data ?? []) {
+      if (typeof row.sent_at === "string") {
+        all.push({ sent_at: row.sent_at, amountUsd: PRO_PRICE_USD })
+      }
+    }
+  }
+
+  return all.sort((a, b) => a.sent_at.localeCompare(b.sent_at))
 }
 
 /**
@@ -159,10 +224,12 @@ export function buildSalesSummary(
     (row) => row.sent_at >= prevSinceIso && row.sent_at < sinceIso
   )
 
-  const net = netRevenuePerSale()
   const sales = currentRows.length
   const prevSales = prevRows.length
   const allTimeSales = allSales.length
+  const grossRevenue = sumGross(currentRows)
+  const avgPrice = sales > 0 ? round2(grossRevenue / sales) : PRO_PRICE_USD
+  const net = netRevenueForAmount(avgPrice)
 
   let salesChangePercent: number | null = 0
   if (prevSales > 0) {
@@ -172,19 +239,19 @@ export function buildSalesSummary(
   }
 
   return {
-    pricePerSale: PRO_PRICE_USD,
+    pricePerSale: avgPrice,
     netPerSale: round2(net),
     feePercentAssumed: STRIPE_FEE_PERCENT,
     feeFixedAssumed: STRIPE_FEE_FIXED,
     sales,
-    grossRevenue: round2(sales * PRO_PRICE_USD),
-    netRevenue: round2(sales * net),
+    grossRevenue,
+    netRevenue: sumNet(currentRows),
     prevSales,
-    prevGrossRevenue: round2(prevSales * PRO_PRICE_USD),
+    prevGrossRevenue: sumGross(prevRows),
     salesChangePercent,
     allTimeSales,
-    allTimeGrossRevenue: round2(allTimeSales * PRO_PRICE_USD),
-    allTimeNetRevenue: round2(allTimeSales * net),
+    allTimeGrossRevenue: sumGross(allSales),
+    allTimeNetRevenue: sumNet(allSales),
     firstSaleAt: allSales[0]?.sent_at ?? null,
     daily: bucketByDay(currentRows),
     prevDaily: bucketByDay(prevRows),

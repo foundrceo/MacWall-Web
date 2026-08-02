@@ -7,15 +7,10 @@ import {
 } from "@/components/analytics/tracked-marketing-buttons"
 import { HeroWalkthroughVideo } from "@/components/macwall-marketing/hero-walkthrough-video"
 import {
-  HERO_DOWNLOAD_HINT_CLASS,
   HERO_PRIMARY_BTN_CLASS,
   HERO_SECONDARY_BTN_CLASS,
 } from "@/lib/marketing-chrome"
-import {
-  macwall,
-  macwallInstallerLatestPath,
-  macwallMinimumMacOSRequirement,
-} from "@/lib/macwall-site"
+import { macwall, macwallInstallerLatestPath } from "@/lib/macwall-site"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -47,8 +42,8 @@ export default function TikTokLandingHero() {
           </h1>
 
           <p className="mt-5 text-[18px] leading-[1.5] text-marketing-muted">
-            1,000+ live wallpapers. Lock Screen support. Permanent or annual —
-            your choice.
+            1,000+ live wallpapers. Lock Screen support. Pay once, own it
+            forever.
           </p>
 
           <div className="mt-6 inline-flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-2xl border border-border bg-surface px-5 py-3">
@@ -56,39 +51,31 @@ export default function TikTokLandingHero() {
               {pricing.permanentPrice}
             </span>
             <span className="text-[15px] text-marketing-muted">
-              permanent
-            </span>
-            <span className="text-[15px] text-marketing-muted">
-              or {pricing.annualPrice}/year
+              one-time
             </span>
             <span className="w-full text-[13px] text-marketing-muted">
-              Early bird · Post a Reel → get up to 100% back
+              Up to 3 Macs · Post a Reel → get up to 100% back
             </span>
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-2.5">
             <TrackedPricingButton
-              href="/pricing"
+              href={pricing.checkoutUrl}
               location="tiktok_landing"
               size="pill"
               className={HERO_PRIMARY_BTN_CLASS}
             >
               {pricing.getProCta}
             </TrackedPricingButton>
-            <div className="relative inline-block">
-              <TrackedDownloadButton
-                href={macwallInstallerLatestPath}
-                size="pill"
-                location="tiktok_landing"
-                className={HERO_SECONDARY_BTN_CLASS}
-              >
-                <AppleIcon className="size-3.5" />
-                Download free trial
-              </TrackedDownloadButton>
-              <p className={HERO_DOWNLOAD_HINT_CLASS}>
-                {macwallMinimumMacOSRequirement}
-              </p>
-            </div>
+            <TrackedDownloadButton
+              href={macwallInstallerLatestPath}
+              size="pill"
+              location="tiktok_landing"
+              className={HERO_SECONDARY_BTN_CLASS}
+            >
+              <AppleIcon className="size-3.5" />
+              Download for macOS
+            </TrackedDownloadButton>
           </div>
         </div>
 

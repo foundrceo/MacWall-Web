@@ -2,7 +2,7 @@ import "server-only"
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
-const RECOVERY_DELAY_MINUTES = 5
+const RECOVERY_DELAY_MINUTES = 30
 
 export type QueueCheckoutRecoveryInput = {
   checkoutSessionId: string

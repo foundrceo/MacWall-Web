@@ -16,7 +16,6 @@ import { macwallSchemaGraph } from "@/lib/macwall-json-ld"
 import {
   macwall,
   macwallFavicons,
-  macwallMinimumMacOSVersion,
 } from "@/lib/macwall-site"
 import {
   canonicalSiteOrigin,
@@ -53,7 +52,7 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
 })
 
-const SITE_DESCRIPTION_FALLBACK = `MacWall is the native macOS app for live video wallpapers on your Mac desktop: a curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, intelligent pause on battery and full screen, and optional MacWall Pro for live Lock Screen and Screen Saver wallpapers on ${macwallMinimumMacOSVersion}.`
+const SITE_DESCRIPTION_FALLBACK = `MacWall is the native macOS app for live video wallpapers on your Mac desktop: a curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, intelligent pause on battery and full screen, and optional MacWall Pro for live Lock Screen and Screen Saver wallpapers on macOS 26 (Tahoe). Desktop wallpapers run on macOS 14+.`
 
 const SITE_TITLE_DEFAULT = macwall.fullTagline
 

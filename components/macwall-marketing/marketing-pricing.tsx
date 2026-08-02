@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState, type ReactNode } from "react"
+import type { ReactNode } from "react"
 
 import {
   TrackedDownloadButton,
@@ -13,18 +13,13 @@ import MarketingSiteChrome, {
 } from "@/components/macwall-marketing/MarketingSiteChrome"
 import HomeFaqSection from "@/components/macwall-marketing/HomeFaqSection"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
-import { PricingSegmentControl } from "@/components/macwall-marketing/pricing-segment-control"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
-import { macwall, macwallInstallerLatestPath } from "@/lib/macwall-site"
+import {
+  macwall,
+  macwallInstallerLatestPath,
+} from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
-
-type BillingMode = "permanent" | "annual"
-
-const billingOptions = [
-  { value: "annual" as const, label: p.billingAnnual },
-  { value: "permanent" as const, label: p.billingPermanent },
-]
 
 const pricingPrimaryButtonClass =
   "inline-flex h-8 min-h-8 items-center justify-center rounded-full bg-white px-3.5 text-[14px] font-normal text-black no-underline transition-opacity hover:opacity-90"
@@ -62,14 +57,12 @@ function PricingSecondaryButton({
   href,
   children,
   location,
-  ariaLabel,
   className,
   download = false,
 }: Readonly<{
   href: string
   children: ReactNode
   location: string
-  ariaLabel?: string
   className?: string
   download?: boolean
 }>) {
@@ -92,7 +85,6 @@ function PricingSecondaryButton({
     <TrackedPricingButton
       href={href}
       location={location}
-      ariaLabel={ariaLabel}
       size="pill"
       className={classes}
     >
@@ -103,9 +95,7 @@ function PricingSecondaryButton({
 
 export default function MacWallMarketingPricingPage() {
   const pricing = useMarketingPricing()
-  const [billing, setBilling] = useState<BillingMode>("annual")
   const fiveMacOffer = pricing.multiMacOffers.find((offer) => offer.macs === 5)
-  const isAnnual = billing === "annual"
   const plans = p.plans
 
   return (
@@ -113,17 +103,17 @@ export default function MacWallMarketingPricingPage() {
       <MarketingSiteChrome />
 
       <main id="main-content" className={MARKETING_MAIN_OFFSET_CLASS}>
-        <section
-          id="india-offer"
-          className="pt-16 pb-20 md:pt-24 md:pb-28"
-        >
+        <section className="pt-16 pb-20 md:pt-24 md:pb-28">
           <div className="mx-auto max-w-[1360px] px-6 sm:px-8 lg:px-10">
             <h1 className="text-center text-4xl font-normal tracking-tight text-foreground md:text-5xl">
-              {p.pageTitle}
+              {p.heroTitle}
             </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-center text-[17px] leading-relaxed text-marketing-muted">
+              {p.heroLead}
+            </p>
 
             <div className="mt-12 md:mt-16">
-              <div className="grid grid-cols-1 items-stretch gap-4 pt-3 md:grid-cols-2 md:gap-4 lg:grid-cols-4 lg:gap-5">
+              <div className="mx-auto grid max-w-5xl grid-cols-1 items-stretch gap-4 md:grid-cols-3 md:gap-5">
                 <PricingTierCard
                   id="tier-free"
                   title={plans.free.title}
@@ -146,43 +136,20 @@ export default function MacWallMarketingPricingPage() {
                   id="tier-pro"
                   title={plans.pro.title}
                   subtitle={plans.pro.subtitle}
-                  price={
-                    isAnnual ? pricing.annualPrice : pricing.permanentPrice
-                  }
-                  priceSuffix={isAnnual ? "/ yr." : null}
-                  features={isAnnual ? p.annual.features : p.pro.features}
+                  price={pricing.permanentPrice}
+                  strikePrice={pricing.permanentStrikePrice}
+                  priceSuffix="one-time"
+                  features={p.pro.features}
                   featuresPrefix={plans.pro.featuresPrefix}
                   highlight
                   badge={plans.pro.badge}
-                  actionSlot={
-                    <PricingSegmentControl
-                      ariaLabel="Pro billing"
-                      options={billingOptions}
-                      value={billing}
-                      onChange={setBilling}
-                      compact
-                    />
-                  }
-                  showActionSlot
                   action={
                     <PricingPrimaryButton
-                      href={
-                        isAnnual
-                          ? pricing.annualCheckoutUrl
-                          : pricing.checkoutUrl
-                      }
-                      location={
-                        isAnnual
-                          ? "pricing_card_annual"
-                          : "pricing_card_permanent"
-                      }
-                      ariaLabel={
-                        isAnnual
-                          ? `Start annual ${macwall.name} plan for ${pricing.annualPrice} per year`
-                          : `Buy ${macwall.name} permanent license for ${pricing.permanentPrice}`
-                      }
+                      href={pricing.checkoutUrl}
+                      location="pricing_card_permanent"
+                      ariaLabel={`Buy ${macwall.name} Pro for ${pricing.permanentPrice}`}
                     >
-                      {isAnnual ? plans.pro.ctaAnnual : plans.pro.ctaPermanent}
+                      {plans.pro.ctaPermanent}
                     </PricingPrimaryButton>
                   }
                 />
@@ -193,43 +160,34 @@ export default function MacWallMarketingPricingPage() {
                     title={plans.proPlus.title}
                     subtitle={plans.proPlus.subtitle}
                     price={fiveMacOffer.price}
+                    strikePrice={fiveMacOffer.strikePrice}
                     priceSuffix="one-time"
                     features={p.proPlus.features}
                     featuresPrefix={plans.proPlus.featuresPrefix}
+                    badge={plans.proPlus.badge}
                     action={
-                      <PricingSecondaryButton
+                      <PricingPrimaryButton
                         href={fiveMacOffer.checkoutUrl}
                         location="pricing_multi_mac_5"
-                        ariaLabel={`Buy permanent ${macwall.name} license for 5 Macs for ${fiveMacOffer.price}`}
+                        ariaLabel={`Buy ${macwall.name} Pro Plus for ${fiveMacOffer.price}`}
                       >
                         {plans.proPlus.cta}
-                      </PricingSecondaryButton>
+                      </PricingPrimaryButton>
                     }
                   />
                 ) : null}
-
-                <PricingTierCard
-                  id="tier-reel"
-                  title={plans.reel.title}
-                  subtitle={plans.reel.subtitle}
-                  price={plans.reel.price}
-                  features={[
-                    "Post with #macwall on IG or TikTok",
-                    `${macwall.reelRefundHalfViews.toLocaleString()} views → 50% refund`,
-                    `${macwall.reelRefundFullViews.toLocaleString()} views → full refund`,
-                    "Organic views only",
-                  ]}
-                  featuresPrefix={plans.reel.featuresPrefix}
-                  action={
-                    <Link
-                      href="/pricing/reel-refund"
-                      className={pricingSecondaryButtonClass}
-                    >
-                      {plans.reel.cta}
-                    </Link>
-                  }
-                />
               </div>
+
+              <p className="mt-8 text-center text-[14px] text-marketing-muted">
+                Creators:{" "}
+                <Link
+                  href="/pricing/reel-refund"
+                  className="text-foreground underline-offset-4 hover:underline"
+                >
+                  earn up to 100% back with a Reel
+                </Link>
+                .
+              </p>
             </div>
           </div>
         </section>

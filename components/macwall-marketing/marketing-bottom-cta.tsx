@@ -6,15 +6,10 @@ import {
   TrackedPricingButton,
 } from "@/components/analytics/tracked-marketing-buttons"
 import {
-  HERO_DOWNLOAD_HINT_CLASS,
   HERO_PRIMARY_BTN_CLASS,
   HERO_SECONDARY_BTN_CLASS,
 } from "@/lib/marketing-chrome"
-import {
-  macwall,
-  macwallInstallerLatestPath,
-  macwallMinimumMacOSRequirement,
-} from "@/lib/macwall-site"
+import { macwall, macwallInstallerLatestPath, macwallMinimumMacOSVersionLabel } from "@/lib/macwall-site"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -37,10 +32,10 @@ export default function MacWallMarketingBottomCta() {
     <section className="bg-background">
       <div className="mx-auto max-w-[1360px] px-6 py-16 text-center sm:px-8 md:py-24 lg:px-10">
         <h2 className="text-[clamp(2rem,5vw,3rem)] font-normal tracking-[-0.02em] text-foreground">
-          Try {macwall.name} now.
+          Try {macwall.name}.
         </h2>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 md:mt-10">
-          <div className="relative inline-block">
+        <div className="mt-8 flex flex-wrap items-start justify-center gap-3 md:mt-10">
+          <div className="flex flex-col items-center">
             <TrackedDownloadButton
               href={macwallInstallerLatestPath}
               size="pill"
@@ -50,8 +45,8 @@ export default function MacWallMarketingBottomCta() {
               <AppleIcon className="size-3.5" />
               Download for macOS
             </TrackedDownloadButton>
-            <p className={HERO_DOWNLOAD_HINT_CLASS}>
-              {macwallMinimumMacOSRequirement}
+            <p className="mt-2.5 text-center text-[12px] text-marketing-muted">
+              {macwallMinimumMacOSVersionLabel}
             </p>
           </div>
           <TrackedPricingButton

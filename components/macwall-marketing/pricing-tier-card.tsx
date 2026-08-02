@@ -9,6 +9,7 @@ export function PricingTierCard({
   subtitle,
   price,
   priceSuffix,
+  strikePrice,
   features,
   featuresPrefix = "Includes:",
   action,
@@ -23,6 +24,7 @@ export function PricingTierCard({
   subtitle: string
   price: ReactNode
   priceSuffix?: ReactNode
+  strikePrice?: string | null
   features: readonly string[]
   featuresPrefix?: string
   action: ReactNode
@@ -59,11 +61,16 @@ export function PricingTierCard({
             {subtitle}
           </p>
 
-          <p className="mt-3.5 flex flex-wrap items-baseline gap-x-1">
+          <p className="mt-3.5 flex flex-wrap items-baseline gap-x-2">
             <PricingPriceDisplay
               price={price}
               className="text-[1.75rem] font-normal tracking-tight text-foreground"
             />
+            {strikePrice ? (
+              <span className="text-[14px] text-muted-foreground/70 line-through decoration-muted-foreground/50">
+                {strikePrice}
+              </span>
+            ) : null}
             {priceSuffix ? (
               <span className="text-[12px] text-muted-foreground">
                 {priceSuffix}

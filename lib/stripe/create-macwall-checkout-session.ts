@@ -2,19 +2,13 @@ import "server-only"
 
 import { generateMacWallLicenseKey } from "@/lib/license/generate-license-key"
 import {
-  isIndiaDiscountEligible,
   licenseOfferFromSlug,
   licenseOfferPriceCents,
-  type PricingRegion,
 } from "@/lib/license/offers.shared"
-import { isIndiaCountry } from "@/lib/geo/country"
 import { getStripe } from "@/lib/stripe/server"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { queueCheckoutRecovery } from "@/lib/stripe/queue-checkout-recovery"
-import {
-  INDIA_COUPON_ID,
-  stripePriceIdForOffer,
-} from "@/lib/license/stripe-price-map"
+import { stripePriceIdForOffer } from "@/lib/license/stripe-price-map"
 
 export type CreateMacWallCheckoutInput = {
   country: string | null
@@ -38,11 +32,7 @@ export type CreateMacWallCheckoutResult =
 /**
  * Creates the Stripe Checkout Session and a pending license row.
  *
- * Only 3 real Stripe Prices exist (permanent $9.99, annual $4.99/yr,
- * permanent_5 $14.99 fixed for everyone). India pricing is not a separate
- * Price — it's the "INDIA" promotion code (20% off, forever) applied
- * automatically for permanent/annual when the visitor is in India. The
- * 5-Mac bundle is always $14.99, no discount, for anyone.
+ * Stripe Prices: permanent $9.99, annual $4.99/yr, permanent_5 $14.99.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
@@ -52,15 +42,7 @@ export async function createMacWallCheckoutSession(
     const supabase = getSupabaseAdmin()
     const siteOrigin = input.siteOrigin.replace(/\/+$/, "")
     const offer = licenseOfferFromSlug(input.offerSlug ?? input.planSlug)
-    const region: PricingRegion = isIndiaCountry(input.country)
-      ? "india"
-      : "default"
-    const applyIndiaDiscount =
-      region === "india" && isIndiaDiscountEligible(offer.slug)
-    const displayUnitAmount = licenseOfferPriceCents(
-      offer,
-      applyIndiaDiscount ? "india" : "default"
-    )
+    const displayUnitAmount = licenseOfferPriceCents(offer, "default")
     const planSlug = offer.maxDevices === 5 ? "pro_plus" : "pro"
 
     const licenseKey = generateMacWallLicenseKey()
@@ -110,33 +92,31 @@ export async function createMacWallCheckoutSession(
       billing_model: offer.billingModel,
       plan_slug: planSlug,
       max_devices: String(offer.maxDevices),
-      pricing_region: region,
-      india_discount_applied: String(applyIndiaDiscount),
+      pricing_region: "default",
       unit_amount_usd: String(displayUnitAmount),
     }
 
     const stripePriceId = stripePriceIdForOffer(offer.slug)
 
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams: Parameters<typeof stripe.checkout.sessions.create>[0] = {
       mode: offer.billingModel === "annual" ? "subscription" : "payment",
       line_items: [{ price: stripePriceId, quantity: 1 }],
       success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteOrigin}/pricing`,
       client_reference_id: licenseKey,
+      // Collect email early so abandoned-checkout recovery can send.
+      billing_address_collection: "required",
+      allow_promotion_codes: true,
       metadata,
       ...(offer.billingModel === "annual"
         ? { subscription_data: { metadata } }
-        : { payment_intent_data: { metadata } }),
-      // India gets the INDIA coupon applied automatically — no code entry
-      // needed, and it can't be combined with manual promo code redemption.
-      // The 5-Mac bundle never qualifies (fixed price for everyone), so it
-      // keeps manual promo codes disabled entirely to prevent bypass.
-      ...(applyIndiaDiscount
-        ? { discounts: [{ coupon: INDIA_COUPON_ID }] }
-        : isIndiaDiscountEligible(offer.slug)
-          ? { allow_promotion_codes: true }
-          : {}),
-    })
+        : {
+            customer_creation: "always",
+            payment_intent_data: { metadata },
+          }),
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams)
 
     if (!session.url) {
       await supabase

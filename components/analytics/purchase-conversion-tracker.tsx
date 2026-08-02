@@ -49,7 +49,9 @@ function fireGa4Purchase() {
   })
 }
 
-/** Fires once per thank-you visit — internal analytics + optional Google Ads / GA4. */
+/** Fires once per purchase success visit — internal analytics + optional Google Ads / GA4.
+ * Mounted on `/activate` (Stripe success) and `/thank-you`.
+ */
 export function PurchaseConversionTracker() {
   const fired = useRef(false)
 
@@ -57,7 +59,16 @@ export function PurchaseConversionTracker() {
     if (fired.current) return
     fired.current = true
 
-    trackSiteEventClient("purchase_complete", { product: "macwall_pro" })
+    const params = new URLSearchParams(window.location.search)
+    const sessionId = params.get("session_id")?.trim() || undefined
+    const hasKey = Boolean(params.get("key")?.trim() || params.get("license")?.trim())
+
+    trackSiteEventClient("purchase_complete", {
+      product: "macwall_pro",
+      path: window.location.pathname,
+      ...(sessionId ? { session_id: sessionId } : {}),
+      ...(hasKey ? { has_license_key: true } : {}),
+    })
     markPurchaseCompleteInSession()
 
     // TikTok Purchase/CompletePayment fires server-side from the Stripe webhook
