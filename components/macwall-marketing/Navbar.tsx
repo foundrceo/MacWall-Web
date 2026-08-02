@@ -76,7 +76,7 @@ function EarnBadge({
         className
       )}
     >
-      Earn $
+      Earn 40%
     </span>
   )
 }

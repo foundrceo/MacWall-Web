@@ -3,7 +3,10 @@ import MarketingSiteChrome, {
   MARKETING_MAIN_OFFSET_CLASS,
 } from "@/components/macwall-marketing/MarketingSiteChrome"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
-import { macwall, macwallMinimumMacOSVersion } from "@/lib/macwall-site"
+import {
+  macwall,
+  macwallLockScreenMacOSVersion,
+} from "@/lib/macwall-site"
 import {
   canonicalSitePath,
   openGraphImageAbsoluteUrl,
@@ -11,7 +14,7 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-const PAGE_DESCRIPTION = `Get ${macwall.name} Pro for ${macwall.pro.price} — live wallpapers for Mac with Lock Screen on ${macwallMinimumMacOSVersion}. One-time purchase, no subscription.`
+const PAGE_DESCRIPTION = `Get ${macwall.name} Pro for ${macwall.pro.price} — live wallpapers for Mac (macOS 14+) with Lock Screen on ${macwallLockScreenMacOSVersion}. One-time purchase, no subscription.`
 
 export const metadata: Metadata = {
   title: "Live wallpapers for Mac",

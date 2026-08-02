@@ -1,4 +1,8 @@
-import { macwall, macwallMinimumMacOSVersion } from "@/lib/macwall-site"
+import {
+  macwall,
+  macwallLockScreenMacOSVersion,
+  macwallMinimumMacOSVersion,
+} from "@/lib/macwall-site"
 
 /** User-visible strings for marketing pages (`macwall-marketing/*`). */
 export const macwallExactCopy = {
@@ -25,7 +29,7 @@ export const macwallExactCopy = {
     },
   },
   ribbon: {
-    lineBeforeLink: `New: ${macwall.name} brings live Lock Screen and Screen Saver wallpapers to ${macwallMinimumMacOSVersion}, working on the latest builds where other apps broke. `,
+    lineBeforeLink: `New: ${macwall.name} brings live Lock Screen and Screen Saver wallpapers to ${macwallLockScreenMacOSVersion}, working on the latest builds where other apps broke. Desktop wallpapers run on ${macwallMinimumMacOSVersion}+. `,
     linkText: `Get ${macwall.name}`,
   },
   interact: {
@@ -76,8 +80,8 @@ export const macwallExactCopy = {
   },
   pricing: {
     buyCta: "Get Pro",
-    secondaryCta: "Or earn it back free",
-    priceLine: `${macwall.pro.price} one-time. No subscription, lifetime updates, up to ${macwall.maxLicensedMacs} Macs — and a Reel earns it all back.`,
+    secondaryCta: "Earn 100% back",
+    priceLine: `${macwall.pro.price} limited offer. No subscription — and a Reel can earn 100% back.`,
   },
   gallery: {
     kicker: "Gallery",
@@ -86,9 +90,9 @@ export const macwallExactCopy = {
   },
   lockScreen: {
     kicker: "PRO",
-    title: `Live Lock Screen & Screen Saver on ${macwallMinimumMacOSVersion}`,
-    strong: `Bring real video motion to your Lock Screen and Screen Saver on ${macwallMinimumMacOSVersion} and later, using Apple's own wallpaper system, with no extra installers or extensions.`,
-    rest: "Setup stays reversible: turn it off anytime from Settings and your previous look returns. On earlier macOS, Pro still unlocks the full catalog and desktop motion.",
+    title: `Live Lock Screen & Screen Saver on ${macwallLockScreenMacOSVersion}`,
+    strong: `Bring real video motion to your Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion} and later, using Apple's own wallpaper system, with no extra installers or extensions.`,
+    rest: "Setup stays reversible: turn it off anytime from Settings and your previous look returns. On macOS 14–15, Pro still unlocks the full catalog and desktop motion.",
     linkText: "Lock Screen requirements",
   },
   nativeMac: {
@@ -164,14 +168,14 @@ export const macwallExactCopy = {
       },
       {
         title: "Pay once. Or pay nothing.",
-        body: `${macwall.pro.price} unlocks everything for good — no monthly fee. Post a Reel and you can earn 100% of it back.`,
+        body: `${macwall.pro.price} limited offer unlocks everything — no monthly fee. Post a Reel and earn up to 100% back.`,
         accent: "teal",
       },
     ] as const,
   },
   underFooter: {
     title: "Your desktop deserves better.",
-    body: `Join 1,000+ Mac users running live wallpapers with ${macwall.name}. Download free, then unlock Pro once for ${macwall.pro.price} — lifetime updates, and a single Reel can earn the whole thing back.`,
+    body: `Download MacWall. Claim limited Pro for ${macwall.pro.price} — keep it forever, and one Reel can earn the whole thing back.`,
     cta: "Get Pro",
   },
   footer: {

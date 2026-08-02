@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Suspense, useEffect, useMemo } from "react"
 import { useSearchParams } from "next/navigation"
 
+import { PurchaseConversionTracker } from "@/components/analytics/purchase-conversion-tracker"
 import {
   MarketingContainer,
   SectionLead,
@@ -26,10 +27,17 @@ function ActivateRedirectBody() {
     const trimmed = raw?.trim()
     return trimmed && trimmed.length > 0 ? trimmed : null
   }, [searchParams])
+  const sessionId = useMemo(() => {
+    const raw = searchParams.get("session_id")
+    const trimmed = raw?.trim()
+    return trimmed && trimmed.length > 0 ? trimmed : null
+  }, [searchParams])
 
   const deepLink = licenseKey
     ? macwallLicenseActivationDeepLink(licenseKey)
     : macwallLicenseActivationDeepLink()
+
+  const shouldTrackPurchase = Boolean(licenseKey || sessionId)
 
   useEffect(() => {
     if (!licenseKey) return
@@ -38,6 +46,7 @@ function ActivateRedirectBody() {
 
   return (
     <MarketingContainer>
+      {shouldTrackPurchase ? <PurchaseConversionTracker /> : null}
       <div className="mx-auto max-w-[640px] py-16 text-center md:py-24">
         <ThankYouSuccessMark />
         <SectionTitle as="h1" className="mt-4">

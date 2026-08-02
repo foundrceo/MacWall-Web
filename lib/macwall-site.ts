@@ -59,11 +59,19 @@ export const macwallFavicons = {
   webManifest: `${macwallFaviconBase}/site.webmanifest`,
 } as const
 
-/** Minimum macOS for MacWall (Apple skipped versions 16–25; 26 Tahoe is the current baseline). */
-export const macwallMinimumMacOSVersion = "macOS 26 (Tahoe)" as const
+/** Minimum macOS for desktop live wallpapers (Sonoma+). */
+export const macwallMinimumMacOSVersion = "macOS 14" as const
+/** Lock Screen / Screen Saver video requires Apple's native wallpaper APIs (Tahoe+). */
+export const macwallLockScreenMacOSVersion = "macOS 26 (Tahoe)" as const
 /** Short hint under download CTAs (hero, bottom strip). */
 export const macwallMinimumMacOSRequirement =
-  "Minimum macOS 26 (Tahoe)" as const
+  "Minimum macOS 14+" as const
+/** Compact version label shown under marketing CTAs. */
+export const macwallMinimumMacOSVersionLabel =
+  "Minimum macOS 14.0 or later" as const
+/** Split requirements line for hero / pricing footers. */
+export const macwallMacOSRequirementsHint =
+  "Desktop: macOS 14+ · Lock Screen: macOS 26+" as const
 /** System requirements bullets and explicit requirement lines. */
 export const macwallMinimumMacOSRequirementOrLater =
   `${macwallMinimumMacOSRequirement} or later` as const
@@ -120,7 +128,7 @@ export const macwall = {
     socialProofMembers: "1,000+",
     features: [
       "Full cloud catalog (1,000+ live wallpapers)",
-      `Live Lock Screen & Screen Saver (${macwallMinimumMacOSVersion}+)`,
+      `Live Lock Screen & Screen Saver (${macwallLockScreenMacOSVersion}+)`,
       "Unlimited favorites and playlists",
       "Lifetime updates and future Pro features",
     ],
