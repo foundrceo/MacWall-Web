@@ -9,7 +9,7 @@ export type LicenseBillingModel = "permanent" | "annual"
 export type PricingRegion = "default" | "india"
 
 /** Stripe coupon auto-applied for India Checkout (catalog Prices + all PM). */
-export const INDIA_CHECKOUT_COUPON_ID = "INDIA50"
+export const INDIA_CHECKOUT_COUPON_ID = "INDIA60"
 
 export type LicenseOffer = {
   slug: LicenseOfferSlug
@@ -18,13 +18,13 @@ export type LicenseOffer = {
   maxDevices: 3 | 5
   usdCents: number
   /**
-   * India display amount after INDIA50 (50% off catalog).
-   * Matches Stripe half-cent rounding: $9.99→$4.99, $14.99→$7.49.
+   * India display amount after INDIA60 (60% off catalog).
+   * Matches Stripe rounding: $9.99→$4.00, $14.99→$6.00.
    */
   indiaUsdCents: number
 }
 
-/** Percent off vs catalog USD (rounded). INDIA50 = 50%. */
+/** Percent off vs catalog USD (rounded). INDIA60 = 60%. */
 export function indiaDiscountPercentOff(
   usdCents: number,
   indiaUsdCents: number
@@ -40,7 +40,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 3,
     usdCents: 999,
-    indiaUsdCents: 499, // $4.99 — INDIA50 on $9.99
+    indiaUsdCents: 400, // $4.00 — INDIA60 on $9.99
   },
   annual: {
     slug: "annual",
@@ -48,7 +48,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "annual",
     maxDevices: 3,
     usdCents: 499,
-    indiaUsdCents: 249, // $2.49 — INDIA50 on $4.99
+    indiaUsdCents: 200, // $2.00 — INDIA60 on $4.99
   },
   permanent_5: {
     slug: "permanent_5",
@@ -56,7 +56,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 5,
     usdCents: 1499,
-    indiaUsdCents: 749, // $7.49 — INDIA50 on $14.99
+    indiaUsdCents: 600, // $6.00 — INDIA60 on $14.99
   },
 }
 
@@ -65,7 +65,7 @@ export const MULTI_MAC_OFFER_SLUGS = [
   "permanent_5",
 ] as const satisfies readonly LicenseOfferSlug[]
 
-/** Paid offers that auto-get INDIA50 at Checkout. */
+/** Paid offers that auto-get INDIA60 at Checkout. */
 export const INDIA_DISCOUNT_ELIGIBLE_OFFER_SLUGS = [
   "permanent",
   "annual",
