@@ -61,7 +61,7 @@ const PRO_PLUS_USD_CENTS = LICENSE_OFFERS.permanent_5.usdCents
 const PRO_PLUS_STRIKE_USD_CENTS = 2499
 const ANNUAL_USD_CENTS = LICENSE_OFFERS.annual.usdCents
 
-/** India list prices (Pro $3.99 · Pro+ $7.49). */
+/** India list prices (Pro $3.99 · Pro+ $5.99 — both 60% off). */
 const PRO_INDIA_USD_CENTS = LICENSE_OFFERS.permanent.indiaUsdCents
 const PRO_PLUS_INDIA_USD_CENTS = LICENSE_OFFERS.permanent_5.indiaUsdCents
 const PRO_INDIA_OFF_PERCENT = indiaDiscountPercentOff(
