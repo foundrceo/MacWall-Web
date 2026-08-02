@@ -54,6 +54,19 @@ export function openGraphImageAbsoluteUrl(): string {
   return new URL(openGraphImagePath, metadataBaseUrl()).toString()
 }
 
+/**
+ * Site-wide `rel="alternate"` feed twins, emitted on every page so readers and
+ * agents discover syndication without guessing well-known paths.
+ */
+export function feedAlternateTypes(): Record<string, string> {
+  const origin = canonicalSiteOrigin()
+  return {
+    "application/rss+xml": `${origin}/rss.xml`,
+    "application/atom+xml": `${origin}/atom.xml`,
+    "application/feed+json": `${origin}/feed.json`,
+  }
+}
+
 /** Absolute canonical URL path (starts with `/`, no trailing slash except root → trailing slash omitted per Next defaults). */
 export function canonicalSitePath(pathname: string): string {
   const origin = canonicalSiteOrigin()

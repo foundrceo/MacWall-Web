@@ -61,6 +61,8 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
     {
       title: "Resources",
       links: [
+        { label: "Docs", href: "/docs" },
+        { label: "Learn", href: "/learn" },
         { label: "Blogs", href: "/blog" },
         { label: "Changelog", href: "/changelog" },
         { label: "Creator Offer", href: "/creator" },
@@ -75,6 +77,7 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
           href: `mailto:${macwall.supportEmail}`,
           external: true,
         },
+        { label: "Crawler & AI policy", href: "/crawlers" },
         { label: foot.legal.privacy, href: "/privacy" },
         { label: foot.legal.terms, href: "/terms" },
       ],
@@ -160,6 +163,8 @@ export function getMarketingFooterSections(
       title: foot.exploreTitle,
       links: [
         { label: "Wallpapers", href: "/wallpapers", kind: "internal" },
+        { label: "Docs", href: "/docs", kind: "internal" },
+        { label: "Learn", href: "/learn", kind: "internal" },
         { label: foot.explore.blog, href: "/blog", kind: "internal" },
         { label: "Changelog", href: "/changelog", kind: "internal" },
       ],

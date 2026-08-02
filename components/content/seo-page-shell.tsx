@@ -42,7 +42,7 @@ export function SeoPageShell({
   return (
     <MarketingProseShell
       width="article"
-      mainId="seo-page-main"
+      mainId="main-content"
       labelledBy={titleId}
       showBottomCta={showBottomCta}
     >

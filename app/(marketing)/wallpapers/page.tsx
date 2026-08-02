@@ -1,7 +1,10 @@
 import { WallpaperGalleryPageShell, parseGallerySort } from "@/components/wallpaper-gallery/wallpaper-gallery-page"
 import { JsonLd } from "@/components/seo/json-ld"
 import { wallpaperGalleryIndexJsonLd } from "@/lib/seo/wallpaper-json-ld"
-import { wallpaperGalleryIndexMetadata } from "@/lib/seo/wallpaper-metadata"
+import {
+  isGalleryFilteredView,
+  wallpaperGalleryIndexMetadata,
+} from "@/lib/seo/wallpaper-metadata"
 import { listPublicWallpapers } from "@/lib/public-catalog/fetch"
 import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
@@ -28,6 +31,7 @@ export async function generateMetadata({
 export default async function WallpapersGalleryPage({ searchParams }: PageProps) {
   const params = await searchParams
   let initial
+  let loadError = false
   try {
     initial = await listPublicWallpapers({
       q: params.q,
@@ -37,6 +41,7 @@ export default async function WallpapersGalleryPage({ searchParams }: PageProps)
       limit: 24,
     })
   } catch {
+    loadError = true
     initial = {
       wallpapers: [],
       total: 0,
@@ -47,22 +52,26 @@ export default async function WallpapersGalleryPage({ searchParams }: PageProps)
   }
 
   const origin = canonicalSiteOrigin()
+  const showJsonLd = !loadError && !isGalleryFilteredView(params)
 
   return (
     <>
-      <JsonLd
-        payload={wallpaperGalleryIndexJsonLd({
-          origin,
-          pageTitle: PAGE_TITLE,
-          headline: `${macwall.name} Live Wallpapers for Mac`,
-          description: PAGE_DESCRIPTION,
-          wallpapers: initial.wallpapers,
-          totalCount: initial.total,
-        })}
-      />
+      {showJsonLd ? (
+        <JsonLd
+          payload={wallpaperGalleryIndexJsonLd({
+            origin,
+            pageTitle: PAGE_TITLE,
+            headline: `${macwall.name} Live Wallpapers for Mac`,
+            description: PAGE_DESCRIPTION,
+            wallpapers: initial.wallpapers,
+            totalCount: initial.total,
+          })}
+        />
+      ) : null}
       <WallpaperGalleryPageShell
         initial={initial}
         title="Live wallpapers for Mac"
+        loadError={loadError}
       />
     </>
   )

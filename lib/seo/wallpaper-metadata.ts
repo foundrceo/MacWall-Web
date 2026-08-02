@@ -193,8 +193,6 @@ export function wallpaperDetailMetadata(wallpaper: PublicWallpaper): Metadata {
       images: [
         {
           url: thumbUrl,
-          width: openGraphImageSize.width,
-          height: openGraphImageSize.height,
           alt: `${wallpaper.name} – ${wallpaper.category} live wallpaper for Mac`,
         },
       ],

@@ -15,22 +15,22 @@ export function WallpaperSetOnMacButton({
   wallpaperName: string
   className?: string
 }>) {
+  const href = macwallWallpaperDeepLink(wallpaperId)
+
   const handleClick = useCallback(() => {
     trackSiteEventClient("download_click", {
       location: "wallpaper_detail_set_on_mac",
       wallpaper_id: wallpaperId,
     })
-
-    window.location.href = macwallWallpaperDeepLink(wallpaperId)
   }, [wallpaperId])
 
   return (
-    <button
-      type="button"
+    <a
+      href={href}
       className={cn(GALLERY_PRIMARY_CTA_CLASS, className)}
       onClick={handleClick}
     >
       Set on Mac
-    </button>
+    </a>
   )
 }

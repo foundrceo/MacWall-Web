@@ -76,6 +76,7 @@ type WallpaperGalleryProps = {
   activeCategory?: string | null
   title?: string
   subtitle?: string
+  loadError?: boolean
 }
 
 function parseSort(value: string | null): PublicCatalogSort {
@@ -152,6 +153,7 @@ export function WallpaperGallery({
   activeCategory = null,
   title = "Live wallpapers for Mac",
   subtitle,
+  loadError = false,
 }: WallpaperGalleryProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -373,7 +375,7 @@ export function WallpaperGallery({
         <p
           className={cn(
             GALLERY_SUBTITLE_AFTER_TITLE_CLASS,
-            "text-[15px] leading-[1.5] sm:text-[16px] sm:leading-[1.55] sm:whitespace-nowrap",
+            "text-[15px] leading-[1.5] sm:text-[16px] sm:leading-[1.55]",
             GALLERY_TEXT_SECONDARY_CLASS
           )}
         >
@@ -515,12 +517,33 @@ export function WallpaperGallery({
 
       {wallpapers.length === 0 ? (
         <div className="py-16 text-center sm:py-20">
-          <p className={cn("text-[17px]", GALLERY_TEXT_PRIMARY_CLASS)}>
-            No wallpapers match
-          </p>
-          <p className={cn("mt-2 text-[15px]", GALLERY_TEXT_SECONDARY_CLASS)}>
-            Try another search, tag, or category.
-          </p>
+          {loadError ? (
+            <>
+              <p className={cn("text-[17px]", GALLERY_TEXT_PRIMARY_CLASS)}>
+                Couldn&apos;t load wallpapers
+              </p>
+              <p className={cn("mt-2 text-[15px]", GALLERY_TEXT_SECONDARY_CLASS)}>
+                Check your connection and try again.
+              </p>
+              <a
+                href={wallpapersGalleryPath()}
+                className={cn(
+                  "mt-5 inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-[14px] font-medium text-black outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/50"
+                )}
+              >
+                Retry
+              </a>
+            </>
+          ) : (
+            <>
+              <p className={cn("text-[17px]", GALLERY_TEXT_PRIMARY_CLASS)}>
+                No wallpapers match
+              </p>
+              <p className={cn("mt-2 text-[15px]", GALLERY_TEXT_SECONDARY_CLASS)}>
+                Try another search, tag, or category.
+              </p>
+            </>
+          )}
         </div>
       ) : (
         <div

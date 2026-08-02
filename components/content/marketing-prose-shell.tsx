@@ -14,7 +14,7 @@ const widthClass: Record<ProseLayoutWidth, string> = {
 /** Shared document shell for blog, SEO, and legal pages. */
 export function MarketingProseShell({
   width = "article",
-  mainId = "prose-main",
+  mainId = "main-content",
   labelledBy,
   children,
   showPageEnd = true,

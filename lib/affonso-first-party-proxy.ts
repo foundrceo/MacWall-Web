@@ -1,5 +1,7 @@
 import "server-only"
 
+import { canonicalSiteOrigin, deploymentSiteOrigin } from "@/lib/site-url"
+
 /**
  * Forwards Affonso first-party `/r/track` and `/r/signups` to the Affonso API
  * while preserving a trusted client IP header for geo attribution.
@@ -20,6 +22,24 @@ function clientIpFromHeaders(headers: Headers): string | null {
     if (value && value.length > 0) return value
   }
   return null
+}
+
+function allowedCorsOrigin(request: Request): string {
+  const origin = request.headers.get("origin")?.trim()
+  const allowed = new Set([
+    canonicalSiteOrigin().replace(/\/+$/, ""),
+    deploymentSiteOrigin().replace(/\/+$/, ""),
+  ])
+  const vercel = process.env.VERCEL_URL?.trim()
+  if (vercel) {
+    allowed.add(`https://${vercel.replace(/^https?:\/\//, "").replace(/\/$/, "")}`)
+  }
+  if (process.env.NODE_ENV !== "production") {
+    allowed.add("http://localhost:3000")
+    allowed.add("http://127.0.0.1:3000")
+  }
+  if (origin && allowed.has(origin)) return origin
+  return canonicalSiteOrigin()
 }
 
 export async function proxyAffonsoApi(
@@ -55,14 +75,17 @@ export async function proxyAffonsoApi(
     init.body = await request.arrayBuffer()
   }
 
+  const corsOrigin = allowedCorsOrigin(request)
+
   if (request.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
       headers: {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": corsOrigin,
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Accept",
         "Access-Control-Max-Age": "86400",
+        Vary: "Origin",
       },
     })
   }
@@ -71,7 +94,8 @@ export async function proxyAffonsoApi(
   const responseHeaders = new Headers()
   const upstreamType = upstream.headers.get("content-type")
   if (upstreamType) responseHeaders.set("content-type", upstreamType)
-  responseHeaders.set("Access-Control-Allow-Origin", "*")
+  responseHeaders.set("Access-Control-Allow-Origin", corsOrigin)
+  responseHeaders.set("Vary", "Origin")
 
   return new Response(upstream.body, {
     status: upstream.status,

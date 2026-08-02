@@ -105,13 +105,13 @@ function MacPackPillPicker({
             ref={(el) => {
               labelRefs.current[index] = el
             }}
-            className="group relative cursor-pointer whitespace-nowrap rounded-full border border-transparent px-2 py-1 text-[10px] leading-none"
+            className="group relative cursor-pointer whitespace-nowrap rounded-full border border-transparent px-2 py-1 text-[10px] leading-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/50 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-secondary"
             onPointerEnter={() => {
               void prefetchCheckoutSession(offer.slug)
             }}
           >
             <input
-              className="absolute inset-0 cursor-pointer appearance-none rounded-full outline-none focus:outline-none focus-visible:outline-none"
+              className="absolute inset-0 cursor-pointer appearance-none rounded-full opacity-0"
               type="radio"
               name={PICKER_NAME}
               value={String(offer.macs)}

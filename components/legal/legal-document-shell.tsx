@@ -33,7 +33,7 @@ export function LegalDocumentShell({
   return (
     <MarketingProseShell
       width="article"
-      mainId="legal-document-main"
+      mainId="main-content"
       labelledBy={titleId}
       showBottomCta={false}
     >

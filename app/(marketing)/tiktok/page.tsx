@@ -34,6 +34,12 @@ export const metadata: Metadata = {
       },
     ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: `${macwall.name} — ${macwall.pro.price} one-time`,
+    description: PAGE_DESCRIPTION,
+    images: [openGraphImageAbsoluteUrl()],
+  },
 }
 
 export default function TikTokLandingPage() {

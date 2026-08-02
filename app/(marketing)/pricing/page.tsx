@@ -5,17 +5,24 @@ import { macwall } from "@/lib/macwall-site"
 import {
   canonicalSiteOrigin,
   canonicalSitePath,
+  feedAlternateTypes,
   openGraphImageAbsoluteUrl,
   openGraphImageSize,
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-const PAGE_DESCRIPTION = `Choose ${macwall.name} permanent license or annual subscription, plus a 5-Mac permanent bundle.`
+const PAGE_DESCRIPTION = `${macwall.name} Pro pricing: permanent license, annual plan, or 5-Mac bundle. Live Mac wallpapers with Lock Screen on macOS 26 — one-time Pro, no subscription.`
 
 export const metadata: Metadata = {
   title: "Pricing",
   description: PAGE_DESCRIPTION,
-  alternates: { canonical: canonicalSitePath("/pricing") },
+  alternates: {
+    canonical: canonicalSitePath("/pricing"),
+    types: {
+      ...feedAlternateTypes(),
+      "text/markdown": canonicalSitePath("/pricing.md"),
+    },
+  },
   openGraph: {
     title: `${macwall.name} App – Pricing`,
     description: PAGE_DESCRIPTION,
@@ -51,6 +58,10 @@ export default function PricingPage() {
 
   return (
     <>
+      <link rel="preconnect" href="https://checkout.stripe.com" />
+      <link rel="dns-prefetch" href="https://checkout.stripe.com" />
+      <link rel="preconnect" href="https://js.stripe.com" />
+      <link rel="dns-prefetch" href="https://js.stripe.com" />
       <JsonLd payload={jsonLd} />
       <MacWallMarketingPricingPage />
     </>

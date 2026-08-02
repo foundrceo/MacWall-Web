@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const LOCK_SCREEN_VIDEO_SRC = "/Video.webm"
 
@@ -12,6 +12,15 @@ export default function LockScreenFeatureVideo({
   ariaLabel,
 }: Readonly<{ ariaLabel: string }>) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const [reduceMotion, setReduceMotion] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const update = () => setReduceMotion(mq.matches)
+    update()
+    mq.addEventListener("change", update)
+    return () => mq.removeEventListener("change", update)
+  }, [])
 
   useEffect(() => {
     const video = videoRef.current
@@ -21,7 +30,9 @@ export default function LockScreenFeatureVideo({
       if (video.getAttribute("src") === LOCK_SCREEN_VIDEO_SRC) return
       video.src = LOCK_SCREEN_VIDEO_SRC
       video.load()
-      void video.play().catch(() => undefined)
+      if (!reduceMotion) {
+        void video.play().catch(() => undefined)
+      }
     }
 
     if (typeof IntersectionObserver === "undefined") {
@@ -43,15 +54,15 @@ export default function LockScreenFeatureVideo({
     )
     observer.observe(video)
     return () => observer.disconnect()
-  }, [])
+  }, [reduceMotion])
 
   return (
     <div className="relative aspect-video overflow-hidden rounded-2xl bg-black">
       <video
         ref={videoRef}
-        autoPlay
+        autoPlay={!reduceMotion}
         muted
-        loop
+        loop={!reduceMotion}
         playsInline
         preload="none"
         className="h-full w-full object-cover"

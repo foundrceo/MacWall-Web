@@ -4,7 +4,9 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
-  robots: { index: false, follow: true },
+  title: "Wallpaper redirect",
+  description: "Legacy wallpaper share link — redirects to the catalog.",
+  robots: { index: false, follow: false },
 }
 
 type PageProps = {
