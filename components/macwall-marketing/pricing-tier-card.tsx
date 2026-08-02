@@ -125,12 +125,17 @@ export function PricingTierCard({
           </div>
 
           {showActionSlot || actionSlot ? (
-            <div className="mt-3 flex min-h-7 items-center">{actionSlot}</div>
+            <div className="mt-2 flex min-h-4 items-center">{actionSlot}</div>
           ) : (
             <div className="mt-3 min-h-5" aria-hidden />
           )}
 
-          <p className="mt-5 text-[11px] font-medium tracking-wide text-muted-foreground">
+          <p
+            className={cn(
+              "text-[11px] font-medium tracking-wide text-muted-foreground",
+              showActionSlot || actionSlot ? "mt-3" : "mt-5"
+            )}
+          >
             {featuresPrefix}
           </p>
 

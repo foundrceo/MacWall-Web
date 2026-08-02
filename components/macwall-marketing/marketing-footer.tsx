@@ -1,45 +1,28 @@
 "use client"
 
 import Link from "next/link"
+import { HugeiconsIcon } from "@hugeicons/react"
+import {
+  DiscordIcon,
+  InstagramIcon,
+  Mail01Icon,
+  TiktokIcon,
+} from "@hugeicons/core-free-icons"
+
 import { MacWallBrandLink } from "@/components/macwall-marketing/MacWallBrandLink"
+import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
 import { macwall, mailtoSupport } from "@/lib/macwall-site"
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
-import { cn } from "@/lib/utils"
-
-const socialIconClass = "block size-[18px] shrink-0"
-
-function MailIcon({ className }: Readonly<{ className?: string }>) {
-  return (
-    <svg
-      className={cn(socialIconClass, className)}
-      viewBox="0 5 24 15"
-      fill="currentColor"
-      aria-hidden
-    >
-      <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
-      <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
-    </svg>
-  )
-}
-
-function TikTokIcon({ className }: Readonly<{ className?: string }>) {
-  return (
-    <svg
-      className={cn(socialIconClass, className)}
-      viewBox="-2 1 28 22"
-      fill="currentColor"
-      aria-hidden
-    >
-      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z" />
-    </svg>
-  )
-}
+import { SUPPORT_CHAT_HREF } from "@/lib/support/shared"
 
 const footerLinkClass =
   "text-[15px] text-marketing-muted transition-colors hover:text-foreground"
 
 const socialLinkClass =
   "inline-flex size-8 items-center justify-center text-marketing-muted transition-colors hover:text-foreground"
+
+const SOCIAL_ICON_SIZE = 18
+const SOCIAL_ICON_STROKE = 1.75
 
 export default function MacWallMarketingFooter() {
   const foot = macwallExactCopy.footer
@@ -72,11 +55,13 @@ export default function MacWallMarketingFooter() {
                     {foot.explore.blog}
                   </Link>
                 </li>
-                <li>
-                  <Link href="/affiliate" className={footerLinkClass}>
-                    {foot.connect.affiliate}
-                  </Link>
-                </li>
+                {AFFILIATE_UI_VISIBLE ? (
+                  <li>
+                    <Link href="/affiliate" className={footerLinkClass}>
+                      {foot.connect.affiliate}
+                    </Link>
+                  </li>
+                ) : null}
               </ul>
             </div>
             <div>
@@ -107,12 +92,34 @@ export default function MacWallMarketingFooter() {
               </p>
               <ul className="space-y-2.5">
                 <li>
-                  <Link href="/affiliate" className={footerLinkClass}>
-                    {foot.connect.affiliate}
-                  </Link>
+                  <a
+                    href={macwall.discordInvite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={footerLinkClass}
+                  >
+                    Discord
+                  </a>
                 </li>
                 <li>
-                  <Link href="/support" className={footerLinkClass}>
+                  <a
+                    href={macwall.reelRefundInstagramURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={footerLinkClass}
+                  >
+                    Instagram
+                  </a>
+                </li>
+                {AFFILIATE_UI_VISIBLE ? (
+                  <li>
+                    <Link href="/affiliate" className={footerLinkClass}>
+                      {foot.connect.affiliate}
+                    </Link>
+                  </li>
+                ) : null}
+                <li>
+                  <Link href={SUPPORT_CHAT_HREF} className={footerLinkClass}>
                     Live Support
                   </Link>
                 </li>
@@ -154,11 +161,32 @@ export default function MacWallMarketingFooter() {
               <div className="col-span-2 md:col-span-1 md:col-start-4">
                 <div className="ml-1 flex items-center gap-2">
                   <a
-                    href={mailtoSupport}
-                    aria-label={macwall.supportEmail}
+                    href={macwall.discordInvite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Discord"
                     className={socialLinkClass}
                   >
-                    <MailIcon />
+                    <HugeiconsIcon
+                      icon={DiscordIcon}
+                      size={SOCIAL_ICON_SIZE}
+                      strokeWidth={SOCIAL_ICON_STROKE}
+                      aria-hidden
+                    />
+                  </a>
+                  <a
+                    href={macwall.reelRefundInstagramURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    className={socialLinkClass}
+                  >
+                    <HugeiconsIcon
+                      icon={InstagramIcon}
+                      size={SOCIAL_ICON_SIZE}
+                      strokeWidth={SOCIAL_ICON_STROKE}
+                      aria-hidden
+                    />
                   </a>
                   <a
                     href={macwall.reelRefundTiktokURL}
@@ -167,7 +195,24 @@ export default function MacWallMarketingFooter() {
                     aria-label="TikTok"
                     className={socialLinkClass}
                   >
-                    <TikTokIcon />
+                    <HugeiconsIcon
+                      icon={TiktokIcon}
+                      size={SOCIAL_ICON_SIZE}
+                      strokeWidth={SOCIAL_ICON_STROKE}
+                      aria-hidden
+                    />
+                  </a>
+                  <a
+                    href={mailtoSupport}
+                    aria-label={macwall.supportEmail}
+                    className={socialLinkClass}
+                  >
+                    <HugeiconsIcon
+                      icon={Mail01Icon}
+                      size={SOCIAL_ICON_SIZE}
+                      strokeWidth={SOCIAL_ICON_STROKE}
+                      aria-hidden
+                    />
                   </a>
                 </div>
               </div>

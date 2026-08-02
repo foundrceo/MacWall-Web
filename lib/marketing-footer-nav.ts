@@ -1,6 +1,8 @@
 import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
 import { macwall, macwallProCheckoutURL } from "@/lib/macwall-site"
 import { categorySlugFromName } from "@/lib/seo/category-slugs"
+import { SUPPORT_CHAT_HREF } from "@/lib/support/shared"
 
 export type FooterLinkKind = "internal" | "external" | "pricing" | "download"
 
@@ -102,14 +104,18 @@ export function getMarketingFooterSections(
     {
       title: foot.connectTitle,
       links: [
-        {
-          label: foot.connect.affiliate,
-          href: "/affiliate",
-          kind: "internal",
-        },
+        ...(AFFILIATE_UI_VISIBLE
+          ? [
+              {
+                label: foot.connect.affiliate,
+                href: "/affiliate",
+                kind: "internal" as const,
+              },
+            ]
+          : []),
         {
           label: "Live Support",
-          href: "/support",
+          href: SUPPORT_CHAT_HREF,
           kind: "internal",
         },
       ],
