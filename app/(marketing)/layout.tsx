@@ -1,5 +1,6 @@
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
+import { CommandPaletteMount } from "@/components/command-palette/command-palette-mount"
 import { MacWallChatMount } from "@/components/macwall-chat/macwall-chat-mount"
 import { HeroVideoPreload } from "@/components/macwall-marketing/hero-video-preload"
 import { MarketingPricingProvider } from "@/components/marketing/marketing-pricing-context"
@@ -20,27 +21,29 @@ export default async function MarketingLayout({
 
   return (
     <MarketingPricingProvider pricing={pricing}>
-      <div className="dark min-h-screen bg-background text-foreground">
-        <link rel="preconnect" href={mediaOrigin} crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href={mediaOrigin} />
-        <link rel="preconnect" href="https://checkout.stripe.com" />
-        <link rel="dns-prefetch" href="https://checkout.stripe.com" />
-        <link rel="preconnect" href="https://js.stripe.com" />
-        <link rel="dns-prefetch" href="https://js.stripe.com" />
-        {catalogOrigin ? (
-          <>
-            <link
-              rel="preconnect"
-              href={catalogOrigin}
-              crossOrigin="anonymous"
-            />
-            <link rel="dns-prefetch" href={catalogOrigin} />
-          </>
-        ) : null}
-        <HeroVideoPreload />
-        {children}
-        <MacWallChatMount />
-      </div>
+      <CommandPaletteMount>
+        <div className="dark min-h-screen bg-background text-foreground">
+          <link rel="preconnect" href={mediaOrigin} crossOrigin="anonymous" />
+          <link rel="dns-prefetch" href={mediaOrigin} />
+          <link rel="preconnect" href="https://checkout.stripe.com" />
+          <link rel="dns-prefetch" href="https://checkout.stripe.com" />
+          <link rel="preconnect" href="https://js.stripe.com" />
+          <link rel="dns-prefetch" href="https://js.stripe.com" />
+          {catalogOrigin ? (
+            <>
+              <link
+                rel="preconnect"
+                href={catalogOrigin}
+                crossOrigin="anonymous"
+              />
+              <link rel="dns-prefetch" href={catalogOrigin} />
+            </>
+          ) : null}
+          <HeroVideoPreload />
+          {children}
+          <MacWallChatMount />
+        </div>
+      </CommandPaletteMount>
     </MarketingPricingProvider>
   )
 }

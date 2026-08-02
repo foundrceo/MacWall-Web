@@ -46,8 +46,8 @@ function WallpaperCardMedia({
   const resolvedVideoUrl = previewVideoUrl ?? wallpaper.videoUrl
 
   const handleMouseEnter = useCallback(() => {
-    if (reduceMotion || !resolvedVideoUrl) return
     setIsHovered(true)
+    if (reduceMotion || !resolvedVideoUrl) return
     setVideoSrc(resolvedVideoUrl)
   }, [reduceMotion, resolvedVideoUrl])
 
@@ -72,7 +72,8 @@ function WallpaperCardMedia({
     })
   }, [videoSrc, reduceMotion])
 
-  const showPlayOverlay = !isHovered || !isPlaying
+  const hasVideo = Boolean(resolvedVideoUrl)
+  const showPlayOverlay = hasVideo && isHovered
 
   return (
     <div
@@ -83,11 +84,8 @@ function WallpaperCardMedia({
       <div
         className={cn(
           "absolute inset-0 overflow-hidden bg-[#141414]",
-          "transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "shadow-[0_6px_22px_rgba(0,0,0,0.22)]",
           "group-focus-visible:ring-2 group-focus-visible:ring-white/40 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-black",
-          isHovered
-            ? "-translate-y-px shadow-[0_12px_36px_rgba(0,0,0,0.34)]"
-            : "shadow-[0_6px_22px_rgba(0,0,0,0.22)]",
           GALLERY_MEDIA_RADIUS_CLASS
         )}
       >
@@ -96,7 +94,7 @@ function WallpaperCardMedia({
           alt={`${wallpaper.name} — ${wallpaper.category} live wallpaper for Mac`}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02] [-webkit-user-drag:none]"
+          className="object-cover [-webkit-user-drag:none]"
           priority={priority}
           draggable={false}
         />
@@ -127,37 +125,30 @@ function WallpaperCardMedia({
 
         <div
           aria-hidden
-          className={cn(
-            "pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10",
-            "transition-opacity duration-300",
-            isHovered ? "opacity-100" : "opacity-50"
-          )}
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10 opacity-50"
         />
 
-        <div
-          aria-hidden
-          className={cn(
-            "pointer-events-none absolute inset-0 flex items-center justify-center",
-            "transition-opacity duration-300 ease-out",
-            showPlayOverlay ? "opacity-100" : "opacity-0"
-          )}
-        >
+        {hasVideo ? (
           <div
+            aria-hidden
             className={cn(
-              "flex size-11 items-center justify-center rounded-full border-0 outline-none",
-              "bg-black/40 backdrop-blur-md shadow-none ring-0",
-              "transition duration-300 ease-out",
-              isHovered && "scale-105 bg-black/50"
+              "pointer-events-none absolute inset-0 flex items-center justify-center",
+              "transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+              showPlayOverlay ? "opacity-100" : "opacity-0"
             )}
           >
-            <HugeiconsIcon
-              icon={PlayIcon}
-              size={PLAY_ICON_SIZE}
-              strokeWidth={PLAY_ICON_STROKE}
-              className="ml-0.5 text-white/95"
-            />
+            <div
+              className="flex size-11 items-center justify-center rounded-full border-0 bg-black/40 outline-none shadow-none ring-0 backdrop-blur-md"
+            >
+              <HugeiconsIcon
+                icon={PlayIcon}
+                size={PLAY_ICON_SIZE}
+                strokeWidth={PLAY_ICON_STROKE}
+                className="ml-0.5 text-white/95"
+              />
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
     </div>
   )
