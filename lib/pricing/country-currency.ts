@@ -1,0 +1,160 @@
+/**
+ * ISO 3166-1 alpha-2 → ISO 4217 presentment currency for Adaptive Pricing markets.
+ * Unknown / unsupported countries fall back to USD (integration currency).
+ */
+const COUNTRY_TO_CURRENCY: Record<string, string> = {
+  US: "usd",
+  CA: "cad",
+  MX: "mxn",
+  GB: "gbp",
+  IE: "eur",
+  FR: "eur",
+  DE: "eur",
+  ES: "eur",
+  IT: "eur",
+  NL: "eur",
+  BE: "eur",
+  AT: "eur",
+  PT: "eur",
+  FI: "eur",
+  GR: "eur",
+  LU: "eur",
+  EE: "eur",
+  LV: "eur",
+  LT: "eur",
+  SK: "eur",
+  SI: "eur",
+  CY: "eur",
+  MT: "eur",
+  HR: "eur",
+  AD: "eur",
+  MC: "eur",
+  SM: "eur",
+  VA: "eur",
+  ME: "eur",
+  XK: "eur",
+  CH: "chf",
+  SE: "sek",
+  NO: "nok",
+  DK: "dkk",
+  PL: "pln",
+  CZ: "czk",
+  HU: "huf",
+  RO: "ron",
+  BG: "bgn",
+  IS: "isk",
+  UA: "uah",
+  TR: "try",
+  IN: "inr",
+  ID: "idr",
+  MY: "myr",
+  SG: "sgd",
+  PH: "php",
+  TH: "thb",
+  VN: "vnd",
+  JP: "jpy",
+  KR: "krw",
+  TW: "twd",
+  HK: "hkd",
+  MO: "mop",
+  CN: "cny",
+  AU: "aud",
+  NZ: "nzd",
+  BR: "brl",
+  AR: "ars",
+  CL: "clp",
+  CO: "cop",
+  PE: "pen",
+  UY: "uyu",
+  AE: "aed",
+  SA: "sar",
+  QA: "qar",
+  IL: "ils",
+  ZA: "zar",
+  NG: "ngn",
+  KE: "kes",
+  EG: "egp",
+  PK: "pkr",
+  BD: "bdt",
+  LK: "lkr",
+  NP: "npr",
+  RU: "rub",
+}
+
+/** Stripe zero-decimal presentment currencies (charge in whole units). */
+const ZERO_DECIMAL_CURRENCIES = new Set([
+  "bif",
+  "clp",
+  "djf",
+  "gnf",
+  "jpy",
+  "kmf",
+  "krw",
+  "mga",
+  "pyg",
+  "rwf",
+  "ugx",
+  "vnd",
+  "vuv",
+  "xaf",
+  "xof",
+  "xpf",
+])
+
+export function currencyForCountry(
+  country: string | null | undefined
+): string {
+  if (!country) return "usd"
+  return COUNTRY_TO_CURRENCY[country.trim().toUpperCase()] ?? "usd"
+}
+
+export function isZeroDecimalCurrency(currency: string): boolean {
+  return ZERO_DECIMAL_CURRENCIES.has(currency.toLowerCase())
+}
+
+export function localeForCountry(country: string | null | undefined): string {
+  const code = country?.trim().toUpperCase()
+  if (!code) return "en-US"
+
+  const locales: Record<string, string> = {
+    IN: "en-IN",
+    GB: "en-GB",
+    AU: "en-AU",
+    CA: "en-CA",
+    NZ: "en-NZ",
+    IE: "en-IE",
+    SG: "en-SG",
+    DE: "de-DE",
+    FR: "fr-FR",
+    ES: "es-ES",
+    IT: "it-IT",
+    NL: "nl-NL",
+    PT: "pt-PT",
+    BR: "pt-BR",
+    JP: "ja-JP",
+    KR: "ko-KR",
+    TW: "zh-TW",
+    HK: "zh-HK",
+    CN: "zh-CN",
+    SE: "sv-SE",
+    NO: "nb-NO",
+    DK: "da-DK",
+    PL: "pl-PL",
+    TR: "tr-TR",
+    AE: "ar-AE",
+    SA: "ar-SA",
+    IL: "he-IL",
+    MX: "es-MX",
+    AR: "es-AR",
+    CL: "es-CL",
+    CO: "es-CO",
+    TH: "th-TH",
+    VN: "vi-VN",
+    ID: "id-ID",
+    MY: "ms-MY",
+    PH: "en-PH",
+    ZA: "en-ZA",
+  }
+
+  return locales[code] ?? "en-US"
+}

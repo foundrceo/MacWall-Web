@@ -5,39 +5,55 @@ import type { ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
 
-function parseUsdPrice(price: string): number | null {
-  const trimmed = price.trim()
-  if (!/^\$[\d,.]+$/.test(trimmed)) return null
-
-  const numeric = Number(trimmed.replace(/[^0-9.]/g, ""))
-  return Number.isFinite(numeric) ? numeric : null
+function isZeroDecimalCurrency(currency: string): boolean {
+  return [
+    "bif",
+    "clp",
+    "djf",
+    "gnf",
+    "jpy",
+    "kmf",
+    "krw",
+    "mga",
+    "pyg",
+    "rwf",
+    "ugx",
+    "vnd",
+    "vuv",
+    "xaf",
+    "xof",
+    "xpf",
+  ].includes(currency.toLowerCase())
 }
 
 export function PricingPriceDisplay({
   price,
+  priceMajor,
+  currency = "usd",
   className,
 }: Readonly<{
   price: ReactNode
+  priceMajor?: number
+  currency?: string
   className?: string
 }>) {
-  if (typeof price !== "string") {
-    return <span className={className}>{price}</span>
+  if (typeof priceMajor === "number" && Number.isFinite(priceMajor)) {
+    const code = currency.toUpperCase()
+    const zeroDecimal = isZeroDecimalCurrency(currency)
+
+    return (
+      <NumberFlow
+        className={cn("tabular-nums", className)}
+        value={priceMajor}
+        format={{
+          style: "currency",
+          currency: code,
+          minimumFractionDigits: zeroDecimal || priceMajor === 0 ? 0 : 2,
+          maximumFractionDigits: zeroDecimal || priceMajor === 0 ? 0 : 2,
+        }}
+      />
+    )
   }
 
-  const value = parseUsdPrice(price)
-  if (value === null) {
-    return <span className={className}>{price}</span>
-  }
-
-  return (
-    <NumberFlow
-      className={cn("tabular-nums", className)}
-      value={value}
-      prefix="$"
-      format={{
-        minimumFractionDigits: value === 0 ? 0 : 2,
-        maximumFractionDigits: 2,
-      }}
-    />
-  )
+  return <span className={className}>{price}</span>
 }

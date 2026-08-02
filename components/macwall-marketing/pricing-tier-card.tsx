@@ -1,15 +1,36 @@
 import type { ReactNode } from "react"
 
 import { PricingPriceDisplay } from "@/components/macwall-marketing/pricing-price-display"
+import { PricingRotatingBadge } from "@/components/macwall-marketing/pricing-rotating-badge"
 import { cn } from "@/lib/utils"
+
+/** Newspaper-style yellow marker on key phrases inside feature lines. */
+function highlightFeatureText(feature: string): ReactNode {
+  const needle = "5 Macs"
+  const index = feature.indexOf(needle)
+  if (index === -1) return feature
+
+  return (
+    <>
+      {feature.slice(0, index)}
+      <mark className="rounded-[3px] bg-yellow-300 px-1 py-px font-medium text-black [box-decoration-break:clone]">
+        {needle}
+      </mark>
+      {feature.slice(index + needle.length)}
+    </>
+  )
+}
 
 export function PricingTierCard({
   id,
   title,
   subtitle,
   price,
+  priceMajor,
+  currency = "usd",
   priceSuffix,
   strikePrice,
+  localPriceHint,
   features,
   featuresPrefix = "Includes:",
   action,
@@ -17,14 +38,19 @@ export function PricingTierCard({
   showActionSlot = false,
   highlight = false,
   badge,
+  badgeAlt,
   className,
 }: Readonly<{
   id: string
   title: string
   subtitle: string
   price: ReactNode
+  priceMajor?: number
+  currency?: string
   priceSuffix?: ReactNode
   strikePrice?: string | null
+  /** Non-US: ≈ ₹… · charged in INR */
+  localPriceHint?: string | null
   features: readonly string[]
   featuresPrefix?: string
   action: ReactNode
@@ -32,16 +58,19 @@ export function PricingTierCard({
   showActionSlot?: boolean
   highlight?: boolean
   badge?: string
+  /** Optional second label — rotates with `badge` via motion */
+  badgeAlt?: string
   className?: string
 }>) {
-  const badgeLabel = badge ?? (highlight ? "Popular" : undefined)
+  const badgeLabels = [
+    badge ?? (highlight ? "Most Popular" : undefined),
+    badgeAlt,
+  ].filter((label): label is string => Boolean(label))
 
   return (
     <div className={cn("relative h-full pt-2.5", className)}>
-      {badgeLabel ? (
-        <span className="absolute top-0 right-4 z-10 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-medium tracking-wide text-background">
-          {badgeLabel}
-        </span>
+      {badgeLabels.length > 0 ? (
+        <PricingRotatingBadge labels={badgeLabels} />
       ) : null}
 
       <article
@@ -61,37 +90,51 @@ export function PricingTierCard({
             {subtitle}
           </p>
 
-          <p className="mt-3.5 flex flex-wrap items-baseline gap-x-2">
-            <PricingPriceDisplay
-              price={price}
-              className="text-[1.75rem] font-normal tracking-tight text-foreground"
-            />
-            {strikePrice ? (
-              <span className="text-[14px] text-muted-foreground/70 line-through decoration-muted-foreground/50">
-                {strikePrice}
-              </span>
-            ) : null}
-            {priceSuffix ? (
-              <span className="text-[12px] text-muted-foreground">
-                {priceSuffix}
-              </span>
-            ) : null}
-          </p>
-
-          <div
-            className={cn(
-              "mt-3 min-h-7 items-center",
-              showActionSlot ? "flex" : "hidden md:flex"
-            )}
-          >
-            {actionSlot ?? null}
+          {/* Fixed price-block height so feature prefixes align across cards */}
+          <div className="mt-3.5 flex min-h-[3.75rem] flex-col justify-start">
+            <p className="flex min-h-[2rem] flex-wrap items-baseline gap-x-2">
+              <PricingPriceDisplay
+                price={price}
+                priceMajor={priceMajor}
+                currency={currency}
+                className="text-[1.75rem] font-normal tracking-tight text-foreground"
+              />
+              {strikePrice ? (
+                <span
+                  className="text-[14px] text-muted-foreground line-through decoration-muted-foreground decoration-1"
+                  aria-label={`Was ${strikePrice}`}
+                >
+                  {strikePrice}
+                </span>
+              ) : null}
+              {priceSuffix ? (
+                <span className="text-[12px] text-muted-foreground">
+                  {priceSuffix}
+                </span>
+              ) : null}
+            </p>
+            <p
+              className={cn(
+                "mt-1 min-h-[1.125rem] text-[12px] leading-snug text-muted-foreground",
+                !localPriceHint && "invisible select-none"
+              )}
+              aria-hidden={!localPriceHint}
+            >
+              {localPriceHint ?? "\u00a0"}
+            </p>
           </div>
 
-          <p className="mt-4 text-[11px] font-medium tracking-wide text-muted-foreground">
+          {showActionSlot || actionSlot ? (
+            <div className="mt-3 flex min-h-7 items-center">{actionSlot}</div>
+          ) : (
+            <div className="mt-3 min-h-5" aria-hidden />
+          )}
+
+          <p className="mt-5 text-[11px] font-medium tracking-wide text-muted-foreground">
             {featuresPrefix}
           </p>
 
-          <ul role="list" className="mt-2 space-y-1.5">
+          <ul role="list" className="mt-2.5 space-y-2">
             {features.map((feature) => (
               <li
                 key={feature}
@@ -103,7 +146,9 @@ export function PricingTierCard({
                 >
                   ✓
                 </span>
-                <span className="line-clamp-2 min-w-0">{feature}</span>
+                <span className="line-clamp-2 min-w-0">
+                  {highlightFeatureText(feature)}
+                </span>
               </li>
             ))}
           </ul>
