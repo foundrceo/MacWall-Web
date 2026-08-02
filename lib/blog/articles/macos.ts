@@ -260,7 +260,7 @@ export const macosArticles: BlogArticle[] = [
         type: "ol",
         items: [
           "Download MacWall and pick a wallpaper (or import your own).",
-          "Activate your one-time $9.99 license, Lock Screen included.",
+          "Activate your one-time $7.99 license, Lock Screen included.",
           'Toggle "Use Lock Screen & Screen Saver" in Settings.',
           "Lock your Mac, the video plays natively on the Lock Screen.",
         ],

@@ -37,7 +37,7 @@ function toLocalMoney(
 
 /**
  * Catalog prices stay USD. India → $3.99 Pro / $6.99 Pro+ (separate Prices).
- * Everyone else → $9.99 / $14.99. No coupon.
+ * Everyone else → $7.99 / $12.99. No coupon.
  */
 export async function resolveMarketingPricing(): Promise<MarketingPricing> {
   await connection()

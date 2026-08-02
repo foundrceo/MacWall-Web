@@ -60,9 +60,9 @@ export type MarketingPricing = {
 
 /** Global catalog USD amounts. */
 const PRO_USD_CENTS = LICENSE_OFFERS.permanent.usdCents
-const PRO_STRIKE_USD_CENTS = 1499
+const PRO_STRIKE_USD_CENTS = 1499 // was $14.99 — sale vs strike
 const PRO_PLUS_USD_CENTS = LICENSE_OFFERS.permanent_5.usdCents
-const PRO_PLUS_STRIKE_USD_CENTS = 2499
+const PRO_PLUS_STRIKE_USD_CENTS = 2499 // was $24.99
 const ANNUAL_USD_CENTS = LICENSE_OFFERS.annual.usdCents
 
 /** India catalog Prices ($3.99 Pro · $6.99 Pro+). */
