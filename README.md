@@ -1,24 +1,23 @@
 # MacWall Web
 
-Website and web platform for **[MacWall](https://macwall.app)**, a native macOS app for cinematic 4K live wallpapers.
+Website for **[MacWall](https://macwall.app)**, a native macOS app that brings live wallpapers to your desktop.
 
 **Website:** https://macwall.app
 
-Browse the wallpaper catalog, download the Mac app, and purchase Pro with Stripe Checkout. After checkout, the license automatically opens the app using `macwall://activate`.
+This repository contains the website, pricing pages, checkout flow, licensing, blog, and a few other supporting pages. The macOS app itself is written in Swift and lives in a separate private repository.
 
 ![MacWall homepage](public/screenshots/homepage.png)
 
-## What this repository includes
+## Features
 
-- Homepage and marketing pages
-- Pricing (Free, Pro, Pro+)
-- Stripe Checkout and license activation
-- Blog and SEO pages
-- Community wallpaper submissions
-- Affiliate pages
-- Support inbox UI
-
-The native macOS app is written in Swift and is maintained in a separate repository.
+* Homepage
+* Pricing (Free, Pro, Pro+)
+* Stripe Checkout
+* License activation
+* Blog
+* Community wallpaper submissions
+* Affiliate pages
+* Support inbox UI
 
 ## Screenshots
 
@@ -36,15 +35,15 @@ The native macOS app is written in Swift and is maintained in a separate reposit
 
 ## Tech Stack
 
-| Technology | Purpose |
-| --- | --- |
-| Next.js (App Router) | Website and API routes |
-| React + TypeScript | Frontend |
-| Stripe | Payments |
-| Supabase | Licenses and backend |
-| Vercel | Hosting |
-| Tailwind CSS + shadcn/ui | UI styling |
-| Cloudflare R2 | Wallpaper storage and CDN |
+| Technology               | Purpose                |
+| ------------------------ | ---------------------- |
+| Next.js (App Router)     | Website and API routes |
+| React + TypeScript       | Frontend               |
+| Stripe                   | Payments               |
+| Supabase                 | Backend and licensing  |
+| Vercel                   | Hosting                |
+| Tailwind CSS + shadcn/ui | UI                     |
+| Cloudflare R2            | Wallpaper storage      |
 
 ## Local Development
 
@@ -56,11 +55,11 @@ cp .env.example .env
 npm run dev
 ```
 
-Copy `.env.example` to `.env` and add the required environment variables from your deployment (Vercel project settings).
+Create a `.env` file from `.env.example`.
 
-Never commit `.env` files or production credentials.
+Most of the website will run without much setup. To test checkout or licensing, you'll need valid Stripe and Supabase credentials.
 
-Most marketing pages work with a minimal environment setup. Stripe Checkout and license activation require Stripe and Supabase credentials. See `.env.example` for the required variable names.
+A few useful commands:
 
 ```sh
 npm run lint
@@ -68,19 +67,33 @@ npm run typecheck
 npm run build
 ```
 
-Open http://localhost:3000.
+The development server runs at:
+
+```
+http://localhost:3000
+```
 
 ## Routes
 
-| Route | Description |
-| --- | --- |
-| `/` | Home |
-| `/pricing` | Pricing |
-| `/download` | Download |
-| `/blog` | Blog |
-| `/submit` | Submit wallpapers |
+| Route        | Description       |
+| ------------ | ----------------- |
+| `/`          | Home              |
+| `/pricing`   | Pricing           |
+| `/download`  | Download page     |
+| `/blog`      | Blog              |
+| `/submit`    | Submit wallpapers |
 | `/affiliate` | Affiliate program |
-| `/support` | Support |
+| `/support`   | Support           |
+
+## Project Structure
+
+```text
+app/            Next.js App Router
+components/     Shared UI components
+lib/            Utilities
+public/         Static assets
+supabase/       Database migrations
+```
 
 ## Download
 
@@ -88,4 +101,4 @@ https://macwall.app/download
 
 ## License
 
-Proprietary. See [LICENSE](./LICENSE).
+This project is proprietary. See [LICENSE](./LICENSE) for details.
