@@ -11,6 +11,55 @@ import type { ChangelogRelease } from "@/lib/changelog/types"
  */
 export const curatedChangelogReleases: readonly ChangelogRelease[] = [
   {
+    id: "v3.0",
+    version: "3.0",
+    build: 1,
+    date: "2026-08-02T18:30:00.000Z",
+    sections: [
+      {
+        kind: "highlights",
+        items: [
+          "MacWall 3.0 — a redesigned Home with Liquid Glass chrome and a cleaner everyday workflow.",
+          "Heart any wallpaper to bookmark it in Library Favorites without downloading.",
+          "Save wallpapers to your Library, then auto-cycle them as a slideshow.",
+        ],
+      },
+      {
+        kind: "features",
+        items: [
+          "Home rebuilt around Top Charts and Categories for faster browsing.",
+          "Spotlight-style search to find wallpapers instantly (⌘K / ⌘F).",
+          "One Add Wallpaper flow for private Library imports and community submissions.",
+          "Save-only Library actions — keep a wallpaper without setting it on the desktop.",
+          "Auto-cycle slideshow through saved Library wallpapers.",
+          "Open wallpapers from macwall.app share links directly in the app.",
+          "Pro+ licenses now support 10, 15, or 20 Macs.",
+        ],
+      },
+      {
+        kind: "improvements",
+        items: [
+          "Liquid Glass navigation, Cause brand type, and tighter Home composition.",
+          "Pro unlock sheet with glass chrome and smooth open / close motion.",
+          "Escape closes overlays reliably — no blue focus ring around the window.",
+          "Native Settings sidebar Forms and simpler window chrome.",
+          "App icon refreshed to match macwall.app.",
+          "Instagram handle updated to @macwallapp_.",
+          "Discord community invite pointed at the new server link.",
+        ],
+      },
+      {
+        kind: "fixes",
+        items: [
+          "More reliable native wallpaper apply, repair, and extension playback.",
+          "Favorites correctly appear in Library without a silent full download.",
+          "Stronger app lifecycle, liveness, and desktop wallpaper stability.",
+          "Smoother Live Support handoff with fewer stuck tickets.",
+        ],
+      },
+    ],
+  },
+  {
     id: "v2.9",
     version: "2.9",
     build: 1,
