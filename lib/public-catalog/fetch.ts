@@ -25,6 +25,12 @@ import {
   wallpaperIdFromDetailSlug,
 } from "@/lib/public-catalog/urls"
 
+/**
+ * Catalog ids removed for copyright / legal reasons.
+ * Kept here so stale ISR/CDN cannot resurface a deleted row.
+ */
+const REMOVED_PUBLIC_WALLPAPER_IDS = new Set<string>(["rainy-parking-lot"])
+
 type WallpaperRow = {
   id: string
   name: string
@@ -275,7 +281,7 @@ async function fetchPublicWallpaperByIdUncached(
 
 const getCachedPublicWallpaperById = unstable_cache(
   async (id: string) => fetchPublicWallpaperByIdUncached(id),
-  ["public-wallpaper-by-id-v2"],
+  ["public-wallpaper-by-id-v3"],
   {
     revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
     tags: [PUBLIC_CATALOG_CACHE_TAG],
@@ -286,6 +292,7 @@ const getCachedPublicWallpaperById = unstable_cache(
 export const getPublicWallpaperById = cache(async (wallpaperId: string) => {
   const id = wallpaperId.trim()
   if (!id) return null
+  if (REMOVED_PUBLIC_WALLPAPER_IDS.has(id)) return null
   return getCachedPublicWallpaperById(id)
 })
 
