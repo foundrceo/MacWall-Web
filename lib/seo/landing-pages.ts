@@ -108,7 +108,6 @@ export const bestLiveWallpaperMacPage: SeoContentPage = {
       items: [
         "vs Backdrop, lower Pro price, community uploads, Reel refund",
         "vs Wallpaper Engine, native Mac app, no Windows dependency",
-        "vs Wallper, bigger community catalog and aggressive one-time pricing",
         "vs Wallspace, deeper catalog, imports, and Lock Screen Pro",
         "vs web-based tools. GPU decode, not Chromium overhead",
       ],
@@ -198,60 +197,6 @@ export const macwallVsBackdropPage: SeoContentPage = {
     },
   ],
   faq: [],
-}
-
-export const macwallVsWallperPage: SeoContentPage = {
-  slug: "macwall-vs-wallper",
-  pathname: "/alternatives/macwall-vs-wallper",
-  title: "Wallper Alternative for Mac: MacWall",
-  headline: "The Wallper Alternative for Mac",
-  description:
-    `Looking for a Wallper alternative? MacWall matches the one-time price, has a bigger community catalog, and brings live Lock Screen wallpapers to ${macwallLockScreenMacOSVersion}.`,
-  keywords: [
-    "wallper alternative",
-    "wallper alternative mac",
-    "wallper app alternative mac",
-    "apps like wallper mac",
-    "apps like wallper",
-    "wallper free alternative",
-  ],
-  sections: [
-    {
-      type: "p",
-      text: "**Wallper** offers SwiftUI playback with a curated library of around 700 loops at $9.99. **MacWall** is $7.99 one-time, with a larger community catalog, a Reel refund program that can pay the whole license back, and a menu bar-first workflow.",
-    },
-    {
-      type: "h2",
-      text: "Side by side",
-    },
-    {
-      type: "ul",
-      items: [
-        "MacWall: $7.99 one-time, everything included, lifetime updates",
-        "Wallper: $9.99 one-time license",
-        "Both: 4K video, Apple Silicon optimized, multi-monitor",
-        "MacWall: community uploads + import your own MP4/MOV",
-        "MacWall: Reel refund, earn up to 100% of your purchase back",
-        "MacWall: one license per Mac",
-      ],
-    },
-    {
-      type: "p",
-      text: "Same one-time pricing model. MacWall covers up to 3 Macs per license (Pro Plus: 5), offers annual billing, and can refund itself through a Reel. For daily menu bar control and multi-category discovery, MacWall is the stronger buy.",
-    },
-  ],
-  faq: [
-    {
-      question: "How does MacWall compare to Wallper on price?",
-      answer:
-        "MacWall is $7.99 one-time (Wallper is $9.99), and MacWall includes up to 3 Macs per license (Pro Plus: 5) and a Reel refund that can earn the full price back. Annual billing is also available if you want a lower upfront cost.",
-    },
-    {
-      question: "Which is better for MacBook battery life?",
-      answer:
-        "Both use hardware decode. MacWall additionally pauses automatically on battery and in full screen, keeping playback off when it doesn't matter.",
-    },
-  ],
 }
 
 export const macwallVsWallspacePage: SeoContentPage = {

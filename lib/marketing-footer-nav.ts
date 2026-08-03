@@ -1,5 +1,5 @@
 import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
-import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { macwall, macwallProCheckoutURL } from "@/lib/macwall-site"
 import { categorySlugFromName } from "@/lib/seo/category-slugs"
 import { SUPPORT_CHAT_HREF } from "@/lib/support/shared"
@@ -43,7 +43,7 @@ export type MarketingFooterLegalLink = {
 
 /** Visible footer columns — mirrors header nav funnel + resources + support. */
 export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
-  const foot = macwallExactCopy.footer
+  const foot = macwallMarketingCopy.footer
 
   return [
     {
@@ -98,7 +98,7 @@ export function getMarketingFooterSocialLinks(): readonly MarketingFooterSocialL
 }
 
 export function getMarketingFooterLegalLinks(): readonly MarketingFooterLegalLink[] {
-  const foot = macwallExactCopy.footer
+  const foot = macwallMarketingCopy.footer
 
   return [
     { label: foot.legal.privacy, href: "/privacy" },
@@ -110,7 +110,6 @@ export function getMarketingFooterLegalLinks(): readonly MarketingFooterLegalLin
 export const footerCompareLinks = [
   { href: "/best-live-wallpaper-mac", label: "Best Live Wallpaper for Mac" },
   { href: "/alternatives/wallpaper-engine", label: "Wallpaper Engine for Mac" },
-  { href: "/alternatives/macwall-vs-wallper", label: "Wallper Alternative" },
   {
     href: "/alternatives/macwall-vs-wallspace",
     label: "Wallspace Alternative",
@@ -136,7 +135,7 @@ export const footerCategoryLinks: { href: string; label: string }[] =
 export function getMarketingFooterSections(
   shopPricingHref: string
 ): readonly FooterNavSection[] {
-  const foot = macwallExactCopy.footer
+  const foot = macwallMarketingCopy.footer
 
   return [
     {

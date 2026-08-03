@@ -5,7 +5,7 @@ import {
 } from "@/lib/macwall-site"
 
 /** User-visible strings for marketing pages (`macwall-marketing/*`). */
-export const macwallExactCopy = {
+export const macwallMarketingCopy = {
   header: {
     navOverview: "Overview",
     navGallery: "Wallpapers",
