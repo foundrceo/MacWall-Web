@@ -36,4 +36,4 @@ next.js, typescript, tailwind, stripe, supabase, vercel, cloudflare r2
 
 ## license
 
-see [LICENSE](./LICENSE). you can look at the code, but it's not open to copy or ship as your own.
+mit — see [LICENSE](./LICENSE)
