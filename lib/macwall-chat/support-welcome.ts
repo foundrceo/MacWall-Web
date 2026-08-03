@@ -28,11 +28,11 @@ export function sanitizeVisitorEmailDraft(value: string): string {
 
 /**
  * Shown right after a valid email is saved — ticket + Chat ID are created here.
- * Invite them to describe the issue while waiting (no fake “team joined”).
+ * Queue language only — “connected” / “team joined” wait for the first admin message.
  */
-export const SUPPORT_CONNECTING_PROMPT = `Thanks — you're connected. Someone from the MacWall team will reply here.
-
-Meanwhile, tell us what’s going on. A screenshot helps if you have one.`
+export const SUPPORT_CONNECTING_PROMPT = `Thanks — we’re connecting you with the MacWall team now.
+Someone will reply here as soon as they’re available (usually within 24 hours).
+Meanwhile, tell us what’s going on — a screenshot helps if you have one.`
 
 /** Seed body stored on the ticket at email confirmation (hidden in the visitor transcript). */
 export const SUPPORT_JOIN_SEED =
