@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react"
 
 type FeedbackStreamEvent =
   | { type: "connected" }
+  | { type: "resumed" }
   | { type: "feedback" }
   | { type: "message"; author?: string; feedbackId?: string }
   | {
@@ -14,6 +15,11 @@ type FeedbackStreamEvent =
     }
   | { type: "offline" }
 
+/**
+ * Admin Live Support SSE. Keeps the stream open across backgrounding when the
+ * browser allows it; on tab return / focus, reconnects if stale and emits
+ * `resumed` so callers can catch up via REST.
+ */
 export function useAdminFeedbackStream(
   onEvent: (event: FeedbackStreamEvent) => void
 ) {
@@ -26,16 +32,27 @@ export function useAdminFeedbackStream(
   useEffect(() => {
     let source: EventSource | null = null
     let retryTimer: number | null = null
+    let resumeTimer: number | null = null
     let disposed = false
+    let attempt = 0
+
+    function clearRetry() {
+      if (retryTimer != null) {
+        window.clearTimeout(retryTimer)
+        retryTimer = null
+      }
+    }
 
     function connect() {
       if (disposed) return
+      clearRetry()
       source?.close()
       source = new EventSource("/api/admin/feedback/stream", {
         withCredentials: true,
       })
 
       source.addEventListener("connected", () => {
+        attempt = 0
         callbackRef.current({ type: "connected" })
       })
 
@@ -84,37 +101,52 @@ export function useAdminFeedbackStream(
         source?.close()
         source = null
         callbackRef.current({ type: "offline" })
-        if (!disposed && !document.hidden) {
-          retryTimer = window.setTimeout(connect, 4000)
-        }
+        if (disposed) return
+        attempt += 1
+        const delay = Math.min(8_000, 900 * 2 ** Math.min(attempt, 4))
+        retryTimer = window.setTimeout(connect, delay)
       }
+    }
+
+    function ensureConnected() {
+      if (disposed) return
+      if (!source || source.readyState === EventSource.CLOSED) {
+        connect()
+      }
+    }
+
+    /** Debounced catch-up after tab return / window focus. */
+    function scheduleResume() {
+      if (disposed) return
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") {
+        return
+      }
+      if (resumeTimer != null) return
+      resumeTimer = window.setTimeout(() => {
+        resumeTimer = null
+        if (disposed) return
+        ensureConnected()
+        callbackRef.current({ type: "resumed" })
+      }, 50)
     }
 
     connect()
 
-    const onVisible = () => {
-      if (disposed) return
+    const onVisibility = () => {
       if (document.visibilityState === "visible") {
-        if (!source || source.readyState === EventSource.CLOSED) {
-          connect()
-        }
-        return
-      }
-      // Close SSE while backgrounded — Fluid Compute bills for open streams.
-      source?.close()
-      source = null
-      callbackRef.current({ type: "offline" })
-      if (retryTimer) {
-        window.clearTimeout(retryTimer)
-        retryTimer = null
+        scheduleResume()
       }
     }
-    document.addEventListener("visibilitychange", onVisible)
+
+    document.addEventListener("visibilitychange", onVisibility)
+    window.addEventListener("focus", scheduleResume)
 
     return () => {
       disposed = true
-      document.removeEventListener("visibilitychange", onVisible)
-      if (retryTimer) window.clearTimeout(retryTimer)
+      document.removeEventListener("visibilitychange", onVisibility)
+      window.removeEventListener("focus", scheduleResume)
+      clearRetry()
+      if (resumeTimer != null) window.clearTimeout(resumeTimer)
       source?.close()
     }
   }, [])

@@ -498,6 +498,11 @@ export default function AdminFeedbackPage() {
       setLive(false)
       return
     }
+    // Tab return / window focus — catch up anything missed while backgrounded.
+    if (event.type === "resumed") {
+      void load(true)
+      return
+    }
     if (event.type === "typing") {
       setLive(true)
       pulseVisitorTyping(event.ticketId)
