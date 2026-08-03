@@ -1052,6 +1052,10 @@ export function MacWallChatWidget() {
         pulseAdminTyping()
       },
       onConnectionChange: setStreamState,
+      // Tab return / window focus — catch up admin replies missed while hidden.
+      onResume: () => {
+        void syncTicketMessages()
+      },
     }
   )
 
