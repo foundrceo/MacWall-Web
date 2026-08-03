@@ -26,11 +26,14 @@ type Handlers = {
   onTicketUpdate?: (update: SupportStreamTicketUpdate) => void
   onTyping?: (typing: SupportStreamTyping) => void
   onConnectionChange?: (state: "connecting" | "live" | "offline") => void
+  /** Tab became visible / window focused — catch up via REST. */
+  onResume?: () => void
 }
 
 /**
  * Real-time ticket stream via SSE + Supabase postgres_changes (+ typing broadcast).
- * Auto-reconnects; callers should keep a slow poll as safety net.
+ * Auto-reconnects with backoff; stays open while backgrounded when possible;
+ * emits onResume on visibility/focus so callers can refetch missed messages.
  */
 export function useSupportTicketStream(
   ticketId: string | null,
@@ -49,6 +52,7 @@ export function useSupportTicketStream(
 
     let source: EventSource | null = null
     let retryTimer: number | null = null
+    let resumeTimer: number | null = null
     let disposed = false
     let attempt = 0
 
@@ -56,8 +60,16 @@ export function useSupportTicketStream(
       handlersRef.current.onConnectionChange?.(state)
     }
 
+    function clearRetry() {
+      if (retryTimer != null) {
+        window.clearTimeout(retryTimer)
+        retryTimer = null
+      }
+    }
+
     function connect() {
       if (disposed) return
+      clearRetry()
       source?.close()
       setState("connecting")
 
@@ -142,31 +154,44 @@ export function useSupportTicketStream(
       }
     }
 
-    connect()
-
-    const onVisible = () => {
+    function ensureConnected() {
       if (disposed) return
-      if (document.visibilityState === "visible") {
-        if (!source || source.readyState === EventSource.CLOSED) {
-          connect()
-        }
-        return
-      }
-      // Close SSE while backgrounded — Fluid Compute bills for open streams.
-      source?.close()
-      source = null
-      setState("offline")
-      if (retryTimer) {
-        window.clearTimeout(retryTimer)
-        retryTimer = null
+      if (!source || source.readyState === EventSource.CLOSED) {
+        connect()
       }
     }
-    document.addEventListener("visibilitychange", onVisible)
+
+    function scheduleResume() {
+      if (disposed) return
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") {
+        return
+      }
+      if (resumeTimer != null) return
+      resumeTimer = window.setTimeout(() => {
+        resumeTimer = null
+        if (disposed) return
+        ensureConnected()
+        handlersRef.current.onResume?.()
+      }, 50)
+    }
+
+    connect()
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        scheduleResume()
+      }
+    }
+
+    document.addEventListener("visibilitychange", onVisibility)
+    window.addEventListener("focus", scheduleResume)
 
     return () => {
       disposed = true
-      document.removeEventListener("visibilitychange", onVisible)
-      if (retryTimer) window.clearTimeout(retryTimer)
+      document.removeEventListener("visibilitychange", onVisibility)
+      window.removeEventListener("focus", scheduleResume)
+      clearRetry()
+      if (resumeTimer != null) window.clearTimeout(resumeTimer)
       source?.close()
       setState("offline")
     }
