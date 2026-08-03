@@ -2,9 +2,10 @@
  * Local-only support welcome (human-to-human). No FAQ / Assist matching.
  */
 
-export const SUPPORT_WELCOME = `Hi — what's your name?
+export const SUPPORT_WELCOME = `Welcome to MacWall Support.
+Share a few details and we’ll connect you with our team.
 
-We'll get you to the MacWall team.`
+What’s your name?`
 
 /** @deprecated Use SUPPORT_WELCOME */
 export const CHAT_GREETING = SUPPORT_WELCOME
