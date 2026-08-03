@@ -16,6 +16,7 @@ import {
 
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
+  ArrowDown01Icon,
   Camera01Icon,
   Cancel01Icon,
   Copy01Icon,
@@ -80,6 +81,8 @@ const IDLE_MS = 60_000
 const MENU_CONVERSATION_LIMIT = 12
 /** Clear admin typing bubble if no fresh ping arrives. */
 const ADMIN_TYPING_TTL_MS = 2500
+/** Stick to latest when within this distance of the transcript bottom. */
+const NEAR_BOTTOM_PX = 100
 
 type PresenceTone = "active" | "idle" | "offline"
 
@@ -177,6 +180,7 @@ export function MacWallChatWidget() {
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const seenRemoteRef = useRef<Set<string>>(new Set())
   const activeIdRef = useRef<string>("")
+  const atBottomRef = useRef(true)
 
   const hidden = pathname?.startsWith("/admin") ?? false
 
@@ -208,6 +212,8 @@ export function MacWallChatWidget() {
   const adminTypingTimerRef = useRef<number | null>(null)
   /** Local scripted support typing (welcome / name / email / connecting copy). */
   const [localTyping, setLocalTyping] = useState(false)
+  const [atBottom, setAtBottom] = useState(true)
+  const [hasUnseenBelow, setHasUnseenBelow] = useState(false)
   const localTypingQueueRef = useRef<Promise<void>>(Promise.resolve())
   const welcomeScheduledRef = useRef<Set<string>>(new Set())
   const dragDepthRef = useRef(0)
@@ -413,14 +419,62 @@ export function MacWallChatWidget() {
     const id = window.setTimeout(() => inputRef.current?.focus(), 240)
     return () => window.clearTimeout(id)
   }, [open, handoff])
-  useEffect(() => {
+  const scrollTranscriptToBottom = useCallback(
+    (behavior?: ScrollBehavior) => {
+      const el = listRef.current
+      if (!el) return
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: behavior ?? (reduceMotion ? "auto" : "smooth"),
+      })
+      atBottomRef.current = true
+      setAtBottom(true)
+      setHasUnseenBelow(false)
+    },
+    [reduceMotion]
+  )
+
+  const syncNearBottom = useCallback(() => {
     const el = listRef.current
     if (!el) return
-    el.scrollTo({
-      top: el.scrollHeight,
-      behavior: reduceMotion ? "auto" : "smooth",
+    const near =
+      el.scrollHeight - el.scrollTop - el.clientHeight <= NEAR_BOTTOM_PX
+    atBottomRef.current = near
+    setAtBottom(near)
+    if (near) setHasUnseenBelow(false)
+  }, [])
+
+  const pinTranscriptToBottom = useCallback(() => {
+    atBottomRef.current = true
+    setAtBottom(true)
+    setHasUnseenBelow(false)
+  }, [])
+
+  useEffect(() => {
+    atBottomRef.current = true
+    setAtBottom(true)
+    setHasUnseenBelow(false)
+    const id = window.requestAnimationFrame(() => {
+      scrollTranscriptToBottom("auto")
     })
-  }, [messages, open, reduceMotion, connectingUI, adminTyping, localTyping])
+    return () => window.cancelAnimationFrame(id)
+  }, [activeId, open, scrollTranscriptToBottom])
+
+  useEffect(() => {
+    if (!open) return
+    if (atBottomRef.current) {
+      scrollTranscriptToBottom()
+      return
+    }
+    setHasUnseenBelow(true)
+  }, [
+    messages,
+    open,
+    connectingUI,
+    adminTyping,
+    localTyping,
+    scrollTranscriptToBottom,
+  ])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -1392,6 +1446,9 @@ export function MacWallChatWidget() {
 
       if (connectingUI) return
 
+      // Own sends always pin to latest (iMessage / Slack behavior).
+      pinTranscriptToBottom()
+
       // —— Contact collection (no ticket yet) ——
       if (handoff === "ask_name") {
         if (!text) {
@@ -1549,6 +1606,7 @@ export function MacWallChatWidget() {
       connectingUI,
       pendingImage,
       canAttachImages,
+      pinTranscriptToBottom,
       pushMessage,
       pushSupportPrompt,
       patchActive,
@@ -1896,10 +1954,12 @@ export function MacWallChatWidget() {
               ) : null}
             </header>
 
-            <div
-              ref={listRef}
-              className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-3.5 py-3.5"
-            >
+            <div className="relative min-h-0 flex-1">
+              <div
+                ref={listRef}
+                onScroll={syncNearBottom}
+                className="h-full space-y-3 overflow-y-auto overscroll-contain px-3.5 py-3.5"
+              >
               {messages.map((m) => {
                 // Connecting is a transient chip (connectingUI) — never keep it stuck in history.
                 if (
@@ -2107,6 +2167,25 @@ export function MacWallChatWidget() {
                   />
                 ) : null}
               </AnimatePresence>
+              </div>
+
+              {!atBottom ? (
+                <button
+                  type="button"
+                  onClick={() => scrollTranscriptToBottom()}
+                  className="absolute bottom-3 left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/14 bg-[#1c1c1e]/92 px-3 py-1.5 font-sans text-[12px] font-medium text-white/90 shadow-[0_8px_28px_rgba(0,0,0,0.45)] backdrop-blur-md transition hover:border-white/22 hover:bg-[#252528]/95 hover:text-white"
+                  aria-label={
+                    hasUnseenBelow ? "Jump to new messages" : "Jump to latest"
+                  }
+                >
+                  <HugeiconsIcon
+                    icon={ArrowDown01Icon}
+                    size={14}
+                    strokeWidth={2.2}
+                  />
+                  {hasUnseenBelow ? "New messages" : "Jump to latest"}
+                </button>
+              ) : null}
             </div>
 
             {!composerHidden ? (
