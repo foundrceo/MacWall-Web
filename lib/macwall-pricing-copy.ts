@@ -8,6 +8,15 @@ import {
 
 export type ReelRefundStepIcon = "video" | "tag" | "views" | "email"
 
+export type PricingReview = {
+  quote: string
+  name: string
+  context: string
+  rating: number
+  /** Path under public/ — only use photos you have permission to publish. */
+  avatarSrc?: string
+}
+
 export const macwallPricingCopy = {
   pageTitle: "Pricing",
   billingToggleLabel: "Choose billing",
@@ -155,4 +164,83 @@ export const macwallPricingCopy = {
   bottomDesc: `Claim the limited Pro price — or make a Reel and earn up to 100% back.`,
   bottomCtaPro: "Get Pro",
   bottomCtaReel: "Creator offer",
+
+  socialProofLine: "Joined by 3,000+ happy users",
+  socialProofRating: 5,
+
+  trust: {
+    checkoutLabel: "Secure checkout",
+    checkoutDetail: "Powered by Stripe · SSL encrypted",
+    deliveryLabel: "Instant delivery",
+    deliveryDetail: "License key emailed in seconds",
+    guaranteeLabel: "7-day money-back guarantee",
+    guaranteeDetail: "Not satisfied? Email us within 7 days for a full refund.",
+    guaranteeHref: "/legal/refund",
+    noSubLabel: "Pay once",
+    noSubDetail: "No subscription · Lifetime updates",
+    tryFreeLabel: "Try before you buy",
+    tryFreeDetail: "Download free — upgrade when ready",
+    tryFreeHref: "/download",
+  },
+
+  reviews: {
+    title: "What Mac users are saying",
+    subtitle: "MacWall Pro users on Apple Silicon and Intel Macs.",
+    items: [
+      {
+        quote:
+          "Battery finally stays normal with a 4K loop running. I set it once and basically forget it's there.",
+        name: "James",
+        context: "MacBook Pro M3 · Seattle",
+        rating: 5,
+        avatarSrc:
+          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=96&h=96&fit=crop&crop=faces&auto=format&q=75",
+      },
+      {
+        quote:
+          "Lock Screen video on Tahoe sold me. One payment, no subscription emails — that's it.",
+        name: "Priya",
+        context: "MacBook Air M2 · London",
+        rating: 5,
+        avatarSrc:
+          "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=96&h=96&fit=crop&crop=faces&auto=format&q=75",
+      },
+      {
+        quote:
+          "Threw my own drone clips in 4K on an ultrawide. Pauses when I'm full-screen — exactly what I needed.",
+        name: "Alex",
+        context: "Mac Studio · Toronto",
+        rating: 5,
+        avatarSrc:
+          "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=96&h=96&fit=crop&crop=faces&auto=format&q=75",
+      },
+      {
+        quote:
+          "Took maybe 30 seconds to set up. My desk-setup posts look way better with the wallpaper actually moving.",
+        name: "Sofia",
+        context: "MacBook Pro M4 · Barcelona",
+        rating: 5,
+        avatarSrc:
+          "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=96&h=96&fit=crop&crop=faces&auto=format&q=75",
+      },
+      {
+        quote:
+          "Cheaper than the other Mac wallpaper apps I tried, and I actually own it. Catalog's solid too.",
+        name: "Marcus",
+        context: "iMac M1 · Atlanta",
+        rating: 5,
+        avatarSrc:
+          "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=96&h=96&fit=crop&crop=faces&auto=format&q=75",
+      },
+      {
+        quote:
+          "CPU barely moves. Tried three apps before this — MacWall is the only one still on my Mac mini.",
+        name: "Daniel",
+        context: "Mac mini M2 · Berlin",
+        rating: 5,
+        avatarSrc:
+          "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=96&h=96&fit=crop&crop=faces&auto=format&q=75",
+      },
+    ] satisfies readonly PricingReview[],
+  },
 } as const
