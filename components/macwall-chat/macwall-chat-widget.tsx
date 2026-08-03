@@ -1119,6 +1119,7 @@ export function MacWallChatWidget() {
         (m) =>
           m.role === "assist" &&
           (/you.?re connected/i.test(m.body) ||
+            /we.?re connecting you/i.test(m.body) ||
             /meanwhile,? tell us/i.test(m.body))
       )
       if (!alreadyHasConnectingPrompt) {
