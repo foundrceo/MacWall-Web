@@ -99,7 +99,8 @@ export async function GET() {
   const pricing = await resolvePricing()
   return NextResponse.json(pricing, {
     headers: {
-      "Cache-Control": "private, max-age=60",
+      // Per-visitor (country cookie) — browser cache only; FX is cached server-side 1h.
+      "Cache-Control": "private, max-age=300",
     },
   })
 }

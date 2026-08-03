@@ -10,7 +10,8 @@ import {
 } from "@/lib/social-proof/feed"
 
 export const runtime = "nodejs"
-export const dynamic = "force-dynamic"
+/** Allow CDN caching via Cache-Control (no cookies/auth on this route). */
+export const revalidate = 300
 
 const RECENT_LIMIT = 24
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -131,7 +132,7 @@ export async function GET() {
 
   return NextResponse.json(feed, {
     headers: {
-      "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
     },
   })
 }

@@ -128,8 +128,20 @@ export function useSupportTicketStream(
     connect()
 
     const onVisible = () => {
-      if (document.visibilityState === "visible" && !source) {
-        connect()
+      if (disposed) return
+      if (document.visibilityState === "visible") {
+        if (!source || source.readyState === EventSource.CLOSED) {
+          connect()
+        }
+        return
+      }
+      // Close SSE while backgrounded — Fluid Compute bills for open streams.
+      source?.close()
+      source = null
+      setState("offline")
+      if (retryTimer) {
+        window.clearTimeout(retryTimer)
+        retryTimer = null
       }
     }
     document.addEventListener("visibilitychange", onVisible)

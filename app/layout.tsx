@@ -265,7 +265,8 @@ export default function RootLayout({
           <CheckoutRetargetingTracker />
         </ThemeProvider>
         <Analytics />
-        <SpeedInsights />
+        {/* Sample vitals — full capture is rarely worth the Speed Insights bill. */}
+        <SpeedInsights sampleRate={0.2} />
         {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
         {ahrefsWebAnalyticsKey ? (
           <Script

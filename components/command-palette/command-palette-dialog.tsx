@@ -52,7 +52,7 @@ import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
 import { cn } from "@/lib/utils"
 
 const WALLPAPER_LIMIT = 8
-const SEARCH_DEBOUNCE_MS = 220
+const SEARCH_DEBOUNCE_MS = 400
 
 const springPanel = {
   type: "spring" as const,
@@ -135,6 +135,7 @@ function ItemIcon({ item }: Readonly<{ item: CommandPaletteItem }>) {
           fill
           sizes="32px"
           className="object-cover"
+          unoptimized
         />
       </span>
     )
