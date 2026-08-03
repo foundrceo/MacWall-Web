@@ -63,7 +63,6 @@ const SLUG_THUMB_OVERRIDES = {
   "nature-live-wallpaper-mac": "thumbs/emerald-nebula-swirl.jpg",
   "space-wallpaper-mac": "thumbs/milky-way-galaxy.jpg",
   "gaming-wallpaper-mac": "thumbs/chrome-android-in-space.jpg",
-  "macwall-vs-wallper": "thumbs/purple-black-hole.jpg",
   "macwall-vs-wallspace": "thumbs/ringed-black-hole.jpg",
   "macwall-vs-backdrop": "thumbs/black-hole-eclipse.jpg",
   "macwall-vs-lively-wallpaper": "thumbs/solar-flare-singularity.jpg",

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { macwall } from "@/lib/macwall-site"
 import { categorySlugFromName } from "@/lib/seo/category-slugs"
 
@@ -7,7 +7,7 @@ const categoryCellClass =
   "flex h-16 w-full items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] px-3 text-[15px] font-medium text-foreground/90 transition-colors hover:border-white/20 hover:bg-white/[0.05] sm:h-[4.5rem] md:h-20"
 
 export default function CategoriesSection() {
-  const { categoriesTitle, categoriesSubtitle } = macwallExactCopy.demoBrowse
+  const { categoriesTitle, categoriesSubtitle } = macwallMarketingCopy.demoBrowse
 
   return (
     <section className="marketing-section">

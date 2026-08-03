@@ -2,7 +2,7 @@ import HeroSectionActions from "@/components/macwall-marketing/HeroSectionAction
 import { HeroWalkthroughVideo } from "@/components/macwall-marketing/hero-walkthrough-video"
 import { geistPixelSquare } from "@/lib/site-fonts"
 import { macwall } from "@/lib/macwall-site"
-import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 
 const catalogGenres = [
   "Nature",
@@ -16,7 +16,7 @@ const catalogGenres = [
 ] as const
 
 export default function HeroSection() {
-  const ix = macwallExactCopy.interact
+  const ix = macwallMarketingCopy.interact
 
   return (
     <section className="relative overflow-hidden bg-background">

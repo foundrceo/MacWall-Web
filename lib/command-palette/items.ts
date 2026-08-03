@@ -1,5 +1,5 @@
 import { getMarketingNavItems } from "@/lib/marketing-nav"
-import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import {
   macwall,
   macwallInstallerLatestPath,
@@ -55,8 +55,8 @@ export function getCommandPaletteStaticItems(): {
   pages: CommandPaletteStaticItem[]
   actions: CommandPaletteStaticItem[]
 } {
-  const h = macwallExactCopy.header
-  const ho = macwallExactCopy.hover
+  const h = macwallMarketingCopy.header
+  const ho = macwallMarketingCopy.hover
 
   const navPages = getMarketingNavItems().map((item) =>
     page(`page-${item.href.slice(1).replace(/\//g, "-")}`, item.label, item.href, {

@@ -53,7 +53,7 @@ export const comparisonArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Backdrop has a strong editor and large library. Wallper and Wallspace are solid native options. None combine MacWall's native feel, community uploads, Reel refund program, and one-time price quite the same way.",
+        text: "Backdrop has a strong editor and large library. Wallspace is a solid native option. None combine MacWall's native feel, community uploads, Reel refund program, and one-time price quite the same way.",
       },
       {
         type: "h2",
@@ -217,65 +217,6 @@ export const comparisonArticles: BlogArticle[] = [
     ],
   },
   {
-    slug: "macwall-vs-wallper",
-    pathname: "/blog/macwall-vs-wallper",
-    title: "MacWall vs Wallper: Which App Wins in 2026?",
-    headline: "MacWall vs Wallper: The 2026 Comparison",
-    description:
-      "MacWall vs Wallper compared on price, catalog, CPU use, and macOS 27 Lock Screen support, and why MacWall wins for most Mac users in 2026.",
-    excerpt:
-      "Lower one-time price, bigger community catalog, and working macOS 27 Lock Screen. MacWall vs Wallper, point by point.",
-    category: "comparisons",
-    readMinutes: 7,
-    publishedAt: "2026-06-12",
-    keywords: [
-      "macwall vs wallper",
-      "wallper alternative",
-      "wallper vs macwall",
-      "wallper app review",
-      "best wallper alternative mac",
-    ],
-    sections: [
-      {
-        type: "p",
-        text: "**Wallper** is a curated live wallpaper app with roughly 700 loops at $9.99. **MacWall** is $7.99 one-time and adds a community-driven catalog across 9 categories, video imports, and a refund program that can pay the license back. Here's the honest breakdown.",
-      },
-      { type: "h2", text: "Quick verdict" },
-      {
-        type: "p",
-        text: "**MacWall wins for most users.** At $7.99 vs Wallper's $9.99, it covers up to 3 Macs per license (Pro Plus: 5), pauses intelligently to protect battery and CPU, and ships Lock Screen and Screen Saver integration that keeps working through recent Apple wallpaper API changes.",
-      },
-      { type: "h2", text: "Feature comparison" },
-      {
-        type: "ul",
-        items: [
-          "**Price**: MacWall $7.99 one-time vs Wallper $9.99. MacWall also offers a Reel refund.",
-          "**Catalog**: MacWall offers community uploads plus curated lanes across 9 categories, ranked by likes. Wallper has ~700 curated loops.",
-          "**Imports**: both support MP4/MOV imports; MacWall adds GIF.",
-          "**Macs covered**: Pro — up to 3 Macs; Pro Plus — up to 5 Macs.",
-          "**CPU & battery**: MacWall pauses on battery, in full screen, and even on high CPU load (auto-pauses at 80%, resumes at 55%), plus quality capping on battery.",
-          "**Lock Screen & Screen Saver**: MacWall plays video natively on macOS 26+, with dedicated macOS 27 beta support.",
-          "**Refunds**: MacWall's Reel Refund: 50% back at 2,000 views, 100% at 20,000.",
-        ],
-      },
-      { type: "h2", text: "Performance on Apple Silicon" },
-      {
-        type: "p",
-        text: "Both apps use hardware video decode. MacWall layers smarter pause policies on top: it suspends playback when the screen is locked, when a full-screen app covers a display, on battery (optional), and when system CPU spikes. The result is live wallpaper beauty without the fan noise.",
-      },
-      { type: "h2", text: "macOS 27 beta: the dealbreaker" },
-      {
-        type: "p",
-        text: "Apple's macOS 27 beta changed system wallpaper behavior, and most wallpaper apps' Lock Screen features stopped working. MacWall shipped support for the new beta first, so live Lock Screen and Screen Saver keep working natively. If you run beta builds, this alone decides the comparison.",
-      },
-      { type: "h2", text: "Bottom line" },
-      {
-        type: "p",
-        text: "MacWall is a single $7.99 payment for everything, and a Reel with #macwall can earn it all back. Cheaper than Wallper's $9.99, up to 3 Macs per license (Pro Plus: 5), and dedicated Lock Screen support on macOS 26 (Tahoe) and later betas.",
-      },
-    ],
-  },
-  {
     slug: "macwall-vs-wallspace",
     pathname: "/blog/macwall-vs-wallspace",
     title: "MacWall vs Wallspace (2026): Full Comparison for Mac",
@@ -408,7 +349,7 @@ export const comparisonArticles: BlogArticle[] = [
       { type: "h2", text: "How competitors compare" },
       {
         type: "p",
-        text: "Electron and web-wrapper wallpaper tools keep a Chromium instance alive just to draw your desktop, tens of times MacWall's footprint. Scene-engine tools run translation layers that cost real GPU and CPU. Native video apps (Wallper, Wallspace, Backdrop) are reasonable, but none combine MacWall's full pause policy stack: battery, full screen, lock, display sleep, AND live CPU monitoring.",
+        text: "Electron and web-wrapper wallpaper tools keep a Chromium instance alive just to draw your desktop, tens of times MacWall's footprint. Scene-engine tools run translation layers that cost real GPU and CPU. Other native video apps are reasonable, but none combine MacWall's full pause policy stack: battery, full screen, lock, display sleep, AND live CPU monitoring.",
       },
       { type: "h2", text: "Check it yourself" },
       {

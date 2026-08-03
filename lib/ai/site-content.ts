@@ -14,7 +14,6 @@ import {
   downloadPage,
   livelyWallpaperMacPage,
   macwallVsBackdropPage,
-  macwallVsWallperPage,
   macwallVsWallspacePage,
   wallpaperCategoryPage,
   wallpaperEngineAlternativePage,
@@ -609,7 +608,6 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
     seoDoc(bestLiveWallpaperMacPage, "comparisons"),
     seoDoc(wallpaperEngineAlternativePage, "comparisons"),
     seoDoc(macwallVsBackdropPage, "comparisons"),
-    seoDoc(macwallVsWallperPage, "comparisons"),
     seoDoc(macwallVsWallspacePage, "comparisons"),
     seoDoc(livelyWallpaperMacPage, "comparisons"),
 

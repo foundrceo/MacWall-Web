@@ -1,12 +1,12 @@
 import Image from "next/image"
 import BrowseCarouselFeatureRow from "@/components/macwall-marketing/BrowseCarouselFeatureRow"
 import LockScreenFeatureVideo from "@/components/macwall-marketing/LockScreenFeatureVideo"
-import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 
 /** Three alternating feature rows — copy + media with consistent rhythm. */
 export default function FeaturesSection() {
-  const ls = macwallExactCopy.lockScreen
-  const native = macwallExactCopy.nativeMac
+  const ls = macwallMarketingCopy.lockScreen
+  const native = macwallMarketingCopy.nativeMac
 
   return (
     <div id="features" className="bg-surface-elevated">

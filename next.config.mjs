@@ -106,6 +106,16 @@ const nextConfig = {
         destination: "/creator",
         permanent: true,
       },
+      {
+        source: "/alternatives/macwall-vs-wallper",
+        destination: "/best-live-wallpaper-mac",
+        permanent: true,
+      },
+      {
+        source: "/blog/macwall-vs-wallper",
+        destination: "/blog/best-live-wallpaper-app-mac-2026",
+        permanent: true,
+      },
     ]
   },
   /**

@@ -1,5 +1,5 @@
 import { macwall } from "@/lib/macwall-site"
-import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { marketingAiSummaryLinks } from "@/lib/marketing-ai-summary"
 import { cn } from "@/lib/utils"
 
@@ -72,7 +72,7 @@ export default function MarketingFooterAiSummary({
 }: MarketingFooterAiSummaryProps) {
   const links = marketingAiSummaryLinks
   const year = new Date().getFullYear()
-  const copyrightName = macwallExactCopy.footer.copyrightName
+  const copyrightName = macwallMarketingCopy.footer.copyrightName
 
   return (
     <div

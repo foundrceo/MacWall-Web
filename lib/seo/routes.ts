@@ -20,7 +20,6 @@ export function indexableMarketingPaths(): string[] {
     "/affiliate",
     "/alternatives/wallpaper-engine",
     "/alternatives/macwall-vs-backdrop",
-    "/alternatives/macwall-vs-wallper",
     "/alternatives/macwall-vs-wallspace",
     "/alternatives/lively-wallpaper-mac",
     "/crawlers",
