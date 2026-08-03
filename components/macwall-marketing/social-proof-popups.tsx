@@ -37,7 +37,8 @@ const STACK_DISMISS_STAGGER_MS = 700
 /** Cap unread/background stack so we don't bury the UI. */
 const MAX_STACK = 4
 const HIDDEN_RETRY_MS = 8_000
-const REFRESH_MS = 120_000
+/** Client refresh is intentionally slower than CDN TTL — CDN absorbs most hits. */
+const REFRESH_MS = 300_000
 
 function randomBetween([min, max]: readonly [number, number]): number {
   return min + Math.random() * (max - min)
@@ -133,7 +134,10 @@ export function SocialProofPopups() {
     }
 
     void load()
-    const id = window.setInterval(() => void load(), REFRESH_MS)
+    const id = window.setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return
+      void load()
+    }, REFRESH_MS)
     return () => {
       cancelled = true
       window.clearInterval(id)

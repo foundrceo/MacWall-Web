@@ -19,6 +19,9 @@ type PageProps = {
   params: Promise<{ category: string; slug: string }>
 }
 
+/** ISR — wallpaper detail pages are crawl-heavy; avoid per-request SSR. */
+export const revalidate = 3600
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {

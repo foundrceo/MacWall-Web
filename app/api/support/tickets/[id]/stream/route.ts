@@ -13,8 +13,12 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
+/** Cap Fluid Compute duration — client reconnects after this. */
+export const maxDuration = 300
 
 const checkRateLimit = createInMemoryRateLimiter({ max: 20, windowMs: 60_000 })
+/** Hard stop so idle SSE tabs don't hold functions open for hours. */
+const SSE_MAX_MS = 4 * 60 * 1000
 
 function bad(status: number, error: string) {
   return NextResponse.json({ error }, { status })
@@ -110,8 +114,18 @@ export async function GET(
         }
       }, 20_000)
 
+      const lifetime = setTimeout(() => {
+        cleanup?.()
+        try {
+          controller.close()
+        } catch {
+          /* already closed */
+        }
+      }, SSE_MAX_MS)
+
       cleanup = () => {
         clearInterval(heartbeat)
+        clearTimeout(lifetime)
         void supabase.removeChannel(channel)
       }
 

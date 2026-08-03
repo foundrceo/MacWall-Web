@@ -19,16 +19,31 @@ import {
   DATAFAST_WEBSITE_ID,
 } from "@/lib/macwall-datafast"
 
+/**
+ * Edge proxy — keep this matcher tiny. Every match burns Edge Middleware
+ * invocations. Geo/pricing cookies only need to land on checkout + pricing
+ * surfaces; admin auth is the other required path. Everything else (gallery
+ * APIs, analytics, feeds, static SEO twins) bypasses Edge entirely.
+ */
 export async function proxy(request: NextRequest, event: NextFetchEvent) {
-  const botAuthToken = process.env[DATAFAST_BOT_TOKEN_ENV]?.trim()
-  trackAICrawlerRequest(request, event, {
-    websiteId: DATAFAST_WEBSITE_ID,
-    ...(botAuthToken ? { authToken: botAuthToken } : {}),
-  })
-
   const { pathname } = request.nextUrl
+
+  // AI-crawl tracking only on document landings — not APIs/admin (saves Edge CPU).
+  if (
+    pathname === "/" ||
+    pathname === "/pricing" ||
+    pathname === "/wallpapers" ||
+    pathname.startsWith("/blog") ||
+    pathname.startsWith("/wallpaper/")
+  ) {
+    const botAuthToken = process.env[DATAFAST_BOT_TOKEN_ENV]?.trim()
+    trackAICrawlerRequest(request, event, {
+      websiteId: DATAFAST_WEBSITE_ID,
+      ...(botAuthToken ? { authToken: botAuthToken } : {}),
+    })
+  }
+
   // Never block HTML / API on IP whois — Vercel edge geo + cookie only.
-  // (Checkout, pricing API, and page renders all stay sub-second.)
   const country = await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: request.cookies.get("mw_country")?.value,
@@ -64,14 +79,24 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
       .get("utm_source")
       ?.toLowerCase()
     if (
-      pathname === "/" &&
-      (ttclid || utmSource === "tiktok" || utmSource === "tt")
+      pathname === "/" ||
+      pathname === "/pricing" ||
+      pathname === "/thank-you" ||
+      pathname === "/download" ||
+      pathname === "/tiktok"
     ) {
-      const url = request.nextUrl.clone()
-      url.pathname = "/tiktok"
-      return withGeoCookies(NextResponse.rewrite(url))
+      if (
+        pathname === "/" &&
+        (ttclid || utmSource === "tiktok" || utmSource === "tt")
+      ) {
+        const url = request.nextUrl.clone()
+        url.pathname = "/tiktok"
+        return withGeoCookies(NextResponse.rewrite(url))
+      }
+      return next()
     }
 
+    // /api/pricing + /api/checkout — set country cookie, no TikTok rewrite.
     return next()
   }
 
@@ -99,6 +124,22 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/",
+    "/checkout",
+    "/pricing",
+    "/thank-you",
+    "/download",
+    "/tiktok",
+    "/blog",
+    "/blog/:path*",
+    "/wallpapers",
+    "/wallpaper/:path*",
+    "/admin",
+    "/admin/:path*",
+    "/api/admin",
+    "/api/admin/:path*",
+    "/api/pricing",
+    "/api/checkout",
+    "/api/checkout/:path*",
   ],
 }

@@ -58,7 +58,7 @@ export function useAdminFeedbackStream(
         source?.close()
         source = null
         callbackRef.current({ type: "offline" })
-        if (!disposed) {
+        if (!disposed && !document.hidden) {
           retryTimer = window.setTimeout(connect, 4000)
         }
       }
@@ -66,8 +66,28 @@ export function useAdminFeedbackStream(
 
     connect()
 
+    const onVisible = () => {
+      if (disposed) return
+      if (document.visibilityState === "visible") {
+        if (!source || source.readyState === EventSource.CLOSED) {
+          connect()
+        }
+        return
+      }
+      // Close SSE while backgrounded — Fluid Compute bills for open streams.
+      source?.close()
+      source = null
+      callbackRef.current({ type: "offline" })
+      if (retryTimer) {
+        window.clearTimeout(retryTimer)
+        retryTimer = null
+      }
+    }
+    document.addEventListener("visibilitychange", onVisible)
+
     return () => {
       disposed = true
+      document.removeEventListener("visibilitychange", onVisible)
       if (retryTimer) window.clearTimeout(retryTimer)
       source?.close()
     }

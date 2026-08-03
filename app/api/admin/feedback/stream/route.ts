@@ -3,6 +3,10 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
+/** Cap Fluid Compute duration — admin UI reconnects after this. */
+export const maxDuration = 300
+
+const SSE_MAX_MS = 5 * 60 * 1000
 
 export async function GET(request: Request) {
   const denied = await requireAdminApi()
@@ -52,8 +56,18 @@ export async function GET(request: Request) {
         }
       }, 25_000)
 
+      const lifetime = setTimeout(() => {
+        cleanup?.()
+        try {
+          controller.close()
+        } catch {
+          // stream already closed
+        }
+      }, SSE_MAX_MS)
+
       cleanup = () => {
         clearInterval(heartbeat)
+        clearTimeout(lifetime)
         void supabase.removeChannel(channel)
       }
 
