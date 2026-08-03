@@ -66,9 +66,7 @@ export function macwallOpenWallpaperHref(
   const name = options?.name?.trim()
   if (name) params.set("name", name)
   const qs = params.toString()
-  return qs
-    ? `${macwallOpenWallpaperPath}?${qs}`
-    : macwallOpenWallpaperPath
+  return qs ? `${macwallOpenWallpaperPath}?${qs}` : macwallOpenWallpaperPath
 }
 
 /** UI/marketing app icon (`public/MacWall.png`, 1024×1024). Not for favicons — use `macwallFavicons`. */
@@ -95,8 +93,7 @@ export const macwallMinimumMacOSVersion = "macOS 14" as const
 /** Lock Screen / Screen Saver video requires Apple's native wallpaper APIs (Tahoe+). */
 export const macwallLockScreenMacOSVersion = "macOS 26 (Tahoe)" as const
 /** Short hint under download CTAs (hero, bottom strip). */
-export const macwallMinimumMacOSRequirement =
-  "Minimum macOS 14+" as const
+export const macwallMinimumMacOSRequirement = "Minimum macOS 14+" as const
 /** Compact version label shown under marketing CTAs. */
 export const macwallMinimumMacOSVersionLabel =
   "Minimum macOS 14.0 or later" as const
@@ -113,8 +110,8 @@ const MACWALL_FULL_TAGLINE = `${MACWALL_NAME} - ${MACWALL_TAGLINE}` as const
 
 export const macwall = {
   name: MACWALL_NAME,
-  /** Legal entity for copyright notices and policy footers (not the product name). */
-  legalCompanyName: "OG Apps, LLC",
+  /** Public operator name shown in copyright / legal footers. */
+  legalCompanyName: "MacWall",
   /** Short brand tagline — one line, no breaks. */
   tagline: MACWALL_TAGLINE,
   /** Full brand title for document titles, OG alt text, and JSON-LD. */
@@ -133,12 +130,13 @@ export const macwall = {
   reelRefundHashtagURL: "https://www.instagram.com/explore/tags/macwall/",
   reelRefundHalfViews: 2_000,
   reelRefundFullViews: 20_000,
-  legalTerms: "https://macwall.app/terms",
-  legalPrivacy: "https://macwall.app/privacy",
+  legalHub: "https://macwall.app/legal",
+  legalTerms: "https://macwall.app/legal/terms",
+  legalPrivacy: "https://macwall.app/legal/privacy",
   /** Shown at top of Terms / Privacy (update when policies change). */
-  legalEffectiveDate: "May 9, 2026",
+  legalEffectiveDate: "August 3, 2026",
   /** ISO form for JSON-LD `dateModified` (keep in sync with `legalEffectiveDate`). */
-  legalEffectiveDateIso: "2026-05-09",
+  legalEffectiveDateIso: "2026-08-03",
   /** Same buckets as Home → Categories in the Mac app */
   categories: [
     "Nature",

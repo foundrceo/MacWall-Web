@@ -338,8 +338,7 @@ export const docsPages: DocsPage[] = [
     pathname: "/docs/live-lock-screen-and-screen-saver",
     title: "Live Lock Screen & Screen Saver on macOS",
     headline: "Enable live Lock Screen and Screen Saver motion",
-    description:
-      `Turn on MacWall's live Lock Screen and Screen Saver playback on ${macwallLockScreenMacOSVersion} and later, and understand the macOS limits behind it.`,
+    description: `Turn on MacWall's live Lock Screen and Screen Saver playback on ${macwallLockScreenMacOSVersion} and later, and understand the macOS limits behind it.`,
     keywords: [
       "live lock screen mac",
       "macos live screen saver",
@@ -397,8 +396,7 @@ export const docsPages: DocsPage[] = [
       },
       {
         question: "Can I get a live Lock Screen on macOS 14 or 15?",
-        answer:
-          `No app can. The API that lets third-party apps supply Lock Screen video did not exist before ${macwallLockScreenMacOSVersion}. Desktop live wallpapers work fine on macOS 14 and later.`,
+        answer: `No app can. The API that lets third-party apps supply Lock Screen video did not exist before ${macwallLockScreenMacOSVersion}. Desktop live wallpapers work fine on macOS 14 and later.`,
       },
       {
         question: "Can the Lock Screen and desktop use different wallpapers?",
@@ -415,8 +413,7 @@ export const docsPages: DocsPage[] = [
     pathname: "/docs/license-and-activation",
     title: "MacWall License & Activation",
     headline: "Activate your MacWall Pro license",
-    description:
-      `How MacWall Pro licensing works: one-time ${proPrice} purchase, instant key activation, up to ${maxMacs} Macs, and how to move a license to a new machine.`,
+    description: `How MacWall Pro licensing works: one-time ${proPrice} purchase, instant key activation, up to ${maxMacs} Macs, and how to move a license to a new machine.`,
     keywords: [
       "macwall license",
       "macwall pro activation",
@@ -460,7 +457,7 @@ export const docsPages: DocsPage[] = [
       { type: "h2", text: "Refunds" },
       {
         type: "p",
-        text: `If MacWall does not work on your Mac, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) and we will refund you — the exact terms live in [Terms](/terms). Separately, the [creator program](/creator) refunds your purchase for posting a MacWall video that reaches the view thresholds.`,
+        text: `If MacWall does not work on your Mac, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) and we will refund you — the exact terms live in [Terms](/legal/terms). Separately, the [creator program](/creator) refunds your purchase for posting a MacWall video that reaches the view thresholds.`,
       },
     ],
     faq: [
@@ -633,8 +630,7 @@ export const docsPages: DocsPage[] = [
       },
       {
         question: "How do I report a bug?",
-        answer:
-          `Email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) with your macOS and MacWall versions and steps to reproduce. Fixes ship in the next release and are listed in [the changelog](/changelog).`,
+        answer: `Email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) with your macOS and MacWall versions and steps to reproduce. Fixes ship in the next release and are listed in [the changelog](/changelog).`,
       },
     ],
   }),
@@ -742,7 +738,10 @@ export const docsPages: DocsPage[] = [
         type: "p",
         text: "Returns `{ wallpapers, total, page, limit, hasMore }`. Each wallpaper includes `id`, `name`, `category`, `tags`, `resolution`, `durationSeconds`, `fileSizeBytes`, `thumbUrl`, `videoUrl`, `isPro`, `isFeatured`, `likeCount`, and `createdAt`. Pro assets are marked with `isPro` and require a license in the app to use.",
       },
-      { type: "h2", text: "Releases: GET /api/installers/releases/version.json" },
+      {
+        type: "h2",
+        text: "Releases: GET /api/installers/releases/version.json",
+      },
       {
         type: "p",
         text: "Current release metadata — `version`, optional `build`, a download `url`, and optional `notes`. This is the same feed the in-app updater reads and the source for [the changelog](/changelog). It is intentionally uncached so a new build is visible immediately.",
@@ -776,7 +775,7 @@ export const docsPages: DocsPage[] = [
         items: [
           "Cache responses and keep request rates reasonable — these endpoints are shared infrastructure, not a bulk export.",
           "Hotlinking video files is discouraged; link to the wallpaper page or the app deep link instead.",
-          "Wallpaper videos are licensed for use inside MacWall and are not redistributable — see [Terms](/terms).",
+          "Wallpaper videos are licensed for use inside MacWall and are not redistributable — see [Terms](/legal/terms).",
           "Send a descriptive `User-Agent` with a contact URL so we can reach you before rate limiting you.",
         ],
       },
@@ -794,8 +793,7 @@ export const docsPages: DocsPage[] = [
       },
       {
         question: "Can I use the catalog data in my own app?",
-        answer:
-          `Metadata, yes, with attribution and a link back to macwall.app. The wallpaper videos themselves are licensed for MacWall use only. Ask first at [${macwall.supportEmail}](mailto:${macwall.supportEmail}).`,
+        answer: `Metadata, yes, with attribution and a link back to macwall.app. The wallpaper videos themselves are licensed for MacWall use only. Ask first at [${macwall.supportEmail}](mailto:${macwall.supportEmail}).`,
       },
     ],
   }),

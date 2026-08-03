@@ -139,11 +139,11 @@ const Page = () => {
 
       <p className="relative z-10 max-w-xs text-center text-[12px] text-[#86868b]">
         By clicking continue, you agree to our{" "}
-        <Link href="/terms" className="text-[#0066cc] hover:underline">
+        <Link href="/legal/terms" className="text-[#0066cc] hover:underline">
           Terms of Service
         </Link>{" "}
         and{" "}
-        <Link href="/privacy" className="text-[#0066cc] hover:underline">
+        <Link href="/legal/privacy" className="text-[#0066cc] hover:underline">
           Privacy Policy
         </Link>
         .
