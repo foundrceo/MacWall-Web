@@ -1,26 +1,24 @@
 # MacWall Web
 
-Marketing site and web platform for **[MacWall](https://macwall.app)** - a native macOS app for cinematic live 4K wallpapers.
+Website and web platform for **[MacWall](https://macwall.app)**, a native macOS app for cinematic 4K live wallpapers.
 
-**Live site:** [https://macwall.app](https://macwall.app)
+**Website:** https://macwall.app
 
-Browse the catalog, download the Mac app, and unlock Pro with Stripe Checkout. After payment, the license opens the app via `macwall://activate`.
+Browse the wallpaper catalog, download the Mac app, and purchase Pro with Stripe Checkout. After checkout, the license automatically opens the app using `macwall://activate`.
 
-You do not need this repo to use MacWall - clone it only if you want to run or contribute to the web stack.
+![MacWall homepage](public/screenshots/homepage.png)
 
-![MacWall homepage - live 4K wallpapers hero](public/screenshots/homepage.png)
-
-## What this repo does
+## What this repository includes
 
 - Homepage and marketing pages
-- Pricing (Free · Pro · Pro+)
-- Stripe Checkout and license activation flow
-- Blog and SEO landing pages
+- Pricing (Free, Pro, Pro+)
+- Stripe Checkout and license activation
+- Blog and SEO pages
 - Community wallpaper submissions
-- Affiliate program pages
+- Affiliate pages
 - Support inbox UI
 
-The native Mac app is Swift and lives in a separate repository.
+The native macOS app is written in Swift and is maintained in a separate repository.
 
 ## Screenshots
 
@@ -30,25 +28,25 @@ The native Mac app is Swift and lives in a separate repository.
 
 ### Pricing
 
-![MacWall pricing — Free / Pro / Pro+](public/screenshots/pricing.png)
+![MacWall pricing](public/screenshots/pricing.png)
 
-### App settings
+### App Settings
 
 ![MacWall settings](public/screenshots/settings.jpg)
 
-## Tech stack
+## Tech Stack
 
-| Piece | Purpose |
+| Technology | Purpose |
 | --- | --- |
-| Next.js (App Router) | Site and API routes |
-| React + TypeScript | UI |
-| Stripe | Checkout |
-| Supabase | Licenses and backend data |
+| Next.js (App Router) | Website and API routes |
+| React + TypeScript | Frontend |
+| Stripe | Payments |
+| Supabase | Licenses and backend |
 | Vercel | Hosting |
-| Tailwind CSS + shadcn/ui | Styling |
-| Cloudflare R2 | Wallpaper media CDN |
+| Tailwind CSS + shadcn/ui | UI styling |
+| Cloudflare R2 | Wallpaper storage and CDN |
 
-## Local development
+## Local Development
 
 ```sh
 git clone https://github.com/foundrceo/MacWall-Web.git
@@ -58,9 +56,11 @@ cp .env.example .env
 npm run dev
 ```
 
-Copy `.env.example` to `.env` and fill in values from your deployment secrets store (Vercel project settings). **Never commit `.env` or real credentials.**
+Copy `.env.example` to `.env` and add the required environment variables from your deployment (Vercel project settings).
 
-marketing pages can run with a partial env setup; checkout and license flows require Stripe and Supabase configuration. See `.env.example` for variable names only.
+Never commit `.env` files or production credentials.
+
+Most marketing pages work with a minimal environment setup. Stripe Checkout and license activation require Stripe and Supabase credentials. See `.env.example` for the required variable names.
 
 ```sh
 npm run lint
@@ -68,24 +68,24 @@ npm run typecheck
 npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open http://localhost:3000.
 
-## Useful routes
+## Routes
 
 | Route | Description |
 | --- | --- |
 | `/` | Home |
-| `/pricing` | Plans |
-| `/download` | Mac install guide |
-| `/blog` | blog |
-| `/submit` | wallpapers |
-| `/affiliate` | affiliates |
-| `/support` | support |
+| `/pricing` | Pricing |
+| `/download` | Download |
+| `/blog` | Blog |
+| `/submit` | Submit wallpapers |
+| `/affiliate` | Affiliate program |
+| `/support` | Support |
 
-## Download the Mac app
+## Download
 
-**[https://macwall.app/download](https://macwall.app/download)**
+https://macwall.app/download
 
 ## License
 
-Proprietary - see [LICENSE](./LICENSE).
+Proprietary. See [LICENSE](./LICENSE).
