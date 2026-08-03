@@ -41,7 +41,7 @@ export function PricingReviewAvatar({
   return (
     <Image
       src={src}
-      alt=""
+      alt={`${name} profile photo`}
       width={48}
       height={48}
       sizes="48px"
