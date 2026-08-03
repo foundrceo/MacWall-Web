@@ -196,6 +196,7 @@ export const macwallMarketingCopy = {
       lockScreen: "Lock Screen Wallpaper",
     },
     legal: {
+      hub: "Legal",
       privacy: "Privacy Policy",
       terms: "Terms of Service",
     },

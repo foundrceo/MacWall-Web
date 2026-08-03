@@ -138,7 +138,7 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Browse the catalog and run your own imported files **without creating an account**. Purchases use Stripe checkout; license keys activate in-app. Community uploads go through review — see [Privacy Policy](/privacy) and [Terms](/terms).",
+        text: "Browse the catalog and run your own imported files **without creating an account**. Purchases use Stripe checkout; license keys activate in-app. Community uploads go through review — see [Privacy Policy](/legal/privacy) and [Terms](/legal/terms).",
       },
       {
         type: "h2",

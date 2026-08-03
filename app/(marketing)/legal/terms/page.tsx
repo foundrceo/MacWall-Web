@@ -3,73 +3,49 @@ import Link from "next/link"
 import { JsonLd } from "@/components/seo/json-ld"
 import { LegalDocumentShell } from "@/components/legal/legal-document-shell"
 import { LegalSection, legalBulletList } from "@/components/legal/legal-section"
+import { legalDocumentBySlug } from "@/lib/legal/documents"
+import { legalPageMetadata } from "@/lib/legal/metadata"
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
 import { macwall } from "@/lib/macwall-site"
-import {
-  canonicalSiteOrigin,
-  canonicalSitePath,
-  openGraphImageAbsoluteUrl,
-  openGraphImageSize,
-} from "@/lib/site-url"
+import { canonicalSiteOrigin } from "@/lib/site-url"
 
-const PAGE_DESCRIPTION = `Terms covering the ${macwall.name} macOS app and website, installs, downloads, billing, licensing, acceptable use, and Apple platform policies.`
+const doc = legalDocumentBySlug("terms")!
 
-export const metadata: Metadata = {
-  title: "Terms of Use",
-  description: PAGE_DESCRIPTION,
-  alternates: { canonical: canonicalSitePath("/terms") },
-  openGraph: {
-    title: `${macwall.name} App – Terms of Use`,
-    description: PAGE_DESCRIPTION,
-    url: canonicalSitePath("/terms"),
-    siteName: `${macwall.name} App`,
-    type: "website",
-    images: [
-      {
-        url: openGraphImageAbsoluteUrl(),
-        width: openGraphImageSize.width,
-        height: openGraphImageSize.height,
-        alt: `${macwall.name} App – Terms of Use`,
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${macwall.name} App – Terms of Use`,
-    description: PAGE_DESCRIPTION,
-    images: [openGraphImageAbsoluteUrl()],
-  },
-}
+export const metadata: Metadata = legalPageMetadata(doc)
 
 const siteHost = macwall.website.replace(/^https?:\/\//, "")
 
-export default function TermsPage() {
+export default function LegalTermsPage() {
   const year = new Date().getFullYear()
   const jsonLd = webPageWithBreadcrumbsJsonLd({
     origin: canonicalSiteOrigin(),
-    pathname: "/terms",
-    pageTitle: "Terms of Use",
-    headline: `${macwall.name} Terms of Use`,
-    description: PAGE_DESCRIPTION,
+    pathname: doc.href,
+    pageTitle: doc.title,
+    headline: `${macwall.name} Terms of Service`,
+    description: doc.description,
     dateModifiedIso: macwall.legalEffectiveDateIso,
+    legalHub: true,
   })
 
   return (
     <>
       <JsonLd payload={jsonLd} />
       <LegalDocumentShell
-        variant="terms"
+        title={`${macwall.name} Terms of Service`}
         intro={
           <>
             <p>
-              These Terms of Use (&ldquo;Terms&rdquo;) govern your access to the{" "}
-              {macwall.name} macOS application (&ldquo;App&rdquo;) and our
+              These Terms of Service (&ldquo;Terms&rdquo;) govern your access to
+              the {macwall.name} macOS application (&ldquo;App&rdquo;) and our
               website at {siteHost} (&ldquo;Site&rdquo;). By using the App or
               Site, or purchasing {macwall.name} Pro, you agree to these Terms.
             </p>
             <p>
-              For privacy practices, see our{" "}
-              <Link href="/privacy">Privacy Policy</Link>. Questions:{" "}
+              Related policies:{" "}
+              <Link href="/legal/privacy">Privacy Policy</Link>,{" "}
+              <Link href="/legal/acceptable-use">Acceptable Use</Link>,{" "}
+              <Link href="/legal/refund">Refund Policy</Link>,{" "}
+              <Link href="/legal/dmca">DMCA</Link>. Questions:{" "}
               <a href={`mailto:${macwall.supportEmail}`}>
                 {macwall.supportEmail}
               </a>
@@ -85,6 +61,15 @@ export default function TermsPage() {
             optional paid features ({macwall.name} Pro). We may modify, suspend,
             or discontinue features where we give reasonable notice when
             practical.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="eligibility" title="Eligibility">
+          <p>
+            The Service is intended for individuals who are at least 13 years
+            old (or the minimum age in your region). If you accept these Terms
+            for an organization, you confirm you have authority to bind that
+            organization.
           </p>
         </LegalSection>
 
@@ -108,25 +93,24 @@ export default function TermsPage() {
           </ul>
         </LegalSection>
 
-        <LegalSection id="pro" title="Accounts, Eligibility, and Pro">
+        <LegalSection id="pro" title="Pro Licenses and Payment">
           <p>
-            {macwall.name} Pro is sold through our merchant (Stripe). Checkout,
-            receipts, refunds, and taxes may also be governed by the
-            merchant&apos;s policies. Pro covers up to 3 personal Macs; Pro Plus
-            covers up to 5. Device limits are enforced per license key.
+            {macwall.name} Pro is sold through our payment processor. Checkout,
+            receipts, refunds, and taxes may also be governed by that
+            processor&apos;s policies. Pro covers up to{" "}
+            {macwall.maxLicensedMacs} personal Macs; Pro Plus covers up to 5.
+            Device limits are enforced per license key.
           </p>
           <p>
             You agree to provide accurate information and not to share keys
             beyond the Mac limit for the plan you purchased.
           </p>
           <p>
-            All sales are final and we do not operate a general refund policy.
-            In limited cases (such as a billing error or the App failing to run
-            on a supported macOS version) we may issue a refund at our sole
-            discretion. To request one, contact {macwall.supportEmail} with your
-            purchase email and details. The Reel refund program is a separate
-            promotional offer with its own conditions, described on the pricing
-            page.
+            We do not offer a general refund policy. Purchases are final except
+            in rare cases we approve at our sole discretion — see the{" "}
+            <Link href="/legal/refund">Refund Policy</Link>. The creator Reel
+            program on <Link href="/creator">/creator</Link> is a separate
+            promotional offer with its own conditions.
           </p>
         </LegalSection>
 
@@ -139,20 +123,19 @@ export default function TermsPage() {
           </p>
           <p>
             For files you import, you are responsible for having the rights to
-            use them on your devices.
+            use them on your devices. Community submissions must comply with our{" "}
+            <Link href="/legal/acceptable-use">Acceptable Use</Link> and{" "}
+            <Link href="/legal/dmca">DMCA</Link> policies.
           </p>
         </LegalSection>
 
         <LegalSection id="acceptable-use" title="Acceptable Use">
-          <p>You agree not to misuse the service, including by:</p>
-          <ul className={legalBulletList}>
-            <li>
-              Probing, disrupting, or overloading our systems or those of our
-              vendors;
-            </li>
-            <li>Circumventing technical limits, licensing, or security;</li>
-            <li>Using the App to harass others or distribute malware.</li>
-          </ul>
+          <p>
+            You agree not to misuse the service. The full rules live on our{" "}
+            <Link href="/legal/acceptable-use">Acceptable Use</Link> page,
+            including prohibitions on abuse, circumvention, and infringing
+            uploads.
+          </p>
         </LegalSection>
 
         <LegalSection id="apple" title="Third-Party Services and Apple">
@@ -194,15 +177,9 @@ export default function TermsPage() {
         <LegalSection id="changes-terms" title="Changes to These Terms">
           <p>
             We may update these Terms. We will post the new version on{" "}
-            <a
-              href={macwall.legalTerms}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {macwall.legalTerms}
-            </a>{" "}
-            with an updated effective date. Continued use after the effective
-            date means you accept the revised Terms.
+            <Link href={doc.href}>{doc.href}</Link> with an updated effective
+            date. Continued use after the effective date means you accept the
+            revised Terms.
           </p>
         </LegalSection>
 

@@ -34,7 +34,7 @@ const PAGE: SeoContentPage = {
     { type: "h2", text: "Wallpaper media: not licensed for reuse" },
     {
       type: "p",
-      text: "The wallpaper video and image files are a different matter. They are licensed for use inside the MacWall app. They may not be redistributed, re-hosted, bundled into datasets, or used as training data for generative image or video models. The details are in [Terms](/terms); if you need something beyond that, ask.",
+      text: "The wallpaper video and image files are a different matter. They are licensed for use inside the MacWall app. They may not be redistributed, re-hosted, bundled into datasets, or used as training data for generative image or video models. The details are in [Terms](/legal/terms); if you need something beyond that, ask.",
     },
     { type: "h2", text: "Use these endpoints instead of scraping" },
     {
@@ -73,7 +73,7 @@ const PAGE: SeoContentPage = {
     { type: "h2", text: "Corrections and access requests" },
     {
       type: "p",
-      text: `If an AI product is describing ${macwall.name} incorrectly, or you need access beyond what is described here, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}). We would rather give you a clean feed than have you scrape around a rate limit. Published by ${macwall.legalCompanyName}.`,
+      text: `If an AI product is describing ${macwall.name} incorrectly, or you need access beyond what is described here, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}). We would rather give you a clean feed than have you scrape around a rate limit.`,
     },
   ],
   faq: [

@@ -116,6 +116,16 @@ const nextConfig = {
         destination: "/blog/best-live-wallpaper-app-mac-2026",
         permanent: true,
       },
+      {
+        source: "/privacy",
+        destination: "/legal/privacy",
+        permanent: true,
+      },
+      {
+        source: "/terms",
+        destination: "/legal/terms",
+        permanent: true,
+      },
     ]
   },
   /**
@@ -159,7 +169,8 @@ const nextConfig = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+            value:
+              "camera=(), microphone=(), geolocation=(), browsing-topics=()",
           },
           {
             key: "Cross-Origin-Opener-Policy",

@@ -174,7 +174,7 @@ const wallpapersIndexPage: SeoContentPage = {
     },
     {
       type: "p",
-      text: "Wallpaper videos are licensed for use inside MacWall and are not redistributable — see [Terms](/terms).",
+      text: "Wallpaper videos are licensed for use inside MacWall and are not redistributable — see [Terms](/legal/terms).",
     },
   ],
 }
@@ -283,13 +283,16 @@ Source: ${origin}/learn
 
 async function changelogMarkdown(): Promise<string> {
   const origin = canonicalSiteOrigin()
-  const [{ getChangelogPageData }, { CHANGELOG_SECTION_LABELS, sortChangelogSections, formatChangelogVersion }] =
-    await Promise.all([
-      import("@/lib/changelog/get-changelog-releases"),
-      import("@/lib/changelog/types"),
-    ])
+  const [
+    { getChangelogPageData },
+    { CHANGELOG_SECTION_LABELS, sortChangelogSections, formatChangelogVersion },
+  ] = await Promise.all([
+    import("@/lib/changelog/get-changelog-releases"),
+    import("@/lib/changelog/types"),
+  ])
 
-  let releases: Awaited<ReturnType<typeof getChangelogPageData>>["releases"] = []
+  let releases: Awaited<ReturnType<typeof getChangelogPageData>>["releases"] =
+    []
   try {
     releases = (await getChangelogPageData()).releases
   } catch {
@@ -396,7 +399,11 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
           title: `${macwall.name} Pricing`,
           headline: `${macwall.name} pricing`,
           description: `One-time ${macwall.pro.price} permanent license, optional ${macwall.annual.price} annual plan, and the Pro+ multi-Mac pack. No subscription required.`,
-          keywords: ["macwall pricing", "macwall pro price", "live wallpaper app price"],
+          keywords: [
+            "macwall pricing",
+            "macwall pro price",
+            "live wallpaper app price",
+          ],
           updatedAt: "2026-08-02",
           sections: [
             {
@@ -441,7 +448,8 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
     {
       path: "/changelog",
       title: "MacWall Changelog",
-      summary: "Every shipped MacWall release with highlights, features, improvements, and fixes.",
+      summary:
+        "Every shipped MacWall release with highlights, features, improvements, and fixes.",
       group: "product",
       includeInFullText: false,
       render: changelogMarkdown,
@@ -592,8 +600,7 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
       includeInFullText: true,
       render: () =>
         seoPageToMarkdown(article, {
-          category:
-            BLOG_CATEGORY_LABELS[article.category] ?? article.category,
+          category: BLOG_CATEGORY_LABELS[article.category] ?? article.category,
           readMinutes: article.readMinutes,
         }),
     })),
@@ -612,7 +619,23 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
     seoDoc(livelyWallpaperMacPage, "comparisons"),
 
     {
-      path: "/privacy",
+      path: "/legal",
+      title: "Legal",
+      summary:
+        "MacWall legal center — terms, privacy, cookies, refunds, DMCA, GDPR, CCPA, and security.",
+      group: "legal",
+      updatedAt: macwall.legalEffectiveDateIso,
+      includeInFullText: false,
+      render: () =>
+        legalStubMarkdown({
+          title: `${macwall.name} Legal`,
+          pathname: "/legal",
+          description:
+            "Legal policies for the MacWall macOS app and website, including privacy, terms, DMCA, and data-protection rights.",
+        }),
+    },
+    {
+      path: "/legal/privacy",
       title: "Privacy Policy",
       summary:
         "What MacWall collects, how licensing and analytics data are handled, and your data-protection rights.",
@@ -622,13 +645,13 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
       render: () =>
         legalStubMarkdown({
           title: `${macwall.name} Privacy Policy`,
-          pathname: "/privacy",
+          pathname: "/legal/privacy",
           description:
             "How MacWall collects, uses, stores, and shares information across the macOS app and website, including licensing, analytics, and your data-protection rights.",
         }),
     },
     {
-      path: "/terms",
+      path: "/legal/terms",
       title: "Terms of Service",
       summary:
         "License grant, acceptable use, wallpaper content rights, payment terms, and refunds.",
@@ -638,7 +661,7 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
       render: () =>
         legalStubMarkdown({
           title: `${macwall.name} Terms of Service`,
-          pathname: "/terms",
+          pathname: "/legal/terms",
           description:
             "The terms covering your MacWall license, acceptable use, wallpaper content rights, payments, and refunds.",
         }),
