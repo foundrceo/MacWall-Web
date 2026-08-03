@@ -6,75 +6,37 @@ import type { ChangelogRelease } from "@/lib/changelog/types"
 
 export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
   {
-    id: "web-2026-08-02",
-    version: "2026.8.2",
-    date: "2026-08-02T12:00:00.000Z",
+    id: "web-2026-08-03",
+    version: "2026.8.3",
+    date: "2026-08-03T12:00:00.000Z",
     sections: [
       {
         kind: "features",
         items: [
-          "Add compact hero license modal and rename Get Pro to Get License.",
+          "Add legal hub and policy pages.",
+          "Add social proof popups.",
         ],
       },
       {
         kind: "improvements",
         items: [
-          "Polish hero license modal layout and Discord perk copy.",
-        ],
-      },
-    ],
-  },
-  {
-    id: "web-2026-08-01",
-    version: "2026.8.1",
-    date: "2026-08-01T12:00:00.000Z",
-    sections: [
-      {
-        kind: "features",
-        items: [
-          "Add overview articles and footer AI summary for discovery.",
-          "Add standalone creator offer page at /creator.",
-          "Command palette to jump anywhere on macwall.app.",
-          "Public wallpaper gallery with search, SEO, and app deep links.",
-          "Affiliate partner entry points in navigation and footer.",
-        ],
-      },
-      {
-        kind: "improvements",
-        items: [
-          "Redesign blog UI with MacBook mockup thumbnails and cleaner article layout.",
-          "Polish marketing homepage layout and simplify footer/navigation.",
+          "Remove copyrighted wallpaper from catalog.",
+          "Update license.",
+          "Cleanup site copy.",
+          "Speed up the site a bit.",
           "Public changelog page synced with shipping updates.",
-          "Limited-time sale banner with responsive layout.",
-          "Pro+ licenses for 10, 15, or 20 Macs with clearer pack picking.",
-          "Faster checkout when upgrading to Pro.",
-          "Clearer pricing cards, benefits, and upgrade prompts.",
-          "MacWall Assist live support chat improvements.",
-          "Discord community links restored across macwall.app.",
-          "Discord members get 10% off on the pricing page.",
+          "Tweak social proof toasts.",
+          "Tweak social proof timing.",
+          "Tweak license modal.",
+          "Tweak hero license modal.",
         ],
       },
       {
         kind: "fixes",
         items: [
-          "Fix step 6 pin board alignment on creator page.",
-        ],
-      },
-    ],
-  },
-  {
-    id: "web-2026-07-31",
-    version: "2026.7.31",
-    date: "2026-07-31T12:00:00.000Z",
-    sections: [
-      {
-        kind: "improvements",
-        items: [
-          "Polished mobile marketing layout and navigation.",
-          "MacWall Assist live support chat improvements.",
-          "Clearer pricing cards, benefits, and upgrade prompts.",
-          "Limited-time sale banner with responsive layout.",
-          "Simpler pricing — permanent licenses only.",
+          "Fix pricing review avatar build by using name in alt text.",
+          "Fix marketing links.",
+          "Fix blog thumbs.",
         ],
       },
     ],

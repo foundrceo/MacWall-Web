@@ -1,4 +1,3 @@
-import type { ChatQuickReply } from "@/lib/macwall-chat/faq-engine"
 import { SUPPORT_SESSION_STORAGE_KEY } from "@/lib/support/shared"
 
 export type ChatRole = "assist" | "user" | "system" | "founder" | "event"
@@ -8,7 +7,6 @@ export type ChatMessage = {
   role: ChatRole
   body: string
   createdAt: number
-  followUps?: ChatQuickReply[]
   remoteId?: string
   imageUrl?: string | null
 }
@@ -47,7 +45,7 @@ export const CHAT_STORAGE_KEY = "macwall_chat_state_v3"
 export const CHAT_STORAGE_KEY_LEGACY = "macwall_chat_state_v2"
 export const CHAT_OPEN_KEY = "macwall_chat_open_v2"
 
-export const FOUNDER_DISPLAY_NAME = "Founder"
+export const FOUNDER_DISPLAY_NAME = "MacWall Support"
 
 export function getOrCreateChatSessionId(): string {
   if (typeof window === "undefined") return ""
@@ -72,6 +70,15 @@ export function createChatId(): string {
   return out
 }
 
+/** Provisional local id before the visitor’s first message creates a public Chat ID. */
+export function createProvisionalConversationId(): string {
+  return `local-${crypto.randomUUID()}`
+}
+
+export function isPublicChatId(id: string): boolean {
+  return /^MW-[A-Z0-9]{6,}$/i.test(id.trim())
+}
+
 export function normalizeHandoffStep(value: unknown): HandoffStep {
   if (
     value === "idle" ||
@@ -91,11 +98,13 @@ export function createEmptyConversation(
 ): ChatConversation {
   const now = Date.now()
   return {
-    id: createChatId(),
+    // Public MW- Chat ID is assigned only on the first user message.
+    id: createProvisionalConversationId(),
     ticketId: null,
     title: "New chat",
     messages: greeting,
-    handoff: "idle",
+    // Contact collection before the first issue message.
+    handoff: "ask_name",
     visitorName: "",
     visitorEmail: "",
     founderJoined: false,

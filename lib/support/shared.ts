@@ -86,8 +86,15 @@ export function supportErrorMessage(code: string): string {
       return "Please write a message first."
     case "invalid_session":
       return "Your support session is invalid. Refresh the page and try again."
+    case "invalid_ticket":
+      return "This support ticket could not be found."
+    case "invalid_json":
+      return "Invalid request. Please try again."
     case "rate_limited":
       return "Too many requests. Please wait a moment and try again."
+    case "typing_failed":
+    case "load_failed":
+      return "Something went wrong. Please try again."
     default:
       return "Something went wrong. Please try again."
   }

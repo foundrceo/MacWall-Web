@@ -9,7 +9,13 @@ import {
   isValidSupportSessionId,
   normalizeSupportSessionId,
 } from "@/lib/support/shared"
-import { getSupabaseAdmin } from "@/lib/supabase/admin"
+import {
+  SUPPORT_TYPING_EVENT,
+  SUPPORT_TYPING_TOPIC,
+  type SupportTypingPayload,
+  type SupportTypingRole,
+} from "@/lib/support/typing"
+import { createSupabaseAdminRealtime } from "@/lib/supabase/admin"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -73,7 +79,27 @@ export async function GET(
 
       send("connected", { ok: true, ticketId })
 
-      const supabase = getSupabaseAdmin()
+      // Fresh client so concurrent SSE streams don't share channel state.
+      const supabase = createSupabaseAdminRealtime()
+      let messageChannelReady = false
+      let typingChannelReady = false
+      let readySent = false
+      const maybeReady = () => {
+        if (readySent) return
+        // Prefer both channels; don't block forever if typing subscribe stalls.
+        if (!messageChannelReady && !typingChannelReady) return
+        if (!(messageChannelReady && typingChannelReady)) return
+        readySent = true
+        send("ready", { ok: true })
+      }
+      const readyFallback = setTimeout(() => {
+        if (readySent) return
+        if (messageChannelReady || typingChannelReady) {
+          readySent = true
+          send("ready", { ok: true })
+        }
+      }, 2500)
+
       const channel = supabase
         .channel(`support-chat-${ticketId}-${crypto.randomUUID()}`)
         .on(
@@ -102,7 +128,46 @@ export async function GET(
         )
         .subscribe((status) => {
           if (status === "SUBSCRIBED") {
-            send("ready", { ok: true })
+            messageChannelReady = true
+            maybeReady()
+          }
+        })
+
+      // Topic must match REST broadcast topic in lib/support/typing.ts
+      const typingChannel = supabase
+        .channel(SUPPORT_TYPING_TOPIC, {
+          config: { broadcast: { self: false } },
+        })
+        .on("broadcast", { event: SUPPORT_TYPING_EVENT }, (payload) => {
+          const envelope = payload as {
+            payload?: SupportTypingPayload
+            ticketId?: string
+            role?: SupportTypingRole
+            at?: number
+          }
+          const raw: SupportTypingPayload | null =
+            envelope.payload && typeof envelope.payload === "object"
+              ? envelope.payload
+              : envelope.ticketId && envelope.role
+                ? {
+                    ticketId: envelope.ticketId,
+                    role: envelope.role as SupportTypingRole,
+                    at: envelope.at ?? Date.now(),
+                  }
+                : null
+          if (!raw || raw.ticketId !== ticketId) return
+          // Only surface the other side (admin) to the visitor.
+          if (raw.role !== "admin") return
+          send("typing", {
+            ticketId: raw.ticketId,
+            role: raw.role,
+            at: typeof raw.at === "number" ? raw.at : Date.now(),
+          } satisfies SupportTypingPayload)
+        })
+        .subscribe((status) => {
+          if (status === "SUBSCRIBED") {
+            typingChannelReady = true
+            maybeReady()
           }
         })
 
@@ -126,7 +191,10 @@ export async function GET(
       cleanup = () => {
         clearInterval(heartbeat)
         clearTimeout(lifetime)
+        clearTimeout(readyFallback)
         void supabase.removeChannel(channel)
+        void supabase.removeChannel(typingChannel)
+        void supabase.removeAllChannels()
       }
 
       request.signal.addEventListener("abort", () => {

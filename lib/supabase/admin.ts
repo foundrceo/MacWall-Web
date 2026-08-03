@@ -6,9 +6,7 @@ import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
 
 let cached: SupabaseClient | null = null
 
-export function getSupabaseAdmin(): SupabaseClient {
-  if (cached) return cached
-
+function requireAdminCredentials(): { origin: string; serviceRoleKey: string } {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
   if (!serviceRoleKey) {
     throw new Error(
@@ -23,6 +21,14 @@ export function getSupabaseAdmin(): SupabaseClient {
     )
   }
 
+  return { origin, serviceRoleKey }
+}
+
+export function getSupabaseAdmin(): SupabaseClient {
+  if (cached) return cached
+
+  const { origin, serviceRoleKey } = requireAdminCredentials()
+
   cached = createClient(origin, serviceRoleKey, {
     auth: {
       persistSession: false,
@@ -31,4 +37,18 @@ export function getSupabaseAdmin(): SupabaseClient {
   })
 
   return cached
+}
+
+/**
+ * Fresh client for long-lived SSE Realtime subscriptions.
+ * Avoids sharing channel state on the cached singleton across concurrent streams.
+ */
+export function createSupabaseAdminRealtime(): SupabaseClient {
+  const { origin, serviceRoleKey } = requireAdminCredentials()
+  return createClient(origin, serviceRoleKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  })
 }
