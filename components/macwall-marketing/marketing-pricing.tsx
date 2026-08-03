@@ -9,7 +9,13 @@ import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChr
 import { CheckoutPrefetchWarmup } from "@/components/macwall-marketing/checkout-prefetch-warmup"
 import HomeFaqSection from "@/components/macwall-marketing/HomeFaqSection"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
+import { PricingReviewsSection } from "@/components/macwall-marketing/pricing-reviews-section"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
+import {
+  PricingSocialProof,
+  PricingTrustStrip,
+  PricingTrustStripCompact,
+} from "@/components/macwall-marketing/pricing-trust-strip"
 import { ProPlusPackCard } from "@/components/macwall-marketing/pro-plus-pack-card"
 import { GradientTracing } from "@/components/ui/gradient-tracing"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
@@ -63,6 +69,9 @@ export default function MacWallMarketingPricingPage() {
             <p className="mx-auto mt-4 max-w-2xl text-center text-[16px] leading-relaxed text-marketing-muted sm:text-[17px]">
               {p.heroLead}
             </p>
+            <PricingSocialProof className="mt-4" />
+
+            <PricingTrustStripCompact className="mt-6" />
 
             <div className="mt-8 md:mt-10">
               <div className="mx-auto grid max-w-3xl grid-cols-1 items-stretch gap-4 sm:gap-5 lg:grid-cols-2">
@@ -115,6 +124,8 @@ export default function MacWallMarketingPricingPage() {
                 ) : null}
               </div>
 
+              <PricingTrustStrip className="mt-8" />
+
               <p className="mt-8 text-center text-[14px] text-marketing-muted">
                 Creators:{" "}
                 <Link
@@ -128,6 +139,8 @@ export default function MacWallMarketingPricingPage() {
             </div>
           </div>
         </section>
+
+        <PricingReviewsSection />
 
         <HomeFaqSection />
       </main>
