@@ -87,12 +87,14 @@ http://localhost:3000
 ## Project Structure
 
 ```text
-app/            Next.js App Router
-components/     Shared UI components
-lib/            Utilities
+app/            Next.js App Router (pages + API routes)
+components/     UI and marketing components
+lib/            Shared utilities
 public/         Static assets
-supabase/       Database migrations
+scripts/        Build helpers (changelog + blog thumbs)
 ```
+
+Private backend (Supabase Edge Functions, DB migrations, ops scripts) lives outside this repo and is not published.
 
 ## Download
 
