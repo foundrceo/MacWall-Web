@@ -12,7 +12,7 @@ import {
   macwallInstallerLatestPath,
   mailtoSupport,
 } from "@/lib/macwall-site"
-import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import {
   getMarketingNavItems,
   isMarketingNavActive,
@@ -305,8 +305,8 @@ export default function Navbar() {
   const pathname = usePathname()
   const reduceMotion = useReducedMotion()
   const menuId = useId()
-  const h = macwallExactCopy.header
-  const ho = macwallExactCopy.hover
+  const h = macwallMarketingCopy.header
+  const ho = macwallMarketingCopy.hover
   const [menuOpen, setMenuOpen] = useState(false)
 
   const navLinkClass =

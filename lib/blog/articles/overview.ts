@@ -82,13 +82,12 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Mac users today choose between native apps (MacWall, Backdrop, Wallper, Wallspace) and cross-platform ports (Wallpaper Engine wrappers, Lively-style tools, Electron players). **MacWall's edge is the combination**: native SwiftUI UX, aggressive pause policy, community catalog + personal imports, web gallery at macwall.app, one-time Pro pricing, no account wall to browse, and Lock Screen support on ${macwallLockScreenMacOSVersion} where Apple allows custom video.",
+        text: "Mac users today choose between native apps (MacWall, Backdrop, Wallspace) and cross-platform ports (Wallpaper Engine wrappers, Lively-style tools, Electron players). **MacWall's edge is the combination**: native SwiftUI UX, aggressive pause policy, community catalog + personal imports, web gallery at macwall.app, one-time Pro pricing, no account wall to browse, and Lock Screen support on ${macwallLockScreenMacOSVersion} where Apple allows custom video.",
       },
       {
         type: "ul",
         items: [
           "**vs Backdrop** — Both native; MacWall adds community submit flow, Reel refund program, and menu-bar-first workflow. See [MacWall vs Backdrop](/blog/macwall-vs-backdrop).",
-          "**vs Wallper** — Both one-time purchase natives; MacWall emphasizes catalog growth, web gallery, and creator program. See [MacWall vs Wallper](/alternatives/macwall-vs-wallper).",
           "**vs Wallspace** — MacWall offers community uploads and macwall.app integration. See [MacWall vs Wallspace](/alternatives/macwall-vs-wallspace).",
           "**vs Wallpaper Engine** — No official Mac port; wrappers add overhead. MacWall is Mac-native video loops. See [Wallpaper Engine on Mac](/blog/wallpaper-engine-alternative-mac).",
           "**vs free Electron tools** — Chromium-based players keep a browser engine alive for wallpaper duty. MacWall has no Electron layer.",

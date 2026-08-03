@@ -1,5 +1,5 @@
 import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
-import { macwallExactCopy } from "@/lib/macwall-marketing-copy"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 
 export type MarketingNavItem = {
   href: string
@@ -12,7 +12,7 @@ export type MarketingNavItem = {
  * browse → buy → learn → contribute → partner.
  */
 export function getMarketingNavItems(): readonly MarketingNavItem[] {
-  const h = macwallExactCopy.header
+  const h = macwallMarketingCopy.header
 
   return [
     { href: "/wallpapers", label: h.navGallery },
