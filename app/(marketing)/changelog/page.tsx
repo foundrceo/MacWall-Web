@@ -11,8 +11,8 @@ import type { Metadata } from "next"
 
 const PAGE_PATH = "/changelog"
 
-export const dynamic = "force-dynamic"
-export const revalidate = 0
+/** ISR — changelog reads R2 once per hour instead of every request. */
+export const revalidate = 3600
 
 const seoPage = {
   slug: "changelog",

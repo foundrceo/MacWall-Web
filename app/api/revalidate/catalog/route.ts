@@ -33,9 +33,11 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized." }, { status: 401 })
   }
 
-  revalidateTag(MARKETING_GALLERY_CACHE_TAG, "max")
-  revalidateTag(MARKETING_HOME_PICK_CACHE_TAG, "max")
-  revalidateTag(PUBLIC_CATALOG_CACHE_TAG, "max")
+  // Soft expire — avoids a global "max" stampede that rebuilds every
+  // wallpaper/list page at once after bulk catalog edits.
+  revalidateTag(MARKETING_GALLERY_CACHE_TAG, "default")
+  revalidateTag(MARKETING_HOME_PICK_CACHE_TAG, "default")
+  revalidateTag(PUBLIC_CATALOG_CACHE_TAG, "default")
 
   return Response.json({
     revalidated: true,

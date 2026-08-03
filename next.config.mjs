@@ -54,6 +54,9 @@ const nextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 31536000,
+    // Fewer width variants → fewer Image Optimization transforms + cache entries.
+    deviceSizes: [640, 750, 1080, 1280],
+    imageSizes: [32, 64, 128, 256],
     remotePatterns: [
       {
         protocol: "https",

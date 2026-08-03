@@ -64,10 +64,10 @@ import {
 } from "@/lib/support/shared"
 import { cn } from "@/lib/utils"
 
-/** Safety-net poll when SSE is live; faster when offline / closed. */
-const POLL_LIVE_MS = 25_000
-const POLL_OFFLINE_MS = 4_000
-const POLL_CLOSED_MS = 2_000
+/** Safety-net poll when SSE is live; slower when offline / closed (cuts API $). */
+const POLL_LIVE_MS = 45_000
+const POLL_OFFLINE_MS = 20_000
+const POLL_CLOSED_MS = 30_000
 const IDLE_MS = 60_000
 const MENU_CONVERSATION_LIMIT = 12
 
@@ -931,14 +931,17 @@ export function MacWallChatWidget() {
     }
   )
 
-  // Safety-net poll — keep listening while live or closed (for reopen)
+  // Safety-net poll — keep listening while live or closed (for reopen).
+  // Skip while the tab is hidden; closed tickets only poll when chat is open.
   useEffect(() => {
     if (!ticketId) return
     if (handoff !== "live" && handoff !== "closed") return
+    if (handoff === "closed" && !open) return
     let cancelled = false
 
     const tick = async () => {
       if (cancelled) return
+      if (typeof document !== "undefined" && document.hidden) return
       await syncTicketMessages()
     }
 
@@ -954,7 +957,7 @@ export function MacWallChatWidget() {
       cancelled = true
       window.clearInterval(id)
     }
-  }, [handoff, ticketId, streamState, syncTicketMessages])
+  }, [handoff, ticketId, streamState, syncTicketMessages, open])
 
   const pushAssist = useCallback(
     async (body: string, followUps?: ChatQuickReply[]) => {

@@ -4,8 +4,8 @@ import { macwallInstallerDmgApiUrl } from "@/lib/macwall-installer-url"
 import { r2InstallersGetText } from "@/lib/storage/r2-installers"
 
 export const runtime = "nodejs"
-export const dynamic = "force-dynamic"
-export const revalidate = 0
+/** Mac update checks are chatty — short CDN TTL cuts invocations without stalling ships. */
+export const revalidate = 120
 
 const VERSION_KEY = "releases/version.json"
 
@@ -36,8 +36,7 @@ export async function GET() {
       },
       {
         headers: {
-          // Release metadata is tiny and must reflect a newly published build immediately.
-          "Cache-Control": "no-store, max-age=0",
+          "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
         },
       }
     )

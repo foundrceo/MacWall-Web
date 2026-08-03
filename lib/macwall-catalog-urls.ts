@@ -62,7 +62,11 @@ export function catalogPublicThumbUrlFromKey(thumbKey: string): string {
   return publicObjectUrlFromPath(normalizeThumbsPath(thumbKey))
 }
 
-/** Marketing gallery poster — full thumb URL (Next.js `<Image>` resizes on Vercel). */
+/**
+ * Marketing gallery poster — full thumb URL on Cloudflare R2 CDN.
+ * Call sites must use `unoptimized` (or plain `<img>`) so Vercel Image
+ * Optimization does not re-encode every catalog thumb.
+ */
 export function catalogMarketingGalleryPosterUrlFromKey(
   thumbKey: string
 ): string {

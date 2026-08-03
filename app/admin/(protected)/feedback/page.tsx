@@ -407,8 +407,9 @@ export default function AdminFeedbackPage() {
 
   // Safety-net poll so new web chats appear even if SSE is quiet
   useEffect(() => {
-    const ms = live ? 20_000 : 6_000
+    const ms = live ? 45_000 : 20_000
     const id = window.setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return
       void load(true)
     }, ms)
     return () => window.clearInterval(id)

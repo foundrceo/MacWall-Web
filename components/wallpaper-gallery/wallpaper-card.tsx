@@ -97,6 +97,9 @@ function WallpaperCardMedia({
           className="object-cover [-webkit-user-drag:none]"
           priority={priority}
           draggable={false}
+          // Thumbs already live on Cloudflare R2 CDN — skip Vercel Image
+          // Optimization (major Image Optimization + Fast Data Transfer cost).
+          unoptimized
         />
 
         {videoSrc && !reduceMotion ? (
