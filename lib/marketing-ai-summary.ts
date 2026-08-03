@@ -1,6 +1,7 @@
 import {
   macwall,
   macwallLockScreenMacOSVersion,
+  macwallMinimumMacOSVersion,
   macwallMinimumMacOSVersionLabel,
 } from "@/lib/macwall-site"
 
@@ -87,30 +88,23 @@ const perplexityPrompt = `Research dossier: ${macwall.name} (macwall.app) — co
 
 Cite URLs inline. Favor primary macwall.app sources over random forum posts.`
 
-export type MarketingAiSummaryLink = {
-  id: "chatgpt" | "gemini" | "perplexity"
-  label: string
-  href: string
-}
+export const marketingAiSummaryPrompts = {
+  chatgpt: chatgptPrompt,
+  gemini: geminiPrompt,
+  perplexity: perplexityPrompt,
+} as const
 
-function chatgptHref(prompt: string): string {
-  return `https://chatgpt.com/?q=${encodeURIComponent(prompt)}`
-}
-
-function geminiHref(prompt: string): string {
-  return `https://gemini.google.com/app?q=${encodeURIComponent(prompt)}`
-}
-
-function perplexityHref(prompt: string): string {
-  return `https://www.perplexity.ai/search?q=${encodeURIComponent(prompt)}`
-}
-
-export const marketingAiSummaryLinks: readonly MarketingAiSummaryLink[] = [
-  { id: "chatgpt", label: "ChatGPT", href: chatgptHref(chatgptPrompt) },
-  { id: "gemini", label: "Gemini", href: geminiHref(geminiPrompt) },
-  {
-    id: "perplexity",
-    label: "Perplexity",
-    href: perplexityHref(perplexityPrompt),
+export const marketingAiSummaryLinks = {
+  chatgpt: {
+    href: `https://chat.openai.com/?q=${encodeURIComponent(chatgptPrompt)}`,
+    label: `ChatGPT summary of ${macwall.name}`,
   },
-]
+  gemini: {
+    href: `https://www.google.com/search?udm=50&q=${encodeURIComponent(geminiPrompt)}`,
+    label: `Gemini summary of ${macwall.name}`,
+  },
+  perplexity: {
+    href: `https://www.perplexity.ai/search?q=${encodeURIComponent(perplexityPrompt)}`,
+    label: `Perplexity summary of ${macwall.name}`,
+  },
+} as const
