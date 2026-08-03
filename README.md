@@ -1,10 +1,16 @@
-# MacWall
+# macwall
 
-Native **macOS** app for live wallpapers. This repo is the website behind [macwall.app](https://macwall.app) — marketing pages, download, pricing, Stripe checkout, and license activation.
+live wallpapers for mac. this repo is the site at [macwall.app](https://macwall.app) — download, pricing, checkout, licenses, that kind of thing.
 
-Mac only. Not iOS, Windows, or web-playable.
+mac only. not for windows or phones.
 
-## Run the site locally
+## try the app
+
+1. get it from https://macwall.app/download
+2. install and open it
+3. when it asks for a key, paste one in
+
+## run the site
 
 ```sh
 git clone https://github.com/foundrceo/MacWall-Web.git
@@ -14,12 +20,12 @@ cp .env.example .env
 npm run dev
 ```
 
-Open http://localhost:3000. Checkout and licensing need real Stripe / Supabase keys in `.env`.
+then open http://localhost:3000. checkout only works if you fill in real keys in `.env`.
 
-## Stack
+## stuff used
 
-Next.js, TypeScript, Tailwind, Stripe, Supabase, Vercel, Cloudflare R2.
+next.js, typescript, tailwind, stripe, supabase, vercel, cloudflare r2
 
-## License
+## license
 
-Proprietary — see [LICENSE](./LICENSE). Source is here for review; do not redistribute.
+see [LICENSE](./LICENSE). you can look at the code, but it's not open to copy or ship as your own.
