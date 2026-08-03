@@ -59,6 +59,9 @@ export async function POST(request: Request) {
     name?: unknown
     message?: unknown
     imageUrl?: unknown
+    chatId?: unknown
+    firstAuthor?: unknown
+    needsAdminReply?: unknown
   }
   try {
     body = (await request.json()) as typeof body
@@ -75,10 +78,7 @@ export async function POST(request: Request) {
   }
 
   const nameRaw = typeof body.name === "string" ? body.name.trim() : ""
-  if (!nameRaw) {
-    return bad(400, "name_required")
-  }
-  const name = nameRaw.slice(0, 120)
+  const name = (nameRaw || "Visitor").slice(0, 120)
 
   const message = typeof body.message === "string" ? body.message.trim() : ""
   const imageUrl = sanitizeSupportImageUrl(
@@ -88,6 +88,15 @@ export async function POST(request: Request) {
     return bad(400, "message_required")
   }
 
+  const chatId =
+    typeof body.chatId === "string" ? body.chatId.trim().slice(0, 40) : null
+  const firstAuthor =
+    body.firstAuthor === "assist" || body.firstAuthor === "user"
+      ? body.firstAuthor
+      : "user"
+  const needsAdminReply =
+    typeof body.needsAdminReply === "boolean" ? body.needsAdminReply : true
+
   try {
     const ticket = await createSupportTicket({
       sessionId,
@@ -96,9 +105,22 @@ export async function POST(request: Request) {
       message,
       imageUrl,
       userAgent: request.headers.get("user-agent"),
+      chatId,
+      firstAuthor,
+      needsAdminReply,
     })
     return NextResponse.json({ ticket })
-  } catch {
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err)
+    console.error("[support/tickets] create_failed", {
+      detail,
+      sessionIdPrefix: sessionId.slice(0, 8),
+      hasMessage: Boolean(message),
+      hasImage: Boolean(imageUrl),
+      chatId,
+      firstAuthor,
+      needsAdminReply,
+    })
     return bad(500, "create_failed")
   }
 }

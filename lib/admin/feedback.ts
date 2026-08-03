@@ -2,7 +2,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 export type FeedbackSentiment = "like" | "dislike" | "neutral"
 export type FeedbackFilter = FeedbackSentiment | "all" | "unread"
-export type FeedbackMessageAuthor = "user" | "admin"
+export type FeedbackMessageAuthor = "user" | "admin" | "assist"
 
 export type FeedbackMessage = {
   id: string
@@ -29,6 +29,7 @@ export type AdminFeedback = {
   needsAdminReply: boolean
   messages: FeedbackMessage[]
   createdAt: string
+  chatId?: string | null
 }
 
 export type FeedbackTotals = {
@@ -61,19 +62,80 @@ type FeedbackRow = {
 type MessageRow = {
   id: string
   feedback_id: string
-  author: FeedbackMessageAuthor
+  author: string
   body: string
   image_url: string | null
   created_at: string
 }
 
-const COLUMNS =
+type FeedbackRowWithChat = FeedbackRow & { chat_id?: string | null }
+
+const BASE_COLUMNS =
   "id,device_id,sentiment,name,message,app_version,os_version,device_model,model_identifier,chip,memory_gb,is_resolved,user_has_unread,needs_admin_reply,created_at"
+
+const COLUMNS_WITH_CHAT = `${BASE_COLUMNS},chat_id`
+
+/** Cached after first probe so we don't keep selecting a missing column. */
+let chatIdColumnAvailable: boolean | null = null
+
+function isMissingChatIdColumnError(error: {
+  message?: string
+  code?: string
+  details?: string | null
+} | null): boolean {
+  if (!error) return false
+  const hay = [error.message, error.details, error.code]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+  return (
+    error.code === "42703" ||
+    (hay.includes("chat_id") &&
+      (hay.includes("does not exist") || hay.includes("column")))
+  )
+}
+
+async function selectFeedbackRows(
+  buildQuery: (
+    columns: string
+  ) => PromiseLike<{ data: unknown; error: { message?: string; code?: string; details?: string | null } | null }>
+): Promise<FeedbackRowWithChat[]> {
+  const preferChat =
+    chatIdColumnAvailable === null ? true : chatIdColumnAvailable
+
+  if (preferChat) {
+    const withChat = await buildQuery(COLUMNS_WITH_CHAT)
+    if (!withChat.error) {
+      chatIdColumnAvailable = true
+      return (withChat.data ?? []) as FeedbackRowWithChat[]
+    }
+    if (isMissingChatIdColumnError(withChat.error)) {
+      chatIdColumnAvailable = false
+      console.warn(
+        "[admin/feedback] app_feedback.chat_id missing; selecting without it. Apply migration 20260803180000_assist_chat_authors.sql when ready."
+      )
+    } else {
+      throw new Error(withChat.error.message ?? "feedback_query_failed")
+    }
+  }
+
+  const withoutChat = await buildQuery(BASE_COLUMNS)
+  if (withoutChat.error) {
+    throw new Error(withoutChat.error.message ?? "feedback_query_failed")
+  }
+  return (withoutChat.data ?? []) as FeedbackRowWithChat[]
+}
+
+function mapAuthor(author: string): FeedbackMessageAuthor {
+  if (author === "admin") return "admin"
+  if (author === "assist") return "assist"
+  return "user"
+}
 
 function mapMessage(row: MessageRow): FeedbackMessage {
   return {
     id: row.id,
-    author: row.author,
+    author: mapAuthor(row.author),
     body: row.body,
     imageUrl: row.image_url,
     createdAt: row.created_at,
@@ -81,7 +143,7 @@ function mapMessage(row: MessageRow): FeedbackMessage {
 }
 
 function mapFeedback(
-  row: FeedbackRow,
+  row: FeedbackRowWithChat,
   messages: FeedbackMessage[]
 ): AdminFeedback {
   return {
@@ -101,6 +163,7 @@ function mapFeedback(
     needsAdminReply: row.needs_admin_reply,
     messages,
     createdAt: row.created_at,
+    chatId: row.chat_id ?? null,
   }
 }
 
@@ -131,30 +194,32 @@ export async function listAppFeedback(
   filter: FeedbackFilter = "all"
 ): Promise<AdminFeedback[]> {
   const supabase = getSupabaseAdmin()
-  let query = supabase
-    .from("app_feedback")
-    .select(COLUMNS)
-    .order("needs_admin_reply", { ascending: false })
-    .order("is_resolved", { ascending: true })
-    .order("created_at", { ascending: false })
-    .limit(300)
 
-  if (filter === "unread") {
-    query = query.eq("needs_admin_reply", true)
-  } else if (filter !== "all") {
-    query = query.eq("sentiment", filter)
-  }
+  const rows = await selectFeedbackRows((columns) => {
+    let query = supabase
+      .from("app_feedback")
+      .select(columns)
+      .order("needs_admin_reply", { ascending: false })
+      .order("is_resolved", { ascending: true })
+      .order("created_at", { ascending: false })
+      .limit(300)
 
-  const { data, error } = await query
-  if (error) throw new Error(error.message)
+    if (filter === "unread") {
+      query = query.eq("needs_admin_reply", true)
+    } else if (filter !== "all") {
+      query = query.eq("sentiment", filter)
+    }
 
-  const rows = (data ?? []) as FeedbackRow[]
+    return query
+  })
+
   const messages = await loadMessagesForFeedback(rows.map((r) => r.id))
   return rows.map((row) => {
     const thread = messages.get(row.id) ?? []
     const mapped = mapFeedback(row, thread)
     const last = thread.at(-1)
-    // Keep Reply inbox accurate even if the column lagged
+    // Keep Reply inbox accurate even if the column lagged.
+    // Assist messages never imply admin attention — only user (post-handoff).
     if (!mapped.isResolved && last?.author === "user") {
       mapped.needsAdminReply = true
     } else if (
@@ -163,6 +228,8 @@ export async function listAppFeedback(
       mapped.message.trim()
     ) {
       mapped.needsAdminReply = true
+    } else if (last?.author === "assist" && !mapped.needsAdminReply) {
+      mapped.needsAdminReply = false
     }
     return mapped
   })
@@ -227,7 +294,7 @@ export async function replyToFeedback(
     })
   if (insertError) throw new Error(insertError.message)
 
-  const { data, error } = await supabase
+  const { error: updateError } = await supabase
     .from("app_feedback")
     .update({
       admin_reply: trimmed || (trimmedImage ? "(image)" : body),
@@ -237,14 +304,17 @@ export async function replyToFeedback(
       needs_admin_reply: false,
     })
     .eq("id", id)
-    .select(COLUMNS)
-    .maybeSingle()
 
-  if (error) throw new Error(error.message)
+  if (updateError) throw new Error(updateError.message)
+
+  const rows = await selectFeedbackRows((columns) =>
+    supabase.from("app_feedback").select(columns).eq("id", id).limit(1)
+  )
+  const data = rows[0]
   if (!data) throw new Error("Feedback not found")
 
   const messages = await loadMessagesForFeedback([id])
-  return mapFeedback(data as FeedbackRow, messages.get(id) ?? [])
+  return mapFeedback(data, messages.get(id) ?? [])
 }
 
 export async function setFeedbackResolved(id: string, resolved: boolean) {

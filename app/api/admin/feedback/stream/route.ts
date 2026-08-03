@@ -1,5 +1,11 @@
 import { requireAdminApi } from "@/lib/admin/auth"
-import { getSupabaseAdmin } from "@/lib/supabase/admin"
+import {
+  SUPPORT_TYPING_EVENT,
+  SUPPORT_TYPING_TOPIC,
+  type SupportTypingPayload,
+  type SupportTypingRole,
+} from "@/lib/support/typing"
+import { createSupabaseAdminRealtime } from "@/lib/supabase/admin"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -25,7 +31,7 @@ export async function GET(request: Request) {
 
       send("connected", { ok: true })
 
-      const supabase = getSupabaseAdmin()
+      const supabase = createSupabaseAdminRealtime()
       const channel = supabase
         .channel(`admin-feedback-${crypto.randomUUID()}`)
         .on(
@@ -46,6 +52,36 @@ export async function GET(request: Request) {
             send("message", payload)
           }
         )
+        .subscribe()
+
+      const typingChannel = supabase
+        .channel(SUPPORT_TYPING_TOPIC, {
+          config: { broadcast: { self: false } },
+        })
+        .on("broadcast", { event: SUPPORT_TYPING_EVENT }, (payload) => {
+          const envelope = payload as {
+            payload?: SupportTypingPayload
+            ticketId?: string
+            role?: SupportTypingRole
+            at?: number
+          }
+          const raw: SupportTypingPayload | null =
+            envelope.payload && typeof envelope.payload === "object"
+              ? envelope.payload
+              : envelope.ticketId && envelope.role
+                ? {
+                    ticketId: envelope.ticketId,
+                    role: envelope.role as SupportTypingRole,
+                    at: envelope.at ?? Date.now(),
+                  }
+                : null
+          if (!raw?.ticketId || raw.role !== "user") return
+          send("typing", {
+            ticketId: raw.ticketId,
+            role: raw.role,
+            at: typeof raw.at === "number" ? raw.at : Date.now(),
+          } satisfies SupportTypingPayload)
+        })
         .subscribe()
 
       const heartbeat = setInterval(() => {
@@ -69,6 +105,8 @@ export async function GET(request: Request) {
         clearInterval(heartbeat)
         clearTimeout(lifetime)
         void supabase.removeChannel(channel)
+        void supabase.removeChannel(typingChannel)
+        void supabase.removeAllChannels()
       }
 
       request.signal.addEventListener("abort", () => {

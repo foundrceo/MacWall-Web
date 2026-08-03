@@ -32,7 +32,12 @@ export async function POST(
 
   const { id: ticketId } = await context.params
 
-  let body: { sessionId?: unknown; message?: unknown; imageUrl?: unknown }
+  let body: {
+    sessionId?: unknown
+    message?: unknown
+    imageUrl?: unknown
+    author?: unknown
+  }
   try {
     body = (await request.json()) as typeof body
   } catch {
@@ -55,12 +60,16 @@ export async function POST(
     return bad(400, "message_required")
   }
 
+  const author =
+    body.author === "assist" || body.author === "user" ? body.author : "user"
+
   try {
     await appendSupportMessage({
       sessionId,
       ticketId,
       message: message || (imageUrl ? " " : ""),
       imageUrl,
+      author,
     })
     const tickets = await listSupportTickets(sessionId)
     const ticket = tickets.find((t) => t.id === ticketId) ?? null

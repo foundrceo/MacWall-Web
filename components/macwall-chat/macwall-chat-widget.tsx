@@ -26,20 +26,24 @@ import {
 } from "@hugeicons/core-free-icons"
 import { MacWallAppIcon } from "@/components/macwall-app-icon"
 import {
-  CHAT_GREETING,
-  chatQuickStartReplies,
-  defaultFollowUps,
-  matchFaqReply,
-  wantsHumanHandoff,
-  type ChatQuickReply,
-} from "@/lib/macwall-chat/faq-engine"
+  isValidVisitorEmail,
+  sanitizeVisitorEmailDraft,
+  SUPPORT_CONNECTING_EVENT,
+  SUPPORT_CONNECTING_PROMPT,
+  SUPPORT_JOIN_SEED,
+  SUPPORT_REPLY_WINDOW_EVENT,
+  SUPPORT_TEAM_JUST_JOINED,
+  SUPPORT_WELCOME,
+} from "@/lib/macwall-chat/support-welcome"
 import {
   CHAT_OPEN_KEY,
   FOUNDER_DISPLAY_NAME,
   chatMessageId,
   conversationPreviewTitle,
+  createChatId,
   createEmptyConversation,
   getOrCreateChatSessionId,
+  isPublicChatId,
   loadPersistedChatStore,
   savePersistedChatStore,
   type ChatConversation,
@@ -54,7 +58,9 @@ import {
   playChatSendSound,
 } from "@/lib/macwall-chat/sounds"
 import { useSupportTicketStream } from "@/lib/macwall-chat/use-support-ticket-stream"
+import { useSupportTypingEmitter } from "@/lib/macwall-chat/use-support-typing-emitter"
 import { isAllowedChatImage, uploadChatImage } from "@/lib/macwall-chat/upload"
+import { SupportTypingBubble } from "@/components/macwall-chat/support-typing-bubble"
 import { macwall } from "@/lib/macwall-site"
 import {
   supportErrorMessage,
@@ -70,6 +76,8 @@ const POLL_OFFLINE_MS = 20_000
 const POLL_CLOSED_MS = 30_000
 const IDLE_MS = 60_000
 const MENU_CONVERSATION_LIMIT = 12
+/** Clear admin typing bubble if no fresh ping arrives. */
+const ADMIN_TYPING_TTL_MS = 2500
 
 type PresenceTone = "active" | "idle" | "offline"
 
@@ -77,15 +85,22 @@ function greetingMessages(): ChatMessage[] {
   return [
     {
       id: "greet",
-      role: "assist",
-      body: CHAT_GREETING,
+      role: "system",
+      body: SUPPORT_WELCOME,
       createdAt: Date.now(),
-      followUps: chatQuickStartReplies(),
     },
   ]
 }
 
-function linkify(text: string) {
+/** Blue links that stay readable on light (user) and dark (support) bubbles. */
+function linkClassForBubble(tone: "user" | "support") {
+  return tone === "user"
+    ? "font-medium text-blue-600 underline decoration-blue-600/40 underline-offset-2 hover:decoration-blue-700"
+    : "font-medium text-sky-300 underline decoration-sky-300/45 underline-offset-2 hover:decoration-sky-200"
+}
+
+function linkify(text: string, tone: "user" | "support" = "support") {
+  const linkClass = linkClassForBubble(tone)
   const parts = text.split(
     /(\/[a-z0-9\-/_]+|https?:\/\/\S+|[\w.+-]+@[\w.-]+\.\w+)/gi
   )
@@ -93,11 +108,7 @@ function linkify(text: string) {
     if (!part) return null
     if (part.startsWith("/") && !part.startsWith("//")) {
       return (
-        <Link
-          key={`${part}-${i}`}
-          href={part}
-          className="font-medium text-white underline decoration-white/35 underline-offset-2 hover:decoration-white"
-        >
+        <Link key={`${part}-${i}`} href={part} className={linkClass}>
           {part}
         </Link>
       )
@@ -109,7 +120,7 @@ function linkify(text: string) {
           href={part}
           target="_blank"
           rel="noreferrer"
-          className="font-medium text-white underline decoration-white/35 underline-offset-2 hover:decoration-white"
+          className={linkClass}
         >
           {part}
         </a>
@@ -120,7 +131,7 @@ function linkify(text: string) {
         <a
           key={`${part}-${i}`}
           href={`mailto:${part}`}
-          className="font-medium text-white underline decoration-white/35 underline-offset-2 hover:decoration-white"
+          className={linkClass}
         >
           {part}
         </a>
@@ -147,34 +158,17 @@ function handoffStatusLabel(handoff: HandoffStep): "Open" | "Live" | "Closed" {
   return "Open"
 }
 
-function buildTicketMessage(
-  chatId: string,
-  messages: ChatMessage[],
-  issue: string,
-  email?: string
-) {
-  const recent = messages
-    .filter((m) => m.role === "user" || m.role === "assist")
-    .slice(-8)
-    .map((m) => `${m.role === "user" ? "Visitor" : "Assist"}: ${m.body}`)
-    .join("\n")
-  return [
-    `Chat ID: ${chatId}`,
-    email?.trim() ? `Email: ${email.trim()}` : null,
-    "",
-    issue.trim(),
-    "",
-    "— Chat transcript —",
-    recent || "(no prior messages)",
-  ]
-    .filter((line) => line !== null)
-    .join("\n")
-}
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-function isValidVisitorEmail(value: string): boolean {
-  return EMAIL_RE.test(value.trim()) && value.trim().length <= 254
+/** Resume contact collection for open chats that never reached a ticket. */
+function normalizeContactHandoff(convo: ChatConversation): HandoffStep {
+  const handoff = convo.handoff
+  if (handoff === "live" || handoff === "closed") return handoff
+  if (handoff === "ask_name" || handoff === "ask_email" || handoff === "ask_issue") {
+    return handoff
+  }
+  // idle / unknown — route by what contact info we already have
+  if (convo.visitorEmail.trim()) return "ask_issue"
+  if (convo.visitorName.trim()) return "ask_email"
+  return "ask_name"
 }
 
 export function MacWallChatWidget() {
@@ -204,7 +198,6 @@ export function MacWallChatWidget() {
     file: File
     previewUrl: string
   } | null>(null)
-  const [typing, setTyping] = useState(false)
   const [unread, setUnread] = useState(0)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -217,6 +210,11 @@ export function MacWallChatWidget() {
   const [presence, setPresence] = useState<PresenceTone>("active")
   const [menuOpen, setMenuOpen] = useState(false)
   const [copiedChatId, setCopiedChatId] = useState(false)
+  const [connectingUI, setConnectingUI] = useState<
+    null | "connecting" | "queued"
+  >(null)
+  const [adminTyping, setAdminTyping] = useState(false)
+  const adminTypingTimerRef = useRef<number | null>(null)
   const dragDepthRef = useRef(0)
   const lastActivityRef = useRef(Date.now())
   const handoffRef = useRef<HandoffStep>("idle")
@@ -224,6 +222,8 @@ export function MacWallChatWidget() {
   const ticketResolvedRef = useRef<boolean | null>(null)
   const lastReopenAtRef = useRef(0)
   const sendingRef = useRef(false)
+  /** Prefill from `?support-chat-message=` after contact is collected. */
+  const pendingIssueDraftRef = useRef("")
 
   const active = useMemo(() => {
     if (conversations.length === 0) return null
@@ -233,23 +233,19 @@ export function MacWallChatWidget() {
   }, [conversations, activeId])
 
   const messages = active?.messages ?? []
-  const handoff = active?.handoff ?? "idle"
+  const handoff = active
+    ? normalizeContactHandoff(active)
+    : ("ask_name" as HandoffStep)
   const visitorName = active?.visitorName ?? ""
   const visitorEmail = active?.visitorEmail ?? ""
   const ticketId = active?.ticketId ?? null
   const founderJoined = active?.founderJoined ?? false
   const chatId = active?.id ?? ""
-
-  /** Only the newest Assist chips stay tappable — blocks the option-loop. */
-  const activeFollowUpsMessageId = useMemo(() => {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const m = messages[i]
-      if (m?.role === "assist" && m.followUps && m.followUps.length > 0) {
-        return m.id
-      }
-    }
-    return null
-  }, [messages])
+  const publicChatId = isPublicChatId(chatId) ? chatId : ""
+  const canAttachImages =
+    handoff === "live" ||
+    handoff === "ask_issue" ||
+    (Boolean(visitorEmail.trim()) && isValidVisitorEmail(visitorEmail))
 
   activeIdRef.current = active?.id ?? ""
   handoffRef.current = handoff
@@ -298,27 +294,27 @@ export function MacWallChatWidget() {
 
   const loadConversationFields = useCallback(
     (convo: ChatConversation) => {
+      const handoff = normalizeContactHandoff(convo)
       seenRemoteRef.current = new Set(convo.seenRemoteIds)
       setActiveId(convo.id)
       setStreamState("offline")
       setDraft("")
       setError(null)
-      setTyping(false)
       setDeliveredPulse(false)
       setCopiedChatId(false)
+      setConnectingUI(null)
       clearPendingImage()
       lastActivityRef.current = Date.now()
       lastReopenAtRef.current = 0
       ticketResolvedRef.current =
-        convo.handoff === "closed"
-          ? true
-          : convo.handoff === "live"
-            ? false
-            : null
-      handoffRef.current = convo.handoff
-      setPresence(convo.handoff === "closed" ? "offline" : "active")
+        handoff === "closed" ? true : handoff === "live" ? false : null
+      handoffRef.current = handoff
+      setPresence(handoff === "closed" ? "offline" : "active")
+      if (handoff !== convo.handoff) {
+        patchConversation(convo.id, (c) => ({ ...c, handoff }))
+      }
     },
-    [clearPendingImage]
+    [clearPendingImage, patchConversation]
   )
 
   useEffect(() => {
@@ -374,13 +370,9 @@ export function MacWallChatWidget() {
     }
 
     if (message) {
-      setDraft(message)
-      window.setTimeout(() => {
-        const el = inputRef.current
-        if (!el) return
-        el.focus()
-        el.setSelectionRange(message.length, message.length)
-      }, 280)
+      // Don’t put the issue into the name/email field — apply after contact.
+      pendingIssueDraftRef.current = message
+      window.setTimeout(() => inputRef.current?.focus(), 280)
     }
 
     const params = new URLSearchParams(searchParams.toString())
@@ -430,7 +422,7 @@ export function MacWallChatWidget() {
       top: el.scrollHeight,
       behavior: reduceMotion ? "auto" : "smooth",
     })
-  }, [messages, typing, open, reduceMotion])
+  }, [messages, open, reduceMotion, connectingUI, adminTyping])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -456,20 +448,10 @@ export function MacWallChatWidget() {
 
   const pushMessage = useCallback(
     (msg: ChatMessage) => {
-      patchActive((c) => {
-        // Once the user picks a path, retire older chips so they can't loop
-        // back through previous menus.
-        const prior =
-          msg.role === "user"
-            ? c.messages.map((m) =>
-                m.followUps?.length ? { ...m, followUps: undefined } : m
-              )
-            : c.messages
-        return {
-          ...c,
-          messages: [...prior, msg],
-        }
-      })
+      patchActive((c) => ({
+        ...c,
+        messages: [...c.messages, msg],
+      }))
     },
     [patchActive]
   )
@@ -503,25 +485,37 @@ export function MacWallChatWidget() {
       const alreadyJoined =
         current.founderJoined ||
         current.messages.some(
-          (p) => p.role === "event" && p.body.includes("has joined the chat")
+          (p) =>
+            p.role === "event" &&
+            (/has joined the chat/i.test(p.body) ||
+              /just joined/i.test(p.body) ||
+              /connected you with the team/i.test(p.body))
         ) ||
         current.messages.some((p) => p.role === "founder")
 
       let localJoined = alreadyJoined
       const next: ChatMessage[] = []
+      const teamJoinedRemoteId = `team-joined:${targetId}`
 
       for (const m of incoming) {
+        const hasBody = Boolean(m.body?.trim())
+        const hasImage = Boolean(m.imageUrl?.trim())
+        if (!hasBody && !hasImage) continue
         if (existing.has(m.id)) continue
         existing.add(m.id)
 
         if (!localJoined) {
           localJoined = true
+          // Presence only when the team actually messages — not after email/ticket create.
+          // Stable remoteId prevents duplicate chips when SSE + poll race.
           next.push({
             id: chatMessageId(),
             role: "event",
-            body: `${FOUNDER_DISPLAY_NAME} has joined the chat`,
+            body: SUPPORT_TEAM_JUST_JOINED,
             createdAt: Date.now(),
+            remoteId: teamJoinedRemoteId,
           })
+          existing.add(teamJoinedRemoteId)
         }
 
         next.push({
@@ -541,6 +535,14 @@ export function MacWallChatWidget() {
       const founderCount = next.filter((m) => m.role === "founder").length
       const seenRemoteIds = [...existing]
 
+      if (founderCount > 0 && targetId === activeIdRef.current) {
+        if (adminTypingTimerRef.current) {
+          window.clearTimeout(adminTypingTimerRef.current)
+          adminTypingTimerRef.current = null
+        }
+        setAdminTyping(false)
+      }
+
       patchConversation(targetId, (c) => {
         // Re-check against latest conversation state (concurrent polls)
         const live = new Set<string>([
@@ -549,14 +551,37 @@ export function MacWallChatWidget() {
             .map((p) => p.remoteId)
             .filter((id): id is string => Boolean(id)),
         ])
-        const fresh = next.filter((m) => !m.remoteId || !live.has(m.remoteId))
+        const alreadyHasJoin =
+          c.founderJoined ||
+          c.messages.some(
+            (p) =>
+              p.role === "event" &&
+              (/has joined the chat/i.test(p.body) ||
+                /just joined/i.test(p.body) ||
+                /connected you with the team/i.test(p.body))
+          ) ||
+          c.messages.some((p) => p.role === "founder")
+        const fresh = next.filter((m) => {
+          if (m.remoteId && live.has(m.remoteId)) return false
+          if (
+            m.role === "event" &&
+            /just joined/i.test(m.body) &&
+            alreadyHasJoin
+          ) {
+            return false
+          }
+          return true
+        })
         if (fresh.length === 0) return c
         for (const m of fresh) {
           if (m.remoteId) live.add(m.remoteId)
         }
+        const joinedNow = fresh.some(
+          (m) => m.role === "event" && /just joined/i.test(m.body)
+        )
         return {
           ...c,
-          founderJoined: localJoined || c.founderJoined,
+          founderJoined: localJoined || c.founderJoined || joinedNow,
           seenRemoteIds: [...live],
           messages: [...c.messages, ...fresh],
         }
@@ -606,12 +631,12 @@ export function MacWallChatWidget() {
         setError("This chat is closed. Start a new chat to send images.")
         return
       }
-      if (handoff === "ask_name" || handoff === "ask_email") {
-        setError(
-          handoff === "ask_name"
-            ? "Type your name first — you can attach a screenshot with your issue next."
-            : "Type your email first — you can attach a screenshot with your issue next."
-        )
+      if (!canAttachImages) {
+        setError("Add your email first — then you can attach a screenshot.")
+        return
+      }
+      if (connectingUI) {
+        setError("Please wait while we connect you with the team.")
         return
       }
       if (!isAllowedChatImage(file)) {
@@ -624,7 +649,7 @@ export function MacWallChatWidget() {
         return { file, previewUrl: URL.createObjectURL(file) }
       })
     },
-    [handoff]
+    [handoff, connectingUI, canAttachImages]
   )
 
   const closeLiveChat = useCallback(
@@ -790,6 +815,7 @@ export function MacWallChatWidget() {
     const next = createEmptyConversation(greeting)
     setConversations((prev) => [next, ...prev])
     loadConversationFields(next)
+    setConnectingUI(null)
     setMenuOpen(false)
     void playChatPopSound()
     window.setTimeout(() => inputRef.current?.focus(), 120)
@@ -815,7 +841,7 @@ export function MacWallChatWidget() {
   )
 
   useEffect(() => {
-    if (!open || handoff === "closed") return
+    if (!open || handoff === "closed" || !canAttachImages) return
 
     const onPaste = (event: ClipboardEvent) => {
       const items = event.clipboardData?.items
@@ -834,7 +860,7 @@ export function MacWallChatWidget() {
 
     window.addEventListener("paste", onPaste)
     return () => window.removeEventListener("paste", onPaste)
-  }, [open, handoff, acceptImageFile])
+  }, [open, handoff, canAttachImages, acceptImageFile])
 
   const syncTicketMessages = useCallback(async () => {
     const convoId = activeIdRef.current
@@ -896,6 +922,47 @@ export function MacWallChatWidget() {
     }
   }, [ticketId, ingestAdminMessages, markTicketSeen, applyTicketResolved])
 
+  const clearAdminTyping = useCallback(() => {
+    if (adminTypingTimerRef.current) {
+      window.clearTimeout(adminTypingTimerRef.current)
+      adminTypingTimerRef.current = null
+    }
+    setAdminTyping(false)
+  }, [])
+
+  const pulseAdminTyping = useCallback(() => {
+    setAdminTyping(true)
+    if (adminTypingTimerRef.current) {
+      window.clearTimeout(adminTypingTimerRef.current)
+    }
+    adminTypingTimerRef.current = window.setTimeout(() => {
+      setAdminTyping(false)
+      adminTypingTimerRef.current = null
+    }, ADMIN_TYPING_TTL_MS)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (adminTypingTimerRef.current) {
+        window.clearTimeout(adminTypingTimerRef.current)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    // Reset typing when switching conversations / leaving live.
+    clearAdminTyping()
+  }, [ticketId, handoff, clearAdminTyping])
+
+  const { signalTyping } = useSupportTypingEmitter({
+    ticketId,
+    enabled: Boolean(ticketId) && handoff === "live",
+    buildBody: () => ({
+      sessionId: getOrCreateChatSessionId(),
+    }),
+    endpointFor: (id) => `/api/support/tickets/${encodeURIComponent(id)}/typing`,
+  })
+
   useSupportTicketStream(
     ticketId,
     sessionIdState,
@@ -903,6 +970,7 @@ export function MacWallChatWidget() {
     {
       onMessage: (message) => {
         if (message.author !== "admin") return
+        clearAdminTyping()
         const convoId = activeIdRef.current
         // Do NOT local-reopen on admin reply — only when server sets is_resolved=false
         ingestAdminMessages(
@@ -926,6 +994,10 @@ export function MacWallChatWidget() {
           applyTicketResolved(update.isResolved, convoId)
         }
         void syncTicketMessages()
+      },
+      onTyping: () => {
+        if (handoffRef.current === "closed") return
+        pulseAdminTyping()
       },
       onConnectionChange: setStreamState,
     }
@@ -959,26 +1031,6 @@ export function MacWallChatWidget() {
     }
   }, [handoff, ticketId, streamState, syncTicketMessages, open])
 
-  const pushAssist = useCallback(
-    async (body: string, followUps?: ChatQuickReply[]) => {
-      setTyping(true)
-      await new Promise((r) =>
-        setTimeout(r, reduceMotion ? 80 : 480 + Math.random() * 420)
-      )
-      setTyping(false)
-      pushMessage({
-        id: chatMessageId(),
-        role: "assist",
-        body,
-        createdAt: Date.now(),
-        followUps: followUps ?? defaultFollowUps(),
-      })
-      void playChatReceiveSound()
-      if (!open) setUnread((n) => n + 1)
-    },
-    [open, reduceMotion, pushMessage]
-  )
-
   const pushEvent = useCallback(
     (body: string) => {
       pushMessage({
@@ -988,101 +1040,167 @@ export function MacWallChatWidget() {
         createdAt: Date.now(),
       })
       void playChatReceiveSound()
-      if (!open) setUnread((n) => n + 1)
+      if (!openRef.current) setUnread((n) => n + 1)
     },
-    [open, pushMessage]
+    [pushMessage]
   )
 
-  const startHandoff = useCallback(async () => {
-    patchActive((c) => ({
-      ...c,
-      visitorName: "",
-      visitorEmail: "",
-      handoff: "ask_name",
-    }))
-    await pushAssist(
-      "Absolutely — our team can jump in right here.\n\nThey usually reply ASAP, typically within 24 hours.\n\nWhat’s your name?",
-      []
-    )
-  }, [pushAssist, patchActive])
-
-  const createTicket = useCallback(
-    async (
-      name: string,
-      email: string,
-      issue: string,
-      imageUrl?: string | null,
-      transcript: ChatMessage[] = messages
-    ) => {
-      const idForTicket = activeIdRef.current
-      if (!idForTicket) return
-      setBusy(true)
-      setError(null)
-      try {
-        const contactName = email.trim()
-          ? `${name.slice(0, 70)} · ${email.trim()}`.slice(0, 120)
-          : name
-        const res = await fetch("/api/support/tickets", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sessionId: getOrCreateChatSessionId(),
-            name: contactName,
-            message: buildTicketMessage(
-              idForTicket,
-              transcript,
-              issue,
-              email
-            ),
-            imageUrl: imageUrl || null,
-            sentiment: "neutral",
-          }),
-        })
-        const data = (await res.json()) as {
-          ticket?: { id: string }
-          error?: string
-        }
-        if (!res.ok || !data.ticket?.id) {
-          throw new Error(supportErrorMessage(data.error ?? "create_failed"))
-        }
-        patchConversation(idForTicket, (c) => ({
-          ...c,
-          ticketId: data.ticket!.id,
-          handoff: "live",
-          visitorName: name,
-          visitorEmail: email.trim(),
-        }))
-        if (activeIdRef.current === idForTicket) {
-          handoffRef.current = "live"
-          ticketResolvedRef.current = false
-        }
-        pushEvent("You’re in the queue — keep chatting here")
-        await pushAssist(
-          `Got it — ${email.trim() || "thanks"}. You’re in the queue with our team.\n\nYour Chat ID is ${idForTicket} — share it if you reach out another way.\n\nWhat do you need help with? Add as much detail as you like — our team will see this chat. You can also attach a screenshot.\n\nWe’ll reply ASAP — typically within 24 hours. Leave this window open or come back anytime; your conversation is saved.`,
-          []
-        )
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : "Could not connect you."
-        setError(msg)
-        await pushAssist(
-          `${msg}\n\nYou can try again, or email ${macwall.supportEmail}.`,
-          defaultFollowUps()
-        )
-        patchConversation(idForTicket, (c) => ({
-          ...c,
-          handoff: "idle",
-        }))
-      } finally {
-        setBusy(false)
-      }
+  const pushSupportPrompt = useCallback(
+    (body: string) => {
+      pushMessage({
+        id: chatMessageId(),
+        role: "assist",
+        body,
+        createdAt: Date.now(),
+      })
+      void playChatReceiveSound()
     },
-    [messages, pushAssist, pushEvent, patchConversation]
+    [pushMessage]
+  )
+
+  /**
+   * After a valid email is saved: create Chat ID + ticket (seed), then connecting → live.
+   * The visitor’s first issue message later appends to this ticket.
+   */
+  const createTicketAfterEmail = useCallback(
+    async (opts?: { name?: string; email?: string }) => {
+    const provisionalId = activeIdRef.current
+    if (!provisionalId) return false
+
+    const convo = conversationsRef.current.find((c) => c.id === provisionalId)
+    const name = (
+      opts?.name ||
+      convo?.visitorName ||
+      visitorName ||
+      "Visitor"
+    ).trim()
+    const email = (
+      opts?.email ||
+      convo?.visitorEmail ||
+      visitorEmail
+    )
+      .trim()
+      .toLowerCase()
+    const contactName = email
+      ? `${name} · ${email}`.slice(0, 120)
+      : name.slice(0, 120)
+
+    const publicChatId = isPublicChatId(provisionalId)
+      ? provisionalId
+      : createChatId()
+
+    if (publicChatId !== provisionalId) {
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === provisionalId ? { ...c, id: publicChatId } : c
+        )
+      )
+      setActiveId(publicChatId)
+      activeIdRef.current = publicChatId
+    }
+
+    // Already have a ticket (resume / retry) — don’t create a second one.
+    const existingConvo = conversationsRef.current.find(
+      (c) => c.id === provisionalId || c.id === publicChatId
+    )
+    const existingTid = existingConvo?.ticketId
+    if (existingTid) {
+      patchConversation(publicChatId, (c) => ({
+        ...c,
+        ticketId: existingTid,
+        handoff: "live",
+      }))
+      if (activeIdRef.current === publicChatId) {
+        handoffRef.current = "live"
+        ticketResolvedRef.current = false
+      }
+      setConnectingUI(null)
+      const alreadyHasConnectingPrompt = (existingConvo?.messages ?? []).some(
+        (m) =>
+          m.role === "assist" &&
+          (/you.?re connected/i.test(m.body) ||
+            /meanwhile,? tell us/i.test(m.body))
+      )
+      if (!alreadyHasConnectingPrompt) {
+        pushSupportPrompt(SUPPORT_CONNECTING_PROMPT)
+      }
+      return true
+    }
+
+    setConnectingUI("connecting")
+    void playChatPopSound()
+    try {
+      const res = await fetch("/api/support/tickets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: getOrCreateChatSessionId(),
+          name: contactName,
+          message: SUPPORT_JOIN_SEED,
+          chatId: publicChatId,
+          // Assist seed keeps Reply queue clean until the visitor’s first issue appends.
+          firstAuthor: "assist",
+          needsAdminReply: false,
+          sentiment: "neutral",
+        }),
+      })
+      const data = (await res.json()) as {
+        ticket?: { id: string }
+        error?: string
+      }
+      if (!res.ok || !data.ticket?.id) {
+        throw new Error(supportErrorMessage(data.error ?? "create_failed"))
+      }
+      const tid = data.ticket.id
+
+      await new Promise((r) => setTimeout(r, reduceMotion ? 280 : 700))
+
+      patchConversation(publicChatId, (c) => ({
+        ...c,
+        ticketId: tid,
+        handoff: "live",
+      }))
+      if (activeIdRef.current === publicChatId) {
+        handoffRef.current = "live"
+        ticketResolvedRef.current = false
+      }
+      setConnectingUI(null)
+      // Invite them to describe the issue. “Team just joined” waits for a real admin msg.
+      pushSupportPrompt(SUPPORT_CONNECTING_PROMPT)
+      await new Promise((r) => setTimeout(r, reduceMotion ? 120 : 280))
+      pushEvent(SUPPORT_REPLY_WINDOW_EVENT)
+      return true
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Could not start chat."
+      setError(msg)
+      setConnectingUI(null)
+      patchConversation(publicChatId, (c) => ({
+        ...c,
+        handoff: "ask_issue",
+      }))
+      if (activeIdRef.current === publicChatId) {
+        handoffRef.current = "ask_issue"
+      }
+      return false
+    }
+  },
+  [
+    patchConversation,
+    pushEvent,
+    pushSupportPrompt,
+    reduceMotion,
+    visitorName,
+    visitorEmail,
+  ]
   )
 
   const replyOnTicket = useCallback(
     async (text: string, imageUrl?: string | null) => {
       const convoId = activeIdRef.current
-      const tid = ticketId
+      const tid =
+        ticketId ??
+        conversationsRef.current.find((c) => c.id === convoId)?.ticketId ??
+        null
       if (!tid || !convoId) return false
       setBusy(true)
       setError(null)
@@ -1127,14 +1245,215 @@ export function MacWallChatWidget() {
     [ticketId, pushMessage, closeLiveChat]
   )
 
+  /**
+   * Legacy / resume: contact collected but no ticket yet — create from first issue,
+   * or append when a ticket already exists.
+   */
+  const ensureTicketThenSendIssue = useCallback(
+    async (text: string, imageUrl?: string | null) => {
+      const provisionalId = activeIdRef.current
+      if (!provisionalId) return false
+
+      const existingTid = conversationsRef.current.find(
+        (c) => c.id === provisionalId
+      )?.ticketId
+      if (existingTid) {
+        return replyOnTicket(text, imageUrl)
+      }
+
+      const convo = conversationsRef.current.find(
+        (c) => c.id === provisionalId
+      )
+      const name = (convo?.visitorName || visitorName || "Visitor").trim()
+      const email = (convo?.visitorEmail || visitorEmail).trim().toLowerCase()
+      const contactName = email
+        ? `${name} · ${email}`.slice(0, 120)
+        : name.slice(0, 120)
+
+      const publicChatId = isPublicChatId(provisionalId)
+        ? provisionalId
+        : createChatId()
+
+      if (publicChatId !== provisionalId) {
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === provisionalId ? { ...c, id: publicChatId } : c
+          )
+        )
+        setActiveId(publicChatId)
+        activeIdRef.current = publicChatId
+      }
+
+      setConnectingUI("connecting")
+      void playChatPopSound()
+      try {
+        const res = await fetch("/api/support/tickets", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId: getOrCreateChatSessionId(),
+            name: contactName,
+            message: text.trim() || " ",
+            imageUrl: imageUrl || null,
+            chatId: publicChatId,
+            firstAuthor: "user",
+            needsAdminReply: true,
+            sentiment: "neutral",
+          }),
+        })
+        const data = (await res.json()) as {
+          ticket?: { id: string }
+          error?: string
+        }
+        if (!res.ok || !data.ticket?.id) {
+          throw new Error(supportErrorMessage(data.error ?? "create_failed"))
+        }
+
+        await new Promise((r) => setTimeout(r, reduceMotion ? 280 : 700))
+
+        patchConversation(publicChatId, (c) => ({
+          ...c,
+          ticketId: data.ticket!.id,
+          handoff: "live",
+        }))
+        if (activeIdRef.current === publicChatId) {
+          handoffRef.current = "live"
+          ticketResolvedRef.current = false
+        }
+        setConnectingUI(null)
+        // “Team just joined” waits for the first real admin message.
+        pushEvent(SUPPORT_REPLY_WINDOW_EVENT)
+        return true
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Could not start chat."
+        setError(msg)
+        setConnectingUI(null)
+        patchConversation(publicChatId, (c) => ({
+          ...c,
+          handoff: "ask_issue",
+        }))
+        return false
+      }
+    },
+    [
+      patchConversation,
+      pushEvent,
+      reduceMotion,
+      replyOnTicket,
+      visitorName,
+      visitorEmail,
+    ]
+  )
+
   const handleUserText = useCallback(
     async (raw: string) => {
-      const text = raw.trim()
-      const hasImage = Boolean(pendingImage)
-      if ((!text && !hasImage) || busy || typing || sendingRef.current) return
+      const text =
+        handoff === "ask_email"
+          ? sanitizeVisitorEmailDraft(raw).trim()
+          : raw.trim()
+      const hasImage = Boolean(pendingImage) && canAttachImages
+      if ((!text && !hasImage) || busy || sendingRef.current) return
 
       if (handoff === "closed") {
         setError("This chat is closed. Start a new chat to continue.")
+        return
+      }
+
+      if (connectingUI) return
+
+      // —— Contact collection (no ticket yet) ——
+      if (handoff === "ask_name") {
+        if (!text) {
+          pushSupportPrompt("Please type your name so our team knows who you are.")
+          return
+        }
+        const name = text.slice(0, 120)
+        sendingRef.current = true
+        setBusy(true)
+        setDraft("")
+        setError(null)
+        clearPendingImage()
+        try {
+          pushMessage({
+            id: chatMessageId(),
+            role: "user",
+            body: name,
+            createdAt: Date.now(),
+          })
+          void playChatSendSound()
+          patchActive((c) => ({
+            ...c,
+            visitorName: name,
+            handoff: "ask_email",
+          }))
+          handoffRef.current = "ask_email"
+          pushSupportPrompt(
+            `Nice to meet you, ${name}.\n\nWhat’s the best email to reach you at? We’ll save it with this chat so our team can follow up if needed.`
+          )
+        } finally {
+          sendingRef.current = false
+          setBusy(false)
+        }
+        return
+      }
+
+      if (handoff === "ask_email") {
+        if (!text || !isValidVisitorEmail(text)) {
+          setDraft(text)
+          pushSupportPrompt(
+            "Please enter a valid email address (for example, you@icloud.com) — nothing else."
+          )
+          return
+        }
+        const email = text.toLowerCase().slice(0, 254)
+        sendingRef.current = true
+        setBusy(true)
+        setDraft("")
+        setError(null)
+        clearPendingImage()
+        try {
+          pushMessage({
+            id: chatMessageId(),
+            role: "user",
+            body: email,
+            createdAt: Date.now(),
+          })
+          void playChatSendSound()
+          // Persist contact first so ticket create can read name · email.
+          const knownName = (
+            conversationsRef.current.find(
+              (c) => c.id === activeIdRef.current
+            )?.visitorName ||
+            visitorName ||
+            "Visitor"
+          ).trim()
+          patchActive((c) => ({
+            ...c,
+            visitorEmail: email,
+            handoff: "ask_issue",
+          }))
+          handoffRef.current = "ask_issue"
+          // Chat ID + ticket now — connecting copy / Fin events live inside create.
+          const created = await createTicketAfterEmail({
+            name: knownName,
+            email,
+          })
+          if (!created) return
+          const pending = pendingIssueDraftRef.current
+          if (pending) {
+            pendingIssueDraftRef.current = ""
+            setDraft(pending)
+            window.setTimeout(() => {
+              const el = inputRef.current
+              if (!el) return
+              el.focus()
+              el.setSelectionRange(pending.length, pending.length)
+            }, 80)
+          }
+        } finally {
+          sendingRef.current = false
+          setBusy(false)
+        }
         return
       }
 
@@ -1145,12 +1464,12 @@ export function MacWallChatWidget() {
 
       try {
         let imageUrl: string | null = null
-        const localPreview = pendingImage?.previewUrl ?? null
-        const fileToUpload = pendingImage?.file ?? null
-        const collectingContact =
-          handoff === "ask_name" || handoff === "ask_email"
+        const localPreview = hasImage
+          ? (pendingImage?.previewUrl ?? null)
+          : null
+        const fileToUpload = hasImage ? (pendingImage?.file ?? null) : null
 
-        if (fileToUpload && !collectingContact) {
+        if (fileToUpload) {
           try {
             imageUrl = await uploadChatImage(
               getOrCreateChatSessionId(),
@@ -1163,135 +1482,28 @@ export function MacWallChatWidget() {
             return
           }
           clearPendingImage()
-        } else if (fileToUpload && collectingContact) {
+        } else if (pendingImage && !canAttachImages) {
           clearPendingImage()
         }
 
         const userMessage: ChatMessage = {
           id: chatMessageId(),
           role: "user",
-          body: text,
+          body: text || " ",
           createdAt: Date.now(),
-          imageUrl: imageUrl || (collectingContact ? null : localPreview),
+          imageUrl: imageUrl || localPreview,
         }
         pushMessage(userMessage)
         void playChatSendSound()
 
-        if (handoff === "ask_name") {
-          if (!text) {
-            await pushAssist(
-              "Please type your name so our team knows who you are.",
-              []
-            )
-            return
-          }
-          const name = text.slice(0, 120)
-          patchActive((c) => ({
-            ...c,
-            visitorName: name,
-            handoff: "ask_email",
-          }))
-          await pushAssist(
-            `Nice to meet you, ${name}.\n\nWhat’s the best email to reach you at? We’ll save it with this chat so our team can follow up if needed.`,
-            []
-          )
-          return
-        }
-
-        if (handoff === "ask_email") {
-          if (!text || !isValidVisitorEmail(text)) {
-            await pushAssist(
-              "Please enter a valid email address (for example, you@icloud.com) so we can save it with your chat.",
-              []
-            )
-            return
-          }
-          const email = text.trim().toLowerCase().slice(0, 254)
-          const convo = conversationsRef.current.find(
-            (c) => c.id === activeIdRef.current
-          )
-          const savedName =
-            (convo?.visitorName || visitorName).trim() || "Visitor"
-
-          patchActive((c) => ({
-            ...c,
-            visitorEmail: email,
-          }))
-
-          // Queue immediately after email — details come next in live chat.
-          const transcript = [...(convo?.messages ?? []), userMessage]
-          await createTicket(
-            savedName,
-            email,
-            "Joined the support queue. Visitor will share details in this chat.",
-            null,
-            transcript
-          )
-          return
-        }
-
-        // Legacy mid-flow: anyone still on ask_issue gets queued from their message.
-        if (handoff === "ask_issue") {
-          const convo = conversationsRef.current.find(
-            (c) => c.id === activeIdRef.current
-          )
-          const savedEmail = (convo?.visitorEmail || visitorEmail).trim()
-          const savedName =
-            (convo?.visitorName || visitorName).trim() || "Visitor"
-
-          if (!savedEmail || !isValidVisitorEmail(savedEmail)) {
-            patchActive((c) => ({
-              ...c,
-              handoff: "ask_email",
-            }))
-            await pushAssist(
-              "What’s the best email to reach you at? We’ll save it with this chat so our team can follow up if needed.",
-              []
-            )
-            return
-          }
-
-          const transcript = [...(convo?.messages ?? []), userMessage]
-          await createTicket(
-            savedName,
-            savedEmail,
-            text || "See attached screenshot",
-            imageUrl,
-            transcript
-          )
-          return
-        }
-
         if (handoff === "live") {
+          // Ticket already exists (created at email) — append the issue / reply.
           await replyOnTicket(text || " ", imageUrl)
           return
         }
 
-        if (text && wantsHumanHandoff(text)) {
-          await startHandoff()
-          return
-        }
-
-        if (!text && imageUrl) {
-          await pushAssist(
-            "Got the screenshot. Tell me what’s going on, or tap Talk to a human and our team will take it from here."
-          )
-          return
-        }
-
-        const match = matchFaqReply(text)
-        if (match) {
-          if (match.id === "human") {
-            await startHandoff()
-            return
-          }
-          await pushAssist(match.reply, match.followUps)
-          return
-        }
-
-        await pushAssist(
-          `Hmm — I don’t have a sharp answer for that.\n\nPick a topic, or talk to a human and our team will continue with you here (typically within 24 hours).`
-        )
+        // ask_issue resume: create ticket from first issue, or append if one exists.
+        await ensureTicketThenSendIssue(text || " ", imageUrl)
       } finally {
         sendingRef.current = false
         setBusy(false)
@@ -1299,18 +1511,18 @@ export function MacWallChatWidget() {
     },
     [
       busy,
-      typing,
       handoff,
-      visitorName,
-      visitorEmail,
+      connectingUI,
       pendingImage,
+      canAttachImages,
       pushMessage,
-      pushAssist,
-      createTicket,
-      replyOnTicket,
-      startHandoff,
-      clearPendingImage,
+      pushSupportPrompt,
       patchActive,
+      replyOnTicket,
+      createTicketAfterEmail,
+      ensureTicketThenSendIssue,
+      clearPendingImage,
+      visitorName,
     ]
   )
 
@@ -1375,6 +1587,10 @@ export function MacWallChatWidget() {
         live: true,
       }
     }
+    // Transient handoff chip only — never leave SSE reconnect as a stuck “Connecting…” header.
+    if (connectingUI) {
+      return { label: "Connecting you to the team…", live: true }
+    }
     if (handoff === "live") {
       return {
         label:
@@ -1382,23 +1598,25 @@ export function MacWallChatWidget() {
             ? "Away · typically replies within 24 hours"
             : streamState === "live"
               ? "Live · usually replies within 24 hours"
-              : streamState === "connecting"
-                ? "Connecting…"
-                : "Usually replies within 24 hours",
+              : "Usually replies within 24 hours",
         live: true,
       }
     }
-    if (handoff === "ask_name" || handoff === "ask_email") {
-      return { label: "Connecting you to the team…", live: true }
+    if (
+      handoff === "ask_name" ||
+      handoff === "ask_email" ||
+      handoff === "ask_issue"
+    ) {
+      return { label: "Getting you set up…", live: false }
     }
     return {
       label:
         presence === "idle"
-          ? "Away · ask anytime"
-          : "Instant answers · humans when you need them",
+          ? "Away · usually replies within 24 hours"
+          : "Usually replies within 24 hours",
       live: false,
     }
-  }, [handoff, founderJoined, streamState, presence])
+  }, [handoff, founderJoined, streamState, presence, connectingUI])
 
   const presenceDotClass =
     handoff === "closed"
@@ -1407,13 +1625,17 @@ export function MacWallChatWidget() {
         ? "bg-amber-400"
         : "bg-emerald-400"
 
-  const showChatIdBanner = handoff === "live" && Boolean(chatId)
+  const showChatIdBanner =
+    Boolean(publicChatId) &&
+    (handoff === "live" || handoff === "closed" || connectingUI !== null)
+  // Keep composer visible during connect — only briefly disable send; no overlay.
   const composerHidden = handoff === "closed"
+  const composerLocked = connectingUI !== null
 
   const onDragEnter = (e: DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (composerHidden) return
+    if (composerHidden || !canAttachImages || composerLocked) return
     dragDepthRef.current += 1
     setDragActive(true)
   }
@@ -1435,7 +1657,7 @@ export function MacWallChatWidget() {
     e.stopPropagation()
     dragDepthRef.current = 0
     setDragActive(false)
-    if (composerHidden) return
+    if (composerHidden || !canAttachImages || composerLocked) return
     const file = e.dataTransfer.files?.[0]
     acceptImageFile(file)
   }
@@ -1506,7 +1728,7 @@ export function MacWallChatWidget() {
                     id={titleId}
                     className="truncate font-sans text-[14px] font-normal tracking-tight text-white"
                   >
-                    {macwall.name} Assist
+                    {macwall.name} Support
                   </h2>
                   <p className="truncate font-sans text-[11px] font-normal text-white/50">
                     {status.label}
@@ -1571,10 +1793,14 @@ export function MacWallChatWidget() {
                                   {conversationPreviewTitle(convo)}
                                 </span>
                                 <span className="flex items-center gap-1.5 font-sans text-[10px] font-normal text-white/40">
-                                  <span className="tabular-nums">
-                                    {convo.id}
-                                  </span>
-                                  <span aria-hidden>·</span>
+                                  {isPublicChatId(convo.id) ? (
+                                    <>
+                                      <span className="tabular-nums">
+                                        {convo.id}
+                                      </span>
+                                      <span aria-hidden>·</span>
+                                    </>
+                                  ) : null}
                                   <span
                                     className={cn(
                                       statusLabel === "Live" &&
@@ -1641,20 +1867,33 @@ export function MacWallChatWidget() {
               className="flex-1 space-y-3.5 overflow-y-auto overscroll-contain px-3.5 py-4"
             >
               {messages.map((m) => {
+                // Connecting is a transient chip (connectingUI) — never keep it stuck in history.
+                if (
+                  m.role === "event" &&
+                  m.body.trim() === SUPPORT_CONNECTING_EVENT
+                ) {
+                  return null
+                }
+
                 if (m.role === "event") {
                   const isLeave = /has left the chat/i.test(m.body)
                   const isClosed = /^chat closed$/i.test(m.body.trim())
                   const isRejoin = /has rejoined the chat/i.test(m.body)
                   const isReopened = /^chat reopened/i.test(m.body.trim())
+                  const isJustJoined = /just joined/i.test(m.body)
+                  const isConnected = /connected you with the team/i.test(
+                    m.body
+                  )
                   const isReopen = isRejoin || isReopened
+                  const isPresence = isJustJoined || isConnected
                   return (
                     <motion.div
                       key={m.id}
                       initial={
-                        reduceMotion ? false : { opacity: 0, y: 8, scale: 0.96 }
+                        reduceMotion ? false : { opacity: 0, y: 10, scale: 0.94 }
                       }
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
                       className="flex justify-center px-2 py-1"
                     >
                       <div
@@ -1668,9 +1907,13 @@ export function MacWallChatWidget() {
                             "border border-emerald-400/25 bg-emerald-400/10 text-emerald-50",
                           isReopened &&
                             "border border-emerald-400/30 bg-emerald-400/[0.12] text-emerald-50",
+                          isPresence &&
+                            !isReopen &&
+                            "border border-emerald-400/20 bg-emerald-400/[0.08] text-emerald-50/90",
                           !isLeave &&
                             !isClosed &&
                             !isReopen &&
+                            !isPresence &&
                             "bg-white/[0.06] text-white/55"
                         )}
                       >
@@ -1715,6 +1958,16 @@ export function MacWallChatWidget() {
                 const isUser = m.role === "user"
                 const isFounder = m.role === "founder"
                 const isSystem = m.role === "system"
+                const caption = m.body.trim()
+                const isLegacyPhotoLabel =
+                  /^sent a (photo|image|img)$/i.test(caption)
+                const hasRealText =
+                  Boolean(caption) &&
+                  caption !== " " &&
+                  !isLegacyPhotoLabel
+                const hasImage = Boolean(m.imageUrl?.trim())
+                // Never render empty white/colored pills (user bubbles especially).
+                if (!hasImage && !hasRealText) return null
 
                 return (
                   <motion.div
@@ -1731,6 +1984,10 @@ export function MacWallChatWidget() {
                       <span className="px-1 text-[11px] font-medium text-emerald-300/90">
                         {FOUNDER_DISPLAY_NAME}
                       </span>
+                    ) : m.role === "assist" ? (
+                      <span className="px-1 text-[11px] font-medium text-white/45">
+                        MacWall Support
+                      </span>
                     ) : null}
                     <div
                       className={cn(
@@ -1745,83 +2002,49 @@ export function MacWallChatWidget() {
                           "rounded-bl-md bg-white/[0.07] text-white/[0.94]"
                       )}
                     >
-                      {m.imageUrl ? (
+                      {hasImage ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={m.imageUrl}
+                          src={m.imageUrl!}
                           alt="Attachment"
                           className="max-h-52 w-full object-cover"
                         />
                       ) : null}
-                      {(() => {
-                        const caption = m.body.trim()
-                        const isLegacyPhotoLabel =
-                          /^sent a (photo|image|img)$/i.test(caption)
-                        const hasRealText =
-                          Boolean(caption) &&
-                          caption !== " " &&
-                          !isLegacyPhotoLabel
-
-                        if (!hasRealText) return null
-
-                        return (
-                          <div
-                            className={cn(
-                              "px-3.5 py-2.5 whitespace-pre-wrap",
-                              m.imageUrl && "border-t border-black/5"
-                            )}
-                          >
-                            {linkify(m.body)}
-                          </div>
-                        )
-                      })()}
+                      {hasRealText ? (
+                        <div
+                          className={cn(
+                            "px-3.5 py-2.5 whitespace-pre-wrap",
+                            isUser ? "text-black" : undefined,
+                            hasImage && "border-t border-black/5"
+                          )}
+                        >
+                          {linkify(m.body, isUser ? "user" : "support")}
+                        </div>
+                      ) : null}
                     </div>
                     <span className="px-1 text-[10px] text-white/30">
                       {formatTime(m.createdAt)}
                     </span>
-                    {m.followUps &&
-                    m.followUps.length > 0 &&
-                    m.id === activeFollowUpsMessageId ? (
-                      <div className="flex max-w-full flex-wrap gap-1.5 pt-0.5">
-                        {m.followUps.map((chip) => (
-                          <button
-                            key={chip.id}
-                            type="button"
-                            disabled={busy || typing || composerHidden}
-                            onClick={() => {
-                              void playChatPopSound()
-                              void handleUserText(chip.prompt)
-                            }}
-                            className="rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[12px] text-white/82 transition hover:border-white/28 hover:bg-white/[0.09] disabled:opacity-45"
-                          >
-                            {chip.label}
-                          </button>
-                        ))}
-                      </div>
-                    ) : null}
                   </motion.div>
                 )
               })}
 
-              {typing ? (
-                <div className="flex w-fit items-center gap-1.5 rounded-[18px] rounded-bl-md bg-white/[0.07] px-3.5 py-3">
-                  {[0, 1, 2].map((i) => (
-                    <motion.span
-                      key={i}
-                      className="size-1.5 rounded-full bg-white/55"
-                      animate={
-                        reduceMotion
-                          ? undefined
-                          : { opacity: [0.3, 1, 0.3], y: [0, -2.5, 0] }
-                      }
-                      transition={{
-                        duration: 0.85,
-                        repeat: Infinity,
-                        delay: i * 0.14,
-                      }}
-                    />
-                  ))}
-                </div>
+              {connectingUI ? (
+                <motion.div
+                  key="connecting-chip"
+                  initial={
+                    reduceMotion ? false : { opacity: 0, y: 10, scale: 0.94 }
+                  }
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex justify-center px-2 py-1"
+                >
+                  <div className="max-w-[92%] rounded-2xl bg-white/[0.06] px-3.5 py-2 text-center font-sans text-white/55">
+                    <p className="text-[12px] font-normal tracking-wide">
+                      {SUPPORT_CONNECTING_EVENT}
+                    </p>
+                  </div>
+                </motion.div>
               ) : null}
 
               {deliveredPulse && handoff === "live" ? (
@@ -1829,6 +2052,12 @@ export function MacWallChatWidget() {
                   Delivered
                 </p>
               ) : null}
+
+              <AnimatePresence>
+                {adminTyping && handoff === "live" ? (
+                  <SupportTypingBubble key="admin-typing" />
+                ) : null}
+              </AnimatePresence>
             </div>
 
             {!composerHidden ? (
@@ -1895,8 +2124,15 @@ export function MacWallChatWidget() {
                     value={draft}
                     rows={1}
                     onChange={(e) => {
-                      setDraft(e.target.value)
+                      const next =
+                        handoff === "ask_email"
+                          ? sanitizeVisitorEmailDraft(e.target.value)
+                          : e.target.value
+                      setDraft(next)
                       bumpActivity()
+                      if (handoff === "live" && next.trim()) {
+                        signalTyping()
+                      }
                       const el = e.target
                       el.style.height = "auto"
                       el.style.height = `${Math.min(el.scrollHeight, 96)}px`
@@ -1908,15 +2144,17 @@ export function MacWallChatWidget() {
                       }
                     }}
                     placeholder={
-                      handoff === "ask_name"
-                        ? "Your name…"
-                        : handoff === "ask_email"
-                          ? "Your email…"
-                          : handoff === "ask_issue"
-                            ? "Describe what you need…"
-                            : "Message…"
+                      composerLocked
+                        ? "Connecting…"
+                        : handoff === "ask_name"
+                          ? "Your name…"
+                          : handoff === "ask_email"
+                            ? "you@email.com"
+                            : handoff === "live"
+                              ? "Message…"
+                              : "Describe your issue…"
                     }
-                    disabled={busy}
+                    disabled={busy || composerLocked}
                     autoComplete={
                       handoff === "ask_email"
                         ? "email"
@@ -1929,18 +2167,21 @@ export function MacWallChatWidget() {
                   />
                   <button
                     type="button"
-                    disabled={
-                      busy ||
-                      handoff === "ask_name" ||
-                      handoff === "ask_email"
+                    disabled={busy || composerLocked || !canAttachImages}
+                    onClick={() => {
+                      if (!canAttachImages) return
+                      fileRef.current?.click()
+                    }}
+                    className="mb-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[#0a84ff] transition hover:bg-[#0a84ff]/12 disabled:opacity-35 disabled:text-white/30"
+                    aria-label={
+                      canAttachImages
+                        ? "Attach photo"
+                        : "Attach photo (enter email first)"
                     }
-                    onClick={() => fileRef.current?.click()}
-                    className="mb-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[#0a84ff] transition hover:bg-[#0a84ff]/12 disabled:opacity-35"
-                    aria-label="Attach photo"
                     title={
-                      handoff === "ask_name" || handoff === "ask_email"
-                        ? "Attach a screenshot with your issue next"
-                        : "Attach photo"
+                      canAttachImages
+                        ? "Attach photo"
+                        : "Enter your email first"
                     }
                   >
                     <HugeiconsIcon
@@ -1952,7 +2193,9 @@ export function MacWallChatWidget() {
                   <button
                     type="submit"
                     disabled={
-                      busy || typing || (!draft.trim() && !pendingImage)
+                      busy ||
+                      composerLocked ||
+                      (!draft.trim() && !(pendingImage && canAttachImages))
                     }
                     className="mb-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-[#0a84ff] text-white transition enabled:hover:brightness-110 disabled:bg-white/10 disabled:text-white/25"
                     aria-label="Send message"
@@ -1975,8 +2218,8 @@ export function MacWallChatWidget() {
           open
             ? "Close chat"
             : unread > 0
-              ? `Open MacWall Assist, ${unread} unseen ${unread === 1 ? "message" : "messages"}`
-              : "Open MacWall Assist"
+              ? `Open MacWall Support, ${unread} unseen ${unread === 1 ? "message" : "messages"}`
+              : "Open MacWall Support"
         }
         className="pointer-events-auto relative flex size-[3.6rem] items-center justify-center rounded-full bg-white text-black shadow-[0_14px_44px_rgba(0,0,0,0.5)] transition hover:scale-[1.03] active:scale-[0.97]"
         whileTap={reduceMotion ? undefined : { scale: 0.95 }}

@@ -15,14 +15,21 @@ export type SupportStreamTicketUpdate = {
   isResolved?: boolean
 }
 
+export type SupportStreamTyping = {
+  ticketId: string
+  role: "user" | "admin"
+  at: number
+}
+
 type Handlers = {
   onMessage?: (message: SupportStreamMessage) => void
   onTicketUpdate?: (update: SupportStreamTicketUpdate) => void
+  onTyping?: (typing: SupportStreamTyping) => void
   onConnectionChange?: (state: "connecting" | "live" | "offline") => void
 }
 
 /**
- * Real-time ticket stream via SSE + Supabase postgres_changes.
+ * Real-time ticket stream via SSE + Supabase postgres_changes (+ typing broadcast).
  * Auto-reconnects; callers should keep a slow poll as safety net.
  */
 export function useSupportTicketStream(
@@ -112,6 +119,16 @@ export function useSupportTicketStream(
           isResolved = undefined
         }
         handlersRef.current.onTicketUpdate?.({ isResolved })
+      })
+
+      source.addEventListener("typing", (event) => {
+        try {
+          const payload = JSON.parse(event.data) as SupportStreamTyping
+          if (!payload?.ticketId || payload.role !== "admin") return
+          handlersRef.current.onTyping?.(payload)
+        } catch {
+          /* ignore */
+        }
       })
 
       source.onerror = () => {
