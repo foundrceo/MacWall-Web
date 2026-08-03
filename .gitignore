@@ -59,6 +59,12 @@ skills-lock.json
 # local backend source / private ops docs (deployed remotely)
 supabase/
 .supabase/
+
+# history rewrite helpers / local bundles (never publish)
+.git-scrub*.py
+.git-rewrite*.py
+*.bundle
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
