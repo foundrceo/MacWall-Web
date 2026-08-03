@@ -57,6 +57,7 @@ import {
   playChatReceiveSound,
   playChatSendSound,
 } from "@/lib/macwall-chat/sounds"
+import { localSupportTypingDelayMs } from "@/lib/macwall-chat/local-support-typing"
 import { useSupportTicketStream } from "@/lib/macwall-chat/use-support-ticket-stream"
 import { useSupportTypingEmitter } from "@/lib/macwall-chat/use-support-typing-emitter"
 import { isAllowedChatImage, uploadChatImage } from "@/lib/macwall-chat/upload"
@@ -81,17 +82,6 @@ const MENU_CONVERSATION_LIMIT = 12
 const ADMIN_TYPING_TTL_MS = 2500
 
 type PresenceTone = "active" | "idle" | "offline"
-
-function greetingMessages(): ChatMessage[] {
-  return [
-    {
-      id: "greet",
-      role: "system",
-      body: SUPPORT_WELCOME,
-      createdAt: Date.now(),
-    },
-  ]
-}
 
 /** Blue links that stay readable on light (user) and dark (support) bubbles. */
 function linkClassForBubble(tone: "user" | "support") {
@@ -216,6 +206,10 @@ export function MacWallChatWidget() {
   >(null)
   const [adminTyping, setAdminTyping] = useState(false)
   const adminTypingTimerRef = useRef<number | null>(null)
+  /** Local scripted support typing (welcome / name / email / connecting copy). */
+  const [localTyping, setLocalTyping] = useState(false)
+  const localTypingQueueRef = useRef<Promise<void>>(Promise.resolve())
+  const welcomeScheduledRef = useRef<Set<string>>(new Set())
   const dragDepthRef = useRef(0)
   const lastActivityRef = useRef(Date.now())
   const handoffRef = useRef<HandoffStep>("idle")
@@ -304,6 +298,8 @@ export function MacWallChatWidget() {
       setDeliveredPulse(false)
       setCopiedChatId(false)
       setConnectingUI(null)
+      setLocalTyping(false)
+      setAdminTyping(false)
       clearPendingImage()
       lastActivityRef.current = Date.now()
       lastReopenAtRef.current = 0
@@ -339,7 +335,9 @@ export function MacWallChatWidget() {
   }, [handoff])
 
   useEffect(() => {
-    const store = loadPersistedChatStore(greetingMessages())
+    // Brand-new stores start empty so the welcome can play a typing beat on first open.
+    // Persisted threads keep their existing transcript (including prior greetings).
+    const store = loadPersistedChatStore([])
     setConversations(store.conversations)
     const current =
       store.conversations.find((c) => c.id === store.activeId) ??
@@ -364,8 +362,7 @@ export function MacWallChatWidget() {
     setOpen(true)
 
     if (wantsNew) {
-      const greeting = greetingMessages()
-      const next = createEmptyConversation(greeting)
+      const next = createEmptyConversation([])
       setConversations((prev) => [next, ...prev])
       loadConversationFields(next)
     }
@@ -423,7 +420,7 @@ export function MacWallChatWidget() {
       top: el.scrollHeight,
       behavior: reduceMotion ? "auto" : "smooth",
     })
-  }, [messages, open, reduceMotion, connectingUI, adminTyping])
+  }, [messages, open, reduceMotion, connectingUI, adminTyping, localTyping])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -812,11 +809,11 @@ export function MacWallChatWidget() {
   )
   const startNewChat = useCallback(() => {
     if (busy) return
-    const greeting = greetingMessages()
-    const next = createEmptyConversation(greeting)
+    const next = createEmptyConversation([])
     setConversations((prev) => [next, ...prev])
     loadConversationFields(next)
     setConnectingUI(null)
+    setLocalTyping(false)
     setMenuOpen(false)
     void playChatPopSound()
     window.setTimeout(() => inputRef.current?.focus(), 120)
@@ -1046,18 +1043,50 @@ export function MacWallChatWidget() {
     [pushMessage]
   )
 
+  /**
+   * Scripted support bubble with a Fin-style typing beat first.
+   * Queued so we never stack infinite typing indicators.
+   */
   const pushSupportPrompt = useCallback(
     (body: string) => {
-      pushMessage({
-        id: chatMessageId(),
-        role: "assist",
-        body,
-        createdAt: Date.now(),
+      const convoId = activeIdRef.current
+      const run = localTypingQueueRef.current.then(async () => {
+        if (!convoId || activeIdRef.current !== convoId) return
+        setLocalTyping(true)
+        const delayMs = localSupportTypingDelayMs(reduceMotion)
+        await new Promise<void>((resolve) => {
+          window.setTimeout(resolve, delayMs)
+        })
+        if (activeIdRef.current !== convoId) {
+          setLocalTyping(false)
+          return
+        }
+        setLocalTyping(false)
+        pushMessage({
+          id: chatMessageId(),
+          role: "assist",
+          body,
+          createdAt: Date.now(),
+        })
+        void playChatReceiveSound()
       })
-      void playChatReceiveSound()
+      localTypingQueueRef.current = run.catch(() => {
+        setLocalTyping(false)
+      })
+      return localTypingQueueRef.current
     },
-    [pushMessage]
+    [pushMessage, reduceMotion]
   )
+
+  // Welcome sequence: empty ask_name threads get a typing beat, then the opener.
+  useEffect(() => {
+    if (!hydrated || !open) return
+    if (!activeId || messages.length > 0) return
+    if (handoff !== "ask_name") return
+    if (welcomeScheduledRef.current.has(activeId)) return
+    welcomeScheduledRef.current.add(activeId)
+    void pushSupportPrompt(SUPPORT_WELCOME)
+  }, [hydrated, open, activeId, messages.length, handoff, pushSupportPrompt])
 
   /**
    * After a valid email is saved: create Chat ID + ticket (seed), then connecting → live.
@@ -1124,7 +1153,7 @@ export function MacWallChatWidget() {
             /meanwhile,? tell us/i.test(m.body))
       )
       if (!alreadyHasConnectingPrompt) {
-        pushSupportPrompt(SUPPORT_CONNECTING_PROMPT)
+        await pushSupportPrompt(SUPPORT_CONNECTING_PROMPT)
       }
       return true
     }
@@ -1168,7 +1197,7 @@ export function MacWallChatWidget() {
       }
       setConnectingUI(null)
       // Invite them to describe the issue. “Team just joined” waits for a real admin msg.
-      pushSupportPrompt(SUPPORT_CONNECTING_PROMPT)
+      await pushSupportPrompt(SUPPORT_CONNECTING_PROMPT)
       await new Promise((r) => setTimeout(r, reduceMotion ? 120 : 280))
       pushEvent(SUPPORT_REPLY_WINDOW_EVENT)
       return true
@@ -1366,7 +1395,9 @@ export function MacWallChatWidget() {
       // —— Contact collection (no ticket yet) ——
       if (handoff === "ask_name") {
         if (!text) {
-          pushSupportPrompt("Please type your name so our team knows who you are.")
+          void pushSupportPrompt(
+            "Please type your name so our team knows who you are."
+          )
           return
         }
         const name = text.slice(0, 120)
@@ -1389,20 +1420,21 @@ export function MacWallChatWidget() {
             handoff: "ask_email",
           }))
           handoffRef.current = "ask_email"
-          pushSupportPrompt(
-            `Nice to meet you, ${name}.\n\nWhat’s the best email to reach you at? We’ll save it with this chat so our team can follow up if needed.`
-          )
         } finally {
           sendingRef.current = false
           setBusy(false)
         }
+        // Typing beat after composer unlocks — Fin-style, non-blocking.
+        void pushSupportPrompt(
+          `Nice to meet you, ${name}.\n\nWhat’s the best email to reach you at? We’ll save it with this chat so our team can follow up if needed.`
+        )
         return
       }
 
       if (handoff === "ask_email") {
         if (!text || !isValidVisitorEmail(text)) {
           setDraft(text)
-          pushSupportPrompt(
+          void pushSupportPrompt(
             "Please enter a valid email address (for example, you@icloud.com) — nothing else."
           )
           return
@@ -1866,7 +1898,7 @@ export function MacWallChatWidget() {
 
             <div
               ref={listRef}
-              className="flex-1 space-y-3.5 overflow-y-auto overscroll-contain px-3.5 py-4"
+              className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-3.5 py-3.5"
             >
               {messages.map((m) => {
                 // Connecting is a transient chip (connectingUI) — never keep it stuck in history.
@@ -1892,15 +1924,15 @@ export function MacWallChatWidget() {
                     <motion.div
                       key={m.id}
                       initial={
-                        reduceMotion ? false : { opacity: 0, y: 10, scale: 0.94 }
+                        reduceMotion ? false : { opacity: 0, y: 8, scale: 0.96 }
                       }
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-                      className="flex justify-center px-2 py-1"
+                      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                      className="flex justify-center px-2 py-0.5"
                     >
                       <div
                         className={cn(
-                          "max-w-[92%] rounded-2xl px-3.5 py-2 text-center font-sans",
+                          "max-w-[92%] rounded-2xl px-3 py-1.5 text-center font-sans",
                           isLeave &&
                             "border border-amber-400/20 bg-amber-400/10 text-amber-50",
                           isClosed &&
@@ -1959,8 +1991,13 @@ export function MacWallChatWidget() {
 
                 const isUser = m.role === "user"
                 const isFounder = m.role === "founder"
-                const isSystem = m.role === "system"
                 const caption = m.body.trim()
+                const isLegacyWelcome =
+                  m.role === "system" &&
+                  caption === SUPPORT_WELCOME.trim()
+                const isAssist =
+                  m.role === "assist" || isLegacyWelcome
+                const isSystem = m.role === "system" && !isLegacyWelcome
                 const isLegacyPhotoLabel =
                   /^sent a (photo|image|img)$/i.test(caption)
                 const hasRealText =
@@ -1974,11 +2011,11 @@ export function MacWallChatWidget() {
                 return (
                   <motion.div
                     key={m.id}
-                    initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+                    initial={reduceMotion ? false : { opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.24 }}
+                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                     className={cn(
-                      "flex flex-col gap-1.5",
+                      "flex flex-col gap-1",
                       isUser ? "items-end" : "items-start"
                     )}
                   >
@@ -1986,7 +2023,7 @@ export function MacWallChatWidget() {
                       <span className="px-1 text-[11px] font-medium text-emerald-300/90">
                         {FOUNDER_DISPLAY_NAME}
                       </span>
-                    ) : m.role === "assist" ? (
+                    ) : isAssist ? (
                       <span className="px-1 text-[11px] font-medium text-white/45">
                         MacWall Support
                       </span>
@@ -2008,14 +2045,14 @@ export function MacWallChatWidget() {
                       {hasRealText ? (
                         <div
                           className={cn(
-                            "overflow-hidden rounded-[18px] px-3.5 py-2.5 font-sans text-[14px] leading-relaxed font-normal whitespace-pre-wrap",
+                            "overflow-hidden rounded-[20px] px-3.5 py-2.5 font-sans text-[14px] leading-relaxed font-normal whitespace-pre-wrap",
                             isUser &&
                               "rounded-br-md bg-white text-black shadow-[0_8px_24px_rgba(0,0,0,0.18)]",
                             isFounder &&
                               "rounded-bl-md border border-emerald-400/20 bg-emerald-400/10 text-white",
                             isSystem &&
                               "rounded-bl-md bg-amber-500/12 text-amber-50",
-                            m.role === "assist" &&
+                            isAssist &&
                               "rounded-bl-md bg-white/[0.07] text-white/[0.94]"
                           )}
                         >
@@ -2023,7 +2060,7 @@ export function MacWallChatWidget() {
                         </div>
                       ) : null}
                     </div>
-                    <span className="px-1 text-[10px] text-white/30">
+                    <span className="px-1 text-[10px] tabular-nums text-white/28">
                       {formatTime(m.createdAt)}
                     </span>
                   </motion.div>
@@ -2034,13 +2071,13 @@ export function MacWallChatWidget() {
                 <motion.div
                   key="connecting-chip"
                   initial={
-                    reduceMotion ? false : { opacity: 0, y: 10, scale: 0.94 }
+                    reduceMotion ? false : { opacity: 0, y: 8, scale: 0.96 }
                   }
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex justify-center px-2 py-1"
+                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex justify-center px-2 py-0.5"
                 >
-                  <div className="max-w-[92%] rounded-2xl bg-white/[0.06] px-3.5 py-2 text-center font-sans text-white/55">
+                  <div className="max-w-[92%] rounded-2xl bg-white/[0.06] px-3 py-1.5 text-center font-sans text-white/55">
                     <p className="text-[12px] font-normal tracking-wide">
                       {SUPPORT_CONNECTING_EVENT}
                     </p>
@@ -2049,14 +2086,25 @@ export function MacWallChatWidget() {
               ) : null}
 
               {deliveredPulse && handoff === "live" ? (
-                <p className="text-center text-[11px] text-white/35">
+                <p className="pt-0.5 text-center text-[11px] text-white/35">
                   Delivered
                 </p>
               ) : null}
 
-              <AnimatePresence>
-                {adminTyping && handoff === "live" ? (
-                  <SupportTypingBubble key="admin-typing" />
+              <AnimatePresence mode="popLayout">
+                {localTyping ? (
+                  <SupportTypingBubble
+                    key="local-typing"
+                    tone="support"
+                    label="MacWall Support is typing…"
+                  />
+                ) : null}
+                {adminTyping && handoff === "live" && !localTyping ? (
+                  <SupportTypingBubble
+                    key="admin-typing"
+                    tone="team"
+                    label="MacWall Team is typing…"
+                  />
                 ) : null}
               </AnimatePresence>
             </div>
