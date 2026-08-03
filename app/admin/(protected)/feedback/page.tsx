@@ -14,6 +14,7 @@ import {
   useState,
   type KeyboardEvent,
 } from "react"
+import { useReducedMotion } from "motion/react"
 import {
   ArrowDown,
   ArrowLeft,
@@ -66,6 +67,8 @@ import { useSupportTypingEmitter } from "@/lib/macwall-chat/use-support-typing-e
 import { cn } from "@/lib/utils"
 
 const VISITOR_TYPING_TTL_MS = 2500
+/** Stick to latest when within this distance of the transcript bottom. */
+const NEAR_BOTTOM_PX = 100
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                      */
@@ -120,7 +123,6 @@ const FILTERS: Array<{ id: Filter; label: string }> = [
   { id: "all", label: "All" },
 ]
 
-const NEAR_BOTTOM_PX = 140
 const GROUP_GAP_MS = 5 * 60 * 1000
 
 const SENTIMENT: Record<Sentiment, { label: string; tone: Tone }> = {
@@ -361,6 +363,7 @@ function bubbleShape(
 /* -------------------------------------------------------------------------- */
 
 export default function AdminFeedbackPage() {
+  const reduceMotion = useReducedMotion()
   const [filter, setFilter] = useState<Filter>("open")
   const [search, setSearch] = useState("")
   const [items, setItems] = useState<FeedbackItem[]>([])
@@ -379,6 +382,8 @@ export default function AdminFeedbackPage() {
   } | null>(null)
   const [live, setLive] = useState(false)
   const [atBottom, setAtBottom] = useState(true)
+  const [hasUnseenBelow, setHasUnseenBelow] = useState(false)
+  const atBottomRef = useRef(true)
   const [copiedField, setCopiedField] = useState<string | null>(null)
   /** ticketId → expiry timestamp for visitor typing indicators */
   const [visitorTypingUntil, setVisitorTypingUntil] = useState<
@@ -541,26 +546,43 @@ export default function AdminFeedbackPage() {
     }
   }, [items, selectedId])
 
+  const scrollThreadToBottom = useCallback(
+    (behavior?: ScrollBehavior) => {
+      endRef.current?.scrollIntoView({
+        behavior: behavior ?? (reduceMotion ? "auto" : "smooth"),
+        block: "end",
+      })
+      atBottomRef.current = true
+      setAtBottom(true)
+      setHasUnseenBelow(false)
+    },
+    [reduceMotion]
+  )
+
   useEffect(() => {
     queueMicrotask(() => {
       setDraft("")
       setComposerError(null)
+      atBottomRef.current = true
       setAtBottom(true)
+      setHasUnseenBelow(false)
       setPendingImage((prev) => {
         if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl)
         return null
       })
     })
-    endRef.current?.scrollIntoView({ block: "end" })
-  }, [selectedId])
+    scrollThreadToBottom("auto")
+  }, [selectedId, scrollThreadToBottom])
 
   const messageCount = selected ? threadMessages(selected).length : 0
   useEffect(() => {
-    if (atBottom) {
-      endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+    if (atBottomRef.current) {
+      scrollThreadToBottom()
+      return
     }
+    setHasUnseenBelow(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messageCount, selectedVisitorTyping])
+  }, [messageCount, selectedVisitorTyping, scrollThreadToBottom])
 
   useEffect(() => {
     const el = composerRef.current
@@ -726,7 +748,9 @@ export default function AdminFeedbackPage() {
     setSending(true)
     setComposerError(null)
     setDraft("")
+    atBottomRef.current = true
     setAtBottom(true)
+    setHasUnseenBelow(false)
 
     setItems((current) =>
       current.map((row) =>
@@ -829,9 +853,11 @@ export default function AdminFeedbackPage() {
   function onThreadScroll() {
     const el = scrollRef.current
     if (!el) return
-    setAtBottom(
-      el.scrollHeight - el.scrollTop - el.clientHeight < NEAR_BOTTOM_PX
-    )
+    const near =
+      el.scrollHeight - el.scrollTop - el.clientHeight <= NEAR_BOTTOM_PX
+    atBottomRef.current = near
+    setAtBottom(near)
+    if (near) setHasUnseenBelow(false)
   }
 
   const inboxCounts = useMemo(() => {
@@ -1338,21 +1364,17 @@ export default function AdminFeedbackPage() {
                 </div>
 
                 {!atBottom ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="absolute bottom-4 left-1/2 -translate-x-1/2 shadow-md"
-                    onClick={() => {
-                      endRef.current?.scrollIntoView({
-                        behavior: "smooth",
-                        block: "end",
-                      })
-                      setAtBottom(true)
-                    }}
+                  <button
+                    type="button"
+                    onClick={() => scrollThreadToBottom()}
+                    className="absolute bottom-4 left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-[var(--admin-border-strong)] bg-white/95 px-3 py-1.5 text-xs font-medium text-[var(--admin-fg)] shadow-[0_8px_24px_rgba(15,23,42,0.12)] backdrop-blur-md transition hover:bg-white"
+                    aria-label={
+                      hasUnseenBelow ? "Jump to new messages" : "Jump to latest"
+                    }
                   >
                     <ArrowDown className="size-3.5" />
-                    Jump to latest
-                  </Button>
+                    {hasUnseenBelow ? "New messages" : "Jump to latest"}
+                  </button>
                 ) : null}
               </div>
 
