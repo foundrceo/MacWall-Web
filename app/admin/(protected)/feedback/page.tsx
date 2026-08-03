@@ -61,7 +61,10 @@ import {
 } from "@/lib/admin/format"
 import { playAdminNotificationSound } from "@/lib/admin/notification-sound"
 import { useAdminFeedbackStream } from "@/lib/admin/use-admin-feedback-stream"
+import { useSupportTypingEmitter } from "@/lib/macwall-chat/use-support-typing-emitter"
 import { cn } from "@/lib/utils"
+
+const VISITOR_TYPING_TTL_MS = 2500
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                      */
@@ -70,9 +73,11 @@ import { cn } from "@/lib/utils"
 type Sentiment = "like" | "dislike" | "neutral"
 type Filter = "unread" | "open" | "closed" | "all"
 
+type FeedbackMessageAuthor = "user" | "admin" | "assist"
+
 type FeedbackMessage = {
   id: string
-  author: "user" | "admin"
+  author: FeedbackMessageAuthor
   body: string
   imageUrl?: string | null
   createdAt: string
@@ -95,6 +100,7 @@ type FeedbackItem = {
   needsAdminReply: boolean
   messages: FeedbackMessage[]
   createdAt: string
+  chatId?: string | null
 }
 
 type Totals = {
@@ -141,7 +147,43 @@ function extractChatId(text: string | null | undefined): string | null {
   return match?.[1]?.toUpperCase() ?? null
 }
 
+/** Blue clickable URLs / emails in admin transcript bubbles. */
+function linkifyAdminText(text: string) {
+  const linkClass =
+    "font-medium text-blue-600 underline decoration-blue-600/35 underline-offset-2 hover:decoration-blue-700"
+  const parts = text.split(/(https?:\/\/\S+|[\w.+-]+@[\w.-]+\.\w+)/gi)
+  return parts.map((part, i) => {
+    if (!part) return null
+    if (/^https?:\/\//i.test(part)) {
+      return (
+        <a
+          key={`${part}-${i}`}
+          href={part}
+          target="_blank"
+          rel="noreferrer"
+          className={linkClass}
+        >
+          {part}
+        </a>
+      )
+    }
+    if (part.includes("@") && part.includes(".")) {
+      return (
+        <a
+          key={`${part}-${i}`}
+          href={`mailto:${part}`}
+          className={linkClass}
+        >
+          {part}
+        </a>
+      )
+    }
+    return <span key={`${i}`}>{part}</span>
+  })
+}
+
 function chatIdForItem(item: FeedbackItem): string | null {
+  if (item.chatId?.trim()) return item.chatId.trim().toUpperCase()
   // Prefer first user message (stable Chat ID line), then root message column
   const firstUser = item.messages.find((m) => m.author === "user")
   return extractChatId(firstUser?.body ?? null) ?? extractChatId(item.message)
@@ -208,7 +250,8 @@ function ticketNeedsReply(item: FeedbackItem): boolean {
   if (item.isResolved) return false
   if (item.needsAdminReply) return true
   const last = item.messages.at(-1)
-  // Derive from thread — DB flag can lag after user follow-ups / new tickets
+  // Derive from thread — DB flag can lag after user follow-ups / new tickets.
+  // Assist-only threads (pre-handoff FAQ) do not need admin reply.
   if (!last) return Boolean(item.message.trim())
   return last.author === "user"
 }
@@ -239,7 +282,10 @@ function threadMessages(item: FeedbackItem): FeedbackMessage[] {
   ]
 }
 
-type MessageGroup = { author: "user" | "admin"; messages: FeedbackMessage[] }
+type MessageGroup = {
+  author: FeedbackMessageAuthor
+  messages: FeedbackMessage[]
+}
 type TimelineItem =
   | { kind: "separator"; key: string; label: string }
   | { kind: "group"; key: string; group: MessageGroup }
@@ -287,7 +333,7 @@ function buildTimeline(messages: FeedbackMessage[]): TimelineItem[] {
 }
 
 function bubbleShape(
-  author: "user" | "admin",
+  author: FeedbackMessageAuthor,
   index: number,
   total: number
 ): string {
@@ -333,13 +379,22 @@ export default function AdminFeedbackPage() {
   const [live, setLive] = useState(false)
   const [atBottom, setAtBottom] = useState(true)
   const [copiedField, setCopiedField] = useState<string | null>(null)
+  /** ticketId → expiry timestamp for visitor typing indicators */
+  const [visitorTypingUntil, setVisitorTypingUntil] = useState<
+    Record<string, number>
+  >({})
 
   const endRef = useRef<HTMLDivElement | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const composerRef = useRef<HTMLTextAreaElement | null>(null)
   const fileRef = useRef<HTMLInputElement | null>(null)
+  const visitorTypingTimersRef = useRef<Map<string, number>>(new Map())
 
   const selected = items.find((item) => item.id === selectedId) ?? null
+  const selectedVisitorTyping = Boolean(
+    selectedId &&
+      (visitorTypingUntil[selectedId] ?? 0) > Date.now()
+  )
 
   /* --- data ------------------------------------------------------------- */
 
@@ -389,6 +444,45 @@ export default function AdminFeedbackPage() {
     })
   }, [load])
 
+  const clearVisitorTyping = useCallback((ticketId: string) => {
+    const existing = visitorTypingTimersRef.current.get(ticketId)
+    if (existing) {
+      window.clearTimeout(existing)
+      visitorTypingTimersRef.current.delete(ticketId)
+    }
+    setVisitorTypingUntil((prev) => {
+      if (!(ticketId in prev)) return prev
+      const next = { ...prev }
+      delete next[ticketId]
+      return next
+    })
+  }, [])
+
+  const pulseVisitorTyping = useCallback((ticketId: string) => {
+    const until = Date.now() + VISITOR_TYPING_TTL_MS
+    setVisitorTypingUntil((prev) => ({ ...prev, [ticketId]: until }))
+    const existing = visitorTypingTimersRef.current.get(ticketId)
+    if (existing) window.clearTimeout(existing)
+    const timer = window.setTimeout(() => {
+      visitorTypingTimersRef.current.delete(ticketId)
+      setVisitorTypingUntil((prev) => {
+        if (!(ticketId in prev)) return prev
+        const next = { ...prev }
+        delete next[ticketId]
+        return next
+      })
+    }, VISITOR_TYPING_TTL_MS)
+    visitorTypingTimersRef.current.set(ticketId, timer)
+  }, [])
+
+  useEffect(() => {
+    const timers = visitorTypingTimersRef.current
+    return () => {
+      for (const timer of timers.values()) window.clearTimeout(timer)
+      timers.clear()
+    }
+  }, [])
+
   useAdminFeedbackStream((event) => {
     if (event.type === "connected") {
       setLive(true)
@@ -398,11 +492,27 @@ export default function AdminFeedbackPage() {
       setLive(false)
       return
     }
+    if (event.type === "typing") {
+      setLive(true)
+      pulseVisitorTyping(event.ticketId)
+      return
+    }
     setLive(true)
-    if (event.type === "message" && event.author === "user") {
-      playAdminNotificationSound()
+    if (event.type === "message") {
+      if (event.feedbackId) clearVisitorTyping(event.feedbackId)
+      if (event.author === "user") {
+        playAdminNotificationSound()
+      }
     }
     void load(true)
+  })
+
+  const { signalTyping: signalAdminTyping } = useSupportTypingEmitter({
+    ticketId: selectedId,
+    enabled: Boolean(selectedId) && Boolean(selected) && !selected?.isResolved,
+    buildBody: () => ({}),
+    endpointFor: (id) =>
+      `/api/admin/feedback/${encodeURIComponent(id)}/typing`,
   })
 
   // Safety-net poll so new web chats appear even if SSE is quiet
@@ -449,7 +559,7 @@ export default function AdminFeedbackPage() {
       endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messageCount])
+  }, [messageCount, selectedVisitorTyping])
 
   useEffect(() => {
     const el = composerRef.current
@@ -904,17 +1014,27 @@ export default function AdminFeedbackPage() {
                               {chatId}
                             </p>
                           ) : null}
-                          <p
-                            className={cn(
-                              "mt-0.5 line-clamp-2 text-xs leading-relaxed",
-                              ticketNeedsReply(item)
-                                ? "text-[var(--admin-fg-soft)]"
-                                : "text-[var(--admin-muted)]"
-                            )}
-                          >
-                            {last?.author === "admin" ? "You: " : ""}
-                            {preview}
-                          </p>
+                          {(visitorTypingUntil[item.id] ?? 0) > Date.now() ? (
+                            <p className="mt-0.5 text-xs font-medium text-[var(--admin-blue)]">
+                              Visitor is typing…
+                            </p>
+                          ) : (
+                            <p
+                              className={cn(
+                                "mt-0.5 line-clamp-2 text-xs leading-relaxed",
+                                ticketNeedsReply(item)
+                                  ? "text-[var(--admin-fg-soft)]"
+                                  : "text-[var(--admin-muted)]"
+                              )}
+                            >
+                              {last?.author === "admin"
+                                ? "You: "
+                                : last?.author === "assist"
+                                  ? "Assist: "
+                                  : ""}
+                              {preview}
+                            </p>
+                          )}
                           <div className="mt-1.5 flex flex-wrap items-center gap-1">
                             <AdminBadge tone={SENTIMENT[item.sentiment].tone}>
                               {SENTIMENT[item.sentiment].label}
@@ -1112,6 +1232,10 @@ export default function AdminFeedbackPage() {
                               size="sm"
                               className="mb-5"
                             />
+                          ) : item.group.author === "assist" ? (
+                            <span className="mb-5 flex size-7 shrink-0 items-center justify-center rounded-full bg-[#1f2937] text-[9px] font-semibold tracking-wide text-white">
+                              AI
+                            </span>
                           ) : (
                             <span className="mb-5 flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--admin-blue)] text-[10px] font-semibold text-white">
                               MW
@@ -1138,7 +1262,9 @@ export default function AdminFeedbackPage() {
                                   ),
                                   item.group.author === "admin"
                                     ? "bg-[var(--admin-blue)] text-white"
-                                    : "bg-[#e9e9eb] text-[var(--admin-fg)]"
+                                    : item.group.author === "assist"
+                                      ? "border border-[#c7d2fe] bg-[#eef2ff] text-[var(--admin-fg)]"
+                                      : "bg-[#e9e9eb] text-[var(--admin-fg)]"
                                 )}
                               >
                                 {msg.imageUrl ? (
@@ -1160,7 +1286,7 @@ export default function AdminFeedbackPage() {
                                         "border-t border-black/10"
                                     )}
                                   >
-                                    {msg.body}
+                                    {linkifyAdminText(msg.body)}
                                   </div>
                                 ) : null}
                               </div>
@@ -1168,7 +1294,9 @@ export default function AdminFeedbackPage() {
                             <span className="px-1 text-[11px] text-[var(--admin-muted)]">
                               {item.group.author === "admin"
                                 ? "You"
-                                : selected.name?.trim() || "Customer"}
+                                : item.group.author === "assist"
+                                  ? "MacWall Assist"
+                                  : selected.name?.trim() || "Customer"}
                               {" · "}
                               {formatClockTime(
                                 item.group.messages.at(-1)!.createdAt
@@ -1178,6 +1306,23 @@ export default function AdminFeedbackPage() {
                         </div>
                       )
                     )}
+                    {selectedVisitorTyping ? (
+                      <div className="flex items-center gap-2 px-1 py-1 text-xs text-[var(--admin-muted)]">
+                        <span className="inline-flex items-center gap-1">
+                          {[0, 1, 2].map((i) => (
+                            <span
+                              key={i}
+                              className="size-1.5 animate-bounce rounded-full bg-[var(--admin-blue)]/70"
+                              style={{
+                                animationDelay: `${i * 0.14}s`,
+                                animationDuration: "0.7s",
+                              }}
+                            />
+                          ))}
+                        </span>
+                        Visitor is typing…
+                      </div>
+                    ) : null}
                     <div ref={endRef} className="h-1" />
                   </div>
                 </div>
@@ -1268,7 +1413,13 @@ export default function AdminFeedbackPage() {
                       <textarea
                         ref={composerRef}
                         value={draft}
-                        onChange={(event) => setDraft(event.target.value)}
+                        onChange={(event) => {
+                          const next = event.target.value
+                          setDraft(next)
+                          if (next.trim() && selected && !selected.isResolved) {
+                            signalAdminTyping()
+                          }
+                        }}
                         onKeyDown={onComposerKeyDown}
                         onPaste={(event) => {
                           const file = Array.from(

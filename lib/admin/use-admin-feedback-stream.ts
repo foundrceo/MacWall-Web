@@ -5,7 +5,13 @@ import { useEffect, useRef } from "react"
 type FeedbackStreamEvent =
   | { type: "connected" }
   | { type: "feedback" }
-  | { type: "message"; author?: string }
+  | { type: "message"; author?: string; feedbackId?: string }
+  | {
+      type: "typing"
+      ticketId: string
+      role: "user" | "admin"
+      at: number
+    }
   | { type: "offline" }
 
 export function useAdminFeedbackStream(
@@ -39,20 +45,40 @@ export function useAdminFeedbackStream(
 
       source.addEventListener("message", (event) => {
         let author: string | undefined
+        let feedbackId: string | undefined
         try {
           const payload = JSON.parse(event.data) as {
-            new?: { author?: string }
+            new?: { author?: string; feedback_id?: string }
           }
           author = payload.new?.author
+          feedbackId = payload.new?.feedback_id
         } catch {
           author = undefined
+          feedbackId = undefined
         }
-        callbackRef.current({ type: "message", author })
+        callbackRef.current({ type: "message", author, feedbackId })
       })
 
-      source.onopen = () => {
-        callbackRef.current({ type: "connected" })
-      }
+      source.addEventListener("typing", (event) => {
+        try {
+          const payload = JSON.parse(event.data) as {
+            ticketId?: string
+            role?: string
+            at?: number
+          }
+          if (!payload.ticketId || payload.role !== "user") return
+          callbackRef.current({
+            type: "typing",
+            ticketId: payload.ticketId,
+            role: "user",
+            at: typeof payload.at === "number" ? payload.at : Date.now(),
+          })
+        } catch {
+          /* ignore */
+        }
+      })
+
+      // Rely on the server “connected” event only — onopen + connected was a double fire.
 
       source.onerror = () => {
         source?.close()
