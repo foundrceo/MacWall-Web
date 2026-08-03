@@ -11,6 +11,9 @@ export const CHANGELOG_BLOCKED_PATTERN =
 const PLATFORM_PREFIX_PATTERN = /^(?:Mac app|Website)\s*—\s*/i
 const HTML_TAG_PATTERN = /<[^>]+>/g
 const BULLET_PREFIX_PATTERN = /^(?:[-*•–—]|\d+[.)])\s+/
+/** Section labels from MacWall `version.json` notes — not changelog bullets. */
+const SECTION_HEADER_PATTERN =
+  /^(?:#{1,3}\s*)?(?:\*\*)?(highlights?|what'?s new|new features|features|new|improvements?|polish|fixes?|bug fixes)(?:\*\*)?:?$/i
 const FEATURE_PATTERN =
   /\b(new|added|add|launch|introduce[sd]?|support for|now support|enable[sd]?)\b/i
 const FIX_PATTERN =
@@ -44,6 +47,7 @@ export function sanitizePublicChangelogItem(text: string): string | null {
     .trim()
 
   if (cleaned.length < 3) return null
+  if (SECTION_HEADER_PATTERN.test(cleaned)) return null
   if (CHANGELOG_BLOCKED_PATTERN.test(cleaned)) return null
   return cleaned
 }
