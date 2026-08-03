@@ -1,14 +1,14 @@
 # MacWall Web
 
-Marketing site and web platform for **[MacWall](https://macwall.app)** — a native macOS app for cinematic live 4K wallpapers.
+Marketing site and web platform for **[MacWall](https://macwall.app)** - a native macOS app for cinematic live 4K wallpapers.
 
 **Live site:** [https://macwall.app](https://macwall.app)
 
 Browse the catalog, download the Mac app, and unlock Pro with Stripe Checkout. After payment, the license opens the app via `macwall://activate`.
 
-You do not need this repo to use MacWall — clone it only if you want to run or contribute to the web stack.
+You do not need this repo to use MacWall - clone it only if you want to run or contribute to the web stack.
 
-![MacWall homepage — live 4K wallpapers hero](public/screenshots/homepage.png)
+![MacWall homepage - live 4K wallpapers hero](public/screenshots/homepage.png)
 
 ## What this repo does
 
@@ -60,7 +60,7 @@ npm run dev
 
 Copy `.env.example` to `.env` and fill in values from your deployment secrets store (Vercel project settings). **Never commit `.env` or real credentials.**
 
-Marketing pages can run with a partial env setup; checkout and license flows require Stripe and Supabase configuration. See `.env.example` for variable names only.
+marketing pages can run with a partial env setup; checkout and license flows require Stripe and Supabase configuration. See `.env.example` for variable names only.
 
 ```sh
 npm run lint
@@ -74,13 +74,13 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Route | Description |
 | --- | --- |
-| `/` | Homepage |
+| `/` | Home |
 | `/pricing` | Plans |
-| `/download` | Mac installer |
-| `/blog` | Blog |
-| `/submit` | Community wallpapers |
-| `/affiliate` | Affiliate program |
-| `/support` | Support |
+| `/download` | Mac install guide |
+| `/blog` | blog |
+| `/submit` | wallpapers |
+| `/affiliate` | affiliates |
+| `/support` | support |
 
 ## Download the Mac app
 
@@ -88,4 +88,4 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## License
 
-Proprietary — see [LICENSE](./LICENSE).
+Proprietary - see [LICENSE](./LICENSE).
