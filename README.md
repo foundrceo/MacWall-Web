@@ -1,50 +1,24 @@
-# MacWall Web
+# MacWall
 
-Website for **[MacWall](https://macwall.app)**, a native macOS app that brings live wallpapers to your desktop.
+Native **macOS** app for live wallpapers. This repo is the website behind [macwall.app](https://macwall.app) — marketing pages, download, pricing, Stripe checkout, and license activation.
 
-**Website:** https://macwall.app
+Mac only. Not iOS, Windows, or web-playable.
 
-This repository contains the website, pricing pages, checkout flow, licensing, blog, and a few other supporting pages.
-![MacWall homepage](public/screenshots/homepage.png)
+## Try it (reviewers)
 
-## Features
+1. Download from https://macwall.app/download
+2. Install and open the app
+3. Paste a license key when asked
 
-* Homepage
-* Pricing (Free, Pro, Pro+)
-* Stripe Checkout
-* License activation
-* Blog
-* Community wallpaper submissions
-* Affiliate pages
-* Support inbox UI
+The demo key is not listed in plain text. Decode it in a terminal:
 
-## Screenshots
+```sh
+echo TVctVjdOOC1SWUxKLUg5OVY= | base64 --decode
+```
 
-### Homepage
+That unlocks Pro for review. Please do not share it publicly.
 
-![MacWall homepage](public/screenshots/homepage.png)
-
-### Pricing
-
-![MacWall pricing](public/screenshots/pricing.png)
-
-### App Settings
-
-![MacWall settings](public/screenshots/settings.jpg)
-
-## Tech Stack
-
-| Technology               | Purpose                |
-| ------------------------ | ---------------------- |
-| Next.js (App Router)     | Website and API routes |
-| React + TypeScript       | Frontend               |
-| Stripe                   | Payments               |
-| Supabase                 | Backend and licensing  |
-| Vercel                   | Hosting                |
-| Tailwind CSS + shadcn/ui | UI                     |
-| Cloudflare R2            | Wallpaper storage      |
-
-## Local Development
+## Run the site locally
 
 ```sh
 git clone https://github.com/foundrceo/MacWall-Web.git
@@ -54,52 +28,12 @@ cp .env.example .env
 npm run dev
 ```
 
-Create a `.env` file from `.env.example`.
+Open http://localhost:3000. Checkout and licensing need real Stripe / Supabase keys in `.env`.
 
-Most of the website will run without much setup. To test checkout or licensing, you'll need valid Stripe and Supabase credentials.
+## Stack
 
-A few useful commands:
-
-```sh
-npm run lint
-npm run typecheck
-npm run build
-```
-
-The development server runs at:
-
-```
-http://localhost:3000
-```
-
-## Routes
-
-| Route        | Description       |
-| ------------ | ----------------- |
-| `/`          | Home              |
-| `/pricing`   | Pricing           |
-| `/download`  | Download page     |
-| `/blog`      | Blog              |
-| `/submit`    | Submit wallpapers |
-| `/affiliate` | Affiliate program |
-| `/support`   | Support           |
-
-## Project Structure
-
-```text
-app/            Next.js App Router (pages + API routes)
-components/     UI and marketing components
-lib/            Shared utilities
-public/         Static assets
-scripts/        Build helpers (changelog + blog thumbs)
-```
-
-Private backend (Supabase Edge Functions, DB migrations, ops scripts) lives outside this repo and is not published.
-
-## Download
-
-https://macwall.app/download
+Next.js, TypeScript, Tailwind, Stripe, Supabase, Vercel, Cloudflare R2.
 
 ## License
 
-This project is proprietary. See [LICENSE](./LICENSE) for details.
+Proprietary — see [LICENSE](./LICENSE). Source is here for review; do not redistribute.
