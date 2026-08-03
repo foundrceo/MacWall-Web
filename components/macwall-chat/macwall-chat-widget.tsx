@@ -60,6 +60,7 @@ import {
 import { useSupportTicketStream } from "@/lib/macwall-chat/use-support-ticket-stream"
 import { useSupportTypingEmitter } from "@/lib/macwall-chat/use-support-typing-emitter"
 import { isAllowedChatImage, uploadChatImage } from "@/lib/macwall-chat/upload"
+import { ChatAttachmentMedia } from "@/components/macwall-chat/chat-attachment-media"
 import { SupportTypingBubble } from "@/components/macwall-chat/support-typing-bubble"
 import { macwall } from "@/lib/macwall-site"
 import {
@@ -1990,33 +1991,32 @@ export function MacWallChatWidget() {
                         MacWall Support
                       </span>
                     ) : null}
+                    {/* Image = hero media; caption (if any) = its own bubble — iMessage-style. */}
                     <div
                       className={cn(
-                        "max-w-[88%] overflow-hidden rounded-[20px] font-sans text-[14px] leading-relaxed font-normal",
-                        isUser &&
-                          "rounded-br-md bg-white text-black shadow-[0_8px_24px_rgba(0,0,0,0.18)]",
-                        isFounder &&
-                          "rounded-bl-md border border-emerald-400/20 bg-emerald-400/10 text-white",
-                        isSystem &&
-                          "rounded-bl-md bg-amber-500/12 text-amber-50",
-                        m.role === "assist" &&
-                          "rounded-bl-md bg-white/[0.07] text-white/[0.94]"
+                        "flex max-w-[88%] flex-col gap-1.5",
+                        isUser ? "items-end" : "items-start"
                       )}
                     >
                       {hasImage ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <ChatAttachmentMedia
                           src={m.imageUrl!}
-                          alt="Attachment"
-                          className="max-h-52 w-full object-cover"
+                          tone="dark"
+                          maxWidth={248}
                         />
                       ) : null}
                       {hasRealText ? (
                         <div
                           className={cn(
-                            "px-3.5 py-2.5 whitespace-pre-wrap",
-                            isUser ? "text-black" : undefined,
-                            hasImage && "border-t border-black/5"
+                            "overflow-hidden rounded-[18px] px-3.5 py-2.5 font-sans text-[14px] leading-relaxed font-normal whitespace-pre-wrap",
+                            isUser &&
+                              "rounded-br-md bg-white text-black shadow-[0_8px_24px_rgba(0,0,0,0.18)]",
+                            isFounder &&
+                              "rounded-bl-md border border-emerald-400/20 bg-emerald-400/10 text-white",
+                            isSystem &&
+                              "rounded-bl-md bg-amber-500/12 text-amber-50",
+                            m.role === "assist" &&
+                              "rounded-bl-md bg-white/[0.07] text-white/[0.94]"
                           )}
                         >
                           {linkify(m.body, isUser ? "user" : "support")}
