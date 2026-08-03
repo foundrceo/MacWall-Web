@@ -20,6 +20,7 @@ export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
       {
         kind: "improvements",
         items: [
+          "MacWall Assist live support chat improvements.",
           "Remove copyrighted wallpaper from catalog.",
           "Update license.",
           "Cleanup site copy.",
