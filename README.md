@@ -4,8 +4,7 @@ Website for **[MacWall](https://macwall.app)**, a native macOS app that brings l
 
 **Website:** https://macwall.app
 
-This repository contains the website, pricing pages, checkout flow, licensing, blog, and a few other supporting pages. The macOS app itself is written in Swift and lives in a separate private repository.
-
+This repository contains the website, pricing pages, checkout flow, licensing, blog, and a few other supporting pages.
 ![MacWall homepage](public/screenshots/homepage.png)
 
 ## Features
