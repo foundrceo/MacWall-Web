@@ -78,8 +78,9 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
           external: true,
         },
         { label: "Crawler & AI policy", href: "/crawlers" },
-        { label: foot.legal.privacy, href: "/privacy" },
-        { label: foot.legal.terms, href: "/terms" },
+        { label: foot.legal.hub, href: "/legal" },
+        { label: foot.legal.privacy, href: "/legal/privacy" },
+        { label: foot.legal.terms, href: "/legal/terms" },
       ],
     },
   ]
@@ -101,8 +102,12 @@ export function getMarketingFooterLegalLinks(): readonly MarketingFooterLegalLin
   const foot = macwallMarketingCopy.footer
 
   return [
-    { label: foot.legal.privacy, href: "/privacy" },
-    { label: foot.legal.terms, href: "/terms" },
+    { label: foot.legal.hub, href: "/legal" },
+    { label: foot.legal.privacy, href: "/legal/privacy" },
+    { label: foot.legal.terms, href: "/legal/terms" },
+    { label: "DMCA", href: "/legal/dmca" },
+    { label: "Cookies", href: "/legal/cookies" },
+    { label: "Refunds", href: "/legal/refund" },
   ]
 }
 

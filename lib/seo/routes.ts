@@ -23,8 +23,17 @@ export function indexableMarketingPaths(): string[] {
     "/alternatives/macwall-vs-wallspace",
     "/alternatives/lively-wallpaper-mac",
     "/crawlers",
-    "/privacy",
-    "/terms",
+    "/legal",
+    "/legal/terms",
+    "/legal/privacy",
+    "/legal/cookies",
+    "/legal/refund",
+    "/legal/subprocessors",
+    "/legal/acceptable-use",
+    "/legal/dmca",
+    "/legal/gdpr",
+    "/legal/ccpa",
+    "/legal/security",
   ]
 
   const blogPaths = getAllBlogSlugs().map((slug) => `/blog/${slug}`)
