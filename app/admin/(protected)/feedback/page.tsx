@@ -61,6 +61,7 @@ import {
 } from "@/lib/admin/format"
 import { playAdminNotificationSound } from "@/lib/admin/notification-sound"
 import { useAdminFeedbackStream } from "@/lib/admin/use-admin-feedback-stream"
+import { ChatAttachmentMedia } from "@/components/macwall-chat/chat-attachment-media"
 import { useSupportTypingEmitter } from "@/lib/macwall-chat/use-support-typing-emitter"
 import { cn } from "@/lib/utils"
 
@@ -1250,47 +1251,56 @@ export default function AdminFeedbackPage() {
                                 : "items-start"
                             )}
                           >
-                            {item.group.messages.map((msg, index) => (
-                              <div
-                                key={msg.id}
-                                className={cn(
-                                  "overflow-hidden text-[15px] leading-snug",
-                                  bubbleShape(
-                                    item.group.author,
-                                    index,
-                                    item.group.messages.length
-                                  ),
-                                  item.group.author === "admin"
-                                    ? "bg-[var(--admin-blue)] text-white"
-                                    : item.group.author === "assist"
-                                      ? "border border-[#c7d2fe] bg-[#eef2ff] text-[var(--admin-fg)]"
-                                      : "bg-[#e9e9eb] text-[var(--admin-fg)]"
-                                )}
-                              >
-                                {msg.imageUrl ? (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={msg.imageUrl}
-                                    alt="Attachment"
-                                    className={cn(
-                                      "max-h-64 w-auto max-w-full object-cover",
-                                      msg.body.trim() ? "rounded-t-[inherit]" : ""
-                                    )}
-                                  />
-                                ) : null}
-                                {msg.body.trim() ? (
-                                  <div
-                                    className={cn(
-                                      "px-3.5 py-2 whitespace-pre-wrap",
-                                      msg.imageUrl &&
-                                        "border-t border-black/10"
-                                    )}
-                                  >
-                                    {linkifyAdminText(msg.body)}
-                                  </div>
-                                ) : null}
-                              </div>
-                            ))}
+                            {item.group.messages.map((msg, index) => {
+                              const caption = msg.body.trim()
+                              const isLegacyPhotoLabel =
+                                /^sent a (photo|image|img)$/i.test(caption)
+                              const hasRealText =
+                                Boolean(caption) &&
+                                caption !== " " &&
+                                !isLegacyPhotoLabel
+                              const hasImage = Boolean(msg.imageUrl?.trim())
+                              if (!hasImage && !hasRealText) return null
+
+                              return (
+                                <div
+                                  key={msg.id}
+                                  className={cn(
+                                    "flex flex-col gap-1.5",
+                                    item.group.author === "admin"
+                                      ? "items-end"
+                                      : "items-start"
+                                  )}
+                                >
+                                  {hasImage ? (
+                                    <ChatAttachmentMedia
+                                      src={msg.imageUrl!}
+                                      tone="light"
+                                      maxWidth={260}
+                                    />
+                                  ) : null}
+                                  {hasRealText ? (
+                                    <div
+                                      className={cn(
+                                        "overflow-hidden px-3.5 py-2 text-[15px] leading-snug whitespace-pre-wrap",
+                                        bubbleShape(
+                                          item.group.author,
+                                          index,
+                                          item.group.messages.length
+                                        ),
+                                        item.group.author === "admin"
+                                          ? "bg-[var(--admin-blue)] text-white"
+                                          : item.group.author === "assist"
+                                            ? "border border-[#c7d2fe] bg-[#eef2ff] text-[var(--admin-fg)]"
+                                            : "bg-[#e9e9eb] text-[var(--admin-fg)]"
+                                      )}
+                                    >
+                                      {linkifyAdminText(msg.body)}
+                                    </div>
+                                  ) : null}
+                                </div>
+                              )
+                            })}
                             <span className="px-1 text-[11px] text-[var(--admin-muted)]">
                               {item.group.author === "admin"
                                 ? "You"
