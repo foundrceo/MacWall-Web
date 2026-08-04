@@ -48,9 +48,7 @@ export function TrackedLink({
 }: TrackedLinkProps) {
   const isDownloadClick = eventName === "download_click"
   const isCheckoutClick = isCheckoutApiHref(href)
-  const checkoutOffer = isCheckoutClick
-    ? offerSlugFromCheckoutHref(href)
-    : null
+  const checkoutOffer = isCheckoutClick ? offerSlugFromCheckoutHref(href) : null
   const isExternalHref =
     external ||
     href.startsWith("http") ||
@@ -103,11 +101,18 @@ export function TrackedLink({
             window.location.assign(url)
             return
           }
-          // Session create failed — stay put; user can retry (no GET rate-limit burn).
+          // Session create failed — send user to pricing with a recoverable error.
+          // Never GET create-session (429 → worse UX).
           anchor.removeAttribute("aria-busy")
+          window.location.assign(
+            "/pricing?checkout_error=Could%20not%20start%20checkout.%20Please%20try%20again."
+          )
         })
         .catch(() => {
           anchor.removeAttribute("aria-busy")
+          window.location.assign(
+            "/pricing?checkout_error=Could%20not%20start%20checkout.%20Please%20try%20again."
+          )
         })
       return
     }

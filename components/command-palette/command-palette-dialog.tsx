@@ -30,12 +30,16 @@ import {
   Search01Icon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
-import {
-  KbdBadge,
-  KbdShortcut,
-} from "@/components/command-palette/kbd-badge"
+import { KbdBadge, KbdShortcut } from "@/components/command-palette/kbd-badge"
 import { useCommandPalette } from "@/components/command-palette/command-palette-provider"
 import { trackSiteEventClient } from "@/lib/analytics/client"
+import { markCheckoutStartedInSession } from "@/lib/analytics/retargeting"
+import { trackMetaInitiateCheckout } from "@/lib/analytics/meta-client"
+import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
+import {
+  offerSlugFromCheckoutHref,
+  waitForPrefetchedCheckoutUrl,
+} from "@/lib/checkout/prefetch-checkout"
 import {
   getCommandPaletteStaticItems,
   matchesCommandQuery,
@@ -142,7 +146,11 @@ function ItemIcon({ item }: Readonly<{ item: CommandPaletteItem }>) {
   }
 
   const icon =
-    item.kind === "page" ? File01Icon : item.external ? LinkSquare01Icon : Download01Icon
+    item.kind === "page"
+      ? File01Icon
+      : item.external
+        ? LinkSquare01Icon
+        : Download01Icon
 
   return (
     <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#2a2a2c] text-white/55 ring-1 ring-white/[0.08]">
@@ -180,9 +188,7 @@ function FilterTabs({
               onClick={() => onChange(filter.id)}
               className={cn(
                 "relative inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[11px] font-medium transition-colors",
-                selected
-                  ? "text-white/90"
-                  : "text-white/42 hover:text-white/62"
+                selected ? "text-white/90" : "text-white/42 hover:text-white/62"
               )}
             >
               {selected ? (
@@ -255,7 +261,7 @@ function ResultRow({
       >
         <ItemIcon item={item} />
         <span className="min-w-0 flex-1">
-          <span className="block truncate font-sans text-[13px] font-semibold leading-snug text-white/92">
+          <span className="block truncate font-sans text-[13px] leading-snug font-semibold text-white/92">
             {item.label}
           </span>
           {item.description ? (
@@ -265,7 +271,7 @@ function ResultRow({
           ) : null}
         </span>
         {item.kind === "wallpaper" && item.wallpaper.isPro ? (
-          <span className="shrink-0 rounded-full bg-white/[0.08] px-1.5 py-0.5 font-sans text-[9px] font-medium uppercase tracking-wide text-white/50">
+          <span className="shrink-0 rounded-full bg-white/[0.08] px-1.5 py-0.5 font-sans text-[9px] font-medium tracking-wide text-white/50 uppercase">
             Pro
           </span>
         ) : null}
@@ -349,7 +355,9 @@ function CommandPaletteDialogContent({
           signal: controller.signal,
         })
         if (!response.ok) return
-        const data = (await response.json()) as { wallpapers?: PublicWallpaper[] }
+        const data = (await response.json()) as {
+          wallpapers?: PublicWallpaper[]
+        }
         setWallpapers(data.wallpapers ?? [])
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") return
@@ -365,8 +373,7 @@ function CommandPaletteDialogContent({
   }, [query])
 
   const filteredStaticPages = useMemo(
-    () =>
-      staticItems.pages.filter((item) => matchesCommandQuery(item, query)),
+    () => staticItems.pages.filter((item) => matchesCommandQuery(item, query)),
     [query, staticItems.pages]
   )
 
@@ -431,9 +438,7 @@ function CommandPaletteDialogContent({
   )
 
   const activeIndex =
-    flatItems.length === 0
-      ? 0
-      : Math.min(selectedIndex, flatItems.length - 1)
+    flatItems.length === 0 ? 0 : Math.min(selectedIndex, flatItems.length - 1)
 
   const activeOptionId =
     flatItems.length > 0
@@ -462,6 +467,30 @@ function CommandPaletteDialogContent({
 
         if (staticItem.href.startsWith("mailto:")) {
           window.location.href = staticItem.href
+          return
+        }
+
+        // Same POST → Stripe URL path as TrackedLink (never router.push the API route).
+        const checkoutOffer = offerSlugFromCheckoutHref(staticItem.href)
+        if (checkoutOffer) {
+          markCheckoutStartedInSession()
+          trackMetaInitiateCheckout()
+          void trackTikTokInitiateCheckoutWithIdentify()
+          void waitForPrefetchedCheckoutUrl(checkoutOffer)
+            .then((url) => {
+              if (url?.startsWith("https://")) {
+                window.location.assign(url)
+                return
+              }
+              window.location.assign(
+                "/pricing?checkout_error=Could%20not%20start%20checkout.%20Please%20try%20again."
+              )
+            })
+            .catch(() => {
+              window.location.assign(
+                "/pricing?checkout_error=Could%20not%20start%20checkout.%20Please%20try%20again."
+              )
+            })
           return
         }
       }
@@ -532,7 +561,7 @@ function CommandPaletteDialogContent({
       style={{ WebkitBackdropFilter: "blur(32px) saturate(1.15)" }}
     >
       {/* Search row */}
-      <div className={cn(PALETTE.px, "pb-2.5 pt-4")}>
+      <div className={cn(PALETTE.px, "pt-4 pb-2.5")}>
         <div className="flex items-center gap-3">
           <HugeiconsIcon
             icon={Search01Icon}
@@ -580,11 +609,7 @@ function CommandPaletteDialogContent({
         {flatItems.length === 0 && !wallpapersLoading ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
             <span className="inline-flex size-9 items-center justify-center rounded-lg bg-[#2a2a2c] text-white/48 ring-1 ring-white/[0.08]">
-              <HugeiconsIcon
-                icon={Image01Icon}
-                size={17}
-                strokeWidth={1.75}
-              />
+              <HugeiconsIcon icon={Image01Icon} size={17} strokeWidth={1.75} />
             </span>
             <p className="font-sans text-[13px] font-semibold text-white/82">
               No results found
@@ -602,8 +627,8 @@ function CommandPaletteDialogContent({
           >
             {sections.map((section) => (
               <section key={section.id} aria-label={section.title}>
-                <div className="flex items-center gap-2 pb-1 pt-0.5 first:pt-0">
-                  <h3 className="font-sans text-[10px] font-semibold uppercase tracking-[0.06em] text-white/38">
+                <div className="flex items-center gap-2 pt-0.5 pb-1 first:pt-0">
+                  <h3 className="font-sans text-[10px] font-semibold tracking-[0.06em] text-white/38 uppercase">
                     {section.title}
                   </h3>
                   {section.id === "wallpapers" && wallpapersLoading ? (

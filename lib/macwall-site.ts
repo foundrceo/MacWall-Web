@@ -1,14 +1,16 @@
 /** Mirrors public brand strings from MacWall macOS app (`AppBrand` in Theme.swift). */
 
 /** Server route — creates a Stripe session and redirects straight to Stripe Checkout. */
-export const macwallCheckoutPath = "/api/checkout/create-session" as const
+export const macwallCheckoutPath =
+  "/api/checkout/create-session?offer=permanent" as const
 
-/** POST/GET endpoint that creates a Stripe Checkout Session. */
-export const macwallCheckoutApiPath = "/api/checkout/create-session" as const
+/** POST/GET endpoint that creates a Stripe Checkout Session (permanent Pro). */
+export const macwallCheckoutApiPath = macwallCheckoutPath
 
 /**
  * Stripe checkout entry for in-browser CTAs (same path as `MacWallPaidCheckoutURL` in the Mac app,
  * but relative so localhost / preview hosts stay on the current origin).
+ * Always includes `offer=permanent` so TrackedLink / palette resolve the correct SKU.
  * Optional override: `NEXT_PUBLIC_MACWALL_PRO_CHECKOUT_URL` for a fixed absolute URL.
  */
 const proCheckoutFromEnv =

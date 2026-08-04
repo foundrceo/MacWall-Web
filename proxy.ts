@@ -72,6 +72,12 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   if (pathname === "/checkout") {
     const redirect = request.nextUrl.clone()
     redirect.pathname = "/api/checkout/create-session"
+    if (
+      !redirect.searchParams.has("offer") &&
+      !redirect.searchParams.has("plan")
+    ) {
+      redirect.searchParams.set("offer", "permanent")
+    }
     return withGeoCookies(NextResponse.redirect(redirect, 308))
   }
 
