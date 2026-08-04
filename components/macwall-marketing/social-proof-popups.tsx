@@ -57,6 +57,11 @@ function isChatOpen(): boolean {
   return document.documentElement.dataset.macwallChatOpen === "true"
 }
 
+function isPurchaseBannerOpen(): boolean {
+  if (typeof document === "undefined") return false
+  return document.documentElement.dataset.macwallPurchaseBannerOpen === "true"
+}
+
 export function SocialProofPopups() {
   const pathname = usePathname()
   const reduceMotion = useReducedMotion()
@@ -67,6 +72,9 @@ export function SocialProofPopups() {
     readSessionFlag(PURCHASE_COMPLETE_KEY)
   )
   const [chatOpen, setChatOpen] = useState(isChatOpen)
+  const [purchaseBannerOpen, setPurchaseBannerOpen] = useState(
+    isPurchaseBannerOpen
+  )
   const [pageVisible, setPageVisible] = useState(() =>
     typeof document === "undefined" ? true : !document.hidden
   )
@@ -82,12 +90,19 @@ export function SocialProofPopups() {
     pathname?.startsWith(prefix)
   )
 
-  // The chat panel expands over this corner — yield to it while it's open.
+  // Yield to chat + wallpaper purchase banner while either is open.
   useEffect(() => {
-    const observer = new MutationObserver(() => setChatOpen(isChatOpen()))
+    const sync = () => {
+      setChatOpen(isChatOpen())
+      setPurchaseBannerOpen(isPurchaseBannerOpen())
+    }
+    const observer = new MutationObserver(sync)
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ["data-macwall-chat-open"],
+      attributeFilter: [
+        "data-macwall-chat-open",
+        "data-macwall-purchase-banner-open",
+      ],
     })
     return () => observer.disconnect()
   }, [])
@@ -185,7 +200,7 @@ export function SocialProofPopups() {
     const step = () => {
       if (cancelled) return
 
-      if (isChatOpen()) {
+      if (isChatOpen() || isPurchaseBannerOpen()) {
         schedule(HIDDEN_RETRY_MS)
         return
       }
@@ -252,7 +267,8 @@ export function SocialProofPopups() {
     setStack([])
   }, [])
 
-  const visible = enabled && !chatOpen && stack.length > 0
+  const visible =
+    enabled && !chatOpen && !purchaseBannerOpen && stack.length > 0
 
   return (
     <div
