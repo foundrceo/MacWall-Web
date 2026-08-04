@@ -3,15 +3,11 @@ function isSafeMetaPixelId(value: string): boolean {
   return /^[0-9]{5,30}$/.test(value)
 }
 
-/** Production dataset from Events Manager (macwall). Overridable via env. */
-const META_PIXEL_ID_FALLBACK = "1429593925675330" as const
-
+/** Resolve from env only — never bake IDs into the open-source tree. */
 export function resolveMetaPixelId(): string | undefined {
-  const raw = process.env.NEXT_PUBLIC_META_PIXEL_ID
-  const pixelId =
-    raw === undefined ? META_PIXEL_ID_FALLBACK : raw.trim()
-
-  return isSafeMetaPixelId(pixelId) ? pixelId : undefined
+  const raw = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim()
+  if (raw && isSafeMetaPixelId(raw)) return raw
+  return undefined
 }
 
 export function resolveMetaCapiAccessToken(): string | undefined {
