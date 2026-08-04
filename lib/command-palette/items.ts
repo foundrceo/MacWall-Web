@@ -81,7 +81,7 @@ export function getCommandPaletteStaticItems(): {
     page("page-changelog", "Changelog", "/changelog", {
       keywords: ["release notes", "updates", "history", "github"],
     }),
-    page("page-creator", "Creator Offer", "/creator", {
+    page("page-creator", "Creator Solution", "/creator", {
       keywords: ["reel", "refund", "video", "tiktok", "instagram", "creator"],
     }),
     page("page-download", "Download", "/download", {
@@ -112,24 +112,24 @@ export function getCommandPaletteStaticItems(): {
       analyticsEvent: "download_click",
       analyticsLocation: "command_palette",
     }),
-    action("action-buy-pro", "Buy MacWall Pro", macwallProCheckoutURL, {
-      description: `${macwall.pro.price} permanent license`,
-      keywords: ["checkout", "license", "upgrade", "pro"],
+    action("action-buy-pro", "Unlock MacWall Pro", macwallProCheckoutURL, {
+      description: `${macwall.pro.price} permanent investment`,
+      keywords: ["checkout", "license", "upgrade", "pro", "invest"],
       analyticsEvent: "checkout_started",
       analyticsLocation: "command_palette",
     }),
     action("action-discord", ho.links.discord.label, macwall.discordInvite, {
       description: ho.links.discord.title,
-      keywords: ["community", "chat", "social"],
+      keywords: ["community", "chat", "social", "discussion"],
       external: true,
     }),
-    action("action-support-chat", "Live Support", SUPPORT_CHAT_HREF, {
-      description: "Chat with the MacWall team",
-      keywords: ["help", "support", "chat"],
+    action("action-support-chat", "Live Assistance", SUPPORT_CHAT_HREF, {
+      description: "Start a discussion with the MacWall team",
+      keywords: ["help", "support", "chat", "guidance", "assistance"],
     }),
-    action("action-email", "Email Support", mailtoSupport, {
+    action("action-email", "Email for Guidance", mailtoSupport, {
       description: macwall.supportEmail,
-      keywords: ["contact", "mail", "help"],
+      keywords: ["contact", "mail", "help", "guidance"],
       external: true,
     }),
   ]

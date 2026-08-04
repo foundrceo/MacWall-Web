@@ -78,11 +78,13 @@ const COLUMNS_WITH_CHAT = `${BASE_COLUMNS},chat_id`
 /** Cached after first probe so we don't keep selecting a missing column. */
 let chatIdColumnAvailable: boolean | null = null
 
-function isMissingChatIdColumnError(error: {
-  message?: string
-  code?: string
-  details?: string | null
-} | null): boolean {
+function isMissingChatIdColumnError(
+  error: {
+    message?: string
+    code?: string
+    details?: string | null
+  } | null
+): boolean {
   if (!error) return false
   const hay = [error.message, error.details, error.code]
     .filter(Boolean)
@@ -98,7 +100,10 @@ function isMissingChatIdColumnError(error: {
 async function selectFeedbackRows(
   buildQuery: (
     columns: string
-  ) => PromiseLike<{ data: unknown; error: { message?: string; code?: string; details?: string | null } | null }>
+  ) => PromiseLike<{
+    data: unknown
+    error: { message?: string; code?: string; details?: string | null } | null
+  }>
 ): Promise<FeedbackRowWithChat[]> {
   const preferChat =
     chatIdColumnAvailable === null ? true : chatIdColumnAvailable
@@ -237,32 +242,45 @@ export async function listAppFeedback(
 
 export async function getFeedbackTotals(): Promise<FeedbackTotals> {
   const supabase = getSupabaseAdmin()
-  const { data, error } = await supabase
-    .from("app_feedback")
-    .select("sentiment,is_resolved,needs_admin_reply")
-    .limit(5000)
 
-  if (error) throw new Error(error.message)
-
-  const rows = (data ?? []) as Array<
-    Pick<FeedbackRow, "sentiment" | "is_resolved" | "needs_admin_reply">
-  >
-  const totals: FeedbackTotals = {
-    total: rows.length,
-    like: 0,
-    dislike: 0,
-    neutral: 0,
-    unresolved: 0,
-    awaitingReply: 0,
-  }
-  for (const row of rows) {
-    if (row.sentiment in totals) {
-      totals[row.sentiment] += 1
+  const headCount = async (filters?: {
+    sentiment?: FeedbackRow["sentiment"]
+    isResolved?: boolean
+    needsAdminReply?: boolean
+  }): Promise<number> => {
+    let query = supabase
+      .from("app_feedback")
+      .select("id", { count: "exact", head: true })
+    if (filters?.sentiment) query = query.eq("sentiment", filters.sentiment)
+    if (typeof filters?.isResolved === "boolean") {
+      query = query.eq("is_resolved", filters.isResolved)
     }
-    if (!row.is_resolved) totals.unresolved += 1
-    if (row.needs_admin_reply) totals.awaitingReply += 1
+    if (typeof filters?.needsAdminReply === "boolean") {
+      query = query.eq("needs_admin_reply", filters.needsAdminReply)
+    }
+    const { count, error } = await query
+    if (error) throw new Error(error.message)
+    return count ?? 0
   }
-  return totals
+
+  const [total, like, dislike, neutral, unresolved, awaitingReply] =
+    await Promise.all([
+      headCount(),
+      headCount({ sentiment: "like" }),
+      headCount({ sentiment: "dislike" }),
+      headCount({ sentiment: "neutral" }),
+      headCount({ isResolved: false }),
+      headCount({ needsAdminReply: true }),
+    ])
+
+  return {
+    total,
+    like,
+    dislike,
+    neutral,
+    unresolved,
+    awaitingReply,
+  }
 }
 
 export async function replyToFeedback(

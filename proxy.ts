@@ -19,22 +19,27 @@ import {
   DATAFAST_WEBSITE_ID,
 } from "@/lib/macwall-datafast"
 
+/** Cheap bot UA hint — skip AI-crawl work for normal browsers. */
+function looksLikeAiCrawler(userAgent: string | null): boolean {
+  if (!userAgent) return false
+  return /bot|crawler|spider|gpt|claude|anthropic|perplexity|gemini|bingpreview|slurp|duckduck|bytespider|facebookexternalhit|linkedinbot|twitterbot|applebot|semrush|ahrefs|mj12|yandex/i.test(
+    userAgent
+  )
+}
+
 /**
  * Edge proxy — keep this matcher tiny. Every match burns Edge Middleware
  * invocations. Geo/pricing cookies only need to land on checkout + pricing
- * surfaces; admin auth is the other required path. Everything else (gallery
- * APIs, analytics, feeds, static SEO twins) bypasses Edge entirely.
+ * surfaces; admin auth is the other required path. Gallery/blog HTML no longer
+ * runs Edge (saves the bulk of document hits).
  */
 export async function proxy(request: NextRequest, event: NextFetchEvent) {
   const { pathname } = request.nextUrl
 
-  // AI-crawl tracking only on document landings — not APIs/admin (saves Edge CPU).
+  // AI-crawl tracking only when UA looks like a bot on document landings.
   if (
-    pathname === "/" ||
-    pathname === "/pricing" ||
-    pathname === "/wallpapers" ||
-    pathname.startsWith("/blog") ||
-    pathname.startsWith("/wallpaper/")
+    (pathname === "/" || pathname === "/pricing") &&
+    looksLikeAiCrawler(request.headers.get("user-agent"))
   ) {
     const botAuthToken = process.env[DATAFAST_BOT_TOKEN_ENV]?.trim()
     trackAICrawlerRequest(request, event, {
@@ -130,10 +135,6 @@ export const config = {
     "/thank-you",
     "/download",
     "/tiktok",
-    "/blog",
-    "/blog/:path*",
-    "/wallpapers",
-    "/wallpaper/:path*",
     "/admin",
     "/admin/:path*",
     "/api/admin",

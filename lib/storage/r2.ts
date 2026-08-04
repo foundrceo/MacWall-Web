@@ -10,6 +10,10 @@ import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
  * Holds the R2 access keys (server-only). Used to mint presigned PUT/GET URLs
  * for uploads/reviews and to delete objects. Public reads are served directly
  * from the R2 public base URL (see `lib/env/catalog-storage.ts`).
+ *
+ * Ops (Cloudflare dashboard): enable Smart Tiered Cache on the zone that fronts
+ * `cdn.macwall.app` to cut R2 egress — catalog uploads already set long immutable
+ * Cache-Control.
  */
 
 const DEFAULT_BUCKET = "wallpaper-catalog"

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+import { after, NextResponse } from "next/server"
 
 import { trackSiteEvent } from "@/lib/analytics/track-server"
 import { MACWALL_DEFAULT_INSTALLER_REDIRECT_URL } from "@/lib/macwall-installer-url"
@@ -67,14 +67,19 @@ export async function GET(request: Request) {
         ? querySessionId
         : await visitorFingerprint(request)
 
-    await trackSiteEvent({
-      eventName: "download_redirect",
-      path: "/download/latest",
-      referrer: request.headers.get("referer"),
-      userAgent: request.headers.get("user-agent"),
-      sessionId,
-      metadata: { destination: target.hostname },
-    })
+    const referrer = request.headers.get("referer")
+    const userAgent = request.headers.get("user-agent")
+    // Don't block the 302 on Supabase analytics — cuts TTFB + Function duration.
+    after(() =>
+      trackSiteEvent({
+        eventName: "download_redirect",
+        path: "/download/latest",
+        referrer,
+        userAgent,
+        sessionId,
+        metadata: { destination: target.hostname },
+      })
+    )
 
     return NextResponse.redirect(target, 302)
   } catch {

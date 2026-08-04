@@ -47,7 +47,7 @@ export default function HeroSection() {
 
         <div className="border-t border-border/60 py-12 md:py-16 lg:py-20">
           <p className="mb-6 text-center text-[14px] text-marketing-muted sm:mb-8 sm:text-[15px]">
-            Curated across every genre
+            Curated craftsmanship across every genre
           </p>
           <ul className="grid w-full grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3 lg:grid-cols-8">
             {catalogGenres.map((label) => (

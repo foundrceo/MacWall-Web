@@ -59,7 +59,7 @@ export default function HeroSectionActions() {
               "marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
             )}
           >
-            Get License
+            Unlock License
           </button>
         </div>
       </div>

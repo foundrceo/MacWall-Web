@@ -20,17 +20,20 @@ export const macwallMarketingCopy = {
   },
   hover: {
     exploreTitle: "Community & news",
-    supportEmailTitle: "Talk to us",
+    supportEmailTitle: "Request guidance",
     links: {
       discord: {
         label: "Discord server",
-        title: "Chat with other MacWall users",
+        title: "Join a discussion with other MacWall clients",
       },
-      supportMail: { label: macwall.supportEmail, title: "Email the team" },
+      supportMail: {
+        label: macwall.supportEmail,
+        title: "Email for assistance",
+      },
     },
   },
   ribbon: {
-    lineBeforeLink: `New: ${macwall.name} brings live Lock Screen and Screen Saver wallpapers to ${macwallLockScreenMacOSVersion}, working on the latest builds where other apps broke. Desktop wallpapers run on ${macwallMinimumMacOSVersion}+. `,
+    lineBeforeLink: `Innovative: ${macwall.name} brings live Lock Screen and Screen Saver wallpapers to ${macwallLockScreenMacOSVersion}, working on the latest builds where the market needs improvement. Desktop wallpapers run on ${macwallMinimumMacOSVersion}+. `,
     linkText: `Get ${macwall.name}`,
   },
   interact: {
@@ -46,13 +49,13 @@ export const macwallMarketingCopy = {
     menubarBrand: macwall.name,
     menubarStatus: "Runs in the menu bar",
     heroLead:
-      "Set a cinematic live wallpaper in one click, then forget it's there. Curated cloud catalog, your own clips, multi-display playback, and a battery that barely notices. Pay once, own it forever.",
-    paragraph1Lead: "Try it now",
+      "Set a cinematic live wallpaper in one click — seamless, effortless, streamlined. Curated cloud catalog, personalized clips, multi-display playback, and a battery that barely notices. One investment, own it forever.",
+    paragraph1Lead: "Experience it today",
     paragraph1Rest:
-      "This demo is the real app. Click any wallpaper to set it. That's the entire learning curve. Native macOS design with smooth, hardware-decoded video on every display.",
+      "This demo is the real app. Click any wallpaper to set it. That's the entire learning curve. Native macOS design with smooth, hardware-decoded video on every display — efficient craftsmanship.",
     paragraph2Lead: "Stays out of your way",
     paragraph2Rest:
-      "Control everything from the menu bar, import your own clips, and let it auto-pause on battery, full screen, or high CPU. Joined by 1,000+ Mac users, no account needed.",
+      "Control everything from the menu bar, import your own clips, and let it auto-pause on battery, full screen, or high CPU. Joined by 1,000+ Mac clients, no account required.",
   },
   appUi: {
     viewClipCta: "Play preview",
@@ -80,27 +83,27 @@ export const macwallMarketingCopy = {
     newBadge: "NEW",
   },
   pricing: {
-    buyCta: "Get Pro",
-    secondaryCta: "Earn 100% back",
-    priceLine: `${macwall.pro.price} limited offer. No subscription — and a Reel can earn 100% back.`,
+    buyCta: "Unlock Pro",
+    secondaryCta: "Generate 100% back",
+    priceLine: `${macwall.pro.price} exclusive opportunity. No subscription — and a Reel can generate 100% back.`,
   },
   gallery: {
     kicker: "Wallpapers",
     title: "Wallpapers you'll love",
-    lead: "A growing collection of cinematic live wallpapers, curated for quality and performance.",
+    lead: "A growing collection of cinematic live wallpapers, curated for craftsmanship and optimized performance.",
   },
   lockScreen: {
     kicker: "PRO",
     title: `Live Lock Screen & Screen Saver on ${macwallLockScreenMacOSVersion}`,
-    strong: `Bring real video motion to your Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion} and later, using Apple's own wallpaper system, with no extra installers or extensions.`,
-    rest: "Setup stays reversible: turn it off anytime from Settings and your previous look returns. On macOS 14–15, Pro still unlocks the full catalog and desktop motion.",
+    strong: `Bring real video motion to your Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion} and later, using Apple's own wallpaper system, with no extra installers or extensions — an established, professional experience.`,
+    rest: "Setup stays reversible: turn it off anytime from Settings and your previous look returns. On macOS 14–15, Pro still unlocks the complete catalog and desktop motion.",
     linkText: "Lock Screen requirements",
   },
   nativeMac: {
     title: "Built native for macOS — performance that stays invisible",
-    lead: "Swift and Metal-native, tuned from Intel through M5. MacWall stays fast, quiet, and battery-smart without getting in your way.",
+    lead: "Swift and Metal-native, tuned from Intel through M5. MacWall stays efficient, quiet, and battery-smart without getting in your way — powerful yet compact.",
     bullets: [
-      "Smooth on every Mac — from Intel to M5. Idle CPU, low memory footprint.",
+      "Smooth on every Mac — from Intel to M5. Idle CPU, low memory footprint. Massive catalog, lightweight runtime.",
       "Reduce Quality on Battery",
       "Pause When App is Fullscreen",
       "Pause on High CPU Usage",
@@ -155,7 +158,7 @@ export const macwallMarketingCopy = {
   },
   values: {
     title: "Feels like it belongs on macOS.",
-    lead: `${macwall.name} keeps motion in the background. Quick to launch, simple to pause, and respectful of focus. Import your own videos, browse the cloud catalog, and unlock Lock Screen clips with Pro.`,
+    lead: `${macwall.name} keeps motion in the background. Seamless to launch, streamlined to pause, and respectful of focus. Import your own videos, browse the cloud catalog, and unlock Lock Screen clips with Pro.`,
     cards: [
       {
         title: "Your files stay offline.",
@@ -163,30 +166,30 @@ export const macwallMarketingCopy = {
         accent: "violet",
       },
       {
-        title: "No ads. No subscription.",
-        body: "One Pro purchase unlocks the app. No banner ads and no monthly billing.",
+        title: "No campaigns. No subscription.",
+        body: "One Pro investment unlocks the app. No banner campaigns and no monthly billing — pure brand experience.",
         accent: "orange",
       },
       {
-        title: "Pay once. Or pay nothing.",
-        body: `${macwall.pro.price} limited offer unlocks everything — no monthly fee. Post a Reel and earn up to 100% back.`,
+        title: "Invest once. Or invest nothing.",
+        body: `${macwall.pro.price} exclusive opportunity unlocks everything — no monthly fee. Post a Reel and generate up to 100% back.`,
         accent: "teal",
       },
     ] as const,
   },
   underFooter: {
-    title: "Your desktop deserves better.",
-    body: `Download MacWall. Claim limited Pro for ${macwall.pro.price} — keep it forever, and one Reel can earn the whole thing back.`,
-    cta: "Get Pro",
+    title: "Your desktop deserves exceptional.",
+    body: `Download MacWall. Claim exclusive Pro for ${macwall.pro.price} — keep it forever, and one Reel can generate the whole investment back.`,
+    cta: "Unlock Pro",
   },
   footer: {
-    shopTitle: "Shop",
+    shopTitle: "Store",
     exploreTitle: "Explore",
     compareTitle: "Compare",
     categoriesTitle: "Wallpapers",
     connectTitle: "Connect",
     shop: {
-      buy: "Buy Pro",
+      buy: "Unlock Pro",
       pricing: "Pricing",
       download: "Download",
     },
@@ -209,10 +212,10 @@ export const macwallMarketingCopy = {
     },
     copyrightName: macwall.legalCompanyName,
     disclaimerBullets: [
-      `${macwall.name} Pro is a one-time permanent purchase or an annual plan — see Pricing for current options. Make a Reel to qualify for up to 100% back.`,
+      `${macwall.name} Pro is a one-time permanent investment or an annual program — see Pricing for current options. Build a Reel to qualify for up to 100% back.`,
       "A compatible Mac, recent builds, and network access are required for catalog sync, updates, and online license checks.",
-      `Pro features, Lock Screen motion, and catalog depth can differ by region and macOS version. Pro covers up to ${macwall.maxLicensedMacs} Macs; Pro Plus covers up to 5.`,
-      `Continued use of ${macwall.name} means you agree to the Terms of Service and Privacy Policy linked in the footer.`,
+      `Pro benefits, Lock Screen motion, and catalog depth can differ by region and macOS version. Pro covers up to ${macwall.maxLicensedMacs} Macs; Pro Plus covers up to 5.`,
+      `Continued use of ${macwall.name} means you agree to the Terms of Service and Privacy Policy linked in the footer — our agreement with you.`,
     ],
   },
 } as const

@@ -70,24 +70,24 @@ type Line = {
  */
 const MARKETING_LINES: readonly Line[] = [
   // Purchases (majority)
-  { kind: "purchase", text: "Someone just purchased MacWall Pro", emoji: "🔥" },
-  { kind: "purchase", text: "Someone just bought MacWall Pro", emoji: "✨" },
-  { kind: "purchase", text: "Someone just purchased lifetime Pro", emoji: "♾️" },
-  { kind: "purchase", text: "A new Pro purchase just landed", emoji: "🚀" },
+  { kind: "purchase", text: "Someone just invested in MacWall Pro", emoji: "🔥" },
+  { kind: "purchase", text: "Someone just unlocked MacWall Pro", emoji: "✨" },
+  { kind: "purchase", text: "Someone just claimed lifetime Pro", emoji: "♾️" },
+  { kind: "purchase", text: "A new Pro investment just landed", emoji: "🚀" },
   { kind: "purchase", text: "Someone just unlocked MacWall Pro", emoji: "🌊" },
   { kind: "purchase", text: "Someone just went Pro", emoji: "🔥" },
-  { kind: "purchase", text: "Someone just purchased the full catalog", emoji: "🎬" },
-  { kind: "purchase", text: "Another Pro purchase just came through", emoji: "⚡" },
-  { kind: "purchase", text: "Someone just bought lifetime access", emoji: "💫" },
-  { kind: "purchase", text: "Someone just purchased Pro for their Mac", emoji: "💻" },
+  { kind: "purchase", text: "Someone just unlocked the complete catalog", emoji: "🎬" },
+  { kind: "purchase", text: "Another Pro investment just came through", emoji: "⚡" },
+  { kind: "purchase", text: "Someone just claimed lifetime access", emoji: "💫" },
+  { kind: "purchase", text: "Someone just invested in Pro for their Mac", emoji: "💻" },
   { kind: "purchase", text: "Someone just picked MacWall Pro", emoji: "🌟" },
-  { kind: "purchase", text: "A Pro license was just purchased", emoji: "🔥" },
-  { kind: "purchase", text: "Someone just bought Pro — lifetime", emoji: "♾️" },
-  { kind: "purchase", text: "Someone just purchased MacWall", emoji: "✨" },
+  { kind: "purchase", text: "A Pro license was just claimed", emoji: "🔥" },
+  { kind: "purchase", text: "Someone just unlocked Pro — lifetime", emoji: "♾️" },
+  { kind: "purchase", text: "Someone just invested in MacWall", emoji: "✨" },
   { kind: "purchase", text: "Someone just unlocked every wallpaper", emoji: "🌌" },
-  { kind: "purchase", text: "Someone just purchased the 5-Mac pack", emoji: "🖥️" },
+  { kind: "purchase", text: "Someone just claimed the 5-Mac program", emoji: "🖥️" },
   { kind: "purchase", text: "Someone just went Pro on checkout", emoji: "🛒" },
-  { kind: "purchase", text: "Someone just bought MacWall Pro+", emoji: "⚡" },
+  { kind: "purchase", text: "Someone just unlocked MacWall Pro+", emoji: "⚡" },
   // Activations
   { kind: "activation", text: "Someone just activated MacWall Pro", emoji: "🚀" },
   { kind: "activation", text: "A license was just activated", emoji: "✨" },
@@ -98,25 +98,25 @@ const MARKETING_LINES: readonly Line[] = [
   { kind: "macbook", text: "Someone just set a live wallpaper on their MacBook", emoji: "💻" },
   { kind: "macbook", text: "Someone's MacBook lid just went cinematic", emoji: "🎬" },
   { kind: "macbook", text: "A MacBook just got a new live wallpaper", emoji: "🌊" },
-  { kind: "macbook", text: "Someone just changed their Mac desktop", emoji: "🖥️" },
+  { kind: "macbook", text: "Someone just elevated their Mac desktop", emoji: "🖥️" },
   { kind: "macbook", text: "Someone's MacBook just lit up with MacWall", emoji: "✨" },
   // Other urgency
-  { kind: "other", text: "Someone unlocked the full catalog", emoji: "🌌" },
+  { kind: "other", text: "Someone unlocked the complete catalog", emoji: "🌌" },
   { kind: "other", text: "Someone picked lifetime over a subscription", emoji: "♾️" },
   { kind: "other", text: "One more Mac running live wallpapers", emoji: "🌊" },
 ]
 
 const PRO_LINES: ReadonlyArray<{ text: string; emoji: string }> = [
-  { text: "Someone just purchased MacWall Pro", emoji: "🔥" },
+  { text: "Someone just invested in MacWall Pro", emoji: "🔥" },
   { text: "Someone just went Pro", emoji: "✨" },
-  { text: "Someone just unlocked the full catalog", emoji: "🌊" },
+  { text: "Someone just unlocked the complete catalog", emoji: "🌊" },
   { text: "A new Pro license was activated", emoji: "🚀" },
-  { text: "Someone just bought lifetime Pro", emoji: "♾️" },
+  { text: "Someone just claimed lifetime Pro", emoji: "♾️" },
 ]
 
 const PRO_PLUS_LINES: ReadonlyArray<{ text: string; emoji: string }> = [
-  { text: "Someone just purchased the 5-Mac pack", emoji: "💻" },
-  { text: "A 5-Mac Pro pack was just activated", emoji: "🖥️" },
+  { text: "Someone just claimed the 5-Mac program", emoji: "💻" },
+  { text: "A 5-Mac Pro program was just activated", emoji: "🖥️" },
   { text: "Someone just went Pro on every Mac they own", emoji: "⚡" },
 ]
 

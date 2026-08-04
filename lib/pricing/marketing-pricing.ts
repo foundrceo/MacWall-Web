@@ -205,23 +205,23 @@ export function buildMarketingPricingFromLocalized(
     salePrice: permanentPrice,
     fullPrice: permanentStrikePrice,
     suffix: "permanent",
-    getProCta: "Get Pro",
-    buyProCta: `Unlock Pro forever for ${permanentPrice}`,
-    buyProAria: `Buy a permanent ${macwall.name} Pro license for ${permanentPrice}`,
-    bannerHeadline: "Limited launch sale — lock in Pro pricing",
-    bannerSubline: "Limited sale is live — buy before it ends",
-    bannerCta: "Buy now 🔥",
+    getProCta: "Unlock Pro",
+    buyProCta: `Invest in Pro forever for ${permanentPrice}`,
+    buyProAria: `Invest in a permanent ${macwall.name} Pro license for ${permanentPrice}`,
+    bannerHeadline: "Exclusive launch opportunity — lock in elite Pro value",
+    bannerSubline: "Exclusive offer is live — invest today before it ends",
+    bannerCta: "Claim today 🔥",
     priceLine: india
-      ? `India Pro ${permanentPrice} (${permanentOffLabel} ${permanentStrikePrice}). No subscription.`
-      : `Limited Pro ${permanentPrice} (was ${permanentStrikePrice}). No subscription.`,
+      ? `India Pro ${permanentPrice} (${permanentOffLabel} ${permanentStrikePrice}). One investment — no subscription.`
+      : `Exclusive Pro ${permanentPrice} (was ${permanentStrikePrice}). One investment — no subscription.`,
     pricingHeroLead: india
-      ? `Claim Pro at the India price — or earn 100% back with a Reel.`
-      : `Claim Pro at the limited price — or earn 100% back with a Reel.`,
+      ? `Claim Pro at the India value today — or generate 100% back with a Reel.`
+      : `Claim Pro at the exclusive value today — or generate 100% back with a Reel.`,
     pricingPermanentDescription: india
-      ? `Pay ${permanentPrice} once (${permanentOffLabel} ${permanentStrikePrice}) and keep Pro forever, with updates included.`
-      : `Pay ${permanentPrice} once (was ${permanentStrikePrice}) and keep Pro forever, with updates included.`,
-    pricingAnnualDescription: `Legacy annual plans are no longer offered for new purchases. Choose the permanent ${permanentPrice} license instead.`,
-    bottomCtaLabel: "Get Pro",
+      ? `Invest ${permanentPrice} once (${permanentOffLabel} ${permanentStrikePrice}) and keep Pro forever, with updates included.`
+      : `Invest ${permanentPrice} once (was ${permanentStrikePrice}) and keep Pro forever, with updates included.`,
+    pricingAnnualDescription: `Legacy annual programs are no longer offered for new purchases. Choose the permanent ${permanentPrice} license instead.`,
+    bottomCtaLabel: "Unlock Pro",
     checkoutUrl: licenseOfferCheckoutPath("permanent"),
     annualCheckoutUrl: licenseOfferCheckoutPath("permanent"),
     multiMacOffers,

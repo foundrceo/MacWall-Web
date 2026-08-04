@@ -35,7 +35,7 @@ export function PricingTierCard({
   strikePrice,
   localPriceHint,
   features,
-  featuresPrefix = "Includes:",
+  featuresPrefix = "Benefits:",
   action,
   actionSlot,
   showActionSlot = false,

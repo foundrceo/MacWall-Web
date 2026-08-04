@@ -26,41 +26,41 @@ export const macwallPricingCopy = {
   plans: {
     pro: {
       title: "Pro",
-      subtitle: "Limited price — pay once",
+      subtitle: "Exclusive value — one-time investment",
       badge: "Most Popular",
-      badgeAlt: "33% off",
-      featuresPrefix: "Includes:",
-      ctaPermanent: "Get Pro",
-      ctaAnnual: "Start annual plan",
+      badgeAlt: "33% exclusive offer",
+      featuresPrefix: "Benefits:",
+      ctaPermanent: "Unlock Pro",
+      ctaAnnual: "Launch annual program",
     },
     proPlus: {
       title: "Pro+",
-      subtitle: "5–20 Macs — bigger packs, bigger discount",
-      badge: "40% off",
+      subtitle: "5–20 Macs — larger programs, exclusive offers",
+      badge: "40% exclusive offer",
       featuresPrefix: "Everything in Pro, plus:",
-      cta: "Get Pro+",
+      cta: "Unlock Pro+",
     },
     reel: {
-      title: "Creator Offer",
+      title: "Creator Solution",
       subtitle: "For creators who share their setup",
-      price: "Up to 100% back",
+      price: "Up to 100% resolution",
       featuresPrefix: "How it works:",
-      cta: "Learn about the offer",
+      cta: "Explore the solution",
     },
   },
 
-  heroTitle: "Pay once. Pro forever.",
-  heroLead: "Limited price. No subscriptions.",
+  heroTitle: "One investment. Pro forever.",
+  heroLead: "Premium value, exclusive today. No subscriptions.",
 
   reelRefund: {
-    badge: "Reel refund",
-    title: "Get 100% back",
+    badge: "Reel resolution",
+    title: "Generate 100% back",
     description:
-      "Make a Reel. Get views. We pay you back. Instagram or TikTok. Organic views only.",
+      "Build a Reel. Grow reach. We resolve your investment. Instagram or TikTok. Organic reach only.",
     steps: [
       {
         icon: "video" as const,
-        title: "Create your Reel",
+        title: "Build your Reel",
         body: `Film ${macwall.name} on your Mac — your setup, wallpaper, and vibe. Keep it short and natural.`,
       },
       {
@@ -71,31 +71,31 @@ export const macwallPricingCopy = {
       {
         icon: "views" as const,
         title: "Hit the milestones",
-        body: `${macwall.reelRefundHalfViews.toLocaleString()} views → 50% refund. ${macwall.reelRefundFullViews.toLocaleString()} views → full refund.`,
+        body: `${macwall.reelRefundHalfViews.toLocaleString()} reach → 50% resolution. ${macwall.reelRefundFullViews.toLocaleString()} reach → complete resolution.`,
       },
       {
         icon: "email" as const,
-        title: "Send your claim",
-        body: `Email ${macwall.reelRefundEmail} with your Reel link, view screenshot, and purchase email.`,
+        title: "Request your claim",
+        body: `Email ${macwall.reelRefundEmail} with your Reel link, reach screenshot, and purchase email.`,
       },
     ],
-    influencerTitle: "Bigger audience?",
+    influencerTitle: "Large-scale online presence?",
     finePrintLabel: "The fine print:",
     finePrint:
-      "Post as many times as you want until one Reel hits 2,000 organic views. No bots or paid promotion. We may verify views and decline suspicious claims. Refunds go to the original payment method. Offer can end anytime.",
-    cta: "Email for your refund",
+      "Post as many times as you want until one Reel hits 2,000 organic reach. No bots or paid campaigns. We may verify reach and decline suspicious claims. Resolutions go to the original secure payment method. Solution can end anytime.",
+    cta: "Email for your resolution",
     ctaHref: mailtoReelRefund,
   },
 
   pro: {
     features: [
-      "Cheaper than other wallpaper apps",
-      "More features than other apps",
+      "More affordable than other wallpaper apps",
+      "More benefits than other apps",
       "1,000+ live wallpapers",
       "Lock Screen & Screen Saver",
       "Import your own videos",
       "Up to 3 personal Macs",
-      "Pay once — no subscription",
+      "One investment — no subscription",
       "Lifetime updates",
       "Music Sync",
     ],
@@ -103,40 +103,40 @@ export const macwallPricingCopy = {
 
   proPlus: {
     features: [
-      "Cheaper than other wallpaper apps",
-      "More features than other apps",
+      "More affordable than other wallpaper apps",
+      "More benefits than other apps",
       "Everything in Pro",
       "Up to 5 Macs",
-      "Bigger packs unlock bigger discounts",
-      "Same Pro features forever",
+      "Larger programs unlock exclusive offers",
+      "Same Pro benefits forever",
     ],
   },
 
   multiMac: {
     title: "Got more than one Mac?",
-    lead: "Save more when you license multiple Macs. Same Pro features, more devices.",
+    lead: "Optimize your investment when you license multiple Macs. Same Pro benefits, more devices.",
     offerLabel: "5 Macs — Permanent",
-    cta: "Buy 5-Mac license",
+    cta: "Claim 5-Mac license",
   },
 
   faqTitle: "Common questions",
 
   faq: [
     {
-      q: "How does the Reel refund work?",
-      a: `Buy ${macwall.name} Pro, post on Instagram ${macwall.reelRefundInstagram} or TikTok ${macwall.reelRefundTiktok} with ${macwall.reelRefundHashtag}, then email ${macwall.reelRefundEmail} once you hit ${macwall.reelRefundHalfViews.toLocaleString()} views for 50% back or ${macwall.reelRefundFullViews.toLocaleString()} views for a full refund.`,
+      q: "How does the Reel resolution work?",
+      a: `Invest in ${macwall.name} Pro, post on Instagram ${macwall.reelRefundInstagram} or TikTok ${macwall.reelRefundTiktok} with ${macwall.reelRefundHashtag}, then email ${macwall.reelRefundEmail} once you hit ${macwall.reelRefundHalfViews.toLocaleString()} reach for 50% back or ${macwall.reelRefundFullViews.toLocaleString()} reach for a complete resolution.`,
     },
     {
       q: "Is Pro a subscription?",
-      a: "No. MacWall Pro is a one-time purchase. Pay once and keep the app forever, including lifetime updates. No recurring fees.",
+      a: "No. MacWall Pro is a one-time investment. Pay once and keep the app forever, including lifetime updates. No recurring fees.",
     },
     {
-      q: "Can I try before upgrading?",
-      a: "Yes. Download MacWall free and apply curated free wallpapers with full desktop playback. Upgrade to Pro whenever you want the full catalog, custom imports, and Lock Screen.",
+      q: "Can I experience it before elevating to Pro?",
+      a: "Yes. Download MacWall complimentary and apply curated complimentary wallpapers with full desktop playback. Elevate to Pro whenever you want the complete catalog, personalized imports, and Lock Screen.",
     },
     {
-      q: "How does checkout work?",
-      a: "Checkout runs on Stripe. After payment, your license details are delivered to the email you used. Keep that message for reinstalls or device changes.",
+      q: "How does secure payment work?",
+      a: "Checkout runs on Stripe with secure payment. After authorization, your license details are delivered to the email you used. Keep that message for reinstalls or device changes. A billing statement arrives from Stripe.",
     },
     {
       q: "How many Macs can I use with one license?",
@@ -147,12 +147,12 @@ export const macwallPricingCopy = {
       a: `Live Lock Screen and Screen Saver wallpapers require ${macwallLockScreenMacOSVersion} or later, where Apple exposes the native wallpaper APIs. Desktop live wallpapers work on ${macwallMinimumMacOSVersion}+.`,
     },
     {
-      q: "Can I get a refund without making a Reel?",
-      a: `There is no general refund policy: all sales are final. In limited cases (for example, a billing error or the app not running on a supported macOS version) we may issue a refund at our discretion. Email ${macwall.supportEmail} and we'll review it. The Reel program is separate: email ${macwall.reelRefundEmail} with your post link and purchase email after you hit the view targets.`,
+      q: "Can I get a resolution without making a Reel?",
+      a: `There is no general refund policy: all sales are final. In limited cases (for example, a billing concern or the app not running on a supported macOS version) we may issue a resolution at our discretion. Email ${macwall.supportEmail} and we'll review it. The Reel program is separate: email ${macwall.reelRefundEmail} with your post link and purchase email after you hit the reach goals.`,
     },
     {
-      q: "Where do I get help?",
-      a: `Email ${macwall.supportEmail} with your macOS version, Mac model, and a short screen recording if something looks wrong. We read every message.`,
+      q: "Where do I get guidance?",
+      a: `Email ${macwall.supportEmail} for assistance with your macOS version, Mac model, and a short screen recording if something looks wrong. We read every message. Priority concerns get a consultation shortly.`,
     },
     {
       q: "Which macOS releases are supported?",
@@ -160,36 +160,38 @@ export const macwallPricingCopy = {
     },
   ] as const,
 
-  bottomTitle: `Try ${macwall.name}`,
-  bottomDesc: `Claim the limited Pro price — or make a Reel and earn up to 100% back.`,
-  bottomCtaPro: "Get Pro",
-  bottomCtaReel: "Creator offer",
+  bottomTitle: `Experience ${macwall.name}`,
+  bottomDesc: `Claim the exclusive Pro value today — or build a Reel and generate up to 100% back.`,
+  bottomCtaPro: "Unlock Pro",
+  bottomCtaReel: "Creator solution",
 
-  socialProofLine: "Joined by 3,000+ happy users",
+  socialProofLine: "Joined by 3,000+ satisfied clients",
   socialProofRating: 5,
 
   trust: {
-    checkoutLabel: "Secure checkout",
-    checkoutDetail: "Powered by Stripe · SSL encrypted",
+    checkoutLabel: "Secure payment",
+    checkoutDetail: "Powered by Stripe · SSL encrypted · peace of mind",
     deliveryLabel: "Instant delivery",
     deliveryDetail: "License key emailed in seconds",
-    guaranteeLabel: "7-day money-back guarantee",
-    guaranteeDetail: "Not satisfied? Email us within 7 days for a full refund.",
+    guaranteeLabel: "7-day money-back assurance",
+    guaranteeDetail:
+      "Not satisfied? Email us within 7 days for a complete resolution — peace of mind.",
     guaranteeHref: "/legal/refund",
-    noSubLabel: "Pay once",
+    noSubLabel: "One investment",
     noSubDetail: "No subscription · Lifetime updates",
-    tryFreeLabel: "Try before you buy",
-    tryFreeDetail: "Download free — upgrade when ready",
+    tryFreeLabel: "Experience before you invest",
+    tryFreeDetail: "Complimentary download — elevate when ready",
     tryFreeHref: "/download",
   },
 
   reviews: {
-    title: "What Mac users are saying",
-    subtitle: "MacWall Pro users on Apple Silicon and Intel Macs.",
+    title: "What Mac clients are saying",
+    subtitle:
+      "MacWall Pro clients on Apple Silicon and Intel Macs — exceptional craftsmanship, world-class outcomes.",
     items: [
       {
         quote:
-          "Battery finally stays normal with a 4K loop running. I set it once and basically forget it's there.",
+          "Battery finally stays professional with a 4K loop running. I set it once and basically forget it's there — seamless and effortless.",
         name: "James",
         context: "MacBook Pro M3 · Seattle",
         rating: 5,
@@ -198,7 +200,7 @@ export const macwallPricingCopy = {
       },
       {
         quote:
-          "Lock Screen video on Tahoe sold me. One payment, no subscription emails — that's it.",
+          "Lock Screen video on Tahoe sold me. One investment, no subscription emails — outstanding credibility.",
         name: "Priya",
         context: "MacBook Air M2 · London",
         rating: 5,
@@ -207,7 +209,7 @@ export const macwallPricingCopy = {
       },
       {
         quote:
-          "Threw my own drone clips in 4K on an ultrawide. Pauses when I'm full-screen — exactly what I needed.",
+          "Threw my own drone clips in 4K on an ultrawide. Pauses when I'm full-screen — a tailored solution, exactly what I required.",
         name: "Alex",
         context: "Mac Studio · Toronto",
         rating: 5,
@@ -216,7 +218,7 @@ export const macwallPricingCopy = {
       },
       {
         quote:
-          "Took maybe 30 seconds to set up. My desk-setup posts look way better with the wallpaper actually moving.",
+          "Took maybe 30 seconds to launch. My desk-setup posts look way better with the wallpaper actually moving — high-reach engagement.",
         name: "Sofia",
         context: "MacBook Pro M4 · Barcelona",
         rating: 5,
@@ -225,7 +227,7 @@ export const macwallPricingCopy = {
       },
       {
         quote:
-          "Cheaper than the other Mac wallpaper apps I tried, and I actually own it. Catalog's solid too.",
+          "More affordable than the other Mac wallpaper apps I experienced, and I actually own it. Catalog's solid too — unique advantage in this market.",
         name: "Marcus",
         context: "iMac M1 · Atlanta",
         rating: 5,
@@ -234,7 +236,7 @@ export const macwallPricingCopy = {
       },
       {
         quote:
-          "CPU barely moves. Tried three apps before this — MacWall is the only one still on my Mac mini.",
+          "CPU barely moves. Experienced three apps before this — MacWall is the most effective one still on my Mac mini. Compact footprint, powerful playback.",
         name: "Daniel",
         context: "Mac mini M2 · Berlin",
         rating: 5,

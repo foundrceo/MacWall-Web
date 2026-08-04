@@ -32,7 +32,7 @@ export default function MacWallMarketingBottomCta() {
     <section className="marketing-section-elevated border-t border-border/60 bg-background">
       <div className="marketing-container text-center">
         <h2 className="text-[clamp(1.875rem,5vw,2.75rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
-          Try {macwall.name}.
+          Experience {macwall.name}.
         </h2>
         <div className="mt-8 sm:mt-10">
           <div className="flex flex-wrap items-start justify-center gap-3">

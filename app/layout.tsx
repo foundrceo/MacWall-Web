@@ -1,5 +1,6 @@
 import { AffonsoPixel } from "@/components/analytics/affonso-pixel"
 import { DataFastInit } from "@/components/analytics/datafast-init"
+import { MarketingOnlyScripts } from "@/components/analytics/marketing-only-scripts"
 import { PageViewTracker } from "@/components/analytics/page-view-tracker"
 import { CheckoutRetargetingTracker } from "@/components/analytics/checkout-retargeting-tracker"
 import {
@@ -17,10 +18,7 @@ import {
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { JsonLd } from "@/components/seo/json-ld"
 import { macwallSchemaGraph } from "@/lib/macwall-json-ld"
-import {
-  macwall,
-  macwallFavicons,
-} from "@/lib/macwall-site"
+import { macwall, macwallFavicons } from "@/lib/macwall-site"
 import {
   canonicalSiteOrigin,
   feedAlternateTypes,
@@ -57,7 +55,7 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
 })
 
-const SITE_DESCRIPTION_FALLBACK = `MacWall is the native macOS app for cinematic live wallpapers — curated catalog, menu bar control, multi-display playback, and optional Lock Screen video on macOS 26. Desktop wallpapers on macOS 14+.`
+const SITE_DESCRIPTION_FALLBACK = `MacWall is the native macOS app for cinematic live wallpapers — elite craftsmanship, curated catalog, menu bar control, multi-display playback, and optional Lock Screen video on macOS 26. One investment. Desktop wallpapers on macOS 14+.`
 
 const SITE_TITLE_DEFAULT = macwall.fullTagline
 
@@ -241,12 +239,6 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${geistPixelSquare.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        <AffonsoPixel />
-        {metaPixelId ? <MetaPixel pixelId={metaPixelId} /> : null}
-        {tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}
-        {xAdsPixelId ? <XAdsPixel pixelId={xAdsPixelId} /> : null}
-      </head>
       {/* Avoid hydration warnings when extensions inject attributes on <body> */}
       <body
         className="w-full bg-background font-sans font-light text-foreground antialiased"
@@ -266,21 +258,43 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
-          <DataFastInit />
-          <PageViewTracker />
-          <CheckoutRetargetingTracker />
+          <MarketingOnlyScripts>
+            <AffonsoPixel />
+            {metaPixelId ? <MetaPixel pixelId={metaPixelId} /> : null}
+            {tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}
+            {xAdsPixelId ? <XAdsPixel pixelId={xAdsPixelId} /> : null}
+            <DataFastInit />
+            <PageViewTracker />
+            <CheckoutRetargetingTracker />
+            {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
+            {ahrefsWebAnalyticsKey ? (
+              <Script
+                src="https://analytics.ahrefs.com/analytics.js"
+                strategy="afterInteractive"
+                data-key={ahrefsWebAnalyticsKey}
+              />
+            ) : null}
+          </MarketingOnlyScripts>
         </ThemeProvider>
-        <Analytics />
+        <Analytics
+          beforeSend={(event) => {
+            try {
+              const path = new URL(event.url).pathname
+              if (
+                path.startsWith("/admin") ||
+                path.startsWith("/legal") ||
+                path.startsWith("/docs")
+              ) {
+                return null
+              }
+            } catch {
+              // keep event
+            }
+            return event
+          }}
+        />
         {/* Sample vitals — full capture is rarely worth the Speed Insights bill. */}
-        <SpeedInsights sampleRate={0.2} />
-        {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
-        {ahrefsWebAnalyticsKey ? (
-          <Script
-            src="https://analytics.ahrefs.com/analytics.js"
-            strategy="afterInteractive"
-            data-key={ahrefsWebAnalyticsKey}
-          />
-        ) : null}
+        <SpeedInsights sampleRate={0.1} />
       </body>
     </html>
   )

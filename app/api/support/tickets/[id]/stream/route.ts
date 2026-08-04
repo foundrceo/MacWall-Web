@@ -4,7 +4,7 @@ import {
   clientIpFromRequest,
   createInMemoryRateLimiter,
 } from "@/lib/http/rate-limit"
-import { listSupportTickets } from "@/lib/support/feedback"
+import { sessionOwnsSupportTicket } from "@/lib/support/feedback"
 import {
   isValidSupportSessionId,
   normalizeSupportSessionId,
@@ -58,8 +58,8 @@ export async function GET(
   }
 
   try {
-    const tickets = await listSupportTickets(sessionId)
-    if (!tickets.some((t) => t.id === ticketId)) {
+    const owns = await sessionOwnsSupportTicket(sessionId, ticketId)
+    if (!owns) {
       return bad(404, "ticket_not_found")
     }
   } catch {
