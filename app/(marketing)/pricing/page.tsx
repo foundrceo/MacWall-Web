@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+
 import { JsonLd } from "@/components/seo/json-ld"
 import MacWallMarketingPricingPage from "@/components/macwall-marketing/marketing-pricing"
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
@@ -46,7 +48,6 @@ export const metadata: Metadata = {
   },
 }
 
-
 export default function PricingPage() {
   const jsonLd = webPageWithBreadcrumbsJsonLd({
     origin: canonicalSiteOrigin(),
@@ -63,7 +64,9 @@ export default function PricingPage() {
       <link rel="preconnect" href="https://js.stripe.com" />
       <link rel="dns-prefetch" href="https://js.stripe.com" />
       <JsonLd payload={jsonLd} />
-      <MacWallMarketingPricingPage />
+      <Suspense fallback={null}>
+        <MacWallMarketingPricingPage />
+      </Suspense>
     </>
   )
 }

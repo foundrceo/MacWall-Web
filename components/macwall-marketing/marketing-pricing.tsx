@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import type { ReactNode } from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
@@ -54,6 +55,8 @@ function PricingPrimaryButton({
 export default function MacWallMarketingPricingPage() {
   const pricing = useMarketingPricing()
   const plans = p.plans
+  const searchParams = useSearchParams()
+  const checkoutError = searchParams.get("checkout_error")?.trim() || null
 
   return (
     <div className="marketing-page antialiased">
@@ -69,6 +72,14 @@ export default function MacWallMarketingPricingPage() {
             <p className="mx-auto mt-4 max-w-2xl text-center text-[16px] leading-relaxed text-marketing-muted sm:text-[17px]">
               {p.heroLead}
             </p>
+            {checkoutError ? (
+              <p
+                role="alert"
+                className="mx-auto mt-4 max-w-xl rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-center text-[14px] leading-snug text-red-200"
+              >
+                {checkoutError}
+              </p>
+            ) : null}
             <PricingSocialProof className="mt-4" />
 
             <PricingTrustStripCompact className="mt-6" />
