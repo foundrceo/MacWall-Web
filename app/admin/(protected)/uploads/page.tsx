@@ -78,7 +78,7 @@ export default function AdminUploadsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
   const [thumbUrl, setThumbUrl] = useState<string | null>(null)
-  const [rejectNotes, setRejectNotes] = useState("")
+  const [reviewNotes, setReviewNotes] = useState("")
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [acting, setActing] = useState(false)
@@ -176,12 +176,8 @@ export default function AdminUploadsPage() {
     try {
       const res = await fetch(`/api/admin/uploads/${selected.id}/${action}`, {
         method: "POST",
-        ...(action === "reject"
-          ? {
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ reviewNotes: rejectNotes }),
-            }
-          : {}),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviewNotes }),
         credentials: "same-origin",
       })
       const json = (await res.json()) as { error?: string }
@@ -191,7 +187,7 @@ export default function AdminUploadsPage() {
           ? `Approved “${selected.title}” and published it to the catalog.`
           : `Rejected “${selected.title}”.`
       )
-      setRejectNotes("")
+      setReviewNotes("")
       await load(filter)
     } catch (err) {
       setError(err instanceof Error ? err.message : `${action} failed`)
@@ -420,9 +416,9 @@ export default function AdminUploadsPage() {
                   {selected.status === "pending" ? (
                     <div className="space-y-3 border-t border-[var(--admin-border)] pt-4">
                       <Textarea
-                        value={rejectNotes}
-                        onChange={(event) => setRejectNotes(event.target.value)}
-                        placeholder="Optional note sent to the submitter when rejecting…"
+                        value={reviewNotes}
+                        onChange={(event) => setReviewNotes(event.target.value)}
+                        placeholder="Optional note for the submitter — shown in the MacWall app and notification when you approve or reject…"
                         className="min-h-20 resize-y"
                       />
                       <div className="flex flex-wrap gap-2">
