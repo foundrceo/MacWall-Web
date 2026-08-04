@@ -194,6 +194,8 @@ export function WallpaperCard({
     >
       <Link
         href={wallpaperDetailPath(wallpaper)}
+        // pointerdown beats click — focus is saved before Next starts navigating.
+        onPointerDown={() => markGalleryReturnFocus(wallpaper.id)}
         onClick={() => markGalleryReturnFocus(wallpaper.id)}
         className={cn(
           "group flex min-w-0 flex-col gap-2.5 outline-none",
