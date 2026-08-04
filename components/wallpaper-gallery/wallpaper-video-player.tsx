@@ -23,6 +23,8 @@ import { cn } from "@/lib/utils"
 
 const CONTROL_ICON_SIZE = 16
 const CONTROL_ICON_STROKE = 1.75
+/** If the video never becomes ready, surface an error instead of a black hole. */
+const STUCK_BUFFERING_MS = 20_000
 
 function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00"
@@ -34,6 +36,27 @@ function formatTime(seconds: number): string {
 
 function blockMediaContextMenu(event: SyntheticEvent) {
   event.preventDefault()
+}
+
+async function fetchFreshPreviewUrl(videoKey: string): Promise<string | null> {
+  const key = videoKey.trim()
+  if (!key) return null
+  try {
+    const res = await fetch(
+      `/api/wallpapers/preview?key=${encodeURIComponent(key)}`,
+      {
+        method: "GET",
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      }
+    )
+    if (!res.ok) return null
+    const data = (await res.json()) as { url?: string }
+    const url = data.url?.trim()
+    return url && url.startsWith("http") ? url : null
+  } catch {
+    return null
+  }
 }
 
 function VideoLoader({
@@ -58,22 +81,87 @@ function VideoLoader({
 
 export function WallpaperVideoPlayer({
   src,
+  videoKey,
   poster,
   title,
   className,
 }: Readonly<{
+  /** Public CDN fallback — safe to embed in ISR HTML. */
   src: string
+  /** When set, player mints a fresh signed URL client-side (never from ISR). */
+  videoKey?: string | null
   poster: string
   title: string
   className?: string
 }>) {
+  const fallbackSrc = src.trim()
+  const key = videoKey?.trim() || ""
+  const [playbackSrc, setPlaybackSrc] = useState(() =>
+    key ? "" : fallbackSrc
+  )
+  const [resolving, setResolving] = useState(Boolean(key))
+  const [reloadNonce, setReloadNonce] = useState(0)
+  const signedAttemptedRef = useRef(false)
+
+  // Mint a fresh URL client-side — never trust ISR-baked signed links.
+  useEffect(() => {
+    if (!key) {
+      setResolving(false)
+      setPlaybackSrc(fallbackSrc)
+      return
+    }
+
+    let cancelled = false
+    signedAttemptedRef.current = false
+
+    async function resolve() {
+      setResolving(true)
+      setPlaybackSrc("")
+      const fresh = await fetchFreshPreviewUrl(key)
+      if (cancelled) return
+      if (fresh) {
+        signedAttemptedRef.current = true
+        setPlaybackSrc(fresh)
+      } else {
+        setPlaybackSrc(fallbackSrc)
+      }
+      setResolving(false)
+    }
+
+    void resolve()
+    return () => {
+      cancelled = true
+    }
+  }, [key, fallbackSrc, reloadNonce])
+
+  const retryPlayback = useCallback(() => {
+    signedAttemptedRef.current = false
+    setReloadNonce((n) => n + 1)
+  }, [])
+
+  const onMediaError = useCallback(async () => {
+    // Expired / forbidden CDN → one fresh signed retry.
+    if (key && !signedAttemptedRef.current) {
+      signedAttemptedRef.current = true
+      const fresh = await fetchFreshPreviewUrl(key)
+      if (fresh && fresh !== playbackSrc) {
+        setPlaybackSrc(fresh)
+        return true
+      }
+    }
+    return false
+  }, [key, playbackSrc])
+
   return (
     <WallpaperVideoPlayerInner
-      key={src}
-      src={src}
+      key={`${playbackSrc}|${reloadNonce}`}
+      src={playbackSrc}
       poster={poster}
       title={title}
       className={className}
+      bootstrapping={resolving && !playbackSrc}
+      onMediaError={onMediaError}
+      onRetry={retryPlayback}
     />
   )
 }
@@ -83,16 +171,23 @@ function WallpaperVideoPlayerInner({
   poster,
   title,
   className,
+  bootstrapping,
+  onMediaError,
+  onRetry,
 }: Readonly<{
   src: string
   poster: string
   title: string
   className?: string
+  bootstrapping?: boolean
+  onMediaError: () => Promise<boolean>
+  onRetry: () => void
 }>) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const shellRef = useRef<HTMLDivElement>(null)
   const hideTimerRef = useRef<number | null>(null)
   const controlsRevealedRef = useRef(false)
+  const errorHandledRef = useRef(false)
   const reduceMotion = useReducedMotion()
 
   const [failed, setFailed] = useState(false)
@@ -106,6 +201,9 @@ function WallpaperVideoPlayerInner({
   const [scrubbing, setScrubbing] = useState(false)
   const [buffering, setBuffering] = useState(true)
   const [ready, setReady] = useState(false)
+
+  const showPoster = Boolean(poster) && (!ready || failed || bootstrapping)
+  const showLoader = (buffering || bootstrapping) && !failed
 
   const clearHideTimer = useCallback(() => {
     if (hideTimerRef.current != null) {
@@ -154,6 +252,23 @@ function WallpaperVideoPlayerInner({
       document.removeEventListener("fullscreenchange", onFullscreenChange)
     }
   }, [])
+
+  // Never sit on a black shell forever if the stream dies silently.
+  useEffect(() => {
+    if (ready || failed || !src) return
+    const timer = window.setTimeout(() => {
+      setBuffering(false)
+      setFailed(true)
+    }, STUCK_BUFFERING_MS)
+    return () => window.clearTimeout(timer)
+  }, [ready, failed, src, bootstrapping])
+
+  useEffect(() => {
+    if (!src?.trim() && !bootstrapping) {
+      setFailed(true)
+      setBuffering(false)
+    }
+  }, [src, bootstrapping])
 
   const togglePlay = useCallback(async () => {
     const video = videoRef.current
@@ -209,7 +324,9 @@ function WallpaperVideoPlayerInner({
     [duration]
   )
 
-  const onProgressPointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
+  const onProgressPointerDown = (
+    event: ReactPointerEvent<HTMLButtonElement>
+  ) => {
     event.preventDefault()
     const track = event.currentTarget
     track.setPointerCapture(event.pointerId)
@@ -218,7 +335,9 @@ function WallpaperVideoPlayerInner({
     revealControls()
   }
 
-  const onProgressPointerMove = (event: ReactPointerEvent<HTMLButtonElement>) => {
+  const onProgressPointerMove = (
+    event: ReactPointerEvent<HTMLButtonElement>
+  ) => {
     if (!scrubbing) return
     seekFromClientX(event.clientX, event.currentTarget)
   }
@@ -233,6 +352,22 @@ function WallpaperVideoPlayerInner({
     }
   }
 
+  const handleError = useCallback(async () => {
+    if (errorHandledRef.current) return
+    errorHandledRef.current = true
+    setBuffering(true)
+    const recovered = await onMediaError()
+    if (recovered) {
+      errorHandledRef.current = false
+      setFailed(false)
+      setReady(false)
+      setBuffering(true)
+      return
+    }
+    setBuffering(false)
+    setFailed(true)
+  }, [onMediaError])
+
   if (failed) {
     return (
       <div
@@ -242,15 +377,29 @@ function WallpaperVideoPlayerInner({
         )}
         onContextMenu={blockMediaContextMenu}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={poster}
-          alt={title}
-          className="h-full w-full select-none object-cover [-webkit-user-drag:none]"
-          draggable={false}
-          onContextMenu={blockMediaContextMenu}
-          onDragStart={blockMediaContextMenu}
-        />
+        {poster ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={poster}
+            alt={title}
+            className="h-full w-full select-none object-cover [-webkit-user-drag:none]"
+            draggable={false}
+            onContextMenu={blockMediaContextMenu}
+            onDragStart={blockMediaContextMenu}
+          />
+        ) : null}
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/55 px-4 text-center">
+          <p className="font-sans text-[14px] text-white/85">
+            Preview couldn&apos;t load
+          </p>
+          <button
+            type="button"
+            onClick={onRetry}
+            className="inline-flex h-9 items-center justify-center rounded-full bg-white px-4 text-[13px] font-medium text-black transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+          >
+            Try again
+          </button>
+        </div>
       </div>
     )
   }
@@ -273,69 +422,70 @@ function WallpaperVideoPlayerInner({
         Custom controls only — no native download UI. Signed preview URLs expire;
         determined users can still capture network traffic or re-record the stream.
       */}
-      <video
-        ref={videoRef}
-        key={src}
-        className={cn(
-          "h-full w-full bg-black object-cover transition-opacity duration-300 [-webkit-user-drag:none]",
-          buffering && !ready ? "opacity-0" : "opacity-100"
-        )}
-        src={src}
-        poster={poster}
-        playsInline
-        loop
-        muted={muted}
-        autoPlay
-        controls={false}
-        controlsList="nodownload noremoteplayback noplaybackrate"
-        disablePictureInPicture
-        disableRemotePlayback
-        draggable={false}
-        preload="metadata"
-        onClick={() => void togglePlay()}
-        onContextMenu={blockMediaContextMenu}
-        onDragStart={blockMediaContextMenu}
-        onLoadStart={markBuffering}
-        onWaiting={markBuffering}
-        onStalled={markBuffering}
-        onSeeking={markBuffering}
-        onCanPlay={markReady}
-        onCanPlayThrough={markReady}
-        onPlaying={() => {
-          setPlaying(true)
-          markReady()
-          revealControlsAfterFirstPlayback()
-        }}
-        onSeeked={() => {
-          const video = videoRef.current
-          if (
-            video &&
-            !video.paused &&
-            video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA
-          ) {
-            setBuffering(false)
-          }
-        }}
-        onPause={() => setPlaying(false)}
-        onTimeUpdate={() => {
-          const video = videoRef.current
-          if (!video || !video.duration || scrubbing) return
-          setCurrentTime(video.currentTime)
-          setProgress(video.currentTime / video.duration)
-        }}
-        onLoadedMetadata={() => {
-          const video = videoRef.current
-          if (!video) return
-          setDuration(video.duration || 0)
-        }}
-        onError={() => {
-          setBuffering(false)
-          setFailed(true)
-        }}
-        aria-label={title}
-      />
+      {src ? (
+        <video
+          ref={videoRef}
+          className={cn(
+            "h-full w-full bg-black object-cover transition-opacity duration-300 [-webkit-user-drag:none]",
+            ready ? "opacity-100" : "opacity-0"
+          )}
+          src={src}
+          poster={poster}
+          playsInline
+          loop
+          muted={muted}
+          autoPlay
+          controls={false}
+          controlsList="nodownload noremoteplayback noplaybackrate"
+          disablePictureInPicture
+          disableRemotePlayback
+          draggable={false}
+          preload="auto"
+          onClick={() => void togglePlay()}
+          onContextMenu={blockMediaContextMenu}
+          onDragStart={blockMediaContextMenu}
+          onLoadStart={markBuffering}
+          onWaiting={markBuffering}
+          onStalled={markBuffering}
+          onSeeking={markBuffering}
+          onCanPlay={markReady}
+          onCanPlayThrough={markReady}
+          onPlaying={() => {
+            setPlaying(true)
+            markReady()
+            revealControlsAfterFirstPlayback()
+          }}
+          onSeeked={() => {
+            const video = videoRef.current
+            if (
+              video &&
+              !video.paused &&
+              video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA
+            ) {
+              markReady()
+            }
+          }}
+          onPause={() => setPlaying(false)}
+          onTimeUpdate={() => {
+            const video = videoRef.current
+            if (!video || !video.duration || scrubbing) return
+            setCurrentTime(video.currentTime)
+            setProgress(video.currentTime / video.duration)
+          }}
+          onLoadedMetadata={() => {
+            const video = videoRef.current
+            if (!video) return
+            setDuration(video.duration || 0)
+          }}
+          onError={() => {
+            void handleError()
+          }}
+          aria-label={title}
+        />
+      ) : null}
 
-      {buffering && !ready && poster ? (
+      {/* Poster stays up until first frame — never a blank black shell. */}
+      {showPoster ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={poster}
@@ -347,7 +497,7 @@ function WallpaperVideoPlayerInner({
       ) : null}
 
       <AnimatePresence>
-        {buffering ? (
+        {showLoader ? (
           <motion.div
             key="loader"
             initial={reduceMotion ? false : { opacity: 0 }}
@@ -419,7 +569,7 @@ function WallpaperVideoPlayerInner({
                       aria-hidden
                     />
                   </ControlButton>
-                  <span className="ml-1 font-sans text-[12px] tabular-nums text-white/80">
+                  <span className="ml-1 font-sans text-[12px] text-white/80 tabular-nums">
                     {formatTime(currentTime)}
                     {duration > 0 ? ` / ${formatTime(duration)}` : ""}
                   </span>
@@ -459,7 +609,7 @@ function ControlButton({
       aria-label={label}
       onClick={onClick}
       whileTap={{ scale: 0.92 }}
-      className="inline-flex size-9 items-center justify-center rounded-full text-white transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+      className="inline-flex size-9 items-center justify-center rounded-full text-white transition hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
     >
       {children}
     </motion.button>

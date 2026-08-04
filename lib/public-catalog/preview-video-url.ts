@@ -1,6 +1,5 @@
 import "server-only"
 
-import { unstable_cache } from "next/cache"
 import {
   catalogPublicVideoUrlFromKey,
   catalogVideoObjectKey,
@@ -10,34 +9,32 @@ import { isR2WriteEnabled, r2PresignGetUrl } from "@/lib/storage/r2"
 /** Short-lived presigned GET when R2 credentials are configured; otherwise public CDN URL. */
 const PREVIEW_URL_TTL_SECONDS = 900
 
-/** Cache presigned URLs slightly below TTL to avoid serving expired links. */
-const PREVIEW_URL_CACHE_SECONDS = 840
-
-async function resolvePreviewVideoUrlUncached(
+/**
+ * Fresh preview URL for the current request — never bake into ISR HTML.
+ * Detail pages must mint this client-side (or on-demand via `/api/wallpapers/preview`)
+ * because page `revalidate` (1h) is longer than the signed URL TTL (15m).
+ */
+export async function resolvePreviewVideoUrlFresh(
   videoKey: string
 ): Promise<string> {
+  const key = videoKey.trim()
+  if (!key) return catalogPublicVideoUrlFromKey(videoKey)
+
   if (!isR2WriteEnabled()) {
-    return catalogPublicVideoUrlFromKey(videoKey)
+    return catalogPublicVideoUrlFromKey(key)
   }
 
   try {
     return await r2PresignGetUrl(
-      catalogVideoObjectKey(videoKey),
+      catalogVideoObjectKey(key),
       PREVIEW_URL_TTL_SECONDS
     )
   } catch {
-    return catalogPublicVideoUrlFromKey(videoKey)
+    return catalogPublicVideoUrlFromKey(key)
   }
 }
 
-const getCachedPreviewVideoUrl = unstable_cache(
-  async (videoKey: string) => resolvePreviewVideoUrlUncached(videoKey),
-  ["preview-video-url-v1"],
-  { revalidate: PREVIEW_URL_CACHE_SECONDS }
-)
-
+/** @deprecated Prefer `resolvePreviewVideoUrlFresh` — cached signed URLs expire under ISR. */
 export async function resolvePreviewVideoUrl(videoKey: string): Promise<string> {
-  const key = videoKey.trim()
-  if (!key) return catalogPublicVideoUrlFromKey(videoKey)
-  return getCachedPreviewVideoUrl(key)
+  return resolvePreviewVideoUrlFresh(videoKey)
 }
