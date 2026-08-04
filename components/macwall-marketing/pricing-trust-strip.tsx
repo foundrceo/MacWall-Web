@@ -102,7 +102,7 @@ export function PricingTrustStripCompact({
       )}
     >
       <span className="inline-flex items-center gap-1.5">
-        <Lock className="size-3.5 shrink-0 text-sky-300/90" aria-hidden />
+        <Lock className="size-3.5 shrink-0 text-blue-400" aria-hidden />
         {t.checkoutLabel}
       </span>
       <span className="hidden text-white/20 sm:inline" aria-hidden>

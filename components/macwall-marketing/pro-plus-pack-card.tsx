@@ -6,18 +6,18 @@ import {
   useMemo,
   useRef,
   useState,
+  type ReactNode,
 } from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
-import { GradientTracing } from "@/components/ui/gradient-tracing"
 import { prefetchCheckoutSession } from "@/lib/checkout/prefetch-checkout"
 import type { MarketingMultiMacOffer } from "@/lib/pricing/marketing-pricing"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
-const pricingPrimaryButtonClass =
-  "inline-flex h-8 min-h-8 items-center justify-center rounded-full bg-white px-3.5 text-[14px] font-normal text-black no-underline transition-opacity hover:opacity-90"
+const pricingMutedButtonClass =
+  "inline-flex h-8 min-h-8 w-full items-center justify-center rounded-full bg-white/[0.08] px-3.5 text-[14px] font-medium text-white no-underline ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/[0.12]"
 
 const PICKER_NAME = "tier-picker-pro-plus-macs"
 
@@ -83,7 +83,7 @@ function MacPackPillPicker({
   return (
     <div
       ref={trackRef}
-      className="relative flex w-fit rounded-full bg-secondary p-0.5 text-center ring-1 ring-white/15"
+      className="relative flex w-fit rounded-full bg-white/[0.06] p-0.5 text-center ring-1 ring-white/10"
       role="radiogroup"
       aria-label="Choose how many Macs"
     >
@@ -143,6 +143,9 @@ export function ProPlusPackCard({
   featuresPrefix,
   features,
   cta,
+  badge,
+  buttonClassName,
+  footer,
 }: Readonly<{
   offers: readonly MarketingMultiMacOffer[]
   title: string
@@ -150,6 +153,9 @@ export function ProPlusPackCard({
   featuresPrefix: string
   features: readonly string[]
   cta: string
+  badge?: string
+  buttonClassName?: string
+  footer?: ReactNode
 }>) {
   const sorted = useMemo(
     () => [...offers].sort((a, b) => a.macs - b.macs),
@@ -179,22 +185,12 @@ export function ProPlusPackCard({
       features={featureLinesForMacs(features, selected.macs)}
       featuresPrefix={featuresPrefix}
       highlightMacsLabel={`${selected.macs} Mac`}
+      badge={badge}
       topCenter={
         <MacPackPillPicker
           offers={sorted}
           selectedMacs={selected.macs}
           onSelect={setMacs}
-        />
-      }
-      showActionSlot
-      actionSlot={
-        <GradientTracing
-          width={160}
-          height={12}
-          baseColor="white"
-          gradientColors={["#F1C40F", "#F1C40F", "#E67E22"]}
-          strokeWidth={1.5}
-          animationDuration={2.2}
         />
       }
       action={
@@ -203,11 +199,12 @@ export function ProPlusPackCard({
           location={`pricing_multi_mac_${selected.macs}`}
           ariaLabel={`Invest in ${macwall.name} Pro Plus for ${selected.macs} Macs at ${selected.price}`}
           size="pill"
-          className={pricingPrimaryButtonClass}
+          className={cn(pricingMutedButtonClass, buttonClassName)}
         >
           {cta}
         </TrackedPricingButton>
       }
+      footer={footer}
     />
   )
 }

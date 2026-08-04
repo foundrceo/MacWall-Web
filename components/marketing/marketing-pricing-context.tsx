@@ -33,12 +33,14 @@ export function MarketingPricingProvider({
     let cancelled = false
     const load = async () => {
       try {
-        // Country bucket in the URL → CDN can cache `/api/pricing?c=IN` etc.
+        // Pass cookie country when present; otherwise the API resolves geo itself
+        // (cookie / Vercel / IP / localhost egress) so INR hints still hydrate.
         const country = getVisitorCountry()
         const qs = country ? `?c=${encodeURIComponent(country)}` : ""
         const res = await fetch(`/api/pricing${qs}`, {
           credentials: "same-origin",
           headers: { Accept: "application/json" },
+          cache: "no-store",
         })
         if (!res.ok || cancelled) return
         const data = (await res.json()) as MarketingPricing

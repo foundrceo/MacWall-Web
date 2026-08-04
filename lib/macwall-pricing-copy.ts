@@ -26,19 +26,19 @@ export const macwallPricingCopy = {
   plans: {
     pro: {
       title: "Pro",
-      subtitle: "Exclusive value — one-time investment",
+      subtitle: "For everyday creators & power users.",
       badge: "Most Popular",
       badgeAlt: "33% exclusive offer",
-      featuresPrefix: "Benefits:",
-      ctaPermanent: "Unlock Pro",
+      featuresPrefix: "Everything included:",
+      ctaPermanent: "Start with Pro",
       ctaAnnual: "Launch annual program",
     },
     proPlus: {
       title: "Pro+",
-      subtitle: "5–20 Macs — larger programs, exclusive offers",
-      badge: "40% exclusive offer",
+      subtitle: "For multi-Mac & power workflows.",
+      badge: "For Creators",
       featuresPrefix: "Everything in Pro, plus:",
-      cta: "Unlock Pro+",
+      cta: "Start with Pro+",
     },
     reel: {
       title: "Creator Solution",

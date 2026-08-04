@@ -18,13 +18,37 @@ import {
   PricingTrustStripCompact,
 } from "@/components/macwall-marketing/pricing-trust-strip"
 import { ProPlusPackCard } from "@/components/macwall-marketing/pro-plus-pack-card"
-import { GradientTracing } from "@/components/ui/gradient-tracing"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
-const pricingPrimaryButtonClass =
-  "inline-flex h-8 min-h-8 items-center justify-center rounded-full bg-white px-3.5 text-[14px] font-normal text-black no-underline transition-opacity hover:opacity-90"
+const pricingFeaturedButtonClass =
+  "inline-flex h-8 min-h-8 w-full items-center justify-center rounded-full bg-blue-800 px-3.5 text-[14px] font-medium text-white no-underline transition-colors hover:bg-blue-700"
+
+const pricingMutedButtonClass =
+  "inline-flex h-8 min-h-8 w-full items-center justify-center rounded-full bg-white/[0.08] px-3.5 text-[14px] font-medium text-white no-underline ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/[0.12]"
+
+function PricingCardFooter() {
+  return (
+    <p>
+      <Link
+        href="/legal/refund"
+        className="underline-offset-2 hover:text-foreground/80 hover:underline"
+      >
+        7-day refund
+      </Link>
+      {" · "}
+      Lifetime updates
+      {" · "}
+      <Link
+        href="/legal/refund"
+        className="underline-offset-2 hover:text-foreground/80 hover:underline"
+      >
+        refund policy
+      </Link>
+    </p>
+  )
+}
 
 function PricingPrimaryButton({
   href,
@@ -45,7 +69,7 @@ function PricingPrimaryButton({
       location={location}
       ariaLabel={ariaLabel}
       size="pill"
-      className={cn(pricingPrimaryButtonClass, className)}
+      className={cn(pricingFeaturedButtonClass, className)}
     >
       {children}
     </TrackedPricingButton>
@@ -98,20 +122,9 @@ export default function MacWallMarketingPricingPage() {
                   priceSuffix="one-time"
                   features={p.pro.features}
                   featuresPrefix={plans.pro.featuresPrefix}
-                  highlight
+                  featured
                   badge={plans.pro.badge}
                   badgeAlt={pricing.permanentOffLabel}
-                  showActionSlot
-                  actionSlot={
-                    <GradientTracing
-                      width={160}
-                      height={12}
-                      baseColor="white"
-                      gradientColors={["#F1C40F", "#F1C40F", "#E67E22"]}
-                      strokeWidth={1.5}
-                      animationDuration={2}
-                    />
-                  }
                   action={
                     <PricingPrimaryButton
                       href={pricing.checkoutUrl}
@@ -121,6 +134,7 @@ export default function MacWallMarketingPricingPage() {
                       {plans.pro.ctaPermanent}
                     </PricingPrimaryButton>
                   }
+                  footer={<PricingCardFooter />}
                 />
 
                 {pricing.multiMacOffers.length > 0 ? (
@@ -131,6 +145,9 @@ export default function MacWallMarketingPricingPage() {
                     featuresPrefix={plans.proPlus.featuresPrefix}
                     features={p.proPlus.features}
                     cta={plans.proPlus.cta}
+                    badge={plans.proPlus.badge}
+                    buttonClassName={pricingMutedButtonClass}
+                    footer={<PricingCardFooter />}
                   />
                 ) : null}
               </div>

@@ -28,6 +28,59 @@ type FxQuoteResponse = {
   rates?: Record<string, FxQuoteRate>
 }
 
+function cacheRate(code: string, usdPerUnit: number): number {
+  rateCache.set(code, {
+    usdPerUnit,
+    expiresAt: Date.now() + FX_CACHE_TTL_MS,
+  })
+  return usdPerUnit
+}
+
+/**
+ * Public mid-market fallback when Stripe FX Quotes is unavailable
+ * (expired key, preview API disabled, etc.). Display-only — checkout still
+ * charges in the Stripe Price currency.
+ */
+async function fetchUsdPerPresentmentUnitFallback(
+  currency: string
+): Promise<number | null> {
+  const code = currency.toLowerCase()
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 2500)
+
+  try {
+    const response = await fetch(
+      `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json`,
+      {
+        signal: controller.signal,
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      }
+    )
+    if (!response.ok) return null
+
+    const data = (await response.json()) as {
+      usd?: Record<string, number>
+    }
+    const unitsPerUsd = data.usd?.[code]
+    if (!unitsPerUsd || !Number.isFinite(unitsPerUsd) || unitsPerUsd <= 0) {
+      return null
+    }
+
+    // Convert "local per 1 USD" → Stripe-shaped "USD per 1 local".
+    return cacheRate(code, 1 / unitsPerUsd)
+  } catch (error) {
+    console.error(
+      "[pricing] FX fallback failed",
+      code,
+      error instanceof Error ? error.message : "unknown"
+    )
+    return null
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
 /**
  * Stripe FX Quotes (preview): presentment → USD rate including FX fee path.
  * localMajor = usdMajor / usdPerUnit
@@ -61,26 +114,24 @@ async function fetchUsdPerPresentmentUnit(
 
     const usdPerUnit = quote.rates?.[code]?.exchange_rate
     if (!usdPerUnit || !Number.isFinite(usdPerUnit) || usdPerUnit <= 0) {
-      return null
+      return fetchUsdPerPresentmentUnitFallback(code)
     }
 
-    rateCache.set(code, {
-      usdPerUnit,
-      expiresAt: Date.now() + FX_CACHE_TTL_MS,
-    })
-    return usdPerUnit
+    return cacheRate(code, usdPerUnit)
   } catch (error) {
     console.error(
       "[pricing] Stripe FX Quotes failed",
       code,
       error instanceof Error ? error.message : "unknown"
     )
-    return cached?.usdPerUnit ?? null
+    if (cached?.usdPerUnit) return cached.usdPerUnit
+    return fetchUsdPerPresentmentUnitFallback(code)
   }
 }
 
 /**
- * Resolve Stripe FX rate for a country (1 call per currency, cached 1h).
+ * Resolve FX rate for a country (1 call per currency, cached 1h).
+ * Prefers Stripe FX Quotes; falls back to a public mid-market rate for display.
  * Returns null when localization isn't available → caller keeps USD.
  */
 export async function getStripeUsdPerUnitForCountry(

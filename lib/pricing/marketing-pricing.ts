@@ -23,7 +23,7 @@ export type MarketingMultiMacOffer = {
   strikePriceMajor: number
   /** e.g. "50% off" — matches sale vs cutted price */
   offLabel: string
-  /** Non-US only: ≈ local · charged in INR */
+  /** Non-US only: ₹… · charged in INR */
   localPriceHint: string | null
   checkoutUrl: string
 }
@@ -41,7 +41,7 @@ export type MarketingPricing = {
   permanentStrikePriceMajor: number
   /** e.g. "33% off" — matches sale vs cutted price */
   permanentOffLabel: string
-  /** Non-US only: ≈ ₹… · charged in INR */
+  /** Non-US only: ₹… · charged in INR */
   permanentLocalHint: string | null
   /**
    * Banner strip prices — India uses local INR for sale + strike when FX
@@ -98,7 +98,7 @@ function usdMoney(cents: number, locale = "en-US"): LocalizedMoney {
 
 function localHint(local: LocalizedMoney | null | undefined): string | null {
   if (!local?.isLocalized) return null
-  return `≈ ${local.formatted} · charged in ${local.currency.toUpperCase()}`
+  return `${local.formatted} · charged in ${local.currency.toUpperCase()}`
 }
 
 export type MarketingFxRate = {
@@ -113,7 +113,7 @@ export type MarketingPriceBundle = {
   permanentLocal: LocalizedMoney | null
   /** @deprecated Prefer `fx` + per-pack conversion. Kept for Pro+ 5-Mac callers. */
   proPlusLocal: LocalizedMoney | null
-  /** When set, every multi-Mac pack gets an ≈ local · charged in CUR hint. */
+  /** When set, every multi-Mac pack gets a local · charged in CUR hint. */
   fx?: MarketingFxRate | null
 }
 
@@ -123,7 +123,7 @@ function localHintForUsdCents(
 ): string | null {
   const formatted = formatLocalUsdCents(usdCents, fx)
   if (!formatted || !fx) return null
-  return `≈ ${formatted} · charged in ${fx.currency.toUpperCase()}`
+  return `${formatted} · charged in ${fx.currency.toUpperCase()}`
 }
 
 function formatLocalUsdCents(
