@@ -30,8 +30,8 @@ import type { Metadata, Viewport } from "next"
 import Script from "next/script"
 import { geistPixelSquare } from "@/lib/site-fonts"
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google"
+import { VercelAnalytics } from "@/components/analytics/vercel-analytics"
 import { GoogleAnalytics } from "@next/third-parties/google"
-import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 
@@ -276,23 +276,7 @@ export default function RootLayout({
             ) : null}
           </MarketingOnlyScripts>
         </ThemeProvider>
-        <Analytics
-          beforeSend={(event) => {
-            try {
-              const path = new URL(event.url).pathname
-              if (
-                path.startsWith("/admin") ||
-                path.startsWith("/legal") ||
-                path.startsWith("/docs")
-              ) {
-                return null
-              }
-            } catch {
-              // keep event
-            }
-            return event
-          }}
-        />
+        <VercelAnalytics />
         {/* Sample vitals — full capture is rarely worth the Speed Insights bill. */}
         <SpeedInsights sampleRate={0.1} />
       </body>
