@@ -3,6 +3,10 @@ import { DataFastInit } from "@/components/analytics/datafast-init"
 import { PageViewTracker } from "@/components/analytics/page-view-tracker"
 import { CheckoutRetargetingTracker } from "@/components/analytics/checkout-retargeting-tracker"
 import {
+  resolveMetaPixelId,
+  MetaPixel,
+} from "@/components/analytics/meta-pixel"
+import {
   resolveTikTokPixelId,
   TikTokPixel,
 } from "@/components/analytics/tiktok-pixel"
@@ -79,6 +83,7 @@ const ahrefsWebAnalyticsKey =
   process.env.NODE_ENV === "production"
     ? resolveAhrefsWebAnalyticsKey()
     : undefined
+const metaPixelId = resolveMetaPixelId()
 const tiktokPixelId = resolveTikTokPixelId()
 const xAdsPixelId = resolveXAdsPixelId()
 
@@ -238,6 +243,7 @@ export default function RootLayout({
     >
       <head>
         <AffonsoPixel />
+        {metaPixelId ? <MetaPixel pixelId={metaPixelId} /> : null}
         {tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}
         {xAdsPixelId ? <XAdsPixel pixelId={xAdsPixelId} /> : null}
       </head>
