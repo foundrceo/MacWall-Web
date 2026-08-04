@@ -13,6 +13,7 @@ import { PlayIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { motion, useReducedMotion } from "motion/react"
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
+import { markGalleryReturnFocus } from "@/lib/public-catalog/gallery-return-state"
 import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
 import {
   GALLERY_MEDIA_RADIUS_CLASS,
@@ -140,9 +141,7 @@ function WallpaperCardMedia({
               showPlayOverlay ? "opacity-100" : "opacity-0"
             )}
           >
-            <div
-              className="flex size-11 items-center justify-center rounded-full border-0 bg-black/40 outline-none shadow-none ring-0 backdrop-blur-md"
-            >
+            <div className="flex size-11 items-center justify-center rounded-full border-0 bg-black/40 shadow-none ring-0 backdrop-blur-md outline-none">
               <HugeiconsIcon
                 icon={PlayIcon}
                 size={PLAY_ICON_SIZE}
@@ -183,6 +182,8 @@ export function WallpaperCard({
 
   return (
     <motion.div
+      id={`wallpaper-card-${wallpaper.id}`}
+      data-wallpaper-id={wallpaper.id}
       initial={shouldAnimateEntrance ? { opacity: 0, y: 12 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -193,6 +194,7 @@ export function WallpaperCard({
     >
       <Link
         href={wallpaperDetailPath(wallpaper)}
+        onClick={() => markGalleryReturnFocus(wallpaper.id)}
         className={cn(
           "group flex min-w-0 flex-col gap-2.5 outline-none",
           className
