@@ -13,11 +13,7 @@ const checkRateLimit = createInMemoryRateLimiter({ max: 30, windowMs: 60_000 })
 const MAX_BYTES = 4 * 1024 * 1024
 
 const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"])
-const ALLOWED_CONTENT_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-])
+const ALLOWED_CONTENT_TYPES = new Set(["image/jpeg", "image/png", "image/webp"])
 
 function bad(status: number, error: string) {
   return NextResponse.json({ error }, { status })
@@ -82,7 +78,7 @@ export async function POST(request: Request) {
       .upload(imageKey, bytes, {
         contentType,
         upsert: false,
-        cacheControl: "3600",
+        cacheControl: "86400",
       })
     if (error) throw new Error(error.message)
 

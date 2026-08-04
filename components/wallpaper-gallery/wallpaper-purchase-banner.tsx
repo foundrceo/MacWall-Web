@@ -239,7 +239,7 @@ export function WallpaperPurchaseBanner() {
     dismissForNow()
   }
 
-  const ctaLabel = `Buy Pro — ${pricing.permanentPrice}`
+  const ctaLabel = `Unlock Pro — ${pricing.permanentPrice}`
   // Must be the create-session API path — TrackedLink POSTs and opens Stripe URL.
   const checkoutHref = "/api/checkout/create-session?offer=permanent"
 
@@ -271,18 +271,19 @@ export function WallpaperPurchaseBanner() {
               <MacWallAppIcon size={40} className="mt-0.5 shrink-0" alt="" />
               <div className="min-w-0 flex-1">
                 <p className="font-sans text-[15px] leading-snug font-medium tracking-tight text-white">
-                  Loving these wallpapers?
+                  Ready to elevate your desktop?
                 </p>
                 <p className="mt-1 font-sans text-[13px] leading-snug text-white/65">
-                  Unlock {macwall.name} Pro and make your Mac cooler — one-time{" "}
-                  {pricing.permanentPrice}, no subscription.
+                  Unlock {macwall.name} Pro — a streamlined, effortless
+                  experience. One investment of {pricing.permanentPrice}, no
+                  subscription.
                 </p>
                 <div className="mt-3">
                   <TrackedPricingButton
                     href={checkoutHref}
                     location="wallpaper_purchase_banner"
                     size="pill"
-                    ariaLabel={`Buy ${macwall.name} Pro for ${pricing.permanentPrice}`}
+                    ariaLabel={`Invest in ${macwall.name} Pro for ${pricing.permanentPrice}`}
                     className="inline-flex h-9 items-center justify-center rounded-full bg-white px-4 text-[13px] font-medium text-black no-underline transition-opacity hover:opacity-90"
                     onClick={onCheckoutClick}
                   >

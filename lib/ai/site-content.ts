@@ -398,7 +398,7 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
           pathname: "/pricing",
           title: `${macwall.name} Pricing`,
           headline: `${macwall.name} pricing`,
-          description: `One-time ${macwall.pro.price} permanent license, optional ${macwall.annual.price} annual plan, and the Pro+ multi-Mac pack. No subscription required.`,
+          description: `One-time ${macwall.pro.price} permanent investment, optional ${macwall.annual.price} annual program, and the Pro+ multi-Mac pack. No subscription required.`,
           keywords: [
             "macwall pricing",
             "macwall pro price",
@@ -408,39 +408,39 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
           sections: [
             {
               type: "p",
-              text: `${macwall.name} is free to download and use. Pro unlocks the full cloud catalog and Pro-only features with a **one-time ${macwall.pro.price} payment** — not a subscription. Prices are shown in your local currency where supported; checkout is handled by Stripe.`,
+              text: `${macwall.name} is complimentary to download and use. Pro unlocks the complete cloud catalog and Pro-only benefits with a **one-time ${macwall.pro.price} investment** — not a subscription. Values are shown in your local currency where supported; checkout is handled by Stripe with secure payment.`,
             },
-            { type: "h2", text: "Plans" },
+            { type: "h2", text: "Programs" },
             {
               type: "ul",
               items: [
-                "**Free** — install with no account, use a rotating wallpaper selection, and import unlimited videos of your own.",
-                `**Permanent license** — ${macwall.pro.price} once. Activates on up to ${macwall.maxLicensedMacs} Macs, includes lifetime updates and future Pro features.`,
-                `**Annual** — ${macwall.annual.price} ${macwall.annual.suffix}, for a lower upfront cost.`,
-                "**Pro+ pack** — raises the activation limit for teams, studios, labs, and families.",
+                "**Complimentary** — install with no account, use a rotating wallpaper selection, and import unlimited videos of your own.",
+                `**Permanent license** — ${macwall.pro.price} once. Activates on up to ${macwall.maxLicensedMacs} Macs, includes lifetime updates and future Pro benefits.`,
+                `**Annual** — ${macwall.annual.price} ${macwall.annual.suffix}, for a lower upfront investment.`,
+                "**Pro+ program** — raises the activation limit for studios, labs, and families.",
               ],
             },
             { type: "h2", text: "What Pro includes" },
             { type: "ul", items: [...macwall.pro.features] },
-            { type: "h2", text: "Buying and activating" },
+            { type: "h2", text: "Investing and activating" },
             {
               type: "p",
-              text: "Checkout runs through Stripe; MacWall never handles card details. Payment is verified server-side before your license key is released, then one click activates it in the app. Full flow: [license and activation](/docs/license-and-activation).",
+              text: "Checkout runs through Stripe; MacWall never handles card details. Secure payment is verified server-side before your license key is released, then one click activates it in the app. Full flow: [license and activation](/docs/license-and-activation).",
             },
-            { type: "h2", text: "Getting your money back" },
+            { type: "h2", text: "Getting your investment back" },
             {
               type: "p",
-              text: `If MacWall does not work on your Mac, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}). Separately, the [creator program](/creator) refunds your purchase in full for a MacWall video that reaches ${macwall.reelRefundFullViews.toLocaleString("en-US")} views, or half at ${macwall.reelRefundHalfViews.toLocaleString("en-US")}.`,
+              text: `If MacWall does not work on your Mac, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) for assistance. Separately, the [creator program](/creator) resolves your investment in full for a MacWall video that reaches ${macwall.reelRefundFullViews.toLocaleString("en-US")} reach, or half at ${macwall.reelRefundHalfViews.toLocaleString("en-US")}.`,
             },
           ],
           faq: [
             {
               question: `Is ${macwall.name} a subscription?`,
-              answer: `No. The permanent license is a single ${macwall.pro.price} payment with lifetime updates. An annual plan exists only as a lower-upfront alternative.`,
+              answer: `No. The permanent license is a single ${macwall.pro.price} investment with lifetime updates. An annual program exists only as a lower-upfront alternative.`,
             },
             {
               question: "How many Macs does one license cover?",
-              answer: `Up to ${macwall.maxLicensedMacs} Macs you own, and you can deactivate a machine at any time to free a slot. The Pro+ pack raises the limit.`,
+              answer: `Up to ${macwall.maxLicensedMacs} Macs you own, and you can deactivate a machine at any time to free a slot. The Pro+ program raises the limit.`,
             },
           ],
         }),

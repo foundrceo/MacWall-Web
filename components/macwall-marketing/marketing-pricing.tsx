@@ -105,7 +105,7 @@ export default function MacWallMarketingPricingPage() {
                     <PricingPrimaryButton
                       href={pricing.checkoutUrl}
                       location="pricing_card_permanent"
-                      ariaLabel={`Buy ${macwall.name} Pro for ${pricing.permanentPrice}`}
+                      ariaLabel={`Invest in ${macwall.name} Pro for ${pricing.permanentPrice}`}
                     >
                       {plans.pro.ctaPermanent}
                     </PricingPrimaryButton>

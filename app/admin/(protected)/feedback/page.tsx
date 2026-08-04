@@ -172,11 +172,7 @@ function linkifyAdminText(text: string) {
     }
     if (part.includes("@") && part.includes(".")) {
       return (
-        <a
-          key={`${part}-${i}`}
-          href={`mailto:${part}`}
-          className={linkClass}
-        >
+        <a key={`${part}-${i}`} href={`mailto:${part}`} className={linkClass}>
           {part}
         </a>
       )
@@ -398,8 +394,7 @@ export default function AdminFeedbackPage() {
 
   const selected = items.find((item) => item.id === selectedId) ?? null
   const selectedVisitorTyping = Boolean(
-    selectedId &&
-      (visitorTypingUntil[selectedId] ?? 0) > Date.now()
+    selectedId && (visitorTypingUntil[selectedId] ?? 0) > Date.now()
   )
 
   /* --- data ------------------------------------------------------------- */
@@ -522,17 +517,16 @@ export default function AdminFeedbackPage() {
     ticketId: selectedId,
     enabled: Boolean(selectedId) && Boolean(selected) && !selected?.isResolved,
     buildBody: () => ({}),
-    endpointFor: (id) =>
-      `/api/admin/feedback/${encodeURIComponent(id)}/typing`,
+    endpointFor: (id) => `/api/admin/feedback/${encodeURIComponent(id)}/typing`,
   })
 
-  // Safety-net poll so new web chats appear even if SSE is quiet
+  // Safety-net poll only when SSE is quiet — never dual-path with healthy live.
   useEffect(() => {
-    const ms = live ? 45_000 : 20_000
+    if (live) return
     const id = window.setInterval(() => {
       if (typeof document !== "undefined" && document.hidden) return
       void load(true)
-    }, ms)
+    }, 45_000)
     return () => window.clearInterval(id)
   }, [live, load])
 
@@ -712,7 +706,11 @@ export default function AdminFeedbackPage() {
     const allowedExt = Boolean(
       ext && ["jpg", "jpeg", "png", "webp"].includes(ext)
     )
-    if ((!allowedType && !allowedExt) || file.size <= 0 || file.size > 4 * 1024 * 1024) {
+    if (
+      (!allowedType && !allowedExt) ||
+      file.size <= 0 ||
+      file.size > 4 * 1024 * 1024
+    ) {
       setComposerError("Images only — jpg, png, or webp under 4MB.")
       return
     }
@@ -723,7 +721,10 @@ export default function AdminFeedbackPage() {
     })
   }
 
-  async function uploadAdminImage(ticketId: string, file: File): Promise<string> {
+  async function uploadAdminImage(
+    ticketId: string,
+    file: File
+  ): Promise<string> {
     const form = new FormData()
     form.append("file", file)
     form.append("ticketId", ticketId)
@@ -1476,9 +1477,7 @@ export default function AdminFeedbackPage() {
                       <button
                         type="button"
                         aria-label="Send reply"
-                        disabled={
-                          sending || (!draft.trim() && !pendingImage)
-                        }
+                        disabled={sending || (!draft.trim() && !pendingImage)}
                         onClick={() => void sendReply()}
                         className={cn(
                           "mb-1 flex size-8 shrink-0 items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]/35",

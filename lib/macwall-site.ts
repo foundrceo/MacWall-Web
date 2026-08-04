@@ -105,7 +105,8 @@ export const macwallMinimumMacOSRequirementOrLater =
   `${macwallMinimumMacOSRequirement} or later` as const
 
 const MACWALL_NAME = "MacWall" as const
-const MACWALL_TAGLINE = "Cinematic live wallpapers, built for Mac." as const
+const MACWALL_TAGLINE =
+  "Cinematic live wallpapers — elite craftsmanship, built for Mac." as const
 const MACWALL_FULL_TAGLINE = `${MACWALL_NAME} - ${MACWALL_TAGLINE}` as const
 
 export const macwall = {
@@ -156,10 +157,10 @@ export const macwall = {
     suffix: "permanent",
     socialProofMembers: "1,000+",
     features: [
-      "Full cloud catalog (1,000+ live wallpapers)",
+      "Complete cloud catalog (1,000+ live wallpapers)",
       `Live Lock Screen & Screen Saver (${macwallLockScreenMacOSVersion}+)`,
       "Unlimited favorites and playlists",
-      "Lifetime updates and future Pro features",
+      "Lifetime updates and future Pro benefits",
     ],
   },
   annual: {
@@ -173,13 +174,13 @@ export const macwall = {
   /** Everything included with a Pro license. */
   proIncludedFeatures: [
     "Cloud catalog: featured, newest, and most popular",
-    "Explore with search, filters, and community likes",
+    "Explore with search, filters, and community engagement",
     "Save favorites and browse 9 categories",
-    "Import your own MP4 and MOV clips",
+    "Import your own MP4 and MOV clips — personalized media",
     "Multi-display playback, synced or solo (hardware decode)",
     "Music Sync: album-art gradients from Apple Music and Spotify",
     "Menu bar control: pause, resume, stop, switch wallpapers",
-    "Auto-pause on battery, full screen, and high CPU",
+    "Auto-pause on battery, full screen, and high CPU — optimized",
   ],
 } as const
 

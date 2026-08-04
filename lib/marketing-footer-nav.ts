@@ -65,13 +65,13 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
         { label: "Learn", href: "/learn" },
         { label: "Blogs", href: "/blog" },
         { label: "Changelog", href: "/changelog" },
-        { label: "Creator Offer", href: "/creator" },
+        { label: "Creator Solution", href: "/creator" },
       ],
     },
     {
-      title: "Support",
+      title: "Assistance",
       links: [
-        { label: "Live Support", href: SUPPORT_CHAT_HREF },
+        { label: "Live Assistance", href: SUPPORT_CHAT_HREF },
         {
           label: "Email us",
           href: `mailto:${macwall.supportEmail}`,
@@ -202,7 +202,7 @@ export function getMarketingFooterSections(
             ]
           : []),
         {
-          label: "Live Support",
+          label: "Live Assistance",
           href: SUPPORT_CHAT_HREF,
           kind: "internal",
         },

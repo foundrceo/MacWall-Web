@@ -107,13 +107,35 @@ function mapTicket(row: RpcRow): SupportTicket {
   }
 }
 
-export async function listSupportTickets(sessionId: string): Promise<SupportTicket[]> {
+export async function listSupportTickets(
+  sessionId: string
+): Promise<SupportTicket[]> {
   const supabase = getSupabaseAdmin()
   const { data, error } = await supabase.rpc("app_feedback_for_device", {
     p_device_id: sessionId,
   })
   if (error) throw new Error(error.message)
   return ((data ?? []) as RpcRow[]).map(mapTicket)
+}
+
+/**
+ * Cheap ownership check for typing/SSE auth — one row, no messages tree.
+ * Prefer this over `listSupportTickets` on hot paths.
+ */
+export async function sessionOwnsSupportTicket(
+  sessionId: string,
+  ticketId: string
+): Promise<boolean> {
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase
+    .from("app_feedback")
+    .select("id")
+    .eq("id", ticketId)
+    .eq("device_id", sessionId)
+    .limit(1)
+    .maybeSingle()
+  if (error) throw new Error(error.message)
+  return Boolean(data?.id)
 }
 
 export async function createSupportTicket(input: {

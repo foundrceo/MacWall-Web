@@ -43,8 +43,8 @@ export function withAnalyticsSessionHref(href: string): string {
   return `${url.pathname}${url.search}`
 }
 
-/** Sample high-volume page_views — conversions always fire (cuts Function invocations). */
-const PAGE_VIEW_SAMPLE_RATE = 0.25
+/** Sample high-volume page_views — conversions always fire (cuts Function + Supabase writes). */
+const PAGE_VIEW_SAMPLE_RATE = 0.1
 
 export function trackSiteEventClient(
   eventName: SiteAnalyticsEventName,
