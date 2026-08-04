@@ -102,12 +102,10 @@ export function WallpaperDetail({
   wallpaper,
   similar,
   origin,
-  previewVideoUrl,
 }: Readonly<{
   wallpaper: PublicWallpaper
   similar: PublicWallpaper[]
   origin: string
-  previewVideoUrl?: string
 }>) {
   const categorySlug = wallpaperCategorySlugOrFallback(wallpaper.category)
   const categoryHref = wallpapersGalleryHref(categorySlug)
@@ -118,7 +116,6 @@ export function WallpaperDetail({
   })
   const loopTime = formatLoopDuration(wallpaper.durationSeconds)
   const sizeLabel = formatFileSize(wallpaper.fileSizeBytes)
-  const videoSrc = previewVideoUrl ?? wallpaper.videoUrl
   const { lead: detailLead, detail: detailBody } = buildDetailCopy(wallpaper)
 
   return (
@@ -193,7 +190,8 @@ export function WallpaperDetail({
         )}
       >
         <WallpaperVideoPlayer
-          src={videoSrc}
+          src={wallpaper.videoUrl}
+          videoKey={wallpaper.videoKey}
           poster={wallpaper.thumbUrl}
           title={wallpaper.name}
         />

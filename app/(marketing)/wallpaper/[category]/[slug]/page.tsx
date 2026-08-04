@@ -8,7 +8,6 @@ import {
   getPublicWallpaperByDetailSlug,
   listSimilarPublicWallpapers,
 } from "@/lib/public-catalog/fetch"
-import { resolvePreviewVideoUrl } from "@/lib/public-catalog/preview-video-url"
 import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
 import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
@@ -51,17 +50,15 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
     permanentRedirect(canonicalPath)
   }
 
-  const [similarResult, previewVideoUrlResult] = await Promise.allSettled([
-    listSimilarPublicWallpapers(wallpaper, 6),
-    resolvePreviewVideoUrl(wallpaper.videoKey),
-  ])
-
-  const similar =
-    similarResult.status === "fulfilled" ? similarResult.value : []
-  const previewVideoUrl =
-    previewVideoUrlResult.status === "fulfilled"
-      ? previewVideoUrlResult.value
-      : wallpaper.videoUrl
+  // Do NOT mint short-lived signed preview URLs here — page ISR (1h) outlives
+  // signed TTL (15m) and left users with a blank player. The client player
+  // fetches a fresh URL from `/api/wallpapers/preview` on mount.
+  let similar: Awaited<ReturnType<typeof listSimilarPublicWallpapers>> = []
+  try {
+    similar = await listSimilarPublicWallpapers(wallpaper, 6)
+  } catch {
+    similar = []
+  }
 
   const origin = canonicalSiteOrigin()
   const detailDescription = `${wallpaper.name} live wallpaper for Mac in ${wallpaper.category}. Preview the loop and set it with ${macwall.name}.`
@@ -82,7 +79,6 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
           wallpaper={wallpaper}
           similar={similar}
           origin={origin}
-          previewVideoUrl={previewVideoUrl}
         />
       </main>
       <MacWallMarketingPageEnd />
