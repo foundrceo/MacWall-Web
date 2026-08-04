@@ -5,12 +5,14 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   useTransition,
   type FormEvent,
 } from "react"
+import { flushSync } from "react-dom"
 import { Loading03Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -67,11 +69,12 @@ import {
   WALLPAPER_SECTION_FONT_CLASS,
 } from "@/lib/public-catalog/typography"
 import {
-  clearGalleryReturnFocus,
-  GALLERY_RETURN_MAX_PAGE,
+  getGalleryReturnForFilters,
   galleryReturnFiltersMatch,
-  readGalleryReturnState,
-  writeGalleryReturnState,
+  readGalleryReturnSnapshot,
+  scrollGalleryToWallpaper,
+  shouldRestoreGallerySnapshot,
+  writeGalleryReturnSnapshot,
   type GalleryReturnFilters,
 } from "@/lib/public-catalog/gallery-return-state"
 import {
@@ -178,6 +181,34 @@ export function WallpaperGallery({
   const tagParam = searchParams.get("tag") ?? ""
   const sort = parseSort(searchParams.get("sort"))
 
+  /**
+   * Cache key MUST be the gallery route — never `usePathname()`.
+   * On detail navigation Next updates pathname to `/wallpaper/...` before this
+   * component unmounts; persisting under that path made Back miss the snapshot
+   * and fall back to SSR page 1 (browser-verified: 48 → 24 wipe).
+   */
+  const galleryPathname = useMemo(() => {
+    if (!activeCategory) return wallpapersGalleryPath()
+    const slug = categorySlugFromName(activeCategory)
+    return slug ? wallpapersGalleryPath(slug) : wallpapersGalleryPath()
+  }, [activeCategory])
+
+  const returnFilters = useMemo<GalleryReturnFilters>(
+    () => ({
+      pathname: galleryPathname,
+      category: activeCategory,
+      q: qParam,
+      tag: tagParam,
+      sort,
+    }),
+    [galleryPathname, activeCategory, qParam, tagParam, sort]
+  )
+
+  const onGalleryRoute =
+    pathname === galleryPathname || pathname.startsWith("/wallpapers")
+
+  // SSR + first client paint must match `initial` (no sessionStorage in RSC).
+  // Cache is applied in useLayoutEffect before paint when returning from detail.
   const [query, setQuery] = useState(qParam)
   const [wallpapers, setWallpapers] = useState(initial.wallpapers)
   const [page, setPage] = useState(initial.page)
@@ -188,95 +219,68 @@ export function WallpaperGallery({
   const [entranceIndices, setEntranceIndices] = useState<
     Record<string, number>
   >(() => buildEntranceIndices(initial.wallpapers))
-  const [restoringReturn, setRestoringReturn] = useState(false)
+  /** Skip card fade/slide after back-nav restore (set false again on user Show more). */
+  const [suppressEntrance, setSuppressEntrance] = useState(false)
 
-  const returnFilters = useMemo<GalleryReturnFilters>(
-    () => ({
-      pathname,
-      category: activeCategory,
-      q: qParam,
-      tag: tagParam,
-      sort,
-    }),
-    [pathname, activeCategory, qParam, tagParam, sort]
-  )
-
-  const persistReturnState = useCallback(
-    (next: {
-      page: number
-      hasMore: boolean
-      focusWallpaperId?: string | null
-      scrollY?: number
-    }) => {
-      const existing = readGalleryReturnState()
+  const persistSnapshot = useCallback(
+    (
+      next: {
+        wallpapers: PublicWallpaper[]
+        page: number
+        hasMore: boolean
+        focusWallpaperId?: string | null
+        scrollY?: number
+      },
+      options?: { replace?: boolean }
+    ) => {
+      const existing = readGalleryReturnSnapshot()
       const sameView =
         existing && galleryReturnFiltersMatch(existing.filters, returnFilters)
-      writeGalleryReturnState({
-        filters: returnFilters,
-        page: next.page,
-        hasMore: next.hasMore,
-        focusWallpaperId:
-          next.focusWallpaperId !== undefined
-            ? next.focusWallpaperId
-            : sameView
-              ? existing.focusWallpaperId
-              : null,
-        scrollY:
-          next.scrollY !== undefined
-            ? next.scrollY
-            : sameView
-              ? existing.scrollY
-              : 0,
-      })
+      writeGalleryReturnSnapshot(
+        {
+          filters: returnFilters,
+          wallpapers: next.wallpapers,
+          page: next.page,
+          hasMore: next.hasMore,
+          focusWallpaperId:
+            next.focusWallpaperId !== undefined
+              ? next.focusWallpaperId
+              : sameView
+                ? existing.focusWallpaperId
+                : null,
+          scrollY:
+            next.scrollY !== undefined
+              ? next.scrollY
+              : sameView
+                ? existing.scrollY
+                : 0,
+        },
+        options
+      )
     },
     [returnFilters]
-  )
-
-  const scrollToReturnedWallpaper = useCallback(
-    (focusWallpaperId: string | null, scrollY: number) => {
-      const finish = () => {
-        if (focusWallpaperId) {
-          const el = document.getElementById(
-            `wallpaper-card-${focusWallpaperId}`
-          )
-          if (el) {
-            el.scrollIntoView({ block: "center", behavior: "auto" })
-            clearGalleryReturnFocus()
-            return
-          }
-        }
-        if (scrollY > 0) {
-          window.scrollTo({ top: scrollY, behavior: "auto" })
-        }
-      }
-      // Wait a frame so newly appended cards are in the DOM.
-      requestAnimationFrame(() => {
-        requestAnimationFrame(finish)
-      })
-    },
-    []
   )
 
   useEffect(() => {
     setQuery(qParam)
   }, [qParam])
 
-  useEffect(() => {
-    setWallpapers(initial.wallpapers)
-    setPage(initial.page)
-    setHasMore(initial.hasMore)
-    setRefreshError(null)
-    setLoadMoreError(null)
-    setEntranceIndices(buildEntranceIndices(initial.wallpapers))
-  }, [initial])
+  const persistSnapshotRef = useRef(persistSnapshot)
+  persistSnapshotRef.current = persistSnapshot
 
-  const skipFilterFetch = useRef(true)
+  // Only refetch when the user changes filters — NOT when callback identity churns.
+  // (Including `persistSnapshot` in deps re-fired this on Back and wiped Show more
+  // via `{ replace: true }` → browser-verified 48→24 regression.)
+  const filterKey = `${activeCategory ?? ""}|${qParam}|${tagParam}|${sort}|${initial.limit}`
+  const filterKeyRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (skipFilterFetch.current) {
-      skipFilterFetch.current = false
+    if (filterKeyRef.current === null) {
+      filterKeyRef.current = filterKey
       return
     }
+    if (filterKeyRef.current === filterKey) return
+    filterKeyRef.current = filterKey
 
     let cancelled = false
 
@@ -300,12 +304,17 @@ export function WallpaperGallery({
         setPage(data.page)
         setHasMore(data.hasMore)
         setEntranceIndices(buildEntranceIndices(data.wallpapers))
-        persistReturnState({
-          page: data.page,
-          hasMore: data.hasMore,
-          focusWallpaperId: null,
-          scrollY: 0,
-        })
+        setSuppressEntrance(false)
+        persistSnapshotRef.current(
+          {
+            wallpapers: data.wallpapers,
+            page: data.page,
+            hasMore: data.hasMore,
+            focusWallpaperId: null,
+            scrollY: 0,
+          },
+          { replace: true }
+        )
       } catch {
         if (!cancelled) {
           setRefreshError("Couldn’t refresh wallpapers. Try again.")
@@ -317,130 +326,67 @@ export function WallpaperGallery({
     return () => {
       cancelled = true
     }
-  }, [
-    activeCategory,
-    qParam,
-    tagParam,
-    sort,
-    initial.limit,
-    persistReturnState,
-  ])
+  }, [filterKey, activeCategory, qParam, tagParam, sort, initial.limit])
 
-  // Re-expand “Show more” pages + scroll to the card you opened after back-nav.
+  // Own scroll — Next/browser restoration is what dumps you on the footer.
   useEffect(() => {
-    const saved = readGalleryReturnState()
-    if (!saved || !galleryReturnFiltersMatch(saved.filters, returnFilters)) {
-      persistReturnState({
-        page: initial.page,
-        hasMore: initial.hasMore,
-        focusWallpaperId: null,
-        scrollY: 0,
-      })
-      return
+    const previous = window.history.scrollRestoration
+    try {
+      window.history.scrollRestoration = "manual"
+    } catch {
+      // ignore
     }
-
-    const targetPage = Math.max(
-      1,
-      Math.min(GALLERY_RETURN_MAX_PAGE, Math.floor(saved.page))
-    )
-    const focusWallpaperId = saved.focusWallpaperId
-    const scrollY = saved.scrollY
-
-    if (targetPage <= 1) {
-      persistReturnState({
-        page: 1,
-        hasMore: saved.hasMore,
-        focusWallpaperId,
-        scrollY,
-      })
-      scrollToReturnedWallpaper(focusWallpaperId, scrollY)
-      return
-    }
-
-    let cancelled = false
-
-    async function restoreExpandedPages() {
-      setRestoringReturn(true)
-      setLoadingMore(true)
-      setLoadMoreError(null)
+    return () => {
       try {
-        const pageFetches = Array.from(
-          { length: targetPage - 1 },
-          async (_, index) => {
-            const pageNum = index + 2
-            const params = new URLSearchParams({
-              page: String(pageNum),
-              limit: String(initial.limit),
-              sort,
-            })
-            if (activeCategory) params.set("category", activeCategory)
-            if (qParam) params.set("q", qParam)
-            if (tagParam) params.set("tag", tagParam)
-            const res = await fetch(`/api/wallpapers?${params}`)
-            if (!res.ok) throw new Error(`HTTP ${res.status}`)
-            return (await res.json()) as PublicWallpaperListResult
-          }
-        )
-
-        const batches = await Promise.all(pageFetches)
-        if (cancelled) return
-
-        const merged = [...initial.wallpapers]
-        const seen = new Set(merged.map((item) => item.id))
-        let lastHasMore = initial.hasMore
-        let lastPage = initial.page
-        const appended: PublicWallpaper[] = []
-
-        for (const batch of batches) {
-          lastHasMore = batch.hasMore
-          lastPage = batch.page
-          for (const item of batch.wallpapers) {
-            if (seen.has(item.id)) continue
-            seen.add(item.id)
-            merged.push(item)
-            appended.push(item)
-          }
-        }
-
-        setWallpapers(merged)
-        setPage(lastPage)
-        setHasMore(lastHasMore)
-        setEntranceIndices((prev) => mergeEntranceIndices(prev, appended))
-        persistReturnState({
-          page: lastPage,
-          hasMore: lastHasMore,
-          focusWallpaperId,
-          scrollY,
-        })
-        scrollToReturnedWallpaper(focusWallpaperId, scrollY)
+        window.history.scrollRestoration = previous
       } catch {
-        if (!cancelled) {
-          // Still try to land near where they were on page 1.
-          scrollToReturnedWallpaper(focusWallpaperId, scrollY)
-        }
-      } finally {
-        if (!cancelled) {
-          setLoadingMore(false)
-          setRestoringReturn(false)
-        }
+        // ignore
       }
     }
+  }, [])
 
-    void restoreExpandedPages()
-    return () => {
-      cancelled = true
+  // Keep cache warm for focus marking — only while still on a gallery route.
+  useEffect(() => {
+    if (!onGalleryRoute) return
+    persistSnapshot({
+      wallpapers,
+      page,
+      hasMore,
+    })
+  }, [wallpapers, page, hasMore, persistSnapshot, onGalleryRoute])
+
+  // Restore expanded list + lock scroll to the opened card after Back.
+  useLayoutEffect(() => {
+    const saved = getGalleryReturnForFilters(returnFilters)
+    if (
+      !saved ||
+      !shouldRestoreGallerySnapshot(saved, initial.wallpapers.length)
+    ) {
+      return
     }
-    // Only re-run when the gallery view (filters / SSR seed) changes — not on every render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional view-key restore
+
+    // Re-apply whenever React remounted behind the cache (Strict Mode / Back).
+    const behindCache = wallpapers.length < saved.wallpapers.length
+    const needsFocusScroll = Boolean(saved.focusWallpaperId)
+    if (!behindCache && !needsFocusScroll) return
+
+    setSuppressEntrance(true)
+    if (behindCache) {
+      flushSync(() => {
+        setWallpapers(saved.wallpapers)
+        setPage(saved.page)
+        setHasMore(saved.hasMore)
+        setEntranceIndices(buildEntranceIndices(saved.wallpapers))
+      })
+    }
+
+    if (needsFocusScroll) {
+      return scrollGalleryToWallpaper(saved.focusWallpaperId)
+    }
   }, [
-    returnFilters.pathname,
-    returnFilters.category,
-    returnFilters.q,
-    returnFilters.tag,
-    returnFilters.sort,
-    initial.page,
-    initial.limit,
-    initial.hasMore,
+    returnFilters,
+    initial.wallpapers.length,
+    wallpapers.length,
   ])
 
   const resolvedSubtitle = useMemo(() => {
@@ -478,6 +424,8 @@ export function WallpaperGallery({
 
   const loadMore = async () => {
     if (loadingMore || !hasMore) return
+    // Fresh user pagination — allow entrance animation on the new batch only.
+    setSuppressEntrance(false)
     setLoadingMore(true)
     setLoadMoreError(null)
     try {
@@ -493,18 +441,22 @@ export function WallpaperGallery({
       const res = await fetch(`/api/wallpapers?${params}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = (await res.json()) as PublicWallpaperListResult
-      setWallpapers((prev) => {
-        const seen = new Set(prev.map((item) => item.id))
-        const merged = [...prev]
-        for (const item of data.wallpapers) {
-          if (!seen.has(item.id)) merged.push(item)
+      // Build the merged list before setState so the cache always gets the full grid.
+      const seen = new Set(wallpapers.map((item) => item.id))
+      const merged = [...wallpapers]
+      for (const item of data.wallpapers) {
+        if (!seen.has(item.id)) {
+          seen.add(item.id)
+          merged.push(item)
         }
-        return merged
-      })
+      }
+      setWallpapers(merged)
       setEntranceIndices((prev) => mergeEntranceIndices(prev, data.wallpapers))
       setPage(data.page)
       setHasMore(data.hasMore)
-      persistReturnState({
+      // Persist the full expanded list — this is what Back restores (no re-fetch).
+      persistSnapshot({
+        wallpapers: merged,
         page: data.page,
         hasMore: data.hasMore,
       })
@@ -515,8 +467,7 @@ export function WallpaperGallery({
     }
   }
 
-  const showLoadMoreFooter =
-    hasMore || Boolean(loadMoreError) || restoringReturn
+  const showLoadMoreFooter = hasMore || Boolean(loadMoreError)
 
   const categories: Array<{
     name: string | null
@@ -781,6 +732,7 @@ export function WallpaperGallery({
               priority={index < 6}
               index={index}
               entranceIndex={entranceIndices[wallpaper.id] ?? index}
+              animateEntrance={!suppressEntrance}
             />
           ))}
         </div>
@@ -795,12 +747,12 @@ export function WallpaperGallery({
         </p>
       ) : null}
 
-      {loadingMore || restoringReturn ? <LoadMoreSkeletonRow /> : null}
+      {loadingMore ? <LoadMoreSkeletonRow /> : null}
 
       {showLoadMoreFooter ? (
         <div
           className="mt-8 flex flex-col items-center gap-3 sm:mt-10"
-          aria-busy={loadingMore || restoringReturn}
+          aria-busy={loadingMore}
           aria-live="polite"
         >
           {loadMoreError ? (
@@ -813,24 +765,24 @@ export function WallpaperGallery({
             </p>
           ) : null}
 
-          {hasMore || restoringReturn ? (
+          {hasMore ? (
             <Button
               type="button"
               variant="outline"
               onClick={() => void loadMore()}
-              disabled={loadingMore || restoringReturn}
-              aria-busy={loadingMore || restoringReturn}
+              disabled={loadingMore}
+              aria-busy={loadingMore}
               aria-describedby={
                 loadMoreError ? "gallery-load-more-error" : undefined
               }
               className={cn(
                 GALLERY_CAPSULE_BTN_CLASS,
                 "inline-flex min-w-[9.75rem] items-center justify-center gap-2 px-6",
-                (loadingMore || restoringReturn) &&
+                loadingMore &&
                   "cursor-not-allowed opacity-60 hover:bg-white/[0.08] hover:text-white/70"
               )}
             >
-              {loadingMore || restoringReturn ? (
+              {loadingMore ? (
                 <>
                   <HugeiconsIcon
                     icon={Loading03Icon}
@@ -839,7 +791,7 @@ export function WallpaperGallery({
                     className="animate-spin text-white/55"
                     aria-hidden
                   />
-                  <span>{restoringReturn ? "Restoring…" : "Loading…"}</span>
+                  <span>Loading…</span>
                 </>
               ) : (
                 <span>{loadMoreError ? "Try again" : "Show more"}</span>
