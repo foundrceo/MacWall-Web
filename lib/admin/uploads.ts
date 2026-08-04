@@ -98,13 +98,23 @@ export async function getCommunityUpload(
 
 export async function approveCommunityUpload(
   uploadId: string,
-  wallpaperId?: string | null
+  wallpaperId?: string | null,
+  reviewNotes?: string | null
 ) {
   const upload = await getCommunityUpload(uploadId)
   if (!upload) throw new Error("upload_not_found")
   if (upload.status === "rejected") throw new Error("upload_rejected")
 
+  const trimmedNotes = reviewNotes?.trim() || null
+
   if (upload.status === "approved" && upload.approvedWallpaperId) {
+    if (trimmedNotes) {
+      const supabase = getSupabaseAdmin()
+      await supabase
+        .from("community_uploads")
+        .update({ review_notes: trimmedNotes })
+        .eq("id", uploadId)
+    }
     return {
       status: "approved",
       wallpaperId: upload.approvedWallpaperId,
@@ -154,6 +164,7 @@ export async function approveCommunityUpload(
     .update({
       status: "approved",
       approved_wallpaper_id: wallpaperID,
+      review_notes: trimmedNotes,
     })
     .eq("id", uploadId)
 
