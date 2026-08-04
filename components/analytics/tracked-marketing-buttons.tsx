@@ -60,6 +60,7 @@ export function TrackedPricingButton({
   location,
   ariaLabel,
   external,
+  onClick,
 }: Readonly<{
   href: string
   children: ReactNode
@@ -68,6 +69,7 @@ export function TrackedPricingButton({
   location: string
   external?: boolean
   ariaLabel?: string
+  onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
 }>) {
   const isExternal =
     external ??
@@ -83,6 +85,7 @@ export function TrackedPricingButton({
       metadata={{ location }}
       external={isExternal}
       ariaLabel={ariaLabel}
+      onClick={onClick}
     >
       {children}
     </TrackedLink>
