@@ -33,8 +33,11 @@ export type CreateMacWallCheckoutResult =
   | { ok: true; url: string }
   | { ok: false; error: string; status: number }
 
-/** Stable Dashboard label for this web Checkout surface. */
-const CHECKOUT_INTEGRATION_ID = "macwall_web_checkout_v1"
+/**
+ * Stable Dashboard label for this web Checkout surface.
+ * Stripe best practice: include an 8-letter suffix for flow comparison.
+ */
+const CHECKOUT_INTEGRATION_ID = "macwall_web_checkout_kxqmvrnp"
 
 /**
  * Creates the Stripe Checkout Session ASAP, then persists the pending license

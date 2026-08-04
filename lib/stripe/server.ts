@@ -13,7 +13,8 @@ export function getStripe(): Stripe {
   }
 
   cached = new Stripe(secretKey, {
-    apiVersion: "2026-05-27.dahlia",
+    // Match installed `stripe` SDK LatestApiVersion.
+    apiVersion: "2026-07-29.dahlia",
   })
 
   return cached
