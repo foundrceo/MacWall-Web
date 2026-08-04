@@ -90,14 +90,23 @@ export function TrackedLink({
 
     if (isCheckoutClick && checkoutOffer) {
       trackNavigation()
-      // Always await in-flight prefetch so a fast click doesn't create a
-      // second Stripe session while the first is still resolving.
+      // POST → Stripe Checkout URL. Never GET create-session (429 → /pricing?checkout_error).
       event.preventDefault()
-      void waitForPrefetchedCheckoutUrl(checkoutOffer).then((url) => {
-        window.location.assign(
-          url ?? withMarketingAttribution(href)
-        )
-      })
+      const anchor = event.currentTarget
+      anchor.setAttribute("aria-busy", "true")
+      void waitForPrefetchedCheckoutUrl(checkoutOffer)
+        .then((url) => {
+          if (url?.startsWith("https://")) {
+            // Stripe Hosted Checkout session URL from POST create-session.
+            window.location.assign(url)
+            return
+          }
+          // Session create failed — stay put; user can retry (no GET rate-limit burn).
+          anchor.removeAttribute("aria-busy")
+        })
+        .catch(() => {
+          anchor.removeAttribute("aria-busy")
+        })
       return
     }
 
