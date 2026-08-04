@@ -66,7 +66,18 @@ import {
   WALLPAPER_DISPLAY_HEADING_CLASS,
   WALLPAPER_SECTION_FONT_CLASS,
 } from "@/lib/public-catalog/typography"
-import { wallpapersGalleryHref, wallpapersGalleryPath } from "@/lib/public-catalog/urls"
+import {
+  clearGalleryReturnFocus,
+  GALLERY_RETURN_MAX_PAGE,
+  galleryReturnFiltersMatch,
+  readGalleryReturnState,
+  writeGalleryReturnState,
+  type GalleryReturnFilters,
+} from "@/lib/public-catalog/gallery-return-state"
+import {
+  wallpapersGalleryHref,
+  wallpapersGalleryPath,
+} from "@/lib/public-catalog/urls"
 import { categorySlugFromName } from "@/lib/seo/category-slugs"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
@@ -105,8 +116,12 @@ function sortLabel(sort: PublicCatalogSort): string {
   }
 }
 
-function buildEntranceIndices(wallpapers: PublicWallpaper[]): Record<string, number> {
-  return Object.fromEntries(wallpapers.map((wallpaper, index) => [wallpaper.id, index]))
+function buildEntranceIndices(
+  wallpapers: PublicWallpaper[]
+): Record<string, number> {
+  return Object.fromEntries(
+    wallpapers.map((wallpaper, index) => [wallpaper.id, index])
+  )
 }
 
 function mergeEntranceIndices(
@@ -128,10 +143,7 @@ const GALLERY_GRID_LAYOUT_CLASS =
 
 function LoadMoreSkeletonRow() {
   return (
-    <div
-      className={cn(GALLERY_GRID_LAYOUT_CLASS, "mt-7 lg:mt-8")}
-      aria-hidden
-    >
+    <div className={cn(GALLERY_GRID_LAYOUT_CLASS, "mt-7 lg:mt-8")} aria-hidden>
       {Array.from({ length: 3 }).map((_, index) => (
         <div key={index} className="space-y-2.5">
           <Skeleton
@@ -173,8 +185,76 @@ export function WallpaperGallery({
   const [loadingMore, setLoadingMore] = useState(false)
   const [refreshError, setRefreshError] = useState<string | null>(null)
   const [loadMoreError, setLoadMoreError] = useState<string | null>(null)
-  const [entranceIndices, setEntranceIndices] = useState<Record<string, number>>(
-    () => buildEntranceIndices(initial.wallpapers)
+  const [entranceIndices, setEntranceIndices] = useState<
+    Record<string, number>
+  >(() => buildEntranceIndices(initial.wallpapers))
+  const [restoringReturn, setRestoringReturn] = useState(false)
+
+  const returnFilters = useMemo<GalleryReturnFilters>(
+    () => ({
+      pathname,
+      category: activeCategory,
+      q: qParam,
+      tag: tagParam,
+      sort,
+    }),
+    [pathname, activeCategory, qParam, tagParam, sort]
+  )
+
+  const persistReturnState = useCallback(
+    (next: {
+      page: number
+      hasMore: boolean
+      focusWallpaperId?: string | null
+      scrollY?: number
+    }) => {
+      const existing = readGalleryReturnState()
+      const sameView =
+        existing && galleryReturnFiltersMatch(existing.filters, returnFilters)
+      writeGalleryReturnState({
+        filters: returnFilters,
+        page: next.page,
+        hasMore: next.hasMore,
+        focusWallpaperId:
+          next.focusWallpaperId !== undefined
+            ? next.focusWallpaperId
+            : sameView
+              ? existing.focusWallpaperId
+              : null,
+        scrollY:
+          next.scrollY !== undefined
+            ? next.scrollY
+            : sameView
+              ? existing.scrollY
+              : 0,
+      })
+    },
+    [returnFilters]
+  )
+
+  const scrollToReturnedWallpaper = useCallback(
+    (focusWallpaperId: string | null, scrollY: number) => {
+      const finish = () => {
+        if (focusWallpaperId) {
+          const el = document.getElementById(
+            `wallpaper-card-${focusWallpaperId}`
+          )
+          if (el) {
+            el.scrollIntoView({ block: "center", behavior: "auto" })
+            clearGalleryReturnFocus()
+            return
+          }
+        }
+        if (scrollY > 0) {
+          window.scrollTo({ top: scrollY, behavior: "auto" })
+        }
+      }
+      // Wait a frame so newly appended cards are in the DOM.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(finish)
+      })
+    },
+    []
   )
 
   useEffect(() => {
@@ -220,6 +300,12 @@ export function WallpaperGallery({
         setPage(data.page)
         setHasMore(data.hasMore)
         setEntranceIndices(buildEntranceIndices(data.wallpapers))
+        persistReturnState({
+          page: data.page,
+          hasMore: data.hasMore,
+          focusWallpaperId: null,
+          scrollY: 0,
+        })
       } catch {
         if (!cancelled) {
           setRefreshError("Couldn’t refresh wallpapers. Try again.")
@@ -231,7 +317,131 @@ export function WallpaperGallery({
     return () => {
       cancelled = true
     }
-  }, [activeCategory, qParam, tagParam, sort, initial.limit])
+  }, [
+    activeCategory,
+    qParam,
+    tagParam,
+    sort,
+    initial.limit,
+    persistReturnState,
+  ])
+
+  // Re-expand “Show more” pages + scroll to the card you opened after back-nav.
+  useEffect(() => {
+    const saved = readGalleryReturnState()
+    if (!saved || !galleryReturnFiltersMatch(saved.filters, returnFilters)) {
+      persistReturnState({
+        page: initial.page,
+        hasMore: initial.hasMore,
+        focusWallpaperId: null,
+        scrollY: 0,
+      })
+      return
+    }
+
+    const targetPage = Math.max(
+      1,
+      Math.min(GALLERY_RETURN_MAX_PAGE, Math.floor(saved.page))
+    )
+    const focusWallpaperId = saved.focusWallpaperId
+    const scrollY = saved.scrollY
+
+    if (targetPage <= 1) {
+      persistReturnState({
+        page: 1,
+        hasMore: saved.hasMore,
+        focusWallpaperId,
+        scrollY,
+      })
+      scrollToReturnedWallpaper(focusWallpaperId, scrollY)
+      return
+    }
+
+    let cancelled = false
+
+    async function restoreExpandedPages() {
+      setRestoringReturn(true)
+      setLoadingMore(true)
+      setLoadMoreError(null)
+      try {
+        const pageFetches = Array.from(
+          { length: targetPage - 1 },
+          async (_, index) => {
+            const pageNum = index + 2
+            const params = new URLSearchParams({
+              page: String(pageNum),
+              limit: String(initial.limit),
+              sort,
+            })
+            if (activeCategory) params.set("category", activeCategory)
+            if (qParam) params.set("q", qParam)
+            if (tagParam) params.set("tag", tagParam)
+            const res = await fetch(`/api/wallpapers?${params}`)
+            if (!res.ok) throw new Error(`HTTP ${res.status}`)
+            return (await res.json()) as PublicWallpaperListResult
+          }
+        )
+
+        const batches = await Promise.all(pageFetches)
+        if (cancelled) return
+
+        const merged = [...initial.wallpapers]
+        const seen = new Set(merged.map((item) => item.id))
+        let lastHasMore = initial.hasMore
+        let lastPage = initial.page
+        const appended: PublicWallpaper[] = []
+
+        for (const batch of batches) {
+          lastHasMore = batch.hasMore
+          lastPage = batch.page
+          for (const item of batch.wallpapers) {
+            if (seen.has(item.id)) continue
+            seen.add(item.id)
+            merged.push(item)
+            appended.push(item)
+          }
+        }
+
+        setWallpapers(merged)
+        setPage(lastPage)
+        setHasMore(lastHasMore)
+        setEntranceIndices((prev) => mergeEntranceIndices(prev, appended))
+        persistReturnState({
+          page: lastPage,
+          hasMore: lastHasMore,
+          focusWallpaperId,
+          scrollY,
+        })
+        scrollToReturnedWallpaper(focusWallpaperId, scrollY)
+      } catch {
+        if (!cancelled) {
+          // Still try to land near where they were on page 1.
+          scrollToReturnedWallpaper(focusWallpaperId, scrollY)
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingMore(false)
+          setRestoringReturn(false)
+        }
+      }
+    }
+
+    void restoreExpandedPages()
+    return () => {
+      cancelled = true
+    }
+    // Only re-run when the gallery view (filters / SSR seed) changes — not on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional view-key restore
+  }, [
+    returnFilters.pathname,
+    returnFilters.category,
+    returnFilters.q,
+    returnFilters.tag,
+    returnFilters.sort,
+    initial.page,
+    initial.limit,
+    initial.hasMore,
+  ])
 
   const resolvedSubtitle = useMemo(() => {
     if (subtitle) return subtitle
@@ -294,6 +504,10 @@ export function WallpaperGallery({
       setEntranceIndices((prev) => mergeEntranceIndices(prev, data.wallpapers))
       setPage(data.page)
       setHasMore(data.hasMore)
+      persistReturnState({
+        page: data.page,
+        hasMore: data.hasMore,
+      })
     } catch {
       setLoadMoreError("Couldn’t load more wallpapers. Try again.")
     } finally {
@@ -301,20 +515,24 @@ export function WallpaperGallery({
     }
   }
 
-  const showLoadMoreFooter = hasMore || Boolean(loadMoreError)
+  const showLoadMoreFooter =
+    hasMore || Boolean(loadMoreError) || restoringReturn
 
-  const categories: Array<{ name: string | null; label: string; href: string }> =
-    [
-      { name: null, label: "All", href: wallpapersGalleryPath() },
-      ...macwall.categories.map((name) => {
-        const slug = categorySlugFromName(name)
-        return {
-          name: name as string,
-          label: name as string,
-          href: slug ? wallpapersGalleryPath(slug) : wallpapersGalleryPath(),
-        }
-      }),
-    ]
+  const categories: Array<{
+    name: string | null
+    label: string
+    href: string
+  }> = [
+    { name: null, label: "All", href: wallpapersGalleryPath() },
+    ...macwall.categories.map((name) => {
+      const slug = categorySlugFromName(name)
+      return {
+        name: name as string,
+        label: name as string,
+        href: slug ? wallpapersGalleryPath(slug) : wallpapersGalleryPath(),
+      }
+    }),
+  ]
 
   const galleryQuery = {
     q: qParam || null,
@@ -334,10 +552,7 @@ export function WallpaperGallery({
           {activeCategory ? (
             <>
               <BreadcrumbItem>
-                <BreadcrumbLink
-                  asChild
-                  className="transition hover:text-white"
-                >
+                <BreadcrumbLink asChild className="transition hover:text-white">
                   <Link href={wallpapersGalleryPath()}>Wallpapers</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
@@ -427,7 +642,7 @@ export function WallpaperGallery({
               <button
                 type="button"
                 onClick={() => openCommandPalette(true)}
-                className="pointer-events-auto flex h-[22px] shrink-0 appearance-none items-center justify-center border-0 bg-transparent p-0 leading-none transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25"
+                className="pointer-events-auto flex h-[22px] shrink-0 appearance-none items-center justify-center border-0 bg-transparent p-0 leading-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:outline-none"
                 aria-label={`Open command palette (${paletteShortcut})`}
               >
                 <KbdShortcut size="md" />
@@ -438,7 +653,7 @@ export function WallpaperGallery({
       </header>
 
       <div
-        className="mt-4 flex gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="mt-4 flex [scrollbar-width:none] gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         role="navigation"
         aria-label="Categories"
       >
@@ -456,7 +671,9 @@ export function WallpaperGallery({
             <Link
               key={category.label}
               href={href}
-              className={active ? GALLERY_CHIP_ACTIVE_CLASS : GALLERY_CHIP_CLASS}
+              className={
+                active ? GALLERY_CHIP_ACTIVE_CLASS : GALLERY_CHIP_CLASS
+              }
             >
               <CategoryIcon
                 category={category.name}
@@ -522,13 +739,15 @@ export function WallpaperGallery({
               <p className={cn("text-[17px]", GALLERY_TEXT_PRIMARY_CLASS)}>
                 Couldn&apos;t load wallpapers
               </p>
-              <p className={cn("mt-2 text-[15px]", GALLERY_TEXT_SECONDARY_CLASS)}>
+              <p
+                className={cn("mt-2 text-[15px]", GALLERY_TEXT_SECONDARY_CLASS)}
+              >
                 Check your connection and try again.
               </p>
               <a
                 href={wallpapersGalleryPath()}
                 className={cn(
-                  "mt-5 inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-[14px] font-medium text-black outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/50"
+                  "mt-5 inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-[14px] font-medium text-black transition-opacity outline-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/50"
                 )}
               >
                 Retry
@@ -539,7 +758,9 @@ export function WallpaperGallery({
               <p className={cn("text-[17px]", GALLERY_TEXT_PRIMARY_CLASS)}>
                 No wallpapers match
               </p>
-              <p className={cn("mt-2 text-[15px]", GALLERY_TEXT_SECONDARY_CLASS)}>
+              <p
+                className={cn("mt-2 text-[15px]", GALLERY_TEXT_SECONDARY_CLASS)}
+              >
                 Try another search, tag, or category.
               </p>
             </>
@@ -574,12 +795,12 @@ export function WallpaperGallery({
         </p>
       ) : null}
 
-      {loadingMore ? <LoadMoreSkeletonRow /> : null}
+      {loadingMore || restoringReturn ? <LoadMoreSkeletonRow /> : null}
 
       {showLoadMoreFooter ? (
         <div
           className="mt-8 flex flex-col items-center gap-3 sm:mt-10"
-          aria-busy={loadingMore}
+          aria-busy={loadingMore || restoringReturn}
           aria-live="polite"
         >
           {loadMoreError ? (
@@ -592,24 +813,24 @@ export function WallpaperGallery({
             </p>
           ) : null}
 
-          {hasMore ? (
+          {hasMore || restoringReturn ? (
             <Button
               type="button"
               variant="outline"
               onClick={() => void loadMore()}
-              disabled={loadingMore}
-              aria-busy={loadingMore}
+              disabled={loadingMore || restoringReturn}
+              aria-busy={loadingMore || restoringReturn}
               aria-describedby={
                 loadMoreError ? "gallery-load-more-error" : undefined
               }
               className={cn(
                 GALLERY_CAPSULE_BTN_CLASS,
                 "inline-flex min-w-[9.75rem] items-center justify-center gap-2 px-6",
-                loadingMore &&
+                (loadingMore || restoringReturn) &&
                   "cursor-not-allowed opacity-60 hover:bg-white/[0.08] hover:text-white/70"
               )}
             >
-              {loadingMore ? (
+              {loadingMore || restoringReturn ? (
                 <>
                   <HugeiconsIcon
                     icon={Loading03Icon}
@@ -618,7 +839,7 @@ export function WallpaperGallery({
                     className="animate-spin text-white/55"
                     aria-hidden
                   />
-                  <span>Loading…</span>
+                  <span>{restoringReturn ? "Restoring…" : "Loading…"}</span>
                 </>
               ) : (
                 <span>{loadMoreError ? "Try again" : "Show more"}</span>
