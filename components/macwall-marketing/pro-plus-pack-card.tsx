@@ -201,7 +201,7 @@ export function ProPlusPackCard({
         <TrackedPricingButton
           href={selected.checkoutUrl}
           location={`pricing_multi_mac_${selected.macs}`}
-          ariaLabel={`Buy ${macwall.name} Pro Plus for ${selected.macs} Macs at ${selected.price}`}
+          ariaLabel={`Invest in ${macwall.name} Pro Plus for ${selected.macs} Macs at ${selected.price}`}
           size="pill"
           className={pricingPrimaryButtonClass}
         >

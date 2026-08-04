@@ -27,9 +27,9 @@ export const LICENSE_PLANS: Record<LicensePlanSlug, LicensePlan> = {
     price: "$7.99",
     strikePrice: "$14.99",
     description:
-      "Full catalog, Lock Screen video, and lifetime updates on up to 3 personal Macs.",
-    featureHighlight: "Best for most people",
-    buyCta: "Buy Pro for $7.99",
+      "Complete catalog, Lock Screen video, and lifetime updates on up to 3 personal Macs — elite craftsmanship.",
+    featureHighlight: "Most effective for most clients",
+    buyCta: "Invest in Pro for $7.99",
   },
   pro_plus: {
     slug: "pro_plus",
@@ -39,9 +39,9 @@ export const LICENSE_PLANS: Record<LicensePlanSlug, LicensePlan> = {
     price: "$12.99",
     strikePrice: "$24.99",
     description:
-      "Everything in Pro for up to five personal Macs you own.",
-    featureHighlight: "Power users with more machines",
-    buyCta: "Buy Pro+ for $12.99",
+      "Everything in Pro for up to five personal Macs you own — a tailored large-scale program.",
+    featureHighlight: "Professionals with more machines",
+    buyCta: "Invest in Pro+ for $12.99",
   },
 }
 
@@ -80,12 +80,12 @@ export function licensePlanCheckoutPath(
 
 export function deviceLimitUserMessage(maxDevices: number): string {
   if (maxDevices <= 1) {
-    return "This license is already in use on another Mac. Buy another license at macwall.app/pricing for your other machine."
+    return "This license is already in use on another Mac. Invest in another license at macwall.app/pricing for your other machine."
   }
   if (maxDevices >= 5) {
     return `This license is already active on ${maxDevices} Macs. Unlink a device in Settings → Devices on one of your linked Macs, then try again.`
   }
-  return `This license is already active on ${maxDevices} Macs. Unlink a device in Settings → Devices on one of your linked Macs, or upgrade to Pro Plus at macwall.app/pricing.`
+  return `This license is already active on ${maxDevices} Macs. Unlink a device in Settings → Devices on one of your linked Macs, or elevate to Pro Plus at macwall.app/pricing.`
 }
 
 export function macsLabel(count: number): string {

@@ -122,11 +122,7 @@ function linkify(text: string, tone: "user" | "support" = "support") {
     }
     if (part.includes("@") && part.includes(".")) {
       return (
-        <a
-          key={`${part}-${i}`}
-          href={`mailto:${part}`}
-          className={linkClass}
-        >
+        <a key={`${part}-${i}`} href={`mailto:${part}`} className={linkClass}>
           {part}
         </a>
       )
@@ -156,7 +152,11 @@ function handoffStatusLabel(handoff: HandoffStep): "Open" | "Live" | "Closed" {
 function normalizeContactHandoff(convo: ChatConversation): HandoffStep {
   const handoff = convo.handoff
   if (handoff === "live" || handoff === "closed") return handoff
-  if (handoff === "ask_name" || handoff === "ask_email" || handoff === "ask_issue") {
+  if (
+    handoff === "ask_name" ||
+    handoff === "ask_email" ||
+    handoff === "ask_issue"
+  ) {
     return handoff
   }
   // idle / unknown — route by what contact info we already have
@@ -1012,13 +1012,16 @@ export function MacWallChatWidget() {
     buildBody: () => ({
       sessionId: getOrCreateChatSessionId(),
     }),
-    endpointFor: (id) => `/api/support/tickets/${encodeURIComponent(id)}/typing`,
+    endpointFor: (id) =>
+      `/api/support/tickets/${encodeURIComponent(id)}/typing`,
   })
 
+  // SSE only while the widget is open and the ticket is live — closed/idle
+  // tabs must not hold Fluid Compute + Realtime connections open.
   useSupportTicketStream(
     ticketId,
     sessionIdState,
-    Boolean(ticketId) && (handoff === "live" || handoff === "closed"),
+    Boolean(ticketId) && open && handoff === "live",
     {
       onMessage: (message) => {
         if (message.author !== "admin") return
@@ -1059,12 +1062,14 @@ export function MacWallChatWidget() {
     }
   )
 
-  // Safety-net poll — keep listening while live or closed (for reopen).
-  // Skip while the tab is hidden; closed tickets only poll when chat is open.
+  // Safety-net poll — REST only when SSE is not healthy (never dual-path).
+  // Closed tickets: poll only while chat is open (reopen detection).
   useEffect(() => {
     if (!ticketId) return
     if (handoff !== "live" && handoff !== "closed") return
     if (handoff === "closed" && !open) return
+    // Live + healthy SSE: skip REST poll entirely (SSE + onResume cover it).
+    if (handoff === "live" && streamState === "live") return
     let cancelled = false
 
     const tick = async () => {
@@ -1152,135 +1157,131 @@ export function MacWallChatWidget() {
    */
   const createTicketAfterEmail = useCallback(
     async (opts?: { name?: string; email?: string }) => {
-    const provisionalId = activeIdRef.current
-    if (!provisionalId) return false
+      const provisionalId = activeIdRef.current
+      if (!provisionalId) return false
 
-    const convo = conversationsRef.current.find((c) => c.id === provisionalId)
-    const name = (
-      opts?.name ||
-      convo?.visitorName ||
-      visitorName ||
-      "Visitor"
-    ).trim()
-    const email = (
-      opts?.email ||
-      convo?.visitorEmail ||
-      visitorEmail
-    )
-      .trim()
-      .toLowerCase()
-    const contactName = email
-      ? `${name} · ${email}`.slice(0, 120)
-      : name.slice(0, 120)
+      const convo = conversationsRef.current.find((c) => c.id === provisionalId)
+      const name = (
+        opts?.name ||
+        convo?.visitorName ||
+        visitorName ||
+        "Visitor"
+      ).trim()
+      const email = (opts?.email || convo?.visitorEmail || visitorEmail)
+        .trim()
+        .toLowerCase()
+      const contactName = email
+        ? `${name} · ${email}`.slice(0, 120)
+        : name.slice(0, 120)
 
-    const publicChatId = isPublicChatId(provisionalId)
-      ? provisionalId
-      : createChatId()
+      const publicChatId = isPublicChatId(provisionalId)
+        ? provisionalId
+        : createChatId()
 
-    if (publicChatId !== provisionalId) {
-      setConversations((prev) =>
-        prev.map((c) =>
-          c.id === provisionalId ? { ...c, id: publicChatId } : c
+      if (publicChatId !== provisionalId) {
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === provisionalId ? { ...c, id: publicChatId } : c
+          )
         )
-      )
-      setActiveId(publicChatId)
-      activeIdRef.current = publicChatId
-    }
-
-    // Already have a ticket (resume / retry) — don’t create a second one.
-    const existingConvo = conversationsRef.current.find(
-      (c) => c.id === provisionalId || c.id === publicChatId
-    )
-    const existingTid = existingConvo?.ticketId
-    if (existingTid) {
-      patchConversation(publicChatId, (c) => ({
-        ...c,
-        ticketId: existingTid,
-        handoff: "live",
-      }))
-      if (activeIdRef.current === publicChatId) {
-        handoffRef.current = "live"
-        ticketResolvedRef.current = false
+        setActiveId(publicChatId)
+        activeIdRef.current = publicChatId
       }
-      setConnectingUI(null)
-      const alreadyHasConnectingPrompt = (existingConvo?.messages ?? []).some(
-        (m) =>
-          m.role === "assist" &&
-          (/you.?re connected/i.test(m.body) ||
-            /we.?re connecting you/i.test(m.body) ||
-            /meanwhile,? tell us/i.test(m.body))
+
+      // Already have a ticket (resume / retry) — don’t create a second one.
+      const existingConvo = conversationsRef.current.find(
+        (c) => c.id === provisionalId || c.id === publicChatId
       )
-      if (!alreadyHasConnectingPrompt) {
+      const existingTid = existingConvo?.ticketId
+      if (existingTid) {
+        patchConversation(publicChatId, (c) => ({
+          ...c,
+          ticketId: existingTid,
+          handoff: "live",
+        }))
+        if (activeIdRef.current === publicChatId) {
+          handoffRef.current = "live"
+          ticketResolvedRef.current = false
+        }
+        setConnectingUI(null)
+        const alreadyHasConnectingPrompt = (existingConvo?.messages ?? []).some(
+          (m) =>
+            m.role === "assist" &&
+            (/you.?re connected/i.test(m.body) ||
+              /we.?re connecting you/i.test(m.body) ||
+              /meanwhile,? tell us/i.test(m.body))
+        )
+        if (!alreadyHasConnectingPrompt) {
+          await pushSupportPrompt(SUPPORT_CONNECTING_PROMPT)
+        }
+        return true
+      }
+
+      setConnectingUI("connecting")
+      void playChatPopSound()
+      try {
+        const res = await fetch("/api/support/tickets", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId: getOrCreateChatSessionId(),
+            name: contactName,
+            message: SUPPORT_JOIN_SEED,
+            chatId: publicChatId,
+            // Assist seed keeps Reply queue clean until the visitor’s first issue appends.
+            firstAuthor: "assist",
+            needsAdminReply: false,
+            sentiment: "neutral",
+          }),
+        })
+        const data = (await res.json()) as {
+          ticket?: { id: string }
+          error?: string
+        }
+        if (!res.ok || !data.ticket?.id) {
+          throw new Error(supportErrorMessage(data.error ?? "create_failed"))
+        }
+        const tid = data.ticket.id
+
+        await new Promise((r) => setTimeout(r, reduceMotion ? 280 : 700))
+
+        patchConversation(publicChatId, (c) => ({
+          ...c,
+          ticketId: tid,
+          handoff: "live",
+        }))
+        if (activeIdRef.current === publicChatId) {
+          handoffRef.current = "live"
+          ticketResolvedRef.current = false
+        }
+        setConnectingUI(null)
+        // Invite them to describe the issue. “Team just joined” waits for a real admin msg.
         await pushSupportPrompt(SUPPORT_CONNECTING_PROMPT)
+        await new Promise((r) => setTimeout(r, reduceMotion ? 120 : 280))
+        pushEvent(SUPPORT_REPLY_WINDOW_EVENT)
+        return true
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Could not start chat."
+        setError(msg)
+        setConnectingUI(null)
+        patchConversation(publicChatId, (c) => ({
+          ...c,
+          handoff: "ask_issue",
+        }))
+        if (activeIdRef.current === publicChatId) {
+          handoffRef.current = "ask_issue"
+        }
+        return false
       }
-      return true
-    }
-
-    setConnectingUI("connecting")
-    void playChatPopSound()
-    try {
-      const res = await fetch("/api/support/tickets", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId: getOrCreateChatSessionId(),
-          name: contactName,
-          message: SUPPORT_JOIN_SEED,
-          chatId: publicChatId,
-          // Assist seed keeps Reply queue clean until the visitor’s first issue appends.
-          firstAuthor: "assist",
-          needsAdminReply: false,
-          sentiment: "neutral",
-        }),
-      })
-      const data = (await res.json()) as {
-        ticket?: { id: string }
-        error?: string
-      }
-      if (!res.ok || !data.ticket?.id) {
-        throw new Error(supportErrorMessage(data.error ?? "create_failed"))
-      }
-      const tid = data.ticket.id
-
-      await new Promise((r) => setTimeout(r, reduceMotion ? 280 : 700))
-
-      patchConversation(publicChatId, (c) => ({
-        ...c,
-        ticketId: tid,
-        handoff: "live",
-      }))
-      if (activeIdRef.current === publicChatId) {
-        handoffRef.current = "live"
-        ticketResolvedRef.current = false
-      }
-      setConnectingUI(null)
-      // Invite them to describe the issue. “Team just joined” waits for a real admin msg.
-      await pushSupportPrompt(SUPPORT_CONNECTING_PROMPT)
-      await new Promise((r) => setTimeout(r, reduceMotion ? 120 : 280))
-      pushEvent(SUPPORT_REPLY_WINDOW_EVENT)
-      return true
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Could not start chat."
-      setError(msg)
-      setConnectingUI(null)
-      patchConversation(publicChatId, (c) => ({
-        ...c,
-        handoff: "ask_issue",
-      }))
-      if (activeIdRef.current === publicChatId) {
-        handoffRef.current = "ask_issue"
-      }
-      return false
-    }
-  },
-  [
-    patchConversation,
-    pushEvent,
-    pushSupportPrompt,
-    reduceMotion,
-    visitorName,
-    visitorEmail,
-  ]
+    },
+    [
+      patchConversation,
+      pushEvent,
+      pushSupportPrompt,
+      reduceMotion,
+      visitorName,
+      visitorEmail,
+    ]
   )
 
   const replyOnTicket = useCallback(
@@ -1350,9 +1351,7 @@ export function MacWallChatWidget() {
         return replyOnTicket(text, imageUrl)
       }
 
-      const convo = conversationsRef.current.find(
-        (c) => c.id === provisionalId
-      )
+      const convo = conversationsRef.current.find((c) => c.id === provisionalId)
       const name = (convo?.visitorName || visitorName || "Visitor").trim()
       const email = (convo?.visitorEmail || visitorEmail).trim().toLowerCase()
       const contactName = email
@@ -1516,9 +1515,8 @@ export function MacWallChatWidget() {
           void playChatSendSound()
           // Persist contact first so ticket create can read name · email.
           const knownName = (
-            conversationsRef.current.find(
-              (c) => c.id === activeIdRef.current
-            )?.visitorName ||
+            conversationsRef.current.find((c) => c.id === activeIdRef.current)
+              ?.visitorName ||
             visitorName ||
             "Visitor"
           ).trim()
@@ -1964,213 +1962,215 @@ export function MacWallChatWidget() {
                 onScroll={syncNearBottom}
                 className="h-full space-y-3 overflow-y-auto overscroll-contain px-3.5 py-3.5"
               >
-              {messages.map((m) => {
-                // Connecting is a transient chip (connectingUI) — never keep it stuck in history.
-                if (
-                  m.role === "event" &&
-                  m.body.trim() === SUPPORT_CONNECTING_EVENT
-                ) {
-                  return null
-                }
+                {messages.map((m) => {
+                  // Connecting is a transient chip (connectingUI) — never keep it stuck in history.
+                  if (
+                    m.role === "event" &&
+                    m.body.trim() === SUPPORT_CONNECTING_EVENT
+                  ) {
+                    return null
+                  }
 
-                if (m.role === "event") {
-                  const isLeave = /has left the chat/i.test(m.body)
-                  const isClosed = /^chat closed$/i.test(m.body.trim())
-                  const isRejoin = /has rejoined the chat/i.test(m.body)
-                  const isReopened = /^chat reopened/i.test(m.body.trim())
-                  const isJustJoined = /just joined/i.test(m.body)
-                  const isConnected = /connected you with the team/i.test(
-                    m.body
+                  if (m.role === "event") {
+                    const isLeave = /has left the chat/i.test(m.body)
+                    const isClosed = /^chat closed$/i.test(m.body.trim())
+                    const isRejoin = /has rejoined the chat/i.test(m.body)
+                    const isReopened = /^chat reopened/i.test(m.body.trim())
+                    const isJustJoined = /just joined/i.test(m.body)
+                    const isConnected = /connected you with the team/i.test(
+                      m.body
+                    )
+                    const isReopen = isRejoin || isReopened
+                    const isPresence = isJustJoined || isConnected
+                    return (
+                      <motion.div
+                        key={m.id}
+                        initial={
+                          reduceMotion
+                            ? false
+                            : { opacity: 0, y: 8, scale: 0.96 }
+                        }
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{
+                          duration: 0.28,
+                          ease: [0.22, 1, 0.36, 1],
+                        }}
+                        className="flex justify-center px-2 py-0.5"
+                      >
+                        <div
+                          className={cn(
+                            "max-w-[92%] rounded-2xl px-3 py-1.5 text-center font-sans",
+                            isLeave &&
+                              "border border-amber-400/20 bg-amber-400/10 text-amber-50",
+                            isClosed &&
+                              "border border-white/10 bg-white/[0.05] text-white/70",
+                            isRejoin &&
+                              "border border-emerald-400/25 bg-emerald-400/10 text-emerald-50",
+                            isReopened &&
+                              "border border-emerald-400/30 bg-emerald-400/[0.12] text-emerald-50",
+                            isPresence &&
+                              !isReopen &&
+                              "border border-emerald-400/20 bg-emerald-400/[0.08] text-emerald-50/90",
+                            !isLeave &&
+                              !isClosed &&
+                              !isReopen &&
+                              !isPresence &&
+                              "bg-white/[0.06] text-white/55"
+                          )}
+                        >
+                          <p className="text-[12px] font-normal tracking-wide">
+                            {m.body}
+                          </p>
+                          {isReopened ? (
+                            <p className="mt-1.5 text-[11px] font-normal text-emerald-100/65">
+                              Live again with {FOUNDER_DISPLAY_NAME} — you can
+                              keep messaging here.
+                            </p>
+                          ) : null}
+                          {isClosed ? (
+                            <>
+                              {chatId ? (
+                                <p className="mt-1.5 text-[11px] font-normal text-white/40">
+                                  Chat ID{" "}
+                                  <span className="text-white/65 tabular-nums">
+                                    {chatId}
+                                  </span>
+                                </p>
+                              ) : null}
+                              <button
+                                type="button"
+                                onClick={startNewChat}
+                                className="mt-2 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-[11px] font-normal text-black"
+                              >
+                                <HugeiconsIcon
+                                  icon={PlusSignIcon}
+                                  size={12}
+                                  strokeWidth={2.2}
+                                />
+                                Start new chat
+                              </button>
+                            </>
+                          ) : null}
+                        </div>
+                      </motion.div>
+                    )
+                  }
+
+                  const isUser = m.role === "user"
+                  const isFounder = m.role === "founder"
+                  const caption = m.body.trim()
+                  const isLegacyWelcome =
+                    m.role === "system" && caption === SUPPORT_WELCOME.trim()
+                  const isAssist = m.role === "assist" || isLegacyWelcome
+                  const isSystem = m.role === "system" && !isLegacyWelcome
+                  const isLegacyPhotoLabel = /^sent a (photo|image|img)$/i.test(
+                    caption
                   )
-                  const isReopen = isRejoin || isReopened
-                  const isPresence = isJustJoined || isConnected
+                  const hasRealText =
+                    Boolean(caption) && caption !== " " && !isLegacyPhotoLabel
+                  const hasImage = Boolean(m.imageUrl?.trim())
+                  // Never render empty white/colored pills (user bubbles especially).
+                  if (!hasImage && !hasRealText) return null
+
                   return (
                     <motion.div
                       key={m.id}
-                      initial={
-                        reduceMotion ? false : { opacity: 0, y: 8, scale: 0.96 }
-                      }
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                      className="flex justify-center px-2 py-0.5"
-                    >
-                      <div
-                        className={cn(
-                          "max-w-[92%] rounded-2xl px-3 py-1.5 text-center font-sans",
-                          isLeave &&
-                            "border border-amber-400/20 bg-amber-400/10 text-amber-50",
-                          isClosed &&
-                            "border border-white/10 bg-white/[0.05] text-white/70",
-                          isRejoin &&
-                            "border border-emerald-400/25 bg-emerald-400/10 text-emerald-50",
-                          isReopened &&
-                            "border border-emerald-400/30 bg-emerald-400/[0.12] text-emerald-50",
-                          isPresence &&
-                            !isReopen &&
-                            "border border-emerald-400/20 bg-emerald-400/[0.08] text-emerald-50/90",
-                          !isLeave &&
-                            !isClosed &&
-                            !isReopen &&
-                            !isPresence &&
-                            "bg-white/[0.06] text-white/55"
-                        )}
-                      >
-                        <p className="text-[12px] font-normal tracking-wide">
-                          {m.body}
-                        </p>
-                        {isReopened ? (
-                          <p className="mt-1.5 text-[11px] font-normal text-emerald-100/65">
-                            Live again with {FOUNDER_DISPLAY_NAME} — you can
-                            keep messaging here.
-                          </p>
-                        ) : null}
-                        {isClosed ? (
-                          <>
-                            {chatId ? (
-                              <p className="mt-1.5 text-[11px] font-normal text-white/40">
-                                Chat ID{" "}
-                                <span className="text-white/65 tabular-nums">
-                                  {chatId}
-                                </span>
-                              </p>
-                            ) : null}
-                            <button
-                              type="button"
-                              onClick={startNewChat}
-                              className="mt-2 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-[11px] font-normal text-black"
-                            >
-                              <HugeiconsIcon
-                                icon={PlusSignIcon}
-                                size={12}
-                                strokeWidth={2.2}
-                              />
-                              Start new chat
-                            </button>
-                          </>
-                        ) : null}
-                      </div>
-                    </motion.div>
-                  )
-                }
-
-                const isUser = m.role === "user"
-                const isFounder = m.role === "founder"
-                const caption = m.body.trim()
-                const isLegacyWelcome =
-                  m.role === "system" &&
-                  caption === SUPPORT_WELCOME.trim()
-                const isAssist =
-                  m.role === "assist" || isLegacyWelcome
-                const isSystem = m.role === "system" && !isLegacyWelcome
-                const isLegacyPhotoLabel =
-                  /^sent a (photo|image|img)$/i.test(caption)
-                const hasRealText =
-                  Boolean(caption) &&
-                  caption !== " " &&
-                  !isLegacyPhotoLabel
-                const hasImage = Boolean(m.imageUrl?.trim())
-                // Never render empty white/colored pills (user bubbles especially).
-                if (!hasImage && !hasRealText) return null
-
-                return (
-                  <motion.div
-                    key={m.id}
-                    initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                    className={cn(
-                      "flex flex-col gap-1",
-                      isUser ? "items-end" : "items-start"
-                    )}
-                  >
-                    {isFounder ? (
-                      <span className="px-1 text-[11px] font-medium text-emerald-300/90">
-                        {FOUNDER_DISPLAY_NAME}
-                      </span>
-                    ) : isAssist ? (
-                      <span className="px-1 text-[11px] font-medium text-white/45">
-                        MacWall Support
-                      </span>
-                    ) : null}
-                    {/* Image = hero media; caption (if any) = its own bubble — iMessage-style. */}
-                    <div
+                      initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                       className={cn(
-                        "flex max-w-[88%] flex-col gap-1.5",
+                        "flex flex-col gap-1",
                         isUser ? "items-end" : "items-start"
                       )}
                     >
-                      {hasImage ? (
-                        <ChatAttachmentMedia
-                          src={m.imageUrl!}
-                          tone="dark"
-                          maxWidth={248}
-                        />
+                      {isFounder ? (
+                        <span className="px-1 text-[11px] font-medium text-emerald-300/90">
+                          {FOUNDER_DISPLAY_NAME}
+                        </span>
+                      ) : isAssist ? (
+                        <span className="px-1 text-[11px] font-medium text-white/45">
+                          MacWall Support
+                        </span>
                       ) : null}
-                      {hasRealText ? (
-                        <div
-                          className={cn(
-                            "overflow-hidden rounded-[20px] px-3.5 py-2.5 font-sans text-[14px] leading-relaxed font-normal whitespace-pre-wrap",
-                            isUser &&
-                              "rounded-br-md bg-white text-black shadow-[0_8px_24px_rgba(0,0,0,0.18)]",
-                            isFounder &&
-                              "rounded-bl-md border border-emerald-400/20 bg-emerald-400/10 text-white",
-                            isSystem &&
-                              "rounded-bl-md bg-amber-500/12 text-amber-50",
-                            isAssist &&
-                              "rounded-bl-md bg-white/[0.07] text-white/[0.94]"
-                          )}
-                        >
-                          {linkify(m.body, isUser ? "user" : "support")}
-                        </div>
-                      ) : null}
+                      {/* Image = hero media; caption (if any) = its own bubble — iMessage-style. */}
+                      <div
+                        className={cn(
+                          "flex max-w-[88%] flex-col gap-1.5",
+                          isUser ? "items-end" : "items-start"
+                        )}
+                      >
+                        {hasImage ? (
+                          <ChatAttachmentMedia
+                            src={m.imageUrl!}
+                            tone="dark"
+                            maxWidth={248}
+                          />
+                        ) : null}
+                        {hasRealText ? (
+                          <div
+                            className={cn(
+                              "overflow-hidden rounded-[20px] px-3.5 py-2.5 font-sans text-[14px] leading-relaxed font-normal whitespace-pre-wrap",
+                              isUser &&
+                                "rounded-br-md bg-white text-black shadow-[0_8px_24px_rgba(0,0,0,0.18)]",
+                              isFounder &&
+                                "rounded-bl-md border border-emerald-400/20 bg-emerald-400/10 text-white",
+                              isSystem &&
+                                "rounded-bl-md bg-amber-500/12 text-amber-50",
+                              isAssist &&
+                                "rounded-bl-md bg-white/[0.07] text-white/[0.94]"
+                            )}
+                          >
+                            {linkify(m.body, isUser ? "user" : "support")}
+                          </div>
+                        ) : null}
+                      </div>
+                      <span className="px-1 text-[10px] text-white/28 tabular-nums">
+                        {formatTime(m.createdAt)}
+                      </span>
+                    </motion.div>
+                  )
+                })}
+
+                {connectingUI ? (
+                  <motion.div
+                    key="connecting-chip"
+                    initial={
+                      reduceMotion ? false : { opacity: 0, y: 8, scale: 0.96 }
+                    }
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex justify-center px-2 py-0.5"
+                  >
+                    <div className="max-w-[92%] rounded-2xl bg-white/[0.06] px-3 py-1.5 text-center font-sans text-white/55">
+                      <p className="text-[12px] font-normal tracking-wide">
+                        {SUPPORT_CONNECTING_EVENT}
+                      </p>
                     </div>
-                    <span className="px-1 text-[10px] tabular-nums text-white/28">
-                      {formatTime(m.createdAt)}
-                    </span>
                   </motion.div>
-                )
-              })}
-
-              {connectingUI ? (
-                <motion.div
-                  key="connecting-chip"
-                  initial={
-                    reduceMotion ? false : { opacity: 0, y: 8, scale: 0.96 }
-                  }
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex justify-center px-2 py-0.5"
-                >
-                  <div className="max-w-[92%] rounded-2xl bg-white/[0.06] px-3 py-1.5 text-center font-sans text-white/55">
-                    <p className="text-[12px] font-normal tracking-wide">
-                      {SUPPORT_CONNECTING_EVENT}
-                    </p>
-                  </div>
-                </motion.div>
-              ) : null}
-
-              {deliveredPulse && handoff === "live" ? (
-                <p className="pt-0.5 text-center text-[11px] text-white/35">
-                  Delivered
-                </p>
-              ) : null}
-
-              <AnimatePresence mode="popLayout">
-                {localTyping ? (
-                  <SupportTypingBubble
-                    key="local-typing"
-                    tone="support"
-                    label="MacWall Support is typing…"
-                  />
                 ) : null}
-                {adminTyping && handoff === "live" && !localTyping ? (
-                  <SupportTypingBubble
-                    key="admin-typing"
-                    tone="team"
-                    label="MacWall Team is typing…"
-                  />
+
+                {deliveredPulse && handoff === "live" ? (
+                  <p className="pt-0.5 text-center text-[11px] text-white/35">
+                    Delivered
+                  </p>
                 ) : null}
-              </AnimatePresence>
+
+                <AnimatePresence mode="popLayout">
+                  {localTyping ? (
+                    <SupportTypingBubble
+                      key="local-typing"
+                      tone="support"
+                      label="MacWall Support is typing…"
+                    />
+                  ) : null}
+                  {adminTyping && handoff === "live" && !localTyping ? (
+                    <SupportTypingBubble
+                      key="admin-typing"
+                      tone="team"
+                      label="MacWall Team is typing…"
+                    />
+                  ) : null}
+                </AnimatePresence>
               </div>
 
               {!atBottom ? (
@@ -2304,7 +2304,7 @@ export function MacWallChatWidget() {
                       if (!canAttachImages) return
                       fileRef.current?.click()
                     }}
-                    className="mb-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[#0a84ff] transition hover:bg-[#0a84ff]/12 disabled:opacity-35 disabled:text-white/30"
+                    className="mb-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[#0a84ff] transition hover:bg-[#0a84ff]/12 disabled:text-white/30 disabled:opacity-35"
                     aria-label={
                       canAttachImages
                         ? "Attach photo"

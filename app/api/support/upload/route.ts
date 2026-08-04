@@ -19,11 +19,7 @@ const checkRateLimit = createInMemoryRateLimiter({ max: 20, windowMs: 60_000 })
 const MAX_BYTES = 4 * 1024 * 1024
 
 const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"])
-const ALLOWED_CONTENT_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-])
+const ALLOWED_CONTENT_TYPES = new Set(["image/jpeg", "image/png", "image/webp"])
 
 function bad(status: number, error: string) {
   return NextResponse.json({ error }, { status })
@@ -54,18 +50,22 @@ async function uploadToSupabaseStorage(
     .upload(imageKey, bytes, {
       contentType,
       upsert: false,
-      cacheControl: "3600",
+      cacheControl: "86400",
     })
   if (error) throw new Error(error.message)
 
-  const { data } = supabase.storage.from("support-attachments").getPublicUrl(imageKey)
+  const { data } = supabase.storage
+    .from("support-attachments")
+    .getPublicUrl(imageKey)
   return { publicUrl: data.publicUrl, imageKey }
 }
 
 /** Direct multipart upload (web client) — stores in Supabase Storage. */
 async function handleDirectUpload(request: Request) {
   const form = await request.formData()
-  const sessionId = normalizeSupportSessionId(String(form.get("sessionId") ?? ""))
+  const sessionId = normalizeSupportSessionId(
+    String(form.get("sessionId") ?? "")
+  )
   if (!isValidSupportSessionId(sessionId)) {
     return bad(400, "invalid_session")
   }
@@ -90,7 +90,12 @@ async function handleDirectUpload(request: Request) {
 
   try {
     const bytes = Buffer.from(await file.arrayBuffer())
-    const uploaded = await uploadToSupabaseStorage(sessionId, bytes, contentType, ext)
+    const uploaded = await uploadToSupabaseStorage(
+      sessionId,
+      bytes,
+      contentType,
+      ext
+    )
     return NextResponse.json(uploaded)
   } catch (error) {
     const message = error instanceof Error ? error.message : "upload_failed"
@@ -120,7 +125,9 @@ async function handlePresign(request: Request) {
   }
 
   const extRaw =
-    typeof body.extension === "string" ? body.extension.trim().toLowerCase() : "jpg"
+    typeof body.extension === "string"
+      ? body.extension.trim().toLowerCase()
+      : "jpg"
   const ext = extRaw === "jpeg" ? "jpg" : extRaw
   if (!ALLOWED_EXTENSIONS.has(ext)) {
     return bad(400, "invalid_extension")

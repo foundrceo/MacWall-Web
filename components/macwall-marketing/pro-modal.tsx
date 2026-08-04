@@ -1,19 +1,10 @@
 "use client"
 
 import Image from "next/image"
-import {
-  ArrowUpRight,
-  BadgeCheck,
-  Check,
-  X,
-} from "lucide-react"
+import { ArrowUpRight, BadgeCheck, Check, X } from "lucide-react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import {
@@ -71,7 +62,7 @@ export function ProModal({
         showCloseButton={false}
         className={cn(
           PRO_MODAL_WIDTH,
-          "max-h-[min(90vh,540px)] gap-0 overflow-y-auto rounded-3xl border border-white/10 bg-secondary p-0 shadow-2xl ring-0"
+          "max-h-[min(90vh,560px)] gap-0 overflow-y-auto rounded-3xl border border-white/10 bg-secondary p-0 shadow-2xl ring-0"
         )}
       >
         <button
@@ -83,7 +74,7 @@ export function ProModal({
           <X className="size-4" strokeWidth={2} />
         </button>
 
-        <div className="px-5 pt-5 pb-5">
+        <div className="px-5 pt-5 pb-6 sm:px-6">
           <div className="flex items-center gap-3.5 pr-8">
             <Image
               src={macwallAppIconPath}
@@ -98,15 +89,18 @@ export function ProModal({
                 className="flex items-center gap-1.5 font-sans text-[17px] font-semibold tracking-tight text-foreground"
               >
                 {macwall.name} Pro
-                <BadgeCheck className="size-4 shrink-0 text-[#0071e3]" aria-hidden />
+                <BadgeCheck
+                  className="size-4 shrink-0 text-[#0071e3]"
+                  aria-hidden
+                />
               </DialogTitle>
               <p className="mt-1 text-[13px] leading-snug text-marketing-muted">
-                {macwall.tagline}
+                Elite live wallpapers for Mac.
               </p>
             </div>
           </div>
 
-          <div className="mt-5 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+          <div className="mt-5 flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
             <span className="text-[26px] font-semibold tracking-tight text-foreground">
               {pricing.permanentPrice}
             </span>
@@ -116,7 +110,7 @@ export function ProModal({
               </span>
             ) : null}
             <span className="w-full text-[12px] text-marketing-muted">
-              one-time · no subscription
+              one-time investment · no subscription
             </span>
           </div>
 
@@ -139,9 +133,9 @@ export function ProModal({
             href={pricing.checkoutUrl}
             location="hero_pro_modal"
             ariaLabel={pricing.buyProAria}
-            className="mt-5 flex h-10 w-full items-center justify-center rounded-full bg-white text-[14px] font-medium text-black no-underline transition-opacity hover:opacity-90"
+            className="mt-6 flex h-11 w-full items-center justify-center rounded-full bg-white text-[14px] font-medium text-black no-underline transition-opacity hover:opacity-90"
           >
-            Buy {macwall.name}
+            Unlock {macwall.name} Pro
           </TrackedPricingButton>
 
           <a
@@ -153,20 +147,28 @@ export function ProModal({
                 location: "hero_pro_modal_discord",
               })
             }
-            className="mt-4 flex w-full items-center justify-between gap-3 rounded-xl border border-white/10 bg-background/25 px-3.5 py-2.5 text-[12px] text-foreground no-underline transition-colors hover:bg-background/40"
+            className="mt-3 flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-background/30 px-3.5 py-3 text-foreground no-underline transition-colors hover:bg-background/45"
           >
-            <span className="inline-flex items-center gap-1.5 font-medium">
-              <DiscordMark className="size-3.5 text-[#5865F2]" />
-              Join Discord, get {DISCORD_MEMBER_PERCENT_OFF}%
+            <DiscordMark className="size-5 shrink-0 text-[#5865F2]" />
+            <span className="min-w-0 flex-1">
+              <span className="block text-[13px] leading-snug font-medium">
+                Discord exclusive
+              </span>
+              <span className="mt-0.5 block text-[12px] leading-snug text-marketing-muted">
+                Join & claim {DISCORD_MEMBER_PERCENT_OFF}% off
+              </span>
             </span>
-            <span className="inline-flex items-center gap-0.5 text-marketing-muted">
-              from {discordPrice}
-              <ArrowUpRight className="size-2.5" aria-hidden />
+            <span className="inline-flex shrink-0 items-center gap-1 text-[13px] font-medium text-foreground tabular-nums">
+              {discordPrice}
+              <ArrowUpRight
+                className="size-3.5 text-marketing-muted"
+                aria-hidden
+              />
             </span>
           </a>
 
-          <p className="mt-4 text-center text-[11px] text-marketing-muted">
-            Free download · pay once
+          <p className="mt-4 text-center text-[11px] leading-snug text-marketing-muted">
+            Secure payment · keep forever
           </p>
         </div>
       </DialogContent>

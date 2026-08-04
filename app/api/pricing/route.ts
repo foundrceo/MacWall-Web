@@ -1,8 +1,7 @@
-import { cookies, headers } from "next/headers"
+import { unstable_cache } from "next/cache"
 import { NextResponse } from "next/server"
 
-import { COUNTRY_COOKIE, isIndiaCountry } from "@/lib/geo/country"
-import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
+import { isIndiaCountry } from "@/lib/geo/country"
 import {
   PRO_INDIA_USD_CENTS,
   PRO_PLUS_INDIA_USD_CENTS,
@@ -20,7 +19,6 @@ import {
 } from "@/lib/pricing/stripe-fx"
 
 export const runtime = "nodejs"
-export const dynamic = "force-dynamic"
 
 function toLocalMoney(
   usdCents: number,
@@ -38,21 +36,21 @@ function toLocalMoney(
   }
 }
 
-async function resolvePricing(): Promise<MarketingPricing> {
-  try {
-    const headerStore = await headers()
-    const cookieStore = await cookies()
-    const country = await resolveVisitorCountry({
-      headers: headerStore,
-      cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
-      skipIpLookup: true,
-    })
+function normalizeCountryParam(value: string | null): string | null {
+  const code = value?.trim().toUpperCase()
+  if (!code || !/^[A-Z]{2}$/.test(code) || code === "XX") return null
+  return code
+}
 
+async function resolvePricingForCountry(
+  country: string | null
+): Promise<MarketingPricing> {
+  try {
     const india = isIndiaCountry(country)
     const permanentCents = india ? PRO_INDIA_USD_CENTS : PRO_USD_CENTS
     const proPlusCents = india ? PRO_PLUS_INDIA_USD_CENTS : PRO_PLUS_USD_CENTS
 
-    if (!country || country.toUpperCase() === "US") {
+    if (!country || country === "US") {
       return buildMarketingPricingFromLocalized({
         country: country ?? "US",
         permanentLocal: null,
@@ -94,13 +92,34 @@ async function resolvePricing(): Promise<MarketingPricing> {
   }
 }
 
-/** Localized marketing prices for client hydration (keeps HTML pages static/ISR). */
-export async function GET() {
-  const pricing = await resolvePricing()
+const cachedPricingForCountry = unstable_cache(
+  async (countryKey: string) =>
+    resolvePricingForCountry(countryKey === "_" ? null : countryKey),
+  ["marketing-pricing-by-country"],
+  { revalidate: 300 }
+)
+
+/**
+ * Localized marketing prices for client hydration (keeps HTML pages static/ISR).
+ * Cache key = `?c=XX` so Vercel CDN can share responses per country bucket.
+ */
+export async function GET(request: Request) {
+  const url = new URL(request.url)
+  const fromQuery = normalizeCountryParam(url.searchParams.get("c"))
+  const fromHeader = normalizeCountryParam(
+    request.headers.get("x-vercel-ip-country")
+  )
+  const country = fromQuery ?? fromHeader
+  const cacheKey = country ?? "_"
+
+  const pricing = await cachedPricingForCountry(cacheKey)
+
   return NextResponse.json(pricing, {
     headers: {
-      // Per-visitor (country cookie) — browser cache only; FX is cached server-side 1h.
-      "Cache-Control": "private, max-age=300",
+      // Per-country URL variant — safe to CDN-cache (no cookies/session).
+      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+      "Vercel-CDN-Cache-Control": "max-age=300, stale-while-revalidate=3600",
+      Vary: "x-vercel-ip-country",
     },
   })
 }

@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useRef } from "react"
 
-const THROTTLE_MS = 400
-const IDLE_CLEAR_MS = 2000
+/** Wider throttle — typing pings were burning auth RPCs at ~2.5/s. */
+const THROTTLE_MS = 1_200
+const IDLE_CLEAR_MS = 2_500
 
 type EmitArgs = {
   ticketId: string | null

@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react"
 
+import { getVisitorCountry } from "@/lib/geo/country-client"
 import {
   buildDefaultMarketingPricing,
   type MarketingPricing,
@@ -32,7 +33,10 @@ export function MarketingPricingProvider({
     let cancelled = false
     const load = async () => {
       try {
-        const res = await fetch("/api/pricing", {
+        // Country bucket in the URL → CDN can cache `/api/pricing?c=IN` etc.
+        const country = getVisitorCountry()
+        const qs = country ? `?c=${encodeURIComponent(country)}` : ""
+        const res = await fetch(`/api/pricing${qs}`, {
           credentials: "same-origin",
           headers: { Accept: "application/json" },
         })
