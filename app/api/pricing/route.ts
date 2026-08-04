@@ -1,7 +1,9 @@
+import { cookies } from "next/headers"
 import { unstable_cache } from "next/cache"
 import { NextResponse } from "next/server"
 
-import { isIndiaCountry } from "@/lib/geo/country"
+import { COUNTRY_COOKIE, isIndiaCountry } from "@/lib/geo/country"
+import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 import {
   PRO_INDIA_USD_CENTS,
   PRO_PLUS_INDIA_USD_CENTS,
@@ -101,25 +103,30 @@ const cachedPricingForCountry = unstable_cache(
 
 /**
  * Localized marketing prices for client hydration (keeps HTML pages static/ISR).
- * Cache key = `?c=XX` so Vercel CDN can share responses per country bucket.
+ * Cache key = resolved country so Vercel CDN can share responses per bucket.
  */
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const fromQuery = normalizeCountryParam(url.searchParams.get("c"))
-  const fromHeader = normalizeCountryParam(
-    request.headers.get("x-vercel-ip-country")
-  )
-  const country = fromQuery ?? fromHeader
-  const cacheKey = country ?? "_"
+  const cookieStore = await cookies()
 
+  // Prefer explicit `?c=`, else resolve from cookie / Vercel geo / IP / egress.
+  // Previously we only read the query + Vercel header, so localhost + missing
+  // cookie always returned USD with no local hint — even for India visitors.
+  const country =
+    fromQuery ??
+    (await resolveVisitorCountry({
+      headers: request.headers,
+      cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
+    }))
+
+  const cacheKey = country ?? "_"
   const pricing = await cachedPricingForCountry(cacheKey)
 
   return NextResponse.json(pricing, {
     headers: {
-      // Per-country URL variant — safe to CDN-cache (no cookies/session).
-      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
-      "Vercel-CDN-Cache-Control": "max-age=300, stale-while-revalidate=3600",
-      Vary: "x-vercel-ip-country",
+      "Cache-Control": "private, no-store",
+      Vary: "cookie, x-vercel-ip-country, accept-language",
     },
   })
 }
