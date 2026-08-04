@@ -12,6 +12,7 @@ import type {
   SiteAnalyticsMetadata,
 } from "@/lib/analytics/events"
 import { withMarketingAttribution } from "@/lib/analytics/marketing-attribution"
+import { trackMetaInitiateCheckout } from "@/lib/analytics/meta-client"
 import { markCheckoutStartedInSession } from "@/lib/analytics/retargeting"
 import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
 import {
@@ -68,6 +69,7 @@ export function TrackedLink({
     ) {
       markCheckoutStartedInSession()
       trackSiteEventClient("checkout_started", metadata)
+      trackMetaInitiateCheckout()
       void trackTikTokInitiateCheckoutWithIdentify()
     }
   }

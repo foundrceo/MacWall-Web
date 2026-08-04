@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 
 import { trackSiteEventClient } from "@/lib/analytics/client"
+import { trackMetaPurchase } from "@/lib/analytics/meta-client"
 import { markPurchaseCompleteInSession } from "@/lib/analytics/retargeting"
 import { macwall } from "@/lib/macwall-site"
 
@@ -97,7 +98,9 @@ export function PurchaseConversionTracker({
     markPurchaseCompleteInSession()
 
     // TikTok Purchase fires server-side from the Stripe webhook — don't double-count.
+    // Meta Purchase fires here (browser Pixel) until CAPI is wired.
     const run = () => {
+      trackMetaPurchase({ value, currency: curr })
       fireGoogleAdsConversion(value, curr)
       fireGa4Purchase(value, curr)
     }

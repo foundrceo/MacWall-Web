@@ -1,6 +1,7 @@
 "use client"
 
 import { trackSiteEventClient } from "@/lib/analytics/client"
+import { trackMetaAddToCart } from "@/lib/analytics/meta-client"
 import { trackTikTokAddToCart } from "@/lib/analytics/tiktok-client"
 
 const CHECKOUT_STARTED_KEY = "macwall_checkout_started_at"
@@ -67,6 +68,7 @@ export function fireCheckoutAbandonmentRetargeting(): void {
   }
 
   trackSiteEventClient("checkout_abandoned", { product: "macwall_pro" })
+  trackMetaAddToCart()
   trackTikTokAddToCart()
   fireGoogleCheckoutAbandonment()
 }
