@@ -85,9 +85,15 @@ export async function POST(request: Request) {
   const thumbKey = `community-pending/${uploadId}/thumb.jpg`
 
   try {
+    // Bind Content-Type into the signature (R2 best practice). Client PUTs must
+    // send the same Content-Type header — no other signed headers.
     const [videoUploadUrl, thumbUploadUrl] = await Promise.all([
-      r2PresignPutUrl(videoKey, PRESIGN_EXPIRY_SECONDS),
-      r2PresignPutUrl(thumbKey, PRESIGN_EXPIRY_SECONDS),
+      r2PresignPutUrl(videoKey, PRESIGN_EXPIRY_SECONDS, {
+        contentType: videoContentType,
+      }),
+      r2PresignPutUrl(thumbKey, PRESIGN_EXPIRY_SECONDS, {
+        contentType: "image/jpeg",
+      }),
     ])
 
     return NextResponse.json({

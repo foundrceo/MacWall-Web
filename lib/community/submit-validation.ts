@@ -242,6 +242,8 @@ export function submitErrorMessage(
       return "Give your wallpaper a title between 2 and 140 characters."
     case "invalid_category":
       return "Choose a valid category."
+    case "invalid_author_name":
+      return "Author name needs 2–40 characters, or leave it blank."
     case "invalid_resolution":
       return RESOLUTION_TOO_SMALL_MESSAGE
     case "invalid_file_size":

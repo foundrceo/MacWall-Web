@@ -10,6 +10,7 @@ export type AdminCommunityUpload = {
   submitterId: string
   title: string
   category: string
+  authorName: string | null
   videoKey: string
   thumbKey: string
   resolution: string
@@ -27,6 +28,7 @@ type UploadRow = {
   submitter_id: string
   title: string
   category: string
+  author_name: string | null
   video_key: string
   thumb_key: string
   resolution: string
@@ -45,6 +47,7 @@ function mapUpload(row: UploadRow): AdminCommunityUpload {
     submitterId: row.submitter_id,
     title: row.title,
     category: row.category,
+    authorName: row.author_name ?? null,
     videoKey: row.video_key,
     thumbKey: row.thumb_key,
     resolution: row.resolution,
@@ -65,7 +68,7 @@ export async function listCommunityUploads(
   let query = supabase
     .from("community_uploads")
     .select(
-      "id,submitter_id,title,category,video_key,thumb_key,resolution,duration_seconds,file_size_bytes,status,review_notes,approved_wallpaper_id,created_at,updated_at"
+      "id,submitter_id,title,category,author_name,video_key,thumb_key,resolution,duration_seconds,file_size_bytes,status,review_notes,approved_wallpaper_id,created_at,updated_at"
     )
     .order("created_at", { ascending: false })
     .limit(200)
@@ -86,7 +89,7 @@ export async function getCommunityUpload(
   const { data, error } = await supabase
     .from("community_uploads")
     .select(
-      "id,submitter_id,title,category,video_key,thumb_key,resolution,duration_seconds,file_size_bytes,status,review_notes,approved_wallpaper_id,created_at,updated_at"
+      "id,submitter_id,title,category,author_name,video_key,thumb_key,resolution,duration_seconds,file_size_bytes,status,review_notes,approved_wallpaper_id,created_at,updated_at"
     )
     .eq("id", uploadId)
     .maybeSingle()
