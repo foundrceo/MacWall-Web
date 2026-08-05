@@ -16,6 +16,11 @@ import { SubmitRequirements } from "@/components/macwall-marketing/submit-requir
 import { SubmitSuccessMark } from "@/components/macwall-marketing/submit-success-mark"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { COMMUNITY_MULTIPART_THRESHOLD_BYTES } from "@/lib/community/community-multipart-constants"
+import {
+  uploadCommunityObjectDirect,
+  uploadCommunityVideoMultipart,
+} from "@/lib/community/community-r2-upload"
 import {
   COMMUNITY_ACCEPT_ATTR,
   COMMUNITY_MAX_VIDEO_BYTES,
@@ -43,9 +48,6 @@ const THUMB_QUALITY = 0.86
 const AI_THUMB_MAX_WIDTH = 512
 const AI_THUMB_QUALITY = 0.72
 const AI_ANALYSIS_TIMEOUT_MS = 30_000
-const UPLOAD_RETRY_ATTEMPTS = 3
-const UPLOAD_RETRY_BASE_DELAY_MS = 800
-
 type InspectedVideo = {
   width: number
   height: number
@@ -365,22 +367,40 @@ export function SubmitWallpaperForm() {
     try {
       const uploadId = createUuid()
       const ext = fileExtension(file.name)
+      const videoContentType = videoContentTypeForExtension(file.type, ext)
 
-      const presign = await requestPresign({
-        uploadId,
-        videoExtension: ext,
-        videoContentType: videoContentTypeForExtension(file.type, ext),
-      })
-      setProgress(15)
-
-      await uploadToR2(presign.videoUploadUrl, file, presign.videoContentType)
-      setProgress(60)
-
-      await uploadToR2(
-        presign.thumbUploadUrl,
-        inspected.thumbBlob,
-        presign.thumbContentType
-      )
+      // Cloudflare R2: multipart + parallel parts for large videos; single PUT otherwise.
+      if (file.size >= COMMUNITY_MULTIPART_THRESHOLD_BYTES) {
+        await uploadCommunityVideoMultipart({
+          uploadId,
+          videoExtension: ext,
+          videoContentType,
+          file,
+          thumbBlob: inspected.thumbBlob,
+          onProgress: (fraction) => {
+            setProgress(10 + Math.round(fraction * 70))
+          },
+        })
+      } else {
+        const presign = await requestPresign({
+          uploadId,
+          videoExtension: ext,
+          videoContentType,
+        })
+        setProgress(15)
+        await Promise.all([
+          uploadCommunityObjectDirect({
+            signedUrl: presign.videoUploadUrl,
+            body: file,
+            contentType: presign.videoContentType,
+          }),
+          uploadCommunityObjectDirect({
+            signedUrl: presign.thumbUploadUrl,
+            body: inspected.thumbBlob,
+            contentType: presign.thumbContentType,
+          }),
+        ])
+      }
       setProgress(85)
 
       const normalizedAuthor = authorName.trim().slice(0, AUTHOR_MAX)
@@ -868,34 +888,6 @@ async function registerSubmission(payload: {
   }
 }
 
-async function uploadToR2(url: string, body: Blob, contentType: string) {
-  let lastError: unknown = null
-  for (let attempt = 1; attempt <= UPLOAD_RETRY_ATTEMPTS; attempt += 1) {
-    try {
-      // Content-Type is bound into the R2 presign — do not send extra headers.
-      const response = await fetch(url, {
-        method: "PUT",
-        headers: {
-          "Content-Type": contentType,
-        },
-        body,
-      })
-      if (response.ok) return
-      lastError = new Error(`HTTP ${response.status}`)
-    } catch (err) {
-      lastError = err
-    }
-    if (attempt < UPLOAD_RETRY_ATTEMPTS) {
-      await sleep(UPLOAD_RETRY_BASE_DELAY_MS * 2 ** (attempt - 1))
-    }
-  }
-  throw new Error(
-    lastError instanceof Error
-      ? `Upload failed: ${lastError.message}`
-      : "Upload failed. Check your connection and try again."
-  )
-}
-
 function parseRetryAfter(value: string | null): number | undefined {
   if (!value) return undefined
   const seconds = Number(value)
@@ -1086,10 +1078,6 @@ function waitForMediaEvent(
 
 function fileExtension(fileName: string): string {
   return fileName.split(".").pop()?.toLowerCase() ?? ""
-}
-
-function sleep(ms: number) {
-  return new Promise<void>((resolve) => window.setTimeout(resolve, ms))
 }
 
 function formatDuration(seconds: number): string {
