@@ -75,13 +75,28 @@ type FieldErrors = {
   title?: string
   file?: string
   category?: string
+  authorName?: string
 }
 
 const fieldControlClass =
   "h-auto w-full rounded-2xl border-0 bg-background/70 px-4 py-3 text-[15px] text-foreground shadow-none ring-1 ring-foreground/8 focus-visible:bg-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary"
 
+const AUTHOR_STORAGE_KEY = "macwall.communityAuthorName"
+const AUTHOR_MIN = 2
+const AUTHOR_MAX = 40
+
+function readStoredAuthorName() {
+  if (typeof window === "undefined") return ""
+  try {
+    return (localStorage.getItem(AUTHOR_STORAGE_KEY) ?? "").slice(0, AUTHOR_MAX)
+  } catch {
+    return ""
+  }
+}
+
 export function SubmitWallpaperForm() {
   const [title, setTitle] = useState("")
+  const [authorName, setAuthorName] = useState("")
   const [category, setCategory] = useState<string>(DEFAULT_WALLPAPER_CATEGORY)
   const [file, setFile] = useState<File | null>(null)
   const [inspected, setInspected] = useState<InspectedVideo | null>(null)
@@ -99,6 +114,10 @@ export function SubmitWallpaperForm() {
   const aiRequestIdRef = useRef(0)
 
   useEffect(() => {
+    setAuthorName(readStoredAuthorName())
+  }, [])
+
+  useEffect(() => {
     inspectedRef.current = inspected
   }, [inspected])
 
@@ -113,12 +132,17 @@ export function SubmitWallpaperForm() {
 
   const busy = status === "inspecting" || status === "submitting"
   const titleValidation = validateSubmitTitle(title)
+  const authorTrimmed = authorName.trim()
+  const authorOk =
+    authorTrimmed.length === 0 ||
+    (authorTrimmed.length >= AUTHOR_MIN && authorTrimmed.length <= AUTHOR_MAX)
   const canSubmit =
     !busy &&
     !aiAnalyzing &&
     Boolean(file) &&
     Boolean(inspected) &&
     titleValidation.ok &&
+    authorOk &&
     validateSubmitCategory(category)
 
   function resetThumb() {
@@ -234,8 +258,10 @@ export function SubmitWallpaperForm() {
         body: JSON.stringify({
           thumbDataUrl,
           sourceFileName,
-          initialName: titleTouchedRef.current ? title : titleFromFileName(sourceFileName),
-          initialCategory: category,
+          // Vision generates the title. Only send a draft if the user typed one.
+          generate: !titleTouchedRef.current,
+          initialName: titleTouchedRef.current ? title : "",
+          initialCategory: titleTouchedRef.current ? category : "",
         }),
       })
 
@@ -316,6 +342,10 @@ export function SubmitWallpaperForm() {
     if (!validateSubmitCategory(category)) {
       nextFieldErrors.category = "Choose a valid category."
     }
+    if (!authorOk) {
+      nextFieldErrors.authorName =
+        "Author name needs 2–40 characters, or leave it blank."
+    }
     if (!file || !inspected) {
       nextFieldErrors.file = "Add a wallpaper video first."
     }
@@ -353,11 +383,21 @@ export function SubmitWallpaperForm() {
       )
       setProgress(85)
 
+      const normalizedAuthor = authorName.trim().slice(0, AUTHOR_MAX)
+      try {
+        localStorage.setItem(AUTHOR_STORAGE_KEY, normalizedAuthor)
+      } catch {
+        // ignore quota / private mode
+      }
+
       await registerSubmission({
         uploadId,
         visitorId: getOrCreateVisitorId(),
         title: titleResult.normalized,
         category,
+        ...(normalizedAuthor.length >= AUTHOR_MIN
+          ? { authorName: normalizedAuthor }
+          : {}),
         videoExtension: ext,
         resolution: `${inspected.width}x${inspected.height}`,
         durationSeconds: inspected.durationSeconds,
@@ -474,6 +514,48 @@ export function SubmitWallpaperForm() {
               {fieldErrors.category}
             </p>
           ) : null}
+        </div>
+
+        <div className="space-y-2">
+          <Label
+            htmlFor="submit-author"
+            className="text-[14px] text-foreground"
+          >
+            Author name{" "}
+            <span className="text-muted-foreground font-normal">(optional)</span>
+          </Label>
+          <Input
+            id="submit-author"
+            name="authorName"
+            type="text"
+            value={authorName}
+            maxLength={AUTHOR_MAX}
+            disabled={busy}
+            placeholder="Credit name on your submission"
+            autoComplete="nickname"
+            aria-invalid={Boolean(fieldErrors.authorName)}
+            aria-describedby={
+              fieldErrors.authorName ? "submit-author-error" : undefined
+            }
+            className={fieldControlClass}
+            onChange={(event) => {
+              setAuthorName(event.target.value.slice(0, AUTHOR_MAX))
+              setFieldErrors((prev) => ({ ...prev, authorName: undefined }))
+            }}
+          />
+          {fieldErrors.authorName ? (
+            <p
+              id="submit-author-error"
+              role="alert"
+              className="text-[13px] text-red-400"
+            >
+              {fieldErrors.authorName}
+            </p>
+          ) : (
+            <p className="text-[13px] text-muted-foreground">
+              Optional credit on your Community submission.
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -766,6 +848,7 @@ async function registerSubmission(payload: {
   visitorId: string
   title: string
   category: string
+  authorName?: string
   videoExtension: string
   resolution: string
   durationSeconds: number
@@ -789,11 +872,11 @@ async function uploadToR2(url: string, body: Blob, contentType: string) {
   let lastError: unknown = null
   for (let attempt = 1; attempt <= UPLOAD_RETRY_ATTEMPTS; attempt += 1) {
     try {
+      // Content-Type is bound into the R2 presign — do not send extra headers.
       const response = await fetch(url, {
         method: "PUT",
         headers: {
           "Content-Type": contentType,
-          "Cache-Control": "public, max-age=31536000, immutable",
         },
         body,
       })

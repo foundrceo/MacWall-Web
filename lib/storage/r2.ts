@@ -70,11 +70,23 @@ function objectEndpoint(config: R2Config, key: string): string {
 async function presign(
   key: string,
   method: "PUT" | "GET",
-  expiresSeconds: number
+  expiresSeconds: number,
+  headers?: Record<string, string>
 ): Promise<string> {
   const { client, config } = requireR2()
   const url = new URL(objectEndpoint(config, key))
   url.searchParams.set("X-Amz-Expires", String(expiresSeconds))
+
+  // Bind Content-Type (and any other required headers) into the signature so
+  // clients must upload with the declared type — Cloudflare R2 / S3 best practice.
+  if (headers && Object.keys(headers).length > 0) {
+    const request = new Request(url.toString(), { method, headers })
+    const signed = await client.sign(request, {
+      aws: { signQuery: true },
+    })
+    return signed.url
+  }
+
   const signed = await client.sign(url.toString(), {
     method,
     aws: { signQuery: true },
@@ -83,8 +95,15 @@ async function presign(
 }
 
 /** Presigned URL for uploading an object via HTTP PUT. */
-export function r2PresignPutUrl(key: string, expiresSeconds = 3600) {
-  return presign(key, "PUT", expiresSeconds)
+export function r2PresignPutUrl(
+  key: string,
+  expiresSeconds = 3600,
+  options?: { contentType?: string }
+) {
+  const headers = options?.contentType
+    ? { "Content-Type": options.contentType }
+    : undefined
+  return presign(key, "PUT", expiresSeconds, headers)
 }
 
 /** Presigned URL for downloading an object via HTTP GET. */
