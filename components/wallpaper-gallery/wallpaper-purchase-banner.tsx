@@ -10,7 +10,10 @@ import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-b
 import { MacWallAppIcon } from "@/components/macwall-app-icon"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import { trackSiteEventClient } from "@/lib/analytics/client"
-import { prefetchCheckoutSession } from "@/lib/checkout/prefetch-checkout"
+import {
+  prefetchCheckoutSession,
+  waitForAffonsoReferralIfLanding,
+} from "@/lib/checkout/prefetch-checkout"
 import { macwall } from "@/lib/macwall-site"
 
 const DWELL_MS = 15_000
@@ -196,7 +199,9 @@ export function WallpaperPurchaseBanner() {
   // Warm Stripe once when the banner is about to show (not every dwell tick).
   useEffect(() => {
     if (!ready || purchased) return
-    void prefetchCheckoutSession("permanent")
+    void waitForAffonsoReferralIfLanding(2500).then(() => {
+      void prefetchCheckoutSession("permanent")
+    })
   }, [ready, purchased])
 
   const open = onWallpaper && ready && !hidden && !purchased && !chatOpen

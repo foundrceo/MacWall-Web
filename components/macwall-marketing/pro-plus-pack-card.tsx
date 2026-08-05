@@ -11,7 +11,10 @@ import {
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
-import { prefetchCheckoutSession } from "@/lib/checkout/prefetch-checkout"
+import {
+  prefetchCheckoutSession,
+  waitForAffonsoReferralIfLanding,
+} from "@/lib/checkout/prefetch-checkout"
 import type { MarketingMultiMacOffer } from "@/lib/pricing/marketing-pricing"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
@@ -166,7 +169,10 @@ export function ProPlusPackCard({
 
   useEffect(() => {
     if (!selected?.slug) return
-    void prefetchCheckoutSession(selected.slug)
+    const slug = selected.slug
+    void waitForAffonsoReferralIfLanding(2500).then(() => {
+      void prefetchCheckoutSession(slug)
+    })
   }, [selected?.slug])
 
   if (!selected) return null

@@ -73,3 +73,6 @@ next-env.d.ts
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Affonso/agent skill symlinks (local install via npx skills)
+.cursor/skills/

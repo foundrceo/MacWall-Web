@@ -1,8 +1,12 @@
 "use client"
 
+import { AFFONSO_REFERRAL_COOKIE } from "@/lib/macwall-affiliate"
+
 type CachedCheckout = {
   url: string
   expiresAt: number
+  /** Affonso referral present when this Stripe session was created. */
+  affonsoReferral: string
 }
 
 const cache = new Map<string, CachedCheckout>()
@@ -14,8 +18,32 @@ const failureCooldownUntil = new Map<string, number>()
 const CACHE_TTL_MS = 20 * 60 * 1000
 const FAILURE_COOLDOWN_MS = 65_000
 
-function cacheKey(offer: string): string {
+function offerKey(offer: string): string {
   return offer.trim() || "permanent"
+}
+
+/** Current Affonso click id from the first-party cookie (empty when absent). */
+export function readAffonsoReferralCookie(): string {
+  if (typeof document === "undefined") return ""
+  const prefix = `${AFFONSO_REFERRAL_COOKIE}=`
+  const match = document.cookie
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(prefix))
+  if (!match) return ""
+  try {
+    return decodeURIComponent(match.slice(prefix.length)).trim()
+  } catch {
+    return match.slice(prefix.length).trim()
+  }
+}
+
+/**
+ * Cache key includes the Affonso referral so a session created before the
+ * pixel sets `affonso_referral` is never reused after attribution lands.
+ */
+function cacheKey(offer: string, affonsoReferral: string): string {
+  return `${offerKey(offer)}::${affonsoReferral}`
 }
 
 export function offerSlugFromCheckoutHref(href: string): string | null {
@@ -33,10 +61,16 @@ export function offerSlugFromCheckoutHref(href: string): string | null {
 }
 
 export function getPrefetchedCheckoutUrl(offer: string): string | null {
-  const key = cacheKey(offer)
+  const referral = readAffonsoReferralCookie()
+  const key = cacheKey(offer, referral)
   const hit = cache.get(key)
   if (!hit) return null
   if (hit.expiresAt <= Date.now()) {
+    cache.delete(key)
+    return null
+  }
+  // Defense in depth — never hand out a session for a different referral.
+  if (hit.affonsoReferral !== referral) {
     cache.delete(key)
     return null
   }
@@ -63,8 +97,10 @@ export function prefetchCheckoutSession(
   offer: string,
   options: PrefetchOptions = {}
 ): Promise<string | null> {
-  const key = cacheKey(offer)
-  const existing = getPrefetchedCheckoutUrl(key)
+  const slug = offerKey(offer)
+  const referralAtStart = readAffonsoReferralCookie()
+  const key = cacheKey(slug, referralAtStart)
+  const existing = getPrefetchedCheckoutUrl(slug)
   if (existing) return Promise.resolve(existing)
 
   if (!options.force && isCoolingDown(key)) return Promise.resolve(null)
@@ -85,7 +121,7 @@ export function prefetchCheckoutSession(
           Accept: "application/json",
         },
         credentials: "same-origin",
-        body: JSON.stringify({ offer: key }),
+        body: JSON.stringify({ offer: slug }),
       })
       if (!response.ok) {
         // 429 / 5xx — back off background prefetch; forced clicks can retry later.
@@ -98,8 +134,21 @@ export function prefetchCheckoutSession(
         failureCooldownUntil.set(key, Date.now() + FAILURE_COOLDOWN_MS)
         return null
       }
+
+      const referralNow = readAffonsoReferralCookie()
+      // Pixel set the cookie after this request left the browser — Stripe metadata
+      // is empty. Do not cache under the new referral; callers must recreate.
+      if (referralNow !== referralAtStart) {
+        failureCooldownUntil.delete(key)
+        return null
+      }
+
       failureCooldownUntil.delete(key)
-      cache.set(key, { url, expiresAt: Date.now() + CACHE_TTL_MS })
+      cache.set(key, {
+        url,
+        expiresAt: Date.now() + CACHE_TTL_MS,
+        affonsoReferral: referralAtStart,
+      })
       return url
     } catch {
       failureCooldownUntil.set(key, Date.now() + FAILURE_COOLDOWN_MS)
@@ -114,12 +163,43 @@ export function prefetchCheckoutSession(
 }
 
 export function takePrefetchedCheckoutUrl(offer: string): string | null {
-  const key = cacheKey(offer)
-  const url = getPrefetchedCheckoutUrl(key)
+  const referral = readAffonsoReferralCookie()
+  const key = cacheKey(offer, referral)
+  const url = getPrefetchedCheckoutUrl(offer)
   if (!url) return null
   // One-shot — avoid two tabs/clicks sharing the same session accidentally.
   cache.delete(key)
   return url
+}
+
+/**
+ * On affiliate landings (`?atp=` / `affonso_id=`), wait briefly for the pixel
+ * to set `affonso_referral` before warming Stripe — otherwise metadata is empty.
+ */
+export async function waitForAffonsoReferralIfLanding(
+  timeoutMs = 2500
+): Promise<string> {
+  if (typeof window === "undefined") return ""
+  const params = new URLSearchParams(window.location.search)
+  const expectingReferral =
+    params.has("atp") ||
+    params.has("affonso_id") ||
+    params.has("via") ||
+    Boolean(readAffonsoReferralCookie())
+  if (!expectingReferral) return ""
+
+  const existing = readAffonsoReferralCookie()
+  if (existing) return existing
+
+  const started = Date.now()
+  while (Date.now() - started < timeoutMs) {
+    await new Promise<void>((resolve) => {
+      window.setTimeout(resolve, 50)
+    })
+    const value = readAffonsoReferralCookie()
+    if (value) return value
+  }
+  return readAffonsoReferralCookie()
 }
 
 /**
@@ -130,23 +210,38 @@ export function takePrefetchedCheckoutUrl(offer: string): string | null {
 export async function waitForPrefetchedCheckoutUrl(
   offer: string
 ): Promise<string | null> {
+  // Affiliate click path: don't reuse a no-referral warm session.
+  await waitForAffonsoReferralIfLanding(1500)
+
   const ready = takePrefetchedCheckoutUrl(offer)
   if (ready) return ready
 
-  const key = cacheKey(offer)
+  const referral = readAffonsoReferralCookie()
+  const key = cacheKey(offer, referral)
   const pending = inflight.get(key)
   if (pending) {
     const fromPending = await pending
     if (fromPending) {
-      // Pending already wrote cache — take so a second click doesn't reuse it.
+      if (readAffonsoReferralCookie() !== referral) {
+        // Cookie arrived while the empty-referral create was in flight.
+        return createCheckoutUrlForClick(offer)
+      }
       return takePrefetchedCheckoutUrl(offer) ?? fromPending
     }
   }
 
-  // User click path: bypass cooldown and create a fresh session.
+  return createCheckoutUrlForClick(offer)
+}
+
+async function createCheckoutUrlForClick(offer: string): Promise<string | null> {
   const created = await prefetchCheckoutSession(offer, { force: true })
   if (created) {
     return takePrefetchedCheckoutUrl(offer) ?? created
+  }
+  // Mid-flight attribution race returned null — retry once with the cookie set.
+  if (readAffonsoReferralCookie()) {
+    const retry = await prefetchCheckoutSession(offer, { force: true })
+    if (retry) return takePrefetchedCheckoutUrl(offer) ?? retry
   }
   return null
 }
