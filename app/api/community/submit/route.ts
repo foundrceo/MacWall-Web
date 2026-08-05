@@ -33,10 +33,21 @@ type SubmitRequest = {
   visitorId?: unknown
   title?: unknown
   category?: unknown
+  authorName?: unknown
   videoExtension?: unknown
   resolution?: unknown
   durationSeconds?: unknown
   fileSizeBytes?: unknown
+}
+
+const AUTHOR_MIN = 2
+const AUTHOR_MAX = 40
+
+function normalizeAuthorName(value: unknown): string | null {
+  if (typeof value !== "string") return null
+  const trimmed = value.trim()
+  if (trimmed.length < AUTHOR_MIN || trimmed.length > AUTHOR_MAX) return null
+  return trimmed.slice(0, AUTHOR_MAX)
 }
 
 function bad(status: number, error: string) {
@@ -86,6 +97,15 @@ export async function POST(request: Request) {
     typeof body.category === "string" ? body.category.trim() : ""
   if (!validateSubmitCategory(category)) {
     return bad(400, "invalid_category")
+  }
+
+  // Optional credit name — omit / blank is fine; reject only invalid non-empty values.
+  let authorName: string | null = null
+  if (typeof body.authorName === "string" && body.authorName.trim().length > 0) {
+    authorName = normalizeAuthorName(body.authorName)
+    if (!authorName) {
+      return bad(400, "invalid_author_name")
+    }
   }
 
   const extResult = validateVideoExtension(
@@ -140,6 +160,7 @@ export async function POST(request: Request) {
         submitter_id: visitorId,
         title: titleResult.normalized,
         category,
+        author_name: authorName,
         video_key: videoKey,
         thumb_key: thumbKey,
         resolution,

@@ -24,6 +24,8 @@ type AnalyzeRequest = {
   sourceFileName?: unknown
   initialName?: unknown
   initialCategory?: unknown
+  /** When true (default), invent a fresh title from the thumbnail instead of polishing a draft. */
+  generate?: unknown
 }
 
 function optionalString(value: unknown, max: number): string {
@@ -71,13 +73,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_thumbnail" }, { status: 400 })
   }
 
+  // Default = generate a fresh catalog title from the thumbnail.
+  // Only pass a title draft through when the client opts out of generate
+  // (e.g. user already typed a name they want the model to respect).
+  const generate =
+    body.generate === undefined || body.generate === null
+      ? true
+      : Boolean(body.generate)
+  const userTitle = optionalString(body.initialName, TITLE_MAX)
+  const categoryHint = optionalString(body.initialCategory, 64)
+
   try {
     const result = await analyzeWallpaperMetadataBatch([
       {
         clientId: "community",
         sourceFileName: optionalString(body.sourceFileName, 200),
-        initialName: optionalString(body.initialName, TITLE_MAX),
-        initialCategory: optionalString(body.initialCategory, 64),
+        initialName: generate ? "" : userTitle,
+        initialCategory: generate ? "" : categoryHint,
         initialTags: [],
         thumbDataUrl,
       },

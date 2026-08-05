@@ -161,43 +161,77 @@ function normalizeAnalysisItems(rawItems: unknown): RawAnalysisItem[] {
 
 function metadataInstructions() {
   return [
-    "You create Mac live wallpaper catalog metadata from video thumbnails.",
-    "For each item, return one polished wallpaper title, one exact category, and search tags.",
-    `Allowed categories: ${WALLPAPER_CATEGORIES.join(", ")}.`,
-    "Use the thumbnail as the primary evidence. Use the filename only as a hint for proper nouns or franchises.",
-    "Titles must be professional, specific, natural English, 2-7 words, and must not include file extensions, dimensions, codec terms, 'live wallpaper', '4k', or 'HD'.",
-    "Tags must be lowercase, concise, hyphenated when needed, useful for search, and must not include generic tags like wallpaper, live, video, 4k, hd, or mac.",
-    "Prefer visual subject tags, mood tags, setting tags, color tags, and franchise or object tags when visible or strongly implied.",
+    "You are a Mac live-wallpaper catalog naming expert with expert visual ID skills.",
+    "For each item, carefully LOOK at the thumbnail, identify the real subject, then GENERATE a precise catalog title, one exact category, and search tags.",
+    `Allowed categories (pick exactly one): ${WALLPAPER_CATEGORIES.join(", ")}.`,
+    "",
+    "IDENTITY FIRST (most important):",
+    "- Identify the most specific subject you can see: car make/model (Lamborghini, Ferrari, Porsche 911, BMW M3, Toyota Supra…), character/franchise (Spider-Man, Goku, Batman…), actor/celebrity if clearly recognizable, place/landmark, animal breed, game title, spacecraft, etc.",
+    "- If you recognize a brand, model, character, franchise, or person — USE THAT NAME in the title. Never replace it with a vague class word.",
+    "- BAD → GOOD examples:",
+    "  · 'Yellow Supercar at Night' → 'Lamborghini Aventador Night' (or closest true model you can identify)",
+    "  · 'Sports Car Drift' → 'Nissan GT-R Drift'",
+    "  · 'Anime Girl Portrait' → 'Asuka Neon Glow' (if that character is clear)",
+    "  · 'City Lights' → 'Tokyo Rain Neon' when the city/mood is clear",
+    "- If you are unsure of the exact model but sure of the brand, use the brand + a precise cue (color/pose/setting): 'Yellow Lamborghini Night'.",
+    "- Only fall back to generic class words (supercar, sports car, warrior, landscape) when you truly cannot identify anything more specific.",
+    "",
+    "TITLE RULES:",
+    "- GENERATE from the thumbnail. Do NOT polish the filename or current title.",
+    "- Ignore empty titles and junk filenames (IMG_1234, Screen Recording, Untitled, UUIDs, timestamps).",
+    "- Filename is only a hint for proper nouns that also match the image.",
+    "- Pattern: [Specific subject] + [setting/mood/action], 2–5 words.",
+    "- Natural English, catalog-ready. No extensions, dimensions, codecs, 'live wallpaper', 'wallpaper', '4k', '8k', 'HD', 'loop', 'aesthetic', 'background', 'scene', 'vibe', 'clip', 'video'.",
+    "- Prefer concrete identity over adjectives alone.",
+    "",
+    "CATEGORY RULES:",
+    "- Choose from the allowed list using visual evidence.",
+    "- Cars with recognizable vehicles → Cars. Anime characters → Anime. etc.",
+    "",
+    "TAG RULES:",
+    "- Lowercase, concise, hyphenated when needed.",
+    "- Include identity tags (brand, model, franchise, character) when visible.",
+    "- Never include: wallpaper, live, video, 4k, hd, mac.",
   ].join("\n")
 }
 
 function metadataContent(items: RawAnalysisItem[]) {
   const content: Array<
     | { type: "input_text"; text: string }
-    | { type: "input_image"; image_url: string; detail: "low" }
+    | { type: "input_image"; image_url: string; detail: "high" }
   > = [
     {
       type: "input_text",
-      text: `Analyze ${items.length} wallpaper thumbnails. Return exactly one metadata object for each clientId.`,
+      text: [
+        `Study each thumbnail closely and GENERATE precise catalog metadata for ${items.length} wallpaper(s).`,
+        "Return exactly one metadata object for each clientId.",
+        "Name the real subject (brand/model/character/place) — never a vague label when identity is visible.",
+      ].join(" "),
     },
   ]
 
   items.forEach((item, index) => {
+    const hasUserTitle = item.initialName.trim().length > 0
     content.push({
       type: "input_text",
       text: [
         `Item ${index + 1}`,
         `clientId: ${item.clientId}`,
-        `filename: ${item.sourceFileName}`,
-        `current title: ${item.initialName}`,
-        `current category: ${item.initialCategory}`,
-        `current tags: ${item.initialTags.join(", ")}`,
+        `filename hint (not a title draft): ${item.sourceFileName || "(none)"}`,
+        hasUserTitle
+          ? `user-provided title (respect only if it already correctly names the subject): ${item.initialName}`
+          : "user-provided title: (none — GENERATE a specific title from what you see)",
+        item.initialCategory.trim()
+          ? `category hint (optional): ${item.initialCategory}`
+          : "category hint: (none — choose from the image)",
+        `current tags: ${item.initialTags.join(", ") || "(none)"}`,
+        "Task: identify the subject precisely, then write the title.",
       ].join("\n"),
     })
     content.push({
       type: "input_image",
       image_url: item.thumbDataUrl,
-      detail: "low",
+      detail: "high",
     })
   })
 
