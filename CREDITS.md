@@ -2,7 +2,9 @@
 
 ## product
 
-macwall app ui, website, and code in this repo are built by **foundrceo** / macwall.
+this repo is the **macwall website** (macwall.app). code here is built by **foundrceo** / macwall.
+
+the native macOS app is a separate project and is not included in this repository.
 
 ## comparison pages
 
