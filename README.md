@@ -1,42 +1,50 @@
-# macwall
+# macwall-web
 
-a native macOS app for cinematic live wallpapers — plus this website (download, pricing, checkout, licenses).
+this repo is the **website** for [macwall.app](https://macwall.app) — marketing pages, download, pricing, stripe checkout, and license activation.
+
+it is **not** the native mac app. the desktop app lives in a separate private repo. this open source project is web only.
 
 ![macwall homepage](public/screenshots/homepage.png)
 
-## try it
+## what this repo is
 
-- **site:** https://macwall.app  
-- **download (free):** https://macwall.app/download  
-- **mac only** — not for windows, ios, or the browser
+- next.js site for https://macwall.app
+- download + pricing + checkout flows
+- license key activation helpers used by the mac app
+- blog, docs, changelog, community submission pages
+- legal center at [/legal](https://macwall.app/legal)
 
-the website works without paying. the free app installs without an account. pro unlocks the full catalog and extras.
+## what this repo is not
 
-### reviewers / unlock without buying
+- not the macOS app source
+- not a browser wallpaper player
+- not windows / ios
 
-1. download and open the app  
-2. when it asks for a license key, paste one in  
+## try the live site
 
-the demo key isn’t written in plain text. decode it:
+- **site:** https://macwall.app
+- **download page:** https://macwall.app/download
+
+the marketing site works without paying. checkout and licensing need real env keys if you run those flows locally.
+
+### reviewers (optional product check)
+
+if you want to see the full product the site sells:
+
+1. open https://macwall.app/download and install the free mac app
+2. when it asks for a license key, paste one in
+
+demo key (not plain text):
 
 ```sh
 echo TVctVjdOOC1SWUxKLUg5OVY= | base64 --decode
 ```
 
-please don’t share that key around.
+please don’t share that key around. mac only for the app binary.
 
-## features
+## run this website locally
 
-- browse wallpapers on the web and open them in the mac app
-- free download + one-time pro license (no subscription required)
-- stripe checkout and in-app license activation
-- community wallpaper submissions
-- blog, docs, changelog, and creator offer pages
-- legal center at [/legal](https://macwall.app/legal) (privacy, dmca, etc.)
-
-## run the site locally
-
-needs a recent **node** (18+ recommended).
+needs **node** 18+.
 
 ```sh
 git clone https://github.com/foundrceo/MacWall-Web.git
@@ -48,21 +56,19 @@ npm run dev
 
 open http://localhost:3000. most of the marketing site runs with empty env; checkout and licensing need real keys in `.env` (see `.env.example`).
 
-useful checks:
-
 ```sh
 npm run lint
 npm run typecheck
 npm run build
 ```
 
-## how it works
+## stack
 
-this repo is the **next.js** site for macwall.app. the desktop product is a separate native mac app. purchases go through a payment processor; license keys activate in-app via a deep link. catalog media and installers are served from cloud storage. private ops stay out of this public tree.
+next.js, typescript, tailwind, stripe, supabase, vercel, cloudflare r2 for media/installers.
 
 ## credits
 
-see [CREDITS.md](./CREDITS.md) for attribution and copyright notes.
+see [CREDITS.md](./CREDITS.md).
 
 ## security
 
