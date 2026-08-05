@@ -21,7 +21,8 @@ const UUID_RE =
 const PRESIGN_EXPIRY_SECONDS = 15 * 60
 
 const RATE_LIMIT_WINDOW_MS = 60_000
-const RATE_LIMIT_MAX = 10
+/** Allow a short Add Wallpaper batch of single-PUT uploads. */
+const RATE_LIMIT_MAX = 30
 const checkRateLimit = createInMemoryRateLimiter({
   max: RATE_LIMIT_MAX,
   windowMs: RATE_LIMIT_WINDOW_MS,
