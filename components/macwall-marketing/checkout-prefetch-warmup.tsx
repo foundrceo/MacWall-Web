@@ -2,7 +2,10 @@
 
 import { useEffect } from "react"
 
-import { prefetchCheckoutSession } from "@/lib/checkout/prefetch-checkout"
+import {
+  prefetchCheckoutSession,
+  waitForAffonsoReferralIfLanding,
+} from "@/lib/checkout/prefetch-checkout"
 
 /** Warm the primary Checkout Session after idle — one offer only to limit Stripe load. */
 export function CheckoutPrefetchWarmup({
@@ -16,7 +19,12 @@ export function CheckoutPrefetchWarmup({
     const warm = () => {
       if (cancelled) return
       const primary = offers[0]
-      if (primary) void prefetchCheckoutSession(primary)
+      if (!primary) return
+      // Affiliate landings: wait for `affonso_referral` so metadata is not empty.
+      void waitForAffonsoReferralIfLanding(2500).then(() => {
+        if (cancelled) return
+        void prefetchCheckoutSession(primary)
+      })
     }
 
     const ric =

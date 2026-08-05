@@ -96,6 +96,10 @@ export default function MacWallMarketingAffiliatePage() {
               {copy.heroTitleLines[1]}
             </h1>
 
+            <p className="mt-5 max-w-[38ch] text-[16px] font-normal leading-[1.55] text-white/65 sm:text-[17px]">
+              {copy.heroLead}
+            </p>
+
             <AffiliateHeroVisual className="mt-8 lg:hidden" />
 
             <ul className="mt-8 space-y-3.5 lg:mt-9">

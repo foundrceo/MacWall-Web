@@ -8,9 +8,10 @@ export const macwallAffiliateCopy = {
   pageTitle: "Affiliate Program",
 
   heroTitleLines: [
-    "Mac setups go high-reach.",
-    "You should generate earnings.",
+    "Get paid when you sleep",
+    "with affiliate commissions",
   ] as const,
+  heroLead: `Join MacWall affiliate program and earn ${AFFILIATE_COMMISSION_PERCENT}% commissions for every customer you refer.`,
   primaryCta: "Get your partner link",
 
   perks: [
@@ -18,7 +19,7 @@ export const macwallAffiliateCopy = {
       id: "channels",
       before: "Drop one link on ",
       highlight: "YouTube, TikTok, or your newsletter",
-      after: " — scale your digital presence",
+      after: " to scale your digital presence",
     },
     {
       id: "commission",
@@ -30,13 +31,13 @@ export const macwallAffiliateCopy = {
       id: "cookie",
       before: "",
       highlight: `${AFFONSO_COOKIE_DURATION_DAYS}-day tracking`,
-      after: " — they don’t need to invest right away",
+      after: " so they don’t need to invest right away",
     },
     {
       id: "payouts",
       before: "Watch clicks and payouts in your ",
       highlight: "partner dashboard",
-      after: " — allocate earnings with clarity",
+      after: " with clear earnings",
     },
   ] as const,
 
