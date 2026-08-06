@@ -1,4 +1,5 @@
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
+import { notifyCommunityUploadReviewed } from "@/lib/push/notify-visitor"
 import { r2CopyObject, r2PresignGetUrl } from "@/lib/storage/r2"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { randomUUID } from "crypto"
@@ -175,6 +176,16 @@ export async function approveCommunityUpload(
     throw new Error(`community_uploads update: ${uploadError.message}`)
   }
 
+  void notifyCommunityUploadReviewed({
+    visitorId: upload.submitterId,
+    uploadId,
+    title: upload.title,
+    approved: true,
+    reviewNotes: trimmedNotes,
+  }).catch((error) => {
+    console.error("[apns] approve notify failed:", error)
+  })
+
   return {
     status: "approved",
     wallpaperId: wallpaperID,
@@ -200,13 +211,28 @@ export async function rejectCommunityUpload(
   uploadId: string,
   reviewNotes?: string
 ) {
+  const upload = await getCommunityUpload(uploadId)
   const supabase = getSupabaseAdmin()
+  const notes = reviewNotes?.trim() || null
   const { data, error } = await supabase.rpc("reject_community_upload", {
     p_upload_id: uploadId,
-    p_review_notes: reviewNotes?.trim() || null,
+    p_review_notes: notes,
   })
 
   if (error) throw new Error(error.message)
+
+  if (upload) {
+    void notifyCommunityUploadReviewed({
+      visitorId: upload.submitterId,
+      uploadId,
+      title: upload.title,
+      approved: false,
+      reviewNotes: notes,
+    }).catch((err) => {
+      console.error("[apns] reject notify failed:", err)
+    })
+  }
+
   return data
 }
 

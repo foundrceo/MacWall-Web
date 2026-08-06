@@ -1,3 +1,4 @@
+import { notifySupportReply } from "@/lib/push/notify-visitor"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 export type FeedbackSentiment = "like" | "dislike" | "neutral"
@@ -332,7 +333,18 @@ export async function replyToFeedback(
   if (!data) throw new Error("Feedback not found")
 
   const messages = await loadMessagesForFeedback([id])
-  return mapFeedback(data, messages.get(id) ?? [])
+  const mapped = mapFeedback(data, messages.get(id) ?? [])
+
+  // Quit-time APNs (best-effort; local notifications still cover in-process).
+  void notifySupportReply({
+    visitorId: mapped.deviceId,
+    feedbackId: id,
+    preview: trimmed || (trimmedImage ? "Sent an image" : body),
+  }).catch((error) => {
+    console.error("[apns] support reply notify failed:", error)
+  })
+
+  return mapped
 }
 
 export async function setFeedbackResolved(id: string, resolved: boolean) {
