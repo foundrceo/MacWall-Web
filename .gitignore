@@ -46,6 +46,8 @@ pnpm-debug.log*
 .env.production
 .env*.local
 *.pem
+*.p8
+AuthKey_*.p8
 credentials.json
 *-credentials.json
 service-account*.json
