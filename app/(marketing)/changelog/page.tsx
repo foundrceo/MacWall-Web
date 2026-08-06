@@ -11,8 +11,8 @@ import type { Metadata } from "next"
 
 const PAGE_PATH = "/changelog"
 
-/** ISR — changelog reads R2 once per hour instead of every request. */
-export const revalidate = 3600
+/** ISR — short TTL so R2 `releases/changelog.json` / `version.json` ships show up quickly. */
+export const revalidate = 300
 
 const seoPage = {
   slug: "changelog",
