@@ -2,7 +2,8 @@ import "server-only"
 
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
-const RECOVERY_DELAY_MINUTES = 30
+/** Match stripe-license-email edge enqueue delay. */
+const RECOVERY_DELAY_MINUTES = 5
 
 export type QueueCheckoutRecoveryInput = {
   checkoutSessionId: string
@@ -15,6 +16,7 @@ export type QueueCheckoutRecoveryInput = {
 /**
  * Schedule a payment recovery email ~5 minutes from now.
  * Skips if the session was already sent or cancelled.
+ * Actual send is done by `process-checkout-recovery` cron.
  */
 export async function queueCheckoutRecovery(
   input: QueueCheckoutRecoveryInput

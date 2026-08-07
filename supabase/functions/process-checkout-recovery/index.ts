@@ -353,13 +353,11 @@ async function processQueueRow(args: {
     return "skipped"
   }
 
-  if (session.status === "expired") {
-    await markQueueRow(supabase, row.id, {
-      status: "skipped",
-      skip_reason: "session_expired",
-    })
-    return "skipped"
-  }
+  /**
+   * Expired Checkout Sessions still get the conversion mail.
+   * CTA opens a NEW session with WALL10 — it does not reuse the old session URL.
+   * Skipping on `expired` previously dropped every `checkout.session.expired` queue row.
+   */
 
   if (row.license_key) {
     const { data: lic } = await supabase
