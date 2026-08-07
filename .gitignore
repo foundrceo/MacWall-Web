@@ -80,5 +80,8 @@ next-env.d.ts
 .cursor/skills/
 _deploy_payload.json
 
+# one-off backfill / agent temp artifacts
+tmp/
+
 supabase/.temp/
 supabase/.branches/
