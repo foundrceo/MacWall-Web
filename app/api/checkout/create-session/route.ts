@@ -29,7 +29,8 @@ const checkCheckoutRateLimit = createInMemoryRateLimiter({
 async function startCheckout(
   request: Request,
   offerSlug: string | null,
-  planSlug: string | null
+  planSlug: string | null,
+  promoCode: string | null
 ) {
   const rate = checkCheckoutRateLimit(clientIpFromRequest(request))
   if (rate.limited) {
@@ -58,6 +59,7 @@ async function startCheckout(
     country,
     offerSlug,
     planSlug,
+    promoCode,
     affonsoReferral,
     datafastVisitorId,
     datafastSessionId,
@@ -70,8 +72,9 @@ export async function GET(request: Request) {
   const url = new URL(request.url)
   const offerSlug = url.searchParams.get("offer")
   const planSlug = url.searchParams.get("plan")
+  const promoCode = url.searchParams.get("promo")
 
-  const result = await startCheckout(request, offerSlug, planSlug)
+  const result = await startCheckout(request, offerSlug, planSlug, promoCode)
 
   if (!result.ok) {
     const origin = resolveCheckoutSiteOrigin(request.url)
@@ -86,19 +89,23 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   let offerSlug: string | null = null
   let planSlug: string | null = null
+  let promoCode: string | null = null
   try {
     const body = (await request.json()) as {
       offer?: string
       plan?: string
+      promo?: string
     }
     offerSlug = body.offer?.trim() || null
     planSlug = body.plan?.trim() || null
+    promoCode = body.promo?.trim() || null
   } catch {
     offerSlug = null
     planSlug = null
+    promoCode = null
   }
 
-  const result = await startCheckout(request, offerSlug, planSlug)
+  const result = await startCheckout(request, offerSlug, planSlug, promoCode)
 
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status })
