@@ -1,6 +1,7 @@
 /**
- * Transactional email HTML — admin preview source.
- * Deploy later to Supabase Edge Functions when finalized.
+ * Transactional email HTML — admin preview source of truth.
+ * Live sends use the matching builders in Supabase Edge Functions
+ * (`stripe-license-email`, `process-checkout-recovery`).
  */
 
 export const EMAIL_APP_NAME = "MacWall"
