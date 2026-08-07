@@ -59,7 +59,7 @@ skills/
 skills-lock.json
 
 # local backend source / private ops docs (deployed remotely)
-supabase/
+# supabase/  (track functions; ignore local state below)
 .supabase/
 
 # history rewrite helpers / local bundles (never publish)
@@ -78,3 +78,7 @@ next-env.d.ts
 
 # Affonso/agent skill symlinks (local install via npx skills)
 .cursor/skills/
+_deploy_payload.json
+
+supabase/.temp/
+supabase/.branches/

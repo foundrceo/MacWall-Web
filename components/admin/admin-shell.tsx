@@ -12,6 +12,7 @@ import {
   BubbleChatIcon,
   ImageIcon,
   Logout01Icon,
+  Mail01Icon,
   Upload01Icon,
 } from "@hugeicons/core-free-icons"
 
@@ -36,6 +37,7 @@ export const ADMIN_NAV: readonly NavItem[] = [
   { href: "/admin", label: "Analytics", icon: Analytics01Icon },
   { href: "/admin/wallpapers", label: "Wallpapers", icon: ImageIcon },
   { href: "/admin/uploads", label: "Uploads", icon: Upload01Icon },
+  { href: "/admin/emails", label: "Emails", icon: Mail01Icon },
   { href: "/admin/feedback", label: "Live Support", icon: BubbleChatIcon },
 ]
 

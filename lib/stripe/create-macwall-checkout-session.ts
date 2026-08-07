@@ -15,7 +15,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { queueCheckoutRecovery } from "@/lib/stripe/queue-checkout-recovery"
 
 /** Allowlisted app/web promo codes that may auto-apply at Checkout. */
-const ALLOWLISTED_PROMOTION_CODES = new Set(["MAC10"])
+const ALLOWLISTED_PROMOTION_CODES = new Set(["MAC10", "WALL10"])
 
 export type CreateMacWallCheckoutInput = {
   country: string | null
