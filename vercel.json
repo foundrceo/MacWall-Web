@@ -6,5 +6,11 @@
       "*": false
     }
   },
-  "regions": ["sin1"]
+  "regions": ["sin1"],
+  "crons": [
+    {
+      "path": "/api/cron/checkout-recovery",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }
