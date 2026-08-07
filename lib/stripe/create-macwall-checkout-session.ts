@@ -14,6 +14,9 @@ import { getStripe } from "@/lib/stripe/server"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { queueCheckoutRecovery } from "@/lib/stripe/queue-checkout-recovery"
 
+/** Allowlisted app/web promo codes that may auto-apply at Checkout. */
+const ALLOWLISTED_PROMOTION_CODES = new Set(["MAC10"])
+
 export type CreateMacWallCheckoutInput = {
   country: string | null
   offerSlug?: string | null
@@ -27,6 +30,8 @@ export type CreateMacWallCheckoutInput = {
   datafastSessionId?: string
   /** Host that initiated checkout — used for Stripe success/cancel redirects. */
   siteOrigin: string
+  /** Optional Stripe Promotion Code (e.g. MAC10) — allowlisted only. */
+  promoCode?: string | null
 }
 
 export type CreateMacWallCheckoutResult =
@@ -38,6 +43,32 @@ export type CreateMacWallCheckoutResult =
  * Stripe best practice: include an 8-letter suffix for flow comparison.
  */
 const CHECKOUT_INTEGRATION_ID = "macwall_web_checkout_kxqmvrnp"
+
+function normalizePromoCode(raw: string | null | undefined): string | null {
+  const code = raw?.trim().toUpperCase() || ""
+  if (!code || !ALLOWLISTED_PROMOTION_CODES.has(code)) return null
+  return code
+}
+
+async function resolvePromotionCodeId(
+  stripe: ReturnType<typeof getStripe>,
+  code: string
+): Promise<string | null> {
+  try {
+    const listed = await stripe.promotionCodes.list({
+      code,
+      active: true,
+      limit: 1,
+    })
+    return listed.data[0]?.id ?? null
+  } catch (error) {
+    console.error(
+      "[checkout] promotion code lookup failed",
+      error instanceof Error ? error.message : "error"
+    )
+    return null
+  }
+}
 
 /**
  * Creates the Stripe Checkout Session ASAP, then persists the pending license
@@ -63,6 +94,10 @@ export async function createMacWallCheckoutSession(
 
     const licenseKey = generateMacWallLicenseKey()
     const encodedKey = encodeURIComponent(licenseKey)
+    const promoCode = normalizePromoCode(input.promoCode)
+    const promotionCodeId = promoCode
+      ? await resolvePromotionCodeId(stripe, promoCode)
+      : null
     const metadata = {
       license_key: licenseKey,
       source: "macwall",
@@ -76,11 +111,14 @@ export async function createMacWallCheckoutSession(
       pricing_region: region,
       unit_amount_usd: String(displayUnitAmount),
       visitor_country: input.country?.trim().toUpperCase() || "",
+      ...(promoCode ? { promo_code: promoCode } : {}),
+      ...(promotionCodeId ? { stripe_promotion_code_id: promotionCodeId } : {}),
     }
 
     // Critical path: Stripe only. Localhost measured ~1.1–1.2s for this hop.
     // Idempotency key is unique per license key so retries of the same intent
     // reuse the session; a new click mints a new key → new session (correct).
+    // Stripe forbids pairing `discounts` with `allow_promotion_codes`.
     const session = await stripe.checkout.sessions.create(
       {
         mode: offer.billingModel === "annual" ? "subscription" : "payment",
@@ -90,7 +128,9 @@ export async function createMacWallCheckoutSession(
         client_reference_id: licenseKey,
         // `auto` is faster at Checkout than always requiring a full address.
         billing_address_collection: "auto",
-        allow_promotion_codes: true,
+        ...(promotionCodeId
+          ? { discounts: [{ promotion_code: promotionCodeId }] }
+          : { allow_promotion_codes: true }),
         adaptive_pricing: { enabled: true },
         integration_identifier: CHECKOUT_INTEGRATION_ID,
         metadata,
@@ -102,7 +142,9 @@ export async function createMacWallCheckoutSession(
             }),
       },
       {
-        idempotencyKey: `mw_checkout_${offer.slug}_${region}_${licenseKey}`,
+        idempotencyKey: `mw_checkout_${offer.slug}_${region}_${licenseKey}${
+          promotionCodeId ? `_promo_${promotionCodeId}` : ""
+        }`,
       }
     )
 
