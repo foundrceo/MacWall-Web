@@ -1,6 +1,6 @@
 import "server-only"
 
-import { getSupabaseAdmin } from "@/lib/supabase/admin"
+import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
 
 /**
  * Ask the Supabase `macwall-apns` edge function to deliver a remote alert.
@@ -15,18 +15,39 @@ export async function notifyVisitorPush(input: {
   const visitorId = input.visitorId?.trim()
   if (!visitorId) return
 
-  const supabase = getSupabaseAdmin()
-  const { error } = await supabase.functions.invoke("macwall-apns", {
-    body: {
-      action: "notify",
-      visitorId: visitorId.toLowerCase(),
-      title: input.title,
-      body: input.body,
-      mwId: input.mwId,
-    },
-  })
-  if (error) {
-    console.error("[apns] notify invoke failed:", error.message)
+  const origin = getCatalogSupabaseOrigin()
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
+  if (!origin || !serviceRoleKey) {
+    console.error("[apns] notify skipped — Supabase admin credentials missing")
+    return
+  }
+
+  try {
+    const res = await fetch(`${origin}/functions/v1/macwall-apns`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serviceRoleKey}`,
+        apikey: serviceRoleKey,
+      },
+      body: JSON.stringify({
+        action: "notify",
+        visitorId: visitorId.toLowerCase(),
+        title: input.title,
+        body: input.body,
+        mwId: input.mwId,
+      }),
+      cache: "no-store",
+    })
+    if (!res.ok) {
+      const text = await res.text().catch(() => "")
+      console.error(`[apns] notify failed status=${res.status} body=${text.slice(0, 300)}`)
+    }
+  } catch (error) {
+    console.error(
+      "[apns] notify request failed:",
+      error instanceof Error ? error.message : error
+    )
   }
 }
 
