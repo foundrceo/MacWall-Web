@@ -329,7 +329,7 @@ async function processQueueRow(args: {
   const { row, stripe, supabase, resendKey, from, appName } = args
   const checkoutHrefValue = checkoutUrl()
 
-  let session: Stripe.Checkout.Session
+  let session: Stripe.Checkout.Session | null = null
   try {
     session = await stripe.checkout.sessions.retrieve(row.checkout_session_id)
   } catch (e) {
@@ -338,14 +338,20 @@ async function processQueueRow(args: {
       row.checkout_session_id,
       e instanceof Error ? e.message : "error"
     )
-    await markQueueRow(supabase, row.id, {
-      status: "skipped",
-      skip_reason: "session_not_found",
-    })
-    return "skipped"
+    // Still send if we already captured an email (session may be purged).
+    if (!row.customer_email?.trim()) {
+      await markQueueRow(supabase, row.id, {
+        status: "skipped",
+        skip_reason: "session_not_found",
+      })
+      return "skipped"
+    }
   }
 
-  if (session.payment_status === "paid" || session.status === "complete") {
+  if (
+    session &&
+    (session.payment_status === "paid" || session.status === "complete")
+  ) {
     await markQueueRow(supabase, row.id, {
       status: "cancelled",
       skip_reason: "payment_completed",
@@ -375,7 +381,8 @@ async function processQueueRow(args: {
     }
   }
 
-  const email = row.customer_email?.trim() || sessionEmail(session)
+  const email =
+    row.customer_email?.trim() || (session ? sessionEmail(session) : null)
   if (!email) {
     const retries = parseRetryCount(row.reason)
     if (retries >= MAX_NO_EMAIL_RETRIES) {
@@ -401,9 +408,9 @@ async function processQueueRow(args: {
 
   const paymentIntentId =
     row.payment_intent_id ||
-    (typeof session.payment_intent === "string"
+    (session && typeof session.payment_intent === "string"
       ? session.payment_intent
-      : session.payment_intent?.id) ||
+      : session?.payment_intent?.id) ||
     null
 
   const webhookEventId = `recovery_queue_${row.id}_${row.checkout_session_id}`
@@ -427,8 +434,12 @@ async function processQueueRow(args: {
       })
       return "skipped"
     }
-    console.error("[process-checkout-recovery] audit_insert_failed", insErr.message)
-    return "failed"
+    // Don't block Resend on audit-table failures (missing migration used to
+    // silently kill every conversion mail after Jul 2026).
+    console.error(
+      "[process-checkout-recovery] audit_insert_failed_continuing",
+      insErr.message
+    )
   }
 
   const html = buildPaymentRecoveryEmailHtml({
