@@ -768,7 +768,8 @@ async function handlePaymentFailed(args: {
   supabase: ReturnType<typeof createClient>
 }): Promise<Response> {
   const paymentIntent = args.event.data.object as Stripe.PaymentIntent
-  const email = paymentIntent.receipt_email?.trim() || null
+  // Checkout Sessions usually leave receipt_email null — email is on the session.
+  let email = paymentIntent.receipt_email?.trim() || null
   const reason = paymentIntent.last_payment_error?.message ?? "payment_failed"
 
   let checkoutSessionId: string | null = null
@@ -784,6 +785,7 @@ async function handlePaymentFailed(args: {
     if (session) {
       checkoutSessionId = session.id
       if (!licenseKey) licenseKey = licenseKeyFromSession(session) || null
+      if (!email) email = sessionCustomerEmail(session)
     }
   } catch (e) {
     console.error(
