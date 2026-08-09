@@ -395,8 +395,8 @@ export const docsPages: DocsPage[] = [
           "The Lock Screen asset is played by macOS, and the display sleeps quickly once locked. When the display is asleep nothing is decoded. Desktop playback is separately governed by MacWall's pause rules.",
       },
       {
-        question: "Can I get a live Lock Screen on macOS 14 or 15?",
-        answer: `No app can. The API that lets third-party apps supply Lock Screen video did not exist before ${macwallLockScreenMacOSVersion}. Desktop live wallpapers work fine on macOS 14 and later.`,
+        question: "Can I get a live Lock Screen on macOS 15?",
+        answer: `No app can below ${macwallLockScreenMacOSVersion}. The API that lets third-party apps supply Lock Screen video did not exist before then. Desktop live wallpapers work on macOS 15 and later.`,
       },
       {
         question: "Can the Lock Screen and desktop use different wallpapers?",

@@ -170,7 +170,7 @@ export const overviewArticles: BlogArticle[] = [
         type: "ul",
         items: [
           "You need interactive game-like Wallpaper Engine scenes (MacWall focuses on video loops)",
-          "Your Mac is below macOS 14, and MacWall requires a recent macOS",
+          "Your Mac is below macOS 15, and MacWall requires a recent macOS",
           "You refuse any one-time purchase and want a permanently free full catalog (try the Reel refund instead)",
         ],
       },

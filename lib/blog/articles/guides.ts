@@ -9,7 +9,7 @@ export const guideArticles: BlogArticle[] = [
     description:
       "Step-by-step guide to animated desktop backgrounds on macOS with MacWall, download, pick a wallpaper, and control playback from the menu bar.",
     excerpt:
-      "The complete walkthrough for motion wallpapers on Intel and Apple Silicon Macs running Sonoma, Ventura, and Sequoia.",
+      "The complete walkthrough for motion wallpapers on Intel and Apple Silicon Macs running Sequoia and later.",
     category: "guides",
     readMinutes: 6,
     publishedAt: "2026-03-01",

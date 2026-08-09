@@ -6,7 +6,7 @@ import {
 import type { MetadataRoute } from "next"
 
 const DESCRIPTION =
-  `${macwall.tagline} Live video wallpapers for Mac (macOS 14+): cloud catalog, imports, multi-display playback, menu bar control, and optional MacWall Pro for Lock Screen video on ${macwallLockScreenMacOSVersion}.`
+  `${macwall.tagline} Live video wallpapers for Mac (macOS 15+): cloud catalog, imports, multi-display playback, menu bar control, and optional MacWall Pro for Lock Screen video on ${macwallLockScreenMacOSVersion}.`
 
 export default function manifest(): MetadataRoute.Manifest {
   return {

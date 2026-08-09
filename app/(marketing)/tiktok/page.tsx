@@ -12,7 +12,7 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-const PAGE_DESCRIPTION = `Get ${macwall.name} Pro for ${macwall.pro.price}. Live wallpapers for Mac (macOS 14+) with Lock Screen on ${macwallLockScreenMacOSVersion}. One-time purchase, no subscription.`
+const PAGE_DESCRIPTION = `Get ${macwall.name} Pro for ${macwall.pro.price}. Live wallpapers for Mac (macOS 15+) with Lock Screen on ${macwallLockScreenMacOSVersion}. One-time purchase, no subscription.`
 
 export const metadata: Metadata = {
   title: "Live wallpapers for Mac",

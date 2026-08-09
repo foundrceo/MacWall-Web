@@ -270,7 +270,7 @@ export const macosArticles: BlogArticle[] = [
         type: "ul",
         items: [
           "Live Lock Screen & Screen Saver: macOS 26 (Tahoe) or macOS 27, including the current beta",
-          "Desktop live wallpapers: macOS 14 Sonoma and later",
+          "Desktop live wallpapers: macOS 15 Sequoia and later",
           "Intel and Apple Silicon both supported",
         ],
       },
