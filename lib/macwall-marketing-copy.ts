@@ -96,7 +96,7 @@ export const macwallMarketingCopy = {
     kicker: "PRO",
     title: `Live Lock Screen & Screen Saver on ${macwallLockScreenMacOSVersion}`,
     strong: `Bring real video motion to your Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion} and later. It uses Apple's own wallpaper system, so there are no extra installers or extensions.`,
-    rest: "It's fully reversible: switch it off in Settings and your old look comes straight back. On macOS 14–15, Pro still unlocks the full catalog and desktop motion.",
+    rest: "It's fully reversible: switch it off in Settings and your old look comes straight back. On supported macOS versions, Pro still unlocks the full catalog and desktop motion.",
     linkText: "Lock Screen requirements",
   },
   nativeMac: {

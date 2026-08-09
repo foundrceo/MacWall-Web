@@ -107,7 +107,7 @@ export function getCommandPaletteStaticItems(): {
 
   const actions: CommandPaletteStaticItem[] = [
     action("action-download", h.downloadCta, macwallInstallerLatestPath, {
-      description: "Get the MacWall app for macOS 14+",
+      description: "Get the MacWall app for macOS 15+",
       keywords: ["install", "dmg", "latest"],
       analyticsEvent: "download_click",
       analyticsLocation: "command_palette",

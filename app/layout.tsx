@@ -56,7 +56,7 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
 })
 
-const SITE_DESCRIPTION_FALLBACK = `MacWall is a native Mac app for live 4K wallpapers. 1,000+ cinematic loops, your own videos, every display covered, and a live Lock Screen on macOS 26. Free to try, then one payment. No subscription. macOS 14+.`
+const SITE_DESCRIPTION_FALLBACK = `MacWall is a native Mac app for live 4K wallpapers. 1,000+ cinematic loops, your own videos, every display covered, and a live Lock Screen on macOS 26. Free to try, then one payment. No subscription. macOS 15+.`
 
 const SITE_TITLE_DEFAULT = macwall.fullTagline
 
