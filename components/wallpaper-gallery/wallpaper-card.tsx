@@ -92,7 +92,7 @@ function WallpaperCardMedia({
       >
         <Image
           src={wallpaper.thumbUrl}
-          alt={`${wallpaper.name} — ${wallpaper.category} live wallpaper for Mac`}
+          alt={`${wallpaper.name}, a ${wallpaper.category} live wallpaper for Mac`}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover [-webkit-user-drag:none]"

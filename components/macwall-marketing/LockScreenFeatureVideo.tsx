@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react"
 
-const LOCK_SCREEN_VIDEO_SRC = "/Video.webm"
+/** H.264 rather than VP9 — Safari's WebM support is too patchy for the Mac audience. */
+const LOCK_SCREEN_VIDEO_SRC = "/hero/lockscreen.mp4"
+const LOCK_SCREEN_POSTER_SRC = "/hero/lockscreen-poster.jpg"
 
 /**
  * Lock Screen feature demo — defers loading the clip until it is near the
@@ -60,6 +62,7 @@ export default function LockScreenFeatureVideo({
     <div className="relative aspect-video overflow-hidden rounded-2xl bg-black">
       <video
         ref={videoRef}
+        poster={LOCK_SCREEN_POSTER_SRC}
         autoPlay={!reduceMotion}
         muted
         loop={!reduceMotion}

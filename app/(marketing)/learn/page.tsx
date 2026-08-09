@@ -46,7 +46,7 @@ export default function LearnHubPage() {
         sections={[
           {
             type: "p",
-            text: "These pages explain the mechanics behind live wallpapers — why video-based wallpapers are cheap to run, how macOS composites the wallpaper layer, which codecs decode in hardware, and what actually costs battery. For step-by-step product instructions see [the documentation](/docs); for comparisons and news see [the blog](/blog).",
+            text: "These pages explain the mechanics behind live wallpapers: why video-based wallpapers are cheap to run, how macOS composites the wallpaper layer, which codecs decode in hardware, and what actually costs battery. For step-by-step product instructions see [the documentation](/docs); for comparisons and news see [the blog](/blog).",
           },
         ]}
       >

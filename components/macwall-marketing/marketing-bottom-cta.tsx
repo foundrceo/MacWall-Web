@@ -24,7 +24,7 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
-/** Shared pre-footer CTA — download strip before footer. */
+/** Shared pre-footer CTA — same on home, pricing, and legal pages. */
 export default function MacWallMarketingBottomCta() {
   const pricing = useMarketingPricing()
 
@@ -32,10 +32,10 @@ export default function MacWallMarketingBottomCta() {
     <section className="marketing-section-elevated border-t border-border/60 bg-background">
       <div className="marketing-container text-center">
         <h2 className="text-[clamp(1.875rem,5vw,2.75rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
-          Experience {macwall.name}.
+          {`Try ${macwall.name} free.`}
         </h2>
         <div className="mt-8 sm:mt-10">
-          <div className="flex flex-wrap items-start justify-center gap-3">
+          <div className="mw-when-desktop flex flex-wrap items-start justify-center gap-3">
             <div className="flex flex-col items-center">
               <TrackedDownloadButton
                 href={macwallInstallerLatestPath}
@@ -44,7 +44,7 @@ export default function MacWallMarketingBottomCta() {
                 className="marketing-hero-primary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
               >
                 <AppleIcon className="size-3.5" />
-                Download for macOS
+                Download free for Mac
               </TrackedDownloadButton>
               <p className="mt-2 text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
                 {macwallMinimumMacOSVersionLabel}
@@ -58,6 +58,32 @@ export default function MacWallMarketingBottomCta() {
             >
               {pricing.bottomCtaLabel}
             </TrackedPricingButton>
+          </div>
+
+          <div className="mw-when-mobile">
+            <div className="mx-auto flex max-w-sm flex-col items-stretch gap-2.5">
+              <TrackedPricingButton
+                href={pricing.checkoutUrl}
+                location="bottom_cta_mobile"
+                size="pill"
+                ariaLabel={`Get ${macwall.name} Pro`}
+                className="marketing-hero-primary-btn justify-center px-4 py-3 text-[15px]"
+              >
+                {pricing.getProCta}
+              </TrackedPricingButton>
+              <TrackedPricingButton
+                href="/pricing"
+                location="bottom_cta_mobile"
+                size="pill"
+                className="marketing-hero-secondary-btn justify-center px-4 py-3 text-[15px]"
+              >
+                See what&apos;s included
+              </TrackedPricingButton>
+              <p className="mt-1 text-[12px] leading-snug text-marketing-muted">
+                Your license key is emailed straight away. Install on your Mac
+                later.
+              </p>
+            </div>
           </div>
         </div>
       </div>

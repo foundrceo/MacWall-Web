@@ -10,11 +10,6 @@ import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-b
 import { MacWallAppIcon } from "@/components/macwall-app-icon"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import { trackSiteEventClient } from "@/lib/analytics/client"
-import {
-  prefetchCheckoutSession,
-  waitForAffonsoReferralIfLanding,
-} from "@/lib/checkout/prefetch-checkout"
-import { macwall } from "@/lib/macwall-site"
 
 const DWELL_MS = 15_000
 const PURCHASE_COMPLETE_KEY = "macwall_purchase_complete"
@@ -196,14 +191,6 @@ export function WallpaperPurchaseBanner() {
     }
   }, [visibleDwellMs])
 
-  // Warm Stripe once when the banner is about to show (not every dwell tick).
-  useEffect(() => {
-    if (!ready || purchased) return
-    void waitForAffonsoReferralIfLanding(2500).then(() => {
-      void prefetchCheckoutSession("permanent")
-    })
-  }, [ready, purchased])
-
   const open = onWallpaper && ready && !hidden && !purchased && !chatOpen
 
   useEffect(() => {
@@ -244,7 +231,7 @@ export function WallpaperPurchaseBanner() {
     dismissForNow()
   }
 
-  const ctaLabel = `Unlock Pro — ${pricing.permanentPrice}`
+  const ctaLabel = pricing.getProCta
   // Must be the create-session API path — TrackedLink POSTs and opens Stripe URL.
   const checkoutHref = "/api/checkout/create-session?offer=permanent"
 
@@ -276,19 +263,18 @@ export function WallpaperPurchaseBanner() {
               <MacWallAppIcon size={40} className="mt-0.5 shrink-0" alt="" />
               <div className="min-w-0 flex-1">
                 <p className="font-sans text-[15px] leading-snug font-medium tracking-tight text-white">
-                  Ready to elevate your desktop?
+                  Want this one on your desktop?
                 </p>
                 <p className="mt-1 font-sans text-[13px] leading-snug text-white/65">
-                  Unlock {macwall.name} Pro — a streamlined, effortless
-                  experience. One investment of {pricing.permanentPrice}, no
-                  subscription.
+                  Pro unlocks all 1,000+ wallpapers on up to 3 Macs.{" "}
+                  {pricing.permanentPrice} once, no subscription.
                 </p>
                 <div className="mt-3">
                   <TrackedPricingButton
                     href={checkoutHref}
                     location="wallpaper_purchase_banner"
                     size="pill"
-                    ariaLabel={`Invest in ${macwall.name} Pro for ${pricing.permanentPrice}`}
+                    ariaLabel={pricing.buyProAria}
                     className="inline-flex h-9 items-center justify-center rounded-full bg-white px-4 text-[13px] font-medium text-black no-underline transition-opacity hover:opacity-90"
                     onClick={onCheckoutClick}
                   >

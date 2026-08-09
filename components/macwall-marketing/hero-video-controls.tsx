@@ -2,12 +2,7 @@
 
 import { useCallback, useLayoutEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
-import {
-  captureVideoPoster,
-  HERO_WALKTHROUGH_VIDEO_ID,
-  readHeroVideoPoster,
-  writeHeroVideoPoster,
-} from "@/lib/marketing/hero-walkthrough-video.shared"
+import { HERO_WALKTHROUGH_VIDEO_ID } from "@/lib/marketing/hero-walkthrough-video.shared"
 
 function MutedIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -56,9 +51,12 @@ function UnmutedIcon({ className }: Readonly<{ className?: string }>) {
 export function HeroVideoControls({
   fallbackSources,
   endCaption,
+  canPlay,
 }: Readonly<{
   fallbackSources: readonly string[]
   endCaption: string
+  /** False until a source is attached — avoids forcing an early download. */
+  canPlay: boolean
 }>) {
   const fallbackIndexRef = useRef(0)
   const [muted, setMuted] = useState(true)
@@ -81,13 +79,9 @@ export function HeroVideoControls({
   }, [getVideo, muted])
 
   useLayoutEffect(() => {
+    if (!canPlay) return
     const video = getVideo()
     if (!video) return
-
-    const cachedPoster = readHeroVideoPoster()
-    if (cachedPoster && !video.getAttribute("poster")) {
-      video.poster = cachedPoster
-    }
 
     video.muted = true
 
@@ -98,17 +92,6 @@ export function HeroVideoControls({
 
     tryPlay()
 
-    const handleLoadedData = () => {
-      if (!readHeroVideoPoster()) {
-        const captured = captureVideoPoster(video)
-        if (captured) {
-          writeHeroVideoPoster(captured)
-          video.poster = captured
-        }
-      }
-      tryPlay()
-    }
-
     const handleError = () => {
       const nextSource = fallbackSources[fallbackIndexRef.current]
       if (!nextSource) return
@@ -118,18 +101,18 @@ export function HeroVideoControls({
       tryPlay()
     }
 
-    video.addEventListener("loadeddata", handleLoadedData)
+    video.addEventListener("loadeddata", tryPlay)
     video.addEventListener("error", handleError)
 
     if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-      handleLoadedData()
+      tryPlay()
     }
 
     return () => {
-      video.removeEventListener("loadeddata", handleLoadedData)
+      video.removeEventListener("loadeddata", tryPlay)
       video.removeEventListener("error", handleError)
     }
-  }, [fallbackSources, getVideo, muted])
+  }, [canPlay, fallbackSources, getVideo, muted])
 
   useLayoutEffect(() => {
     const video = getVideo()

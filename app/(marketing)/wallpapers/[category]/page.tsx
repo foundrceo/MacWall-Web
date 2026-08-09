@@ -114,7 +114,7 @@ export default async function WallpaperCategoryGalleryPage({
         initial={initial}
         activeCategory={name}
         title={`${name} live wallpapers for Mac`}
-        subtitle={`Cinematic ${name} loops for your Mac desktop — curated in ${macwall.name}.`}
+        subtitle={`Cinematic ${name} loops for your Mac desktop, hand-picked in ${macwall.name}.`}
         loadError={loadError}
         afterGallery={
           showSeoContent ? (

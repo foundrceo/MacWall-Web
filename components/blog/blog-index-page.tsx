@@ -30,7 +30,7 @@ export function BlogIndexPage({
             Blog
           </h1>
           <p className="mx-auto mt-4 max-w-[36rem] font-sans text-[16px] font-normal leading-[1.65] text-marketing-muted">
-            Guides, release notes, and ideas from the MacWall team — live wallpapers,
+            Guides, release notes, and ideas from the MacWall team on live wallpapers,
             macOS tips, and what we are building next.
           </p>
         </header>

@@ -66,8 +66,8 @@ export default function SubmitPage() {
               </h1>
               <p className="mt-2 text-base leading-6 tracking-[0.01em] text-marketing-muted">
                 Share a live wallpaper you made or own with the {macwall.name}{" "}
-                community. Add a title, pick a category, and upload your video —
-                we review every submission before it goes live.
+                community. Add a title, pick a category, and upload your video.
+                We review every submission before it goes live.
               </p>
             </header>
 

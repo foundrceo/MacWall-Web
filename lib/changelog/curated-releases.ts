@@ -19,7 +19,7 @@ export const curatedChangelogReleases: readonly ChangelogRelease[] = [
       {
         kind: "highlights",
         items: [
-          "MacWall 3.0 — a redesigned Home with Liquid Glass chrome and a cleaner everyday workflow.",
+          "MacWall 3.0 brings a redesigned Home with Liquid Glass chrome and a cleaner everyday workflow.",
           "Heart any wallpaper to bookmark it in Library Favorites without downloading.",
           "Save wallpapers to your Library, then auto-cycle them as a slideshow.",
         ],
@@ -30,7 +30,7 @@ export const curatedChangelogReleases: readonly ChangelogRelease[] = [
           "Home rebuilt around Top Charts and Categories for faster browsing.",
           "Spotlight-style search to find wallpapers instantly (⌘K / ⌘F).",
           "One Add Wallpaper flow for private Library imports and community submissions.",
-          "Save-only Library actions — keep a wallpaper without setting it on the desktop.",
+          "Save-only Library actions let you keep a wallpaper without setting it on the desktop.",
           "Auto-cycle slideshow through saved Library wallpapers.",
           "Open wallpapers from macwall.app share links directly in the app.",
           "Pro+ licenses now support 10, 15, or 20 Macs.",
@@ -41,7 +41,7 @@ export const curatedChangelogReleases: readonly ChangelogRelease[] = [
         items: [
           "Liquid Glass navigation, Cause brand type, and tighter Home composition.",
           "Pro unlock sheet with glass chrome and smooth open / close motion.",
-          "Escape closes overlays reliably — no blue focus ring around the window.",
+          "Escape closes overlays reliably, with no blue focus ring around the window.",
           "Native Settings sidebar Forms and simpler window chrome.",
           "App icon refreshed to match macwall.app.",
           "Instagram handle updated to @macwallapp_.",
@@ -143,7 +143,7 @@ export const curatedChangelogReleases: readonly ChangelogRelease[] = [
         items: [
           "Improved wallpaper management and catalog performance.",
           "Pricing page redesigned with cleaner plan cards.",
-          "All paid plans are now permanent — no annual subscriptions.",
+          "All paid plans are now permanent. No annual subscriptions.",
         ],
       },
       {

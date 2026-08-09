@@ -394,7 +394,7 @@ export function WallpaperGallery({
     if (activeCategory) {
       return `Cinematic ${activeCategory} loops, curated for desktop Macs.`
     }
-    return "Cinematic loops for every genre — preview here, set in MacWall."
+    return "Cinematic loops for every genre. Preview here, set in MacWall."
   }, [activeCategory, subtitle])
 
   const updateParams = useCallback(

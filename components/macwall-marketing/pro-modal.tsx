@@ -95,7 +95,7 @@ export function ProModal({
                 />
               </DialogTitle>
               <p className="mt-1 text-[13px] leading-snug text-marketing-muted">
-                Elite live wallpapers for Mac.
+                Every wallpaper unlocked, on up to 3 Macs.
               </p>
             </div>
           </div>
@@ -110,7 +110,7 @@ export function ProModal({
               </span>
             ) : null}
             <span className="w-full text-[12px] text-marketing-muted">
-              one-time investment · no subscription
+              one payment · no subscription
             </span>
           </div>
 
@@ -135,7 +135,7 @@ export function ProModal({
             ariaLabel={pricing.buyProAria}
             className="mt-6 flex h-11 w-full items-center justify-center rounded-full bg-white text-[14px] font-medium text-black no-underline transition-opacity hover:opacity-90"
           >
-            Unlock {macwall.name} Pro
+            {pricing.getProCta}
           </TrackedPricingButton>
 
           <a

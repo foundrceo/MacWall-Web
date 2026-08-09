@@ -79,11 +79,11 @@ export function wallpaperGalleryIndexMetadata(
   const q = filters.q?.trim()
 
   let title = "Live Wallpapers for Mac"
-  let description = `Browse cinematic live wallpapers for Mac on ${macwall.name}. Search by category, resolution, and style — then set any wallpaper in the MacWall app.`
+  let description = `Browse cinematic live wallpapers for Mac on ${macwall.name}. Search by category, resolution, and style, then set any wallpaper in the MacWall app.`
 
   if (tag) {
     title = `${tag} Live Wallpapers for Mac`
-    description = `Browse ${tag} live wallpapers for Mac — curated ${tag.toLowerCase()} motion video loops in ${macwall.name}. Preview in 4K and set on your Mac desktop.`
+    description = `Browse ${tag} live wallpapers for Mac. Hand-picked ${tag.toLowerCase()} motion video loops in ${macwall.name}. Preview in 4K and set on your Mac desktop.`
   } else if (q) {
     title = `"${q}" Live Wallpapers for Mac`
     description = `Search results for "${q}" in the ${macwall.name} live wallpaper catalog for Mac. Preview loops and set them with the MacWall app.`

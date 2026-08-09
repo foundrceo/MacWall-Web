@@ -13,7 +13,7 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-const PAGE_DESCRIPTION = `${macwall.name} Pro pricing: permanent license, annual program, or 5-Mac bundle. Live Mac wallpapers with Lock Screen on macOS 26 — one investment, premium value, no subscription.`
+const PAGE_DESCRIPTION = `${macwall.name} Pro is a one-time payment, not a subscription. Get 1,000+ live 4K wallpapers, a live Lock Screen on macOS 26, and free updates forever.`
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: `${macwall.name} App – Pricing`,
+    title: `Pricing | ${macwall.name}`,
     description: PAGE_DESCRIPTION,
     url: canonicalSitePath("/pricing"),
     siteName: `${macwall.name} App`,
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${macwall.name} App – Pricing`,
+    title: `Pricing | ${macwall.name}`,
     description: PAGE_DESCRIPTION,
     images: [openGraphImageAbsoluteUrl()],
   },

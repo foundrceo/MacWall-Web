@@ -5,6 +5,7 @@ import { useState } from "react"
 import {
   TrackedDownloadButton,
 } from "@/components/analytics/tracked-marketing-buttons"
+import { HeroMobileActions } from "@/components/macwall-marketing/hero-mobile-actions"
 import { ProModal } from "@/components/macwall-marketing/pro-modal"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import {
@@ -31,7 +32,7 @@ export default function HeroSectionActions() {
 
   return (
     <>
-      <div className="mt-8 sm:mt-10">
+      <div className="mw-when-desktop mt-8 sm:mt-10">
         <div className="flex flex-wrap items-start gap-3">
           <div className="flex flex-col items-center">
             <TrackedDownloadButton
@@ -43,7 +44,7 @@ export default function HeroSectionActions() {
               )}
             >
               <AppleIcon className="size-3.5" />
-              Download for macOS
+              Download free for Mac
             </TrackedDownloadButton>
             <p className="mt-2 text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
               {macwallMinimumMacOSVersionLabel}
@@ -59,9 +60,13 @@ export default function HeroSectionActions() {
               "marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
             )}
           >
-            Unlock License
+            See Pro pricing
           </button>
         </div>
+      </div>
+
+      <div className="mw-when-mobile">
+        <HeroMobileActions />
       </div>
 
       <ProModal open={proOpen} onOpenChange={setProOpen} />

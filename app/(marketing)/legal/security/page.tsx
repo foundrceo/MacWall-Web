@@ -81,11 +81,11 @@ export default function LegalSecurityPage() {
           <p>
             If you believe you found a security issue, email{" "}
             <a
-              href={`mailto:${macwall.supportEmail}?subject=${encodeURIComponent("Security report — MacWall")}`}
+              href={`mailto:${macwall.supportEmail}?subject=${encodeURIComponent("Security report: MacWall")}`}
             >
               {macwall.supportEmail}
             </a>{" "}
-            with subject <strong>Security report — MacWall</strong>. Please
+            with subject <strong>Security report: MacWall</strong>. Please
             include enough detail to reproduce the issue and give us reasonable
             time to investigate before public disclosure.
           </p>

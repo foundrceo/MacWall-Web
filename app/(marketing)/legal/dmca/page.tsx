@@ -56,11 +56,11 @@ export default function LegalDmcaPage() {
           <p>
             Email{" "}
             <a
-              href={`mailto:${macwall.supportEmail}?subject=${encodeURIComponent("DMCA Notice — MacWall")}`}
+              href={`mailto:${macwall.supportEmail}?subject=${encodeURIComponent("DMCA Notice: MacWall")}`}
             >
               {macwall.supportEmail}
             </a>{" "}
-            with subject line <strong>DMCA Notice — MacWall</strong>. Include:
+            with subject line <strong>DMCA Notice: MacWall</strong>. Include:
           </p>
           <ul className={legalBulletList}>
             <li>
@@ -105,11 +105,11 @@ export default function LegalDmcaPage() {
           <p>
             If you believe material was removed by mistake, email{" "}
             <a
-              href={`mailto:${macwall.supportEmail}?subject=${encodeURIComponent("DMCA Counter-Notice — MacWall")}`}
+              href={`mailto:${macwall.supportEmail}?subject=${encodeURIComponent("DMCA Counter-Notice: MacWall")}`}
             >
               {macwall.supportEmail}
             </a>{" "}
-            with subject <strong>DMCA Counter-Notice — MacWall</strong>,
+            with subject <strong>DMCA Counter-Notice: MacWall</strong>,
             including your contact details, identification of the material, a
             good-faith statement under penalty of perjury that removal was a
             mistake or misidentification, consent to relevant court

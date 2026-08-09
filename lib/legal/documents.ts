@@ -44,7 +44,7 @@ export const LEGAL_DOCUMENTS: readonly LegalDocument[] = [
     title: "Cookie Policy",
     shortTitle: "Cookie Policy",
     description:
-      "Cookies and similar tech on macwall.app — what they do and why they are used.",
+      "Cookies and similar tech on macwall.app: what they do and why they are used.",
   },
   {
     slug: "refund",
@@ -52,7 +52,7 @@ export const LEGAL_DOCUMENTS: readonly LegalDocument[] = [
     title: "Refund Policy",
     shortTitle: "Refund Policy",
     description:
-      "MacWall does not offer a general refund policy — only rare exceptions we approve.",
+      "MacWall does not offer a general refund policy, only rare exceptions we approve.",
   },
   {
     slug: "subprocessors",

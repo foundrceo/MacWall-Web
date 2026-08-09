@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react"
 import {
   BadgePercent,
   BarChart3,
+  Battery,
   Film,
   Infinity,
   Laptop,
@@ -46,8 +47,12 @@ function featureIcon(feature: string): LucideIcon {
   if (line.includes("lock screen") || line.includes("screen saver"))
     return Monitor
   if (line.includes("import") || line.includes("your own")) return Upload
+  if (line.includes("hardware") || line.includes("multi-display")) return Monitor
+  if (line.includes("lower price")) return BadgePercent
+  if (line.includes("battery") || line.includes("pauses")) return Battery
+  if (line.includes("switch macs") || line.includes("license")) return Laptop
   if (line.includes("mac")) return Laptop
-  if (line.includes("subscription") || line.includes("one investment"))
+  if (line.includes("subscription") || line.includes("one payment"))
     return Infinity
   if (line.includes("lifetime") || line.includes("update")) return Star
   if (line.includes("music")) return Music2
@@ -80,6 +85,7 @@ export function PricingTierCard({
   badgeLabels: badgeLabelsProp,
   highlightMacsLabel,
   topCenter,
+  reserveTopCenterSlot = false,
   footer,
   className,
 }: Readonly<{
@@ -105,6 +111,8 @@ export function PricingTierCard({
   badgeLabels?: readonly string[]
   highlightMacsLabel?: string
   topCenter?: ReactNode
+  /** When true, reserves the Mac-picker row height even without topCenter (pricing grid). */
+  reserveTopCenterSlot?: boolean
   footer?: ReactNode
   className?: string
 }>) {
@@ -116,6 +124,8 @@ export function PricingTierCard({
           badge ?? (isFeatured ? "Most Popular" : undefined),
           badgeAlt,
         ].filter((label): label is string => Boolean(label))
+
+  const showTopCenterRow = Boolean(topCenter) || reserveTopCenterSlot
 
   return (
     <div className={cn("relative flex h-full flex-col pt-2.5", className)}>
@@ -135,28 +145,36 @@ export function PricingTierCard({
         className={cn(
           "flex h-full min-h-0 flex-1 flex-col rounded-[24px] border px-5 py-5 sm:px-6 sm:py-6",
           isFeatured
-            ? "border-blue-800/70 bg-secondary bg-[linear-gradient(180deg,rgba(30,64,175,0.22)_0%,transparent_48%)]"
+            ? "border-blue-800/70 bg-secondary bg-[linear-gradient(180deg,rgba(30,64,175,0.22)_0%,transparent_48%)] shadow-[0_0_48px_-16px_rgba(37,99,235,0.35)]"
             : "border-white/[0.08] bg-secondary"
         )}
         data-highlight={isFeatured || undefined}
       >
         <div className="flex min-h-0 flex-1 flex-col">
-          <div className="min-h-[2.75rem]">
+          <div className="min-h-[3.25rem]">
             <h2
               id={id}
               className="font-sans text-[19px] font-normal tracking-tight text-foreground"
             >
               {title}
             </h2>
-            <p className="mt-1 text-[12px] leading-snug text-muted-foreground">
+            <p className="mt-1 min-h-[2.5rem] text-[12px] leading-snug text-muted-foreground">
               {subtitle}
             </p>
           </div>
 
-          {/* Same height on both cards so price + features line up */}
-          <div className="mt-3 flex min-h-[28px] items-center">
-            {topCenter ?? <span className="invisible select-none" aria-hidden />}
-          </div>
+          {showTopCenterRow ? (
+            <div className="mt-3 flex min-h-[28px] items-center">
+              {topCenter ?? (
+                <div
+                  className="invisible flex w-fit rounded-full p-0.5 ring-1 ring-transparent"
+                  aria-hidden
+                >
+                  <span className="px-2 py-1 text-[10px] leading-none">5 Macs</span>
+                </div>
+              )}
+            </div>
+          ) : null}
 
           <div className="mt-3 flex min-h-[3.75rem] flex-col justify-start">
             <p className="flex min-h-[2rem] flex-wrap items-baseline gap-x-2">
@@ -207,7 +225,7 @@ export function PricingTierCard({
             {featuresPrefix}
           </p>
 
-          <ul role="list" className="mt-2.5 flex-1 space-y-2">
+          <ul role="list" className="mt-2.5 min-h-[11.5rem] flex-1 space-y-2">
             {features.map((feature) => {
               const Icon = featureIcon(feature)
               return (
@@ -230,19 +248,17 @@ export function PricingTierCard({
               )
             })}
           </ul>
-        </div>
 
-        <div className="mt-5 space-y-2.5">
-          <div className="flex w-full items-center [&_a]:w-full [&_button]:w-full">
-            {action}
-          </div>
-          {footer ? (
-            <div className="min-h-[2rem] text-center text-[11px] leading-relaxed text-muted-foreground">
-              {footer}
+          <div className="mt-auto space-y-2 pt-5">
+            <div className="flex w-full items-center [&_a]:w-full [&_button]:w-full">
+              {action}
             </div>
-          ) : (
-            <div className="min-h-[2rem]" aria-hidden />
-          )}
+            {footer ? (
+              <div className="pt-0.5 text-center text-[11px] leading-snug text-muted-foreground/90 sm:text-[12px]">
+                {footer}
+              </div>
+            ) : null}
+          </div>
         </div>
       </article>
     </div>

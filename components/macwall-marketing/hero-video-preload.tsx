@@ -1,11 +1,10 @@
-import {
-  marketingWalkthroughVideoPreloadUrl,
-} from "@/lib/marketing-assets-urls"
+import { marketingWalkthroughPosterUrl } from "@/lib/marketing-assets-urls"
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 
-/** Preload above-the-fold marketing clip + warm CDN connection. */
+/** Warms the CDN and fetches the hero poster. The video itself loads only once
+ * the hero scrolls into view, so first paint costs one image, not a clip. */
 export function HeroVideoPreload() {
-  const heroSrc = marketingWalkthroughVideoPreloadUrl()
+  const posterSrc = marketingWalkthroughPosterUrl()
   const cdnOrigin = (() => {
     try {
       return new URL(getR2PublicBaseUrl()).origin
@@ -22,15 +21,12 @@ export function HeroVideoPreload() {
           <link rel="dns-prefetch" href={cdnOrigin} />
         </>
       ) : null}
-      {heroSrc ? (
-        <link
-          rel="preload"
-          href={heroSrc}
-          as="video"
-          type="video/quicktime"
-          fetchPriority="high"
-        />
-      ) : null}
+      <link
+        rel="preload"
+        href={posterSrc}
+        as="image"
+        fetchPriority="high"
+      />
     </>
   )
 }

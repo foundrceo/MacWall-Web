@@ -28,7 +28,7 @@ export async function GET(): Promise<Response> {
     })
   )
 
-  const header = `# ${macwall.name} — full site text
+  const header = `# ${macwall.name}: full site text
 
 > ${macwall.name} is a native macOS app for cinematic 4K live video wallpapers, with hardware-decoded playback, automatic pausing, live Lock Screen on ${macwallLockScreenMacOSVersion}+, and a one-time ${macwall.pro.price} license. ${macwallMinimumMacOSVersionLabel}.
 
@@ -43,7 +43,7 @@ Blog feed: ${origin}/rss.xml
 API catalog: ${origin}/.well-known/api-catalog
 AI usage policy: ${origin}/ai.txt
 
-Each document below is delimited by \`<!-- BEGIN <url> -->\` and \`<!-- END <url> -->\` comments. Legal text, the changelog, and gallery listings are omitted here because they change often — fetch those pages directly.
+Each document below is delimited by \`<!-- BEGIN <url> -->\` and \`<!-- END <url> -->\` comments. Legal text, the changelog, and gallery listings are omitted here because they change often, so fetch those pages directly.
 
 ---
 `

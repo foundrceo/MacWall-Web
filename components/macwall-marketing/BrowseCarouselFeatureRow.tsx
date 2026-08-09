@@ -19,10 +19,9 @@ export default function BrowseCarouselFeatureRow() {
             Browse 1,000+ wallpapers
           </h2>
           <p className="mt-4 max-w-[36rem] text-[16px] leading-[1.55] text-foreground/70 sm:text-[17px]">
-            Scroll a curated cloud catalog across every genre — nature, space,
-            anime, sci-fi, and more. Pick one and it becomes your desktop
-            background instantly — a seamless, effortless transform of your
-            workspace.
+            Scroll a hand-picked catalog across every genre: nature, space,
+            anime, sci-fi, and more. Click one and it&apos;s your desktop
+            background a second later.
           </p>
           <p className="mt-5">
             <Link href="/wallpapers" className="marketing-inline-link">

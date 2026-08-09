@@ -34,7 +34,7 @@ export default function LegalSubprocessorsPage() {
           <p>
             A subprocessor is a third party that may process personal data on
             our behalf so we can run {macwall.name}. We list categories of
-            processing below — not a public inventory of every vendor name. See
+            processing below, not a public inventory of every vendor name. See
             also the <Link href="/legal/privacy">Privacy Policy</Link>.
           </p>
         }

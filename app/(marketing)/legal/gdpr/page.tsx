@@ -53,20 +53,20 @@ export default function LegalGdprPage() {
         <LegalSection id="bases" title="Legal Bases">
           <ul className={legalBulletList}>
             <li>
-              <strong>Contract</strong> — processing purchases and delivering
+              <strong>Contract:</strong> processing purchases and delivering
               license entitlements.
             </li>
             <li>
-              <strong>Legitimate interests</strong> — securing the service,
+              <strong>Legitimate interests:</strong> securing the service,
               preventing abuse, and improving reliability, balanced against your
               rights.
             </li>
             <li>
-              <strong>Consent</strong> — where we ask for it (for example
+              <strong>Consent:</strong> where we ask for it (for example
               optional non-essential communications).
             </li>
             <li>
-              <strong>Legal obligation</strong> — when we must retain or
+              <strong>Legal obligation:</strong> when we must retain or
               disclose data to comply with law.
             </li>
           </ul>

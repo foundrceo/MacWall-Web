@@ -11,6 +11,8 @@ export const CHANGELOG_BLOCKED_PATTERN =
 const PLATFORM_PREFIX_PATTERN = /^(?:Mac app|Website)\s*—\s*/i
 const HTML_TAG_PATTERN = /<[^>]+>/g
 const BULLET_PREFIX_PATTERN = /^(?:[-*•–—]|\d+[.)])\s+/
+/** Release notes are written dash-first; the public page reads better with colons. */
+const INLINE_DASH_PATTERN = /\s+[—–]\s+/g
 /** Section labels from MacWall `version.json` notes — not changelog bullets. */
 const SECTION_HEADER_PATTERN =
   /^(?:#{1,3}\s*)?(?:\*\*)?(highlights?|what'?s new|new features|features|new|improvements?|polish|fixes?|bug fixes)(?:\*\*)?:?$/i
@@ -44,6 +46,7 @@ export function stripHtml(text: string): string {
 export function sanitizePublicChangelogItem(text: string): string | null {
   const cleaned = stripPlatformPrefix(stripHtml(text))
     .replace(BULLET_PREFIX_PATTERN, "")
+    .replace(INLINE_DASH_PATTERN, ": ")
     .trim()
 
   if (cleaned.length < 3) return null

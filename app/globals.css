@@ -269,6 +269,20 @@
   }
 }
 
+/* `data-platform` is set on <html> before first paint by VisitorPlatformScript,
+   so the right CTA paints once with no swap. Non-mobile is the default. */
+.mw-when-mobile {
+  display: none;
+}
+
+[data-platform="mobile"] .mw-when-desktop {
+  display: none;
+}
+
+[data-platform="mobile"] .mw-when-mobile {
+  display: revert;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

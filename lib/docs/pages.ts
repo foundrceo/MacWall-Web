@@ -80,7 +80,7 @@ export const docsPages: DocsPage[] = [
           "Download the latest build from [macwall.app/download](/download). The link always serves the current release.",
           "Open the downloaded `.dmg` and drag **MacWall** into your Applications folder.",
           "Eject the disk image, then launch MacWall from Applications or Spotlight.",
-          "On first launch macOS asks to confirm an app downloaded from the internet — click **Open**. The build is Developer ID signed and notarised by Apple.",
+          "On first launch macOS asks to confirm an app downloaded from the internet, so click **Open**. The build is Developer ID signed and notarised by Apple.",
           "MacWall installs itself as a menu bar app. Look for the icon in the right side of your menu bar; it does not sit in the Dock.",
         ],
       },
@@ -97,15 +97,15 @@ export const docsPages: DocsPage[] = [
       {
         type: "ul",
         items: [
-          "**Screen wallpaper access** — required to replace the desktop picture. macOS grants this through the standard wallpaper APIs.",
-          "**Notifications (optional)** — used only for download-complete and update prompts. Declining changes nothing else.",
+          "**Screen wallpaper access**: required to replace the desktop picture. macOS grants this through the standard wallpaper APIs.",
+          "**Notifications (optional)**: used only for download-complete and update prompts. Declining changes nothing else.",
           "**No Full Disk Access, no Accessibility, no Screen Recording.** If any app asks for those to set a wallpaper, it is not MacWall.",
         ],
       },
       { type: "h2", text: "Updates" },
       {
         type: "p",
-        text: "Auto-update is on by default. MacWall checks a signed updater feed and installs releases in place — the same feed that drives [the changelog](/changelog). You can also re-download the current build at any time from [/download](/download); installing over an existing copy keeps your library, favourites, and license.",
+        text: "Auto-update is on by default. MacWall checks a signed updater feed and installs releases in place, the same feed that drives [the changelog](/changelog). You can also re-download the current build at any time from [/download](/download); installing over an existing copy keeps your library, favourites, and license.",
       },
     ],
     faq: [
@@ -116,12 +116,12 @@ export const docsPages: DocsPage[] = [
       {
         question: "Do I need an account to use MacWall?",
         answer:
-          "No. The free tier works immediately after install with no sign-up. A Pro license is a key you activate — still no account, no password, no email wall.",
+          "No. The free tier works immediately after install with no sign-up. A Pro license is a key you activate, with still no account, no password, or email wall.",
       },
       {
         question: "Where does MacWall store downloaded wallpapers?",
         answer:
-          "In MacWall's application support folder inside your user Library. Removing the app and that folder removes every cached video — see [Uninstall MacWall](/docs/uninstall-macwall).",
+          "In MacWall's application support folder inside your user Library. Removing the app and that folder removes every cached video. See [Uninstall MacWall](/docs/uninstall-macwall).",
       },
     ],
   }),
@@ -145,17 +145,17 @@ export const docsPages: DocsPage[] = [
     sections: [
       {
         type: "p",
-        text: "MacWall's primary interface is the menu bar item. Everything you need during a work day — pausing motion before a call, switching a loop, muting playback — is one click away, and the main window stays closed.",
+        text: "MacWall's primary interface is the menu bar item. Everything you need during a work day (pausing motion before a call, switching a loop, muting playback) is one click away, and the main window stays closed.",
       },
       { type: "h2", text: "What the menu offers" },
       {
         type: "ul",
         items: [
-          "**Pause / Resume** — freezes the current frame. A paused wallpaper decodes nothing and costs no measurable CPU or GPU.",
-          "**Stop** — ends playback and restores your previous static desktop picture.",
-          "**Next wallpaper** — advances through the active playlist or your favourites.",
-          "**Open MacWall** — opens the full browsing window for the catalog, library, and settings.",
-          "**Settings** — pause rules, per-display behaviour, Music Sync, launch at login, and license status.",
+          "**Pause / Resume**: freezes the current frame. A paused wallpaper decodes nothing and costs no measurable CPU or GPU.",
+          "**Stop**: ends playback and restores your previous static desktop picture.",
+          "**Next wallpaper**: advances through the active playlist or your favourites.",
+          "**Open MacWall**: opens the full browsing window for the catalog, library, and settings.",
+          "**Settings**: pause rules, per-display behaviour, Music Sync, launch at login, and license status.",
         ],
       },
       { type: "h2", text: "Behaviour worth knowing" },
@@ -176,7 +176,7 @@ export const docsPages: DocsPage[] = [
       {
         question: "Can I hide the MacWall menu bar icon?",
         answer:
-          "The icon is how you reach playback controls, so MacWall keeps it visible. Use a menu bar manager if you want it tucked into an overflow area — MacWall keeps working while hidden.",
+          "The icon is how you reach playback controls, so MacWall keeps it visible. Use a menu bar manager if you want it tucked into an overflow area. MacWall keeps working while hidden.",
       },
       {
         question: "Does pausing keep the wallpaper on screen?",
@@ -194,7 +194,7 @@ export const docsPages: DocsPage[] = [
     title: "Set a Live Wallpaper on Mac",
     headline: "Set a live wallpaper on your desktop",
     description:
-      "Browse the MacWall catalog, preview a loop, and set it as your desktop live wallpaper — including per-display setups on multi-monitor Macs.",
+      "Browse the MacWall catalog, preview a loop, and set it as your desktop live wallpaper, including per-display setups on multi-monitor Macs.",
     keywords: [
       "set live wallpaper mac",
       "macwall wallpaper",
@@ -205,7 +205,7 @@ export const docsPages: DocsPage[] = [
     sections: [
       {
         type: "p",
-        text: `Every wallpaper in MacWall is a 4K video loop. Setting one replaces your desktop picture with hardware-decoded playback; your icons, windows, Stage Manager, and Mission Control behave exactly as before. The catalog spans ${macwall.categories.length} categories — ${macwall.categories.join(", ")}.`,
+        text: `Every wallpaper in MacWall is a 4K video loop. Setting one replaces your desktop picture with hardware-decoded playback; your icons, windows, Stage Manager, and Mission Control behave exactly as before. The catalog spans ${macwall.categories.length} categories: ${macwall.categories.join(", ")}.`,
       },
       { type: "h2", text: "From the app" },
       {
@@ -225,8 +225,8 @@ export const docsPages: DocsPage[] = [
       {
         type: "ul",
         items: [
-          "**Same loop everywhere** — one wallpaper mirrored across every connected display, decoded once.",
-          "**Different loop per display** — select a display in MacWall, then set a wallpaper while it is focused.",
+          "**Same loop everywhere**: one wallpaper mirrored across every connected display, decoded once.",
+          "**Different loop per display**: select a display in MacWall, then set a wallpaper while it is focused.",
           "Disconnecting a display keeps its assignment. Reconnect it later and the wallpaper returns.",
         ],
       },
@@ -275,7 +275,7 @@ export const docsPages: DocsPage[] = [
     sections: [
       {
         type: "p",
-        text: "MacWall is not limited to the catalog. Any local video can become your wallpaper, and imported files stay on your Mac — nothing is uploaded when you import.",
+        text: "MacWall is not limited to the catalog. Any local video can become your wallpaper, and imported files stay on your Mac. Nothing is uploaded when you import.",
       },
       { type: "h2", text: "Import a file" },
       {
@@ -290,9 +290,9 @@ export const docsPages: DocsPage[] = [
       {
         type: "ul",
         items: [
-          "**MP4 / M4V** with H.264 or HEVC — the best choice, both decode on Apple hardware.",
+          "**MP4 / M4V** with H.264 or HEVC, the best choice, both decode on Apple hardware.",
           "**MOV** with H.264, HEVC, or ProRes. ProRes works but is far larger than it needs to be for a wallpaper.",
-          "**GIF** — converted on import to a video loop so playback stays efficient.",
+          "**GIF**: converted on import to a video loop so playback stays efficient.",
         ],
       },
       { type: "h2", text: "Encoding settings that look and run best" },
@@ -309,7 +309,7 @@ export const docsPages: DocsPage[] = [
       { type: "h2", text: "Why seamless loops matter" },
       {
         type: "p",
-        text: "A wallpaper repeats hundreds of times an hour in your peripheral vision, so any cut at the loop point becomes the only thing you notice. Pick footage whose first and last frames are close — slow pans, drifting clouds, rain, particle drift — or crossfade the ends before exporting.",
+        text: "A wallpaper repeats hundreds of times an hour in your peripheral vision, so any cut at the loop point becomes the only thing you notice. Pick footage whose first and last frames are close: slow pans, drifting clouds, rain, particle drift, or crossfade the ends before exporting.",
       },
     ],
     faq: [
@@ -356,7 +356,7 @@ export const docsPages: DocsPage[] = [
       {
         type: "ol",
         items: [
-          "Activate Pro — see [License and activation](/docs/license-and-activation).",
+          "Activate Pro. See [License and activation](/docs/license-and-activation).",
           "Open MacWall → **Settings** → **Lock Screen**.",
           "Enable **Live Lock Screen & Screen Saver**.",
           "Pick the wallpaper you want on the Lock Screen. It can be the same loop as your desktop or a different one.",
@@ -368,7 +368,7 @@ export const docsPages: DocsPage[] = [
         type: "ul",
         items: [
           "macOS treats the Lock Screen video as a system wallpaper asset, so the loop is registered with the system rather than drawn by MacWall in real time.",
-          "The Screen Saver and Lock Screen share the same asset — which is why enabling one shows motion in both.",
+          "The Screen Saver and Lock Screen share the same asset, which is why enabling one shows motion in both.",
           "Applying a Lock Screen wallpaper takes a moment the first time: macOS re-encodes and indexes the asset before it appears.",
         ],
       },
@@ -376,7 +376,7 @@ export const docsPages: DocsPage[] = [
       {
         type: "ol",
         items: [
-          "Confirm you are on a supported macOS version — System Settings → General → About.",
+          "Confirm you are on a supported macOS version in System Settings → General → About.",
           "Confirm Pro is active in MacWall → Settings.",
           "Re-apply the wallpaper. If macOS cached a stale asset, re-applying replaces it.",
           "Check System Settings → Screen Saver: if another screen saver was selected after MacWall applied its asset, macOS uses that instead.",
@@ -385,7 +385,7 @@ export const docsPages: DocsPage[] = [
       },
       {
         type: "p",
-        text: `Still nothing? Send your macOS version and MacWall version to [${macwall.supportEmail}](mailto:${macwall.supportEmail}) — behaviour here changes between macOS betas and we track it per build in [the changelog](/changelog).`,
+        text: `Still nothing? Send your macOS version and MacWall version to [${macwall.supportEmail}](mailto:${macwall.supportEmail}). Behaviour here changes between macOS betas and we track it per build in [the changelog](/changelog).`,
       },
     ],
     faq: [
@@ -401,7 +401,7 @@ export const docsPages: DocsPage[] = [
       {
         question: "Can the Lock Screen and desktop use different wallpapers?",
         answer:
-          "Yes. Choose them independently in Settings — a calm loop for the Lock Screen and something busier on the desktop is a common setup.",
+          "Yes. Choose them independently in Settings, a calm loop for the Lock Screen and something busier on the desktop is a common setup.",
       },
     ],
   }),
@@ -425,7 +425,7 @@ export const docsPages: DocsPage[] = [
     sections: [
       {
         type: "p",
-        text: `MacWall Pro is a one-time ${proPrice} purchase — not a subscription. You get a license key, lifetime updates, and activation on up to ${maxMacs} Macs you own. There is no account to create and no recurring charge.`,
+        text: `MacWall Pro is a one-time ${proPrice} purchase, not a subscription. You get a license key, lifetime updates, and activation on up to ${maxMacs} Macs you own. There is no account to create and no recurring charge.`,
       },
       { type: "h2", text: "Activate after purchase" },
       {
@@ -449,7 +449,7 @@ export const docsPages: DocsPage[] = [
           `A base license covers ${maxMacs} activations. Under that limit, just enter the same key on the new Mac.`,
           "At the limit, deactivate an old Mac in MacWall → Settings → License, which frees a slot immediately.",
           `No longer have the old Mac? Email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) with your key and we will release the seat.`,
-          "Need more machines — a studio, a family, a lab? The Pro+ pack raises the limit; see [/pricing](/pricing).",
+          "Need more machines, a studio, a family, a lab? The Pro+ pack raises the limit; see [/pricing](/pricing).",
         ],
       },
       { type: "h2", text: "What Pro unlocks" },
@@ -457,7 +457,7 @@ export const docsPages: DocsPage[] = [
       { type: "h2", text: "Refunds" },
       {
         type: "p",
-        text: `If MacWall does not work on your Mac, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) and we will refund you — the exact terms live in [Terms](/legal/terms). Separately, the [creator program](/creator) refunds your purchase for posting a MacWall video that reaches the view thresholds.`,
+        text: `If MacWall does not work on your Mac, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) and we will refund you, the exact terms live in [Terms](/legal/terms). Separately, the [creator program](/creator) refunds your purchase for posting a MacWall video that reaches the view thresholds.`,
       },
     ],
     faq: [
@@ -486,7 +486,7 @@ export const docsPages: DocsPage[] = [
     title: "MacWall Performance & Battery Settings",
     headline: "Tune performance, CPU, and battery behaviour",
     description:
-      "Every MacWall pause rule explained — battery, full screen, display sleep, high CPU — plus how to verify real CPU usage in Activity Monitor.",
+      "Every MacWall pause rule explained: battery, full screen, display sleep, high CPU, plus how to verify real CPU usage in Activity Monitor.",
     keywords: [
       "live wallpaper cpu usage mac",
       "macwall battery",
@@ -498,17 +498,17 @@ export const docsPages: DocsPage[] = [
     sections: [
       {
         type: "p",
-        text: "MacWall's design goal is that you forget it is running. Video frames are decoded by Apple's media hardware through VideoToolbox and composited with Metal, so the CPU is not decoding pixels — and when nothing is visible, playback stops instead of running in the background.",
+        text: "MacWall's design goal is that you forget it is running. Video frames are decoded by Apple's media hardware through VideoToolbox and composited with Metal, so the CPU is not decoding pixels, and when nothing is visible, playback stops instead of running in the background.",
       },
       { type: "h2", text: "Pause rules" },
       {
         type: "ul",
         items: [
-          "**Pause on battery** — stops playback whenever the Mac is unplugged. The single highest-impact setting on a laptop.",
-          "**Pause in full screen** — a full screen app covers the wallpaper, so decoding it is pure waste.",
-          "**Pause on display sleep / lock** — always on. Nothing decodes while the screen is off.",
-          "**Pause on high CPU** — yields automatically during exports, compiles, and other heavy work, then resumes when load drops.",
-          "**Pause on Low Power Mode** — follows the system energy preference you already set.",
+          "**Pause on battery**: stops playback whenever the Mac is unplugged. The single highest-impact setting on a laptop.",
+          "**Pause in full screen**: a full screen app covers the wallpaper, so decoding it is pure waste.",
+          "**Pause on display sleep / lock**: always on. Nothing decodes while the screen is off.",
+          "**Pause on high CPU**: yields automatically during exports, compiles, and other heavy work, then resumes when load drops.",
+          "**Pause on Low Power Mode**: follows the system energy preference you already set.",
         ],
       },
       { type: "h2", text: "Verify it yourself" },
@@ -532,7 +532,7 @@ export const docsPages: DocsPage[] = [
           "**Check the source video.** A 60 fps 8K import costs far more to decode than a 4K 30 fps loop. Re-encode using the guidance in [Import your own videos](/docs/import-your-own-videos).",
           "**Check codec support.** Unusual codecs can fall back to software decode. H.264 and HEVC always use hardware.",
           "**Count displays.** Separate loops on several 4K panels multiply decode work; mirroring one loop decodes once.",
-          "**Check for a competing wallpaper app.** Two apps fighting over the wallpaper layer will both keep working — and both keep drawing.",
+          "**Check for a competing wallpaper app.** Two apps fighting over the wallpaper layer will both keep working, and both keep drawing.",
         ],
       },
     ],
@@ -563,7 +563,7 @@ export const docsPages: DocsPage[] = [
     title: "MacWall Troubleshooting",
     headline: "Fix the most common MacWall issues",
     description:
-      "Wallpaper not showing, playback stuck on one frame, downloads failing, black screen after a macOS update — with the fix for each.",
+      "Wallpaper not showing, playback stuck on one frame, downloads failing, black screen after a macOS update, with the fix for each.",
     keywords: [
       "macwall not working",
       "live wallpaper not showing mac",
@@ -581,7 +581,7 @@ export const docsPages: DocsPage[] = [
       {
         type: "ol",
         items: [
-          "Check the MacWall menu bar item — if it shows **Paused**, resume.",
+          "Check the MacWall menu bar item. If it shows **Paused**, resume.",
           "Confirm no pause rule is active: unplugged with pause-on-battery on, or a full screen app in front.",
           "Re-apply the wallpaper from MacWall. This overwrites a stale macOS wallpaper asset.",
           "Quit and relaunch MacWall.",
@@ -591,13 +591,13 @@ export const docsPages: DocsPage[] = [
       { type: "h2", text: "Playback is frozen on one frame" },
       {
         type: "p",
-        text: "A frozen frame is what a paused wallpaper looks like — that is deliberate, not a crash. Resume from the menu bar. If it re-pauses immediately, a rule is firing: battery, high CPU, or Low Power Mode. Review them in [Performance and battery](/docs/performance-and-battery).",
+        text: "A frozen frame is what a paused wallpaper looks like. That is deliberate, not a crash. Resume from the menu bar. If it re-pauses immediately, a rule is firing: battery, high CPU, or Low Power Mode. Review them in [Performance and battery](/docs/performance-and-battery).",
       },
       { type: "h2", text: "Downloads fail or stall" },
       {
         type: "ul",
         items: [
-          "Catalog videos are served over HTTPS from a CDN. A VPN, corporate proxy, or content filter can block them — try with it off.",
+          "Catalog videos are served over HTTPS from a CDN. A VPN, corporate proxy, or content filter can block them, so try with it off.",
           "Confirm free disk space. 4K loops are large and a failed write looks like a stalled download.",
           "Retry from the wallpaper's detail view; MacWall resumes rather than restarting from zero.",
         ],
@@ -606,7 +606,7 @@ export const docsPages: DocsPage[] = [
       {
         type: "ol",
         items: [
-          "Update MacWall first — [/download](/download) always serves the current build, and wallpaper behaviour changes between macOS releases.",
+          "Update MacWall first. [/download](/download) always serves the current build, and wallpaper behaviour changes between macOS releases.",
           "Set a plain static wallpaper in System Settings, then re-apply your MacWall wallpaper. This clears a broken asset.",
           "If the desktop stays black, restart. macOS occasionally needs one restart after a wallpaper subsystem change.",
         ],
@@ -670,7 +670,7 @@ export const docsPages: DocsPage[] = [
         type: "ol",
         items: [
           "In Finder press **Shift-Command-G** and go to `~/Library/Application Support/`.",
-          "Delete the **MacWall** folder — this is where downloaded and imported loops are cached.",
+          "Delete the **MacWall** folder, which is where downloaded and imported loops are cached.",
           "Go to `~/Library/Preferences/` and delete the MacWall `.plist` file to clear settings.",
           "Empty the Trash and restart if you want the wallpaper subsystem fully reset.",
         ],
@@ -726,12 +726,12 @@ export const docsPages: DocsPage[] = [
       {
         type: "ul",
         items: [
-          "`q` — free-text search across name and tags.",
-          `\`category\` — one of ${macwall.categories.join(", ")}.`,
-          "`tag` — filter by a single tag.",
-          "`sort` — `newest` (default), `popular`, or `older`.",
-          "`page` — 1-based page number, default `1`.",
-          "`limit` — items per page, default `24`.",
+          "`q`: free-text search across name and tags.",
+          `\`category\`: one of ${macwall.categories.join(", ")}.`,
+          "`tag`: filter by a single tag.",
+          "`sort`: `newest` (default), `popular`, or `older`.",
+          "`page`: 1-based page number, default `1`.",
+          "`limit`: items per page, default `24`.",
         ],
       },
       {
@@ -744,7 +744,7 @@ export const docsPages: DocsPage[] = [
       },
       {
         type: "p",
-        text: "Current release metadata — `version`, optional `build`, a download `url`, and optional `notes`. This is the same feed the in-app updater reads and the source for [the changelog](/changelog). It is intentionally uncached so a new build is visible immediately.",
+        text: "Current release metadata: `version`, optional `build`, a download `url`, and optional `notes`. This is the same feed the in-app updater reads and the source for [the changelog](/changelog). It is intentionally uncached so a new build is visible immediately.",
       },
       { type: "h2", text: "Installer: GET /download/latest" },
       {
@@ -755,27 +755,27 @@ export const docsPages: DocsPage[] = [
       {
         type: "ul",
         items: [
-          "[/.well-known/api-catalog](/.well-known/api-catalog) — RFC 9727 API catalog in `application/linkset+json`.",
-          "[/openapi.json](/openapi.json) — OpenAPI 3.1 description of the endpoints above.",
-          "[/llms.txt](/llms.txt) — curated Markdown index of the whole site for language models.",
-          "[/llms-full.txt](/llms-full.txt) — every content page concatenated as one Markdown document.",
-          "[/rss.xml](/rss.xml), [/atom.xml](/atom.xml), [/feed.json](/feed.json) — blog feeds in RSS 2.0, Atom 1.0, and JSON Feed 1.1.",
-          "[/sitemap.xml](/sitemap.xml) and [/robots.txt](/robots.txt) — crawl surface.",
-          "[/ai.txt](/ai.txt) and [/crawlers](/crawlers) — AI and crawler usage policy.",
+          "[/.well-known/api-catalog](/.well-known/api-catalog): RFC 9727 API catalog in `application/linkset+json`.",
+          "[/openapi.json](/openapi.json): OpenAPI 3.1 description of the endpoints above.",
+          "[/llms.txt](/llms.txt): curated Markdown index of the whole site for language models.",
+          "[/llms-full.txt](/llms-full.txt): every content page concatenated as one Markdown document.",
+          "[/rss.xml](/rss.xml), [/atom.xml](/atom.xml), [/feed.json](/feed.json): blog feeds in RSS 2.0, Atom 1.0, and JSON Feed 1.1.",
+          "[/sitemap.xml](/sitemap.xml) and [/robots.txt](/robots.txt): crawl surface.",
+          "[/ai.txt](/ai.txt) and [/crawlers](/crawlers): AI and crawler usage policy.",
         ],
       },
       { type: "h2", text: "Markdown twin of every page" },
       {
         type: "p",
-        text: "Append `.md` to any content URL to get a clean Markdown version with YAML frontmatter — for example `/blog/what-is-macwall-complete-guide.md` or `/docs/public-api.md`. These responses are `text/markdown` and `noindex`, so they exist for agents and pipelines without competing with the HTML page in search.",
+        text: "Append `.md` to any content URL to get a clean Markdown version with YAML frontmatter, for example `/blog/what-is-macwall-complete-guide.md` or `/docs/public-api.md`. These responses are `text/markdown` and `noindex`, so they exist for agents and pipelines without competing with the HTML page in search.",
       },
       { type: "h2", text: "Fair use" },
       {
         type: "ul",
         items: [
-          "Cache responses and keep request rates reasonable — these endpoints are shared infrastructure, not a bulk export.",
+          "Cache responses and keep request rates reasonable. These endpoints are shared infrastructure, not a bulk export.",
           "Hotlinking video files is discouraged; link to the wallpaper page or the app deep link instead.",
-          "Wallpaper videos are licensed for use inside MacWall and are not redistributable — see [Terms](/legal/terms).",
+          "Wallpaper videos are licensed for use inside MacWall and are not redistributable. See [Terms](/legal/terms).",
           "Send a descriptive `User-Agent` with a contact URL so we can reach you before rate limiting you.",
         ],
       },
@@ -789,7 +789,7 @@ export const docsPages: DocsPage[] = [
       {
         question: "Is the API versioned?",
         answer:
-          "Response shapes are additive — new fields may appear, existing ones are not renamed or removed without notice in [the changelog](/changelog).",
+          "Response shapes are additive: new fields may appear, existing ones are not renamed or removed without notice in [the changelog](/changelog).",
       },
       {
         question: "Can I use the catalog data in my own app?",

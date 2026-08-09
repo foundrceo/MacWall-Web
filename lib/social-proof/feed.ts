@@ -35,7 +35,6 @@ export type SocialProofMessage = {
   /** Stable per event — used to avoid showing the same purchase twice. */
   key: string
   text: string
-  emoji: string
   /** Relative age for purchases ("just now", "3 min ago"); null for stats. */
   meta: string | null
 }
@@ -60,7 +59,6 @@ const SYNTHETIC_POOL_SIZE = 36
 
 type Line = {
   text: string
-  emoji: string
   kind: "purchase" | "activation" | "macbook" | "other"
 }
 
@@ -70,54 +68,54 @@ type Line = {
  */
 const MARKETING_LINES: readonly Line[] = [
   // Purchases (majority)
-  { kind: "purchase", text: "Someone just invested in MacWall Pro", emoji: "🔥" },
-  { kind: "purchase", text: "Someone just unlocked MacWall Pro", emoji: "✨" },
-  { kind: "purchase", text: "Someone just claimed lifetime Pro", emoji: "♾️" },
-  { kind: "purchase", text: "A new Pro investment just landed", emoji: "🚀" },
-  { kind: "purchase", text: "Someone just unlocked MacWall Pro", emoji: "🌊" },
-  { kind: "purchase", text: "Someone just went Pro", emoji: "🔥" },
-  { kind: "purchase", text: "Someone just unlocked the complete catalog", emoji: "🎬" },
-  { kind: "purchase", text: "Another Pro investment just came through", emoji: "⚡" },
-  { kind: "purchase", text: "Someone just claimed lifetime access", emoji: "💫" },
-  { kind: "purchase", text: "Someone just invested in Pro for their Mac", emoji: "💻" },
-  { kind: "purchase", text: "Someone just picked MacWall Pro", emoji: "🌟" },
-  { kind: "purchase", text: "A Pro license was just claimed", emoji: "🔥" },
-  { kind: "purchase", text: "Someone just unlocked Pro — lifetime", emoji: "♾️" },
-  { kind: "purchase", text: "Someone just invested in MacWall", emoji: "✨" },
-  { kind: "purchase", text: "Someone just unlocked every wallpaper", emoji: "🌌" },
-  { kind: "purchase", text: "Someone just claimed the 5-Mac program", emoji: "🖥️" },
-  { kind: "purchase", text: "Someone just went Pro on checkout", emoji: "🛒" },
-  { kind: "purchase", text: "Someone just unlocked MacWall Pro+", emoji: "⚡" },
+  { kind: "purchase", text: "Someone just bought MacWall Pro" },
+  { kind: "purchase", text: "Someone just unlocked MacWall Pro" },
+  { kind: "purchase", text: "Someone just claimed lifetime Pro" },
+  { kind: "purchase", text: "A new Pro license just landed" },
+  { kind: "purchase", text: "Someone just unlocked MacWall Pro" },
+  { kind: "purchase", text: "Someone just went Pro" },
+  { kind: "purchase", text: "Someone just unlocked the whole catalog" },
+  { kind: "purchase", text: "Another Pro purchase just came through" },
+  { kind: "purchase", text: "Someone just claimed lifetime access" },
+  { kind: "purchase", text: "Someone just bought Pro for their Mac" },
+  { kind: "purchase", text: "Someone just picked MacWall Pro" },
+  { kind: "purchase", text: "A Pro license was just claimed" },
+  { kind: "purchase", text: "Someone just unlocked Pro for life" },
+  { kind: "purchase", text: "Someone just bought MacWall" },
+  { kind: "purchase", text: "Someone just unlocked every wallpaper" },
+  { kind: "purchase", text: "Someone just grabbed the 5-Mac pack" },
+  { kind: "purchase", text: "Someone just went Pro on checkout" },
+  { kind: "purchase", text: "Someone just unlocked MacWall Pro+" },
   // Activations
-  { kind: "activation", text: "Someone just activated MacWall Pro", emoji: "🚀" },
-  { kind: "activation", text: "A license was just activated", emoji: "✨" },
-  { kind: "activation", text: "Someone just activated on their Mac", emoji: "💻" },
-  { kind: "activation", text: "Someone just activated their Pro key", emoji: "🔑" },
-  { kind: "activation", text: "A new Mac just activated Pro", emoji: "⚡" },
+  { kind: "activation", text: "Someone just activated MacWall Pro" },
+  { kind: "activation", text: "A license was just activated" },
+  { kind: "activation", text: "Someone just activated on their Mac" },
+  { kind: "activation", text: "Someone just activated their Pro key" },
+  { kind: "activation", text: "A new Mac just activated Pro" },
   // MacBook / desktop moments
-  { kind: "macbook", text: "Someone just set a live wallpaper on their MacBook", emoji: "💻" },
-  { kind: "macbook", text: "Someone's MacBook lid just went cinematic", emoji: "🎬" },
-  { kind: "macbook", text: "A MacBook just got a new live wallpaper", emoji: "🌊" },
-  { kind: "macbook", text: "Someone just elevated their Mac desktop", emoji: "🖥️" },
-  { kind: "macbook", text: "Someone's MacBook just lit up with MacWall", emoji: "✨" },
+  { kind: "macbook", text: "Someone just set a live wallpaper on their MacBook" },
+  { kind: "macbook", text: "Someone's MacBook lid just went cinematic" },
+  { kind: "macbook", text: "A MacBook just got a new live wallpaper" },
+  { kind: "macbook", text: "Someone just elevated their Mac desktop" },
+  { kind: "macbook", text: "Someone's MacBook just lit up with MacWall" },
   // Other urgency
-  { kind: "other", text: "Someone unlocked the complete catalog", emoji: "🌌" },
-  { kind: "other", text: "Someone picked lifetime over a subscription", emoji: "♾️" },
-  { kind: "other", text: "One more Mac running live wallpapers", emoji: "🌊" },
+  { kind: "other", text: "Someone unlocked the complete catalog" },
+  { kind: "other", text: "Someone picked lifetime over a subscription" },
+  { kind: "other", text: "One more Mac running live wallpapers" },
 ]
 
-const PRO_LINES: ReadonlyArray<{ text: string; emoji: string }> = [
-  { text: "Someone just invested in MacWall Pro", emoji: "🔥" },
-  { text: "Someone just went Pro", emoji: "✨" },
-  { text: "Someone just unlocked the complete catalog", emoji: "🌊" },
-  { text: "A new Pro license was activated", emoji: "🚀" },
-  { text: "Someone just claimed lifetime Pro", emoji: "♾️" },
+const PRO_LINES: ReadonlyArray<{ text: string }> = [
+  { text: "Someone just bought MacWall Pro" },
+  { text: "Someone just went Pro" },
+  { text: "Someone just unlocked the whole catalog" },
+  { text: "A new Pro license was activated" },
+  { text: "Someone just claimed lifetime Pro" },
 ]
 
-const PRO_PLUS_LINES: ReadonlyArray<{ text: string; emoji: string }> = [
-  { text: "Someone just claimed the 5-Mac program", emoji: "💻" },
-  { text: "A 5-Mac Pro program was just activated", emoji: "🖥️" },
-  { text: "Someone just went Pro on every Mac they own", emoji: "⚡" },
+const PRO_PLUS_LINES: ReadonlyArray<{ text: string }> = [
+  { text: "Someone just grabbed the 5-Mac pack" },
+  { text: "A 5-Mac Pro license was just activated" },
+  { text: "Someone just went Pro on every Mac they own" },
 ]
 
 /** Recent-feeling ages for synthetic lines only. */
@@ -202,34 +200,27 @@ function realPurchaseMessage(
         ? [
             {
               text: `Someone in ${place} just purchased the 5-Mac pack`,
-              emoji: "💻",
             },
             {
               text: `Someone in ${place} just went Pro on 5 Macs`,
-              emoji: "⚡",
             },
             {
               text: `Someone in ${place} just activated a Pro pack`,
-              emoji: "🖥️",
             },
           ]
         : [
             {
               text: `Someone in ${place} just purchased MacWall Pro`,
-              emoji: "🔥",
             },
-            { text: `Someone in ${place} just went Pro`, emoji: "✨" },
+            { text: `Someone in ${place} just went Pro` },
             {
               text: `Someone in ${place} just unlocked MacWall Pro`,
-              emoji: "🌊",
             },
             {
               text: `Someone in ${place} just bought lifetime Pro`,
-              emoji: "♾️",
             },
             {
               text: `Someone in ${place} just activated Pro`,
-              emoji: "🚀",
             },
           ]
 
@@ -237,7 +228,6 @@ function realPurchaseMessage(
     return {
       key: `real:${purchase.atIso}`,
       text: line.text,
-      emoji: line.emoji,
       meta,
     }
   }
@@ -249,7 +239,6 @@ function realPurchaseMessage(
   return {
     key: `real:${purchase.atIso}`,
     text: line.text,
-    emoji: line.emoji,
     meta,
   }
 }
@@ -275,25 +264,21 @@ function statMessages(stats: SocialProofStats): SocialProofMessage[] {
     {
       key: `stat:24h:${stats.last24h}`,
       text: `${stats.last24h.toLocaleString("en-US")} people downloaded MacWall in the last 24 hours`,
-      emoji: "⬇️",
       meta: null,
     },
     {
       key: `stat:live:${stats.last24h}`,
       text: `${stats.last24h.toLocaleString("en-US")} people are using MacWall right now`,
-      emoji: "💻",
       meta: null,
     },
     {
       key: `stat:7d:${stats.last7d}`,
       text: `${stats.last7d.toLocaleString("en-US")} people joined MacWall this week`,
-      emoji: "🚀",
       meta: null,
     },
     {
       key: `stat:all:${stats.allTime}`,
       text: `${stats.allTime.toLocaleString("en-US")} people are running MacWall on their Mac`,
-      emoji: "✨",
       meta: null,
     },
   ]
@@ -335,7 +320,6 @@ function buildSyntheticQueue(
     queue.push({
       key: `synth:${seedBase}:${index}`,
       text: line.text,
-      emoji: line.emoji,
       meta,
     })
   }
@@ -395,7 +379,6 @@ export function socialProofFallbackMessages(
     messages.push({
       key: `fallback:${line.kind}:${index}`,
       text: line.text,
-      emoji: line.emoji,
       meta,
     })
 

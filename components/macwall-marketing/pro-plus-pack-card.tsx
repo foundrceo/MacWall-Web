@@ -11,16 +11,12 @@ import {
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
-import {
-  prefetchCheckoutSession,
-  waitForAffonsoReferralIfLanding,
-} from "@/lib/checkout/prefetch-checkout"
 import type { MarketingMultiMacOffer } from "@/lib/pricing/marketing-pricing"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 const pricingMutedButtonClass =
-  "inline-flex h-8 min-h-8 w-full items-center justify-center rounded-full bg-white/[0.08] px-3.5 text-[14px] font-medium text-white no-underline ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/[0.12]"
+  "inline-flex h-9 min-h-9 w-full items-center justify-center rounded-full bg-white/[0.08] px-3.5 text-[14px] font-medium text-white no-underline ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/[0.12]"
 
 const PICKER_NAME = "tier-picker-pro-plus-macs"
 
@@ -30,7 +26,7 @@ function featureLinesForMacs(
 ): string[] {
   return baseFeatures.map((feature) =>
     feature.includes("5 Macs") || feature.includes("5 Mac")
-      ? `Up to ${macs} Mac`
+      ? `Works on up to ${macs} of your Macs`
       : feature
   )
 }
@@ -109,9 +105,6 @@ function MacPackPillPicker({
               labelRefs.current[index] = el
             }}
             className="group relative cursor-pointer whitespace-nowrap rounded-full border border-transparent px-2 py-1 text-[10px] leading-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/50 has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-secondary"
-            onPointerEnter={() => {
-              void prefetchCheckoutSession(offer.slug)
-            }}
           >
             <input
               className="absolute inset-0 cursor-pointer appearance-none rounded-full opacity-0"
@@ -129,7 +122,7 @@ function MacPackPillPicker({
                   : "text-foreground/70 group-hover:text-foreground"
               )}
             >
-              {offer.macs} Mac
+              {offer.macs} Macs
             </span>
           </label>
         )
@@ -167,14 +160,6 @@ export function ProPlusPackCard({
   const [macs, setMacs] = useState(sorted[0]?.macs ?? 5)
   const selected = sorted.find((o) => o.macs === macs) ?? sorted[0]
 
-  useEffect(() => {
-    if (!selected?.slug) return
-    const slug = selected.slug
-    void waitForAffonsoReferralIfLanding(2500).then(() => {
-      void prefetchCheckoutSession(slug)
-    })
-  }, [selected?.slug])
-
   if (!selected) return null
 
   return (
@@ -190,8 +175,9 @@ export function ProPlusPackCard({
       priceSuffix="one-time"
       features={featureLinesForMacs(features, selected.macs)}
       featuresPrefix={featuresPrefix}
-      highlightMacsLabel={`${selected.macs} Mac`}
+      highlightMacsLabel={`${selected.macs} Macs`}
       badge={badge}
+      reserveTopCenterSlot
       topCenter={
         <MacPackPillPicker
           offers={sorted}
@@ -203,7 +189,7 @@ export function ProPlusPackCard({
         <TrackedPricingButton
           href={selected.checkoutUrl}
           location={`pricing_multi_mac_${selected.macs}`}
-          ariaLabel={`Invest in ${macwall.name} Pro Plus for ${selected.macs} Macs at ${selected.price}`}
+          ariaLabel={`Get ${macwall.name} Pro+ for ${selected.macs} Macs at ${selected.price}`}
           size="pill"
           className={cn(pricingMutedButtonClass, buttonClassName)}
         >

@@ -50,7 +50,7 @@ export default function LegalCookiesPage() {
         <LegalSection id="how-we-use" title="How We Use Cookies">
           <ul className={legalBulletList}>
             <li>
-              <strong>Essential / functional:</strong> keep the site working —
+              <strong>Essential / functional:</strong> keep the site working.
               for example remembering approximate country for pricing display (
               <code>mw_country</code>) and securing admin sessions for our own
               operators.

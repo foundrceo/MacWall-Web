@@ -55,6 +55,7 @@ export type MarketingPricing = {
   fullPrice: string
   suffix: string
   getProCta: string
+  getProPlusCta: string
   buyProCta: string
   buyProAria: string
   bannerHeadline: string
@@ -76,6 +77,10 @@ const PRO_STRIKE_USD_CENTS = LICENSE_OFFERS.permanent.strikeUsdCents
 const PRO_PLUS_USD_CENTS = LICENSE_OFFERS.permanent_5.usdCents
 const PRO_PLUS_STRIKE_USD_CENTS = LICENSE_OFFERS.permanent_5.strikeUsdCents
 const ANNUAL_USD_CENTS = LICENSE_OFFERS.annual.usdCents
+
+/** Shared buy-button labels — same on home, pricing, modal, and gallery. */
+export const MARKETING_GET_PRO_CTA = "Get Pro"
+export const MARKETING_GET_PRO_PLUS_CTA = "Get Pro+"
 
 /** India catalog Prices ($3.99 Pro · $6.99 Pro+ 5-Mac). */
 const PRO_INDIA_USD_CENTS = LICENSE_OFFERS.permanent.indiaUsdCents
@@ -205,23 +210,24 @@ export function buildMarketingPricingFromLocalized(
     salePrice: permanentPrice,
     fullPrice: permanentStrikePrice,
     suffix: "permanent",
-    getProCta: "Unlock Pro",
-    buyProCta: `Invest in Pro forever for ${permanentPrice}`,
-    buyProAria: `Invest in a permanent ${macwall.name} Pro license for ${permanentPrice}`,
-    bannerHeadline: "Exclusive launch opportunity — lock in elite Pro value",
-    bannerSubline: "Exclusive offer is live — invest today before it ends",
-    bannerCta: "Claim today 🔥",
+    getProCta: MARKETING_GET_PRO_CTA,
+    getProPlusCta: MARKETING_GET_PRO_PLUS_CTA,
+    buyProCta: MARKETING_GET_PRO_CTA,
+    buyProAria: `Get ${macwall.name} Pro`,
+    bannerHeadline: "Launch sale: pay once, keep Pro forever",
+    bannerSubline: "Launch price ends soon",
+    bannerCta: "See pricing →",
     priceLine: india
-      ? `India Pro ${permanentPrice} (${permanentOffLabel} ${permanentStrikePrice}). One investment — no subscription.`
-      : `Exclusive Pro ${permanentPrice} (was ${permanentStrikePrice}). One investment — no subscription.`,
+      ? `Pro is ${permanentPrice} in India (${permanentOffLabel} off ${permanentStrikePrice}). Pay once, no subscription.`
+      : `Pro is ${permanentPrice} right now (normally ${permanentStrikePrice}). Pay once, no subscription.`,
     pricingHeroLead: india
-      ? `Claim Pro at the India value today — or generate 100% back with a Reel.`
-      : `Claim Pro at the exclusive value today — or generate 100% back with a Reel.`,
+      ? `Pro is ${permanentPrice} in India today, or post a Reel and get your money back.`
+      : `Pro is ${permanentPrice} today, or post a Reel and get your money back.`,
     pricingPermanentDescription: india
-      ? `Invest ${permanentPrice} once (${permanentOffLabel} ${permanentStrikePrice}) and keep Pro forever, with updates included.`
-      : `Invest ${permanentPrice} once (was ${permanentStrikePrice}) and keep Pro forever, with updates included.`,
-    pricingAnnualDescription: `Legacy annual programs are no longer offered for new purchases. Choose the permanent ${permanentPrice} license instead.`,
-    bottomCtaLabel: "Unlock Pro",
+      ? `Pay ${permanentPrice} once (${permanentOffLabel} off ${permanentStrikePrice}) and keep Pro forever, updates included.`
+      : `Pay ${permanentPrice} once (normally ${permanentStrikePrice}) and keep Pro forever, updates included.`,
+    pricingAnnualDescription: `The annual plan is retired for new purchases. Get the ${permanentPrice} lifetime license instead.`,
+    bottomCtaLabel: MARKETING_GET_PRO_CTA,
     checkoutUrl: licenseOfferCheckoutPath("permanent"),
     annualCheckoutUrl: licenseOfferCheckoutPath("permanent"),
     multiMacOffers,

@@ -107,8 +107,9 @@ export const macwallMinimumMacOSRequirementOrLater =
   `${macwallMinimumMacOSRequirement} or later` as const
 
 const MACWALL_NAME = "MacWall" as const
+/** Also the <title> suffix and OG alt text — keep it short and keyword-led. */
 const MACWALL_TAGLINE =
-  "Cinematic live wallpapers — elite craftsmanship, built for Mac." as const
+  "Live 4K wallpapers for your Mac, without the subscription." as const
 const MACWALL_FULL_TAGLINE = `${MACWALL_NAME} - ${MACWALL_TAGLINE}` as const
 
 export const macwall = {
@@ -178,11 +179,11 @@ export const macwall = {
     "Cloud catalog: featured, newest, and most popular",
     "Explore with search, filters, and community engagement",
     "Save favorites and browse 9 categories",
-    "Import your own MP4 and MOV clips — personalized media",
+    "Import your own MP4 and MOV clips",
     "Multi-display playback, synced or solo (hardware decode)",
     "Music Sync: album-art gradients from Apple Music and Spotify",
     "Menu bar control: pause, resume, stop, switch wallpapers",
-    "Auto-pause on battery, full screen, and high CPU — optimized",
+    "Auto-pause on battery, full screen, and high CPU",
   ],
 } as const
 

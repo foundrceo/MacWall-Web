@@ -289,7 +289,7 @@ export function SocialProofPopups() {
               />
               <span className="flex min-w-0 flex-col">
                 <span className="font-sans text-[13px] leading-snug font-medium tracking-tight text-black">
-                  {current.text} <span aria-hidden>{current.emoji}</span>
+                  {current.text}
                 </span>
                 {current.meta ? (
                   <span className="font-sans text-[11px] leading-snug font-normal text-black/45">

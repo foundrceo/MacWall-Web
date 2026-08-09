@@ -11,7 +11,7 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
 import type { Metadata } from "next"
 
 const PAGE_TITLE = "Live Wallpapers for Mac"
-const PAGE_DESCRIPTION = `Browse cinematic live wallpapers for Mac on ${macwall.name}. Search by category, resolution, and style — then set any wallpaper in the MacWall app.`
+const PAGE_DESCRIPTION = `Browse cinematic live wallpapers for Mac on ${macwall.name}. Search by category, resolution, and style, then set any wallpaper in the MacWall app.`
 
 type PageProps = {
   searchParams: Promise<{
