@@ -44,7 +44,7 @@ export function legalPageMetadata(doc: LegalDocument): Metadata {
 
 export function legalHubMetadata(): Metadata {
   const title = "Legal"
-  const description = `${macwall.name} legal center — terms, privacy, cookies, refunds, DMCA, GDPR, CCPA, security, and more.`
+  const description = `${macwall.name} legal center: terms, privacy, cookies, refunds, DMCA, GDPR, CCPA, security, and more.`
   const path = LEGAL_HUB_HREF
   const ogTitle = `${macwall.name} – Legal`
 

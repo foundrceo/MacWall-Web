@@ -107,7 +107,7 @@ export default function LegalTermsPage() {
           </p>
           <p>
             We do not offer a general refund policy. Purchases are final except
-            in rare cases we approve at our sole discretion — see the{" "}
+            in rare cases we approve at our sole discretion. See the{" "}
             <Link href="/legal/refund">Refund Policy</Link>. The creator Reel
             program on <Link href="/creator">/creator</Link> is a separate
             promotional offer with its own conditions.

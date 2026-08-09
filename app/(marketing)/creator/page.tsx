@@ -11,8 +11,8 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-const PAGE_TITLE = "Creator Solution"
-const PAGE_DESCRIPTION = `${macwallCreatorCopy.heroTitle} Post a short video of ${macwall.name} in action — ${macwall.reelRefundHalfViews.toLocaleString()} reach for 50% back, ${macwall.reelRefundFullViews.toLocaleString()} for a complete resolution.`
+const PAGE_TITLE = "Get MacWall Free With a Video"
+const PAGE_DESCRIPTION = `${macwallCreatorCopy.heroTitle} Post a short video of ${macwall.name} in action and get ${macwall.reelRefundHalfViews.toLocaleString()} views for 50% back, ${macwall.reelRefundFullViews.toLocaleString()} views for a full refund.`
 
 export const metadata: Metadata = {
   title: PAGE_TITLE,

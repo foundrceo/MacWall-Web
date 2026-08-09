@@ -6,7 +6,7 @@ import {
 } from "@/lib/macwall-site"
 
 /**
- * Evergreen concept explainers — the "what is / how does it work" layer.
+ * Evergreen concept explainers, the "what is / how does it work" layer.
  *
  * Deliberately distinct from `/docs` (product tasks) and `/blog` (opinion,
  * comparisons, news) so the three hubs do not compete for the same queries.
@@ -47,32 +47,32 @@ export const learnPages: LearnPage[] = [
     sections: [
       {
         type: "p",
-        text: "A **live wallpaper** is a short video loop drawn where your desktop picture normally sits — behind every icon, window, and menu. Nothing about how you use the Mac changes: you click through it, windows cover it, Mission Control and Stage Manager treat it like any wallpaper. The only difference is that the image moves.",
+        text: "A **live wallpaper** is a short video loop drawn where your desktop picture normally sits, behind every icon, window, and menu. Nothing about how you use the Mac changes: you click through it, windows cover it, Mission Control and Stage Manager treat it like any wallpaper. The only difference is that the image moves.",
       },
       { type: "h2", text: "The terms people mix up" },
       {
         type: "ul",
         items: [
-          "**Live wallpaper** — a video loop playing continuously at the wallpaper layer. Motion is the point.",
-          "**Dynamic wallpaper** — a still image that swaps variants based on time of day or appearance mode. macOS ships several. No motion, just scheduled stills.",
-          "**Animated wallpaper** — usually a synonym for live wallpaper, sometimes used for procedural or shader-drawn scenes rendered in real time instead of decoded from video.",
-          "**Interactive wallpaper** — reacts to the cursor, audio, or system state. Rare on macOS and much more expensive to run, because the frames cannot be pre-encoded.",
-          "**Screen saver** — takes over the whole screen when you are away. It is a different macOS surface from the wallpaper, even when it shows the same footage.",
+          "**Live wallpaper**: a video loop playing continuously at the wallpaper layer. Motion is the point.",
+          "**Dynamic wallpaper**: a still image that swaps variants based on time of day or appearance mode. macOS ships several. No motion, just scheduled stills.",
+          "**Animated wallpaper**: usually a synonym for live wallpaper, sometimes used for procedural or shader-drawn scenes rendered in real time instead of decoded from video.",
+          "**Interactive wallpaper**: reacts to the cursor, audio, or system state. Rare on macOS and much more expensive to run, because the frames cannot be pre-encoded.",
+          "**Screen saver**: takes over the whole screen when you are away. It is a different macOS surface from the wallpaper, even when it shows the same footage.",
         ],
       },
       { type: "h2", text: "Why video, not real-time rendering" },
       {
         type: "p",
-        text: "A pre-encoded video is by far the cheapest way to put motion on a desktop. Every Mac has dedicated media decoding hardware, so a 4K loop can play without the CPU touching a single pixel. A procedurally rendered scene has to be computed frame by frame, every frame, forever — which is why shader-style wallpapers tend to warm up a laptop and video-based ones do not. That difference is explained in [hardware video decode](/learn/hardware-video-decode).",
+        text: "A pre-encoded video is by far the cheapest way to put motion on a desktop. Every Mac has dedicated media decoding hardware, so a 4K loop can play without the CPU touching a single pixel. A procedurally rendered scene has to be computed frame by frame, every frame, forever, which is why shader-style wallpapers tend to warm up a laptop and video-based ones do not. That difference is explained in [hardware video decode](/learn/hardware-video-decode).",
       },
       { type: "h2", text: "What makes a loop feel good" },
       {
         type: "ul",
         items: [
-          "**Seamless** — the last frame flows into the first. You are going to see this transition hundreds of times a day.",
-          "**Slow** — drifting clouds, rain, slow pans. Fast motion in peripheral vision reads as a notification and pulls your eye.",
-          "**Low contrast where your icons live** — busy bright areas behind desktop icons make labels hard to read.",
-          "**Resolution-matched** — sized to your display, not above it. See [resolution and displays](/learn/wallpaper-resolution-and-displays).",
+          "**Seamless**: the last frame flows into the first. You are going to see this transition hundreds of times a day.",
+          "**Slow**: drifting clouds, rain, slow pans. Fast motion in peripheral vision reads as a notification and pulls your eye.",
+          "**Low contrast where your icons live**: busy bright areas behind desktop icons make labels hard to read.",
+          "**Resolution-matched**: sized to your display, not above it. See [resolution and displays](/learn/wallpaper-resolution-and-displays).",
         ],
       },
       { type: "h2", text: "On macOS specifically" },
@@ -121,16 +121,16 @@ export const learnPages: LearnPage[] = [
     sections: [
       {
         type: "p",
-        text: "The macOS desktop is a stack of composited layers. The wallpaper is the bottom one — below desktop icons, below every window, below the Dock and menu bar. The window server draws it once and reuses it, which is why a static picture costs essentially nothing.",
+        text: "The macOS desktop is a stack of composited layers. The wallpaper is the bottom one, below desktop icons, below every window, below the Dock and menu bar. The window server draws it once and reuses it, which is why a static picture costs essentially nothing.",
       },
       { type: "h2", text: "The layer stack, bottom to top" },
       {
         type: "ol",
         items: [
-          "**Wallpaper layer** — your desktop picture or, with a live wallpaper app, a decoded video surface.",
-          "**Desktop icons** — Finder draws these in their own layer above the wallpaper.",
-          "**Application windows** — everything you actually work in.",
-          "**System UI** — menu bar, Dock, Notification Center, Control Center.",
+          "**Wallpaper layer**: your desktop picture or, with a live wallpaper app, a decoded video surface.",
+          "**Desktop icons**: Finder draws these in their own layer above the wallpaper.",
+          "**Application windows**: everything you actually work in.",
+          "**System UI**: menu bar, Dock, Notification Center, Control Center.",
         ],
       },
       {
@@ -142,27 +142,27 @@ export const learnPages: LearnPage[] = [
         type: "ul",
         items: [
           "Each connected display holds its own wallpaper assignment, so different monitors can show different content.",
-          "Spaces can each carry a wallpaper too — a legacy of macOS letting you theme individual desktops.",
+          "Spaces can each carry a wallpaper too, a legacy of macOS letting you theme individual desktops.",
           "Assignments are remembered per display identity. Unplug a monitor, plug it back in, and its wallpaper returns.",
         ],
       },
       { type: "h2", text: "Dynamic desktop pictures" },
       {
         type: "p",
-        text: "Apple's built-in dynamic wallpapers are HEIC files containing several images plus metadata describing which to show for a given sun position or appearance mode. They are still images on a schedule — genuinely useful, but not motion. Video wallpaper is a different mechanism entirely.",
+        text: "Apple's built-in dynamic wallpapers are HEIC files containing several images plus metadata describing which to show for a given sun position or appearance mode. They are still images on a schedule, genuinely useful, but not motion. Video wallpaper is a different mechanism entirely.",
       },
       { type: "h2", text: "The Lock Screen is a separate surface" },
       {
         type: "p",
-        text: `The Lock Screen and Screen Saver are rendered by the system before your session is unlocked, so an app cannot simply draw into them. Apple added APIs that let apps register a video as a system wallpaper asset in ${macwallLockScreenMacOSVersion}; below that version no third-party app can put motion on the Lock Screen, regardless of what it claims. Once registered, macOS — not the app — plays the loop, which is why applying one takes a moment while the system indexes the asset.`,
+        text: `The Lock Screen and Screen Saver are rendered by the system before your session is unlocked, so an app cannot simply draw into them. Apple added APIs that let apps register a video as a system wallpaper asset in ${macwallLockScreenMacOSVersion}; below that version no third-party app can put motion on the Lock Screen, regardless of what it claims. Once registered, macOS plays the loop rather than the app, which is why applying one takes a moment while the system indexes the asset.`,
       },
       { type: "h2", text: "What this means when you pick an app" },
       {
         type: "ul",
         items: [
-          "Apps that use the real wallpaper layer behave like a native wallpaper. Apps that float a borderless window behind your icons only imitate one — and break with Mission Control, screenshots, and Spaces.",
+          "Apps that use the real wallpaper layer behave like a native wallpaper. Apps that float a borderless window behind your icons only imitate one, and break with Mission Control, screenshots, and Spaces.",
           "A native app needs no Screen Recording, Accessibility, or Full Disk Access permission to set a wallpaper. Being asked for those is a signal something unusual is happening.",
-          `${macwall.name} uses the system wallpaper APIs on both surfaces — see [Live Lock Screen and Screen Saver](/docs/live-lock-screen-and-screen-saver).`,
+          `${macwall.name} uses the system wallpaper APIs on both surfaces. See [Live Lock Screen and Screen Saver](/docs/live-lock-screen-and-screen-saver).`,
         ],
       },
     ],
@@ -212,7 +212,7 @@ export const learnPages: LearnPage[] = [
       { type: "h2", text: "Hardware decode" },
       {
         type: "p",
-        text: "Every modern Mac includes a dedicated media engine. Apple exposes it through the **VideoToolbox** framework. Frames are decoded in that block, handed to the GPU as texture surfaces, and composited — the CPU only supervises. This path is dramatically more power-efficient than doing the same math in general-purpose cores, which is why your Mac can play 4K video for hours on battery.",
+        text: "Every modern Mac includes a dedicated media engine. Apple exposes it through the **VideoToolbox** framework. Frames are decoded in that block, handed to the GPU as texture surfaces, and composited. The CPU only supervises. This path is dramatically more power-efficient than doing the same math in general-purpose cores, which is why your Mac can play 4K video for hours on battery.",
       },
       { type: "h2", text: "Software decode" },
       {
@@ -223,22 +223,22 @@ export const learnPages: LearnPage[] = [
       {
         type: "ul",
         items: [
-          "**H.264 (AVC)** — hardware decoded everywhere. The safest choice.",
-          "**HEVC (H.265)** — hardware decoded on modern Macs; smaller files at equal quality.",
-          "**ProRes** — hardware decoded on Apple silicon with a media engine. Editing-grade and very large; overkill for a wallpaper.",
-          "**AV1** — hardware decode only on the newest Apple silicon. Falls back to software elsewhere.",
-          "**VP9 / WebM** — commonly software decoded on macOS. Avoid for wallpapers.",
+          "**H.264 (AVC)**: hardware decoded everywhere. The safest choice.",
+          "**HEVC (H.265)**: hardware decoded on modern Macs; smaller files at equal quality.",
+          "**ProRes**: hardware decoded on Apple silicon with a media engine. Editing-grade and very large; overkill for a wallpaper.",
+          "**AV1**: hardware decode only on the newest Apple silicon. Falls back to software elsewhere.",
+          "**VP9 / WebM**: commonly software decoded on macOS. Avoid for wallpapers.",
         ],
       },
       { type: "h2", text: "Why this decides the wallpaper question" },
       {
         type: "p",
-        text: "A wallpaper is the one video that plays all day. On the hardware path a 4K loop typically costs a fraction of a percent of CPU — the wallpaper is not what warms your Mac. On the software path the same loop can hold a meaningful slice of several cores indefinitely. This is also why a browser-tab or Electron-based wallpaper tends to cost far more than a native one: extra layers between the file and the media engine, plus a full rendering stack kept alive to display it.",
+        text: "A wallpaper is the one video that plays all day. On the hardware path a 4K loop typically costs a fraction of a percent of CPU, the wallpaper is not what warms your Mac. On the software path the same loop can hold a meaningful slice of several cores indefinitely. This is also why a browser-tab or Electron-based wallpaper tends to cost far more than a native one: extra layers between the file and the media engine, plus a full rendering stack kept alive to display it.",
       },
       { type: "h2", text: "Beyond decoding: not decoding at all" },
       {
         type: "p",
-        text: "The cheapest frame is the one never decoded. A well-behaved wallpaper app stops when nothing is visible — display asleep, screen locked, full-screen app in front, or running on battery. Hardware decode plus aggressive pausing is what makes a live wallpaper genuinely free in practice; the rules are listed in [performance and battery](/docs/performance-and-battery).",
+        text: "The cheapest frame is the one never decoded. A well-behaved wallpaper app stops when nothing is visible: display asleep, screen locked, full-screen app in front, or running on battery. Hardware decode plus aggressive pausing is what makes a live wallpaper genuinely free in practice; the rules are listed in [performance and battery](/docs/performance-and-battery).",
       },
       { type: "h2", text: "Check it on your own Mac" },
       {
@@ -247,7 +247,7 @@ export const learnPages: LearnPage[] = [
           "Open **Activity Monitor** → **CPU** and watch the wallpaper app while a loop plays.",
           "Switch to **Energy** and read **Energy Impact** over a couple of minutes.",
           "Pause playback and confirm both drop to effectively zero.",
-          "Compare against a browser tab playing the same clip — the difference is the point.",
+          "Compare against a browser tab playing the same clip, the difference is the point.",
         ],
       },
     ],
@@ -260,7 +260,7 @@ export const learnPages: LearnPage[] = [
       {
         question: "Is HEVC better than H.264 for a wallpaper?",
         answer:
-          "Usually yes — roughly half the file size at similar quality, and hardware decoded on modern Macs. Choose H.264 if you need compatibility with very old machines.",
+          "Usually yes, roughly half the file size at similar quality, and hardware decoded on modern Macs. Choose H.264 if you need compatibility with very old machines.",
       },
       {
         question: "Does higher frame rate cost more?",
@@ -292,28 +292,28 @@ export const learnPages: LearnPage[] = [
     sections: [
       {
         type: "p",
-        text: "Two things get conflated constantly. The **container** is the file wrapper — `.mp4`, `.mov`, `.mkv`, `.webm`. The **codec** is how the picture inside is compressed — H.264, HEVC, ProRes, AV1, VP9. The extension tells you the container; it does not tell you the codec, and the codec is what determines whether your Mac decodes efficiently.",
+        text: "Two things get conflated constantly. The **container** is the file wrapper: `.mp4`, `.mov`, `.mkv`, `.webm`. The **codec** is how the picture inside is compressed: H.264, HEVC, ProRes, AV1, VP9. The extension tells you the container; it does not tell you the codec, and the codec is what determines whether your Mac decodes efficiently.",
       },
       { type: "h2", text: "Containers you will meet" },
       {
         type: "ul",
         items: [
-          "**MP4** — the universal choice. Broad support, small overhead, works everywhere.",
-          "**MOV** — Apple's container. Functionally similar to MP4 and the default from Final Cut and QuickTime.",
-          "**M4V** — an MP4 variant from the Apple ecosystem.",
-          "**MKV** — flexible and popular for archiving, but the least predictable for native macOS playback.",
-          "**WebM** — a web container, usually carrying VP9 or AV1. Poor fit for macOS wallpapers.",
+          "**MP4**: the universal choice. Broad support, small overhead, works everywhere.",
+          "**MOV**: Apple's container. Functionally similar to MP4 and the default from Final Cut and QuickTime.",
+          "**M4V**: an MP4 variant from the Apple ecosystem.",
+          "**MKV**: flexible and popular for archiving, but the least predictable for native macOS playback.",
+          "**WebM**: a web container, usually carrying VP9 or AV1. Poor fit for macOS wallpapers.",
         ],
       },
       { type: "h2", text: "Codecs, ranked for this job" },
       {
         type: "ol",
         items: [
-          "**HEVC (H.265)** — best size-to-quality ratio, hardware decoded on modern Macs. First choice.",
-          "**H.264 (AVC)** — slightly larger at equal quality, hardware decoded on everything. Safest choice.",
-          "**ProRes** — beautiful and enormous. Fine as a master, wasteful as a wallpaper.",
-          "**AV1** — excellent compression, but hardware decode only on the newest Apple silicon.",
-          "**VP9** — typically software decoded on macOS. Avoid.",
+          "**HEVC (H.265)**: best size-to-quality ratio, hardware decoded on modern Macs. First choice.",
+          "**H.264 (AVC)**: slightly larger at equal quality, hardware decoded on everything. Safest choice.",
+          "**ProRes**: beautiful and enormous. Fine as a master, wasteful as a wallpaper.",
+          "**AV1**: excellent compression, but hardware decode only on the newest Apple silicon.",
+          "**VP9**: typically software decoded on macOS. Avoid.",
         ],
       },
       { type: "h2", text: "Export recipe for a wallpaper" },
@@ -322,7 +322,7 @@ export const learnPages: LearnPage[] = [
         items: [
           "**Container**: MP4.",
           "**Codec**: HEVC, or H.264 if you want maximum compatibility.",
-          "**Resolution**: match your display — 3840×2160 for a 4K panel. Never encode above it.",
+          "**Resolution**: match your display, 3840×2160 for a 4K panel. Never encode above it.",
           "**Frame rate**: 24–30 fps. Ambient motion gains nothing from 60.",
           "**Bitrate**: 8–15 Mbps at 4K is plenty for the slow footage that makes good wallpaper.",
           "**Colour**: Rec. 709, SDR. HDR wallpapers can look washed out or oddly bright next to standard UI.",
@@ -334,7 +334,7 @@ export const learnPages: LearnPage[] = [
       {
         type: "ol",
         items: [
-          "Pick footage with no strong directional change — drifting fog, rain, gentle particle motion, slow pans.",
+          "Pick footage with no strong directional change: drifting fog, rain, gentle particle motion, slow pans.",
           "Trim so the first and last frames are visually close.",
           "Crossfade the final half-second into the opening half-second, or mirror the clip for a ping-pong loop.",
           "Preview it looping for a full minute before you commit. Loop points you barely notice once become obvious after ten repeats.",
@@ -359,7 +359,7 @@ export const learnPages: LearnPage[] = [
       {
         question: "Can I use a GIF as a live wallpaper?",
         answer:
-          "You can, but GIF is a terrible video codec — huge files, 256 colours, no hardware decode. Converting to an MP4 loop looks better and costs less.",
+          "You can, but GIF is a terrible video codec, huge files, 256 colours, no hardware decode. Converting to an MP4 loop looks better and costs less.",
       },
     ],
   }),
@@ -391,18 +391,18 @@ export const learnPages: LearnPage[] = [
       { type: "h2", text: "Retina scaling in one paragraph" },
       {
         type: "p",
-        text: 'A 14-inch MacBook Pro may report a "looks like 1512×982" desktop while the panel is 3024×1964 physical pixels. macOS renders at the higher resolution and scales down, which is what makes text crisp. Your wallpaper should match the **physical** pixels — 3024×1964 here, not 1512×982.',
+        text: 'A 14-inch MacBook Pro may report a "looks like 1512×982" desktop while the panel is 3024×1964 physical pixels. macOS renders at the higher resolution and scales down, which is what makes text crisp. Your wallpaper should match the **physical** pixels, 3024×1964 here, not 1512×982.',
       },
       { type: "h2", text: "Targets that cover most Macs" },
       {
         type: "ul",
         items: [
-          "**MacBook Air / Pro (Retina)** — 3024×1964 or 3456×2234 depending on the model.",
-          "**4K external display** — 3840×2160.",
-          "**5K display (Studio Display, iMac 27-inch)** — 5120×2880.",
-          "**Ultrawide 34-inch** — 3440×1440.",
-          "**Vertical / rotated panel** — swap the axes, e.g. 2160×3840.",
-          "**When in doubt** — 3840×2160. It downscales cleanly to almost everything.",
+          "**MacBook Air / Pro (Retina)**: 3024×1964 or 3456×2234 depending on the model.",
+          "**4K external display**: 3840×2160.",
+          "**5K display (Studio Display, iMac 27-inch)**: 5120×2880.",
+          "**Ultrawide 34-inch**: 3440×1440.",
+          "**Vertical / rotated panel**: swap the axes, e.g. 2160×3840.",
+          "**When in doubt**: 3840×2160. It downscales cleanly to almost everything.",
         ],
       },
       { type: "h2", text: "Aspect ratio beats pixel count" },
@@ -414,10 +414,10 @@ export const learnPages: LearnPage[] = [
       {
         type: "ul",
         items: [
-          "**One loop mirrored** — decoded once and drawn on each display. Cheapest option by a wide margin.",
-          "**A different loop per display** — decoded once per unique video. Three 4K loops means three times the decode work.",
-          "**Mixed resolutions** — encode for the largest panel and let macOS scale down for the rest. Upscaling looks worse than downscaling.",
-          "**Vertical secondary display** — give it a dedicated portrait loop rather than cropping a landscape one.",
+          "**One loop mirrored**: decoded once and drawn on each display. Cheapest option by a wide margin.",
+          "**A different loop per display**: decoded once per unique video. Three 4K loops means three times the decode work.",
+          "**Mixed resolutions**: encode for the largest panel and let macOS scale down for the rest. Upscaling looks worse than downscaling.",
+          "**Vertical secondary display**: give it a dedicated portrait loop rather than cropping a landscape one.",
         ],
       },
       {
@@ -428,7 +428,7 @@ export const learnPages: LearnPage[] = [
       {
         type: "ul",
         items: [
-          "Keep the top-left quiet — that is where desktop icons and their labels sit.",
+          "Keep the top-left quiet, because that is where desktop icons and their labels sit.",
           "Avoid bright moving highlights near the menu bar, which is translucent.",
           "Low-contrast footage is the practical choice for a wallpaper you work in front of all day.",
         ],
@@ -438,7 +438,7 @@ export const learnPages: LearnPage[] = [
       {
         question: "What resolution should a Mac live wallpaper be?",
         answer:
-          "Match your display's physical pixels — 3840×2160 for a 4K panel, 3024×1964 for a 14-inch MacBook Pro. Going higher only adds decode cost.",
+          "Match your display's physical pixels, 3840×2160 for a 4K panel, 3024×1964 for a 14-inch MacBook Pro. Going higher only adds decode cost.",
       },
       {
         question: "Can different displays show different live wallpapers?",
@@ -456,7 +456,7 @@ export const learnPages: LearnPage[] = [
   lesson({
     navLabel: "Battery and energy basics",
     takeaway:
-      "A wallpaper's battery cost is decode work times time on screen — pausing when nothing is visible removes almost all of it.",
+      "A wallpaper's battery cost is decode work times time on screen, so pausing when nothing is visible removes almost all of it.",
     slug: "battery-and-energy-basics",
     pathname: "/learn/battery-and-energy-basics",
     title: "Battery & Energy Basics for Live Wallpapers",
@@ -480,17 +480,17 @@ export const learnPages: LearnPage[] = [
       {
         type: "ul",
         items: [
-          "**Display backlight** — normally the single largest consumer. Brightness beats every software setting.",
-          "**CPU** — expensive per unit of work, especially sustained load on performance cores.",
-          "**GPU** — cheap for compositing, expensive for real-time rendering.",
-          "**Media engine** — extremely efficient for video decode. This is the path a good wallpaper uses.",
-          "**Radios and disk** — network and storage activity, unrelated to wallpaper except while downloading one.",
+          "**Display backlight**: normally the single largest consumer. Brightness beats every software setting.",
+          "**CPU**: expensive per unit of work, especially sustained load on performance cores.",
+          "**GPU**: cheap for compositing, expensive for real-time rendering.",
+          "**Media engine**: extremely efficient for video decode. This is the path a good wallpaper uses.",
+          "**Radios and disk**: network and storage activity, unrelated to wallpaper except while downloading one.",
         ],
       },
       { type: "h2", text: "Reading Energy Impact honestly" },
       {
         type: "p",
-        text: "macOS reports **Energy Impact** in Activity Monitor — a relative score combining CPU time, wakeups, GPU use, and idle behaviour. It is not watts. Use it to compare apps on your own Mac, not to compare numbers between machines. Averaged over several minutes it is a good signal; a single snapshot is noise.",
+        text: "macOS reports **Energy Impact** in Activity Monitor, a relative score combining CPU time, wakeups, GPU use, and idle behaviour. It is not watts. Use it to compare apps on your own Mac, not to compare numbers between machines. Averaged over several minutes it is a good signal; a single snapshot is noise.",
       },
       { type: "h2", text: "Why pause rules dominate" },
       {
@@ -512,7 +512,7 @@ export const learnPages: LearnPage[] = [
       {
         type: "ul",
         items: [
-          "Turn on **pause on battery** — the single most effective setting.",
+          "Turn on **pause on battery**: the single most effective setting.",
           "Mirror one loop across displays instead of decoding several.",
           "Prefer 24–30 fps loops encoded in a hardware-decoded codec.",
           "Let **Low Power Mode** pause playback along with everything else.",
@@ -538,7 +538,7 @@ export const learnPages: LearnPage[] = [
       {
         question: "Does a paused wallpaper still use power?",
         answer:
-          "No meaningful amount. A paused wallpaper decodes nothing — the last frame is held as a static desktop picture.",
+          "No meaningful amount. A paused wallpaper decodes nothing, the last frame is held as a static desktop picture.",
       },
     ],
   }),

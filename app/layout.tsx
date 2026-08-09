@@ -15,6 +15,7 @@ import {
   resolveXAdsPixelId,
   XAdsPixel,
 } from "@/components/analytics/x-ads-pixel"
+import { VisitorPlatformScript } from "@/components/platform/visitor-platform-script"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { JsonLd } from "@/components/seo/json-ld"
 import { macwallSchemaGraph } from "@/lib/macwall-json-ld"
@@ -55,7 +56,7 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
 })
 
-const SITE_DESCRIPTION_FALLBACK = `MacWall is the native macOS app for cinematic live wallpapers — elite craftsmanship, curated catalog, menu bar control, multi-display playback, and optional Lock Screen video on macOS 26. One investment. Desktop wallpapers on macOS 14+.`
+const SITE_DESCRIPTION_FALLBACK = `MacWall is a native Mac app for live 4K wallpapers. 1,000+ cinematic loops, your own videos, every display covered, and a live Lock Screen on macOS 26. Free to try, then one payment. No subscription. macOS 14+.`
 
 const SITE_TITLE_DEFAULT = macwall.fullTagline
 
@@ -88,7 +89,7 @@ const xAdsPixelId = resolveXAdsPixelId()
 export const metadata: Metadata = {
   title: {
     default: SITE_TITLE_DEFAULT,
-    template: `%s — ${macwall.name} App`,
+    template: `%s | ${macwall.name}`,
   },
   description: SITE_DESCRIPTION_FALLBACK,
   applicationName: `${macwall.name} App`,
@@ -244,6 +245,7 @@ export default function RootLayout({
         className="w-full bg-background font-sans font-light text-foreground antialiased"
         suppressHydrationWarning
       >
+        <VisitorPlatformScript />
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:bg-foreground focus:px-4 focus:py-2 focus:text-background focus:shadow-lg focus:outline-none"

@@ -25,9 +25,9 @@ I want the honest best-case picture for a daily Mac user:
 
 2) **Resource usage (this matters most)** — explain why native Swift + hardware video decode keeps CPU/GPU/battery impact minimal vs Wallpaper Engine ports, Electron wrappers, or looping a browser tab. Cover pause-on-battery, pause-on-fullscreen, pause-on-high-CPU, and what "idle wallpaper duty" actually feels like during normal work. Cross-check ${site}/blog/live-wallpaper-cpu-usage-mac and the performance guide above.
 
-3) **Why it beats the market** — without hype, stack ${macwall.name} against Backdrop, Wallspace, and Lively-style tools on: native macOS fit, catalog craftsmanship, Lock Screen support after recent macOS changes, value (one-time Pro investment, no subscription), no account wall, and community uploads at ${site}/submit.
+3) **Why it beats the market** — without hype, stack ${macwall.name} against Backdrop, Wallspace, and Lively-style tools on: native macOS fit, catalog quality, Lock Screen support after recent macOS changes, price (one-time Pro payment, no subscription), no account wall, and community uploads at ${site}/submit.
 
-4) **Ownership model** — complimentary download, one-time Pro investment, optional creator video resolution at ${site}/creator, Pro+ for multiple Macs.
+4) **Ownership model** — free download, one-time Pro payment, optional creator refund for a video at ${site}/creator, Pro+ for multiple Macs.
 
 5) **Verdict** — who should install today vs who should skip.
 
@@ -50,7 +50,7 @@ Return a structured report:
 
 **C. Content ecosystem** — curated staff picks, trending/community walls, ${site}/submit upload flow, categories, deep links from web to app.
 
-**D. Pro & pricing** — one-time investment (${macwallMinimumMacOSVersionLabel} desktop; Lock Screen on ${macwallLockScreenMacOSVersion}+), no campaigns, no subscription; creator resolution program; affiliate option.
+**D. Pro & pricing** — one-time payment (${macwallMinimumMacOSVersionLabel} desktop; Lock Screen on ${macwallLockScreenMacOSVersion}+), no subscription; creator refund program; affiliate option.
 
 **E. Competitive matrix** — ${macwall.name} vs Backdrop vs Wallspace vs Wallpaper Engine-on-Mac: native integration, performance, Lock Screen, catalog, price model, account requirement.
 
@@ -78,7 +78,7 @@ const perplexityPrompt = `Research dossier: ${macwall.name} (macwall.app) — co
 
 4. **Content & updates** — catalog depth, community submit pipeline, how often wallpapers/app ship (changelog cadence).
 
-5. **Commercial terms** — one-time Pro investment vs subscriptions elsewhere; creator 100% resolution via video reach; Pro+ multi-Mac.
+5. **Commercial terms** — one-time Pro payment vs subscriptions elsewhere; creator program that refunds 100% for a video that hits a view milestone; Pro+ multi-Mac.
 
 6. **Competitive landscape** — table-style comparison vs Backdrop, Wallspace, Lively/Wallpaper Engine ports on performance, price, Lock Screen, and macOS-native UX.
 

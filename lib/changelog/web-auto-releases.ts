@@ -6,6 +6,80 @@ import type { ChangelogRelease } from "@/lib/changelog/types"
 
 export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
   {
+    id: "web-2026-08-08",
+    version: "2026.8.8",
+    date: "2026-08-08T12:00:00.000Z",
+    sections: [
+      {
+        kind: "fixes",
+        items: [
+          "Fix checkout recovery mail for failed and abandoned payments.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-08-07",
+    version: "2026.8.7",
+    date: "2026-08-07T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Remove one-off recovery backfill artifacts now that sends are automatic.",
+          "Ship Apple-style license and recovery emails end-to-end.",
+          "Call macwall-apns with an explicit service-role fetch.",
+        ],
+      },
+      {
+        kind: "fixes",
+        items: [
+          "Fix checkout recovery so conversion mail actually sends.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-08-06",
+    version: "2026.8.6",
+    date: "2026-08-06T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Show one social-proof toast at a time instead of stacking.",
+          "Public changelog page synced with shipping updates.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-08-04",
+    version: "2026.8.4",
+    date: "2026-08-04T12:00:00.000Z",
+    sections: [
+      {
+        kind: "features",
+        items: [
+          "Public wallpaper gallery with search, SEO, and app deep links.",
+        ],
+      },
+      {
+        kind: "improvements",
+        items: [
+          "Clearer pricing cards, benefits, and upgrade prompts.",
+        ],
+      },
+      {
+        kind: "fixes",
+        items: [
+          "Fix blank wallpaper player caused by expired ISR signed URLs.",
+          "Fix gallery Back wiping Show more and jumping to the footer.",
+        ],
+      },
+    ],
+  },
+  {
     id: "web-2026-08-03",
     version: "2026.8.3",
     date: "2026-08-03T12:00:00.000Z",

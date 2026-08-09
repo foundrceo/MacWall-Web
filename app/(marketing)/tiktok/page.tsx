@@ -12,7 +12,7 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-const PAGE_DESCRIPTION = `Get ${macwall.name} Pro for ${macwall.pro.price} — live wallpapers for Mac (macOS 14+) with Lock Screen on ${macwallLockScreenMacOSVersion}. One-time purchase, no subscription.`
+const PAGE_DESCRIPTION = `Get ${macwall.name} Pro for ${macwall.pro.price}. Live wallpapers for Mac (macOS 14+) with Lock Screen on ${macwallLockScreenMacOSVersion}. One-time purchase, no subscription.`
 
 export const metadata: Metadata = {
   title: "Live wallpapers for Mac",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   alternates: { canonical: canonicalSitePath("/tiktok") },
   robots: { index: false, follow: false },
   openGraph: {
-    title: `${macwall.name} — ${macwall.pro.price} one-time`,
+    title: `${macwall.name} for ${macwall.pro.price}, paid once`,
     description: PAGE_DESCRIPTION,
     url: canonicalSitePath("/tiktok"),
     siteName: macwall.name,
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${macwall.name} — ${macwall.pro.price} one-time`,
+    title: `${macwall.name} for ${macwall.pro.price}, paid once`,
     description: PAGE_DESCRIPTION,
     images: [openGraphImageAbsoluteUrl()],
   },

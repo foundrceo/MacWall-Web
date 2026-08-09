@@ -16,7 +16,7 @@ export type ChangelogPageCopy = {
 
 /** Static intro — page is fully automated from updater + website shipping. */
 export const CHANGELOG_PAGE_LEAD =
-  "Every shipped release, newest first. Mac updates sync from the in-app updater feed; website changes publish automatically when they ship — nothing to maintain by hand."
+  "Every shipped release, newest first. Mac updates sync from the in-app updater feed; website changes publish automatically when they ship, so there is nothing to maintain by hand."
 
 export function buildChangelogPageCopy(input: {
   latestVersion: string | null
@@ -29,8 +29,8 @@ export function buildChangelogPageCopy(input: {
   const omittedNote = `Older releases before v${CHANGELOG_FIRST_PUBLIC_VERSION} predate the public MacWall launch and are intentionally omitted.`
 
   const autoUpdateNote = latestLabel
-    ? `Auto-update is on by default — already running ${macwall.name}? You're up to date on ${latestLabel}.`
-    : `Auto-update is on by default — already running ${macwall.name}? You're up to date.`
+    ? `Auto-update is on by default. Already running ${macwall.name}? You're up to date on ${latestLabel}.`
+    : `Auto-update is on by default. Already running ${macwall.name}? You're up to date.`
 
   const syncedLabel = input.syncedAt
     ? `Updater feed synced ${formatSyncedAt(input.syncedAt)}.`

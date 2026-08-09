@@ -34,7 +34,7 @@ export default function LegalRefundPage() {
           <p>
             {macwall.name} does <strong>not</strong> offer a general refund
             policy. License purchases are final once a key is delivered. This
-            page only describes rare exceptions — and those are never
+            page only describes rare exceptions, and those are never
             guaranteed. Mandatory consumer rights in your country still apply
             where they cannot be waived.
           </p>
@@ -51,7 +51,7 @@ export default function LegalRefundPage() {
 
         <LegalSection id="exceptions" title="Exceptions (Discretionary Only)">
           <p>
-            In a small number of cases we <em>may</em> choose to refund — only
+            In a small number of cases we <em>may</em> choose to refund, but only
             if we decide the situation clearly warrants it. That decision is
             entirely ours. Examples we might consider:
           </p>

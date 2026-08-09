@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = legalHubMetadata()
 
-const PAGE_DESCRIPTION = `${macwall.name} legal center — terms, privacy, cookies, refunds, DMCA, GDPR, CCPA, security, and more.`
+const PAGE_DESCRIPTION = `${macwall.name} legal center: terms, privacy, cookies, refunds, DMCA, GDPR, CCPA, security, and more.`
 
 export default function LegalHubPage() {
   const jsonLd = webPageWithBreadcrumbsJsonLd({

@@ -6,7 +6,6 @@ import {
   TrackedPricingButton,
 } from "@/components/analytics/tracked-marketing-buttons"
 import { HeroWalkthroughVideo } from "@/components/macwall-marketing/hero-walkthrough-video"
-import { CheckoutPrefetchWarmup } from "@/components/macwall-marketing/checkout-prefetch-warmup"
 import { macwall, macwallInstallerLatestPath } from "@/lib/macwall-site"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
@@ -28,7 +27,6 @@ export default function TikTokLandingHero() {
 
   return (
     <section className="relative overflow-hidden bg-background">
-      <CheckoutPrefetchWarmup offers={["permanent"]} />
       <div className="marketing-container max-w-5xl">
         <div className="max-w-3xl pt-10 pb-6 md:pt-14 md:pb-8">
           <p className="text-[13px] font-semibold tracking-[0.08em] text-marketing-muted uppercase">

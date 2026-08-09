@@ -78,6 +78,7 @@ next-env.d.ts
 
 # Affonso/agent skill symlinks (local install via npx skills)
 .cursor/skills/
+.cursor/rules/
 _deploy_payload.json
 
 # one-off backfill / agent temp artifacts

@@ -54,7 +54,7 @@ function ThankYouActions() {
 
       {licenseKey ? (
         <p className="mx-auto mt-5 max-w-[440px] text-[14px] leading-[1.5] text-muted-foreground">
-          Your license is ready — tap{" "}
+          Your license is ready. Tap{" "}
           <strong className="font-semibold text-foreground">
             Open MacWall
           </strong>{" "}

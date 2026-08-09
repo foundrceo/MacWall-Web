@@ -129,7 +129,7 @@ function ActivateRedirectBody() {
         <div className="mx-auto max-w-[640px] py-16 text-center md:py-24">
           <SectionTitle as="h1">Confirming your purchase…</SectionTitle>
           <SectionLead className="mx-auto mt-4 max-w-[480px]">
-            Hang tight — we&apos;re verifying payment with Stripe.
+            Hang tight, we&apos;re verifying payment with Stripe.
           </SectionLead>
         </div>
       </MarketingContainer>

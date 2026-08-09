@@ -97,7 +97,7 @@ async function resolvePricingForCountry(
 const cachedPricingForCountry = unstable_cache(
   async (countryKey: string) =>
     resolvePricingForCountry(countryKey === "_" ? null : countryKey),
-  ["marketing-pricing-by-country"],
+  ["marketing-pricing-by-country-v5"],
   { revalidate: 300 }
 )
 

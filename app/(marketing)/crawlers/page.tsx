@@ -29,7 +29,7 @@ const PAGE: SeoContentPage = {
     { type: "h2", text: "Text content: allowed, with attribution" },
     {
       type: "p",
-      text: "Documentation, guides, blog posts, and product and pricing information may be crawled, indexed, quoted, summarised, and used to answer questions — including inside AI search and assistant products. We only ask that you attribute the source and link back to the page you used.",
+      text: "Documentation, guides, blog posts, and product and pricing information may be crawled, indexed, quoted, summarised, and used to answer questions, including inside AI search and assistant products. We only ask that you attribute the source and link back to the page you used.",
     },
     { type: "h2", text: "Wallpaper media: not licensed for reuse" },
     {
@@ -40,22 +40,22 @@ const PAGE: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "[/llms.txt](/llms.txt) — curated Markdown index of every content page, in the llms.txt format.",
-        "[/llms-full.txt](/llms-full.txt) — the full text of the site in one document.",
-        "**Append `.md` to any content URL** — for example `/docs/install-macwall.md`. Same content, clean Markdown with YAML frontmatter, no layout markup.",
-        "[/rss.xml](/rss.xml), [/atom.xml](/atom.xml), [/feed.json](/feed.json) — blog syndication in RSS 2.0, Atom 1.0, and JSON Feed 1.1, with full article content.",
-        "[/sitemap.xml](/sitemap.xml) — every indexable URL with last-modified dates.",
-        "[/.well-known/api-catalog](/.well-known/api-catalog) — RFC 9727 catalog of the public API.",
-        "[/openapi.json](/openapi.json) — OpenAPI 3.1 description of those endpoints.",
-        "[/api/wallpapers](/api/wallpapers) — the catalog as JSON, documented in [the public API docs](/docs/public-api).",
+        "[/llms.txt](/llms.txt): curated Markdown index of every content page, in the llms.txt format.",
+        "[/llms-full.txt](/llms-full.txt): the full text of the site in one document.",
+        "**Append `.md` to any content URL**, for example `/docs/install-macwall.md`. Same content, clean Markdown with YAML frontmatter, no layout markup.",
+        "[/rss.xml](/rss.xml), [/atom.xml](/atom.xml), [/feed.json](/feed.json): blog syndication in RSS 2.0, Atom 1.0, and JSON Feed 1.1, with full article content.",
+        "[/sitemap.xml](/sitemap.xml): every indexable URL with last-modified dates.",
+        "[/.well-known/api-catalog](/.well-known/api-catalog): RFC 9727 catalog of the public API.",
+        "[/openapi.json](/openapi.json): OpenAPI 3.1 description of those endpoints.",
+        "[/api/wallpapers](/api/wallpapers): the catalog as JSON, documented in [the public API docs](/docs/public-api).",
       ],
     },
     { type: "h2", text: "What is off limits" },
     {
       type: "ul",
       items: [
-        "`/admin/`, `/api/admin/`, and `/auth/` — administrative surfaces, disallowed in robots.txt.",
-        "`/activate`, `/thank-you`, and `/open` — post-purchase and deep-link bridges that contain no useful content and may carry personal parameters.",
+        "`/admin/`, `/api/admin/`, and `/auth/` are administrative surfaces, disallowed in robots.txt.",
+        "`/activate`, `/thank-you`, and `/open` are post-purchase and deep-link bridges that contain no useful content and may carry personal parameters.",
         "Bulk downloading of wallpaper video files, or hotlinking them into another site or app.",
         "Ignoring cache headers, or requesting at a rate that degrades the service for other clients.",
       ],
@@ -66,7 +66,7 @@ const PAGE: SeoContentPage = {
       items: [
         "Send a descriptive `User-Agent` that includes a contact URL or email so we can reach you before taking action.",
         "Honour `Cache-Control`. Most of this site is CDN-cached and changes infrequently.",
-        "Keep concurrency modest — a couple of requests per second is plenty for a site this size.",
+        "Keep concurrency modest. A couple of requests per second is plenty for a site this size.",
         "Prefer conditional requests and the feeds over re-crawling everything.",
       ],
     },

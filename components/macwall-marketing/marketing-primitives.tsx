@@ -125,7 +125,7 @@ export function MarketingReelInfluencerCopy({
   return (
     <span className={className}>
       DM <MarketingReelAtLink platform="instagram" /> on Instagram or{" "}
-      <MarketingReelAtLink platform="tiktok" /> on TikTok — we can set up a
+      <MarketingReelAtLink platform="tiktok" /> on TikTok and we can set up a
       custom partnership.
     </span>
   )
@@ -136,16 +136,16 @@ export function MarketingReelFaqRefundCopy({
 }: Readonly<{ className?: string }>) {
   return (
     <p className={className}>
-      Invest in {macwall.name} Pro, post on Instagram{" "}
+      Buy {macwall.name} Pro, post on Instagram{" "}
       <MarketingReelAtLink platform="instagram" /> or TikTok{" "}
       <MarketingReelAtLink platform="tiktok" /> with{" "}
       <MarketingReelHashtagLink />, then email{" "}
       <a href={mailtoReelRefund} className="marketing-inline-link">
         {macwall.reelRefundEmail}
       </a>{" "}
-      once you hit {macwall.reelRefundHalfViews.toLocaleString()} reach for 50%
-      back or {macwall.reelRefundFullViews.toLocaleString()} reach for a complete
-      resolution.
+      once you hit {macwall.reelRefundHalfViews.toLocaleString()} views for 50%
+      back, or {macwall.reelRefundFullViews.toLocaleString()} views to get your
+      money back in full.
     </p>
   )
 }

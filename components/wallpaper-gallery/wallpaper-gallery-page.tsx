@@ -137,7 +137,7 @@ function GalleryFallback({
         >
           {activeCategory
             ? `Cinematic ${activeCategory} loops, curated for desktop Macs.`
-            : "Cinematic loops for every genre — preview here, set in MacWall."}
+            : "Cinematic loops for every genre. Preview here, set in MacWall."}
         </p>
         <Skeleton
           className={cn(

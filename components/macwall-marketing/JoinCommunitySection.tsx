@@ -14,9 +14,9 @@ export default function JoinCommunitySection() {
             {macwall.name} is building the future of live desktops.
           </h2>
           <p className="mx-auto mt-4 max-w-[36rem] text-[16px] leading-[1.55] text-foreground/70 sm:text-[17px]">
-            Join thousands of Mac clients sharing setups, innovative drops, and
-            tips in our Discord — or follow our online presence for the latest
-            wallpapers and brand growth.
+            Mac owners swap setups, new wallpaper drops, and tips in our
+            Discord. You can also follow along on TikTok for the latest
+            additions.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <TrackedLink

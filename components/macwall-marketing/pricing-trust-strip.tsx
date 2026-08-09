@@ -2,7 +2,7 @@
 
 import {
   BadgeCheck,
-  CircleDollarSign,
+  Film,
   Lock,
   Star,
   Zap,
@@ -123,10 +123,7 @@ export function PricingTrustStripCompact({
         ·
       </span>
       <span className="inline-flex items-center gap-1.5">
-        <CircleDollarSign
-          className="size-3.5 shrink-0 text-green-400/95"
-          aria-hidden
-        />
+        <Film className="size-3.5 shrink-0 text-sky-300/90" aria-hidden />
         {t.guaranteeLabel}
       </span>
     </div>

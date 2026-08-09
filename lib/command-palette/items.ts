@@ -112,9 +112,9 @@ export function getCommandPaletteStaticItems(): {
       analyticsEvent: "download_click",
       analyticsLocation: "command_palette",
     }),
-    action("action-buy-pro", "Unlock MacWall Pro", macwallProCheckoutURL, {
-      description: `${macwall.pro.price} permanent investment`,
-      keywords: ["checkout", "license", "upgrade", "pro", "invest"],
+    action("action-buy-pro", "Get MacWall Pro", macwallProCheckoutURL, {
+      description: `${macwall.pro.price}, paid once — no subscription`,
+      keywords: ["checkout", "license", "upgrade", "pro", "buy", "price"],
       analyticsEvent: "checkout_started",
       analyticsLocation: "command_palette",
     }),

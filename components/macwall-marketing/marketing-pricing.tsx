@@ -1,54 +1,30 @@
 "use client"
 
-import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import type { ReactNode } from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
-import { CheckoutPrefetchWarmup } from "@/components/macwall-marketing/checkout-prefetch-warmup"
-import HomeFaqSection from "@/components/macwall-marketing/HomeFaqSection"
+import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
+import { PricingTryFreeRow } from "@/components/macwall-marketing/pricing-try-free-row"
 import { PricingReviewsSection } from "@/components/macwall-marketing/pricing-reviews-section"
+import { PricingCardFooter } from "@/components/macwall-marketing/pricing-card-footer"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
 import {
   PricingSocialProof,
   PricingTrustStrip,
-  PricingTrustStripCompact,
 } from "@/components/macwall-marketing/pricing-trust-strip"
 import { ProPlusPackCard } from "@/components/macwall-marketing/pro-plus-pack-card"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
-import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 const pricingFeaturedButtonClass =
-  "inline-flex h-8 min-h-8 w-full items-center justify-center rounded-full bg-blue-800 px-3.5 text-[14px] font-medium text-white no-underline transition-colors hover:bg-blue-700"
+  "inline-flex h-9 min-h-9 w-full items-center justify-center rounded-full bg-blue-800 px-3.5 text-[14px] font-medium text-white no-underline transition-colors hover:bg-blue-700"
 
 const pricingMutedButtonClass =
-  "inline-flex h-8 min-h-8 w-full items-center justify-center rounded-full bg-white/[0.08] px-3.5 text-[14px] font-medium text-white no-underline ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/[0.12]"
-
-function PricingCardFooter() {
-  return (
-    <p>
-      <Link
-        href="/legal/refund"
-        className="underline-offset-2 hover:text-foreground/80 hover:underline"
-      >
-        7-day refund
-      </Link>
-      {" · "}
-      Lifetime updates
-      {" · "}
-      <Link
-        href="/legal/refund"
-        className="underline-offset-2 hover:text-foreground/80 hover:underline"
-      >
-        refund policy
-      </Link>
-    </p>
-  )
-}
+  "inline-flex h-9 min-h-9 w-full items-center justify-center rounded-full bg-white/[0.08] px-3.5 text-[14px] font-medium text-white no-underline ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/[0.12]"
 
 function PricingPrimaryButton({
   href,
@@ -84,16 +60,16 @@ export default function MacWallMarketingPricingPage() {
 
   return (
     <div className="marketing-page antialiased">
-      <CheckoutPrefetchWarmup />
       <MarketingSiteChrome />
 
       <main id="main-content" className="marketing-main-offset">
         <section className="marketing-hero-section">
           <div className="marketing-container">
+            <PricingSocialProof className="mb-3" />
             <h1 className="text-center text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight text-foreground md:text-5xl">
               {p.heroTitle}
             </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-center text-[16px] leading-relaxed text-marketing-muted sm:text-[17px]">
+            <p className="mx-auto mt-3 max-w-xl text-center text-[16px] leading-relaxed text-marketing-muted sm:text-[17px]">
               {p.heroLead}
             </p>
             {checkoutError ? (
@@ -104,11 +80,8 @@ export default function MacWallMarketingPricingPage() {
                 {checkoutError}
               </p>
             ) : null}
-            <PricingSocialProof className="mt-4" />
 
-            <PricingTrustStripCompact className="mt-6" />
-
-            <div className="mt-8 md:mt-10">
+            <div className="mt-6 md:mt-8">
               <div className="mx-auto grid max-w-3xl grid-cols-1 items-stretch gap-4 sm:gap-5 lg:grid-cols-2">
                 <PricingTierCard
                   id="tier-pro"
@@ -125,13 +98,14 @@ export default function MacWallMarketingPricingPage() {
                   featured
                   badge={plans.pro.badge}
                   badgeAlt={pricing.permanentOffLabel}
+                  reserveTopCenterSlot
                   action={
                     <PricingPrimaryButton
                       href={pricing.checkoutUrl}
                       location="pricing_card_permanent"
-                      ariaLabel={`Invest in ${macwall.name} Pro for ${pricing.permanentPrice}`}
+                      ariaLabel={pricing.buyProAria}
                     >
-                      {plans.pro.ctaPermanent}
+                      {pricing.getProCta}
                     </PricingPrimaryButton>
                   }
                   footer={<PricingCardFooter />}
@@ -144,7 +118,7 @@ export default function MacWallMarketingPricingPage() {
                     subtitle={plans.proPlus.subtitle}
                     featuresPrefix={plans.proPlus.featuresPrefix}
                     features={p.proPlus.features}
-                    cta={plans.proPlus.cta}
+                    cta={pricing.getProPlusCta}
                     badge={plans.proPlus.badge}
                     buttonClassName={pricingMutedButtonClass}
                     footer={<PricingCardFooter />}
@@ -152,25 +126,15 @@ export default function MacWallMarketingPricingPage() {
                 ) : null}
               </div>
 
-              <PricingTrustStrip className="mt-8" />
-
-              <p className="mt-8 text-center text-[14px] text-marketing-muted">
-                Creators:{" "}
-                <Link
-                  href="/creator"
-                  className="text-foreground underline-offset-4 hover:underline"
-                >
-                  earn up to 100% back with a video
-                </Link>
-                .
-              </p>
+              <PricingTrustStrip className="mt-5" />
+              <PricingTryFreeRow className="mt-4" />
             </div>
           </div>
         </section>
 
         <PricingReviewsSection />
 
-        <HomeFaqSection />
+        <MarketingFaqSection defaultOpenQuestion={p.faq[0]?.q} />
       </main>
 
       <MacWallMarketingPageEnd />

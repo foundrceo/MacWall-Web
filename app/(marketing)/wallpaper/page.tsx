@@ -5,7 +5,7 @@ import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
   title: "Wallpaper redirect",
-  description: "Legacy wallpaper share link — redirects to the catalog.",
+  description: "Legacy wallpaper share link that redirects to the catalog.",
   robots: { index: false, follow: false },
 }
 

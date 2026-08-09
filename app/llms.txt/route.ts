@@ -40,7 +40,7 @@ export function GET(): Response {
 
   const body = `# ${macwall.name}
 
-> ${macwall.name} is a native macOS app for cinematic 4K live video wallpapers. Playback is hardware-decoded and pauses automatically when nothing is visible, so it stays out of the way on battery. ${macwallMinimumMacOSVersionLabel}; live Lock Screen and Screen Saver motion requires ${macwallLockScreenMacOSVersion} or later. Pro is a one-time ${macwall.pro.price} license for up to ${macwall.maxLicensedMacs} Macs — no subscription and no account.
+> ${macwall.name} is a native macOS app for cinematic 4K live video wallpapers. Playback is hardware-decoded and pauses automatically when nothing is visible, so it stays out of the way on battery. ${macwallMinimumMacOSVersionLabel}; live Lock Screen and Screen Saver motion requires ${macwallLockScreenMacOSVersion} or later. Pro is a one-time ${macwall.pro.price} license for up to ${macwall.maxLicensedMacs} Macs, with no subscription and no account.
 
 Published by ${macwall.legalCompanyName}. Canonical site: ${origin}
 

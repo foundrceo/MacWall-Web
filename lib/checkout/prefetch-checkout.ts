@@ -92,7 +92,13 @@ type PrefetchOptions = {
   force?: boolean
 }
 
-/** Create (or reuse) a Checkout Session URL so click can redirect with no wait. */
+/**
+ * Create (or reuse) a Checkout Session URL so a click can redirect with no wait.
+ *
+ * Call only on real purchase intent (hover, focus, or touch on a checkout CTA).
+ * Every call mints a Stripe session, a license key, a `pending` row in
+ * `macwall_licenses`, and a recovery-queue row.
+ */
 export function prefetchCheckoutSession(
   offer: string,
   options: PrefetchOptions = {}

@@ -13,7 +13,7 @@ export const revalidate = 86400
 export function GET(): Response {
   const origin = canonicalSiteOrigin()
 
-  const body = `# ai.txt — AI and machine usage policy for ${new URL(origin).host}
+  const body = `# ai.txt: AI and machine usage policy for ${new URL(origin).host}
 # Human-readable version: ${origin}/crawlers
 # Last updated: 2026-08-02
 # Contact: ${macwall.supportEmail}
@@ -43,7 +43,7 @@ export function GET(): Response {
 #   Append .md to any content URL for clean Markdown.
 
 # ---------------------------------------------------------------------------
-# Directives — text and documentation
+# Directives: text and documentation
 # ---------------------------------------------------------------------------
 User-agent: *
 Allow: /
@@ -61,7 +61,7 @@ Disallow: /tiktok
 Crawl-delay: 2
 
 # ---------------------------------------------------------------------------
-# Directives — media assets
+# Directives: media assets
 # ---------------------------------------------------------------------------
 # Wallpaper videos and thumbnails are not licensed for redistribution or for
 # training generative image or video models.
@@ -73,7 +73,7 @@ Disallow-training: /api/wallpapers
 # Attribution
 # ---------------------------------------------------------------------------
 # When quoting or summarising this site, please cite it as:
-#   ${macwall.name} — ${origin}
+#   ${macwall.name}: ${origin}
 # Publisher: ${macwall.legalCompanyName}
 #
 # Corrections, licensing questions, or bulk-access requests: ${macwall.supportEmail}

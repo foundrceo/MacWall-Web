@@ -6,20 +6,20 @@ import {
 
 export const macwallThankYouCopy = {
   title: "You're all set.",
-  lead: `Thanks for investing in ${macwall.name} Pro. Your license details are on the way to the email you used at checkout — authorization complete.`,
-  stepsTitle: "What happens in the next step",
+  lead: `Thanks for buying ${macwall.name} Pro. Your license key is on its way to the email you used at checkout.`,
+  stepsTitle: "What happens next",
   steps: [
     {
       title: "Check your inbox",
-      body: "Stripe sends your license key, billing statement, and activation steps within a few minutes. Check spam if you do not see it.",
+      body: "Your license key, receipt, and activation steps arrive within a few minutes. Check spam if you don't see them.",
     },
     {
       title: "Activate Pro in one tap",
-      body: "After checkout you land on macwall.app/activate — MacWall opens automatically and Pro activates with your license key. No paste needed. Seamless outcome.",
+      body: "After checkout you land on macwall.app/activate. MacWall opens on its own and Pro activates with your key. Nothing to copy or paste.",
     },
     {
       title: "Download MacWall",
-      body: "If you have not installed yet, download the app first, then use the activation link from your email. Essential guidance is included.",
+      body: "Haven't installed it yet? Download the app first, then use the activation link from your email.",
     },
   ],
   downloadCta: "Download for Mac",
@@ -28,7 +28,7 @@ export const macwallThankYouCopy = {
   openAppHref: macwallLicenseActivationDeepLink(),
   openAppWithKeyHref: (licenseKey: string) =>
     macwallLicenseActivationDeepLink(licenseKey),
-  supportLabel: "Need guidance activating?",
+  supportLabel: "Stuck activating?",
   supportHint:
-    "Send your purchase email and we will provide assistance to get Pro running.",
+    "Email us the address you bought with and we'll get Pro running on your Mac.",
 } as const

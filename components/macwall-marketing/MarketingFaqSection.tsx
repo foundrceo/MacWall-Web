@@ -99,24 +99,25 @@ function FaqItem({
 }
 
 type MarketingFaqSectionProps = Readonly<{
-  /** Optional extra classes for one-off page tweaks. */
   className?: string
+  /** Pre-open a question — useful on /pricing for the top objection. */
+  defaultOpenQuestion?: string | null
 }>
 
 export default function MarketingFaqSection({
   className,
+  defaultOpenQuestion = null,
 }: MarketingFaqSectionProps) {
   const reduceMotion = useReducedMotion()
-  const [openQuestion, setOpenQuestion] = useState<string | null>(null)
+  const [openQuestion, setOpenQuestion] = useState<string | null>(
+    defaultOpenQuestion
+  )
 
   return (
     <section className={cn("marketing-section-elevated bg-surface-elevated", className)}>
       <div className="marketing-container">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-[13px] font-medium text-marketing-muted sm:text-[14px]">
-            Questions
-          </p>
-          <h2 className="mt-3 text-[clamp(1.75rem,4vw,2.25rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
+          <h2 className="text-[clamp(1.75rem,4vw,2.25rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
             {pricingCopy.faqTitle}
           </h2>
           <div className="mt-10 border-t border-border/70 text-left md:mt-12">
