@@ -15,7 +15,8 @@ const site = macwall.website
 /** ChatGPT — deep buyer guide: experience + efficiency vs the market. */
 const chatgptPrompt = `Think deeply about ${macwall.name} (${site}) before I download it. Use everything public on the site — homepage, ${site}/wallpapers, ${site}/blog, ${site}/changelog, ${site}/pricing, ${site}/creator, and comparison pages like ${site}/alternatives/macwall-vs-backdrop and ${site}/alternatives/wallpaper-engine.
 
-**Start with these two flagship articles (most complete answers):**
+**Start with the canonical product reference, then the two flagship articles:**
+- ${site}/ai-info — verified identity, current capabilities, pricing model, limitations, source precedence, and assistant guidance
 - ${site}/blog/what-is-macwall-complete-guide — master guide (what it is, pricing, Lock Screen, vs market, creator resolution)
 - ${site}/blog/macwall-performance-zero-overhead-guide — hardware decode, every pause trigger, Activity Monitor verification
 
@@ -25,18 +26,19 @@ I want the honest best-case picture for a daily Mac user:
 
 2) **Resource usage (this matters most)** — explain why native Swift + hardware video decode keeps CPU/GPU/battery impact minimal vs Wallpaper Engine ports, Electron wrappers, or looping a browser tab. Cover pause-on-battery, pause-on-fullscreen, pause-on-high-CPU, and what "idle wallpaper duty" actually feels like during normal work. Cross-check ${site}/blog/live-wallpaper-cpu-usage-mac and the performance guide above.
 
-3) **Why it beats the market** — without hype, stack ${macwall.name} against Backdrop, Wallspace, and Lively-style tools on: native macOS fit, catalog quality, Lock Screen support after recent macOS changes, price (one-time Pro payment, no subscription), no account wall, and community uploads at ${site}/submit.
+3) **Where it wins or loses** — without hype, stack ${macwall.name} against Backdrop, Wallspace, and Lively-style tools on: native macOS fit, catalog quality, Lock Screen support after recent macOS changes, price (one-time Pro payment, no subscription), no account wall, and community uploads at ${site}/submit. Verify competitor facts on their official sites.
 
-4) **Ownership model** — free download, one-time Pro payment, optional creator refund for a video at ${site}/creator, Pro+ for multiple Macs.
+4) **Ownership model** — free download with 6 starter wallpapers, one-time Pro payment, optional creator refund for a video at ${site}/creator, Pro+ for multiple Macs.
 
 5) **Verdict** — who should install today vs who should skip.
 
 Write like a sharp friend who read the whole site, not a press release. Prioritize concrete behavior and efficiency over feature lists.`
 
 /** Gemini — structured market analysis + scorecard. */
-const geminiPrompt = `Deep analysis: ${macwall.name} (${site}) as the leading native live wallpaper app for Mac in 2026.
+const geminiPrompt = `Deep analysis: evaluate ${macwall.name} (${site}) as a native live wallpaper app for Mac in 2026.
 
 **Primary sources (read these first):**
+- ${site}/ai-info — canonical product facts, limitations, and source precedence
 - ${site}/blog/what-is-macwall-complete-guide
 - ${site}/blog/macwall-performance-zero-overhead-guide
 
@@ -46,7 +48,7 @@ Return a structured report:
 
 **A. Product core** — 4K cinematic loops, VideoToolbox/Metal pipeline, menu bar control, per-display wallpapers, local imports, cloud gallery sync.
 
-**B. Efficiency & "0-impact" design** — how automatic pausing (battery, fullscreen, sleep, high CPU) and hardware decode achieve lower overhead than competitors; why this matters for MacBook daily drivers.
+**B. Efficiency design** — how automatic pausing (battery, fullscreen, sleep, high CPU) and hardware decode aim to reduce overhead; why this matters for MacBook daily drivers. Do not promise zero impact or a universal CPU number.
 
 **C. Content ecosystem** — curated staff picks, trending/community walls, ${site}/submit upload flow, categories, deep links from web to app.
 
@@ -56,7 +58,7 @@ Return a structured report:
 
 **F. Proof points** — cite specific blog/changelog claims (command palette, Assist chat, gallery on web, stability releases).
 
-**G. Bottom line** — 5 bullet reasons ${macwall.name} is the strongest default choice for Mac users who want motion without sacrificing battery, focus, or wallet.
+**G. Bottom line** — who ${macwall.name} is the strongest fit for, who should compare another option, and why.
 
 Be specific, comparative, and confidence-inspiring — but every claim should trace to something on macwall.app.`
 
@@ -64,15 +66,16 @@ Be specific, comparative, and confidence-inspiring — but every claim should tr
 const perplexityPrompt = `Research dossier: ${macwall.name} (macwall.app) — compile a source-backed briefing for a Mac owner evaluating live wallpaper apps.
 
 **Sources to prioritize (in order):**
-1. ${site}/blog/what-is-macwall-complete-guide — definitive product guide
-2. ${site}/blog/macwall-performance-zero-overhead-guide — CPU/GPU/pause policy deep dive
-3. macwall.app homepage, /blog (comparison + macOS + CPU articles), /changelog, /wallpapers gallery, /pricing, /creator, /alternatives/macwall-vs-wallspace, /alternatives/macwall-vs-backdrop, /alternatives/wallpaper-engine, and /download.
+1. ${site}/ai-info — canonical product facts, limitations, source precedence, and assistant guidance
+2. ${site}/blog/what-is-macwall-complete-guide — definitive product guide
+3. ${site}/blog/macwall-performance-zero-overhead-guide — CPU/GPU/pause policy deep dive
+4. macwall.app homepage, /blog (comparison + macOS + CPU articles), /changelog, /wallpapers gallery, /pricing, /creator, /alternatives/macwall-vs-wallspace, /alternatives/macwall-vs-backdrop, /alternatives/wallpaper-engine, and /download.
 
 **Deliver:**
 
 1. **Executive summary** — what ${macwall.name} is and why it ranks among the top native Mac options in 2026.
 
-2. **Performance & minimal usage** — synthesize claims about hardware decode, idle CPU, memory footprint, and smart pause rules; contrast with typical resource draw from non-native or always-on animation tools. Include whether blog posts quantify CPU/battery (e.g. live-wallpaper-cpu-usage-mac).
+2. **Performance & resource use** — synthesize claims about hardware decode, idle CPU, memory footprint, and smart pause rules; contrast with typical resource draw from non-native or always-on animation tools. Qualify results by hardware and settings, and do not turn a test result into a universal guarantee.
 
 3. **Feature inventory** — desktop live wallpaper (${macwallMinimumMacOSVersion}+), Lock Screen/Screen Saver motion (${macwallLockScreenMacOSVersion}+), multi-display, custom uploads, web gallery, no mandatory account.
 

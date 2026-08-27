@@ -5,13 +5,10 @@ import type { MetadataRoute } from "next"
 
 function priorityForPath(path: string): number {
   if (path === "/") return 1
-  if (
-    path === "/download" ||
-    path === "/best-live-wallpaper-mac"
-  )
-    return 0.95
+  if (path === "/download" || path === "/best-live-wallpaper-mac") return 0.95
   if (
     path === "/pricing" ||
+    path === "/ai-info" ||
     path === "/blog" ||
     path === "/wallpapers" ||
     path === "/docs"
@@ -33,8 +30,10 @@ function priorityForPath(path: string): number {
 function changeFrequencyForPath(
   path: string
 ): MetadataRoute.Sitemap[number]["changeFrequency"] {
-  if (path === "/" || path === "/blog" || path === "/wallpapers") return "weekly"
-  if (path.startsWith("/blog/") || path.startsWith("/wallpaper/")) return "weekly"
+  if (path === "/" || path === "/blog" || path === "/wallpapers")
+    return "weekly"
+  if (path.startsWith("/blog/") || path.startsWith("/wallpaper/"))
+    return "weekly"
   return "monthly"
 }
 
@@ -42,8 +41,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = canonicalSiteOrigin()
   const stamp = new Date()
 
-  let detailEntries: Awaited<ReturnType<typeof listPublicWallpaperSitemapEntries>> =
-    []
+  let detailEntries: Awaited<
+    ReturnType<typeof listPublicWallpaperSitemapEntries>
+  > = []
   try {
     detailEntries = await listPublicWallpaperSitemapEntries()
   } catch {

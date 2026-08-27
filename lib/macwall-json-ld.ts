@@ -45,8 +45,13 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         logo: logoUrl,
         image: logoUrl,
         email: macwall.supportEmail,
-        description:
-          `Maker of MacWall, the native macOS app for live video wallpapers on the Mac desktop, with menu bar control and Lock Screen motion on ${macwallLockScreenMacOSVersion}.`,
+        contactPoint: {
+          "@type": "ContactPoint",
+          contactType: "customer support",
+          email: macwall.supportEmail,
+          availableLanguage: ["English"],
+        },
+        description: `Maker of MacWall, the native macOS app for live video wallpapers on the Mac desktop, with menu bar control and Lock Screen motion on ${macwallLockScreenMacOSVersion}.`,
         sameAs: [...MACWALL_SAME_AS],
       },
       {
@@ -55,15 +60,16 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         url: origin,
         name: `${macwall.name} App`,
         alternateName: [...MACWALL_ALTERNATE_NAMES],
-        description:
-          `Native macOS app for live video wallpapers behind your windows: curated cloud catalog with search and filters, your own clips, multi-display playback, menu bar control, and optional MacWall Pro for Lock Screen and Screen Saver motion on ${macwallLockScreenMacOSVersion}.`,
+        description: `Native macOS app for live video wallpapers behind your windows: curated cloud catalog with search and filters, Pro video imports, multi-display playback, menu bar control, and MacWall Pro for Lock Screen and Screen Saver motion on ${macwallLockScreenMacOSVersion}.`,
         publisher: { "@id": orgId },
+        inLanguage: "en-US",
       },
       {
         "@type": "SoftwareApplication",
         "@id": appId,
         name: macwall.name,
         alternateName: [...MACWALL_ALTERNATE_NAMES],
+        identifier: macwall.bundleIdentifier,
         applicationCategory: "MultimediaApplication",
         applicationSubCategory: "Desktop Wallpaper / Live Wallpaper",
         operatingSystem: macwallMinimumMacOSRequirementOrLater,
@@ -73,11 +79,17 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         screenshot: `${origin}/og.jpg`,
         downloadUrl: `${origin}/download`,
         installUrl: `${origin}/download`,
-        softwareVersion: "2.9",
+        softwareVersion: macwall.currentVersion,
+        dateModified: macwall.productInfoLastReviewedIso,
+        releaseNotes: `${origin}/changelog`,
+        softwareHelp: {
+          "@type": "WebPage",
+          url: `${origin}/docs`,
+        },
         featureList: [
           "Live video wallpapers for the Mac desktop, up to 4K",
-          "Curated cloud catalog with search, filters, and 9 categories",
-          "Import and play your own MP4 and MOV clips",
+          "Curated cloud catalog with 6 free starter wallpapers and full Pro access",
+          "Import and play your own MP4 and MOV clips with Pro",
           "Multi-display playback, synced or solo, with hardware decoding",
           "Menu bar control and auto-pause on battery, full screen, and high CPU",
           "Music Sync: album-art gradients from Apple Music and Spotify",
@@ -88,11 +100,14 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         offers: [
           {
             "@type": "Offer",
+            name: `${macwall.name} Free`,
             price: "0",
             priceCurrency: "USD",
+            url: `${origin}/download`,
           },
           {
             "@type": "Offer",
+            name: `${macwall.name} Pro permanent license`,
             price: proPriceUsd,
             priceCurrency: "USD",
             availability: "https://schema.org/OnlineOnly",

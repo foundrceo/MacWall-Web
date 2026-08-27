@@ -17,7 +17,10 @@ const PAGE_DESCRIPTION = `${macwallCreatorCopy.heroTitle} Post a short video of 
 export const metadata: Metadata = {
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  alternates: { canonical: canonicalSitePath("/creator") },
+  alternates: {
+    canonical: canonicalSitePath("/creator"),
+    types: { "text/markdown": canonicalSitePath("/creator.md") },
+  },
   openGraph: {
     title: `${macwall.name} – ${PAGE_TITLE}`,
     description: PAGE_DESCRIPTION,

@@ -15,7 +15,7 @@ export function GET(): Response {
 
   const body = `# ai.txt: AI and machine usage policy for ${new URL(origin).host}
 # Human-readable version: ${origin}/crawlers
-# Last updated: 2026-08-02
+# Last updated: ${macwall.productInfoLastReviewedIso}
 # Contact: ${macwall.supportEmail}
 
 # ---------------------------------------------------------------------------
@@ -29,11 +29,12 @@ export function GET(): Response {
 # Wallpaper media is different. The video and image files in the catalog are
 # licensed for use inside the ${macwall.name} app. They may not be redistributed,
 # used as training data for generative media models, or re-hosted elsewhere.
-# See ${origin}/terms
+# See ${origin}/legal/terms
 #
 # Preferred machine-readable entry points:
+#   ${origin}/ai-info.md           canonical product facts and guidance
 #   ${origin}/llms.txt              curated Markdown index of the site
-#   ${origin}/llms-full.txt         full text of every content page
+#   ${origin}/llms-full.txt         combined long-form site reference
 #   ${origin}/rss.xml               blog feed (RSS 2.0)
 #   ${origin}/atom.xml              blog feed (Atom 1.0)
 #   ${origin}/feed.json             blog feed (JSON Feed 1.1)

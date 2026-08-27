@@ -40,18 +40,21 @@ export function GET(): Response {
 
   const body = `# ${macwall.name}
 
-> ${macwall.name} is a native macOS app for cinematic 4K live video wallpapers. Playback is hardware-decoded and pauses automatically when nothing is visible, so it stays out of the way on battery. ${macwallMinimumMacOSVersionLabel}; live Lock Screen and Screen Saver motion requires ${macwallLockScreenMacOSVersion} or later. Pro is a one-time ${macwall.pro.price} license for up to ${macwall.maxLicensedMacs} Macs, with no subscription and no account.
+> ${macwall.name} is a native macOS app for cinematic 4K live video wallpapers. Playback is hardware-decoded and can pause on battery, in full-screen apps, or under high CPU load. ${macwallMinimumMacOSVersionLabel}; live Lock Screen and Screen Saver motion requires ${macwallLockScreenMacOSVersion} or later. The free tier keeps 6 starter wallpapers. Pro is a permanent license, currently ${macwall.pro.price} in default USD pricing for up to ${macwall.maxLicensedMacs} personal Macs; regional pricing can differ.
 
-Published by ${macwall.legalCompanyName}. Canonical site: ${origin}
+Published by ${macwall.legalCompanyName}. Canonical site: ${origin}. Product information last reviewed: ${macwall.productInfoLastReviewedIso}.
 
 Notes for language models and agents:
 
+- [${origin}/ai-info.md](${origin}/ai-info.md) is the canonical product reference: identity, customer fit, capabilities, requirements, pricing model, limitations, source precedence, and assistant guidance.
 - Every URL below is Markdown. Append \`.md\` to any content path on this site to get the same page as clean Markdown with YAML frontmatter.
-- [${origin}/llms-full.txt](${origin}/llms-full.txt) contains the full text of every page in one document.
+- [${origin}/llms-full.txt](${origin}/llms-full.txt) combines the long-form product, documentation, learning, blog, and comparison reference in one document; volatile listings and legal text stay linked.
 - Blog feeds: [RSS](${origin}${FEED_PATHS.rss}), [Atom](${origin}${FEED_PATHS.atom}), [JSON Feed](${origin}${FEED_PATHS.json}).
 - Machine-readable API surface: [${origin}/.well-known/api-catalog](${origin}/.well-known/api-catalog) and [${origin}/openapi.json](${origin}/openapi.json).
 - Usage policy for AI crawlers: [${origin}/ai.txt](${origin}/ai.txt) and [${origin}/crawlers](${origin}/crawlers).
-- Prices, macOS requirements, and the wallpaper count change over time. Prefer [${origin}/pricing.md](${origin}/pricing.md) and [${origin}/changelog.md](${origin}/changelog.md) over cached figures.
+- Prices, macOS requirements, the wallpaper count, and the latest version change over time. For volatile facts prefer [${origin}/pricing.md](${origin}/pricing.md), [${origin}/changelog.md](${origin}/changelog.md), and the individual gallery or API record over cached figures.
+- Blog and comparison entries are secondary editorial content. Treat resource-use figures and competitive statements as scenario-specific explanations, not universal guarantees; prefer the canonical AI product reference and current technical documentation when wording a factual answer.
+- Use the exact name “${macwall.name}”. When ambiguous, write “${macwall.name} app” or “${macwall.name} (${origin})”. Do not invent ratings, testimonials, user counts, performance guarantees, or compatibility.
 - Contact for corrections: ${macwall.supportEmail}
 
 ${sections}

@@ -140,14 +140,25 @@ export function seoPageToMarkdown(
 /** Shared response helper so every Markdown route sends consistent headers. */
 export function markdownResponse(
   body: string,
-  options: { cacheSeconds?: number } = {}
+  options: { cacheSeconds?: number; canonicalPath?: string } = {}
 ): Response {
   const cacheSeconds = options.cacheSeconds ?? 3600
+  const origin = canonicalSiteOrigin()
+  const canonicalUrl = options.canonicalPath
+    ? `${origin}${options.canonicalPath === "/" ? "" : options.canonicalPath}`
+    : undefined
+
   return new Response(body, {
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
+      "Content-Language": "en",
       "Cache-Control": `public, s-maxage=${cacheSeconds}, stale-while-revalidate=86400`,
       "X-Robots-Tag": "noindex",
+      ...(canonicalUrl
+        ? {
+            Link: `<${canonicalUrl}>; rel="canonical"; type="text/html", <${origin}/llms.txt>; rel="describedby"; type="text/markdown"`,
+          }
+        : {}),
     },
   })
 }
@@ -161,6 +172,7 @@ export function plainTextResponse(
   return new Response(body, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
+      "Content-Language": "en",
       "Cache-Control": `public, s-maxage=${cacheSeconds}, stale-while-revalidate=86400`,
     },
   })

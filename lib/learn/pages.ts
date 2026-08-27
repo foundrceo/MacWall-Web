@@ -169,11 +169,11 @@ export const learnPages: LearnPage[] = [
     faq: [
       {
         question: "Can an app change the Lock Screen wallpaper on older macOS?",
-        answer:
-          `Not with video. The API for registering a video wallpaper asset arrived in ${macwallLockScreenMacOSVersion}. Desktop live wallpapers work on ${macwallMinimumMacOSVersion} and later.`,
+        answer: `Not with video. The API for registering a video wallpaper asset arrived in ${macwallLockScreenMacOSVersion}. Desktop live wallpapers work on ${macwallMinimumMacOSVersion} and later.`,
       },
       {
-        question: "Why does the wallpaper sometimes need a re-apply after a macOS update?",
+        question:
+          "Why does the wallpaper sometimes need a re-apply after a macOS update?",
         answer:
           "Updates can invalidate cached wallpaper assets. Re-applying rewrites the asset, and logging out forces macOS to reload the whole set.",
       },
@@ -188,7 +188,7 @@ export const learnPages: LearnPage[] = [
   lesson({
     navLabel: "Hardware video decode",
     takeaway:
-      "Apple's media engine decodes H.264 and HEVC in dedicated silicon, so a 4K wallpaper loop costs almost no CPU.",
+      "Apple's media engine can decode supported H.264 and HEVC video in dedicated hardware, reducing the CPU work required for a 4K wallpaper loop.",
     slug: "hardware-video-decode",
     pathname: "/learn/hardware-video-decode",
     title: "Hardware Video Decode Explained",
@@ -255,7 +255,7 @@ export const learnPages: LearnPage[] = [
       {
         question: "How do I know if my video is hardware decoded?",
         answer:
-          "Watch CPU usage in Activity Monitor. Hardware decode of a 4K loop stays near zero; software decode shows sustained, obvious CPU across cores.",
+          "Watch CPU and Energy Impact in Activity Monitor while the loop plays, then compare supported H.264 or HEVC media with an unsupported source. Hardware decoding should reduce sustained CPU work, but the exact reading depends on the Mac, video, displays, and settings.",
       },
       {
         question: "Is HEVC better than H.264 for a wallpaper?",

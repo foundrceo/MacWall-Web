@@ -18,7 +18,10 @@ const PAGE_DESCRIPTION = macwallAffiliateCopy.heroLead
 export const metadata: Metadata = {
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  alternates: { canonical: canonicalSitePath("/affiliate") },
+  alternates: {
+    canonical: canonicalSitePath("/affiliate"),
+    types: { "text/markdown": canonicalSitePath("/affiliate.md") },
+  },
   openGraph: {
     title: `${macwall.name} – ${PAGE_TITLE}`,
     description: PAGE_DESCRIPTION,

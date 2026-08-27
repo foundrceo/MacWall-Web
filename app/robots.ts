@@ -19,6 +19,8 @@ export default function robots(): MetadataRoute.Robots {
         "/llms.txt",
         "/llms-full.txt",
         "/ai.txt",
+        "/ai-info",
+        "/ai-info.md",
         "/rss.xml",
         "/atom.xml",
         "/feed.json",

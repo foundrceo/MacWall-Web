@@ -9,6 +9,7 @@ export function indexableMarketingPaths(): string[] {
     "/",
     "/download",
     "/pricing",
+    "/ai-info",
     "/creator",
     "/blog",
     "/docs",

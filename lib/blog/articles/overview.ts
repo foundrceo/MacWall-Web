@@ -16,9 +16,9 @@ export const overviewArticles: BlogArticle[] = [
     title: "What Is MacWall? The Complete Guide (2026)",
     headline: "What Is MacWall? Everything You Need to Know",
     description:
-      "The definitive guide to MacWall: native live wallpapers for Mac, 4K catalog, minimal CPU usage, Lock Screen on macOS 26, one-time pricing, community uploads, and how it compares to every alternative.",
+      "The definitive guide to MacWall: native live wallpapers for Mac, 4K catalog, hardware-decoded playback, Lock Screen on macOS 26, one-time pricing, community uploads, and comparisons.",
     excerpt:
-      "One page. Every answer. What MacWall is, how it works, why it uses almost no CPU, and why Mac users pick it over everything else.",
+      "One page. Every answer. What MacWall is, how it works, and how hardware decoding and pause rules reduce resource use.",
     category: "features",
     readMinutes: 14,
     publishedAt: "2026-08-01",
@@ -53,11 +53,11 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "h2",
-        text: "Why MacWall uses almost no CPU",
+        text: "How MacWall reduces CPU work",
       },
       {
         type: "p",
-        text: "This is the question every MacBook owner asks first. MacWall uses **VideoToolbox hardware decode**: the same media pipeline as QuickTime, then composites frames with Metal. The CPU is not decoding pixels. During normal plugged-in desktop use, Activity Monitor typically shows **well under 1% CPU** for MacWall. When you are not looking at the wallpaper (full-screen app, screen locked, display asleep, or pause-on-battery enabled), usage drops to **zero** because playback stops entirely.",
+        text: "This is the question every MacBook owner asks first. MacWall uses **VideoToolbox hardware decode**: the same media pipeline as QuickTime, then composites frames with Metal. With a supported codec, most pixel decoding runs on dedicated media hardware instead of the CPU. Actual Activity Monitor and Energy Impact readings vary with the Mac, source video, display setup, and settings. When playback pauses for a full-screen app, display sleep, high load, or a battery rule, the wallpaper video decoder stops until playback resumes.",
       },
       {
         type: "ul",
@@ -187,12 +187,12 @@ export const overviewArticles: BlogArticle[] = [
   {
     slug: "macwall-performance-zero-overhead-guide",
     pathname: "/blog/macwall-performance-zero-overhead-guide",
-    title: "MacWall Performance: Near-Zero Overhead Explained",
+    title: "MacWall Performance: Hardware Decode and Pause Rules",
     headline: "How MacWall Keeps Live Wallpapers Lightweight",
     description:
       "Technical and practical guide to MacWall's resource usage: hardware decode, pause policies, Activity Monitor benchmarks, and why native beats Electron wallpaper apps on Mac.",
     excerpt:
-      "Live wallpapers do not have to cost CPU. Here is exactly how MacWall stays lighter than every alternative.",
+      "How MacWall uses native hardware decoding and visibility-aware pause rules to reduce playback overhead.",
     category: "comparisons",
     readMinutes: 10,
     publishedAt: "2026-08-01",

@@ -22,7 +22,6 @@ export const macwallPricingCopy = {
   pageTitle: "Pricing",
   billingToggleLabel: "Choose billing",
   billingPermanent: "Permanent",
-  billingAnnual: "Annual",
 
   plans: {
     pro: {
@@ -32,7 +31,6 @@ export const macwallPricingCopy = {
       badgeAlt: "47% off",
       featuresPrefix: "Includes:",
       ctaPermanent: "Get Pro",
-      ctaAnnual: "Start annual plan",
     },
     proPlus: {
       title: "Pro+",
