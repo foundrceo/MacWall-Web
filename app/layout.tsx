@@ -34,9 +34,9 @@ import { VercelAnalytics } from "@/components/analytics/vercel-analytics"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -239,9 +239,24 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn(geistSans.variable, geistMono.variable, instrumentSerif.variable, geistPixelSquare.variable, "font-sans", inter.variable)}
+      className={cn(
+        geistSans.variable,
+        geistMono.variable,
+        instrumentSerif.variable,
+        geistPixelSquare.variable,
+        "font-sans",
+        inter.variable
+      )}
       suppressHydrationWarning
     >
+      <head>
+        <link
+          rel="describedby"
+          href="/llms.txt"
+          type="text/markdown"
+          title={`${macwall.name} AI-readable site index`}
+        />
+      </head>
       {/* Avoid hydration warnings when extensions inject attributes on <body> */}
       <body
         className="w-full bg-background font-sans font-light text-foreground antialiased"

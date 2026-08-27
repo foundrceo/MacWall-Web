@@ -114,6 +114,15 @@ const MACWALL_FULL_TAGLINE = `${MACWALL_NAME} - ${MACWALL_TAGLINE}` as const
 
 export const macwall = {
   name: MACWALL_NAME,
+  /** Public app identity — verified against the shipping macOS target. */
+  bundleIdentifier: "com.macwall.ogapps",
+  /** Keep in sync with the updater feed; `/changelog` remains the live source of truth. */
+  currentVersion: "3.7",
+  currentVersionReleasedIso: "2026-08-19",
+  currentVersionReleasedLabel: "August 19, 2026",
+  /** Review stamp for the canonical `/ai-info` product reference. */
+  productInfoLastReviewedIso: "2026-08-27",
+  productInfoLastReviewedLabel: "August 27, 2026",
   /** Public operator name shown in copyright / legal footers. */
   legalCompanyName: "MacWall",
   /** Short brand tagline — one line, no breaks. */
@@ -166,11 +175,15 @@ export const macwall = {
       "Lifetime updates and future Pro benefits",
     ],
   },
+<<<<<<< HEAD
   annual: {
     price: "$4.99",
     suffix: "per year",
   },
   /** Floor conversion promo. Timed unique 20/30 codes are allowlisted separately. */
+=======
+  /** Shown in Pro discount flows — keep in sync with AppBrand.proDiscountPromoCode + Stripe. */
+>>>>>>> 8b5273f (feat: add canonical AI GEO content)
   proDiscountPromoCode: "MAC10",
   /** Personal base-license device limit. The 5-Mac bundle raises it to 5. */
   maxLicensedMacs: 3,

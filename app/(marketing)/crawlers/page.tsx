@@ -20,7 +20,7 @@ const PAGE: SeoContentPage = {
     "ai.txt",
     "content licensing",
   ],
-  updatedAt: "2026-08-02",
+  updatedAt: macwall.productInfoLastReviewedIso,
   sections: [
     {
       type: "p",
@@ -40,8 +40,9 @@ const PAGE: SeoContentPage = {
     {
       type: "ul",
       items: [
+        "[/ai-info](/ai-info) and [/ai-info.md](/ai-info.md): canonical product identity, capabilities, requirements, pricing model, limitations, source precedence, and AI assistant guidance.",
         "[/llms.txt](/llms.txt): curated Markdown index of every content page, in the llms.txt format.",
-        "[/llms-full.txt](/llms-full.txt): the full text of the site in one document.",
+        "[/llms-full.txt](/llms-full.txt): combined long-form product, documentation, learning, blog, and comparison text in one document; volatile listings and legal text stay linked.",
         "**Append `.md` to any content URL**, for example `/docs/install-macwall.md`. Same content, clean Markdown with YAML frontmatter, no layout markup.",
         "[/rss.xml](/rss.xml), [/atom.xml](/atom.xml), [/feed.json](/feed.json): blog syndication in RSS 2.0, Atom 1.0, and JSON Feed 1.1, with full article content.",
         "[/sitemap.xml](/sitemap.xml): every indexable URL with last-modified dates.",

@@ -201,7 +201,7 @@ export const docsPages: DocsPage[] = [
       "multi monitor live wallpaper mac",
     ],
     publishedAt: "2026-08-02",
-    updatedAt,
+    updatedAt: macwall.productInfoLastReviewedIso,
     sections: [
       {
         type: "p",
@@ -250,7 +250,7 @@ export const docsPages: DocsPage[] = [
       {
         question: "How many wallpapers are in the catalog?",
         answer:
-          "Over 1,000 curated loops, with new sets published regularly. Free includes a rotating selection; Pro unlocks the full cloud catalog.",
+          "Over 1,000 curated loops, with new sets published regularly. The free tier keeps 6 starter wallpapers; Pro unlocks the full cloud catalog.",
       },
     ],
   }),
@@ -421,7 +421,7 @@ export const docsPages: DocsPage[] = [
       "transfer macwall license",
     ],
     publishedAt: "2026-08-02",
-    updatedAt,
+    updatedAt: macwall.productInfoLastReviewedIso,
     sections: [
       {
         type: "p",
@@ -463,7 +463,7 @@ export const docsPages: DocsPage[] = [
     faq: [
       {
         question: "Is MacWall Pro a subscription?",
-        answer: `No. The permanent license is a single ${proPrice} payment with lifetime updates. An optional lower-cost annual plan exists for people who prefer it, but the one-time license is the default.`,
+        answer: `No. The permanent license is a single ${proPrice} payment in default USD pricing with lifetime updates. The annual plan is retired for new purchases.`,
       },
       {
         question: "Does the license work offline?",
@@ -523,7 +523,7 @@ export const docsPages: DocsPage[] = [
       },
       {
         type: "p",
-        text: "On a normal plugged-in desktop session, MacWall typically sits well under 1% CPU. Paused, it decodes nothing at all. The methodology and numbers are broken down in [the performance guide](/blog/macwall-performance-zero-overhead-guide).",
+        text: "With hardware-decodable media, MacWall moves video decoding off the CPU and stops the wallpaper decoder while paused. Actual CPU and Energy Impact readings vary by Mac, source video, display setup, and settings; use the steps above to measure your own setup. The methodology is broken down in [the performance guide](/blog/macwall-performance-zero-overhead-guide).",
       },
       { type: "h2", text: "If usage looks higher than expected" },
       {
@@ -712,7 +712,7 @@ export const docsPages: DocsPage[] = [
       "api catalog",
     ],
     publishedAt: "2026-08-02",
-    updatedAt,
+    updatedAt: macwall.productInfoLastReviewedIso,
     sections: [
       {
         type: "p",
@@ -755,10 +755,11 @@ export const docsPages: DocsPage[] = [
       {
         type: "ul",
         items: [
+          "[/ai-info](/ai-info) and [/ai-info.md](/ai-info.md): canonical product facts, limitations, source precedence, and assistant guidance.",
           "[/.well-known/api-catalog](/.well-known/api-catalog): RFC 9727 API catalog in `application/linkset+json`.",
           "[/openapi.json](/openapi.json): OpenAPI 3.1 description of the endpoints above.",
           "[/llms.txt](/llms.txt): curated Markdown index of the whole site for language models.",
-          "[/llms-full.txt](/llms-full.txt): every content page concatenated as one Markdown document.",
+          "[/llms-full.txt](/llms-full.txt): combined long-form product, documentation, learning, blog, and comparison text.",
           "[/rss.xml](/rss.xml), [/atom.xml](/atom.xml), [/feed.json](/feed.json): blog feeds in RSS 2.0, Atom 1.0, and JSON Feed 1.1.",
           "[/sitemap.xml](/sitemap.xml) and [/robots.txt](/robots.txt): crawl surface.",
           "[/ai.txt](/ai.txt) and [/crawlers](/crawlers): AI and crawler usage policy.",

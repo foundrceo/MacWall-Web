@@ -315,9 +315,9 @@ export const comparisonArticles: BlogArticle[] = [
     title: "Live Wallpaper CPU Usage on Mac, Tested",
     headline: "Live Wallpaper CPU Usage on Mac, Compared",
     description:
-      "How much CPU do live wallpapers really use on a Mac? Why MacWall stays the lightest, hardware decode, auto-pause on high CPU, battery quality capping.",
+      "What affects live-wallpaper CPU use on a Mac, including hardware decode, source media, display count, auto-pause behavior, and battery quality settings.",
     excerpt:
-      "Hardware decode makes live wallpapers nearly free, if the app is built right. Here's how MacWall keeps CPU near zero.",
+      "Hardware decode can keep CPU work low, while source media, displays, and pause settings determine real-world resource use.",
     category: "comparisons",
     readMinutes: 6,
     publishedAt: "2026-06-12",
@@ -331,7 +331,7 @@ export const comparisonArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "The number one fear about live wallpapers: *will it slow down my Mac?* With the right architecture, the answer is no. Apple Silicon decodes H.264 and HEVC in dedicated silicon, so a well-built app barely touches the CPU. The difference between apps is everything **around** the decoder.",
+        text: "The number one fear about live wallpapers is whether they will slow down a Mac. Apple Silicon can decode H.264 and HEVC in dedicated media hardware, which reduces CPU work when the source video and codec are supported. Real resource use still depends on everything **around** the decoder: source resolution and frame rate, display count, compositing, and pause behavior.",
       },
       { type: "h2", text: "What makes MacWall the lightest option" },
       {

@@ -63,6 +63,7 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
         { label: "Learn", href: "/learn" },
         { label: "Blogs", href: "/blog" },
         { label: "Changelog", href: "/changelog" },
+        { label: "AI product info", href: "/ai-info" },
         { label: "Free with a Reel", href: "/creator" },
       ],
     },
@@ -168,6 +169,7 @@ export function getMarketingFooterSections(
         { label: "Learn", href: "/learn", kind: "internal" },
         { label: foot.explore.blog, href: "/blog", kind: "internal" },
         { label: "Changelog", href: "/changelog", kind: "internal" },
+        { label: "AI product info", href: "/ai-info", kind: "internal" },
       ],
     },
     {

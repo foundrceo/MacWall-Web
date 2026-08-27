@@ -9,6 +9,8 @@ export function webPageWithBreadcrumbsJsonLd(input: {
   headline: string
   description: string
   dateModifiedIso?: string
+  /** Connects an informational page to its canonical Schema.org entity. */
+  aboutId?: string
   /** When set, inserts Legal hub as breadcrumb position 2. */
   legalHub?: boolean
 }) {
@@ -31,6 +33,11 @@ export function webPageWithBreadcrumbsJsonLd(input: {
 
   if (input.dateModifiedIso) {
     webPage.dateModified = input.dateModifiedIso
+  }
+
+  if (input.aboutId) {
+    webPage.about = { "@id": input.aboutId }
+    webPage.mainEntity = { "@id": input.aboutId }
   }
 
   const crumbs: Array<{

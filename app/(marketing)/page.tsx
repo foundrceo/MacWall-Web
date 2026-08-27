@@ -1,26 +1,29 @@
 import MacWallMarketingHome from "@/components/macwall-marketing/marketing-home"
 import { JsonLd } from "@/components/seo/json-ld"
-import {
-  macwall,
-  macwallLockScreenMacOSVersion,
-} from "@/lib/macwall-site"
+import { macwall, macwallLockScreenMacOSVersion } from "@/lib/macwall-site"
 import { macwallPricingCopy as pricingCopy } from "@/lib/macwall-pricing-copy"
 import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import {
   canonicalSitePath,
+  feedAlternateTypes,
   openGraphImageAbsoluteUrl,
   openGraphImageSize,
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
 /** ≤155 chars; leads with the app entity to disambiguate from the unrelated "MACWALL" retaining-wall product. */
-const PAGE_DESCRIPTION =
-  `MacWall is the native macOS app for cinematic live wallpapers, with menu bar control, near-zero battery impact, and Lock Screen support on ${macwallLockScreenMacOSVersion}. $7.99, paid once.`
+const PAGE_DESCRIPTION = `MacWall is the native macOS app for cinematic live wallpapers, with menu bar control, battery-aware pausing, and Lock Screen support on ${macwallLockScreenMacOSVersion}. $7.99, paid once.`
 
 export const metadata: Metadata = {
   title: { absolute: macwall.fullTagline },
   description: PAGE_DESCRIPTION,
-  alternates: { canonical: canonicalSitePath("/") },
+  alternates: {
+    canonical: canonicalSitePath("/"),
+    types: {
+      ...feedAlternateTypes(),
+      "text/markdown": canonicalSitePath("/index.md"),
+    },
+  },
   keywords: [
     `${macwall.name} download`,
     "best live wallpaper macOS",
@@ -55,7 +58,6 @@ export const metadata: Metadata = {
     images: [openGraphImageAbsoluteUrl()],
   },
 }
-
 
 const HOME_FAQ = pricingCopy.faq.map((item) => ({
   question: item.q,

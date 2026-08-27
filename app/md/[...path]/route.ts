@@ -1,5 +1,8 @@
 import { markdownResponse } from "@/lib/ai/markdown"
-import { findMarkdownDocument, siteMarkdownDocuments } from "@/lib/ai/site-content"
+import {
+  findMarkdownDocument,
+  siteMarkdownDocuments,
+} from "@/lib/ai/site-content"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const dynamic = "force-static"
@@ -36,7 +39,9 @@ export async function GET(
     )
   }
 
-  return markdownResponse(await document.render())
+  return markdownResponse(await document.render(), {
+    canonicalPath: document.path,
+  })
 }
 
 /** Prerender every known Markdown twin at build time. */

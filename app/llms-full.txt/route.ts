@@ -11,9 +11,9 @@ export const dynamic = "force-static"
 export const revalidate = 3600
 
 /**
- * `/llms-full.txt` — every content page concatenated in one document so a model
- * can ingest the whole site in a single fetch. Index and listing pages are
- * excluded (they only restate links that appear here in full anyway).
+ * `/llms-full.txt` — long-form product, documentation, learning, blog, and
+ * comparison pages concatenated for one-fetch ingestion. Volatile listings,
+ * the changelog, and legal text stay linked instead of being cached here.
  */
 export async function GET(): Promise<Response> {
   const origin = canonicalSiteOrigin()
@@ -30,15 +30,17 @@ export async function GET(): Promise<Response> {
 
   const header = `# ${macwall.name}: full site text
 
-> ${macwall.name} is a native macOS app for cinematic 4K live video wallpapers, with hardware-decoded playback, automatic pausing, live Lock Screen on ${macwallLockScreenMacOSVersion}+, and a one-time ${macwall.pro.price} license. ${macwallMinimumMacOSVersionLabel}.
+> ${macwall.name} is a native macOS app for cinematic 4K live video wallpapers, with hardware-decoded playback, automatic pause policies, and live Lock Screen motion on ${macwallLockScreenMacOSVersion}+. ${macwallMinimumMacOSVersionLabel}. The free tier keeps 6 starter wallpapers; Pro is a permanent license currently ${macwall.pro.price} in default USD pricing.
 
 Canonical site: ${origin}
 Publisher: ${macwall.legalCompanyName}
 Contact: ${macwall.supportEmail}
+Product information last reviewed: ${macwall.productInfoLastReviewedIso}
 Documents: ${documents.length}
 Generated: ${new Date().toISOString()}
 
 Curated index: ${origin}/llms.txt
+Canonical product reference: ${origin}/ai-info.md
 Blog feed: ${origin}/rss.xml
 API catalog: ${origin}/.well-known/api-catalog
 AI usage policy: ${origin}/ai.txt

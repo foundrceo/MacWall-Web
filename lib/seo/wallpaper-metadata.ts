@@ -102,7 +102,12 @@ export function wallpaperGalleryIndexMetadata(
           "macwall wallpapers",
         ]
       : [...GALLERY_INDEX_KEYWORDS],
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      ...(!filtered
+        ? { types: { "text/markdown": canonicalSitePath("/wallpapers.md") } }
+        : {}),
+    },
     ...(filtered ? { robots: filteredGalleryRobots() } : {}),
     openGraph: defaultGalleryOpenGraph({
       title,

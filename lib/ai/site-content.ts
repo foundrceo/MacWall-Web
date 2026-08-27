@@ -9,6 +9,7 @@ import {
   macwallMinimumMacOSVersionLabel,
 } from "@/lib/macwall-site"
 import { seoPageToMarkdown } from "@/lib/ai/markdown"
+import { macwallAiInfoPage } from "@/lib/ai/macwall-ai-info"
 import {
   bestLiveWallpaperMacPage,
   downloadPage,
@@ -90,7 +91,7 @@ const homePage: SeoContentPage = {
     "macos live wallpaper",
     "animated wallpaper mac",
   ],
-  updatedAt: "2026-08-02",
+  updatedAt: macwall.productInfoLastReviewedIso,
   sections: [
     {
       type: "p",
@@ -102,10 +103,9 @@ const homePage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        `**Free**: download and use with a rotating selection of wallpapers, plus unlimited imports of your own videos. No account required.`,
-        `**Pro (permanent license)**: ${macwall.pro.price} one time, activates on up to ${macwall.maxLicensedMacs} Macs, lifetime updates, no subscription.`,
-        `**Pro annual**: ${macwall.annual.price} ${macwall.annual.suffix} for anyone who prefers a smaller upfront cost.`,
-        `**Pro+ pack**: raises the activation limit for studios, labs, and families. See [pricing](/pricing).`,
+        "**Free**: download with no account required and continue after onboarding with 6 starter wallpapers.",
+        `**Pro (permanent license)**: ${macwall.pro.price} one time in default USD pricing, activates on up to ${macwall.maxLicensedMacs} personal Macs, and unlocks the full catalog, private imports, and current Pro benefits.`,
+        "**Pro+ packs**: permanent multi-Mac licenses for families, studios, and labs. Available device counts and regional prices are on [pricing](/pricing).",
       ],
     },
     { type: "h2", text: "Catalog" },
@@ -116,7 +116,7 @@ const homePage: SeoContentPage = {
     { type: "h2", text: "Performance model" },
     {
       type: "p",
-      text: "Frames are decoded by VideoToolbox and composited with Metal, so a 4K loop typically costs well under 1% CPU. Playback pauses automatically on battery, in full-screen apps, on display sleep, in Low Power Mode, and when system load spikes, a paused wallpaper decodes nothing at all.",
+      text: "Frames are decoded through VideoToolbox and composited with Metal to keep playback overhead low. Actual CPU and energy use varies with the Mac, codec, resolution, frame rate, display count, and settings. Playback can pause on battery, in full-screen apps, on display sleep, in Low Power Mode, and when system load spikes; while paused, video decoding stops.",
     },
     { type: "h2", text: "Where to start" },
     {
@@ -383,14 +383,15 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
   if (cachedDocuments) return cachedDocuments
 
   const documents: MarkdownDocument[] = [
+    seoDoc(macwallAiInfoPage, "product"),
     seoDoc(homePage, "product"),
     seoDoc(downloadPage, "product"),
     {
       path: "/pricing",
       title: `${macwall.name} Pricing`,
-      summary: `One-time ${macwall.pro.price} permanent license, optional ${macwall.annual.price} annual plan, and the Pro+ multi-Mac pack. No subscription required.`,
+      summary: `Free tier, one-time ${macwall.pro.price} default-USD Pro license, and permanent Pro+ multi-Mac packs. No recurring subscription.`,
       group: "product",
-      updatedAt: "2026-08-02",
+      updatedAt: macwall.productInfoLastReviewedIso,
       includeInFullText: true,
       render: () =>
         seoPageToMarkdown({
@@ -398,26 +399,26 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
           pathname: "/pricing",
           title: `${macwall.name} Pricing`,
           headline: `${macwall.name} pricing`,
-          description: `One-time ${macwall.pro.price} payment, optional ${macwall.annual.price} annual plan, and the Pro+ multi-Mac pack. No subscription required.`,
+          description: `Free tier, one-time ${macwall.pro.price} default-USD Pro license, and permanent Pro+ multi-Mac packs. No recurring subscription.`,
           keywords: [
             "macwall pricing",
             "macwall pro price",
             "live wallpaper app price",
           ],
-          updatedAt: "2026-08-02",
+          updatedAt: macwall.productInfoLastReviewedIso,
           sections: [
             {
               type: "p",
-              text: `${macwall.name} is free to download and use. Pro unlocks the full cloud catalog and Pro-only features for a **one-time ${macwall.pro.price}**, not a subscription. Prices are shown in your local currency where supported, and checkout is handled by Stripe.`,
+              text: `${macwall.name} is free to download and can continue after onboarding with 6 starter wallpapers. Pro unlocks the full cloud catalog, private imports, and Pro-only features for a **one-time ${macwall.pro.price}** in default USD pricing, not a recurring subscription. Regional pricing may differ, and checkout is handled by Stripe.`,
             },
             { type: "h2", text: "Programs" },
             {
               type: "ul",
               items: [
-                "**Free**: install with no account, use a rotating wallpaper selection, and import as many of your own videos as you like.",
-                `**Permanent license**: ${macwall.pro.price} once. Activates on up to ${macwall.maxLicensedMacs} Macs, includes lifetime updates and future Pro benefits.`,
-                `**Annual**: ${macwall.annual.price} ${macwall.annual.suffix}, if you would rather pay less upfront.`,
-                "**Pro+ program**: raises the activation limit for studios, labs, and families.",
+                "**Free**: install with no account and keep 6 starter wallpapers after onboarding.",
+                `**Permanent Pro license**: ${macwall.pro.price} once in default USD pricing. Activates on up to ${macwall.maxLicensedMacs} personal Macs and unlocks the full catalog, private imports, and current Pro benefits.`,
+                "**Pro+ packs**: permanent multi-Mac options for studios, labs, and families.",
+                "**Annual plan**: retired for new purchases.",
               ],
             },
             { type: "h2", text: "What Pro includes" },
@@ -436,7 +437,7 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
           faq: [
             {
               question: `Is ${macwall.name} a subscription?`,
-              answer: `No. The permanent license is a single ${macwall.pro.price} payment with free updates forever. The annual plan exists only as a lower-upfront alternative.`,
+              answer: `No. The permanent license is a single ${macwall.pro.price} payment in default USD pricing with free updates forever. The annual plan is retired for new purchases.`,
             },
             {
               question: "How many Macs does one license cover?",
