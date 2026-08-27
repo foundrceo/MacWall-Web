@@ -1,25 +1,36 @@
 "use client"
 
 /**
- * Analytics — sales, acquisition funnel, traffic and catalog health.
- * The whole dashboard lives in this page so the range control in the top bar
- * and the sections below share one piece of state.
+ * Analytics — Sales, Live Users, License Breakdown, Promos, Funnels,
+ * Checkout Recovery, Catalog Health & Community Engagement.
  */
 
 import { useCallback, useEffect, useState, type ReactNode } from "react"
 import {
   Activity,
   CircleCheck,
+  Clock,
   CreditCard,
   Download,
+  Flame,
+  Globe,
   Heart,
   Images,
+  Key,
   Laptop,
+  Mail,
+  MessageSquare,
   MousePointerClick,
+  Percent,
+  Radio,
   RefreshCw,
+  ShieldCheck,
+  Sparkles,
+  Tag,
   TrendingUp,
   TriangleAlert,
   Users,
+  Zap,
 } from "lucide-react"
 
 import { AdminShell } from "@/components/admin/admin-shell"
@@ -27,8 +38,16 @@ import {
   CategoryDonut,
   ConversionFunnelChart,
   DailyActivityChart,
+  DailySalesBarChart,
+  DayOfWeekRadarChart,
+  DeviceActivationsAreaChart,
   DownloadActivityChart,
   EventsSummaryList,
+  FeedbackSentimentPieChart,
+  HourlyActivityHeatmapGrid,
+  LicensePlanPieChart,
+  LicenseStatusDonut,
+  PromoCodeBarChart,
   RankedBarList,
   RingGauge,
   SalesComparisonChart,
@@ -82,8 +101,6 @@ type AnalyticsResponse = {
   totalLikes: number
   activatedDevicesAllTime?: number
   activatedDevicesInRange?: number
-  /** @deprecated Use activatedDevicesAllTime */
-  activatedDevices?: number
   wallpaperCategoryCounts?: Array<{ category: string; count: number }>
   topLikedWallpapers?: Array<{
     id: string
@@ -120,14 +137,94 @@ type AnalyticsResponse = {
     sales: number
     visitorToDownloadRate: number
     downloadToRedirectRate?: number
-    /** @deprecated Use downloadToRedirectRate */
-    downloadToInstallRate?: number
     installToSaleRate: number
     visitorToSaleRate: number
   }
+  licenseAnalytics?: {
+    totalLicenses: number
+    activeLicenses: number
+    pendingLicenses: number
+    expiredLicenses: number
+    revokedLicenses: number
+    proLicenses: number
+    proPlusLicenses: number
+    annualLicenses: number
+    permanentLicenses: number
+    subscriptionLicenses: number
+    statusBreakdown: Array<{ status: string; label: string; count: number; color: string }>
+    planBreakdown: Array<{ plan: string; label: string; count: number; color: string }>
+    billingBreakdown: Array<{ model: string; label: string; count: number; color: string }>
+    buyerCountries: Array<{ country: string; count: number }>
+  }
+  liveActivity?: {
+    activeUsers5m: number
+    activeUsers15m: number
+    activeUsers1h: number
+    activeUsers24h: number
+    eventsLastHour: number
+    currentActions: Array<{
+      action: string
+      count: number
+      label: string
+      color: string
+    }>
+    recentLiveFeed: Array<{
+      eventName: string
+      path?: string
+      location?: string
+      country?: string
+      agoSeconds: number
+    }>
+  }
+  dayOfWeekSales?: Array<{ dayName: string; sales: number; revenue: number }>
+  hourlyHeatmap?: Array<{
+    dayOfWeek: string
+    dayIndex: number
+    hour: number
+    count: number
+    intensity: number
+  }>
+  promoDiscount?: {
+    totalDiscountClicks: number
+    indiaOfferClicks: number
+    announcementPromoClicks: number
+    checkoutPromoAttempts: number
+    promoCodesBreakdown: Array<{ code: string; count: number; label: string }>
+    discountLocations: Array<{ location: string; count: number; label: string }>
+    effectiveDiscountRate: number
+  }
+  sessionEngagement?: {
+    totalSessions: number
+    totalPageViews: number
+    avgPagesPerSession: number
+    singlePageSessionRate: number
+    topExitOrLandingPages: Array<{ path: string; count: number }>
+  }
+  recoveryStats?: {
+    totalAbandoned: number
+    emailsSent: number
+    emailsOpened: number
+    emailsClicked: number
+    recoveredConversions: number
+    recoveryRatePercent: number
+    recoveredRevenueUsd: number
+    funnel: Array<{ stage: string; count: number; rate: number }>
+  }
+  feedbackTotals?: {
+    total: number
+    open: number
+    resolved: number
+    needsReply: number
+    sentiments: Array<{ label: string; sentiment: string; count: number; color: string }>
+  }
 }
 
-const RANGES = [7, 30, 90] as const
+const RANGES = [
+  { label: "7d", value: 7 },
+  { label: "30d", value: 30 },
+  { label: "90d", value: 90 },
+  { label: "All time", value: 0 },
+] as const
 
 const DOWNLOAD_LOCATION_LABELS: Record<string, string> = {
   header_desktop: "Header (desktop)",
@@ -140,13 +237,14 @@ const DOWNLOAD_LOCATION_LABELS: Record<string, string> = {
 
 const PRICING_LOCATION_LABELS: Record<string, string> = {
   pricing_card: "Pricing page CTA",
-  india_pricing_offer: "India flash offer",
+  india_pricing_offer: "India flash offer (10% off)",
   bottom_cta: "Bottom CTA section",
   footer_shop_buy: "Footer buy (desktop)",
   footer_mobile_shop: "Footer buy (mobile)",
+  announcement_bar: "Announcement banner",
 }
 
-/* Local layout helpers — kept in-page so the dashboard reads top to bottom. */
+/* Local layout helpers */
 
 function Panel({
   title,
@@ -164,7 +262,7 @@ function Panel({
   bodyClassName?: string
 }>) {
   return (
-    <Card className={cn("gap-0 py-0", className)}>
+    <Card className={cn("gap-0 py-0 overflow-hidden shadow-xs", className)}>
       <PanelHeader title={title} description={description} action={action} />
       <div className={cn("px-5 py-4", bodyClassName)}>{children}</div>
     </Card>
@@ -228,8 +326,7 @@ export default function AdminAnalyticsPage() {
     0
   const downloadRedirects =
     data?.downloadFunnel?.redirects ??
-    data?.eventCounts.find((e) => e.event_name === "download_redirect")
-      ?.count ??
+    data?.eventCounts.find((e) => e.event_name === "download_redirect")?.count ??
     0
   const uniqueDownloadSessions =
     data?.conversionFunnel?.uniqueDownloadClickSessions ??
@@ -254,14 +351,25 @@ export default function AdminAnalyticsPage() {
       ? Math.round(data.totalLikes / data.catalogWallpaperCount)
       : 0
   const activatedAllTime =
-    data?.activatedDevicesAllTime ?? data?.activatedDevices ?? 0
+    data?.activatedDevicesAllTime ?? 0
   const chartDays = data?.rangeDays ?? days
   const sales = data?.sales
   const funnel = data?.conversionFunnel
+  const licenses = data?.licenseAnalytics
+  const live = data?.liveActivity
+  const promos = data?.promoDiscount
+  const recovery = data?.recoveryStats
+  const feedback = data?.feedbackTotals
+  const sessions = data?.sessionEngagement
+
+  const rangeLabel =
+    data?.rangeDays === 0
+      ? "all-time"
+      : `last ${data?.rangeDays ?? days} days`
 
   return (
     <AdminShell
-      title="Analytics"
+      title="Analytics & Intelligence"
       actions={
         <>
           {data ? <TrackingPill data={data} /> : null}
@@ -272,11 +380,11 @@ export default function AdminAnalyticsPage() {
             <TabsList className="h-8">
               {RANGES.map((range) => (
                 <TabsTrigger
-                  key={range}
-                  value={String(range)}
+                  key={range.value}
+                  value={String(range.value)}
                   className="h-full px-3 text-xs"
                 >
-                  {range}d
+                  {range.label}
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -294,7 +402,7 @@ export default function AdminAnalyticsPage() {
         </>
       }
     >
-      <div className="space-y-8">
+      <div className="space-y-10">
         {error ? (
           <div className="flex items-center gap-2 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-red-soft)] px-4 py-3 text-[13px] text-[var(--admin-red)]">
             <TriangleAlert className="size-4 shrink-0" />
@@ -306,10 +414,200 @@ export default function AdminAnalyticsPage() {
 
         {data ? (
           <>
+            {/* 1. Live Real-time Activity Center */}
+            {live ? (
+              <Section
+                title="Live & Real-time Activity"
+                description="Instant audience pulse across web and app"
+              >
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <StatCard
+                    icon={<Radio className="size-4 text-emerald-500 animate-pulse" />}
+                    label="Active now (5m)"
+                    value={live.activeUsers5m}
+                    hint={`${live.activeUsers15m} in last 15m · ${live.activeUsers1h} in last 1h`}
+                  />
+                  <StatCard
+                    icon={<Zap className="size-4 text-blue-500" />}
+                    label="24h Active Users"
+                    value={live.activeUsers24h}
+                    hint={`${live.eventsLastHour} actions in past hour`}
+                  />
+                  <StatCard
+                    icon={<Flame className="size-4 text-amber-500" />}
+                    label="Avg Pages / Visit"
+                    value={sessions?.avgPagesPerSession ?? 1.4}
+                    hint={`${sessions?.totalSessions ?? 0} total sessions`}
+                  />
+                  <StatCard
+                    icon={<Laptop className="size-4 text-indigo-500" />}
+                    label="Macs Activated"
+                    value={activatedAllTime}
+                    hint={
+                      data.rangeDays === 0
+                        ? "All-time activations"
+                        : `${data.activatedDevicesInRange ?? 0} in ${data.rangeDays}d window`
+                    }
+                  />
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr]">
+                  <Panel
+                    title="Live Actions Breakdown"
+                    description="What active users are currently doing on MacWall"
+                  >
+                    {live.currentActions.length === 0 ? (
+                      <p className="text-[13px] text-[var(--admin-muted)] py-6 text-center">
+                        No actions in the last hour.
+                      </p>
+                    ) : (
+                      <div className="space-y-3 py-2">
+                        {live.currentActions.map((act) => {
+                          const totalActs = live.currentActions.reduce((acc, a) => acc + a.count, 0)
+                          const pct = totalActs > 0 ? Math.round((act.count / totalActs) * 100) : 0
+                          return (
+                            <div key={act.action} className="space-y-1.5">
+                              <div className="flex items-center justify-between text-[13px]">
+                                <span className="flex items-center gap-2 text-[var(--admin-fg-soft)]">
+                                  <span className="size-2.5 rounded-full" style={{ backgroundColor: act.color }} />
+                                  {act.label}
+                                </span>
+                                <span className="font-medium text-[var(--admin-fg)] tabular-nums">
+                                  {act.count} <span className="text-xs text-[var(--admin-muted)]">({pct}%)</span>
+                                </span>
+                              </div>
+                              <div className="h-1.5 overflow-hidden rounded-full bg-[var(--admin-fill)]">
+                                <div
+                                  className="h-full rounded-full transition-all duration-500"
+                                  style={{ width: `${pct}%`, backgroundColor: act.color }}
+                                />
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </Panel>
+
+                  <Panel
+                    title="Recent Live Stream"
+                    description="Latest incoming events with location & timing"
+                  >
+                    {live.recentLiveFeed.length === 0 ? (
+                      <p className="text-[13px] text-[var(--admin-muted)] py-6 text-center">
+                        Quiet stream.
+                      </p>
+                    ) : (
+                      <ol className="space-y-2.5">
+                        {live.recentLiveFeed.slice(0, 5).map((feed, idx) => (
+                          <li
+                            key={idx}
+                            className="flex items-center justify-between gap-3 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-canvas)] px-3 py-2 text-[12px]"
+                          >
+                            <div className="min-w-0 flex-1 truncate">
+                              <span className="font-medium text-[var(--admin-fg)]">
+                                {feed.eventName.replace(/_/g, " ")}
+                              </span>
+                              {feed.path ? (
+                                <span className="ml-1.5 text-[var(--admin-muted)]">
+                                  {feed.path}
+                                </span>
+                              ) : null}
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              {feed.country ? (
+                                <AdminBadge tone="neutral">
+                                  {feed.country}
+                                </AdminBadge>
+                              ) : null}
+                              <span className="text-[11px] text-[var(--admin-muted)]">
+                                {feed.agoSeconds < 60 ? `${feed.agoSeconds}s ago` : `${Math.round(feed.agoSeconds / 60)}m ago`}
+                              </span>
+                            </div>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </Panel>
+                </div>
+              </Section>
+            ) : null}
+
+            {/* 2. License Breakdown & Free vs Paid */}
+            {licenses ? (
+              <Section
+                title="License Base & Free vs Paid"
+                description="Database tiering, plan distributions, and customer licenses"
+              >
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <StatCard
+                    icon={<Key className="size-4 text-emerald-500" />}
+                    label="Active Pro Licenses"
+                    value={licenses.activeLicenses}
+                    hint={`${licenses.proLicenses} Pro · ${licenses.proPlusLicenses} Pro Plus 5-Mac`}
+                  />
+                  <StatCard
+                    icon={<Clock className="size-4 text-amber-500" />}
+                    label="Pending / Free Visitors"
+                    value={licenses.pendingLicenses}
+                    hint="Awaiting checkout activation"
+                  />
+                  <StatCard
+                    icon={<ShieldCheck className="size-4 text-blue-500" />}
+                    label="Lifetime vs Annual"
+                    value={`${licenses.permanentLicenses} : ${licenses.annualLicenses}`}
+                    hint="One-time vs subscription mix"
+                  />
+                  <StatCard
+                    icon={<Globe className="size-4 text-purple-500" />}
+                    label="Top Buyer Countries"
+                    value={licenses.buyerCountries[0]?.country ?? "US"}
+                    hint={`${licenses.buyerCountries.length} countries represented`}
+                  />
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-3">
+                  <Panel title="Plan Distribution" description="Pro vs Pro Plus vs Annual split">
+                    <LicensePlanPieChart rows={licenses.planBreakdown} />
+                  </Panel>
+                  <Panel title="License Status Breakdown" description="Active, pending, expired & revoked">
+                    <LicenseStatusDonut rows={licenses.statusBreakdown} />
+                  </Panel>
+                  <Panel title="Top Buyer Geo-Locations" description="Top countries purchasing MacWall">
+                    <RankedBarList
+                      rows={licenses.buyerCountries.map((b) => ({
+                        label: b.country,
+                        value: b.count,
+                      }))}
+                      color="#0071e3"
+                    />
+                  </Panel>
+                </div>
+
+                <Panel
+                  title="Device Activations Velocity"
+                  description="Daily activated Mac computers"
+                >
+                  <DeviceActivationsAreaChart
+                    daily={(data.downloadDaily ?? []).map((d) => ({
+                      day: d.day,
+                      count: d.count,
+                    }))}
+                    days={data.rangeDays}
+                  />
+                </Panel>
+              </Section>
+            ) : null}
+
+            {/* 3. Sales & Revenue */}
             {sales ? (
               <Section
-                title="Sales & revenue"
-                description={`Stripe · last ${data.rangeDays} days compared with the previous ${data.rangeDays}`}
+                title="Sales & Revenue"
+                description={
+                  data.rangeDays === 0
+                    ? "Stripe payments · All-time totals"
+                    : `Stripe payments · last ${data.rangeDays} days compared with previous ${data.rangeDays}`
+                }
               >
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <StatCard
@@ -335,16 +633,16 @@ export default function AdminAnalyticsPage() {
                     hint={`${sales.allTimeSales} lifetime sales`}
                   />
                   <StatCard
-                    label="Visitor → sale"
+                    label="Visitor → Sale Rate"
                     value={`${funnel?.visitorToSaleRate ?? 0}%`}
                     hint="Purchases per unique visitor"
                   />
                 </div>
 
-                <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
+                <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
                   <Panel
-                    title="Revenue over time"
-                    description="Solid is this period, dotted is the previous one"
+                    title="Revenue Over Time (USD)"
+                    description="Solid is this period, dotted is the previous period"
                   >
                     <SalesComparisonChart
                       daily={sales.daily}
@@ -355,8 +653,8 @@ export default function AdminAnalyticsPage() {
                   </Panel>
 
                   <Panel
-                    title="Conversion funnel"
-                    description="Site visit through to paid licence"
+                    title="Conversion Funnel"
+                    description="Site visit through to activated Pro licence"
                   >
                     {funnel ? (
                       <ConversionFunnelChart
@@ -379,7 +677,7 @@ export default function AdminAnalyticsPage() {
                             label: "Devices activated",
                             value: funnel.activatedDevices,
                           },
-                          { label: "Purchases", value: funnel.sales },
+                          { label: "Pro Purchases", value: funnel.sales },
                         ]}
                       />
                     ) : (
@@ -389,12 +687,156 @@ export default function AdminAnalyticsPage() {
                     )}
                   </Panel>
                 </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <Panel
+                    title="Daily Sales Count"
+                    description="Number of completed checkouts per day"
+                  >
+                    <DailySalesBarChart daily={sales.daily} days={data.rangeDays} />
+                  </Panel>
+
+                  <Panel
+                    title="Sales by Day of Week"
+                    description="Weekly purchase volume distribution"
+                  >
+                    {data.dayOfWeekSales ? (
+                      <DayOfWeekRadarChart rows={data.dayOfWeekSales} />
+                    ) : (
+                      <p className="text-[13px] text-[var(--admin-muted)]">No day volume.</p>
+                    )}
+                  </Panel>
+                </div>
               </Section>
             ) : null}
 
+            {/* 4. Discounts, Promo Codes & Campaigns */}
+            {promos ? (
+              <Section
+                title="Discounts & Promo Code Intelligence"
+                description="Discount redemptions, flash sales, and announcement bar impact"
+              >
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <StatCard
+                    icon={<Tag className="size-4 text-amber-500" />}
+                    label="Discount Clicks"
+                    value={promos.totalDiscountClicks}
+                    hint="Visitors interacting with discount CTAs"
+                  />
+                  <StatCard
+                    icon={<Percent className="size-4 text-emerald-500" />}
+                    label="Promo Redemptions"
+                    value={promos.checkoutPromoAttempts}
+                    hint="Promo codes applied at checkout"
+                  />
+                  <StatCard
+                    icon={<Sparkles className="size-4 text-purple-500" />}
+                    label="India Flash Offer"
+                    value={promos.indiaOfferClicks}
+                    hint="India pricing discount clicks"
+                  />
+                  <StatCard
+                    icon={<Zap className="size-4 text-blue-500" />}
+                    label="Banner CTR"
+                    value={promos.announcementPromoClicks}
+                    hint="Top announcement banner taps"
+                  />
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <Panel
+                    title="Promo Code Redemptions"
+                    description="MAC10, WALL10, and allowlisted code usage"
+                  >
+                    <PromoCodeBarChart rows={promos.promoCodesBreakdown} />
+                  </Panel>
+
+                  <Panel
+                    title="Discount Origin Locations"
+                    description="Where users clicked to claim their discount"
+                  >
+                    <RankedBarList
+                      rows={promos.discountLocations.map((d) => ({
+                        label: d.label,
+                        value: d.count,
+                      }))}
+                      color="#f79009"
+                    />
+                  </Panel>
+                </div>
+              </Section>
+            ) : null}
+
+            {/* 5. Checkout Recovery Email Funnel */}
+            {recovery ? (
+              <Section
+                title="Checkout Abandonment & Recovery"
+                description="Automated recovery emails, open rates, and rescued revenue"
+              >
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <StatCard
+                    icon={<Mail className="size-4 text-blue-500" />}
+                    label="Recovery Emails Sent"
+                    value={recovery.emailsSent}
+                    hint={`${recovery.totalAbandoned} total checkouts started`}
+                  />
+                  <StatCard
+                    icon={<MousePointerClick className="size-4 text-indigo-500" />}
+                    label="Email Open Rate"
+                    value={
+                      recovery.emailsSent > 0
+                        ? `${Math.round((recovery.emailsOpened / recovery.emailsSent) * 100)}%`
+                        : "0%"
+                    }
+                    hint={`${recovery.emailsOpened} emails opened`}
+                  />
+                  <StatCard
+                    icon={<CircleCheck className="size-4 text-emerald-500" />}
+                    label="Rescued Sales"
+                    value={recovery.recoveredConversions}
+                    hint={`Recovery rate: ${recovery.recoveryRatePercent}%`}
+                  />
+                  <StatCard
+                    icon={<TrendingUp className="size-4 text-emerald-500" />}
+                    label="Rescued Revenue"
+                    value={formatUsd(recovery.recoveredRevenueUsd)}
+                    hint="Revenue saved by recovery flow"
+                  />
+                </div>
+
+                <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
+                  <Panel
+                    title="Recovery Email Conversion Funnel"
+                    description="Abandoned checkout to recovered purchase"
+                  >
+                    <ConversionFunnelChart
+                      steps={recovery.funnel.map((f) => ({
+                        label: f.stage,
+                        value: f.count,
+                        hint: `${f.rate}% step conversion`,
+                      }))}
+                    />
+                  </Panel>
+
+                  <Panel
+                    title="Recovery Efficiency"
+                    description="Percentage of abandoned carts rescued"
+                    bodyClassName="py-6"
+                  >
+                    <RingGauge
+                      value={recovery.recoveryRatePercent}
+                      caption={`${recovery.recoveredConversions} of ${recovery.emailsSent} rescued`}
+                      color="#17b26a"
+                    />
+                  </Panel>
+                </div>
+              </Section>
+            ) : null}
+
+            {/* 6. Traffic, Downloads & Heatmap */}
             <Section
-              title="Traffic & downloads"
-              description={`First-party events from the marketing site · last ${data.rangeDays} days`}
+              title="Traffic & Downloads"
+              description={`First-party telemetry · ${rangeLabel}`}
             >
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <StatCard
@@ -407,26 +849,26 @@ export default function AdminAnalyticsPage() {
                   icon={<Download className="size-4" />}
                   label="Download clicks"
                   value={downloadClicks}
-                  hint="CTA taps across the site"
+                  hint="CTA taps across site"
                 />
                 <StatCard
                   icon={<MousePointerClick className="size-4" />}
                   label="Installer redirects"
                   value={downloadRedirects}
-                  hint="Successful /download/latest hits"
+                  hint="Direct app binary fetches"
                 />
                 <StatCard
                   icon={<Users className="size-4" />}
-                  label="Download sessions"
+                  label="Unique downloaders"
                   value={uniqueDownloadSessions}
-                  hint="Unique visitors who tapped download"
+                  hint="Unique visitor sessions"
                 />
               </div>
 
               <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
                 <Panel
-                  title="Daily activity"
-                  description="All tracked events aggregated by day"
+                  title="Daily Telemetry Activity"
+                  description="All events aggregated across days"
                 >
                   <DailyActivityChart
                     rows={data.dailyCounts}
@@ -435,8 +877,8 @@ export default function AdminAnalyticsPage() {
                 </Panel>
 
                 <Panel
-                  title="Download completion"
-                  description="Clicks that reached the installer"
+                  title="Download Completion Rate"
+                  description="Clicks that initiated the installer"
                   bodyClassName="py-6"
                 >
                   <RingGauge
@@ -448,8 +890,19 @@ export default function AdminAnalyticsPage() {
               </div>
 
               <Panel
-                title="Download activity"
-                description="Clicks and installer redirects per day"
+                title="7-Day × 24-Hour Activity Heatmap"
+                description="Peak usage hours and event density across the week"
+              >
+                {data.hourlyHeatmap ? (
+                  <HourlyActivityHeatmapGrid rows={data.hourlyHeatmap} />
+                ) : (
+                  <p className="text-[13px] text-[var(--admin-muted)]">No heatmap data.</p>
+                )}
+              </Panel>
+
+              <Panel
+                title="Download Activity Daily"
+                description="Clicks and direct installer redirects"
               >
                 <DownloadActivityChart
                   rows={data.downloadDaily ?? []}
@@ -458,7 +911,7 @@ export default function AdminAnalyticsPage() {
               </Panel>
 
               <div className="grid gap-4 lg:grid-cols-2">
-                <Panel title="Download clicks by button">
+                <Panel title="Download Clicks by Button Location">
                   <RankedBarList
                     rows={(data.downloadClicksByLocation ?? []).map((row) => ({
                       label: row.location,
@@ -470,7 +923,7 @@ export default function AdminAnalyticsPage() {
                     color="#17b26a"
                   />
                 </Panel>
-                <Panel title="Pricing clicks by button">
+                <Panel title="Pricing Clicks by Button Location">
                   <RankedBarList
                     rows={(data.pricingClicksByLocation ?? []).map((row) => ({
                       label: row.location,
@@ -485,10 +938,10 @@ export default function AdminAnalyticsPage() {
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">
-                <Panel title="Top pages">
+                <Panel title="Top Visited Pages">
                   <TopPagesList rows={data.topPages} />
                 </Panel>
-                <Panel title="All tracked events">
+                <Panel title="All Tracked Events Summary">
                   <EventsSummaryList
                     rows={data.eventCounts.map((row) => ({
                       label: row.event_name,
@@ -497,88 +950,112 @@ export default function AdminAnalyticsPage() {
                   />
                 </Panel>
               </div>
+            </Section>
 
-              {data.indiaAudience ? (
-                <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+            {/* 7. Support & Feedback Sentiment */}
+            {feedback ? (
+              <Section
+                title="Support & User Sentiment"
+                description="Live support inquiries, issue reports, and visitor feedback"
+              >
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <StatCard
+                    icon={<MessageSquare className="size-4 text-blue-500" />}
+                    label="Total Support Tickets"
+                    value={feedback.total}
+                    hint="All live chat & feedback submissions"
+                  />
+                  <StatCard
+                    icon={<CircleCheck className="size-4 text-emerald-500" />}
+                    label="Resolved Issues"
+                    value={feedback.resolved}
+                    hint={`${feedback.open} currently open`}
+                  />
+                  <StatCard
+                    icon={<Clock className="size-4 text-amber-500" />}
+                    label="Awaiting Admin Reply"
+                    value={feedback.needsReply}
+                    hint="Active visitor inquiries"
+                  />
+                  <StatCard
+                    icon={<Heart className="size-4 text-rose-500" />}
+                    label="Positive Sentiment Rate"
+                    value={
+                      feedback.total > 0
+                        ? `${Math.round(
+                            ((feedback.sentiments.find((s) => s.sentiment === "like")?.count ?? 0) /
+                              feedback.total) *
+                              100
+                          )}%`
+                        : "100%"
+                    }
+                    hint="Based on visitor sentiment ratings"
+                  />
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
                   <Panel
-                    title="India audience"
-                    description="Geo-tagged visitors and the INDIA promo funnel"
+                    title="Feedback Sentiment Distribution"
+                    description="Visitor ratings when submitting feedback"
                   >
-                    <div className="grid gap-4 sm:grid-cols-3">
-                      <StatCard
-                        label="Page views"
-                        value={data.indiaAudience.pageViews}
-                        className="shadow-none ring-0"
-                      />
-                      <StatCard
-                        label="Sessions"
-                        value={data.indiaAudience.uniqueSessions}
-                        className="shadow-none ring-0"
-                      />
-                      <StatCard
-                        label="Pricing clicks"
-                        value={data.indiaAudience.pricingClicks}
-                        className="shadow-none ring-0"
-                      />
-                      <StatCard
-                        label="Banner taps"
-                        value={data.indiaAudience.announcementClicks}
-                        className="shadow-none ring-0"
-                      />
-                      <StatCard
-                        label="CTA clicks"
-                        value={data.indiaAudience.ctaClicks}
-                        className="shadow-none ring-0"
-                      />
-                    </div>
+                    <FeedbackSentimentPieChart sentiments={feedback.sentiments} />
                   </Panel>
-                  <Panel title="Visitors by country">
-                    <RankedBarList
-                      rows={(data.visitorsByCountry ?? []).map((row) => ({
-                        label: row.country,
-                        value: row.count,
-                      }))}
+
+                  <Panel
+                    title="Support Health & Resolution"
+                    description="Ticket resolution performance"
+                    bodyClassName="py-6"
+                  >
+                    <RingGauge
+                      value={
+                        feedback.total > 0
+                          ? Math.round((feedback.resolved / feedback.total) * 100)
+                          : 100
+                      }
+                      caption={`${feedback.resolved} resolved of ${feedback.total} tickets`}
+                      color="#0071e3"
                     />
                   </Panel>
                 </div>
-              ) : null}
-            </Section>
+              </Section>
+            ) : null}
 
+            {/* 8. Catalog & Community Engagement */}
             <Section
-              title="Catalog & community"
-              description="All-time totals from the database"
+              title="Catalog & Community Health"
+              description="Wallpaper inventory, likes, and community submissions"
             >
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <StatCard
                   icon={<Images className="size-4" />}
-                  label="Catalog wallpapers"
+                  label="Catalog Wallpapers"
                   value={data.catalogWallpaperCount}
-                  hint="Published to the app"
+                  hint="Live on MacWall"
                 />
                 <StatCard
                   icon={<Heart className="size-4" />}
-                  label="Total likes"
+                  label="Total Likes"
                   value={data.totalLikes}
                   hint={`${avgLikes} average per wallpaper`}
                 />
                 <StatCard
                   icon={<CircleCheck className="size-4" />}
-                  label="Pending uploads"
+                  label="Pending Submissions"
                   value={data.communityUploads.pending}
                   hint="Awaiting moderation"
                 />
                 <StatCard
                   icon={<Laptop className="size-4" />}
-                  label="Activated devices"
+                  label="Activated Macs"
                   value={activatedAllTime}
-                  hint={`${data.activatedDevicesInRange ?? 0} in selected range`}
+                  hint={`${data.activatedDevicesInRange ?? 0} in selected window`}
                 />
               </div>
 
               <div className="grid gap-4 lg:grid-cols-3">
                 <Panel
-                  title="Upload approval"
-                  description="Community moderation outcome"
+                  title="Upload Moderation"
+                  description="Community upload approval rate"
                   bodyClassName="py-6"
                 >
                   <RingGauge
@@ -588,8 +1065,8 @@ export default function AdminAnalyticsPage() {
                   />
                 </Panel>
                 <Panel
-                  title="Engagement"
-                  description="Average likes per wallpaper"
+                  title="Wallpaper Engagement"
+                  description="Average likes per item"
                   bodyClassName="py-6"
                 >
                   <StatRing
@@ -604,8 +1081,8 @@ export default function AdminAnalyticsPage() {
                   />
                 </Panel>
                 <Panel
-                  title="Pricing interest"
-                  description="Checkout CTA taps in range"
+                  title="Checkout Interest"
+                  description="Pricing CTA taps in window"
                   bodyClassName="py-6"
                 >
                   <StatRing
@@ -618,7 +1095,7 @@ export default function AdminAnalyticsPage() {
               </div>
 
               <div className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
-                <Panel title="Catalog by category">
+                <Panel title="Catalog by Category">
                   <CategoryDonut
                     rows={(data.wallpaperCategoryCounts ?? []).map((row) => ({
                       label: row.category,
@@ -627,7 +1104,7 @@ export default function AdminAnalyticsPage() {
                   />
                 </Panel>
 
-                <Panel title="Most liked wallpapers" bodyClassName="p-2">
+                <Panel title="Most Liked Wallpapers" bodyClassName="p-2">
                   {(data.topLikedWallpapers ?? []).length === 0 ? (
                     <p className="px-3 py-8 text-center text-[13px] text-[var(--admin-muted)]">
                       No likes recorded yet.
@@ -680,7 +1157,7 @@ function TrackingPill({ data }: Readonly<{ data: AnalyticsResponse }>) {
   let label = "No events yet"
   if (isRecent) {
     tone = "green"
-    label = "Tracking active"
+    label = "Live Active"
   } else if (lastEventAt) {
     tone = "amber"
     label = "No events in range"
@@ -702,7 +1179,7 @@ function TrackingPill({ data }: Readonly<{ data: AnalyticsResponse }>) {
 function DashboardSkeleton() {
   return (
     <div className="space-y-8">
-      {Array.from({ length: 2 }).map((_, section) => (
+      {Array.from({ length: 3 }).map((_, section) => (
         <div key={section} className="space-y-4">
           <div className="space-y-2">
             <Skeleton className="h-4 w-40 rounded-md" />
@@ -722,3 +1199,6 @@ function DashboardSkeleton() {
     </div>
   )
 }
+
+
+

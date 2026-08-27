@@ -10,8 +10,11 @@ import {
   Label,
   Pie,
   PieChart,
+  PolarAngleAxis,
   PolarGrid,
   PolarRadiusAxis,
+  Radar,
+  RadarChart,
   RadialBar,
   RadialBarChart,
   XAxis,
@@ -82,7 +85,9 @@ function compact(value: number) {
 }
 
 function lastNDays<T extends { day: string }>(rows: T[], days: number) {
-  return [...rows].sort((a, b) => a.day.localeCompare(b.day)).slice(-days)
+  const sorted = [...rows].sort((a, b) => a.day.localeCompare(b.day))
+  if (days <= 0 || days >= 3650) return sorted
+  return sorted.slice(-days)
 }
 
 /* Daily activity ------------------------------------------------------------ */
@@ -801,3 +806,593 @@ export function ConversionFunnelChart({
     </ol>
   )
 }
+
+/* Daily sales bar chart ----------------------------------------------------- */
+
+const dailySalesBarConfig = {
+  sales: { label: "Sales Count", color: C.blue },
+} satisfies ChartConfig
+
+export function DailySalesBarChart({
+  daily,
+  days = 14,
+}: Readonly<{
+  daily: Array<{ day: string; sales: number; revenue: number }>
+  days?: number
+}>) {
+  const data = lastNDays(
+    daily.map((r) => ({
+      day: r.day,
+      label: formatDayTick(r.day),
+      sales: r.sales,
+      revenue: r.revenue,
+    })),
+    days
+  )
+
+  if (data.length === 0 || !data.some((d) => d.sales > 0)) {
+    return <ChartEmpty message="No sales recorded in this period." />
+  }
+
+  return (
+    <ChartContainer config={dailySalesBarConfig} className={CHART_HEIGHT}>
+      <BarChart data={data} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
+        <CartesianGrid vertical={false} stroke={C.grid} strokeDasharray="3 3" />
+        <XAxis
+          dataKey="label"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={10}
+          minTickGap={20}
+          tick={axisTick}
+        />
+        <YAxis
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          width={36}
+          tick={axisTick}
+          allowDecimals={false}
+        />
+        <ChartTooltip
+          cursor={{ fill: C.cursor }}
+          content={
+            <ChartTooltipContent
+              className={TOOLTIP_CLASS}
+              formatter={(value, _, item) => (
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-[var(--admin-muted)]">Sales:</span>
+                  <span className="font-semibold text-[var(--admin-fg)] tabular-nums">
+                    {value} (${item.payload.revenue.toFixed(2)})
+                  </span>
+                </div>
+              )}
+            />
+          }
+        />
+        <Bar
+          dataKey="sales"
+          fill={C.blue}
+          radius={[4, 4, 0, 0]}
+          maxBarSize={32}
+        />
+      </BarChart>
+    </ChartContainer>
+  )
+}
+
+/* Day of week radar chart --------------------------------------------------- */
+
+const radarConfig = {
+  sales: { label: "Sales Volume", color: C.violet },
+} satisfies ChartConfig
+
+export function DayOfWeekRadarChart({
+  rows,
+}: Readonly<{
+  rows: Array<{ dayName: string; sales: number; revenue: number }>
+}>) {
+  if (!rows || rows.length === 0 || !rows.some((r) => r.sales > 0)) {
+    return <ChartEmpty message="No day-of-week sales volume yet." />
+  }
+
+  return (
+    <ChartContainer config={radarConfig} className="aspect-auto h-[260px] w-full">
+      <RadarChart data={rows}>
+        <PolarGrid stroke={C.grid} />
+        <PolarAngleAxis dataKey="dayName" tick={{ fill: C.muted, fontSize: 11 }} />
+        <PolarRadiusAxis angle={30} stroke={C.grid} tick={{ fill: C.muted, fontSize: 10 }} />
+        <ChartTooltip
+          content={
+            <ChartTooltipContent
+              className={TOOLTIP_CLASS}
+              formatter={(value, _, item) => (
+                <div className="flex items-center justify-between gap-3">
+                  <span>{item.payload.dayName}:</span>
+                  <span className="font-semibold text-[var(--admin-fg)]">
+                    {value} sales (${Number(item.payload.revenue).toFixed(2)})
+                  </span>
+                </div>
+              )}
+            />
+          }
+        />
+        <Radar
+          name="Sales"
+          dataKey="sales"
+          stroke={C.violet}
+          fill={C.violet}
+          fillOpacity={0.4}
+        />
+      </RadarChart>
+    </ChartContainer>
+  )
+}
+
+/* License plan distribution pie chart --------------------------------------- */
+
+const planConfig = {
+  pro: { label: "Pro ($7.99)", color: C.blue },
+  pro_plus: { label: "Pro Plus ($12.99)", color: C.violet },
+  annual: { label: "Annual ($4.99)", color: C.cyan },
+} satisfies ChartConfig
+
+export function LicensePlanPieChart({
+  rows,
+}: Readonly<{
+  rows: Array<{ plan: string; label: string; count: number; color: string }>
+}>) {
+  const total = rows.reduce((acc, r) => acc + r.count, 0)
+  if (total === 0) {
+    return <ChartEmpty message="No active plans to display." />
+  }
+
+  return (
+    <ChartContainer config={planConfig} className="aspect-auto h-[260px] w-full">
+      <PieChart>
+        <ChartTooltip
+          content={
+            <ChartTooltipContent
+              className={TOOLTIP_CLASS}
+              formatter={(value, name) => (
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[var(--admin-muted)]">{name}:</span>
+                  <span className="font-semibold text-[var(--admin-fg)]">
+                    {value} ({Math.round((Number(value) / total) * 100)}%)
+                  </span>
+                </div>
+              )}
+            />
+          }
+        />
+        <Pie
+          data={rows}
+          dataKey="count"
+          nameKey="label"
+          innerRadius={60}
+          outerRadius={85}
+          paddingAngle={3}
+        >
+          {rows.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color || SERIES_COLORS[index % SERIES_COLORS.length]} />
+          ))}
+          <Label
+            content={({ viewBox }) => {
+              if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                return (
+                  <text
+                    x={viewBox.cx}
+                    y={viewBox.cy}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                  >
+                    <tspan
+                      x={viewBox.cx}
+                      y={viewBox.cy}
+                      className="fill-[var(--admin-fg)] text-xl font-bold"
+                    >
+                      {total.toLocaleString()}
+                    </tspan>
+                    <tspan
+                      x={viewBox.cx}
+                      y={(viewBox.cy || 0) + 18}
+                      className="fill-[var(--admin-muted)] text-[11px]"
+                    >
+                      Licenses
+                    </tspan>
+                  </text>
+                )
+              }
+            }}
+          />
+        </Pie>
+        <ChartLegend content={<ChartLegendContent />} />
+      </PieChart>
+    </ChartContainer>
+  )
+}
+
+/* License status donut chart ------------------------------------------------ */
+
+export function LicenseStatusDonut({
+  rows,
+}: Readonly<{
+  rows: Array<{ status: string; label: string; count: number; color: string }>
+}>) {
+  const total = rows.reduce((acc, r) => acc + r.count, 0)
+  if (total === 0) {
+    return <ChartEmpty message="No licenses recorded." />
+  }
+
+  const config = rows.reduce((acc, r) => {
+    acc[r.status] = { label: r.label, color: r.color }
+    return acc
+  }, {} as ChartConfig)
+
+  return (
+    <ChartContainer config={config} className="aspect-auto h-[260px] w-full">
+      <PieChart>
+        <ChartTooltip
+          content={
+            <ChartTooltipContent
+              className={TOOLTIP_CLASS}
+              formatter={(value, name) => (
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[var(--admin-muted)]">{name}:</span>
+                  <span className="font-semibold text-[var(--admin-fg)]">
+                    {value} ({Math.round((Number(value) / total) * 100)}%)
+                  </span>
+                </div>
+              )}
+            />
+          }
+        />
+        <Pie
+          data={rows}
+          dataKey="count"
+          nameKey="label"
+          innerRadius={55}
+          outerRadius={80}
+          paddingAngle={3}
+        >
+          {rows.map((entry, index) => (
+            <Cell key={`status-cell-${index}`} fill={entry.color} />
+          ))}
+          <Label
+            content={({ viewBox }) => {
+              if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                return (
+                  <text
+                    x={viewBox.cx}
+                    y={viewBox.cy}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                  >
+                    <tspan
+                      x={viewBox.cx}
+                      y={viewBox.cy}
+                      className="fill-[var(--admin-fg)] text-lg font-bold"
+                    >
+                      {total}
+                    </tspan>
+                    <tspan
+                      x={viewBox.cx}
+                      y={(viewBox.cy || 0) + 16}
+                      className="fill-[var(--admin-muted)] text-[10px]"
+                    >
+                      Total
+                    </tspan>
+                  </text>
+                )
+              }
+            }}
+          />
+        </Pie>
+        <ChartLegend content={<ChartLegendContent />} />
+      </PieChart>
+    </ChartContainer>
+  )
+}
+
+/* Device activations area chart --------------------------------------------- */
+
+const deviceConfig = {
+  devices: { label: "Devices Activated", color: C.green },
+} satisfies ChartConfig
+
+export function DeviceActivationsAreaChart({
+  daily,
+  days = 14,
+}: Readonly<{
+  daily: Array<{ day: string; count: number }>
+  days?: number
+}>) {
+  const data = lastNDays(
+    daily.map((r) => ({
+      day: r.day,
+      label: formatDayTick(r.day),
+      devices: r.count,
+    })),
+    days
+  )
+
+  if (data.length === 0) {
+    return <ChartEmpty message="No device activations in this period." />
+  }
+
+  return (
+    <ChartContainer config={deviceConfig} className={CHART_HEIGHT}>
+      <AreaChart data={data} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
+        <defs>
+          <linearGradient id="fill-devices" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={C.green} stopOpacity={0.28} />
+            <stop offset="100%" stopColor={C.green} stopOpacity={0.02} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid vertical={false} stroke={C.grid} strokeDasharray="3 3" />
+        <XAxis
+          dataKey="label"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={10}
+          minTickGap={20}
+          tick={axisTick}
+        />
+        <YAxis
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          width={36}
+          tick={axisTick}
+          allowDecimals={false}
+        />
+        <ChartTooltip
+          cursor={{ stroke: C.grid, strokeWidth: 1 }}
+          content={
+            <ChartTooltipContent
+              className={TOOLTIP_CLASS}
+              formatter={(value) => (
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-[var(--admin-muted)]">Devices:</span>
+                  <span className="font-semibold text-[var(--admin-fg)] tabular-nums">
+                    {value} Macs
+                  </span>
+                </div>
+              )}
+            />
+          }
+        />
+        <Area
+          type="natural"
+          dataKey="devices"
+          stroke={C.green}
+          strokeWidth={2}
+          fill="url(#fill-devices)"
+          activeDot={{ r: 4, fill: "#fff", stroke: C.green, strokeWidth: 2 }}
+        />
+      </AreaChart>
+    </ChartContainer>
+  )
+}
+
+/* Promo code usage bar chart ------------------------------------------------ */
+
+const promoConfig = {
+  count: { label: "Redemptions", color: C.amber },
+} satisfies ChartConfig
+
+export function PromoCodeBarChart({
+  rows,
+}: Readonly<{
+  rows: Array<{ code: string; count: number; label: string }>
+}>) {
+  if (!rows || rows.length === 0) {
+    return <ChartEmpty message="No promo code redemptions recorded." />
+  }
+
+  return (
+    <ChartContainer config={promoConfig} className={CHART_HEIGHT}>
+      <BarChart data={rows} layout="vertical" margin={{ top: 8, right: 16, left: 16, bottom: 0 }}>
+        <CartesianGrid horizontal={false} stroke={C.grid} strokeDasharray="3 3" />
+        <XAxis type="number" tickLine={false} axisLine={false} tick={axisTick} allowDecimals={false} />
+        <YAxis
+          type="category"
+          dataKey="code"
+          tickLine={false}
+          axisLine={false}
+          tick={axisTick}
+          width={70}
+        />
+        <ChartTooltip
+          cursor={{ fill: C.cursor }}
+          content={
+            <ChartTooltipContent
+              className={TOOLTIP_CLASS}
+              formatter={(value, _, item) => (
+                <div className="flex items-center justify-between gap-3">
+                  <span>{item.payload.label}:</span>
+                  <span className="font-semibold text-[var(--admin-fg)]">{value} uses</span>
+                </div>
+              )}
+            />
+          }
+        />
+        <Bar dataKey="count" fill={C.amber} radius={[0, 4, 4, 0]} maxBarSize={28} />
+      </BarChart>
+    </ChartContainer>
+  )
+}
+
+/* 7-Day x 24-Hour Activity Heatmap Grid ------------------------------------- */
+
+export function HourlyActivityHeatmapGrid({
+  rows,
+}: Readonly<{
+  rows: Array<{
+    dayOfWeek: string
+    dayIndex: number
+    hour: number
+    count: number
+    intensity: number
+  }>
+}>) {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+  const hours = Array.from({ length: 24 }, (_, i) => i)
+
+  if (!rows || rows.length === 0) {
+    return <ChartEmpty message="No hourly activity data." />
+  }
+
+  const getCell = (d: number, h: number) => {
+    return rows.find((r) => r.dayIndex === d && r.hour === h)
+  }
+
+  return (
+    <div className="space-y-2 overflow-x-auto py-2">
+      <div className="min-w-[620px]">
+        {/* Hour Header */}
+        <div className="flex items-center text-[10px] text-[var(--admin-muted)] mb-1 pl-10">
+          {hours.filter((h) => h % 3 === 0).map((h) => (
+            <span key={h} className="w-[12.5%] text-left">
+              {h === 0 ? "12 AM" : h === 12 ? "12 PM" : h > 12 ? `${h - 12} PM` : `${h} AM`}
+            </span>
+          ))}
+        </div>
+
+        {/* Rows by Day */}
+        <div className="space-y-1">
+          {days.map((dayName, dIdx) => (
+            <div key={dayName} className="flex items-center gap-1.5">
+              <span className="w-8 text-[11px] font-medium text-[var(--admin-muted)]">
+                {dayName}
+              </span>
+              <div className="grid flex-1 grid-cols-24 gap-1">
+                {hours.map((h) => {
+                  const cell = getCell(dIdx, h)
+                  const count = cell?.count ?? 0
+                  const intensity = cell?.intensity ?? 0
+                  return (
+                    <div
+                      key={h}
+                      title={`${dayName} ${h}:00 - ${count} events`}
+                      className="group relative h-4.5 rounded-xs transition-transform hover:scale-125"
+                      style={{
+                        backgroundColor:
+                          intensity === 0
+                            ? "var(--admin-fill)"
+                            : intensity < 0.25
+                              ? "rgba(0, 113, 227, 0.25)"
+                              : intensity < 0.5
+                                ? "rgba(0, 113, 227, 0.50)"
+                                : intensity < 0.75
+                                  ? "rgba(0, 113, 227, 0.75)"
+                                  : "rgba(0, 113, 227, 1)",
+                      }}
+                    />
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Legend */}
+        <div className="mt-3 flex items-center justify-end gap-2 text-[11px] text-[var(--admin-muted)]">
+          <span>Less active</span>
+          <div className="flex gap-1">
+            <span className="size-3 rounded-xs bg-[var(--admin-fill)]" />
+            <span className="size-3 rounded-xs bg-[rgba(0,113,227,0.25)]" />
+            <span className="size-3 rounded-xs bg-[rgba(0,113,227,0.50)]" />
+            <span className="size-3 rounded-xs bg-[rgba(0,113,227,0.75)]" />
+            <span className="size-3 rounded-xs bg-[rgba(0,113,227,1)]" />
+          </div>
+          <span>Peak active</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* Support Feedback Sentiment Pie Chart -------------------------------------- */
+
+const feedbackConfig = {
+  like: { label: "Positive", color: C.green },
+  neutral: { label: "Neutral", color: C.amber },
+  dislike: { label: "Issues / Bug", color: C.red },
+} satisfies ChartConfig
+
+export function FeedbackSentimentPieChart({
+  sentiments,
+}: Readonly<{
+  sentiments: Array<{ label: string; sentiment: string; count: number; color: string }>
+}>) {
+  const total = sentiments.reduce((acc, s) => acc + s.count, 0)
+  if (total === 0) {
+    return <ChartEmpty message="No feedback recorded yet." />
+  }
+
+  return (
+    <ChartContainer config={feedbackConfig} className="aspect-auto h-[260px] w-full">
+      <PieChart>
+        <ChartTooltip
+          content={
+            <ChartTooltipContent
+              className={TOOLTIP_CLASS}
+              formatter={(value, name) => (
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[var(--admin-muted)]">{name}:</span>
+                  <span className="font-semibold text-[var(--admin-fg)]">
+                    {value} ({Math.round((Number(value) / total) * 100)}%)
+                  </span>
+                </div>
+              )}
+            />
+          }
+        />
+        <Pie
+          data={sentiments}
+          dataKey="count"
+          nameKey="label"
+          innerRadius={55}
+          outerRadius={80}
+          paddingAngle={4}
+        >
+          {sentiments.map((entry, index) => (
+            <Cell key={`feedback-${index}`} fill={entry.color} />
+          ))}
+          <Label
+            content={({ viewBox }) => {
+              if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                return (
+                  <text
+                    x={viewBox.cx}
+                    y={viewBox.cy}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                  >
+                    <tspan
+                      x={viewBox.cx}
+                      y={viewBox.cy}
+                      className="fill-[var(--admin-fg)] text-lg font-bold"
+                    >
+                      {total}
+                    </tspan>
+                    <tspan
+                      x={viewBox.cx}
+                      y={(viewBox.cy || 0) + 16}
+                      className="fill-[var(--admin-muted)] text-[10px]"
+                    >
+                      Tickets
+                    </tspan>
+                  </text>
+                )
+              }
+            }}
+          />
+        </Pie>
+        <ChartLegend content={<ChartLegendContent />} />
+      </PieChart>
+    </ChartContainer>
+  )
+}
+
