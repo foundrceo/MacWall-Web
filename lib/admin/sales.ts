@@ -202,19 +202,28 @@ export function buildSalesSummary(
   allSales: SaleRow[],
   days: number
 ): SalesSummary {
-  const now = new Date()
-  const since = new Date(now)
-  since.setUTCDate(since.getUTCDate() - days)
-  const prevSince = new Date(since)
-  prevSince.setUTCDate(prevSince.getUTCDate() - days)
+  const isAllTime = days <= 0 || days >= 3650
+  let currentRows: SaleRow[]
+  let prevRows: SaleRow[] = []
 
-  const sinceIso = since.toISOString()
-  const prevSinceIso = prevSince.toISOString()
+  if (isAllTime) {
+    currentRows = allSales
+    prevRows = []
+  } else {
+    const now = new Date()
+    const since = new Date(now)
+    since.setUTCDate(since.getUTCDate() - days)
+    const prevSince = new Date(since)
+    prevSince.setUTCDate(prevSince.getUTCDate() - days)
 
-  const currentRows = allSales.filter((row) => row.sent_at >= sinceIso)
-  const prevRows = allSales.filter(
-    (row) => row.sent_at >= prevSinceIso && row.sent_at < sinceIso
-  )
+    const sinceIso = since.toISOString()
+    const prevSinceIso = prevSince.toISOString()
+
+    currentRows = allSales.filter((row) => row.sent_at >= sinceIso)
+    prevRows = allSales.filter(
+      (row) => row.sent_at >= prevSinceIso && row.sent_at < sinceIso
+    )
+  }
 
   const sales = currentRows.length
   const prevSales = prevRows.length
@@ -250,6 +259,236 @@ export function buildSalesSummary(
   }
 }
 
+export type LicenseDetailedRow = {
+  status: string
+  plan_slug: string | null
+  billing_model: string | null
+  visitor_country: string | null
+  activated_at: string | null
+  max_devices: number | null
+}
+
+export type LicenseAnalyticsSummary = {
+  totalLicenses: number
+  activeLicenses: number
+  pendingLicenses: number
+  expiredLicenses: number
+  revokedLicenses: number
+  proLicenses: number
+  proPlusLicenses: number
+  annualLicenses: number
+  permanentLicenses: number
+  subscriptionLicenses: number
+  statusBreakdown: Array<{ status: string; label: string; count: number; color: string }>
+  planBreakdown: Array<{ plan: string; label: string; count: number; color: string }>
+  billingBreakdown: Array<{ model: string; label: string; count: number; color: string }>
+  buyerCountries: Array<{ country: string; count: number }>
+}
+
+export type CheckoutRecoverySummary = {
+  totalAbandoned: number
+  emailsSent: number
+  emailsOpened: number
+  emailsClicked: number
+  recoveredConversions: number
+  recoveryRatePercent: number
+  recoveredRevenueUsd: number
+  funnel: Array<{ stage: string; count: number; rate: number }>
+}
+
+export type DayOfWeekSalesRow = {
+  dayName: string
+  dayIndex: number
+  sales: number
+  revenue: number
+}
+
+/** Fetches full license table rows for deep breakdown */
+export async function fetchAllLicensesDetailed(): Promise<LicenseDetailedRow[]> {
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase
+    .from("macwall_licenses")
+    .select("status, plan_slug, billing_model, visitor_country, activated_at, max_devices")
+    .limit(10000)
+
+  if (error) {
+    if (error.message.includes("does not exist")) return []
+    console.warn("[analytics] fetchAllLicensesDetailed fallback", error.message)
+    return []
+  }
+
+  return (data ?? []) as LicenseDetailedRow[]
+}
+
+/** Builds comprehensive license metrics and status/plan breakdowns */
+export function buildLicenseAnalytics(
+  licenses: LicenseDetailedRow[],
+  activeSalesCount: number
+): LicenseAnalyticsSummary {
+  let active = 0
+  let pending = 0
+  let expired = 0
+  let revoked = 0
+
+  let pro = 0
+  let proPlus = 0
+  let annual = 0
+
+  let permanent = 0
+  let subscription = 0
+
+  const countryTotals = new Map<string, number>()
+
+  for (const row of licenses) {
+    const st = (row.status || "active").toLowerCase()
+    if (st === "active") active++
+    else if (st === "pending") pending++
+    else if (st === "expired") expired++
+    else if (st === "revoked") revoked++
+    else active++
+
+    const plan = (row.plan_slug || "pro").toLowerCase()
+    if (plan.includes("plus") || (row.max_devices && row.max_devices > 1)) proPlus++
+    else if (plan.includes("annual")) annual++
+    else pro++
+
+    const billing = (row.billing_model || "permanent").toLowerCase()
+    if (billing === "annual" || billing === "subscription") subscription++
+    else permanent++
+
+    if (row.visitor_country && /^[A-Z]{2}$/i.test(row.visitor_country)) {
+      const c = row.visitor_country.toUpperCase()
+      countryTotals.set(c, (countryTotals.get(c) ?? 0) + 1)
+    }
+  }
+
+  // Fallback if licenses table has minimal rows but sales exists
+  if (active === 0 && activeSalesCount > 0) {
+    active = activeSalesCount
+    pro = activeSalesCount
+    permanent = activeSalesCount
+  }
+
+  const total = active + pending + expired + revoked
+
+  const statusBreakdown = [
+    { status: "active", label: "Active Pro", count: active, color: "#17b26a" },
+    { status: "pending", label: "Pending Checkout", count: pending, color: "#f79009" },
+    { status: "expired", label: "Expired", count: expired, color: "#98a2b3" },
+    { status: "revoked", label: "Revoked", count: revoked, color: "#f04438" },
+  ].filter((s) => s.count > 0 || total === 0)
+
+  const planBreakdown = [
+    { plan: "pro", label: "MacWall Pro ($7.99)", count: pro, color: "#0071e3" },
+    { plan: "pro_plus", label: "Pro Plus 5-Mac ($12.99)", count: proPlus, color: "#7a5af8" },
+    { plan: "annual", label: "Legacy Annual ($4.99/yr)", count: annual, color: "#06aed4" },
+  ].filter((p) => p.count > 0 || total === 0)
+
+  const billingBreakdown = [
+    { model: "permanent", label: "One-time / Lifetime", count: permanent, color: "#17b26a" },
+    { model: "subscription", label: "Subscription / Annual", count: subscription, color: "#f79009" },
+  ].filter((b) => b.count > 0 || total === 0)
+
+  const buyerCountries = [...countryTotals.entries()]
+    .map(([country, count]) => ({ country, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10)
+
+  return {
+    totalLicenses: total || active,
+    activeLicenses: active,
+    pendingLicenses: pending,
+    expiredLicenses: expired,
+    revokedLicenses: revoked,
+    proLicenses: pro,
+    proPlusLicenses: proPlus,
+    annualLicenses: annual,
+    permanentLicenses: permanent,
+    subscriptionLicenses: subscription,
+    statusBreakdown,
+    planBreakdown,
+    billingBreakdown,
+    buyerCountries,
+  }
+}
+
+/** Fetches abandoned checkout & recovery email metrics */
+export async function fetchCheckoutRecoveryStats(): Promise<CheckoutRecoverySummary> {
+  const supabase = getSupabaseAdmin()
+
+  try {
+    const [queueRes, emailRes] = await Promise.all([
+      supabase.from("macwall_checkout_recovery_queue").select("id, email, created_at"),
+      supabase.from("macwall_payment_recovery_emails").select("id, opened_at, clicked_at, converted_at"),
+    ])
+
+    const queueRows = queueRes.data ?? []
+    const emailRows = emailRes.data ?? []
+
+    const totalAbandoned = queueRows.length
+    const emailsSent = emailRows.length
+    const emailsOpened = emailRows.filter((r) => Boolean(r.opened_at)).length
+    const emailsClicked = emailRows.filter((r) => Boolean(r.clicked_at)).length
+    const recoveredConversions = emailRows.filter((r) => Boolean(r.converted_at)).length
+
+    const recoveryRate = emailsSent > 0 ? round1((recoveredConversions / emailsSent) * 100) : 0
+    const recoveredRevenueUsd = round2(recoveredConversions * PRO_PRICE_USD)
+
+    const funnel = [
+      { stage: "Abandoned Checkout", count: Math.max(totalAbandoned, emailsSent), rate: 100 },
+      { stage: "Recovery Email Sent", count: emailsSent, rate: totalAbandoned > 0 ? round1((emailsSent / totalAbandoned) * 100) : 100 },
+      { stage: "Email Opened", count: emailsOpened, rate: emailsSent > 0 ? round1((emailsOpened / emailsSent) * 100) : 0 },
+      { stage: "Discount Clicked", count: emailsClicked, rate: emailsOpened > 0 ? round1((emailsClicked / emailsOpened) * 100) : 0 },
+      { stage: "Recovered Sale", count: recoveredConversions, rate: emailsClicked > 0 ? round1((recoveredConversions / emailsClicked) * 100) : 0 },
+    ]
+
+    return {
+      totalAbandoned,
+      emailsSent,
+      emailsOpened,
+      emailsClicked,
+      recoveredConversions,
+      recoveryRatePercent: recoveryRate,
+      recoveredRevenueUsd,
+      funnel,
+    }
+  } catch {
+    return {
+      totalAbandoned: 0,
+      emailsSent: 0,
+      emailsOpened: 0,
+      emailsClicked: 0,
+      recoveredConversions: 0,
+      recoveryRatePercent: 0,
+      recoveredRevenueUsd: 0,
+      funnel: [],
+    }
+  }
+}
+
+/** Computes day-of-week sales volume for radar / bar chart */
+export function buildDayOfWeekSales(salesRows: SaleRow[]): DayOfWeekSalesRow[] {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  const counts = Array.from({ length: 7 }, (_, i) => ({
+    dayName: days[i],
+    dayIndex: i,
+    sales: 0,
+    revenue: 0,
+  }))
+
+  for (const row of salesRows) {
+    const d = new Date(row.sent_at)
+    if (!Number.isNaN(d.getTime())) {
+      const idx = d.getUTCDay()
+      counts[idx].sales += 1
+      counts[idx].revenue = round2(counts[idx].revenue + row.amountUsd)
+    }
+  }
+
+  // Rotate starting Monday for better business presentation (Mon..Sun)
+  return [...counts.slice(1), counts[0]]
+}
+
 /** Pure: computes the install→sale funnel from already-fetched rows. */
 export function buildConversionFunnel(
   eventRows: AnalyticsEventRow[],
@@ -257,9 +496,14 @@ export function buildConversionFunnel(
   saleRows: SaleRow[],
   days: number
 ): ConversionFunnel {
-  const since = new Date()
-  since.setUTCDate(since.getUTCDate() - days)
-  const sinceIso = since.toISOString()
+  const isAllTime = days <= 0 || days >= 3650
+  const sinceIso = isAllTime
+    ? "1970-01-01T00:00:00.000Z"
+    : (() => {
+        const since = new Date()
+        since.setUTCDate(since.getUTCDate() - days)
+        return since.toISOString()
+      })()
 
   let pageViews = 0
   let downloadClicks = 0

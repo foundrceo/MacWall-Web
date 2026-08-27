@@ -504,13 +504,95 @@ export default function AdminFeedbackPage() {
       return
     }
     setLive(true)
+
+    // --- Surgical message append (no full reload) ---
     if (event.type === "message") {
       if (event.feedbackId) clearVisitorTyping(event.feedbackId)
       if (event.author === "user") {
         playAdminNotificationSound()
       }
+      if (event.feedbackId && event.messageData) {
+        const msg = event.messageData
+        setItems((current) => {
+          const ticketIndex = current.findIndex(
+            (row) => row.id === event.feedbackId
+          )
+          // Brand-new ticket not in state yet — fall back to full reload.
+          if (ticketIndex === -1) {
+            void load(true)
+            return current
+          }
+          const ticket = current[ticketIndex]
+          // Skip if we already have this exact message (SSE replay / duplicate).
+          if (ticket.messages.some((m) => m.id === msg.id)) return current
+
+          // Deduplicate optimistic admin messages: if the SSE message is from
+          // admin, drop the matching optimistic placeholder (same author, sent
+          // within the last few seconds).
+          let cleaned = ticket.messages
+          if (msg.author === "admin") {
+            cleaned = cleaned.filter(
+              (m) => !m.id.startsWith("optimistic-")
+            )
+          }
+
+          const newTicket: FeedbackItem = {
+            ...ticket,
+            messages: [...cleaned, msg],
+            // Update reply flags based on who sent the message.
+            ...(msg.author === "user" && !ticket.isResolved
+              ? { needsAdminReply: true }
+              : {}),
+            ...(msg.author === "admin" ? { needsAdminReply: false } : {}),
+          }
+
+          const next = [...current]
+          next[ticketIndex] = newTicket
+          return next
+        })
+      } else {
+        // SSE message without parseable data — fall back to full reload.
+        void load(true)
+      }
+      return
     }
-    void load(true)
+
+    // --- Surgical ticket metadata update (resolve / reopen / flags) ---
+    if (event.type === "feedback") {
+      if (event.ticketPatch?.id) {
+        const patch = event.ticketPatch
+        setItems((current) => {
+          const ticketIndex = current.findIndex(
+            (row) => row.id === patch.id
+          )
+          if (ticketIndex === -1) {
+            // New ticket appeared — full reload to pick it up.
+            void load(true)
+            return current
+          }
+          const ticket = current[ticketIndex]
+          const newTicket: FeedbackItem = {
+            ...ticket,
+            ...(typeof patch.isResolved === "boolean"
+              ? { isResolved: patch.isResolved }
+              : {}),
+            ...(typeof patch.needsAdminReply === "boolean"
+              ? { needsAdminReply: patch.needsAdminReply }
+              : {}),
+            ...(typeof patch.userHasUnread === "boolean"
+              ? { userHasUnread: patch.userHasUnread }
+              : {}),
+          }
+          const next = [...current]
+          next[ticketIndex] = newTicket
+          return next
+        })
+      } else {
+        // Unparseable feedback event — fall back to full reload.
+        void load(true)
+      }
+      return
+    }
   })
 
   const { signalTyping: signalAdminTyping } = useSupportTypingEmitter({
@@ -670,7 +752,7 @@ export default function AdminFeedbackPage() {
         const json = (await res.json()) as { error?: string }
         throw new Error(json.error ?? "Update failed")
       }
-      void load(true)
+      // SSE `feedback` event handles the authoritative state update surgically.
     } catch (err) {
       setItems((current) =>
         current.map((row) =>

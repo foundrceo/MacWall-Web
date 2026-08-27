@@ -30,11 +30,14 @@ import {
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
 import { geistPixelSquare } from "@/lib/site-fonts"
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google"
+import { Geist, Geist_Mono, Instrument_Serif, Inter } from "next/font/google"
 import { VercelAnalytics } from "@/components/analytics/vercel-analytics"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
+import { cn } from "@/lib/utils";
+
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -237,7 +240,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${geistPixelSquare.variable}`}
+      className={cn(geistSans.variable, geistMono.variable, instrumentSerif.variable, geistPixelSquare.variable, "font-sans", inter.variable)}
       suppressHydrationWarning
     >
       {/* Avoid hydration warnings when extensions inject attributes on <body> */}

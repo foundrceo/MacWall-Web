@@ -3,15 +3,23 @@ import { NextResponse } from "next/server"
 import { requireAdminApi } from "@/lib/admin/auth"
 import {
   buildConversionFunnel,
+  buildDayOfWeekSales,
+  buildLicenseAnalytics,
   buildSalesSummary,
   fetchAllDeviceActivations,
+  fetchAllLicensesDetailed,
   fetchAllSales,
+  fetchCheckoutRecoveryStats,
 } from "@/lib/admin/sales"
 import {
   buildClicksByLocation,
   buildDailyCountsFallback,
   buildDownloadFunnel,
+  buildHourlyActivityHeatmap,
   buildIndiaAudienceMetrics,
+  buildLiveActivity,
+  buildPromoDiscountAnalytics,
+  buildSessionEngagement,
   buildTopPageViews,
   buildVisitorsByCountry,
   fetchDailyCounts,
@@ -32,14 +40,23 @@ export async function GET(request: Request) {
 
   try {
     const { searchParams } = new URL(request.url)
-    const days = Math.min(
-      90,
-      Math.max(1, Number.parseInt(searchParams.get("days") ?? "7", 10) || 7)
-    )
+    const rawDays = searchParams.get("days") ?? "7"
+    const isAllTime =
+      rawDays === "0" ||
+      rawDays.toLowerCase() === "all" ||
+      Number.parseInt(rawDays, 10) === 0 ||
+      Number.parseInt(rawDays, 10) >= 3650
+    const days = isAllTime
+      ? 0
+      : Math.min(365, Math.max(1, Number.parseInt(rawDays, 10) || 7))
 
-    const since = new Date()
-    since.setUTCDate(since.getUTCDate() - days)
-    const sinceIso = since.toISOString()
+    const sinceIso = isAllTime
+      ? "1970-01-01T00:00:00.000Z"
+      : (() => {
+          const since = new Date()
+          since.setUTCDate(since.getUTCDate() - days)
+          return since.toISOString()
+        })()
 
     const supabase = getSupabaseAdmin()
 
@@ -54,6 +71,9 @@ export async function GET(request: Request) {
       dailyCountsRpc,
       allSales,
       allDevices,
+      detailedLicenses,
+      recoveryStats,
+      feedbackResult,
     ] = await Promise.all([
       fetchEventsInRange(supabase, sinceIso),
       fetchLatestEventAt(supabase),
@@ -67,6 +87,12 @@ export async function GET(request: Request) {
       fetchDailyCounts(supabase, sinceIso),
       fetchAllSales(),
       fetchAllDeviceActivations(sinceIso),
+      fetchAllLicensesDetailed(),
+      fetchCheckoutRecoveryStats(),
+      supabase
+        .from("app_feedback")
+        .select("sentiment, is_resolved, needs_admin_reply, created_at")
+        .limit(2000),
     ])
 
     if (uploadsResult.error) throw new Error(uploadsResult.error.message)
@@ -98,7 +124,7 @@ export async function GET(request: Request) {
       if (status in uploadTotals) uploadTotals[status] += 1
     }
 
-    // Catalog stats (exact counts + RPC rollups)
+    // Catalog stats
     const wallpaperCategoryCounts = categoryCounts
     const topLiked = topLikedWallpapers
 
@@ -130,6 +156,27 @@ export async function GET(request: Request) {
       days
     )
 
+    const licenseAnalytics = buildLicenseAnalytics(detailedLicenses, allSales.length)
+    const liveActivity = buildLiveActivity(eventRows)
+    const dayOfWeekSales = buildDayOfWeekSales(allSales)
+    const hourlyHeatmap = buildHourlyActivityHeatmap(eventRows)
+    const promoDiscount = buildPromoDiscountAnalytics(eventRows)
+    const sessionEngagement = buildSessionEngagement(eventRows)
+
+    // Support / feedback sentiment stats
+    const feedbackRows = feedbackResult.data ?? []
+    const feedbackTotals = {
+      total: feedbackRows.length,
+      open: feedbackRows.filter((r) => !r.is_resolved).length,
+      resolved: feedbackRows.filter((r) => r.is_resolved).length,
+      needsReply: feedbackRows.filter((r) => r.needs_admin_reply && !r.is_resolved).length,
+      sentiments: [
+        { label: "Positive", sentiment: "like", count: feedbackRows.filter((r) => r.sentiment === "like").length, color: "#17b26a" },
+        { label: "Neutral", sentiment: "neutral", count: feedbackRows.filter((r) => r.sentiment === "neutral").length, color: "#f79009" },
+        { label: "Issues / Bug", sentiment: "dislike", count: feedbackRows.filter((r) => r.sentiment === "dislike").length, color: "#f04438" },
+      ],
+    }
+
     return NextResponse.json({
       rangeDays: days,
       since: sinceIso,
@@ -152,6 +199,14 @@ export async function GET(request: Request) {
       topLikedWallpapers: topLiked,
       sales,
       conversionFunnel,
+      licenseAnalytics,
+      liveActivity,
+      dayOfWeekSales,
+      hourlyHeatmap,
+      promoDiscount,
+      sessionEngagement,
+      recoveryStats,
+      feedbackTotals,
     })
   } catch (error) {
     const message =
@@ -159,3 +214,4 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
+
