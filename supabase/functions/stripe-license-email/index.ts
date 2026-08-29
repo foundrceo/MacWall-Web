@@ -1043,10 +1043,9 @@ Deno.serve(async (req: Request) => {
       signature,
       webhookSecret
     )
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "invalid_signature"
+  } catch {
     return Response.json(
-      { ok: false, error: "invalid_signature", detail: msg },
+      { ok: false, error: "invalid_signature" },
       { status: 401 }
     )
   }

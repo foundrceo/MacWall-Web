@@ -1,3 +1,5 @@
+import "server-only"
+
 import {
   DEFAULT_WALLPAPER_CATEGORY,
   WALLPAPER_CATEGORIES,

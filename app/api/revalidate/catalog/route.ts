@@ -1,22 +1,10 @@
-import { timingSafeEqual } from "node:crypto"
 import { revalidateTag } from "next/cache"
+import { secretsEqual } from "@/lib/http/secrets"
 import {
   MARKETING_GALLERY_CACHE_TAG,
   MARKETING_HOME_PICK_CACHE_TAG,
   PUBLIC_CATALOG_CACHE_TAG,
 } from "@/lib/marketing-cache"
-
-function secretsEqual(a: string, b: string): boolean {
-  const aBuf = Buffer.from(a)
-  const bBuf = Buffer.from(b)
-  if (aBuf.length !== bBuf.length) {
-    // Compare equal-length buffers so length isn't a free oracle on the real secret.
-    const pad = Buffer.alloc(aBuf.length)
-    timingSafeEqual(aBuf, pad)
-    return false
-  }
-  return timingSafeEqual(aBuf, bBuf)
-}
 
 /** On-demand ISR for homepage + public gallery after catalog updates. */
 export async function POST(request: Request) {

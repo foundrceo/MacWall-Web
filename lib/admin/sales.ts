@@ -1,3 +1,5 @@
+import "server-only"
+
 import type { AnalyticsEventRow } from "@/lib/analytics/admin-metrics"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
