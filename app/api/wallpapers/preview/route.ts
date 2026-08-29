@@ -33,9 +33,10 @@ export async function GET(request: NextRequest) {
         },
       }
     )
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to resolve preview URL"
-    return NextResponse.json({ error: message }, { status: 500 })
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to resolve preview URL" },
+      { status: 500 }
+    )
   }
 }

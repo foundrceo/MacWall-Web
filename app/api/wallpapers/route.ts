@@ -36,9 +36,10 @@ export async function GET(request: NextRequest) {
         "Cache-Control": `public, s-maxage=${MARKETING_CATALOG_REVALIDATE_SECONDS}, stale-while-revalidate=86400`,
       },
     })
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to load wallpapers"
-    return NextResponse.json({ error: message }, { status: 500 })
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to load wallpapers" },
+      { status: 500 }
+    )
   }
 }

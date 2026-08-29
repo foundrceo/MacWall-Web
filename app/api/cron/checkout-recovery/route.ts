@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server"
 
+import { secretsEqual } from "@/lib/http/secrets"
+
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 /**
  * Vercel Cron → Supabase `process-checkout-recovery`.
  * Sends WALL10 conversion mail for abandoned / failed / incomplete checkouts.
+ * Auth is CRON_SECRET only. `x-vercel-cron` is not treated as proof of origin.
  */
 export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET?.trim()
@@ -14,12 +17,8 @@ export async function GET(request: Request) {
   }
 
   const auth = request.headers.get("authorization")?.trim()
-  const vercelCron = request.headers.get("x-vercel-cron")?.trim()
-  const authorized =
-    vercelCron === "1" ||
-    (auth?.startsWith("Bearer ") && auth.slice(7) === cronSecret)
-
-  if (!authorized) {
+  const token = auth?.startsWith("Bearer ") ? auth.slice(7) : ""
+  if (!token || !secretsEqual(token, cronSecret)) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 })
   }
 

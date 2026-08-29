@@ -32,6 +32,7 @@ const CONTENT_SECURITY_POLICY_REPORT_ONLY = [
 const nextConfig = {
   poweredByHeader: false,
   compress: true,
+  productionBrowserSourceMaps: false,
   /** Only used by `npm run dev:webpack`; Turbopack (default `next dev`) ignores this. */
   webpack: (config, { dev }) => {
     if (dev) {

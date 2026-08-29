@@ -27,6 +27,8 @@ it is **not** the native mac app. the desktop app lives in a separate private re
 
 the marketing site works without paying. checkout and licensing need real env keys if you run those flows locally.
 
+the native mac app is a separate private product. this repo is the website only.
+
 ## run this website locally
 
 needs **node** 18+.
@@ -57,7 +59,7 @@ see [CREDITS.md](./CREDITS.md).
 
 ## security
 
-see [SECURITY.md](./SECURITY.md) — report issues to support@macwall.app.
+see [SECURITY.md](./SECURITY.md). Report issues to support@macwall.app.
 
 ## license
 

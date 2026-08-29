@@ -46,12 +46,21 @@ pnpm-debug.log*
 .env.production
 .env*.local
 *.pem
+*.key
 *.p8
+*.p12
+*.pfx
 AuthKey_*.p8
 credentials.json
 *-credentials.json
 service-account*.json
 .secrets/
+
+# local databases / dumps
+*.sql
+*.sqlite
+*.sqlite3
+*.db
 
 # local AI agent skills / lockfiles (never publish)
 .agents/

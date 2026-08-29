@@ -1,8 +1,6 @@
-import {
-  resolveTikTokEventsApiAccessToken,
-  resolveTikTokPixelId,
-  resolveTikTokTestEventCode,
-} from "@/lib/analytics/tiktok-config"
+import "server-only"
+
+import { resolveTikTokPixelId } from "@/lib/analytics/tiktok-config"
 import {
   hashTikTokEmail,
   hashTikTokExternalId,
@@ -12,6 +10,16 @@ import {
   macwallProProperties,
   type TikTokTrackEvent,
 } from "@/lib/analytics/tiktok-shared"
+
+function resolveTikTokEventsApiAccessToken(): string | undefined {
+  const token = process.env.TIKTOK_EVENTS_API_ACCESS_TOKEN?.trim()
+  return token && token.length > 0 ? token : undefined
+}
+
+function resolveTikTokTestEventCode(): string | undefined {
+  const code = process.env.TIKTOK_EVENTS_API_TEST_EVENT_CODE?.trim()
+  return code && code.length > 0 ? code : undefined
+}
 
 /** Modern TikTok Events API 2.0 endpoint (replaces the legacy `pixel/track/`). */
 const TIKTOK_EVENTS_API_URL =
