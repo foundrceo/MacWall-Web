@@ -170,7 +170,7 @@ export const macwall = {
     price: "$4.99",
     suffix: "per year",
   },
-  /** Shown in Pro discount flows — keep in sync with AppBrand.proDiscountPromoCode + Stripe. */
+  /** Floor conversion promo. Timed unique 20/30 codes are allowlisted separately. */
   proDiscountPromoCode: "MAC10",
   /** Personal base-license device limit. The 5-Mac bundle raises it to 5. */
   maxLicensedMacs: 3,

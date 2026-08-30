@@ -13,9 +13,10 @@ import { stripePriceIdForOffer } from "@/lib/license/stripe-price-map"
 import { getStripe } from "@/lib/stripe/server"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { queueCheckoutRecovery } from "@/lib/stripe/queue-checkout-recovery"
-
-/** Allowlisted app/web promo codes that may auto-apply at Checkout. */
-const ALLOWLISTED_PROMOTION_CODES = new Set(["MAC10", "WALL10"])
+import {
+  normalizeConversionPromo,
+  parseOfferUntil,
+} from "@/lib/stripe/conversion-promos"
 
 export type CreateMacWallCheckoutInput = {
   country: string | null
@@ -28,6 +29,8 @@ export type CreateMacWallCheckoutInput = {
   siteOrigin: string
   /** Optional Stripe Promotion Code (e.g. MAC10) — allowlisted only. */
   promoCode?: string | null
+  /** Unix seconds / ms / ISO. Timed 20/30 codes fall back to MAC10 after this. */
+  offerUntil?: string | null
 }
 
 export type CreateMacWallCheckoutResult =
@@ -39,12 +42,6 @@ export type CreateMacWallCheckoutResult =
  * Stripe best practice: include an 8-letter suffix for flow comparison.
  */
 const CHECKOUT_INTEGRATION_ID = "macwall_web_checkout_kxqmvrnp"
-
-function normalizePromoCode(raw: string | null | undefined): string | null {
-  const code = raw?.trim().toUpperCase() || ""
-  if (!code || !ALLOWLISTED_PROMOTION_CODES.has(code)) return null
-  return code
-}
 
 async function resolvePromotionCodeId(
   stripe: ReturnType<typeof getStripe>,
@@ -90,7 +87,10 @@ export async function createMacWallCheckoutSession(
 
     const licenseKey = generateMacWallLicenseKey()
     const encodedKey = encodeURIComponent(licenseKey)
-    const promoCode = normalizePromoCode(input.promoCode)
+    const promoCode = normalizeConversionPromo(
+      input.promoCode,
+      parseOfferUntil(input.offerUntil)
+    )
     const promotionCodeId = promoCode
       ? await resolvePromotionCodeId(stripe, promoCode)
       : null
