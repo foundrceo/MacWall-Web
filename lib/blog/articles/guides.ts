@@ -37,7 +37,7 @@ export const guideArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Open MacWall and browse Home, Explore, or Library. Categories include Nature, Space, Anime, Cars, City, Video Games, Sci-fi, Fantasy, and Cats. Tap any tile to preview, then set it as your desktop background. Videos loop seamlessly with zero stutter.",
+        text: "Open MacWall and browse Home, Explore, or Library. Categories include Anime, Nature, Cars, Gaming, Space, Heroes, Dark, Abstract, and Others. Tap any tile to preview, then set it as your desktop background. Videos loop seamlessly with zero stutter.",
       },
       {
         type: "h2",
@@ -342,7 +342,7 @@ export const guideArticles: BlogArticle[] = [
           "1920×1080 minimum resolution (4K loops look best)",
           "MP4 or MOV format, up to 300 MB",
           "Title up to 50 characters",
-          "One of 9 categories: Nature, Space, Anime, Cars, City, Video Games, Sci-fi, Fantasy, Cats",
+          "One of 9 categories: Anime, Nature, Cars, Gaming, Space, Heroes, Dark, Abstract, Others",
         ],
       },
       { type: "h2", text: "How to submit" },

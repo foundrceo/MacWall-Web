@@ -72,10 +72,10 @@ export const wallpaperArticles: BlogArticle[] = [
   {
     slug: "space-wallpaper-mac",
     pathname: "/blog/space-wallpaper-mac",
-    title: "Space & Sci-Fi Live Wallpapers for Mac",
+    title: "Space Live Wallpapers for Mac",
     headline: "Space Live Wallpapers for Mac",
     description:
-      "Orbital sunrises, nebula flythroughs, and sci-fi loops for Mac desktops, explore MacWall's Space and Sci-fi categories in stunning 4K motion.",
+      "Orbital sunrises, nebula flythroughs, and space loops for Mac desktops, explore MacWall's Space category in stunning 4K motion.",
     excerpt:
       "Explore the cosmos on your Mac desktop with 4K space motion wallpapers.",
     category: "wallpapers",
@@ -89,11 +89,11 @@ export const wallpaperArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Space wallpapers turn your Mac into a viewport to the cosmos. **MacWall** hosts orbital loops, nebula clouds, and sci-fi city flythroughs in both Space and Sci-fi categories, many in 4K and ultrawide.",
+        text: "Space wallpapers turn your Mac into a viewport to the cosmos. **MacWall** hosts orbital loops, nebula clouds, and night-sky flythroughs in the Space category, many in 4K and ultrawide.",
       },
       {
         type: "p",
-        text: "Browse /wallpapers/space and /wallpapers/sci-fi for category landing pages with download CTAs.",
+        text: "Browse /wallpapers/space for the category landing page with download CTAs.",
       },
     ],
   },
@@ -103,7 +103,7 @@ export const wallpaperArticles: BlogArticle[] = [
     title: "Gaming Live Wallpapers for Mac",
     headline: "Gaming Live Wallpapers for Mac",
     description:
-      "Video game-inspired motion desktops for Mac: browse MacWall's Video Games category or import your own gameplay captures as live wallpapers.",
+      "Game-inspired motion desktops for Mac: browse MacWall's Gaming category or import your own gameplay captures as live wallpapers.",
     excerpt:
       "Game-inspired loops and gameplay captures as live Mac wallpapers.",
     category: "wallpapers",
@@ -117,7 +117,7 @@ export const wallpaperArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "From cyberpunk cityscapes to fantasy realms, gaming aesthetics dominate desktop culture. **MacWall's Video Games category** curates loops inspired by popular game visuals, plus you can import your own gameplay highlights.",
+        text: "From cyberpunk cityscapes to game worlds, gaming aesthetics dominate desktop culture. **MacWall's Gaming category** curates loops inspired by popular game visuals, plus you can import your own gameplay highlights.",
       },
       {
         type: "p",

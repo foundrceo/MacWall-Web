@@ -39,14 +39,14 @@ export const FALLBACK_SEEDS = [
   {
     id: "miles-morales-spider-man-snow",
     name: "Miles Morales – Snow",
-    category: "Anime",
+    category: "Heroes",
     videoKey: "videos/miles-morales-spider-man-snow.mp4",
     thumbKey: "thumbs/miles-morales-spider-man-snow.jpg",
   },
   {
     id: "bmw-m3-e46-need-for-speed-most-wanted-moewalls-com",
     name: "BMW M3 E46 (Need for Speed Most Wanted)",
-    category: "Video Games",
+    category: "Cars",
     videoKey: "videos/bmw-m3-e46-need-for-speed-most-wanted-moewalls-com.mp4",
     thumbKey: "thumbs/bmw-m3-e46-need-for-speed-most-wanted-moewalls-com.jpg",
   },
@@ -62,7 +62,7 @@ export const FALLBACK_SEEDS = [
   {
     id: "mondstadt-temple-of-space-genshin-impact-moewalls-com",
     name: "Mondstadt Temple of Space (Genshin Impact)",
-    category: "Video Games",
+    category: "Gaming",
     videoKey:
       "videos/mondstadt-temple-of-space-genshin-impact-moewalls-com.mp4",
     thumbKey:
@@ -71,21 +71,21 @@ export const FALLBACK_SEEDS = [
   {
     id: "the-hidden-ivy-cafe-moewalls-com",
     name: "The Hidden Ivy Cafe",
-    category: "City",
+    category: "Others",
     videoKey: "videos/the-hidden-ivy-cafe-moewalls-com.mp4",
     thumbKey: "thumbs/the-hidden-ivy-cafe-moewalls-com.jpg",
   },
   {
     id: "cyberpunk-elf-girl",
     name: "Cyberpunk Elf Girl",
-    category: "Sci-fi",
+    category: "Dark",
     videoKey: "videos/cyberpunk-elf-girl.mp4",
     thumbKey: "thumbs/cyberpunk-elf-girl.jpg",
   },
   {
     id: "tattooed-katana-girl",
     name: "Tattooed Katana Girl",
-    category: "Fantasy",
+    category: "Anime",
     videoKey: "videos/tattooed-katana-girl.mp4",
     thumbKey: "thumbs/tattooed-katana-girl.jpg",
   },
@@ -99,7 +99,7 @@ export const FALLBACK_SEEDS = [
   {
     id: "girl-with-leopard",
     name: "Girl With Leopard",
-    category: "Cats",
+    category: "Others",
     videoKey: "videos/girl-with-leopard.mp4",
     thumbKey: "thumbs/girl-with-leopard.jpg",
   },
@@ -113,7 +113,7 @@ export const FALLBACK_SEEDS = [
   {
     id: "dark-spiderman-neon-moewalls-com",
     name: "Dark Spiderman Neon",
-    category: "Anime",
+    category: "Heroes",
     videoKey: "videos/dark-spiderman-neon-moewalls-com.mp4",
     thumbKey: "thumbs/dark-spiderman-neon-moewalls-com.jpg",
   },
@@ -127,14 +127,14 @@ export const FALLBACK_SEEDS = [
   {
     id: "dark-souls-burning-warrior",
     name: "Dark Souls Burning Warrior",
-    category: "Video Games",
+    category: "Gaming",
     videoKey: "videos/dark-souls-burning-warrior.mp4",
     thumbKey: "thumbs/dark-souls-burning-warrior.jpg",
   },
   {
     id: "miles-morales-falling-purple-sky-spiderman-across-the-spider-verse-moewalls-com",
     name: "Miles Morales Falling Purple Sky",
-    category: "Anime",
+    category: "Heroes",
     videoKey:
       "videos/miles-morales-falling-purple-sky-spiderman-across-the-spider-verse-moewalls-com.mp4",
     thumbKey:
@@ -143,7 +143,7 @@ export const FALLBACK_SEEDS = [
   {
     id: "spiderman-across-the-spiderverse-logo-moewalls-com",
     name: "Spiderman Across The Spiderverse Logo",
-    category: "Anime",
+    category: "Heroes",
     videoKey: "videos/spiderman-across-the-spiderverse-logo-moewalls-com.mp4",
     thumbKey: "thumbs/spiderman-across-the-spiderverse-logo-moewalls-com.jpg",
   },

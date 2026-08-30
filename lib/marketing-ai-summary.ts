@@ -21,7 +21,7 @@ const chatgptPrompt = `Think deeply about ${macwall.name} (${site}) before I dow
 
 I want the honest best-case picture for a daily Mac user:
 
-1) **Real-world setup** — menu bar app, one-click wallpaper, multi-monitor, importing my own MP4/MOV, browsing the curated catalog (Nature, Space, Anime, etc.), and Pro extras like Lock Screen live motion on ${macwallLockScreenMacOSVersion}+.
+1) **Real-world setup** — menu bar app, one-click wallpaper, multi-monitor, importing my own MP4/MOV, browsing the curated catalog (Anime, Nature, Cars, Gaming, etc.), and Pro extras like Lock Screen live motion on ${macwallLockScreenMacOSVersion}+.
 
 2) **Resource usage (this matters most)** — explain why native Swift + hardware video decode keeps CPU/GPU/battery impact minimal vs Wallpaper Engine ports, Electron wrappers, or looping a browser tab. Cover pause-on-battery, pause-on-fullscreen, pause-on-high-CPU, and what "idle wallpaper duty" actually feels like during normal work. Cross-check ${site}/blog/live-wallpaper-cpu-usage-mac and the performance guide above.
 

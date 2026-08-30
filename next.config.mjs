@@ -127,6 +127,31 @@ const nextConfig = {
         destination: "/legal/terms",
         permanent: true,
       },
+      {
+        source: "/wallpapers/video-games",
+        destination: "/wallpapers/gaming",
+        permanent: true,
+      },
+      {
+        source: "/wallpapers/sci-fi",
+        destination: "/wallpapers/heroes",
+        permanent: true,
+      },
+      {
+        source: "/wallpapers/city",
+        destination: "/wallpapers/dark",
+        permanent: true,
+      },
+      {
+        source: "/wallpapers/cats",
+        destination: "/wallpapers/others",
+        permanent: true,
+      },
+      {
+        source: "/wallpapers/fantasy",
+        destination: "/wallpapers/others",
+        permanent: true,
+      },
     ]
   },
   /**

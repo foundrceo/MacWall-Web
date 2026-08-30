@@ -1,27 +1,26 @@
 import {
-  Building2,
   Car,
-  Cat,
-  Cpu,
   Gamepad2,
   LayoutGrid,
   Leaf,
+  Moon,
   Orbit,
+  Shapes,
   Sparkles,
-  Wand2,
+  Shield,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  Nature: Leaf,
-  Space: Orbit,
   Anime: Sparkles,
+  Nature: Leaf,
   Cars: Car,
-  City: Building2,
-  "Video Games": Gamepad2,
-  "Sci-fi": Cpu,
-  Fantasy: Wand2,
-  Cats: Cat,
+  Gaming: Gamepad2,
+  Space: Orbit,
+  Heroes: Shield,
+  Dark: Moon,
+  Abstract: Shapes,
+  Others: LayoutGrid,
 }
 
 export function CategoryIcon({

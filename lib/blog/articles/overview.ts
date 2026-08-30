@@ -45,7 +45,7 @@ export const overviewArticles: BlogArticle[] = [
         items: [
           `Download free at macwall.app/download, ${macwallMinimumMacOSVersionLabel}.`,
           "Install from the DMG, launch once, MacWall lives in the menu bar (not the Dock clutter).",
-          "Browse 1,000+ curated loops at macwall.app/wallpapers: Nature, Space, Anime, Cars, City, Video Games, Sci-fi, Fantasy, Cats.",
+          "Browse 1,000+ curated loops at macwall.app/wallpapers: Anime, Nature, Cars, Gaming, Space, Heroes, Dark, Abstract, Others.",
           "Click any wallpaper to preview and set. One click. Hardware-decoded loop behind your windows.",
           "Import your own MP4, MOV, M4V, or GIF. Drag into Library, set instantly.",
           `Upgrade to Pro (${proPrice} one-time) for the full catalog, Lock Screen on ${macwallLockScreenMacOSVersion}+, playlists, and lifetime updates on up to ${maxMacs} Macs.`,
