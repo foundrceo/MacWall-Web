@@ -520,14 +520,20 @@ async function cancelCheckoutRecovery(
   supabase: ReturnType<typeof createClient>,
   checkoutSessionId: string
 ): Promise<void> {
+  const patch = {
+    status: "cancelled",
+    skip_reason: "payment_completed",
+    updated_at: new Date().toISOString(),
+  }
   await supabase
     .from("macwall_checkout_recovery_queue")
-    .update({
-      status: "cancelled",
-      skip_reason: "payment_completed",
-      updated_at: new Date().toISOString(),
-    })
+    .update(patch)
     .eq("checkout_session_id", checkoutSessionId)
+    .eq("status", "pending")
+  await supabase
+    .from("macwall_checkout_recovery_queue")
+    .update(patch)
+    .like("checkout_session_id", `${checkoutSessionId}::%`)
     .eq("status", "pending")
 }
 

@@ -26,7 +26,8 @@ async function startCheckout(
   request: Request,
   offerSlug: string | null,
   planSlug: string | null,
-  promoCode: string | null
+  promoCode: string | null,
+  offerUntil: string | null
 ) {
   const rate = checkCheckoutRateLimit(clientIpFromRequest(request))
   if (rate.limited) {
@@ -52,6 +53,7 @@ async function startCheckout(
     offerSlug,
     planSlug,
     promoCode,
+    offerUntil,
     affonsoReferral,
     siteOrigin: resolveCheckoutSiteOrigin(request.url),
   })
@@ -63,8 +65,15 @@ export async function GET(request: Request) {
   const offerSlug = url.searchParams.get("offer")
   const planSlug = url.searchParams.get("plan")
   const promoCode = url.searchParams.get("promo")
+  const offerUntil = url.searchParams.get("until")
 
-  const result = await startCheckout(request, offerSlug, planSlug, promoCode)
+  const result = await startCheckout(
+    request,
+    offerSlug,
+    planSlug,
+    promoCode,
+    offerUntil
+  )
 
   if (!result.ok) {
     const origin = resolveCheckoutSiteOrigin(request.url)
@@ -80,22 +89,32 @@ export async function POST(request: Request) {
   let offerSlug: string | null = null
   let planSlug: string | null = null
   let promoCode: string | null = null
+  let offerUntil: string | null = null
   try {
     const body = (await request.json()) as {
       offer?: string
       plan?: string
       promo?: string
+      until?: string
     }
     offerSlug = body.offer?.trim() || null
     planSlug = body.plan?.trim() || null
     promoCode = body.promo?.trim() || null
+    offerUntil = body.until?.trim() || null
   } catch {
     offerSlug = null
     planSlug = null
     promoCode = null
+    offerUntil = null
   }
 
-  const result = await startCheckout(request, offerSlug, planSlug, promoCode)
+  const result = await startCheckout(
+    request,
+    offerSlug,
+    planSlug,
+    promoCode,
+    offerUntil
+  )
 
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status })

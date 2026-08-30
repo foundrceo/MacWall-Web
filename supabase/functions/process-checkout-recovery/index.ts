@@ -8,6 +8,10 @@ const NO_EMAIL_RETRY_MINUTES = 30
 /** Stripe allowlisted promo — auto-applied via checkout `promo=` param. */
 const EMAIL_RECOVERY_PROMO_CODE = "WALL10"
 const EMAIL_RECOVERY_PROMO_PERCENT = "10%"
+const LADDER_20_HOURS = 24
+const LADDER_30_HOURS = 12
+const LADDER_20_AFTER_MS = 24 * 60 * 60 * 1000
+const LADDER_30_AFTER_MS = 48 * 60 * 60 * 1000
 
 const FONT =
   "system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Helvetica,Arial,sans-serif"
@@ -37,11 +41,33 @@ function logoUrl(): string {
   return `${siteBaseUrl()}/email/macwall-icon.png`
 }
 
-function checkoutHref(promoCode?: string): string {
+function originalCheckoutSessionId(id: string): string {
+  return id.split("::")[0] || id
+}
+
+const EMAIL_LADDER_20 = "R7N2WP8J"
+const EMAIL_LADDER_30 = "B3H9KF5Q"
+
+function ladderFromReason(
+  reason: string | null
+): { code: string; percent: string; expiresHours: number } | null {
+  const match = reason?.match(/ladder:(WALL20|WALL30|R7N2WP8J|B3H9KF5Q)/i)
+  if (!match) return null
+  const raw = match[1].toUpperCase()
+  if (raw === "WALL20" || raw === EMAIL_LADDER_20) {
+    return { code: EMAIL_LADDER_20, percent: "20%", expiresHours: LADDER_20_HOURS }
+  }
+  return { code: EMAIL_LADDER_30, percent: "30%", expiresHours: LADDER_30_HOURS }
+}
+
+function checkoutHref(promoCode?: string, untilUnix?: number): string {
   const base = `${siteBaseUrl()}/api/checkout/create-session?offer=permanent`
+  const params = new URLSearchParams()
   const code = (promoCode ?? EMAIL_RECOVERY_PROMO_CODE).trim()
-  if (!code) return base
-  return `${base}&promo=${encodeURIComponent(code)}`
+  if (code) params.set("promo", code)
+  if (untilUnix && untilUnix > 0) params.set("until", String(untilUnix))
+  const query = params.toString()
+  return query ? `${base}&${query}` : base
 }
 
 /** Prefer env checkout URL but always ensure WALL10 promo is present. */
@@ -58,12 +84,21 @@ function parseRetryCount(reason: string | null): number {
   return match ? Number.parseInt(match[1], 10) : 0
 }
 
-function recoveryEmailSubject(appName = "MacWall"): string {
-  return `Claim ${EMAIL_RECOVERY_PROMO_PERCENT} off ${appName} Pro`
+function recoveryEmailSubject(
+  appName = "MacWall",
+  promoPercent = EMAIL_RECOVERY_PROMO_PERCENT
+): string {
+  return `Claim ${promoPercent} off ${appName} Pro`
 }
 
-function recoveryEmailPreheader(): string {
-  return `Code ${EMAIL_RECOVERY_PROMO_CODE} · tap to finish checkout`
+function recoveryEmailPreheader(
+  promoCode = EMAIL_RECOVERY_PROMO_CODE,
+  expiresHours?: number
+): string {
+  if (expiresHours) {
+    return `Code ${promoCode} · expires in ${expiresHours} hours`
+  }
+  return `Code ${promoCode} · tap to finish checkout`
 }
 
 function emailShell(args: {
@@ -245,25 +280,32 @@ function buildPaymentRecoveryEmailHtml(args: {
   checkoutHref: string
   promoCode?: string
   promoPercent?: string
+  expiresHours?: number
 }): string {
   const appName = args.appName
   const promoCode = args.promoCode ?? EMAIL_RECOVERY_PROMO_CODE
   const promoPercent = args.promoPercent ?? EMAIL_RECOVERY_PROMO_PERCENT
   const href = args.checkoutHref
+  const urgency =
+    args.expiresHours === 12
+      ? `Last chance — this ${escapeHtml(promoPercent)} off expires in 12 hours.`
+      : args.expiresHours === 24
+        ? `This extra ${escapeHtml(promoPercent)} off expires in 24 hours.`
+        : `Your checkout is still open.`
 
   const cardInner = `
     ${brandMark(appName)}
     ${headline(`${escapeHtml(promoPercent)} off ${escapeHtml(appName)}&nbsp;Pro`)}
     ${bodyCopy(
-      `Your checkout is still open. Unlock 1,000+ live wallpapers and Lock Screen with a one-time Pro license — not a subscription.`
+      `${urgency} Unlock 1,000+ live wallpapers and Lock Screen with a one-time Pro license — not a subscription.`
     )}
     ${promoCodeBlock(promoCode, promoPercent)}
     ${textLinkCta(href, `Continue with ${escapeHtml(promoPercent)} off`)}
   `
 
   return emailShell({
-    title: recoveryEmailSubject(appName),
-    preheader: recoveryEmailPreheader(),
+    title: recoveryEmailSubject(appName, promoPercent),
+    preheader: recoveryEmailPreheader(promoCode, args.expiresHours),
     cardInner,
     footnote: `Already paid? You can ignore this email.`,
   })
@@ -327,15 +369,23 @@ async function processQueueRow(args: {
   appName: string
 }): Promise<"sent" | "skipped" | "failed" | "rescheduled"> {
   const { row, stripe, supabase, resendKey, from, appName } = args
-  const checkoutHrefValue = checkoutUrl()
+  const ladder = ladderFromReason(row.reason)
+  const promoCode = ladder?.code ?? EMAIL_RECOVERY_PROMO_CODE
+  const promoPercent = ladder?.percent ?? EMAIL_RECOVERY_PROMO_PERCENT
+  const expiresHours = ladder?.expiresHours
+  const untilUnix = expiresHours
+    ? Math.floor(Date.now() / 1000) + expiresHours * 3600
+    : undefined
+  const checkoutHrefValue = checkoutHref(promoCode, untilUnix)
+  const stripeSessionId = originalCheckoutSessionId(row.checkout_session_id)
 
   let session: Stripe.Checkout.Session | null = null
   try {
-    session = await stripe.checkout.sessions.retrieve(row.checkout_session_id)
+    session = await stripe.checkout.sessions.retrieve(stripeSessionId)
   } catch (e) {
     console.error(
       "[process-checkout-recovery] session_retrieve_failed",
-      row.checkout_session_id,
+      stripeSessionId,
       e instanceof Error ? e.message : "error"
     )
     // Still send if we already captured an email (session may be purged).
@@ -445,14 +495,15 @@ async function processQueueRow(args: {
   const html = buildPaymentRecoveryEmailHtml({
     appName,
     checkoutHref: checkoutHrefValue,
-    promoCode: EMAIL_RECOVERY_PROMO_CODE,
-    promoPercent: EMAIL_RECOVERY_PROMO_PERCENT,
+    promoCode,
+    promoPercent,
+    expiresHours,
   })
   const text = buildRecoveryEmailPlainText({
     appName,
     checkoutHref: checkoutHrefValue,
-    promoCode: EMAIL_RECOVERY_PROMO_CODE,
-    promoPercent: EMAIL_RECOVERY_PROMO_PERCENT,
+    promoCode,
+    promoPercent,
   })
 
   try {
@@ -465,7 +516,7 @@ async function processQueueRow(args: {
       body: JSON.stringify({
         from,
         to: [email],
-        subject: recoveryEmailSubject(appName),
+        subject: recoveryEmailSubject(appName, promoPercent),
         html,
         text,
       }),
@@ -497,7 +548,128 @@ async function processQueueRow(args: {
     customer_email: email,
   })
 
+  if (!ladder) {
+    await enqueueLadderFollowUps(supabase, {
+      baseSessionId: stripeSessionId,
+      licenseKey: row.license_key,
+      email,
+      paymentIntentId,
+    })
+  }
+
   return "sent"
+}
+
+async function enqueueLadderFollowUps(
+  supabase: ReturnType<typeof createClient>,
+  input: {
+    baseSessionId: string
+    licenseKey: string | null
+    email: string
+    paymentIntentId: string | null
+  }
+): Promise<void> {
+  const now = Date.now()
+  const rows = [
+    {
+      id: `${input.baseSessionId}::wall20`,
+      reason: `ladder:${EMAIL_LADDER_20}`,
+      at: new Date(now + LADDER_20_AFTER_MS).toISOString(),
+    },
+    {
+      id: `${input.baseSessionId}::wall30`,
+      reason: `ladder:${EMAIL_LADDER_30}`,
+      at: new Date(now + LADDER_30_AFTER_MS).toISOString(),
+    },
+  ]
+
+  for (const follow of rows) {
+    const { data: existing } = await supabase
+      .from("macwall_checkout_recovery_queue")
+      .select("id, status")
+      .eq("checkout_session_id", follow.id)
+      .maybeSingle()
+    if (existing) continue
+
+    await supabase.from("macwall_checkout_recovery_queue").insert({
+      checkout_session_id: follow.id,
+      license_key: input.licenseKey,
+      customer_email: input.email,
+      payment_intent_id: input.paymentIntentId,
+      reason: follow.reason,
+      scheduled_send_at: follow.at,
+      status: "pending",
+      sent_at: null,
+      skip_reason: null,
+      updated_at: new Date().toISOString(),
+    })
+  }
+}
+
+/** Existing WALL10 sends that never got 20/30 follow-ups. */
+async function backfillLadderFollowUps(
+  supabase: ReturnType<typeof createClient>
+): Promise<number> {
+  const { data: sent } = await supabase
+    .from("macwall_checkout_recovery_queue")
+    .select("checkout_session_id, license_key, customer_email, payment_intent_id, sent_at, reason")
+    .eq("status", "sent")
+    .not("customer_email", "is", null)
+    .order("sent_at", { ascending: false })
+    .limit(80)
+
+  let queued = 0
+  for (const row of sent ?? []) {
+    if (ladderFromReason(row.reason)) continue
+    const email = row.customer_email?.trim()
+    if (!email) continue
+    const baseId = originalCheckoutSessionId(row.checkout_session_id)
+    if (baseId.includes("::")) continue
+
+    const sentAt = row.sent_at ? Date.parse(row.sent_at) : Date.now()
+    const age = Date.now() - sentAt
+    const { data: wall20 } = await supabase
+      .from("macwall_checkout_recovery_queue")
+      .select("id")
+      .eq("checkout_session_id", `${baseId}::wall20`)
+      .maybeSingle()
+    if (wall20) continue
+
+    const now = Date.now()
+    const twentyAt =
+      age >= LADDER_20_AFTER_MS
+        ? new Date(now + 5 * 60 * 1000)
+        : new Date(sentAt + LADDER_20_AFTER_MS)
+    const thirtyAt =
+      age >= LADDER_30_AFTER_MS
+        ? new Date(now + 30 * 60 * 1000)
+        : new Date(sentAt + LADDER_30_AFTER_MS)
+
+    await supabase.from("macwall_checkout_recovery_queue").insert([
+      {
+        checkout_session_id: `${baseId}::wall20`,
+        license_key: row.license_key,
+        customer_email: email,
+        payment_intent_id: row.payment_intent_id,
+        reason: `ladder:${EMAIL_LADDER_20}`,
+        scheduled_send_at: twentyAt.toISOString(),
+        status: "pending",
+        updated_at: new Date().toISOString(),
+      },
+      {
+        checkout_session_id: `${baseId}::wall30`,
+        license_key: row.license_key,
+        customer_email: email,
+        payment_intent_id: row.payment_intent_id,
+        reason: `ladder:${EMAIL_LADDER_30}`,
+        scheduled_send_at: thirtyAt.toISOString(),
+        status: "pending",
+        updated_at: new Date().toISOString(),
+      },
+    ])
+    queued += 2
+  }
+  return queued
 }
 
 Deno.serve(async (req: Request) => {
@@ -565,6 +737,8 @@ Deno.serve(async (req: Request) => {
     return Response.json({ ok: false, error: error.message }, { status: 500 })
   }
 
+  const ladderBackfilled = await backfillLadderFollowUps(supabase)
+
   let sent = 0
   let skipped = 0
   let failed = 0
@@ -592,5 +766,6 @@ Deno.serve(async (req: Request) => {
     skipped,
     rescheduled,
     failed,
+    ladderBackfilled,
   })
 })
