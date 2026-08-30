@@ -6,7 +6,7 @@ import { isChangelogSectionKind } from "@/lib/changelog/page-copy"
  * Anything matching this never reaches /changelog — no review required.
  */
 export const CHANGELOG_BLOCKED_PATTERN =
-  /\b(datafast|affonso|ahrefs|mixpanel|analytics|pixel|admin\s*portal|admin\s*panel|admin\b|open.?source|\.env\b|github\b|stripe\b|vercel\b|npm\s*audit|devlog|r2\b|supabase|middleware|proxy\b|diagnostics|sentry|webhook|api\s*key|secret|token|commit\b|pr\s*#|pull\s*request|ci\/cd|turbopack|webpack|eslint|typescript|refactor|wip\b|todo\b|fixme|hack\b|Mac app\s*—|Website\s*—|india|inr|regional\s+discount|charm\s+pricing|india50|india60|local\s+india|india\s+pricing|india\s+visitors|india\s+coupon|india\s+promo|pro\s+now\s+\$|pro\+\s+\$|drop\s+global\s+pro)\b|₹|\$\d+\.\d{2}|sale\s+banner.*(?:india|inr|pricing)|(?:india|inr).*sale\s+banner/i
+  /\b(datafast|affonso|ahrefs|mixpanel|analytics|pixel|admin\s*portal|admin\s*panel|admin\b|open.?source|\.env\b|github\b|stripe\b|vercel\b|npm\s*audit|devlog|r2\b|supabase|middleware|proxy\b|diagnostics|sentry|webhook|api\s*key|secret|token|commit\b|pr\s*#|pull\s*request|ci\/cd|turbopack|webpack|eslint|typescript|refactor|wip\b|todo\b|fixme|hack\b|Mac app\s*—|Website\s*—|india|inr|regional\s+discount|charm\s+pricing|india50|india60|local\s+india|india\s+pricing|india\s+visitors|india\s+coupon|india\s+promo|pro\s+now\s+\$|pro\+\s+\$|drop\s+global\s+pro|MAC10|WALL10|X9K4Q2MH|R7N2WP8J|T4V8CL6Y|B3H9KF5Q|promo\s*code|coupon|conversion\s+(offer|ladder|reminder|funnel|focused|flow)|abandoned[-\s]?checkout|timed\s+(extra\s+)?(pro\s+)?discount)\b|₹|\$\d+\.\d{2}|\d+%\s*off|sale\s+banner.*(?:india|inr|pricing)|(?:india|inr).*sale\s+banner/i
 
 const PLATFORM_PREFIX_PATTERN = /^(?:Mac app|Website)\s*—\s*/i
 const HTML_TAG_PATTERN = /<[^>]+>/g
