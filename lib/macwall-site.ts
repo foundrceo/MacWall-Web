@@ -143,15 +143,15 @@ export const macwall = {
   legalEffectiveDateIso: "2026-08-03",
   /** Same buckets as Home → Categories in the Mac app */
   categories: [
-    "Nature",
-    "Space",
     "Anime",
+    "Nature",
     "Cars",
-    "City",
-    "Video Games",
-    "Sci-fi",
-    "Fantasy",
-    "Cats",
+    "Gaming",
+    "Space",
+    "Heroes",
+    "Dark",
+    "Abstract",
+    "Others",
   ],
   pro: {
     headline: "Permanent License",

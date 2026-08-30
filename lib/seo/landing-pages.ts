@@ -287,7 +287,7 @@ export const livelyWallpaperMacPage: SeoContentPage = {
         "$7.99 once, no subscription, free updates forever",
         "Native Swift app, built only for macOS",
         "Import the same video files you used in Lively",
-        "Curated 4K catalog across Nature, Space, Anime, and more",
+        "Curated 4K catalog across Anime, Nature, Cars, Gaming, and more",
         "Pause on battery, full screen, and high CPU. MacBook-friendly",
         `Live Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion}`,
         "Post a Reel with #macwall and get up to 100% refunded",
@@ -323,11 +323,9 @@ export const livelyWallpaperMacPage: SeoContentPage = {
 
 export function wallpaperCategoryPage(categoryName: string): SeoContentPage {
   const pathSlug =
-    categoryName === "Video Games"
-      ? "video-games"
-      : categoryName === "Sci-fi"
-        ? "sci-fi"
-        : categoryName.toLowerCase()
+    categoryName === "Others"
+      ? "others"
+      : categoryName.toLowerCase()
 
   return {
     slug: pathSlug,

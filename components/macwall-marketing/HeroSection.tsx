@@ -5,14 +5,14 @@ import { macwall } from "@/lib/macwall-site"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 
 const catalogGenres = [
-  "Nature",
-  "Landscapes",
-  "Space",
-  "Cosmic",
   "Anime",
-  "Studio quality",
-  "Sci-fi",
-  "Cinematic",
+  "Nature",
+  "Cars",
+  "Gaming",
+  "Space",
+  "Heroes",
+  "Dark",
+  "Abstract",
 ] as const
 
 export default function HeroSection() {

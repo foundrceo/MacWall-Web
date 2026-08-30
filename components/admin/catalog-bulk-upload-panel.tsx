@@ -1723,21 +1723,24 @@ function splitTitleCompounds(value: string) {
 function inferCategory(text: string): string {
   const source = text.toLowerCase()
   const pairs: Array<[string, string[]]> = [
-    ["Anime", ["anime", "goku", "gojo", "naruto", "manga", "kimetsu"]],
-    ["Cars", ["car", "cars", "bmw", "porsche", "ferrari", "lambo", "jdm"]],
-    ["Cats", ["cat", "kitten", "leopard", "tiger", "lion"]],
-    ["City", ["city", "street", "tokyo", "new york", "night", "skyline"]],
-    ["Fantasy", ["fantasy", "dragon", "castle", "warrior", "magic", "katana"]],
     [
-      "Nature",
-      ["nature", "forest", "fern", "water", "ocean", "mountain", "rain"],
+      "Heroes",
+      ["spider", "batman", "marvel", "deadpool", "iron man", "venom"],
     ],
-    ["Sci-fi", ["sci", "cyber", "android", "robot", "future", "spaceship"]],
-    ["Space", ["space", "planet", "galaxy", "black hole", "nebula", "star"]],
+    ["Cars", ["car", "cars", "bmw", "porsche", "ferrari", "lambo", "jdm"]],
     [
-      "Video Games",
+      "Gaming",
       ["game", "gaming", "dark souls", "zelda", "elden", "minecraft"],
     ],
+    ["Anime", ["anime", "goku", "gojo", "naruto", "manga", "kimetsu"]],
+    ["Space", ["space", "planet", "galaxy", "black hole", "nebula"]],
+    [
+      "Nature",
+      ["nature", "forest", "fern", "ocean", "mountain", "rain"],
+    ],
+    ["Dark", ["dark", "noir", "midnight", "cyberpunk", "night"]],
+    ["Abstract", ["abstract", "geometric", "texture", "waveform"]],
+    ["Others", ["cat", "kitten", "leopard", "ronaldo", "disney"]],
   ]
 
   return (

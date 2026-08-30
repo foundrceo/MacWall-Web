@@ -12,6 +12,7 @@ import {
 import { listPublicWallpapers } from "@/lib/public-catalog/fetch"
 import {
   categoryNameFromSlug,
+  LEGACY_CATEGORY_SLUG_REDIRECTS,
   wallpaperCategorySlugs,
 } from "@/lib/seo/category-slugs"
 import { wallpaperCategoryPage } from "@/lib/seo/landing-pages"
@@ -28,7 +29,7 @@ import {
   proseFaqTitle,
 } from "@/lib/marketing-prose-classes"
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 
 type PageProps = {
   params: Promise<{ category: string }>
@@ -48,6 +49,8 @@ export async function generateMetadata({
   searchParams,
 }: PageProps): Promise<Metadata> {
   const { category } = await params
+  const legacySlug = LEGACY_CATEGORY_SLUG_REDIRECTS[category]
+  if (legacySlug) permanentRedirect(`/wallpapers/${legacySlug}`)
   const name = categoryNameFromSlug(category)
   if (!name) return {}
 
@@ -60,6 +63,8 @@ export default async function WallpaperCategoryGalleryPage({
   searchParams,
 }: PageProps) {
   const { category } = await params
+  const legacySlug = LEGACY_CATEGORY_SLUG_REDIRECTS[category]
+  if (legacySlug) permanentRedirect(`/wallpapers/${legacySlug}`)
   const name = categoryNameFromSlug(category)
   if (!name) notFound()
 

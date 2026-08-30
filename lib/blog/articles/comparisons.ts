@@ -45,7 +45,7 @@ export const comparisonArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "MacWall checks every box above. It feels like Apple software: quiet background operation, crisp UI, and intelligent pause rules. The catalog spans Nature, Space, Anime, and more, plus you can import anything. Pro adds Lock Screen motion on macOS 26 (Tahoe) and later for a single $7.99 payment.",
+        text: "MacWall checks every box above. It feels like Apple software: quiet background operation, crisp UI, and intelligent pause rules. The catalog spans Anime, Nature, Cars, Gaming, and more, plus you can import anything. Pro adds Lock Screen motion on macOS 26 (Tahoe) and later for a single $7.99 payment.",
       },
       {
         type: "h2",
@@ -291,7 +291,7 @@ export const comparisonArticles: BlogArticle[] = [
         type: "ul",
         items: [
           "Lively video wallpapers → MacWall MP4/MOV/GIF imports",
-          "Lively library → MacWall community catalog: Nature, Space, Anime, Cars, City, Video Games, Sci-fi, Fantasy, Cats",
+          "Lively library → MacWall community catalog: Anime, Nature, Cars, Gaming, Space, Heroes, Dark, Abstract, Others",
           "Lively pause rules → MacWall auto-pause on battery, full screen, lock, and high CPU",
           "Lively multi-monitor → MacWall per-display wallpapers or synced playback with drift correction",
           "Windows lock screen tools → MacWall Pro Lock Screen video on macOS 26+ and the macOS 27 beta",
