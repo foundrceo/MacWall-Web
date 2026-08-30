@@ -173,6 +173,9 @@ function mapFeedback(
   }
 }
 
+/** PostgREST max_rows is 1000; a single select silently drops newer messages. */
+const MESSAGE_PAGE_SIZE = 1000
+
 async function loadMessagesForFeedback(
   ids: string[]
 ): Promise<Map<string, FeedbackMessage[]>> {
@@ -180,19 +183,30 @@ async function loadMessagesForFeedback(
   if (ids.length === 0) return grouped
 
   const supabase = getSupabaseAdmin()
-  const { data, error } = await supabase
-    .from("app_feedback_messages")
-    .select("id,feedback_id,author,body,image_url,created_at")
-    .in("feedback_id", ids)
-    .order("created_at", { ascending: true })
+  let offset = 0
 
-  if (error) throw new Error(error.message)
+  while (true) {
+    const { data, error } = await supabase
+      .from("app_feedback_messages")
+      .select("id,feedback_id,author,body,image_url,created_at")
+      .in("feedback_id", ids)
+      .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
+      .range(offset, offset + MESSAGE_PAGE_SIZE - 1)
 
-  for (const row of (data ?? []) as MessageRow[]) {
-    const list = grouped.get(row.feedback_id) ?? []
-    list.push(mapMessage(row))
-    grouped.set(row.feedback_id, list)
+    if (error) throw new Error(error.message)
+
+    const rows = (data ?? []) as MessageRow[]
+    for (const row of rows) {
+      const list = grouped.get(row.feedback_id) ?? []
+      list.push(mapMessage(row))
+      grouped.set(row.feedback_id, list)
+    }
+
+    if (rows.length < MESSAGE_PAGE_SIZE) break
+    offset += MESSAGE_PAGE_SIZE
   }
+
   return grouped
 }
 

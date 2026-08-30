@@ -10,10 +10,6 @@ import {
   createInMemoryRateLimiter,
 } from "@/lib/http/rate-limit"
 import { AFFONSO_REFERRAL_COOKIE } from "@/lib/macwall-affiliate"
-import {
-  DATAFAST_SESSION_COOKIE,
-  DATAFAST_VISITOR_COOKIE,
-} from "@/lib/macwall-datafast"
 import { resolveCheckoutSiteOrigin } from "@/lib/stripe/checkout-origin"
 import { createMacWallCheckoutSession } from "@/lib/stripe/create-macwall-checkout-session"
 
@@ -44,10 +40,6 @@ async function startCheckout(
   const cookieStore = await cookies()
   const affonsoReferral =
     cookieStore.get(AFFONSO_REFERRAL_COOKIE)?.value?.trim().slice(0, 255) || ""
-  const datafastVisitorId =
-    cookieStore.get(DATAFAST_VISITOR_COOKIE)?.value?.trim().slice(0, 255) || ""
-  const datafastSessionId =
-    cookieStore.get(DATAFAST_SESSION_COOKIE)?.value?.trim().slice(0, 255) || ""
   // Fast path: Vercel/edge headers + cookie only — never wait on IP whois.
   const country = await resolveVisitorCountry({
     headers: request.headers,
@@ -61,8 +53,6 @@ async function startCheckout(
     planSlug,
     promoCode,
     affonsoReferral,
-    datafastVisitorId,
-    datafastSessionId,
     siteOrigin: resolveCheckoutSiteOrigin(request.url),
   })
 }

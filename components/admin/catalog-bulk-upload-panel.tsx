@@ -976,7 +976,7 @@ export function CatalogBulkUploadPanel({
             !canStageMore && "cursor-not-allowed opacity-60"
           )}
         >
-          <span className="flex size-10 items-center justify-center rounded-xl bg-white ring-1 ring-[var(--admin-border)]">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-[var(--admin-surface)] ring-1 ring-[var(--admin-border)]">
             {analyzing ? (
               <Loader2 className="size-4 animate-spin text-[var(--admin-blue)]" />
             ) : (
@@ -1119,7 +1119,7 @@ function DraftRow({
   const idLocked = disabled || draft.status === "uploaded"
 
   return (
-    <div className="rounded-xl border border-[var(--admin-border)] bg-white p-4">
+    <div className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)] p-4">
       <div className="grid gap-4 lg:grid-cols-[9rem_minmax(0,1fr)_auto]">
         <div className="space-y-2">
           <div className="relative aspect-video overflow-hidden rounded-lg bg-[var(--admin-fill)]">
@@ -1373,7 +1373,7 @@ function StatPill({
   value,
 }: Readonly<{ label: string; value: string }>) {
   return (
-    <div className="bg-white px-4 py-3">
+    <div className="bg-[var(--admin-surface)] px-4 py-3">
       <p className="text-xs text-[var(--admin-muted)]">{label}</p>
       <p className="mt-0.5 text-lg font-semibold text-[var(--admin-fg)] tabular-nums">
         {value}
@@ -1502,7 +1502,7 @@ function ProgressLine({
 
 function Info({ label, value }: Readonly<{ label: string; value: string }>) {
   return (
-    <div className="min-w-0 bg-white px-3 py-2">
+    <div className="min-w-0 bg-[var(--admin-surface)] px-3 py-2">
       <p className="text-[11px] text-[var(--admin-muted)]">{label}</p>
       <p className="mt-0.5 truncate text-xs font-medium text-[var(--admin-fg)] tabular-nums">
         {value || "—"}

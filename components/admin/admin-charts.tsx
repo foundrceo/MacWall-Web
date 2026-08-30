@@ -34,18 +34,18 @@ import { cn } from "@/lib/utils"
 /* Shared visual language ---------------------------------------------------- */
 
 const C = {
-  blue: "#0071e3",
-  green: "#17b26a",
-  amber: "#f79009",
-  violet: "#7a5af8",
+  blue: "#3b82f6",
+  green: "#22c55e",
+  amber: "#f59e0b",
+  violet: "#8b7cf7",
   red: "#f04438",
-  cyan: "#06aed4",
+  cyan: "#22d3ee",
   pink: "#ee46bc",
-  slate: "#98a2b3",
-  grid: "#e4e7ec",
-  cursor: "#f2f4f7",
-  muted: "#667085",
-  fg: "#101828",
+  slate: "#8b8b93",
+  grid: "var(--admin-border)",
+  cursor: "var(--admin-fill)",
+  muted: "var(--admin-muted)",
+  fg: "var(--admin-fg)",
 } as const
 
 const SERIES_COLORS = [
@@ -61,7 +61,7 @@ const SERIES_COLORS = [
 
 const CHART_HEIGHT = "aspect-auto h-[260px] w-full"
 const TOOLTIP_CLASS =
-  "rounded-lg border border-[#e4e7ec] bg-white text-[13px] shadow-[0_8px_24px_-6px_rgba(16,24,40,0.12)] ring-0"
+  "rounded-lg border border-[var(--admin-border)] bg-[var(--admin-surface)] text-[13px] text-[var(--admin-fg)] shadow-[var(--admin-shadow-pop)] ring-0"
 
 const axisTick = { fill: C.muted, fontSize: 11 } as const
 
@@ -413,7 +413,7 @@ function Gauge({
             gridType="circle"
             radialLines={false}
             stroke="none"
-            className="fill-[#f2f4f7]"
+            className="fill-[var(--admin-fill)]"
           />
           <RadialBar dataKey="value" background cornerRadius={9} />
           <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
@@ -459,7 +459,7 @@ export function RingGauge({
             <tspan
               x={cx}
               y={cy}
-              className="fill-[#101828] text-[28px] font-semibold"
+              className="fill-[var(--admin-fg)] text-[28px] font-semibold"
             >
               {Math.round(pct)}%
             </tspan>
@@ -493,11 +493,11 @@ export function StatRing({
             <tspan
               x={cx}
               y={cy - 5}
-              className="fill-[#101828] text-[22px] font-semibold"
+              className="fill-[var(--admin-fg)] text-[22px] font-semibold"
             >
               {value.toLocaleString()}
             </tspan>
-            <tspan x={cx} y={cy + 15} className="fill-[#667085] text-[11px]">
+            <tspan x={cx} y={cy + 15} className="fill-[var(--admin-muted)] text-[11px]">
               of {ringMax.toLocaleString()}
             </tspan>
           </text>
@@ -571,14 +571,14 @@ export function CategoryDonut({
                     <tspan
                       x={cx}
                       y={cy - 4}
-                      className="fill-[#101828] text-[22px] font-semibold"
+                      className="fill-[var(--admin-fg)] text-[22px] font-semibold"
                     >
                       {total.toLocaleString()}
                     </tspan>
                     <tspan
                       x={cx}
                       y={cy + 16}
-                      className="fill-[#667085] text-[11px]"
+                      className="fill-[var(--admin-muted)] text-[11px]"
                     >
                       wallpapers
                     </tspan>

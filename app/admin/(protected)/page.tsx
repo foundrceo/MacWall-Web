@@ -10,6 +10,7 @@ import {
   Activity,
   CircleCheck,
   Clock,
+  Cloud,
   CreditCard,
   Download,
   Flame,
@@ -40,7 +41,6 @@ import {
   DailyActivityChart,
   DailySalesBarChart,
   DayOfWeekRadarChart,
-  DeviceActivationsAreaChart,
   DownloadActivityChart,
   EventsSummaryList,
   FeedbackSentimentPieChart,
@@ -109,10 +109,12 @@ type AnalyticsResponse = {
     likeCount: number
   }>
   sales?: {
+    source?: "stripe" | "licenses"
     pricePerSale: number
     netPerSale: number
     feePercentAssumed: number
     feeFixedAssumed: number
+    usedStripeFees?: boolean
     sales: number
     grossRevenue: number
     netRevenue: number
@@ -125,6 +127,14 @@ type AnalyticsResponse = {
     firstSaleAt: string | null
     daily: Array<{ day: string; sales: number; revenue: number }>
     prevDaily: Array<{ day: string; sales: number; revenue: number }>
+    recentCharges?: Array<{
+      sent_at: string
+      amountUsd: number
+      netUsd: number
+      promoCode: string | null
+      planSlug: string | null
+      country: string | null
+    }>
   }
   conversionFunnel?: {
     pageViews: number
@@ -201,14 +211,68 @@ type AnalyticsResponse = {
     topExitOrLandingPages: Array<{ path: string; count: number }>
   }
   recoveryStats?: {
+    totalQueued?: number
+    pending?: number
+    skipped?: number
+    cancelled?: number
     totalAbandoned: number
     emailsSent: number
-    emailsOpened: number
-    emailsClicked: number
+    emailsLogged?: number
+    emailsOpened: number | null
+    emailsClicked: number | null
     recoveredConversions: number
     recoveryRatePercent: number
     recoveredRevenueUsd: number
+    opensTracked?: boolean
     funnel: Array<{ stage: string; count: number; rate: number }>
+  }
+  stripeLive?: {
+    balance: {
+      availableUsd: number
+      pendingUsd: number
+      instantAvailableUsd: number
+    } | null
+    promotions: Array<{
+      id: string
+      code: string
+      active: boolean
+      timesRedeemed: number
+      maxRedemptions: number | null
+    }>
+    chargeCount: number
+    error?: string
+  }
+  opsLive?: {
+    resend: {
+      available: boolean
+      error?: string
+      sent: number
+      delivered: number
+      bounced: number
+      opened: number
+      clicked: number
+      deliveryRate: number
+    }
+    cloudflare: {
+      available: boolean
+      error?: string
+      accountId: string
+      buckets: Array<{ name: string; reachable: boolean }>
+    }
+    vercel: {
+      available: boolean
+      error?: string
+      projectName: string
+      productionUrl: string | null
+      latest: Array<{
+        id: string
+        url: string
+        state: string
+        target: string | null
+        createdAt: string
+        commit: string | null
+      }>
+    }
   }
   feedbackTotals?: {
     total: number
@@ -262,7 +326,7 @@ function Panel({
   bodyClassName?: string
 }>) {
   return (
-    <Card className={cn("gap-0 py-0 overflow-hidden shadow-xs", className)}>
+    <Card className={cn("gap-0 overflow-hidden py-0", className)}>
       <PanelHeader title={title} description={description} action={action} />
       <div className={cn("px-5 py-4", bodyClassName)}>{children}</div>
     </Card>
@@ -369,7 +433,8 @@ export default function AdminAnalyticsPage() {
 
   return (
     <AdminShell
-      title="Analytics & Intelligence"
+      title="Analytics"
+      largeTitle
       actions={
         <>
           {data ? <TrackingPill data={data} /> : null}
@@ -414,6 +479,83 @@ export default function AdminAnalyticsPage() {
 
         {data ? (
           <>
+            <p className="text-[13px] text-[var(--admin-muted)]">
+              {data.rangeDays === 0
+                ? sales?.source === "stripe"
+                  ? "All-time totals from live Stripe charges and first-party events."
+                  : "All-time totals from licenses and first-party events."
+                : sales?.source === "stripe"
+                  ? `Stripe payouts and first-party events for the last ${data.rangeDays} days.`
+                  : `Daily totals for the last ${data.rangeDays} days.`}
+            </p>
+
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <StatCard
+                label="Active now"
+                value={live?.activeUsers5m ?? 0}
+                hint={`${live?.activeUsers24h ?? 0} in the last 24h`}
+                icon={<Radio className="size-4" />}
+              />
+              <StatCard
+                label="Sales"
+                value={sales?.sales ?? 0}
+                hint={
+                  sales
+                    ? `${sales.prevSales} in the previous period`
+                    : "No sales in this range"
+                }
+                trend={
+                  sales?.salesChangePercent != null
+                    ? {
+                        value: sales.salesChangePercent,
+                        label: `${sales.prevSales} previous period`,
+                      }
+                    : undefined
+                }
+                icon={<CreditCard className="size-4" />}
+              />
+              <StatCard
+                label="Net revenue"
+                value={sales ? formatUsd(sales.netRevenue) : "$0"}
+                hint={
+                  sales?.source === "stripe"
+                    ? "Paid Stripe Checkout totals, including promo codes"
+                    : data.stripeLive?.error
+                      ? "Stripe unavailable. License list prices."
+                      : "License counts times list prices. Stripe unavailable."
+                }
+                icon={<TrendingUp className="size-4" />}
+              />
+              <StatCard
+                label="Needs reply"
+                value={feedback?.needsReply ?? data.communityUploads.pending}
+                hint={
+                  feedback
+                    ? `${feedback.open} open tickets · ${data.communityUploads.pending} pending uploads`
+                    : `${data.communityUploads.pending} pending uploads`
+                }
+                icon={<MessageSquare className="size-4" />}
+              />
+            </div>
+
+            {sales ? (
+              <Panel
+                title="Revenue over time"
+                description={
+                  sales.source === "stripe"
+                    ? "Paid Stripe Checkout amount_total in the selected range"
+                    : "License list-price estimate. Stripe Checkout unavailable."
+                }
+              >
+                <SalesComparisonChart
+                  daily={sales.daily}
+                  prevDaily={sales.prevDaily}
+                  days={data.rangeDays}
+                  metric="revenue"
+                />
+              </Panel>
+            ) : null}
+
             {/* 1. Live Real-time Activity Center */}
             {live ? (
               <Section
@@ -436,7 +578,7 @@ export default function AdminAnalyticsPage() {
                   <StatCard
                     icon={<Flame className="size-4 text-amber-500" />}
                     label="Avg Pages / Visit"
-                    value={sessions?.avgPagesPerSession ?? 1.4}
+                    value={sessions?.avgPagesPerSession ?? 0}
                     hint={`${sessions?.totalSessions ?? 0} total sessions`}
                   />
                   <StatCard
@@ -537,65 +679,57 @@ export default function AdminAnalyticsPage() {
             {licenses ? (
               <Section
                 title="License Base & Free vs Paid"
-                description="Database tiering, plan distributions, and customer licenses"
+                description="Paid licenses vs unfinished checkouts from macwall_licenses"
               >
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <StatCard
                     icon={<Key className="size-4 text-emerald-500" />}
-                    label="Active Pro Licenses"
+                    label="Active licenses"
                     value={licenses.activeLicenses}
-                    hint={`${licenses.proLicenses} Pro · ${licenses.proPlusLicenses} Pro Plus 5-Mac`}
+                    hint={`${licenses.proLicenses} Pro · ${licenses.proPlusLicenses} Pro+`}
                   />
                   <StatCard
                     icon={<Clock className="size-4 text-amber-500" />}
-                    label="Pending / Free Visitors"
+                    label="Pending checkouts"
                     value={licenses.pendingLicenses}
-                    hint="Awaiting checkout activation"
+                    hint="Checkout started, not paid"
                   />
                   <StatCard
                     icon={<ShieldCheck className="size-4 text-blue-500" />}
                     label="Lifetime vs Annual"
                     value={`${licenses.permanentLicenses} : ${licenses.annualLicenses}`}
-                    hint="One-time vs subscription mix"
+                    hint="Paid licenses only"
                   />
                   <StatCard
                     icon={<Globe className="size-4 text-purple-500" />}
-                    label="Top Buyer Countries"
-                    value={licenses.buyerCountries[0]?.country ?? "US"}
-                    hint={`${licenses.buyerCountries.length} countries represented`}
+                    label="Top buyer country"
+                    value={licenses.buyerCountries[0]?.country ?? "—"}
+                    hint={
+                      licenses.buyerCountries.length > 0
+                        ? `${licenses.buyerCountries.length} countries on paid licenses`
+                        : "No country on paid licenses"
+                    }
                   />
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-3">
-                  <Panel title="Plan Distribution" description="Pro vs Pro Plus vs Annual split">
+                  <Panel title="Plan Distribution" description="Paid licenses only. Pro is 3 Macs. Pro+ is 5 or more.">
                     <LicensePlanPieChart rows={licenses.planBreakdown} />
                   </Panel>
-                  <Panel title="License Status Breakdown" description="Active, pending, expired & revoked">
+                  <Panel title="License Status Breakdown" description="Every row in macwall_licenses">
                     <LicenseStatusDonut rows={licenses.statusBreakdown} />
                   </Panel>
-                  <Panel title="Top Buyer Geo-Locations" description="Top countries purchasing MacWall">
+                  <Panel title="Top Buyer Geo-Locations" description="visitor_country on paid licenses">
                     <RankedBarList
                       rows={licenses.buyerCountries.map((b) => ({
                         label: b.country,
                         value: b.count,
                       }))}
-                      color="#0071e3"
+                      color="#3b82f6"
                     />
                   </Panel>
                 </div>
 
-                <Panel
-                  title="Device Activations Velocity"
-                  description="Daily activated Mac computers"
-                >
-                  <DeviceActivationsAreaChart
-                    daily={(data.downloadDaily ?? []).map((d) => ({
-                      day: d.day,
-                      count: d.count,
-                    }))}
-                    days={data.rangeDays}
-                  />
-                </Panel>
               </Section>
             ) : null}
 
@@ -604,9 +738,13 @@ export default function AdminAnalyticsPage() {
               <Section
                 title="Sales & Revenue"
                 description={
-                  data.rangeDays === 0
-                    ? "Stripe payments · All-time totals"
-                    : `Stripe payments · last ${data.rangeDays} days compared with previous ${data.rangeDays}`
+                  sales.source === "stripe"
+                    ? data.rangeDays === 0
+                      ? "Live Stripe Checkout. Amounts are what customers paid, including promos."
+                      : `Live Stripe Checkout. Last ${data.rangeDays} days compared with the previous ${data.rangeDays}.`
+                    : data.stripeLive?.error
+                      ? "Stripe unavailable. Showing license list prices."
+                      : "Stripe Checkout unavailable. Showing license list prices."
                 }
               >
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -623,9 +761,9 @@ export default function AdminAnalyticsPage() {
                   />
                   <StatCard
                     icon={<TrendingUp className="size-4" />}
-                    label="Net revenue (est.)"
+                    label="Net revenue"
                     value={formatUsd(sales.netRevenue)}
-                    hint={`≈ ${formatUsd(sales.netPerSale)} per sale after fees`}
+                    hint={`${formatUsd(sales.netPerSale)} average after estimated 2.9% + $0.30 fees`}
                   />
                   <StatCard
                     label="All-time revenue"
@@ -707,6 +845,39 @@ export default function AdminAnalyticsPage() {
                     )}
                   </Panel>
                 </div>
+
+                {(sales.recentCharges ?? []).length > 0 ? (
+                  <Panel
+                    title="Latest Stripe checkouts"
+                    description="amount_total after promo codes"
+                  >
+                    <ol className="space-y-2">
+                      {sales.recentCharges?.map((charge, index) => (
+                        <li
+                          key={`${charge.sent_at}-${index}`}
+                          className="flex items-center justify-between gap-3 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-canvas)] px-3 py-2 text-[12px]"
+                        >
+                          <div className="min-w-0">
+                            <p className="font-medium text-[var(--admin-fg)] tabular-nums">
+                              {formatUsd(charge.amountUsd)}
+                              <span className="ml-2 font-normal text-[var(--admin-muted)]">
+                                net {formatUsd(charge.netUsd)}
+                              </span>
+                            </p>
+                            <p className="truncate text-[var(--admin-muted)]">
+                              {charge.planSlug ?? "license"}
+                              {charge.promoCode ? ` · ${charge.promoCode}` : ""}
+                              {charge.country ? ` · ${charge.country}` : ""}
+                            </p>
+                          </div>
+                          <span className="shrink-0 text-[11px] text-[var(--admin-muted)]">
+                            {formatRelativeTime(charge.sent_at)}
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                  </Panel>
+                ) : null}
               </Section>
             ) : null}
 
@@ -727,7 +898,11 @@ export default function AdminAnalyticsPage() {
                     icon={<Percent className="size-4 text-emerald-500" />}
                     label="Promo Redemptions"
                     value={promos.checkoutPromoAttempts}
-                    hint="Promo codes applied at checkout"
+                    hint={
+                      data.stripeLive?.promotions.length
+                        ? "Stripe promotion codes, lifetime redemptions"
+                        : "Checkout events that included a promo"
+                    }
                   />
                   <StatCard
                     icon={<Sparkles className="size-4 text-purple-500" />}
@@ -746,7 +921,11 @@ export default function AdminAnalyticsPage() {
                 <div className="grid gap-4 lg:grid-cols-2">
                   <Panel
                     title="Promo Code Redemptions"
-                    description="MAC10, WALL10, and allowlisted code usage"
+                    description={
+                      data.stripeLive?.promotions.length
+                        ? "Live Stripe promotion_codes.times_redeemed"
+                        : "First-party checkout promo events"
+                    }
                   >
                     <PromoCodeBarChart rows={promos.promoCodesBreakdown} />
                   </Panel>
@@ -771,36 +950,40 @@ export default function AdminAnalyticsPage() {
             {recovery ? (
               <Section
                 title="Checkout Abandonment & Recovery"
-                description="Automated recovery emails, open rates, and rescued revenue"
+                description="Supabase recovery queue. Rescued revenue is matched Stripe charges."
               >
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <StatCard
                     icon={<Mail className="size-4 text-blue-500" />}
                     label="Recovery Emails Sent"
                     value={recovery.emailsSent}
-                    hint={`${recovery.totalAbandoned} total checkouts started`}
+                    hint={`${recovery.totalQueued ?? recovery.totalAbandoned} queued · ${recovery.pending ?? 0} pending · ${recovery.skipped ?? 0} skipped`}
                   />
                   <StatCard
                     icon={<MousePointerClick className="size-4 text-indigo-500" />}
-                    label="Email Open Rate"
+                    label="Email opens"
                     value={
-                      recovery.emailsSent > 0
-                        ? `${Math.round((recovery.emailsOpened / recovery.emailsSent) * 100)}%`
-                        : "0%"
+                      recovery.opensTracked && recovery.emailsOpened != null
+                        ? `${recovery.emailsOpened}`
+                        : "Not tracked"
                     }
-                    hint={`${recovery.emailsOpened} emails opened`}
+                    hint={
+                      recovery.emailsLogged
+                        ? `${recovery.emailsLogged} rows in payment recovery log`
+                        : "Open and click columns are not stored"
+                    }
                   />
                   <StatCard
                     icon={<CircleCheck className="size-4 text-emerald-500" />}
                     label="Rescued Sales"
                     value={recovery.recoveredConversions}
-                    hint={`Recovery rate: ${recovery.recoveryRatePercent}%`}
+                    hint={`${recovery.recoveryRatePercent}% of queued checkouts later paid`}
                   />
                   <StatCard
                     icon={<TrendingUp className="size-4 text-emerald-500" />}
                     label="Rescued Revenue"
                     value={formatUsd(recovery.recoveredRevenueUsd)}
-                    hint="Revenue saved by recovery flow"
+                    hint="Stripe amounts for recovered licenses"
                   />
                 </div>
 
@@ -825,9 +1008,127 @@ export default function AdminAnalyticsPage() {
                   >
                     <RingGauge
                       value={recovery.recoveryRatePercent}
-                      caption={`${recovery.recoveredConversions} of ${recovery.emailsSent} rescued`}
-                      color="#17b26a"
+                      caption={`${recovery.recoveredConversions} of ${recovery.totalQueued ?? recovery.totalAbandoned} queued`}
+                      color="#22c55e"
                     />
+                  </Panel>
+                </div>
+              </Section>
+            ) : null}
+
+            {data.stripeLive || data.opsLive ? (
+              <Section
+                title="Live services"
+                description="Stripe, Resend, Cloudflare R2, and Vercel. Missing keys stay empty."
+              >
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  <StatCard
+                    icon={<CreditCard className="size-4" />}
+                    label="Stripe available"
+                    value={
+                      data.stripeLive?.balance
+                        ? formatUsd(data.stripeLive.balance.availableUsd)
+                        : "—"
+                    }
+                    hint={
+                      data.stripeLive?.balance
+                        ? `${formatUsd(data.stripeLive.balance.pendingUsd)} pending · ${data.stripeLive.chargeCount} paid charges cached`
+                        : data.stripeLive?.error
+                          ? /expired|invalid/i.test(data.stripeLive.error)
+                            ? "Stripe key expired. Balance unavailable."
+                            : "Stripe unavailable"
+                          : "Stripe balance unavailable"
+                    }
+                  />
+                  <StatCard
+                    icon={<Mail className="size-4 text-blue-500" />}
+                    label="Resend delivered"
+                    value={
+                      data.opsLive?.resend.available
+                        ? data.opsLive.resend.delivered
+                        : "—"
+                    }
+                    hint={
+                      data.opsLive?.resend.available
+                        ? `${data.opsLive.resend.sent} sent · ${data.opsLive.resend.deliveryRate}% delivered`
+                        : data.opsLive?.resend.error ?? "RESEND_API_KEY not set"
+                    }
+                  />
+                  <StatCard
+                    icon={<Cloud className="size-4 text-orange-400" />}
+                    label="Cloudflare R2"
+                    value={
+                      data.opsLive?.cloudflare.available
+                        ? `${data.opsLive.cloudflare.buckets.filter((b) => b.reachable).length}/${data.opsLive.cloudflare.buckets.length}`
+                        : "—"
+                    }
+                    hint={
+                      data.opsLive?.cloudflare.available
+                        ? data.opsLive.cloudflare.buckets
+                            .map((bucket) => `${bucket.name}${bucket.reachable ? "" : " down"}`)
+                            .join(" · ")
+                        : data.opsLive?.cloudflare.error ?? "R2 credentials not set"
+                    }
+                  />
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <Panel
+                    title="Vercel production"
+                    description={
+                      data.opsLive?.vercel.available
+                        ? data.opsLive.vercel.productionUrl ?? "macwall.app"
+                        : data.opsLive?.vercel.error ?? "VERCEL_TOKEN not set"
+                    }
+                  >
+                    {data.opsLive?.vercel.available &&
+                    data.opsLive.vercel.latest.length > 0 ? (
+                      <ol className="space-y-2">
+                        {data.opsLive.vercel.latest.slice(0, 5).map((deploy) => (
+                          <li
+                            key={deploy.id}
+                            className="flex items-start justify-between gap-3 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-canvas)] px-3 py-2 text-[12px]"
+                          >
+                            <div className="min-w-0">
+                              <p className="font-medium text-[var(--admin-fg)]">
+                                {deploy.target ?? "preview"} · {deploy.state}
+                              </p>
+                              <p className="truncate text-[var(--admin-muted)]">
+                                {deploy.commit ?? deploy.url}
+                              </p>
+                            </div>
+                            <span className="shrink-0 text-[11px] text-[var(--admin-muted)]">
+                              {deploy.createdAt
+                                ? formatRelativeTime(deploy.createdAt)
+                                : ""}
+                            </span>
+                          </li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <p className="py-6 text-center text-[13px] text-[var(--admin-muted)]">
+                        {data.opsLive?.vercel.error ?? "No deployments loaded."}
+                      </p>
+                    )}
+                  </Panel>
+
+                  <Panel
+                    title="Stripe promotion codes"
+                    description="Redemptions from the live Stripe account"
+                  >
+                    {(data.stripeLive?.promotions ?? []).length > 0 ? (
+                      <RankedBarList
+                        rows={(data.stripeLive?.promotions ?? []).map((promo) => ({
+                          label: promo.code,
+                          value: promo.timesRedeemed,
+                        }))}
+                        color="#22c55e"
+                      />
+                    ) : (
+                      <p className="py-6 text-center text-[13px] text-[var(--admin-muted)]">
+                        No Stripe promotion codes loaded.
+                      </p>
+                    )}
                   </Panel>
                 </div>
               </Section>
@@ -884,7 +1185,7 @@ export default function AdminAnalyticsPage() {
                   <RingGauge
                     value={data.downloadFunnel?.completionRate ?? 0}
                     caption={`${downloadRedirects} of ${downloadClicks} clicks`}
-                    color="#17b26a"
+                    color="#22c55e"
                   />
                 </Panel>
               </div>
@@ -920,7 +1221,7 @@ export default function AdminAnalyticsPage() {
                     formatLabel={(label) =>
                       DOWNLOAD_LOCATION_LABELS[label] ?? label
                     }
-                    color="#17b26a"
+                    color="#22c55e"
                   />
                 </Panel>
                 <Panel title="Pricing Clicks by Button Location">
@@ -1013,7 +1314,7 @@ export default function AdminAnalyticsPage() {
                           : 100
                       }
                       caption={`${feedback.resolved} resolved of ${feedback.total} tickets`}
-                      color="#0071e3"
+                      color="#3b82f6"
                     />
                   </Panel>
                 </div>
@@ -1061,7 +1362,7 @@ export default function AdminAnalyticsPage() {
                   <RingGauge
                     value={uploadApprovalRate}
                     caption={`${data.communityUploads.approved} approved of ${uploadTotal}`}
-                    color="#17b26a"
+                    color="#22c55e"
                   />
                 </Panel>
                 <Panel
@@ -1104,7 +1405,7 @@ export default function AdminAnalyticsPage() {
                   />
                 </Panel>
 
-                <Panel title="Most Liked Wallpapers" bodyClassName="p-2">
+                <Panel title="Most Liked Wallpapers">
                   {(data.topLikedWallpapers ?? []).length === 0 ? (
                     <p className="px-3 py-8 text-center text-[13px] text-[var(--admin-muted)]">
                       No likes recorded yet.

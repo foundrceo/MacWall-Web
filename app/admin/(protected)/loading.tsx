@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Loading() {
   return (
-    <AdminShell title="Analytics">
+    <AdminShell title="Analytics" largeTitle>
       <div className="space-y-8">
         <Skeleton className="h-5 w-56 rounded-md" />
         {Array.from({ length: 2 }).map((_, section) => (

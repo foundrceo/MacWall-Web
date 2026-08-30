@@ -1,6 +1,8 @@
 import "server-only"
 
 import type { AnalyticsEventRow } from "@/lib/analytics/admin-metrics"
+import { netRevenueForAmount } from "@/lib/admin/sales-math"
+import { fetchStripeLive, type StripePaidCharge } from "@/lib/admin/stripe-live"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 /** Default MacWall Pro permanent price (USD) — most common SKU. */
@@ -19,10 +21,6 @@ export function priceUsdForPlan(
   return PRO_PRICE_USD
 }
 
-/**
- * Stripe fee estimate: ~2.9% + $0.30 processing.
- * Override with STRIPE_FEE_PERCENT / STRIPE_FEE_FIXED env vars if your plan differs.
- */
 const STRIPE_FEE_PERCENT = Number.parseFloat(
   process.env.STRIPE_FEE_PERCENT ?? "2.9"
 )
@@ -30,25 +28,33 @@ const STRIPE_FEE_FIXED = Number.parseFloat(
   process.env.STRIPE_FEE_FIXED ?? "0.30"
 )
 
-export function netRevenueForAmount(amountUsd: number): number {
-  const fee = amountUsd * (STRIPE_FEE_PERCENT / 100) + STRIPE_FEE_FIXED
-  return Math.max(0, amountUsd - fee)
-}
+export { netRevenueForAmount } from "@/lib/admin/sales-math"
 
 export function netRevenuePerSale(): number {
   return netRevenueForAmount(PRO_PRICE_USD)
 }
 
-export type SaleRow = { sent_at: string; amountUsd: number }
+export type SaleRow = {
+  sent_at: string
+  amountUsd: number
+  netUsd?: number
+  feeUsd?: number
+  paymentIntentId?: string | null
+  promoCode?: string | null
+}
 export type DeviceRow = { activated_at: string }
 
 export type DailySalesRow = { day: string; sales: number; revenue: number }
 
+export type SalesRevenueSource = "stripe" | "licenses"
+
 export type SalesSummary = {
+  source: SalesRevenueSource
   pricePerSale: number
   netPerSale: number
   feePercentAssumed: number
   feeFixedAssumed: number
+  usedStripeFees: boolean
   sales: number
   grossRevenue: number
   netRevenue: number
@@ -61,6 +67,14 @@ export type SalesSummary = {
   firstSaleAt: string | null
   daily: DailySalesRow[]
   prevDaily: DailySalesRow[]
+  recentCharges: Array<{
+    sent_at: string
+    amountUsd: number
+    netUsd: number
+    promoCode: string | null
+    planSlug: string | null
+    country: string | null
+  }>
 }
 
 export type ConversionFunnel = {
@@ -114,16 +128,55 @@ function sumGross(rows: SaleRow[]): number {
   return round2(rows.reduce((sum, row) => sum + row.amountUsd, 0))
 }
 
+function rowNet(row: SaleRow): number {
+  if (typeof row.netUsd === "number") return row.netUsd
+  return netRevenueForAmount(row.amountUsd)
+}
+
 function sumNet(rows: SaleRow[]): number {
-  return round2(
-    rows.reduce((sum, row) => sum + netRevenueForAmount(row.amountUsd), 0)
-  )
+  return round2(rows.reduce((sum, row) => sum + rowNet(row), 0))
+}
+
+function chargeToSaleRow(charge: StripePaidCharge): SaleRow {
+  return {
+    sent_at: charge.sent_at,
+    amountUsd: charge.amountUsd,
+    netUsd: charge.netUsd,
+    feeUsd: charge.feeUsd,
+    paymentIntentId: charge.paymentIntentId,
+    promoCode: charge.promoCode,
+  }
 }
 
 /**
- * Active licenses with plan-aware pricing (falls back to license-email tables).
+ * Paid Stripe charges first. License counts are not a price source.
  */
-export async function fetchAllSales(): Promise<SaleRow[]> {
+export async function fetchAllSales(): Promise<{
+  rows: SaleRow[]
+  source: SalesRevenueSource
+  charges: StripePaidCharge[]
+}> {
+  try {
+    const live = await fetchStripeLive()
+    if (live.charges.length > 0) {
+      return {
+        rows: live.charges.map(chargeToSaleRow),
+        source: "stripe",
+        charges: live.charges,
+      }
+    }
+  } catch (error) {
+    console.warn(
+      "[analytics] Stripe sales unavailable",
+      error instanceof Error ? error.message : error
+    )
+  }
+
+  const fallback = await fetchSalesFromLicenses()
+  return { rows: fallback, source: "licenses", charges: [] }
+}
+
+async function fetchSalesFromLicenses(): Promise<SaleRow[]> {
   const supabase = getSupabaseAdmin()
   const { data, error } = await supabase
     .from("macwall_licenses")
@@ -202,8 +255,13 @@ export async function fetchAllDeviceActivations(
 /** Pure: computes the full sales summary from all sale rows. */
 export function buildSalesSummary(
   allSales: SaleRow[],
-  days: number
+  days: number,
+  options?: {
+    source?: SalesRevenueSource
+    charges?: StripePaidCharge[]
+  }
 ): SalesSummary {
+  const source = options?.source ?? "licenses"
   const isAllTime = days <= 0 || days >= 3650
   let currentRows: SaleRow[]
   let prevRows: SaleRow[] = []
@@ -231,8 +289,10 @@ export function buildSalesSummary(
   const prevSales = prevRows.length
   const allTimeSales = allSales.length
   const grossRevenue = sumGross(currentRows)
+  const netRevenue = sumNet(currentRows)
   const avgPrice = sales > 0 ? round2(grossRevenue / sales) : PRO_PRICE_USD
-  const net = netRevenueForAmount(avgPrice)
+  const avgNet = sales > 0 ? round2(netRevenue / sales) : netRevenueForAmount(avgPrice)
+  const usedStripeFees = false
 
   let salesChangePercent: number | null = 0
   if (prevSales > 0) {
@@ -241,14 +301,29 @@ export function buildSalesSummary(
     salesChangePercent = null
   }
 
+  const recentCharges = (options?.charges ?? [])
+    .slice()
+    .sort((a, b) => b.sent_at.localeCompare(a.sent_at))
+    .slice(0, 8)
+    .map((charge) => ({
+      sent_at: charge.sent_at,
+      amountUsd: charge.amountUsd,
+      netUsd: charge.netUsd,
+      promoCode: charge.promoCode,
+      planSlug: charge.planSlug,
+      country: charge.country,
+    }))
+
   return {
+    source,
     pricePerSale: avgPrice,
-    netPerSale: round2(net),
+    netPerSale: avgNet,
     feePercentAssumed: STRIPE_FEE_PERCENT,
     feeFixedAssumed: STRIPE_FEE_FIXED,
+    usedStripeFees,
     sales,
     grossRevenue,
-    netRevenue: sumNet(currentRows),
+    netRevenue,
     prevSales,
     prevGrossRevenue: sumGross(prevRows),
     salesChangePercent,
@@ -258,6 +333,7 @@ export function buildSalesSummary(
     firstSaleAt: allSales[0]?.sent_at ?? null,
     daily: bucketByDay(currentRows),
     prevDaily: bucketByDay(prevRows),
+    recentCharges,
   }
 }
 
@@ -288,13 +364,19 @@ export type LicenseAnalyticsSummary = {
 }
 
 export type CheckoutRecoverySummary = {
+  totalQueued: number
+  pending: number
+  skipped: number
+  cancelled: number
   totalAbandoned: number
   emailsSent: number
-  emailsOpened: number
-  emailsClicked: number
+  emailsLogged: number
+  emailsOpened: number | null
+  emailsClicked: number | null
   recoveredConversions: number
   recoveryRatePercent: number
   recoveredRevenueUsd: number
+  opensTracked: boolean
   funnel: Array<{ stage: string; count: number; rate: number }>
 }
 
@@ -305,27 +387,55 @@ export type DayOfWeekSalesRow = {
   revenue: number
 }
 
-/** Fetches full license table rows for deep breakdown */
-export async function fetchAllLicensesDetailed(): Promise<LicenseDetailedRow[]> {
-  const supabase = getSupabaseAdmin()
-  const { data, error } = await supabase
-    .from("macwall_licenses")
-    .select("status, plan_slug, billing_model, visitor_country, activated_at, max_devices")
-    .limit(10000)
+const LICENSE_PAGE_SIZE = 1000
 
-  if (error) {
-    if (error.message.includes("does not exist")) return []
-    console.warn("[analytics] fetchAllLicensesDetailed fallback", error.message)
-    return []
-  }
-
-  return (data ?? []) as LicenseDetailedRow[]
+function isPaidActive(row: LicenseDetailedRow): boolean {
+  return (row.status || "").toLowerCase() === "active"
 }
 
-/** Builds comprehensive license metrics and status/plan breakdowns */
+/** Pro is 3 Macs. Pro+ is 5+ Macs. max_devices > 1 is not Plus. */
+function isProPlusLicense(row: LicenseDetailedRow): boolean {
+  const plan = (row.plan_slug || "").toLowerCase()
+  if (plan === "pro_plus" || plan === "pro_max" || plan.includes("plus")) {
+    return true
+  }
+  return (row.max_devices ?? 0) >= 5
+}
+
+/** Fetches every license row. PostgREST caps a single select at 1000. */
+export async function fetchAllLicensesDetailed(): Promise<LicenseDetailedRow[]> {
+  const supabase = getSupabaseAdmin()
+  const rows: LicenseDetailedRow[] = []
+  let offset = 0
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("macwall_licenses")
+      .select(
+        "status, plan_slug, billing_model, visitor_country, activated_at, max_devices"
+      )
+      .order("id", { ascending: true })
+      .range(offset, offset + LICENSE_PAGE_SIZE - 1)
+
+    if (error) {
+      if (error.message.includes("does not exist")) return []
+      console.warn("[analytics] fetchAllLicensesDetailed", error.message)
+      return rows
+    }
+
+    const batch = (data ?? []) as LicenseDetailedRow[]
+    rows.push(...batch)
+    if (batch.length < LICENSE_PAGE_SIZE) break
+    offset += LICENSE_PAGE_SIZE
+  }
+
+  return rows
+}
+
+/** Builds license metrics. Plan mix and geo are paid (active) licenses only. */
 export function buildLicenseAnalytics(
   licenses: LicenseDetailedRow[],
-  activeSalesCount: number
+  _activeSalesCount?: number
 ): LicenseAnalyticsSummary {
   let active = 0
   let pending = 0
@@ -342,33 +452,35 @@ export function buildLicenseAnalytics(
   const countryTotals = new Map<string, number>()
 
   for (const row of licenses) {
-    const st = (row.status || "active").toLowerCase()
+    const st = (row.status || "").toLowerCase()
     if (st === "active") active++
     else if (st === "pending") pending++
     else if (st === "expired") expired++
     else if (st === "revoked") revoked++
-    else active++
 
-    const plan = (row.plan_slug || "pro").toLowerCase()
-    if (plan.includes("plus") || (row.max_devices && row.max_devices > 1)) proPlus++
-    else if (plan.includes("annual")) annual++
-    else pro++
+    if (!isPaidActive(row)) continue
 
     const billing = (row.billing_model || "permanent").toLowerCase()
-    if (billing === "annual" || billing === "subscription") subscription++
-    else permanent++
+    const isAnnual =
+      billing === "annual" ||
+      billing === "subscription" ||
+      (row.plan_slug || "").toLowerCase().includes("annual")
+
+    if (isAnnual) {
+      annual++
+      subscription++
+    } else if (isProPlusLicense(row)) {
+      proPlus++
+      permanent++
+    } else {
+      pro++
+      permanent++
+    }
 
     if (row.visitor_country && /^[A-Z]{2}$/i.test(row.visitor_country)) {
       const c = row.visitor_country.toUpperCase()
       countryTotals.set(c, (countryTotals.get(c) ?? 0) + 1)
     }
-  }
-
-  // Fallback if licenses table has minimal rows but sales exists
-  if (active === 0 && activeSalesCount > 0) {
-    active = activeSalesCount
-    pro = activeSalesCount
-    permanent = activeSalesCount
   }
 
   const total = active + pending + expired + revoked
@@ -381,9 +493,9 @@ export function buildLicenseAnalytics(
   ].filter((s) => s.count > 0 || total === 0)
 
   const planBreakdown = [
-    { plan: "pro", label: "MacWall Pro ($7.99)", count: pro, color: "#0071e3" },
-    { plan: "pro_plus", label: "Pro Plus 5-Mac ($12.99)", count: proPlus, color: "#7a5af8" },
-    { plan: "annual", label: "Legacy Annual ($4.99/yr)", count: annual, color: "#06aed4" },
+    { plan: "pro", label: "MacWall Pro", count: pro, color: "#0071e3" },
+    { plan: "pro_plus", label: "Pro Plus 5-Mac", count: proPlus, color: "#7a5af8" },
+    { plan: "annual", label: "Legacy Annual", count: annual, color: "#06aed4" },
   ].filter((p) => p.count > 0 || total === 0)
 
   const billingBreakdown = [
@@ -415,56 +527,149 @@ export function buildLicenseAnalytics(
 }
 
 /** Fetches abandoned checkout & recovery email metrics */
-export async function fetchCheckoutRecoveryStats(): Promise<CheckoutRecoverySummary> {
+export async function fetchCheckoutRecoveryStats(
+  sinceIso: string,
+  charges: StripePaidCharge[]
+): Promise<CheckoutRecoverySummary> {
+  const empty: CheckoutRecoverySummary = {
+    totalQueued: 0,
+    pending: 0,
+    skipped: 0,
+    cancelled: 0,
+    totalAbandoned: 0,
+    emailsSent: 0,
+    emailsLogged: 0,
+    emailsOpened: null,
+    emailsClicked: null,
+    recoveredConversions: 0,
+    recoveryRatePercent: 0,
+    recoveredRevenueUsd: 0,
+    opensTracked: false,
+    funnel: [],
+  }
+
   const supabase = getSupabaseAdmin()
 
-  try {
-    const [queueRes, emailRes] = await Promise.all([
-      supabase.from("macwall_checkout_recovery_queue").select("id, email, created_at"),
-      supabase.from("macwall_payment_recovery_emails").select("id, opened_at, clicked_at, converted_at"),
-    ])
+  const [queueRangeRes, queueIdsRes, emailRes, recoveredRes] = await Promise.all([
+    supabase
+      .from("macwall_checkout_recovery_queue")
+      .select("status")
+      .gte("created_at", sinceIso)
+      .limit(20000),
+    supabase
+      .from("macwall_checkout_recovery_queue")
+      .select("checkout_session_id")
+      .limit(20000),
+    supabase
+      .from("macwall_payment_recovery_emails")
+      .select("id, created_at")
+      .gte("created_at", sinceIso)
+      .limit(5000),
+    supabase
+      .from("macwall_licenses")
+      .select(
+        "stripe_checkout_session_id, stripe_payment_intent_id, activated_at"
+      )
+      .eq("status", "active")
+      .not("activated_at", "is", null)
+      .gte("activated_at", sinceIso)
+      .limit(10000),
+  ])
 
-    const queueRows = queueRes.data ?? []
-    const emailRows = emailRes.data ?? []
+  if (queueRangeRes.error) {
+    console.warn("[analytics] recovery queue", queueRangeRes.error.message)
+    return empty
+  }
 
-    const totalAbandoned = queueRows.length
-    const emailsSent = emailRows.length
-    const emailsOpened = emailRows.filter((r) => Boolean(r.opened_at)).length
-    const emailsClicked = emailRows.filter((r) => Boolean(r.clicked_at)).length
-    const recoveredConversions = emailRows.filter((r) => Boolean(r.converted_at)).length
+  const queueRows = queueRangeRes.data ?? []
+  const emailRows = emailRes.data ?? []
+  const recoveredLicenses = recoveredRes.data ?? []
 
-    const recoveryRate = emailsSent > 0 ? round1((recoveredConversions / emailsSent) * 100) : 0
-    const recoveredRevenueUsd = round2(recoveredConversions * PRO_PRICE_USD)
+  let pending = 0
+  let skipped = 0
+  let cancelled = 0
+  let emailsSent = 0
+  const queuedSessionIds = new Set<string>()
 
-    const funnel = [
-      { stage: "Abandoned Checkout", count: Math.max(totalAbandoned, emailsSent), rate: 100 },
-      { stage: "Recovery Email Sent", count: emailsSent, rate: totalAbandoned > 0 ? round1((emailsSent / totalAbandoned) * 100) : 100 },
-      { stage: "Email Opened", count: emailsOpened, rate: emailsSent > 0 ? round1((emailsOpened / emailsSent) * 100) : 0 },
-      { stage: "Discount Clicked", count: emailsClicked, rate: emailsOpened > 0 ? round1((emailsClicked / emailsOpened) * 100) : 0 },
-      { stage: "Recovered Sale", count: recoveredConversions, rate: emailsClicked > 0 ? round1((recoveredConversions / emailsClicked) * 100) : 0 },
-    ]
-
-    return {
-      totalAbandoned,
-      emailsSent,
-      emailsOpened,
-      emailsClicked,
-      recoveredConversions,
-      recoveryRatePercent: recoveryRate,
-      recoveredRevenueUsd,
-      funnel,
+  for (const row of queueIdsRes.data ?? []) {
+    if (typeof row.checkout_session_id === "string") {
+      queuedSessionIds.add(row.checkout_session_id)
     }
-  } catch {
-    return {
-      totalAbandoned: 0,
-      emailsSent: 0,
-      emailsOpened: 0,
-      emailsClicked: 0,
-      recoveredConversions: 0,
-      recoveryRatePercent: 0,
-      recoveredRevenueUsd: 0,
-      funnel: [],
-    }
+  }
+
+  for (const row of queueRows) {
+    const status = (row.status || "").toLowerCase()
+    if (status === "pending") pending += 1
+    else if (status === "skipped") skipped += 1
+    else if (status === "cancelled") cancelled += 1
+    else if (status === "sent") emailsSent += 1
+  }
+
+  const recovered = recoveredLicenses.filter((row) => {
+    const sessionId = row.stripe_checkout_session_id
+    return typeof sessionId === "string" && queuedSessionIds.has(sessionId)
+  })
+
+  const recoveredIntentIds = new Set(
+    recovered
+      .map((row) => row.stripe_payment_intent_id)
+      .filter((id): id is string => typeof id === "string")
+  )
+  const recoveredSessionIds = new Set(
+    recovered
+      .map((row) => row.stripe_checkout_session_id)
+      .filter((id): id is string => typeof id === "string")
+  )
+  const stripeRecovered = charges.filter(
+    (charge) =>
+      Boolean(charge.recoveredFrom) ||
+      (charge.paymentIntentId != null &&
+        recoveredIntentIds.has(charge.paymentIntentId)) ||
+      (charge.checkoutSessionId != null &&
+        recoveredSessionIds.has(charge.checkoutSessionId))
+  )
+  const recoveredRevenueUsd = round2(
+    stripeRecovered.reduce((sum, charge) => sum + charge.amountUsd, 0)
+  )
+
+  const totalQueued = queueRows.length
+  const emailsLogged = emailRows.length
+  const recoveredConversions = Math.max(recovered.length, stripeRecovered.length)
+  const recoveryRate =
+    totalQueued > 0 ? round1((recoveredConversions / totalQueued) * 100) : 0
+
+  const funnel = [
+    { stage: "Queued for recovery", count: totalQueued, rate: 100 },
+    {
+      stage: "Recovery email sent",
+      count: emailsSent,
+      rate: totalQueued > 0 ? round1((emailsSent / totalQueued) * 100) : 0,
+    },
+    {
+      stage: "Later became a paid license",
+      count: recoveredConversions,
+      rate:
+        totalQueued > 0
+          ? round1((recoveredConversions / totalQueued) * 100)
+          : 0,
+    },
+  ]
+
+  return {
+    totalQueued,
+    pending,
+    skipped,
+    cancelled,
+    totalAbandoned: pending + emailsSent,
+    emailsSent,
+    emailsLogged,
+    emailsOpened: null,
+    emailsClicked: null,
+    recoveredConversions,
+    recoveryRatePercent: recoveryRate,
+    recoveredRevenueUsd,
+    opensTracked: false,
+    funnel,
   }
 }
 
