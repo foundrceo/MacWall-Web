@@ -1,9 +1,4 @@
-import { trackAICrawlerRequest } from "@datafast/ai-crawl"
-import {
-  NextResponse,
-  type NextFetchEvent,
-  type NextRequest,
-} from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
 
 import {
   ADMIN_SESSION_COOKIE,
@@ -14,18 +9,6 @@ import {
   MW_RESOLVED_COUNTRY_HEADER,
 } from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
-import {
-  DATAFAST_BOT_TOKEN_ENV,
-  DATAFAST_WEBSITE_ID,
-} from "@/lib/macwall-datafast"
-
-/** Cheap bot UA hint — skip AI-crawl work for normal browsers. */
-function looksLikeAiCrawler(userAgent: string | null): boolean {
-  if (!userAgent) return false
-  return /bot|crawler|spider|gpt|claude|anthropic|perplexity|gemini|bingpreview|slurp|duckduck|bytespider|facebookexternalhit|linkedinbot|twitterbot|applebot|semrush|ahrefs|mj12|yandex/i.test(
-    userAgent
-  )
-}
 
 /**
  * Edge proxy — keep this matcher tiny. Every match burns Edge Middleware
@@ -33,20 +16,8 @@ function looksLikeAiCrawler(userAgent: string | null): boolean {
  * surfaces; admin auth is the other required path. Gallery/blog HTML no longer
  * runs Edge (saves the bulk of document hits).
  */
-export async function proxy(request: NextRequest, event: NextFetchEvent) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
-
-  // AI-crawl tracking only when UA looks like a bot on document landings.
-  if (
-    (pathname === "/" || pathname === "/pricing") &&
-    looksLikeAiCrawler(request.headers.get("user-agent"))
-  ) {
-    const botAuthToken = process.env[DATAFAST_BOT_TOKEN_ENV]?.trim()
-    trackAICrawlerRequest(request, event, {
-      websiteId: DATAFAST_WEBSITE_ID,
-      ...(botAuthToken ? { authToken: botAuthToken } : {}),
-    })
-  }
 
   // Never block HTML / API on IP whois — Vercel edge geo + cookie only.
   const country = await resolveVisitorCountry({

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 
 import { requireAdminApi } from "@/lib/admin/auth"
+import { fetchOpsLive } from "@/lib/admin/ops-live"
+import { withTtlCache } from "@/lib/admin/ttl-cache"
 import {
   buildConversionFunnel,
   buildDayOfWeekSales,
@@ -11,6 +13,7 @@ import {
   fetchAllSales,
   fetchCheckoutRecoveryStats,
 } from "@/lib/admin/sales"
+import { fetchStripeLive } from "@/lib/admin/stripe-live"
 import {
   buildClicksByLocation,
   buildDailyCountsFallback,
@@ -23,6 +26,7 @@ import {
   buildTopPageViews,
   buildVisitorsByCountry,
   fetchDailyCounts,
+  fetchEventNameCounts,
   fetchEventsInRange,
   fetchLatestEventAt,
 } from "@/lib/analytics/admin-metrics"
@@ -58,10 +62,28 @@ export async function GET(request: Request) {
           return since.toISOString()
         })()
 
+    const payload = await withTtlCache(
+      `admin-analytics:${days}:${sinceIso.slice(0, 13)}`,
+      20_000,
+      () => loadAnalytics(days, sinceIso)
+    )
+    return NextResponse.json(payload)
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to load analytics"
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}
+
+async function loadAnalytics(days: number, sinceIso: string) {
     const supabase = getSupabaseAdmin()
+
+    const liveSinceIso = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 
     const [
       eventRows,
+      liveEventRows,
+      eventNameCounts,
       lastEventAt,
       uploadsResult,
       wallpaperCountResult,
@@ -69,13 +91,24 @@ export async function GET(request: Request) {
       categoryCounts,
       topLikedWallpapers,
       dailyCountsRpc,
-      allSales,
+      salesResult,
       allDevices,
       detailedLicenses,
-      recoveryStats,
+      stripeLive,
+      opsLive,
       feedbackResult,
     ] = await Promise.all([
-      fetchEventsInRange(supabase, sinceIso),
+      fetchEventsInRange(supabase, sinceIso, [
+        "page_view",
+        "download_click",
+        "download_redirect",
+        "pricing_click",
+        "cta_click",
+        "checkout_started",
+        "checkout_abandoned",
+      ]),
+      fetchEventsInRange(supabase, liveSinceIso),
+      fetchEventNameCounts(supabase, sinceIso),
       fetchLatestEventAt(supabase),
       supabase.from("community_uploads").select("status"),
       supabase.from("wallpapers").select("id", { count: "exact", head: true }),
@@ -88,12 +121,19 @@ export async function GET(request: Request) {
       fetchAllSales(),
       fetchAllDeviceActivations(sinceIso),
       fetchAllLicensesDetailed(),
-      fetchCheckoutRecoveryStats(),
+      fetchStripeLive(),
+      fetchOpsLive(sinceIso),
       supabase
         .from("app_feedback")
         .select("sentiment, is_resolved, needs_admin_reply, created_at")
         .limit(2000),
     ])
+
+    const allSales = salesResult.rows
+    const recoveryStats = await fetchCheckoutRecoveryStats(
+      sinceIso,
+      stripeLive.charges
+    )
 
     if (uploadsResult.error) throw new Error(uploadsResult.error.message)
     if (wallpaperCountResult.error) {
@@ -102,11 +142,16 @@ export async function GET(request: Request) {
     if (likesResult.error) throw new Error(likesResult.error.message)
 
     const eventTotals = new Map<string, number>()
+    for (const row of eventNameCounts) {
+      eventTotals.set(row.event_name, row.count)
+    }
     for (const row of eventRows) {
-      eventTotals.set(
-        row.event_name,
-        (eventTotals.get(row.event_name) ?? 0) + 1
-      )
+      if (!eventTotals.has(row.event_name)) {
+        eventTotals.set(
+          row.event_name,
+          (eventTotals.get(row.event_name) ?? 0) + 1
+        )
+      }
     }
     const eventCounts = [...eventTotals.entries()]
       .map(([event_name, count]) => ({ event_name, count }))
@@ -148,7 +193,10 @@ export async function GET(request: Request) {
       )
       .sort((a, b) => a.day.localeCompare(b.day))
 
-    const sales = buildSalesSummary(allSales, days)
+    const sales = buildSalesSummary(allSales, days, {
+      source: salesResult.source,
+      charges: stripeLive.charges,
+    })
     const conversionFunnel = buildConversionFunnel(
       eventRows,
       allDevices,
@@ -157,10 +205,21 @@ export async function GET(request: Request) {
     )
 
     const licenseAnalytics = buildLicenseAnalytics(detailedLicenses, allSales.length)
-    const liveActivity = buildLiveActivity(eventRows)
+    const liveActivity = buildLiveActivity(liveEventRows)
     const dayOfWeekSales = buildDayOfWeekSales(allSales)
     const hourlyHeatmap = buildHourlyActivityHeatmap(eventRows)
     const promoDiscount = buildPromoDiscountAnalytics(eventRows)
+    if (stripeLive.promotions.length > 0) {
+      promoDiscount.promoCodesBreakdown = stripeLive.promotions.map((promo) => ({
+        code: promo.code,
+        count: promo.timesRedeemed,
+        label: promo.active ? promo.code : `${promo.code} (off)`,
+      }))
+      promoDiscount.checkoutPromoAttempts = stripeLive.promotions.reduce(
+        (sum, promo) => sum + promo.timesRedeemed,
+        0
+      )
+    }
     const sessionEngagement = buildSessionEngagement(eventRows)
 
     // Support / feedback sentiment stats
@@ -177,7 +236,7 @@ export async function GET(request: Request) {
       ],
     }
 
-    return NextResponse.json({
+    return {
       rangeDays: days,
       since: sinceIso,
       lastEventAt,
@@ -207,11 +266,13 @@ export async function GET(request: Request) {
       sessionEngagement,
       recoveryStats,
       feedbackTotals,
-    })
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to load analytics"
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+      stripeLive: {
+        balance: stripeLive.balance,
+        promotions: stripeLive.promotions,
+        chargeCount: stripeLive.charges.length,
+        error: stripeLive.error,
+      },
+      opsLive,
+    }
 }
 

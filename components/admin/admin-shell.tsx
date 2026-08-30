@@ -63,7 +63,7 @@ function SidebarNav({
             onClick={onNavigate}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex h-9 items-center gap-2.5 rounded-full px-3 text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]/30",
+              "flex h-9 items-center gap-2.5 rounded-lg px-3 text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]/30",
               active
                 ? "bg-[var(--admin-fill)] text-[var(--admin-fg)]"
                 : "text-[var(--admin-fg-soft)] hover:bg-[var(--admin-fill)] hover:text-[var(--admin-fg)]"
@@ -103,7 +103,7 @@ function SignOutButton({ onDone }: Readonly<{ onDone?: () => void }>) {
     <Button
       variant="ghost"
       size="sm"
-      className="h-9 w-full justify-start gap-2.5 rounded-full px-3 text-[13px] font-medium text-[var(--admin-fg-soft)]"
+      className="h-9 w-full justify-start gap-2.5 rounded-lg px-3 text-[13px] font-medium text-[var(--admin-fg-soft)]"
       onClick={() => void logout()}
     >
       <HugeiconsIcon
@@ -122,11 +122,13 @@ export function AdminShell({
   children,
   /** Chat-style pages that own their own scrolling and fill the viewport. */
   fill = false,
+  largeTitle = false,
 }: Readonly<{
   title: string
   actions?: ReactNode
   children: ReactNode
   fill?: boolean
+  largeTitle?: boolean
 }>) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -139,7 +141,7 @@ export function AdminShell({
         fill ? "h-svh overflow-hidden" : "min-h-svh"
       )}
     >
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[var(--admin-sidebar-width)] flex-col border-r border-[var(--admin-border)] bg-white md:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[var(--admin-sidebar-width)] flex-col border-r border-[var(--admin-border)] bg-[var(--admin-surface)] md:flex">
         <div className="flex h-[var(--admin-topbar-height)] shrink-0 items-center border-b border-[var(--admin-border)] px-4">
           <Link
             href="/admin"
@@ -164,7 +166,7 @@ export function AdminShell({
           fill ? "h-svh min-h-0 overflow-hidden" : "min-h-svh"
         )}
       >
-        <header className="sticky top-0 z-20 flex h-[var(--admin-topbar-height)] shrink-0 items-center gap-3 border-b border-[var(--admin-border)] bg-white/90 px-4 backdrop-blur-sm sm:px-6">
+        <header className="sticky top-0 z-20 flex h-[var(--admin-topbar-height)] shrink-0 items-center gap-3 border-b border-[var(--admin-border)] bg-[var(--admin-canvas)]/90 px-4 backdrop-blur-sm sm:px-6">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button
@@ -179,7 +181,7 @@ export function AdminShell({
             <SheetContent
               side="left"
               showCloseButton={false}
-              className="w-64 bg-white p-0"
+              className="w-64 bg-[var(--admin-surface)] p-0"
             >
               <SheetHeader className="h-[var(--admin-topbar-height)] justify-center border-b border-[var(--admin-border)] px-4 py-0">
                 <SheetTitle className="font-sans">
@@ -198,7 +200,12 @@ export function AdminShell({
             </SheetContent>
           </Sheet>
 
-          <h1 className="min-w-0 flex-1 truncate text-[15px] font-semibold text-[var(--admin-fg)]">
+          <h1
+            className={cn(
+              "min-w-0 flex-1 truncate font-semibold tracking-tight text-[var(--admin-fg)]",
+              largeTitle ? "text-xl sm:text-2xl" : "text-[15px]"
+            )}
+          >
             {title}
           </h1>
 

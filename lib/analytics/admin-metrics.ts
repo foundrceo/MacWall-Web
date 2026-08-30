@@ -75,6 +75,36 @@ export async function fetchLatestEventAt(
   return data?.created_at ?? null
 }
 
+const COUNTED_EVENTS = [
+  "page_view",
+  "download_click",
+  "download_redirect",
+  "pricing_click",
+  "cta_click",
+  "checkout_started",
+  "checkout_abandoned",
+  "purchase_complete",
+  "wallpaper_like",
+] as const
+
+export async function fetchEventNameCounts(
+  supabase: SupabaseClient,
+  sinceIso: string
+): Promise<Array<{ event_name: string; count: number }>> {
+  const counts = await Promise.all(
+    COUNTED_EVENTS.map(async (eventName) => {
+      const { count, error } = await supabase
+        .from("site_analytics_events")
+        .select("id", { count: "exact", head: true })
+        .eq("event_name", eventName)
+        .gte("created_at", sinceIso)
+      if (error) throw new Error(error.message)
+      return { event_name: eventName, count: count ?? 0 }
+    })
+  )
+  return counts.filter((row) => row.count > 0).sort((a, b) => b.count - a.count)
+}
+
 export async function fetchDailyCounts(
   supabase: SupabaseClient,
   sinceIso: string
@@ -353,10 +383,10 @@ export function buildLiveActivity(rows: AnalyticsEventRow[]): LiveActivityMetric
   }))
 
   return {
-    activeUsers5m: Math.max(sessions5m.size, 1),
-    activeUsers15m: Math.max(sessions15m.size, 1),
-    activeUsers1h: Math.max(sessions1h.size, 1),
-    activeUsers24h: Math.max(sessions24h.size, 1),
+    activeUsers5m: sessions5m.size,
+    activeUsers15m: sessions15m.size,
+    activeUsers1h: sessions1h.size,
+    activeUsers24h: sessions24h.size,
     eventsLastHour,
     currentActions,
     recentLiveFeed: recentFeed,
@@ -429,22 +459,20 @@ export function buildPromoDiscountAnalytics(rows: AnalyticsEventRow[]): PromoDis
       }
     }
 
-    if (row.metadata?.promo_code || loc.includes("promo")) {
-      const code = (row.metadata?.promo_code || "WALL10").toUpperCase()
-      promoCodeMap.set(code, (promoCodeMap.get(code) ?? 0) + 1)
+    const promoCode =
+      typeof row.metadata?.promo_code === "string"
+        ? row.metadata.promo_code.trim().toUpperCase()
+        : ""
+    if (promoCode) {
+      promoCodeMap.set(promoCode, (promoCodeMap.get(promoCode) ?? 0) + 1)
       checkoutPromoAttempts++
     }
-  }
-
-  if (promoCodeMap.size === 0) {
-    promoCodeMap.set("MAC10", Math.round(indiaOfferClicks * 0.4))
-    promoCodeMap.set("WALL10", Math.round(announcementPromoClicks * 0.6))
   }
 
   const promoCodesBreakdown = [...promoCodeMap.entries()].map(([code, count]) => ({
     code,
     count,
-    label: `${code} (10% off)`,
+    label: code,
   }))
 
   const discountLocations = [...locMap.entries()]
@@ -484,21 +512,27 @@ export function buildSessionEngagement(rows: AnalyticsEventRow[]): UserSessionEn
     }
   }
 
-  const totalSessions = Math.max(sessionPageCounts.size, 1)
+  const totalSessions = sessionPageCounts.size
   let singlePageCount = 0
   for (const count of sessionPageCounts.values()) {
     if (count === 1) singlePageCount++
   }
 
-  const avgPages = Math.round((totalPageViews / totalSessions) * 10) / 10
-  const bounceRate = Math.round((singlePageCount / totalSessions) * 100)
+  const avgPages =
+    totalSessions > 0
+      ? Math.round((totalPageViews / totalSessions) * 10) / 10
+      : 0
+  const bounceRate =
+    totalSessions > 0
+      ? Math.round((singlePageCount / totalSessions) * 100)
+      : 0
 
   const topPages = buildTopPageViews(rows, 6)
 
   return {
     totalSessions,
     totalPageViews,
-    avgPagesPerSession: avgPages || 1,
+    avgPagesPerSession: avgPages,
     singlePageSessionRate: bounceRate,
     topExitOrLandingPages: topPages,
   }

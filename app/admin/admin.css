@@ -1,38 +1,39 @@
 /* ---------------------------------------------------------------------------
- * MacWall Admin — light design system
+ * MacWall Admin — dark CRM design system
  *
- * Everything inside `.admin-portal` runs on one light token set so that every
+ * Everything inside `.admin-portal` runs on one dark token set so that every
  * shadcn primitive (Button, Card, Select, DropdownMenu, Table, Tabs…) renders
- * correctly without per-component overrides.
+ * correctly without per-component overrides. Marketing stays light.
  * ------------------------------------------------------------------------- */
 
 .admin-portal {
   /* Palette */
-  --admin-canvas: #f7f8fa;
-  --admin-surface: #ffffff;
-  --admin-fill: #f2f4f7;
-  --admin-fill-hover: #e9ecf1;
-  --admin-border: #e4e7ec;
-  --admin-border-strong: #d3d8e0;
-  --admin-fg: #101828;
-  --admin-fg-soft: #475467;
-  --admin-muted: #667085;
-  --admin-blue: #0071e3;
-  --admin-blue-hover: #0062c4;
-  --admin-blue-soft: #eaf3ff;
-  --admin-green: #17864a;
-  --admin-green-soft: #e7f6ed;
-  --admin-amber: #b54708;
-  --admin-amber-soft: #fdf3e6;
-  --admin-red: #d0322b;
-  --admin-red-soft: #fdecec;
-  --admin-violet: #5f52d6;
+  --admin-canvas: #0b0b0c;
+  --admin-surface: #141416;
+  --admin-fill: #1c1c1f;
+  --admin-fill-hover: #26262a;
+  --admin-border: #2a2a2e;
+  --admin-border-strong: #3a3a40;
+  --admin-fg: #f5f5f6;
+  --admin-fg-soft: #c8c8cc;
+  --admin-muted: #8b8b93;
+  --admin-blue: #3b82f6;
+  --admin-blue-hover: #2563eb;
+  --admin-blue-soft: #1a2744;
+  --admin-green: #22c55e;
+  --admin-green-soft: #16351f;
+  --admin-amber: #f59e0b;
+  --admin-amber-soft: #3a2a12;
+  --admin-red: #f04438;
+  --admin-red-soft: #3a1614;
+  --admin-violet: #8b7cf7;
+  --admin-violet-soft: #2a2448;
 
-  /* Elevation — one shadow, used sparingly */
-  --admin-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  /* Elevation — contrast does the work; shadows stay barely there */
+  --admin-shadow: 0 0 0 1px var(--admin-border);
   --admin-shadow-pop:
-    0 8px 24px -6px rgba(16, 24, 40, 0.12),
-    0 2px 6px -2px rgba(16, 24, 40, 0.06);
+    0 16px 40px -12px rgba(0, 0, 0, 0.55),
+    0 0 0 1px var(--admin-border);
 
   /* Layout rhythm */
   --admin-page-px: 1.25rem;
@@ -78,17 +79,17 @@
   --sidebar-border: var(--admin-border);
   --sidebar-ring: var(--admin-blue);
 
-  --chart-1: #0071e3;
-  --chart-2: #17b26a;
-  --chart-3: #f79009;
-  --chart-4: #7a5af8;
+  --chart-1: #3b82f6;
+  --chart-2: #22c55e;
+  --chart-3: #f59e0b;
+  --chart-4: #8b7cf7;
   --chart-5: #f04438;
 
   font-family: var(--site-font-sans);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   color: var(--admin-fg);
   background: var(--admin-canvas);
-  color-scheme: light;
+  color-scheme: dark;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -128,10 +129,12 @@
 
 /* --- shadcn primitive tuning -------------------------------------------- */
 
-/* Cards: hairline + one soft shadow, calmer radius than the marketing site */
+/* Cards: hairline border, almost no drop shadow */
 .admin-portal [data-slot="card"] {
   border-radius: 1rem;
-  box-shadow: var(--admin-shadow);
+  border-color: var(--admin-border);
+  background: var(--admin-surface);
+  box-shadow: none;
   --tw-ring-color: var(--admin-border);
 }
 
@@ -173,9 +176,7 @@
   background: var(--admin-surface);
   color: var(--admin-fg);
   font-weight: 600;
-  box-shadow:
-    0 1px 2px rgba(16, 24, 40, 0.1),
-    0 0 0 0.5px rgba(16, 24, 40, 0.06);
+  box-shadow: none;
 }
 
 /* Counts sit beside the label and must stay quiet in both states */
@@ -258,9 +259,7 @@
 .admin-portal [data-slot="switch"][data-size] [data-slot="switch-thumb"] {
   border-radius: 9999px;
   background: var(--admin-surface);
-  box-shadow:
-    0 3px 6px rgba(16, 24, 40, 0.16),
-    0 1px 1px rgba(16, 24, 40, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
@@ -300,10 +299,19 @@
   color: var(--admin-fg);
 }
 
+.admin-portal [data-slot="button"][data-variant="ghost"] {
+  color: var(--admin-fg-soft);
+}
+
+.admin-portal [data-slot="button"][data-variant="ghost"]:hover {
+  background: var(--admin-fill);
+  color: var(--admin-fg);
+}
+
 .admin-portal [data-slot="button"][data-variant="outline"] {
-  background: var(--admin-surface);
+  background: var(--admin-fill);
   border-color: var(--admin-border-strong);
-  box-shadow: var(--admin-shadow);
+  box-shadow: none;
 }
 
 .admin-portal [data-slot="button"][data-variant="outline"]:hover {
@@ -373,21 +381,43 @@
 }
 
 .admin-portal [data-slot="select-trigger"] {
-  background: var(--admin-surface);
+  background: var(--admin-fill);
   border-color: var(--admin-border-strong);
-  box-shadow: var(--admin-shadow);
+  box-shadow: none;
 }
 
 .admin-portal [data-slot="input"],
 .admin-portal [data-slot="textarea"] {
-  background: var(--admin-surface);
+  background: var(--admin-fill);
   border-color: var(--admin-border-strong);
-  box-shadow: var(--admin-shadow);
+  box-shadow: none;
 }
 
 .admin-portal [data-slot="input"]::placeholder,
 .admin-portal [data-slot="textarea"]::placeholder {
   color: var(--admin-muted);
+}
+
+.admin-portal [data-slot="table"] {
+  color: var(--admin-fg);
+}
+
+.admin-portal [data-slot="table-row"] {
+  border-color: var(--admin-border);
+}
+
+.admin-portal [data-slot="table-head"] {
+  color: var(--admin-muted);
+}
+
+.admin-portal [data-slot="skeleton"] {
+  background: var(--admin-fill);
+}
+
+.admin-portal [data-slot="sheet-content"] {
+  background: var(--admin-surface);
+  color: var(--admin-fg);
+  border-color: var(--admin-border);
 }
 
 /* Charts */

@@ -52,7 +52,7 @@ const toneClass: Record<Tone, string> = {
   green: "bg-[var(--admin-green-soft)] text-[var(--admin-green)]",
   amber: "bg-[var(--admin-amber-soft)] text-[var(--admin-amber)]",
   red: "bg-[var(--admin-red-soft)] text-[var(--admin-red)]",
-  violet: "bg-[#f1efff] text-[var(--admin-violet)]",
+  violet: "bg-[var(--admin-violet-soft)] text-[var(--admin-violet)]",
 }
 
 export function AdminBadge({
@@ -154,7 +154,7 @@ export function PanelHeader({
       className={cn(
         // min-h matches a header holding a 36px control, so panel headers sitting
         // side by side line up whether they hold text or a segmented control
-        "flex min-h-16 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--admin-border)] px-5 py-3",
+        "flex min-h-16 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--admin-border)] px-5 py-4",
         className
       )}
     >
@@ -192,34 +192,36 @@ export function StatCard({
 }>) {
   const trendUp = (trend?.value ?? 0) >= 0
   return (
-    <Card className={cn("gap-0 rounded-xl p-4", className)}>
-      <div className="flex items-center justify-between gap-2">
+    <Card className={cn("h-full gap-0 rounded-xl p-5", className)}>
+      <div className="flex items-start justify-between gap-3">
         <p className="truncate text-[13px] font-medium text-[var(--admin-muted)]">
           {label}
-        </p>
-        {icon ? (
-          <span className="shrink-0 text-[var(--admin-muted)]">{icon}</span>
-        ) : null}
-      </div>
-      <div className="mt-2 flex items-baseline gap-2">
-        <p className="text-2xl leading-none font-semibold tracking-tight text-[var(--admin-fg)] tabular-nums">
-          {typeof value === "number" ? value.toLocaleString() : value}
         </p>
         {trend ? (
           <span
             className={cn(
-              "text-xs font-medium tabular-nums",
-              trendUp ? "text-[var(--admin-green)]" : "text-[var(--admin-red)]"
+              "inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-medium tabular-nums",
+              trendUp
+                ? "bg-[var(--admin-green-soft)] text-[var(--admin-green)]"
+                : "bg-[var(--admin-red-soft)] text-[var(--admin-red)]"
             )}
           >
-            {trendUp ? "+" : "−"}
-            {Math.abs(trend.value)}%
+            {trendUp ? "↑" : "↓"} {Math.abs(trend.value).toFixed(1)}%
           </span>
+        ) : icon ? (
+          <span className="shrink-0 text-[var(--admin-muted)]">{icon}</span>
         ) : null}
       </div>
+      <p className="mt-3 text-[1.75rem] leading-none font-semibold tracking-tight text-[var(--admin-fg)] tabular-nums">
+        {typeof value === "number" ? value.toLocaleString() : value}
+      </p>
       {hint ? (
-        <p className="mt-1.5 truncate text-xs text-[var(--admin-muted)]">
+        <p className="mt-2 truncate text-xs text-[var(--admin-muted)]">
           {hint}
+        </p>
+      ) : trend?.label ? (
+        <p className="mt-2 truncate text-xs text-[var(--admin-muted)]">
+          {trend.label}
         </p>
       ) : null}
     </Card>
@@ -228,7 +230,7 @@ export function StatCard({
 
 export function StatCardSkeleton() {
   return (
-    <Card className="gap-0 rounded-xl p-4">
+    <Card className="h-full gap-0 rounded-xl p-5">
       <Skeleton className="h-3.5 w-24 rounded-md" />
       <Skeleton className="mt-3 h-6 w-16 rounded-md" />
       <Skeleton className="mt-2.5 h-3 w-28 rounded-md" />
@@ -239,12 +241,12 @@ export function StatCardSkeleton() {
 /* --- Avatar --------------------------------------------------------------- */
 
 const avatarPalette = [
-  "bg-[#eaf3ff] text-[#0060c0]",
-  "bg-[#e7f6ed] text-[#17864a]",
-  "bg-[#fdf3e6] text-[#b54708]",
-  "bg-[#f1efff] text-[#5f52d6]",
-  "bg-[#fdecec] text-[#c0322b]",
-  "bg-[#e6f6f7] text-[#0e7490]",
+  "bg-[var(--admin-blue-soft)] text-[var(--admin-blue)]",
+  "bg-[var(--admin-green-soft)] text-[var(--admin-green)]",
+  "bg-[var(--admin-amber-soft)] text-[var(--admin-amber)]",
+  "bg-[var(--admin-violet-soft)] text-[var(--admin-violet)]",
+  "bg-[var(--admin-red-soft)] text-[var(--admin-red)]",
+  "bg-[#163238] text-[#5eead4]",
 ]
 
 function hashString(value: string) {

@@ -333,7 +333,7 @@ export default function AdminWallpapersPage({
           </div>
         ) : null}
 
-        <div className="grid gap-4 min-[1200px]:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
           {/* Table */}
           <Card
             className={cn(
@@ -364,6 +364,7 @@ export default function AdminWallpapersPage({
                 </p>
               </div>
             ) : (
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="border-[var(--admin-border)] hover:bg-transparent">
@@ -439,6 +440,7 @@ export default function AdminWallpapersPage({
                   ))}
                 </TableBody>
               </Table>
+              </div>
             )}
 
             {totalPages > 1 ? (
@@ -473,7 +475,7 @@ export default function AdminWallpapersPage({
           </Card>
 
           {/* Editor rail */}
-          <div className="min-[1200px]:sticky min-[1200px]:top-[calc(var(--admin-topbar-height)+1.5rem)] min-[1200px]:self-start">
+          <div className="xl:sticky xl:top-[calc(var(--admin-topbar-height)+1.5rem)] xl:self-start">
             {selected ? (
               <WallpaperEditor
                 key={selected.id}

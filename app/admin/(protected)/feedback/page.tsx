@@ -1002,7 +1002,7 @@ export default function AdminFeedbackPage() {
         {/* ---------------------------------------------------------------- */}
         <section
           className={cn(
-            "flex min-h-0 flex-col border-r border-[var(--admin-border)] bg-white",
+            "flex min-h-0 flex-col border-r border-[var(--admin-border)] bg-[var(--admin-surface)]",
             selected && "hidden md:flex"
           )}
         >
@@ -1189,7 +1189,7 @@ export default function AdminFeedbackPage() {
 
           {!selected ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-              <span className="flex size-11 items-center justify-center rounded-xl bg-white ring-1 ring-[var(--admin-border)]">
+                <span className="flex size-11 items-center justify-center rounded-xl bg-[var(--admin-surface)] ring-1 ring-[var(--admin-border)]">
                 <MessageSquare className="size-5 text-[var(--admin-muted)]" />
               </span>
               <div>
@@ -1204,7 +1204,7 @@ export default function AdminFeedbackPage() {
             </div>
           ) : (
             <>
-              <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[var(--admin-border)] bg-white px-4">
+              <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4">
                 <Button
                   variant="ghost"
                   size="icon-sm"
@@ -1405,8 +1405,8 @@ export default function AdminFeedbackPage() {
                                         item.group.author === "admin"
                                           ? "bg-[var(--admin-blue)] text-white"
                                           : item.group.author === "assist"
-                                            ? "border border-[#c7d2fe] bg-[#eef2ff] text-[var(--admin-fg)]"
-                                            : "bg-[#e9e9eb] text-[var(--admin-fg)]"
+                                            ? "border border-[#c7d2fe] bg-[#eef2ff] text-[#101828]"
+                                            : "bg-[#e9e9eb] text-[#101828]"
                                       )}
                                     >
                                       {linkifyAdminText(msg.body)}
@@ -1455,7 +1455,7 @@ export default function AdminFeedbackPage() {
                   <button
                     type="button"
                     onClick={() => scrollThreadToBottom()}
-                    className="absolute bottom-4 left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-[var(--admin-border-strong)] bg-white/95 px-3 py-1.5 text-xs font-medium text-[var(--admin-fg)] shadow-[0_8px_24px_rgba(15,23,42,0.12)] backdrop-blur-md transition hover:bg-white"
+                    className="absolute bottom-4 left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-[var(--admin-border-strong)] bg-[var(--admin-surface)]/95 px-3 py-1.5 text-xs font-medium text-[var(--admin-fg)] shadow-[var(--admin-shadow-pop)] backdrop-blur-md transition hover:bg-[var(--admin-fill)]"
                     aria-label={
                       hasUnseenBelow ? "Jump to new messages" : "Jump to latest"
                     }
@@ -1493,7 +1493,7 @@ export default function AdminFeedbackPage() {
 
                   {pendingImage ? (
                     <div className="mb-2 flex items-start gap-2 px-1">
-                      <div className="relative overflow-hidden rounded-xl border border-[var(--admin-border)] bg-white shadow-sm">
+                      <div className="relative overflow-hidden rounded-xl border border-[var(--admin-border)] bg-[var(--admin-surface)]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={pendingImage.previewUrl}
@@ -1516,7 +1516,7 @@ export default function AdminFeedbackPage() {
                   <div className="flex items-end gap-2">
                     <div
                       className={cn(
-                        "flex min-w-0 flex-1 items-end gap-1 rounded-[1.25rem] border bg-white pr-1.5 pl-2 shadow-[var(--admin-shadow)] transition-colors",
+                        "flex min-w-0 flex-1 items-end gap-1 rounded-[1.25rem] border bg-[var(--admin-surface)] pr-1.5 pl-2 transition-colors",
                         "border-[var(--admin-border-strong)] focus-within:border-[var(--admin-blue)]"
                       )}
                     >
@@ -1586,7 +1586,7 @@ export default function AdminFeedbackPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Customer detail rail                                             */}
         {/* ---------------------------------------------------------------- */}
-        <aside className="admin-scroll hidden min-h-0 overflow-y-auto border-l border-[var(--admin-border)] bg-white xl:block">
+        <aside className="admin-scroll hidden min-h-0 overflow-y-auto border-l border-[var(--admin-border)] bg-[var(--admin-surface)] xl:block">
           {!selected ? (
             <div className="space-y-5 p-5">
               <p className="text-[11px] font-semibold tracking-wider text-[var(--admin-muted)] uppercase">

@@ -95,13 +95,13 @@ export default function AdminEmailsPage() {
   return (
     <AdminShell title="Emails" fill>
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <aside className="flex max-h-[40vh] w-full shrink-0 flex-col border-b border-[var(--admin-border)] bg-white lg:max-h-none lg:w-80 lg:border-r lg:border-b-0">
+        <aside className="flex max-h-[40vh] w-full shrink-0 flex-col border-b border-[var(--admin-border)] bg-[var(--admin-surface)] lg:max-h-none lg:w-80 lg:border-r lg:border-b-0">
           <div className="border-b border-[var(--admin-border)] px-4 py-3">
             <p className="text-[13px] font-semibold text-[var(--admin-fg)]">
               Templates
             </p>
             <p className="mt-0.5 text-[12px] text-[var(--admin-muted)]">
-              Sample preview only — not sent
+              Sample preview only. Not sent.
             </p>
           </div>
           <nav className="min-h-0 flex-1 overflow-y-auto p-2">
@@ -154,7 +154,7 @@ export default function AdminEmailsPage() {
         </aside>
 
         <section className="flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--admin-canvas)]">
-          <div className="shrink-0 border-b border-[var(--admin-border)] bg-white px-4 py-3 sm:px-6">
+          <div className="shrink-0 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-3 sm:px-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0 space-y-1.5">
                 <p className="text-[11px] font-semibold tracking-wider text-[var(--admin-muted)] uppercase">
@@ -196,7 +196,7 @@ export default function AdminEmailsPage() {
                   className={cn(
                     "h-8 gap-1.5 rounded-full px-3 text-[12px]",
                     width === "desktop" &&
-                      "bg-white text-[var(--admin-fg)] shadow-sm"
+                      "bg-[var(--admin-surface)] text-[var(--admin-fg)]"
                   )}
                   onClick={() => setWidth("desktop")}
                 >
@@ -215,7 +215,7 @@ export default function AdminEmailsPage() {
                   className={cn(
                     "h-8 gap-1.5 rounded-full px-3 text-[12px]",
                     width === "mobile" &&
-                      "bg-white text-[var(--admin-fg)] shadow-sm"
+                      "bg-[var(--admin-surface)] text-[var(--admin-fg)]"
                   )}
                   onClick={() => setWidth("mobile")}
                 >
@@ -230,7 +230,7 @@ export default function AdminEmailsPage() {
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto bg-white">
+          <div className="min-h-0 flex-1 overflow-y-auto bg-[var(--admin-canvas)]">
             <div className="px-3 py-4 sm:px-6 sm:py-6">
               <div
                 className="mx-auto transition-[max-width] duration-200"

@@ -1,5 +1,4 @@
 import { AffonsoPixel } from "@/components/analytics/affonso-pixel"
-import { DataFastInit } from "@/components/analytics/datafast-init"
 import { MarketingOnlyScripts } from "@/components/analytics/marketing-only-scripts"
 import { PageViewTracker } from "@/components/analytics/page-view-tracker"
 import { CheckoutRetargetingTracker } from "@/components/analytics/checkout-retargeting-tracker"
@@ -268,7 +267,6 @@ export default function RootLayout({
             {metaPixelId ? <MetaPixel pixelId={metaPixelId} /> : null}
             {tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}
             {xAdsPixelId ? <XAdsPixel pixelId={xAdsPixelId} /> : null}
-            <DataFastInit />
             <PageViewTracker />
             <CheckoutRetargetingTracker />
             {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
