@@ -111,7 +111,7 @@ const homePage: SeoContentPage = {
     { type: "h2", text: "Catalog" },
     {
       type: "p",
-      text: `Over 1,000 curated loops across ${macwall.categories.length} categories (${macwall.categories.join(", ")}), browsable in the app or on the web at [macwall.app/wallpapers](/wallpapers). Community members publish new wallpapers through [/submit](/submit).`,
+      text: `Over 1,000 curated loops across ${macwall.categories.length} categories (${macwall.categories.join(", ")}), browsable in the app or on the web at [macwall.app/wallpapers](/wallpapers). Community members publish new wallpapers from inside the MacWall app (Add Wallpaper → Share with the community).`,
     },
     { type: "h2", text: "Performance model" },
     {
@@ -453,48 +453,6 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
       group: "product",
       includeInFullText: false,
       render: changelogMarkdown,
-    },
-    {
-      path: "/submit",
-      title: "Submit a Wallpaper",
-      summary:
-        "Publish your own 4K loop to the MacWall community catalog: requirements, review process, and credit.",
-      group: "product",
-      updatedAt: "2026-08-02",
-      includeInFullText: true,
-      render: () =>
-        seoPageToMarkdown({
-          slug: "submit",
-          pathname: "/submit",
-          title: "Submit a Wallpaper to MacWall",
-          headline: "Submit a wallpaper",
-          description:
-            "Publish your own 4K loop to the MacWall community catalog: requirements, review process, and credit.",
-          keywords: ["submit wallpaper", "macwall community upload"],
-          updatedAt: "2026-08-02",
-          sections: [
-            {
-              type: "p",
-              text: "Anyone can contribute a wallpaper to the MacWall catalog at [/submit](/submit). Submissions are reviewed by a human before publishing, and published wallpapers become browsable in the app and on the web gallery.",
-            },
-            { type: "h2", text: "What makes a submission pass review" },
-            {
-              type: "ul",
-              items: [
-                "**Seamless loop**, the last frame flows into the first with no visible cut.",
-                "**4K where possible**, 3840×2160, H.264 or HEVC in an MP4 container.",
-                "**Calm motion**: slow, ambient movement. Fast or flashing footage is rejected.",
-                "**No audio track**: wallpaper audio is never played.",
-                "**No text, logos, or watermarks** baked into the frame.",
-                "**Rights to the footage**: your own work, or content you are licensed to distribute.",
-              ],
-            },
-            {
-              type: "p",
-              text: `Encoding guidance lives in [video formats and codecs](/learn/video-formats-and-codecs). Community discussion and feedback happen on [Discord](${macwall.discordInvite}).`,
-            },
-          ],
-        }),
     },
     {
       path: "/creator",

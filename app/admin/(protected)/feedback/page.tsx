@@ -23,6 +23,7 @@ import {
   CircleCheck,
   Copy,
   Cpu,
+  FileText,
   ImagePlus,
   Inbox,
   Loader2,
@@ -105,6 +106,8 @@ type FeedbackItem = {
   messages: FeedbackMessage[]
   createdAt: string
   chatId?: string | null
+  diagnosticsUrl?: string | null
+  diagnosticsUpdatedAt?: string | null
 }
 
 type Totals = {
@@ -393,9 +396,8 @@ export default function AdminFeedbackPage() {
   const visitorTypingTimersRef = useRef<Map<string, number>>(new Map())
 
   const selected = items.find((item) => item.id === selectedId) ?? null
-  const selectedVisitorTyping = Boolean(
-    selectedId && (visitorTypingUntil[selectedId] ?? 0) > Date.now()
-  )
+  // Entries are removed by their TTL timer, so presence in the map means "typing now".
+  const selectedVisitorTyping = Boolean(selectedId && selectedId in visitorTypingUntil)
 
   /* --- data ------------------------------------------------------------- */
 
@@ -651,8 +653,8 @@ export default function AdminFeedbackPage() {
         if (prev?.previewUrl) URL.revokeObjectURL(prev.previewUrl)
         return null
       })
+      scrollThreadToBottom("auto")
     })
-    scrollThreadToBottom("auto")
   }, [selectedId, scrollThreadToBottom])
 
   const messageCount = selected ? threadMessages(selected).length : 0
@@ -661,8 +663,9 @@ export default function AdminFeedbackPage() {
       scrollThreadToBottom()
       return
     }
-    setHasUnseenBelow(true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // New content landed while scrolled up — flag it after layout, not mid-render.
+    const id = window.requestAnimationFrame(() => setHasUnseenBelow(true))
+    return () => window.cancelAnimationFrame(id)
   }, [messageCount, selectedVisitorTyping, scrollThreadToBottom])
 
   useEffect(() => {
@@ -1129,7 +1132,7 @@ export default function AdminFeedbackPage() {
                               {chatId}
                             </p>
                           ) : null}
-                          {(visitorTypingUntil[item.id] ?? 0) > Date.now() ? (
+                          {item.id in visitorTypingUntil ? (
                             <p className="mt-0.5 text-xs font-medium text-[var(--admin-blue)]">
                               Visitor is typing…
                             </p>
@@ -1788,6 +1791,39 @@ export default function AdminFeedbackPage() {
                     </div>
                   ) : null}
                 </dl>
+              </div>
+
+              <div className="space-y-2 px-5 py-4">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-[var(--admin-muted)] uppercase">
+                  <FileText className="size-3.5" />
+                  Diagnostics
+                </p>
+                {selected.diagnosticsUrl ? (
+                  <div className="space-y-1.5">
+                    <a
+                      href={selected.diagnosticsUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-[var(--admin-border)] px-2.5 py-1.5 text-xs font-medium text-[var(--admin-fg)] transition hover:bg-[var(--admin-fill)]"
+                    >
+                      <FileText className="size-3.5 text-[var(--admin-muted)]" />
+                      Open report
+                    </a>
+                    <p className="text-[11px] text-[var(--admin-muted)]">
+                      Device snapshot, settings, extension state, app + extension
+                      logs, and the user’s action trail.
+                      {selected.diagnosticsUpdatedAt
+                        ? ` Updated ${new Date(selected.diagnosticsUpdatedAt).toLocaleString()}.`
+                        : null}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-xs text-[var(--admin-muted)]">
+                    No report attached. Tickets from MacWall 3.9+ include one
+                    automatically; ask the user to choose “Send diagnostics
+                    again” from the chat menu.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2 px-5 py-4">

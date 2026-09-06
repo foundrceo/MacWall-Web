@@ -13,7 +13,6 @@ export const macwallMarketingCopy = {
     navSocials: "Community",
     navSupport: "Help",
     navPricing: "Pricing",
-    navSubmit: "Submit",
     navAffiliate: "Affiliate",
     downloadCta: "Download free",
     logoAlt: `${macwall.name} logo`,

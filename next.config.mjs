@@ -92,6 +92,17 @@ const nextConfig = {
         destination: "/affiliate",
         permanent: true,
       },
+      // Uploads and support moved into the app; keep old links landing somewhere useful.
+      {
+        source: "/submit",
+        destination: "/download",
+        permanent: true,
+      },
+      {
+        source: "/support",
+        destination: "/docs",
+        permanent: false,
+      },
       {
         source: "/live-wallpaper-mac",
         destination: "/blog/how-to-set-live-wallpaper-mac",

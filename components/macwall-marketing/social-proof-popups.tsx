@@ -48,11 +48,6 @@ function readSessionFlag(key: string): boolean {
   }
 }
 
-function isChatOpen(): boolean {
-  if (typeof document === "undefined") return false
-  return document.documentElement.dataset.macwallChatOpen === "true"
-}
-
 function isPurchaseBannerOpen(): boolean {
   if (typeof document === "undefined") return false
   return document.documentElement.dataset.macwallPurchaseBannerOpen === "true"
@@ -67,7 +62,6 @@ export function SocialProofPopups() {
   const [skipped, setSkipped] = useState(() =>
     readSessionFlag(PURCHASE_COMPLETE_KEY)
   )
-  const [chatOpen, setChatOpen] = useState(isChatOpen)
   const [purchaseBannerOpen, setPurchaseBannerOpen] = useState(
     isPurchaseBannerOpen
   )
@@ -86,19 +80,13 @@ export function SocialProofPopups() {
     pathname?.startsWith(prefix)
   )
 
-  // Yield to chat + wallpaper purchase banner while either is open.
+  // Yield to the wallpaper purchase banner while it is open.
   useEffect(() => {
-    const sync = () => {
-      setChatOpen(isChatOpen())
-      setPurchaseBannerOpen(isPurchaseBannerOpen())
-    }
+    const sync = () => setPurchaseBannerOpen(isPurchaseBannerOpen())
     const observer = new MutationObserver(sync)
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: [
-        "data-macwall-chat-open",
-        "data-macwall-purchase-banner-open",
-      ],
+      attributeFilter: ["data-macwall-purchase-banner-open"],
     })
     return () => observer.disconnect()
   }, [])
@@ -196,7 +184,7 @@ export function SocialProofPopups() {
     const step = () => {
       if (cancelled) return
 
-      if (isChatOpen() || isPurchaseBannerOpen()) {
+      if (isPurchaseBannerOpen()) {
         schedule(HIDDEN_RETRY_MS)
         return
       }
@@ -232,7 +220,7 @@ export function SocialProofPopups() {
   useEffect(() => {
     clearDismissTimer()
 
-    if (!enabled || chatOpen || !pageVisible || !current) {
+    if (!enabled || !pageVisible || !current) {
       return
     }
 
@@ -243,15 +231,14 @@ export function SocialProofPopups() {
     }, VISIBLE_MS)
 
     return clearDismissTimer
-  }, [enabled, chatOpen, pageVisible, current, clearDismissTimer])
+  }, [enabled, pageVisible, current, clearDismissTimer])
 
   const onOpenPricing = useCallback(() => {
     trackSiteEventClient("cta_click", { source: "social_proof_popup" })
     setCurrent(null)
   }, [])
 
-  const visible =
-    enabled && !chatOpen && !purchaseBannerOpen && current !== null
+  const visible = enabled && !purchaseBannerOpen && current !== null
 
   return (
     <div
