@@ -1,7 +1,6 @@
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
 import { CommandPaletteMount } from "@/components/command-palette/command-palette-mount"
-import { MacWallChatMount } from "@/components/macwall-chat/macwall-chat-mount"
 import { MarketingPricingProvider } from "@/components/marketing/marketing-pricing-context"
 import { SocialProofMount } from "@/components/macwall-marketing/social-proof-mount"
 import { WallpaperPurchaseBannerMount } from "@/components/wallpaper-gallery/wallpaper-purchase-banner-mount"
@@ -37,7 +36,6 @@ export default async function MarketingLayout({
           {children}
           <SocialProofMount />
           <WallpaperPurchaseBannerMount />
-          <MacWallChatMount />
         </div>
       </CommandPaletteMount>
     </MarketingPricingProvider>

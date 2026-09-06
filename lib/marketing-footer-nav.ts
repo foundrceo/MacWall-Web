@@ -2,7 +2,6 @@ import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { macwall, macwallProCheckoutURL } from "@/lib/macwall-site"
 import { categorySlugFromName } from "@/lib/seo/category-slugs"
-import { SUPPORT_CHAT_HREF } from "@/lib/support/shared"
 
 export type FooterLinkKind = "internal" | "external" | "pricing" | "download"
 
@@ -52,7 +51,6 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
         { label: "Wallpapers", href: "/wallpapers" },
         { label: foot.shop.pricing, href: "/pricing" },
         { label: foot.shop.download, href: "/download" },
-        { label: "Upload Wallpaper", href: "/submit" },
         ...(AFFILIATE_UI_VISIBLE
           ? [{ label: foot.connect.affiliate, href: "/affiliate" }]
           : []),
@@ -71,7 +69,6 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
     {
       title: "Support",
       links: [
-        { label: "Live chat", href: SUPPORT_CHAT_HREF },
         {
           label: "Email us",
           href: `mailto:${macwall.supportEmail}`,
@@ -202,9 +199,9 @@ export function getMarketingFooterSections(
             ]
           : []),
         {
-          label: "Live chat",
-          href: SUPPORT_CHAT_HREF,
-          kind: "internal",
+          label: "Email us",
+          href: `mailto:${macwall.supportEmail}`,
+          kind: "external",
         },
       ],
     },

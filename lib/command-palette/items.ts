@@ -7,7 +7,6 @@ import {
   mailtoSupport,
 } from "@/lib/macwall-site"
 import type { CommandPaletteStaticItem } from "@/lib/command-palette/types"
-import { SUPPORT_CHAT_HREF } from "@/lib/support/shared"
 
 function page(
   id: string,
@@ -67,9 +66,7 @@ export function getCommandPaletteStaticItems(): {
             ? ["pro", "license", "buy", "upgrade"]
             : item.href === "/blog"
               ? ["news", "articles", "updates"]
-              : item.href === "/submit"
-                ? ["upload", "community", "creator"]
-                : ["earn", "referral", "partner"],
+              : ["earn", "referral", "partner"],
     })
   )
 
@@ -123,13 +120,9 @@ export function getCommandPaletteStaticItems(): {
       keywords: ["community", "chat", "social", "discussion"],
       external: true,
     }),
-    action("action-support-chat", "Live Assistance", SUPPORT_CHAT_HREF, {
-      description: "Start a discussion with the MacWall team",
-      keywords: ["help", "support", "chat", "guidance", "assistance"],
-    }),
-    action("action-email", "Email for Guidance", mailtoSupport, {
+    action("action-email", "Email Support", mailtoSupport, {
       description: macwall.supportEmail,
-      keywords: ["contact", "mail", "help", "guidance"],
+      keywords: ["contact", "mail", "help", "support", "guidance", "assistance"],
       external: true,
     }),
   ]

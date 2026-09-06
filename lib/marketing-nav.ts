@@ -9,7 +9,7 @@ export type MarketingNavItem = {
 
 /**
  * Primary marketing header nav — left-to-right funnel:
- * browse → buy → learn → contribute → partner.
+ * browse → buy → learn → partner. (Wallpaper uploads live in the app only.)
  */
 export function getMarketingNavItems(): readonly MarketingNavItem[] {
   const h = macwallMarketingCopy.header
@@ -18,7 +18,6 @@ export function getMarketingNavItems(): readonly MarketingNavItem[] {
     { href: "/wallpapers", label: h.navGallery },
     { href: "/pricing", label: h.navPricing },
     { href: "/blog", label: h.navBlog },
-    { href: "/submit", label: h.navSubmit },
     ...(AFFILIATE_UI_VISIBLE
       ? [{ href: "/affiliate", label: h.navAffiliate, earnBadge: true as const }]
       : []),

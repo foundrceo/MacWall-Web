@@ -31,6 +31,9 @@ export type AdminFeedback = {
   messages: FeedbackMessage[]
   createdAt: string
   chatId?: string | null
+  /** Text report (device snapshot + app/extension logs) uploaded by the macOS app. */
+  diagnosticsUrl?: string | null
+  diagnosticsUpdatedAt?: string | null
 }
 
 export type FeedbackTotals = {
@@ -69,12 +72,16 @@ type MessageRow = {
   created_at: string
 }
 
-type FeedbackRowWithChat = FeedbackRow & { chat_id?: string | null }
+type FeedbackRowWithChat = FeedbackRow & {
+  chat_id?: string | null
+  diagnostics_url?: string | null
+  diagnostics_updated_at?: string | null
+}
 
 const BASE_COLUMNS =
   "id,device_id,sentiment,name,message,app_version,os_version,device_model,model_identifier,chip,memory_gb,is_resolved,user_has_unread,needs_admin_reply,created_at"
 
-const COLUMNS_WITH_CHAT = `${BASE_COLUMNS},chat_id`
+const COLUMNS_WITH_CHAT = `${BASE_COLUMNS},chat_id,diagnostics_url,diagnostics_updated_at`
 
 /** Cached after first probe so we don't keep selecting a missing column. */
 let chatIdColumnAvailable: boolean | null = null
@@ -93,7 +100,7 @@ function isMissingChatIdColumnError(
     .toLowerCase()
   return (
     error.code === "42703" ||
-    (hay.includes("chat_id") &&
+    ((hay.includes("chat_id") || hay.includes("diagnostics_url")) &&
       (hay.includes("does not exist") || hay.includes("column")))
   )
 }
@@ -170,6 +177,8 @@ function mapFeedback(
     messages,
     createdAt: row.created_at,
     chatId: row.chat_id ?? null,
+    diagnosticsUrl: row.diagnostics_url ?? null,
+    diagnosticsUpdatedAt: row.diagnostics_updated_at ?? null,
   }
 }
 

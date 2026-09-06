@@ -4,7 +4,7 @@ import { Cancel01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { MacWallAppIcon } from "@/components/macwall-app-icon"
@@ -94,11 +94,6 @@ function resetViewCycle(): void {
   }
 }
 
-function isChatOpen(): boolean {
-  if (typeof document === "undefined") return false
-  return document.documentElement.dataset.macwallChatOpen === "true"
-}
-
 /**
  * Wallpaper engagement banner → Stripe.
  * Shows after 15s dwell, or after 3–5 wallpaper detail visits (repeats each cycle).
@@ -112,15 +107,19 @@ export function WallpaperPurchaseBanner() {
   const [purchased, setPurchased] = useState(false)
   const [hidden, setHidden] = useState(false)
   const [ready, setReady] = useState(false)
-  const [chatOpen, setChatOpen] = useState(isChatOpen)
-  const [visibleDwellMs, setVisibleDwellMs] = useState(0)
   const [viewCount, setViewCount] = useState(0)
   const [viewThreshold, setViewThreshold] = useState(MIN_VIEWS)
+  /** Accumulated visible dwell — a ref so ticking never re-renders the tree. */
+  const dwellMsRef = useRef(0)
 
+  // sessionStorage is an external store: hydrate after mount, off the render path.
   useEffect(() => {
-    setPurchased(readPurchaseComplete())
-    setViewThreshold(readOrCreateThreshold())
-    setViewCount(readViewPaths().length)
+    const id = window.setTimeout(() => {
+      setPurchased(readPurchaseComplete())
+      setViewThreshold(readOrCreateThreshold())
+      setViewCount(readViewPaths().length)
+    }, 0)
+    return () => window.clearTimeout(id)
   }, [])
 
   useEffect(() => {
@@ -135,63 +134,48 @@ export function WallpaperPurchaseBanner() {
     return () => window.removeEventListener("storage", onStorage)
   }, [])
 
-  useEffect(() => {
-    const observer = new MutationObserver(() => setChatOpen(isChatOpen()))
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-macwall-chat-open"],
-    })
-    return () => observer.disconnect()
-  }, [])
-
   // Count unique wallpaper detail visits; every 3–5 views can re-open the banner.
   useEffect(() => {
     if (!isWallpaperDetailPath(pathname) || purchased) return
 
-    const paths = readViewPaths()
-    if (paths.includes(pathname)) {
-      setViewCount(paths.length)
-      return
-    }
+    // Write-through to sessionStorage, then reflect it in state on the next tick.
+    const id = window.setTimeout(() => {
+      const paths = readViewPaths()
+      if (paths.includes(pathname)) {
+        setViewCount(paths.length)
+        return
+      }
 
-    const next = [...paths, pathname]
-    writeViewPaths(next)
-    const threshold = readOrCreateThreshold()
-    setViewThreshold(threshold)
-    setViewCount(next.length)
+      const next = [...paths, pathname]
+      writeViewPaths(next)
+      const threshold = readOrCreateThreshold()
+      setViewThreshold(threshold)
+      setViewCount(next.length)
 
-    if (next.length >= threshold) {
-      setHidden(false)
-      setReady(true)
-    }
+      if (next.length >= threshold) {
+        setHidden(false)
+        setReady(true)
+      }
+    }, 0)
+    return () => window.clearTimeout(id)
   }, [pathname, purchased])
 
   // Accumulate visible dwell on wallpaper routes (pauses when tab hidden).
   useEffect(() => {
     if (!onWallpaper || purchased || ready || hidden) return
 
-    let cancelled = false
-    const tick = () => {
-      if (cancelled) return
-      if (document.hidden || isChatOpen()) return
-      setVisibleDwellMs((prev) => prev + TICK_MS)
-    }
-
-    const id = window.setInterval(tick, TICK_MS)
-    return () => {
-      cancelled = true
-      window.clearInterval(id)
-    }
+    const id = window.setInterval(() => {
+      if (document.hidden) return
+      dwellMsRef.current += TICK_MS
+      if (dwellMsRef.current >= DWELL_MS) {
+        setHidden(false)
+        setReady(true)
+      }
+    }, TICK_MS)
+    return () => window.clearInterval(id)
   }, [onWallpaper, purchased, ready, hidden])
 
-  useEffect(() => {
-    if (visibleDwellMs >= DWELL_MS) {
-      setHidden(false)
-      setReady(true)
-    }
-  }, [visibleDwellMs])
-
-  const open = onWallpaper && ready && !hidden && !purchased && !chatOpen
+  const open = onWallpaper && ready && !hidden && !purchased
 
   useEffect(() => {
     if (!open) {
@@ -212,7 +196,7 @@ export function WallpaperPurchaseBanner() {
   const dismissForNow = () => {
     setHidden(true)
     setReady(false)
-    setVisibleDwellMs(0)
+    dwellMsRef.current = 0
     // Start a fresh 3–5 wallpaper cycle so it can show again.
     resetViewCycle()
     setViewCount(0)

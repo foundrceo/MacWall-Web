@@ -16,7 +16,6 @@ export function indexableMarketingPaths(): string[] {
     "/changelog",
     "/wallpapers",
     "/best-live-wallpaper-mac",
-    "/submit",
     "/affiliate",
     "/alternatives/wallpaper-engine",
     "/alternatives/macwall-vs-backdrop",

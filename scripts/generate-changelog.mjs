@@ -18,7 +18,7 @@ const root = join(__dirname, "..")
 
 /** Keep in sync with lib/changelog/public-sanitize.ts (plus generator-only ops terms). */
 const BLOCKED_PATTERN =
-  /\b(datafast|affonso|ahrefs|mixpanel|analytics|pixel|admin\s*portal|admin\s*panel|admin\b|open.?source|\.env\b|github\b|stripe\b|vercel\b|npm\s*audit|devlog|r2\b|supabase|middleware|proxy\b|diagnostics|sentry|webhook|api\s*key|secret|token|ticket|commit\b|pr\s*#|pull\s*request|ci\/cd|turbopack|webpack|eslint|typescript|refactor|harden|wip\b|todo\b|fixme|hack\b|whop|coupon|price_data|horizons|license\.md|readme|india|inr|regional\s+discount|charm\s+pricing|india50|india60|local\s+india|india\s+pricing|india\s+visitors|india\s+coupon|india\s+promo|pro\s+now\s+\$|pro\+\s+\$|drop\s+global\s+pro)\b|₹|\$\d+\.\d{2}|sale\s+banner.*(?:india|inr|pricing)|(?:india|inr).*sale\s+banner/i
+  /\b(datafast|affonso|ahrefs|mixpanel|analytics|pixel|admin\s*portal|admin\s*panel|admin\b|open.?source|\.env\b|github\b|stripe\b|vercel\b|npm\s*audit|devlog|r2\b|supabase|middleware|proxy\b|diagnostics|sentry|webhook|api\s*key|secret|token|ticket|commit\b|pr\s*#|pull\s*request|ci\/cd|turbopack|webpack|eslint|typescript|refactor|harden|wip\b|todo\b|fixme|hack\b|whop|coupon|conversion\s+codes?|price_data|horizons|license\.md|readme|india|inr|regional\s+discount|charm\s+pricing|india50|india60|local\s+india|india\s+pricing|india\s+visitors|india\s+coupon|india\s+promo|pro\s+now\s+\$|pro\+\s+\$|drop\s+global\s+pro)\b|₹|\$\d+\.\d{2}|sale\s+banner.*(?:india|inr|pricing)|(?:india|inr).*sale\s+banner/i
 
 function isPublicSafe(text) {
   return !BLOCKED_PATTERN.test(text)

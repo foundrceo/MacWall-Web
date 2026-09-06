@@ -39,7 +39,6 @@ import {
 } from "@/lib/public-catalog/format"
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
 import {
-  wallpaperDetailPath,
   wallpaperShareUrl,
   wallpapersGalleryHref,
   wallpapersGalleryPath,
@@ -50,10 +49,8 @@ import {
   WALLPAPER_SECTION_FONT_CLASS,
   WALLPAPER_SECTION_SERIF_HEADING_CLASS,
 } from "@/lib/public-catalog/typography"
-import {
-  buildSupportChatHref,
-  buildWallpaperReportMessage,
-} from "@/lib/support/shared"
+import { buildWallpaperReportMessage } from "@/lib/support/shared"
+import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 const META_ICON_SIZE = 17
@@ -110,10 +107,10 @@ export function WallpaperDetail({
   const categorySlug = wallpaperCategorySlugOrFallback(wallpaper.category)
   const categoryHref = wallpapersGalleryHref(categorySlug)
   const shareUrl = wallpaperShareUrl(wallpaper, origin)
-  const reportChatHref = buildSupportChatHref({
-    pathname: wallpaperDetailPath(wallpaper),
-    message: buildWallpaperReportMessage(wallpaper, shareUrl),
-  })
+  // Reports go to the support inbox by email — the site no longer hosts live chat.
+  const reportChatHref = `mailto:${macwall.supportEmail}?subject=${encodeURIComponent(
+    `Report wallpaper: ${wallpaper.name}`
+  )}&body=${encodeURIComponent(buildWallpaperReportMessage(wallpaper, shareUrl))}`
   const loopTime = formatLoopDuration(wallpaper.durationSeconds)
   const sizeLabel = formatFileSize(wallpaper.fileSizeBytes)
   const { lead: detailLead, detail: detailBody } = buildDetailCopy(wallpaper)
