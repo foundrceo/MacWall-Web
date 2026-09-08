@@ -1,6 +1,6 @@
 import MacWallMarketingHome from "@/components/macwall-marketing/marketing-home"
 import { JsonLd } from "@/components/seo/json-ld"
-import { macwall, macwallLockScreenMacOSVersion } from "@/lib/macwall-site"
+import { macwall } from "@/lib/macwall-site"
 import { macwallPricingCopy as pricingCopy } from "@/lib/macwall-pricing-copy"
 import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import {
@@ -12,7 +12,8 @@ import {
 import type { Metadata } from "next"
 
 /** ≤155 chars; leads with the app entity to disambiguate from the unrelated "MACWALL" retaining-wall product. */
-const PAGE_DESCRIPTION = `MacWall is the native macOS app for cinematic live wallpapers, with menu bar control, battery-aware pausing, and Lock Screen support on ${macwallLockScreenMacOSVersion}. $7.99, paid once.`
+const PAGE_DESCRIPTION =
+  "MacWall is the native macOS app for cinematic live 4K wallpapers on macOS 15+, with menu bar control and near-zero battery impact. Lock Screen video on macOS 26+. $7.99, paid once."
 
 export const metadata: Metadata = {
   title: { absolute: macwall.fullTagline },

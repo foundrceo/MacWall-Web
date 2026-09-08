@@ -1,7 +1,6 @@
 /**
  * Social proof feed — mixes real recent purchases (with country when known)
- * and 10× synthetic marketing lines so high-traffic visitors always see
- * urgent "someone just…" activity.
+ * and modest synthetic marketing lines so visitors see recent activity.
  */
 
 import { countryDisplayName } from "@/lib/geo/country-display"
@@ -39,8 +38,8 @@ export type SocialProofMessage = {
   meta: string | null
 }
 
-/** Always amplify real volume before aggregates hit the popup. */
-export const SOCIAL_PROOF_MULTIPLIER = 10
+/** Modest amplification so quiet days still feel active without inflating numbers. */
+export const SOCIAL_PROOF_MULTIPLIER = 2
 
 /** Floor so empty days still feel alive for high-traffic visitors. */
 const FLOOR_LAST_24H = 12

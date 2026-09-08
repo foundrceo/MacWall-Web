@@ -14,8 +14,8 @@ import {
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
-/** Viewports that should get the 720p encode instead of the full-size one. */
-const SMALL_VIEWPORT_QUERY = "(max-width: 768px)"
+/** Large desktops still get 720p by default — saves ~4 MB on first paint. */
+const LARGE_DESKTOP_QUERY = "(min-width: 1536px)"
 
 type NetworkInformation = {
   saveData?: boolean
@@ -62,8 +62,11 @@ export function HeroWalkthroughVideo({
     if (!container) return
 
     const resolveSrc = () => {
-      const small = window.matchMedia(SMALL_VIEWPORT_QUERY).matches
-      return small ? mobileSource.src : (sources[0]?.src ?? mobileSource.src)
+      const largeDesktop = window.matchMedia(LARGE_DESKTOP_QUERY).matches
+      if (largeDesktop) {
+        return sources[0]?.src ?? mobileSource.src
+      }
+      return mobileSource.src
     }
 
     const observer = new IntersectionObserver(
@@ -84,9 +87,13 @@ export function HeroWalkthroughVideo({
   }, [mobileSource.src, sources])
 
   const loadOnTap = () => {
-    const small = window.matchMedia(SMALL_VIEWPORT_QUERY).matches
+    const largeDesktop = window.matchMedia(LARGE_DESKTOP_QUERY).matches
     setNeedsTapToLoad(false)
-    setActiveSrc(small ? mobileSource.src : (sources[0]?.src ?? mobileSource.src))
+    setActiveSrc(
+      largeDesktop
+        ? (sources[0]?.src ?? mobileSource.src)
+        : mobileSource.src
+    )
   }
 
   return (

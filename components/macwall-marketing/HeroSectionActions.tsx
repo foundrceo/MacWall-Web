@@ -1,14 +1,13 @@
 "use client"
 
-import { useState } from "react"
-
 import {
   TrackedDownloadButton,
+  TrackedPricingButton,
 } from "@/components/analytics/tracked-marketing-buttons"
+import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import { HeroMobileActions } from "@/components/macwall-marketing/hero-mobile-actions"
-import { ProModal } from "@/components/macwall-marketing/pro-modal"
-import { trackSiteEventClient } from "@/lib/analytics/client"
 import {
+  macwall,
   macwallInstallerLatestPath,
   macwallMinimumMacOSVersionLabel,
 } from "@/lib/macwall-site"
@@ -28,7 +27,7 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
 }
 
 export default function HeroSectionActions() {
-  const [proOpen, setProOpen] = useState(false)
+  const pricing = useMarketingPricing()
 
   return (
     <>
@@ -50,26 +49,28 @@ export default function HeroSectionActions() {
               {macwallMinimumMacOSVersionLabel}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              trackSiteEventClient("pricing_click", { location: "hero" })
-              setProOpen(true)
-            }}
-            className={cn(
-              "marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
-            )}
-          >
-            See Pro pricing
-          </button>
+          <div className="flex flex-col items-center">
+            <TrackedPricingButton
+              href={pricing.checkoutUrl}
+              size="pill"
+              location="hero"
+              ariaLabel={`Get ${macwall.name} Pro`}
+              className={cn(
+                "marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
+              )}
+            >
+              {pricing.getProCta}
+            </TrackedPricingButton>
+            <p className="mt-2 text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
+              License emailed instantly
+            </p>
+          </div>
         </div>
       </div>
 
       <div className="mw-when-mobile">
         <HeroMobileActions />
       </div>
-
-      <ProModal open={proOpen} onOpenChange={setProOpen} />
     </>
   )
 }

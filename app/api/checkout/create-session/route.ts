@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic"
 
 /** Cheap per-instance brake against Stripe session / pending-license spam. */
 const checkCheckoutRateLimit = createInMemoryRateLimiter({
-  max: 12,
+  max: 30,
   windowMs: 60_000,
 })
 

@@ -63,6 +63,23 @@ async function resolvePromotionCodeId(
   }
 }
 
+function checkoutErrorMessage(error: unknown): string {
+  const message =
+    error instanceof Error ? error.message : "Checkout session failed."
+
+  if (/expired api key/i.test(message)) {
+    return "Checkout is temporarily unavailable. Please try again shortly or email support@macwall.app."
+  }
+  if (/invalid api key/i.test(message)) {
+    return "Checkout is temporarily unavailable. Please try again shortly or email support@macwall.app."
+  }
+  if (/no such price/i.test(message)) {
+    return "This pricing option is unavailable right now. Please refresh and try again."
+  }
+
+  return "Could not start checkout. Please try again."
+}
+
 /**
  * Creates the Stripe Checkout Session ASAP, then persists the pending license
  * after the response (user still has to enter payment details on Stripe).
@@ -216,7 +233,7 @@ export async function createMacWallCheckoutSession(
     )
     return {
       ok: false,
-      error: "Could not start checkout.",
+      error: checkoutErrorMessage(error),
       status: 500,
     }
   }

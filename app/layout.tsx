@@ -288,7 +288,7 @@ export default function RootLayout({
             {ahrefsWebAnalyticsKey ? (
               <Script
                 src="https://analytics.ahrefs.com/analytics.js"
-                strategy="afterInteractive"
+                strategy="lazyOnload"
                 data-key={ahrefsWebAnalyticsKey}
               />
             ) : null}
