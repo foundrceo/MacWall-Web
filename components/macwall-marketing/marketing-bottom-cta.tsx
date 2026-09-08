@@ -10,6 +10,7 @@ import {
   macwallInstallerLatestPath,
   macwallMinimumMacOSVersionLabel,
 } from "@/lib/macwall-site"
+import { cn } from "@/lib/utils"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -50,14 +51,22 @@ export default function MacWallMarketingBottomCta() {
                 {macwallMinimumMacOSVersionLabel}
               </p>
             </div>
-            <TrackedPricingButton
-              href="/pricing"
-              location="bottom_cta"
-              size="pill"
-              className="marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
-            >
-              {pricing.bottomCtaLabel}
-            </TrackedPricingButton>
+            <div className="flex flex-col items-center">
+              <TrackedPricingButton
+                href={pricing.checkoutUrl}
+                size="pill"
+                location="bottom_cta"
+                ariaLabel={`Get ${macwall.name} Pro`}
+                className={cn(
+                  "marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
+                )}
+              >
+                {pricing.getProCta}
+              </TrackedPricingButton>
+              <p className="mt-2 text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
+                License emailed instantly
+              </p>
+            </div>
           </div>
 
           <div className="mw-when-mobile">

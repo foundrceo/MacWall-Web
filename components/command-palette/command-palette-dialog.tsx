@@ -40,6 +40,7 @@ import {
   offerSlugFromCheckoutHref,
   waitForPrefetchedCheckoutUrl,
 } from "@/lib/checkout/prefetch-checkout"
+import { pricingPathWithCheckoutError } from "@/lib/checkout/checkout-session-client"
 import {
   getCommandPaletteStaticItems,
   matchesCommandQuery,
@@ -477,19 +478,18 @@ function CommandPaletteDialogContent({
           trackMetaInitiateCheckout()
           void trackTikTokInitiateCheckoutWithIdentify()
           void waitForPrefetchedCheckoutUrl(checkoutOffer)
-            .then((url) => {
-              if (url?.startsWith("https://")) {
-                window.location.assign(url)
+            .then((result) => {
+              if (result.ok && result.url.startsWith("https://")) {
+                window.location.assign(result.url)
                 return
               }
-              window.location.assign(
-                "/pricing?checkout_error=Could%20not%20start%20checkout.%20Please%20try%20again."
-              )
+              const error = result.ok
+                ? "Stripe did not return a checkout URL."
+                : result.error
+              window.location.assign(pricingPathWithCheckoutError(error))
             })
             .catch(() => {
-              window.location.assign(
-                "/pricing?checkout_error=Could%20not%20start%20checkout.%20Please%20try%20again."
-              )
+              window.location.assign(pricingPathWithCheckoutError(""))
             })
           return
         }

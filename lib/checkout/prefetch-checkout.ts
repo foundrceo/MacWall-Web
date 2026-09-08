@@ -1,6 +1,11 @@
 "use client"
 
 import { AFFONSO_REFERRAL_COOKIE } from "@/lib/macwall-affiliate"
+import {
+  DEFAULT_CHECKOUT_ERROR,
+  type CheckoutSessionResult,
+  parseCheckoutCreateError,
+} from "@/lib/checkout/checkout-session-client"
 
 type CachedCheckout = {
   url: string
@@ -10,7 +15,7 @@ type CachedCheckout = {
 }
 
 const cache = new Map<string, CachedCheckout>()
-const inflight = new Map<string, Promise<string | null>>()
+const inflight = new Map<string, Promise<CheckoutSessionResult>>()
 /** After a failed create (e.g. 429), pause background retries. */
 const failureCooldownUntil = new Map<string, number>()
 
@@ -95,21 +100,23 @@ type PrefetchOptions = {
 /**
  * Create (or reuse) a Checkout Session URL so a click can redirect with no wait.
  *
- * Call only on real purchase intent (hover, focus, or touch on a checkout CTA).
+ * Call only on real purchase intent (mousedown, focus, or touch on a checkout CTA).
  * Every call mints a Stripe session, a license key, a `pending` row in
  * `macwall_licenses`, and a recovery-queue row.
  */
 export function prefetchCheckoutSession(
   offer: string,
   options: PrefetchOptions = {}
-): Promise<string | null> {
+): Promise<CheckoutSessionResult> {
   const slug = offerKey(offer)
   const referralAtStart = readAffonsoReferralCookie()
   const key = cacheKey(slug, referralAtStart)
   const existing = getPrefetchedCheckoutUrl(slug)
-  if (existing) return Promise.resolve(existing)
+  if (existing) return Promise.resolve({ ok: true, url: existing })
 
-  if (!options.force && isCoolingDown(key)) return Promise.resolve(null)
+  if (!options.force && isCoolingDown(key)) {
+    return Promise.resolve({ ok: false, error: DEFAULT_CHECKOUT_ERROR })
+  }
 
   const pending = inflight.get(key)
   if (pending) return pending
@@ -118,7 +125,7 @@ export function prefetchCheckoutSession(
     failureCooldownUntil.delete(key)
   }
 
-  const request = (async () => {
+  const request = (async (): Promise<CheckoutSessionResult> => {
     try {
       const response = await fetch("/api/checkout/create-session", {
         method: "POST",
@@ -130,15 +137,15 @@ export function prefetchCheckoutSession(
         body: JSON.stringify({ offer: slug }),
       })
       if (!response.ok) {
-        // 429 / 5xx — back off background prefetch; forced clicks can retry later.
+        const error = await parseCheckoutCreateError(response)
         failureCooldownUntil.set(key, Date.now() + FAILURE_COOLDOWN_MS)
-        return null
+        return { ok: false, error }
       }
       const data = (await response.json()) as { url?: string }
       const url = data.url?.trim()
       if (!url) {
         failureCooldownUntil.set(key, Date.now() + FAILURE_COOLDOWN_MS)
-        return null
+        return { ok: false, error: DEFAULT_CHECKOUT_ERROR }
       }
 
       const referralNow = readAffonsoReferralCookie()
@@ -146,7 +153,7 @@ export function prefetchCheckoutSession(
       // is empty. Do not cache under the new referral; callers must recreate.
       if (referralNow !== referralAtStart) {
         failureCooldownUntil.delete(key)
-        return null
+        return { ok: false, error: DEFAULT_CHECKOUT_ERROR }
       }
 
       failureCooldownUntil.delete(key)
@@ -155,10 +162,10 @@ export function prefetchCheckoutSession(
         expiresAt: Date.now() + CACHE_TTL_MS,
         affonsoReferral: referralAtStart,
       })
-      return url
+      return { ok: true, url }
     } catch {
       failureCooldownUntil.set(key, Date.now() + FAILURE_COOLDOWN_MS)
-      return null
+      return { ok: false, error: DEFAULT_CHECKOUT_ERROR }
     } finally {
       inflight.delete(key)
     }
@@ -215,39 +222,44 @@ export async function waitForAffonsoReferralIfLanding(
  */
 export async function waitForPrefetchedCheckoutUrl(
   offer: string
-): Promise<string | null> {
-  // Affiliate click path: don't reuse a no-referral warm session.
+): Promise<CheckoutSessionResult> {
   await waitForAffonsoReferralIfLanding(1500)
 
   const ready = takePrefetchedCheckoutUrl(offer)
-  if (ready) return ready
+  if (ready) return { ok: true, url: ready }
 
   const referral = readAffonsoReferralCookie()
   const key = cacheKey(offer, referral)
   const pending = inflight.get(key)
   if (pending) {
     const fromPending = await pending
-    if (fromPending) {
+    if (fromPending.ok) {
       if (readAffonsoReferralCookie() !== referral) {
-        // Cookie arrived while the empty-referral create was in flight.
         return createCheckoutUrlForClick(offer)
       }
-      return takePrefetchedCheckoutUrl(offer) ?? fromPending
+      const url = takePrefetchedCheckoutUrl(offer) ?? fromPending.url
+      return { ok: true, url }
     }
   }
 
   return createCheckoutUrlForClick(offer)
 }
 
-async function createCheckoutUrlForClick(offer: string): Promise<string | null> {
+async function createCheckoutUrlForClick(
+  offer: string
+): Promise<CheckoutSessionResult> {
   const created = await prefetchCheckoutSession(offer, { force: true })
-  if (created) {
-    return takePrefetchedCheckoutUrl(offer) ?? created
+  if (created.ok) {
+    const url = takePrefetchedCheckoutUrl(offer) ?? created.url
+    return { ok: true, url }
   }
-  // Mid-flight attribution race returned null — retry once with the cookie set.
   if (readAffonsoReferralCookie()) {
     const retry = await prefetchCheckoutSession(offer, { force: true })
-    if (retry) return takePrefetchedCheckoutUrl(offer) ?? retry
+    if (retry.ok) {
+      const url = takePrefetchedCheckoutUrl(offer) ?? retry.url
+      return { ok: true, url }
+    }
+    return retry
   }
-  return null
+  return created
 }

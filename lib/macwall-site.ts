@@ -175,15 +175,11 @@ export const macwall = {
       "Lifetime updates and future Pro benefits",
     ],
   },
-<<<<<<< HEAD
   annual: {
     price: "$4.99",
     suffix: "per year",
   },
-  /** Floor conversion promo. Timed unique 20/30 codes are allowlisted separately. */
-=======
   /** Shown in Pro discount flows — keep in sync with AppBrand.proDiscountPromoCode + Stripe. */
->>>>>>> 8b5273f (feat: add canonical AI GEO content)
   proDiscountPromoCode: "MAC10",
   /** Personal base-license device limit. The 5-Mac bundle raises it to 5. */
   maxLicensedMacs: 3,

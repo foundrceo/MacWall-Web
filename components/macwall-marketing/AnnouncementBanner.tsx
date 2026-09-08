@@ -1,106 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
 
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
-
-const TIMER_STORAGE_KEY = "macwall_sale_deadline_ms"
-/** Fixed window length — never auto-resets after expiry (avoids fake urgency). */
-const DAY_MS = 24 * 60 * 60 * 1000
-
-type Remaining = {
-  hours: string
-  minutes: string
-  seconds: string
-}
-
-function pad2(n: number): string {
-  return String(Math.max(0, n)).padStart(2, "0")
-}
-
-function remainingFromDeadline(deadlineMs: number, nowMs: number): Remaining {
-  const totalSec = Math.max(0, Math.floor((deadlineMs - nowMs) / 1000))
-  const hours = Math.floor(totalSec / 3600)
-  const minutes = Math.floor((totalSec % 3600) / 60)
-  const seconds = totalSec % 60
-  return {
-    hours: pad2(hours),
-    minutes: pad2(minutes),
-    seconds: pad2(seconds),
-  }
-}
-
-function readOrCreateDeadline(nowMs: number): number {
-  try {
-    const raw = window.localStorage.getItem(TIMER_STORAGE_KEY)
-    const parsed = raw ? Number(raw) : NaN
-    if (Number.isFinite(parsed)) {
-      return parsed
-    }
-  } catch {
-    // localStorage unavailable — fall through
-  }
-
-  const deadline = nowMs + DAY_MS
-  try {
-    window.localStorage.setItem(TIMER_STORAGE_KEY, String(deadline))
-  } catch {
-    // ignore write failures
-  }
-  return deadline
-}
-
-function BannerCountdown() {
-  const [remaining, setRemaining] = useState<Remaining | null>(null)
-  const [expired, setExpired] = useState(false)
-
-  useEffect(() => {
-    const deadline = readOrCreateDeadline(Date.now())
-
-    const tick = () => {
-      const now = Date.now()
-      if (deadline <= now) {
-        setExpired(true)
-        setRemaining(null)
-        return
-      }
-      setExpired(false)
-      setRemaining(remainingFromDeadline(deadline, now))
-    }
-
-    tick()
-    const id = window.setInterval(tick, 1000)
-    return () => window.clearInterval(id)
-  }, [])
-
-  if (expired) {
-    return (
-      <span className="inline-flex shrink-0 items-center text-[11px] font-semibold tracking-tight text-black sm:text-[13px]">
-        Sale on now
-      </span>
-    )
-  }
-
-  const time = remaining ?? { hours: "--", minutes: "--", seconds: "--" }
-
-  return (
-    <span
-      className="inline-flex shrink-0 items-center gap-x-1 text-[11px] font-semibold tabular-nums tracking-tight text-black sm:text-[13px]"
-      aria-label={
-        remaining
-          ? `Sale ends in ${time.hours} hours ${time.minutes} minutes ${time.seconds} seconds`
-          : undefined
-      }
-      aria-hidden={!remaining}
-    >
-      <span className="font-medium text-black/70">Ends in</span>
-      <span>
-        {time.hours}:{time.minutes}:{time.seconds}
-      </span>
-    </span>
-  )
-}
 
 function Dot() {
   return (
@@ -110,7 +12,7 @@ function Dot() {
   )
 }
 
-/** Launch offer strip above the navbar — tease the deal, drive to pricing. */
+/** Pricing strip above the navbar — honest one-time offer, no fake countdown. */
 export default function AnnouncementBanner() {
   const pricing = useMarketingPricing()
 
@@ -146,10 +48,6 @@ export default function AnnouncementBanner() {
               {pricing.bannerSalePrice}
             </span>
           </span>
-
-          <Dot />
-
-          <BannerCountdown />
 
           <Dot />
 

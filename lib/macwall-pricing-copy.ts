@@ -20,8 +20,6 @@ export type PricingReview = {
 
 export const macwallPricingCopy = {
   pageTitle: "Pricing",
-  billingToggleLabel: "Choose billing",
-  billingPermanent: "Permanent",
 
   plans: {
     pro: {
@@ -49,7 +47,7 @@ export const macwallPricingCopy = {
   },
 
   heroTitle: "Pay once. Yours forever.",
-  heroLead: "Live Lock Screen, your own videos, and 4K on every display.",
+  heroLead: "1,000+ cinematic 4K loops, your own videos, and hardware-decoded playback on every display. Lock Screen and Screen Saver video on macOS 26+.",
 
   reelRefundHook: {
     line: "Post a Reel, get up to 100% back",
@@ -95,7 +93,7 @@ export const macwallPricingCopy = {
     features: [
       "1,000+ live 4K wallpapers",
       "One payment, lifetime updates",
-      "Live Lock Screen & Screen Saver",
+      "Live Lock Screen & Screen Saver (macOS 26+)",
       "Import your own videos",
       "Music Sync",
       "Multi-display, hardware decoded",
@@ -168,7 +166,7 @@ export const macwallPricingCopy = {
   bottomCtaPro: "Get Pro",
   bottomCtaReel: "Get it free with a Reel",
 
-  socialProofLine: "4,000+ Mac users have Pro",
+  socialProofLine: "1,000+ wallpapers · trusted by Mac users worldwide",
   socialProofRating: 5,
 
   cardFooter: {

@@ -32,7 +32,7 @@ export const macwallMarketingCopy = {
     },
   },
   ribbon: {
-    lineBeforeLink: `New: ${macwall.name} brings live Lock Screen and Screen Saver wallpapers to ${macwallLockScreenMacOSVersion}. Live desktop wallpapers run on ${macwallMinimumMacOSVersion}+. `,
+    lineBeforeLink: `Live 4K desktop wallpapers on ${macwallMinimumMacOSVersion}+. Lock Screen and Screen Saver video on ${macwallLockScreenMacOSVersion}. `,
     linkText: `Get ${macwall.name}`,
   },
   interact: {

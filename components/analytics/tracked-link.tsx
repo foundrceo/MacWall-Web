@@ -20,6 +20,7 @@ import {
   prefetchCheckoutSession,
   waitForPrefetchedCheckoutUrl,
 } from "@/lib/checkout/prefetch-checkout"
+import { pricingPathWithCheckoutError } from "@/lib/checkout/checkout-session-client"
 
 type TrackedLinkProps = {
   href: string
@@ -95,24 +96,20 @@ export function TrackedLink({
       const anchor = event.currentTarget
       anchor.setAttribute("aria-busy", "true")
       void waitForPrefetchedCheckoutUrl(checkoutOffer)
-        .then((url) => {
-          if (url?.startsWith("https://")) {
-            // Stripe Hosted Checkout session URL from POST create-session.
-            window.location.assign(url)
+        .then((result) => {
+          if (result.ok && result.url.startsWith("https://")) {
+            window.location.assign(result.url)
             return
           }
-          // Session create failed — send user to pricing with a recoverable error.
-          // Never GET create-session (429 → worse UX).
           anchor.removeAttribute("aria-busy")
-          window.location.assign(
-            "/pricing?checkout_error=Could%20not%20start%20checkout.%20Please%20try%20again."
-          )
+          const error = result.ok
+            ? "Stripe did not return a checkout URL."
+            : result.error
+          window.location.assign(pricingPathWithCheckoutError(error))
         })
         .catch(() => {
           anchor.removeAttribute("aria-busy")
-          window.location.assign(
-            "/pricing?checkout_error=Could%20not%20start%20checkout.%20Please%20try%20again."
-          )
+          window.location.assign(pricingPathWithCheckoutError(""))
         })
       return
     }
@@ -141,12 +138,14 @@ export function TrackedLink({
   }
 
   const trackProps = {
-    onMouseDown: prepareDownloadHref,
+    onMouseDown: (event: MouseEvent<HTMLAnchorElement>) => {
+      prepareDownloadHref(event)
+      warmCheckout()
+    },
     onTouchStart: (event: TouchEvent<HTMLAnchorElement>) => {
       prepareDownloadHref(event)
       warmCheckout()
     },
-    onPointerEnter: warmCheckout,
     onFocus: warmCheckout,
     onClick: onNavigate,
     onAuxClick: onNavigate,
