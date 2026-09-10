@@ -9,19 +9,19 @@ const R2_CDN_HOST = "cdn.macwall.app"
 const projectRoot = path.dirname(fileURLToPath(import.meta.url))
 
 /**
- * Report-only CSP. Inline analytics pixels (TikTok, X) plus Next.js runtime
+ * Report-only CSP. Inline analytics pixels (TikTok, X, Whop) plus Next.js runtime
  * injection require 'unsafe-inline'/'unsafe-eval'; we start in Report-Only so
  * violations surface in the console without breaking analytics. Promote to an
  * enforcing `Content-Security-Policy` header once violations are triaged.
  */
 const CONTENT_SECURITY_POLICY_REPORT_ONLY = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://analytics.tiktok.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.googletagmanager.com https://va.vercel-scripts.com https://cdn.affonso.io",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://analytics.tiktok.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.googletagmanager.com https://va.vercel-scripts.com https://cdn.affonso.io https://t.whop.tw",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   `img-src 'self' data: blob: https://${R2_CDN_HOST} https://*.supabase.co https://images.unsplash.com https://www.apple.com https://analytics.tiktok.com https://t.co https://analytics.twitter.com https://www.google-analytics.com`,
   `media-src 'self' blob: https://${R2_CDN_HOST} https://*.supabase.co`,
-  "connect-src 'self' https://*.supabase.co https://*.r2.cloudflarestorage.com https://business-api.tiktok.com https://analytics.tiktok.com https://ads-api.x.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://vitals.vercel-insights.com https://va.vercel-scripts.com https://api.affonso.io https://cdn.affonso.io",
+  "connect-src 'self' https://*.supabase.co https://*.r2.cloudflarestorage.com https://business-api.tiktok.com https://analytics.tiktok.com https://ads-api.x.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://vitals.vercel-insights.com https://va.vercel-scripts.com https://api.affonso.io https://cdn.affonso.io https://t.whop.tw",
   `frame-src 'self'`,
   "frame-ancestors 'self'",
   "base-uri 'self'",

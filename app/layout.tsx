@@ -14,6 +14,7 @@ import {
   resolveXAdsPixelId,
   XAdsPixel,
 } from "@/components/analytics/x-ads-pixel"
+import { WhopPixel } from "@/components/analytics/whop-pixel"
 import { VisitorPlatformScript } from "@/components/platform/visitor-platform-script"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { JsonLd } from "@/components/seo/json-ld"
@@ -279,6 +280,7 @@ export default function RootLayout({
           {children}
           <MarketingOnlyScripts>
             <AffonsoPixel />
+            <WhopPixel />
             {metaPixelId ? <MetaPixel pixelId={metaPixelId} /> : null}
             {tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}
             {xAdsPixelId ? <XAdsPixel pixelId={xAdsPixelId} /> : null}
