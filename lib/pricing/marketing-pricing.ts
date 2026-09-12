@@ -23,9 +23,10 @@ export type MarketingMultiMacOffer = {
   strikePriceMajor: number
   /** e.g. "50% off" — matches sale vs cutted price */
   offLabel: string
-  /** Non-US only: ₹… · charged in INR */
+  /** When primary is local: "$7.99 USD". When primary is USD: null. */
   localPriceHint: string | null
   checkoutUrl: string
+  currency: string
 }
 
 export type MarketingPricing = {
@@ -41,11 +42,11 @@ export type MarketingPricing = {
   permanentStrikePriceMajor: number
   /** e.g. "33% off" — matches sale vs cutted price */
   permanentOffLabel: string
-  /** Non-US only: ₹… · charged in INR */
+  /** When primary is local: "$7.99 USD". Otherwise null. */
   permanentLocalHint: string | null
   /**
-   * Banner strip prices — India uses local INR for sale + strike when FX
-   * is available; otherwise catalog USD (India $3.99 / strike $14.99).
+   * Banner strip prices — local presentment when FX is available;
+   * otherwise catalog USD (India $3.99 / strike $14.99).
    */
   bannerSalePrice: string
   bannerStrikePrice: string
@@ -101,9 +102,9 @@ function usdMoney(cents: number, locale = "en-US"): LocalizedMoney {
   }
 }
 
-function localHint(local: LocalizedMoney | null | undefined): string | null {
-  if (!local?.isLocalized) return null
-  return `${local.formatted} · charged in ${local.currency.toUpperCase()}`
+/** Secondary line under a local primary price (catalog USD). */
+function usdCatalogHint(usdCents: number, locale = "en-US"): string {
+  return `${formatMoney(usdCents / 100, "usd", locale)} USD`
 }
 
 export type MarketingFxRate = {
@@ -118,26 +119,22 @@ export type MarketingPriceBundle = {
   permanentLocal: LocalizedMoney | null
   /** @deprecated Prefer `fx` + per-pack conversion. Kept for Pro+ 5-Mac callers. */
   proPlusLocal: LocalizedMoney | null
-  /** When set, every multi-Mac pack gets a local · charged in CUR hint. */
+  /** When set, every multi-Mac pack uses this rate for local primary prices. */
   fx?: MarketingFxRate | null
 }
 
-function localHintForUsdCents(
+function localMoneyFromFx(
   usdCents: number,
-  fx: MarketingFxRate | null | undefined
-): string | null {
-  const formatted = formatLocalUsdCents(usdCents, fx)
-  if (!formatted || !fx) return null
-  return `${formatted} · charged in ${fx.currency.toUpperCase()}`
-}
-
-function formatLocalUsdCents(
-  usdCents: number,
-  fx: MarketingFxRate | null | undefined
-): string | null {
-  if (!fx || fx.currency === "usd") return null
+  fx: MarketingFxRate
+): LocalizedMoney {
   const major = convertUsdCentsWithRate(usdCents, fx.currency, fx.usdPerUnit)
-  return formatMoney(major, fx.currency, fx.locale)
+  return {
+    currency: fx.currency,
+    locale: fx.locale,
+    major,
+    formatted: formatMoney(major, fx.currency, fx.locale),
+    isLocalized: true,
+  }
 }
 
 export function buildMarketingPricingFromLocalized(
@@ -148,35 +145,63 @@ export function buildMarketingPricingFromLocalized(
   const region = india ? "india" : "default"
 
   const permanentSaleCents = india ? PRO_INDIA_USD_CENTS : PRO_USD_CENTS
-  const permanent = usdMoney(permanentSaleCents)
-  const permanentStrike = usdMoney(PRO_STRIKE_USD_CENTS)
+  const useLocal =
+    Boolean(fx && fx.currency !== "usd") ||
+    Boolean(permanentLocal?.isLocalized)
+  const activeFx: MarketingFxRate | null =
+    fx && fx.currency !== "usd"
+      ? fx
+      : permanentLocal?.isLocalized
+        ? {
+            currency: permanentLocal.currency,
+            locale: permanentLocal.locale,
+            usdPerUnit:
+              permanentLocal.major > 0
+                ? permanentSaleCents / 100 / permanentLocal.major
+                : 0,
+          }
+        : null
+
+  const permanentUsd = usdMoney(permanentSaleCents)
+  const permanentStrikeUsd = usdMoney(PRO_STRIKE_USD_CENTS)
+  const permanent =
+    useLocal && activeFx
+      ? (permanentLocal?.isLocalized
+          ? permanentLocal
+          : localMoneyFromFx(permanentSaleCents, activeFx))
+      : permanentUsd
+  const permanentStrike =
+    useLocal && activeFx
+      ? localMoneyFromFx(PRO_STRIKE_USD_CENTS, activeFx)
+      : permanentStrikeUsd
   const annual = usdMoney(
     india ? LICENSE_OFFERS.annual.indiaUsdCents : ANNUAL_USD_CENTS
   )
 
   const permanentPrice = permanent.formatted
   const permanentStrikePrice = permanentStrike.formatted
-  const permanentLocalHint = localHint(permanentLocal)
+  const permanentLocalHint = useLocal
+    ? usdCatalogHint(permanentSaleCents)
+    : null
   const permanentOffLabel = offLabel(PRO_STRIKE_USD_CENTS, permanentSaleCents)
 
-  // Banner: India shows local INR for sale + cutted strike when FX is available.
-  const indiaFx = india ? fx : null
-  const bannerSalePrice =
-    (india && permanentLocal?.isLocalized ? permanentLocal.formatted : null) ??
-    formatLocalUsdCents(permanentSaleCents, indiaFx) ??
-    permanentPrice
-  const bannerStrikePrice =
-    formatLocalUsdCents(PRO_STRIKE_USD_CENTS, indiaFx) ?? permanentStrikePrice
+  const bannerSalePrice = permanentPrice
+  const bannerStrikePrice = permanentStrikePrice
 
   const multiMacOffers: MarketingMultiMacOffer[] = MULTI_MAC_OFFER_SLUGS.map(
     (slug) => {
       const offer = LICENSE_OFFERS[slug]
       const saleCents = licenseOfferPriceCents(offer, region)
-      const sale = usdMoney(saleCents)
-      const strike = usdMoney(offer.strikeUsdCents)
-      const packLocalHint =
-        localHintForUsdCents(saleCents, fx) ??
-        (slug === "permanent_5" ? localHint(proPlusLocal) : null)
+      const sale =
+        useLocal && activeFx
+          ? slug === "permanent_5" && proPlusLocal?.isLocalized
+            ? proPlusLocal
+            : localMoneyFromFx(saleCents, activeFx)
+          : usdMoney(saleCents)
+      const strike =
+        useLocal && activeFx
+          ? localMoneyFromFx(offer.strikeUsdCents, activeFx)
+          : usdMoney(offer.strikeUsdCents)
       return {
         slug: offer.slug,
         macs: offer.maxDevices,
@@ -185,17 +210,21 @@ export function buildMarketingPricingFromLocalized(
         strikePrice: strike.formatted,
         strikePriceMajor: strike.major,
         offLabel: offLabel(offer.strikeUsdCents, saleCents),
-        localPriceHint: packLocalHint,
+        localPriceHint: useLocal ? usdCatalogHint(saleCents) : null,
         checkoutUrl: licenseOfferCheckoutPath(slug),
+        currency: sale.currency,
       }
     }
   )
 
+  const displayCurrency = permanent.currency
+  const displayLocale = permanent.locale
+
   return {
     country,
-    currency: "usd",
-    locale: "en-US",
-    isLocalized: Boolean(permanentLocalHint),
+    currency: displayCurrency,
+    locale: displayLocale,
+    isLocalized: useLocal,
     isIndia: india,
     permanentPrice,
     permanentPriceMajor: permanent.major,

@@ -43,7 +43,7 @@ export default function TikTokLandingHero() {
           </p>
 
           <div className="mt-6 inline-flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-2xl bg-[#111] px-5 py-3">
-            <span className="text-[32px] font-semibold tracking-[-0.03em] text-foreground">
+            <span className="font-instrument text-[32px] font-semibold tracking-[-0.03em] tabular-nums text-foreground">
               {pricing.permanentPrice}
             </span>
             <span className="text-[15px] text-marketing-muted">

@@ -26,7 +26,7 @@ type VerifyState =
   | {
       status: "paid"
       licenseKey: string | null
-      amountTotal: number | null
+      amountMajor: number | null
       currency: string | null
     }
   | { status: "unpaid" }
@@ -72,6 +72,7 @@ function ActivateRedirectBody() {
           ok?: boolean
           paid?: boolean
           licenseKey?: string | null
+          amountMajor?: number | null
           amountTotal?: number | null
           currency?: string | null
         }
@@ -79,11 +80,16 @@ function ActivateRedirectBody() {
           setVerify({ status: "unpaid" })
           return
         }
+        const amountMajor =
+          typeof data.amountMajor === "number"
+            ? data.amountMajor
+            : typeof data.amountTotal === "number"
+              ? data.amountTotal / 100
+              : null
         setVerify({
           status: "paid",
           licenseKey: data.licenseKey?.trim() || urlKey,
-          amountTotal:
-            typeof data.amountTotal === "number" ? data.amountTotal : null,
+          amountMajor,
           currency: data.currency ?? null,
         })
       } catch {
@@ -111,8 +117,8 @@ function ActivateRedirectBody() {
     verify.status === "paid" || (!sessionId && Boolean(urlKey))
 
   const conversionAmount =
-    verify.status === "paid" && verify.amountTotal != null
-      ? verify.amountTotal / 100
+    verify.status === "paid" && verify.amountMajor != null
+      ? verify.amountMajor
       : undefined
   const conversionCurrency =
     verify.status === "paid" ? verify.currency ?? undefined : undefined

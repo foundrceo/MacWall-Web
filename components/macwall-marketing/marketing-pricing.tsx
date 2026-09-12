@@ -107,7 +107,7 @@ export default function MacWallMarketingPricingPage() {
                   subtitle={plans.pro.subtitle}
                   price={pricing.permanentPrice}
                   priceMajor={pricing.permanentPriceMajor}
-                  currency="usd"
+                  currency={pricing.currency}
                   strikePrice={pricing.permanentStrikePrice}
                   localPriceHint={pricing.permanentLocalHint}
                   priceSuffix="one-time"

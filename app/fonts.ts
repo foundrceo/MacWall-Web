@@ -1,4 +1,16 @@
+import { Instrument_Sans } from "next/font/google"
 import localFont from "next/font/local"
+
+/** Pricing card amounts: clean numerals next to PP Neue Montreal UI copy. */
+export const instrumentSans = Instrument_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-instrument-sans",
+  display: "swap",
+  preload: true,
+  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
+  adjustFontFallback: true,
+})
 
 export const ppNeueMontreal = localFont({
   src: [

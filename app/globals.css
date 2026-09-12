@@ -19,6 +19,8 @@
     ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-pp-neue-montreal), var(--font-pp-neue-montreal-extra),
     ui-sans-serif, system-ui, sans-serif;
+  --font-instrument: var(--font-instrument-sans), ui-sans-serif, system-ui,
+    sans-serif;
   --font-pixel-square: var(--font-pp-neue-montreal),
     var(--font-pp-neue-montreal-extra), ui-sans-serif, system-ui, sans-serif;
   --color-landing-rule: rgba(255, 255, 255, 0.08);
@@ -280,6 +282,12 @@
     ui-sans-serif, system-ui, sans-serif;
   font-weight: 500;
   font-style: normal;
+}
+
+@utility font-instrument {
+  font-family: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "tnum";
+  font-variant-numeric: tabular-nums;
 }
 
 @layer utilities {
