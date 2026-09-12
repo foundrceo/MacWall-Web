@@ -57,7 +57,7 @@ export const GALLERY_CHIP_ACTIVE_CLASS =
 
 /** Sort dropdown panel — dark Apple-like menu (no Select checkmarks). */
 export const GALLERY_SORT_MENU_CLASS =
-  "flex min-w-[var(--radix-dropdown-menu-trigger-width)] flex-col gap-0.5 rounded-xl border-0 bg-[#2a2a2c]/95 p-1 text-white shadow-[0_8px_32px_rgba(0,0,0,0.45)] ring-1 ring-white/10 backdrop-blur-xl"
+  "flex min-w-[var(--radix-dropdown-menu-trigger-width)] flex-col gap-0.5 rounded-xl border border-landing-rule bg-[#111] p-1 text-white shadow-none"
 
 /** Sort dropdown row — consistent height and inset from panel edge. */
 export const GALLERY_SORT_MENU_ITEM_CLASS =

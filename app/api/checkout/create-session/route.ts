@@ -27,7 +27,8 @@ async function startCheckout(
   offerSlug: string | null,
   planSlug: string | null,
   promoCode: string | null,
-  offerUntil: string | null
+  offerUntil: string | null,
+  licenseKey: string | null
 ) {
   const rate = checkCheckoutRateLimit(clientIpFromRequest(request))
   if (rate.limited) {
@@ -54,6 +55,7 @@ async function startCheckout(
     planSlug,
     promoCode,
     offerUntil,
+    licenseKey,
     affonsoReferral,
     siteOrigin: resolveCheckoutSiteOrigin(request.url),
   })
@@ -66,13 +68,15 @@ export async function GET(request: Request) {
   const planSlug = url.searchParams.get("plan")
   const promoCode = url.searchParams.get("promo")
   const offerUntil = url.searchParams.get("until")
+  const licenseKey = url.searchParams.get("key")
 
   const result = await startCheckout(
     request,
     offerSlug,
     planSlug,
     promoCode,
-    offerUntil
+    offerUntil,
+    licenseKey
   )
 
   if (!result.ok) {
@@ -90,22 +94,26 @@ export async function POST(request: Request) {
   let planSlug: string | null = null
   let promoCode: string | null = null
   let offerUntil: string | null = null
+  let licenseKey: string | null = null
   try {
     const body = (await request.json()) as {
       offer?: string
       plan?: string
       promo?: string
       until?: string
+      key?: string
     }
     offerSlug = body.offer?.trim() || null
     planSlug = body.plan?.trim() || null
     promoCode = body.promo?.trim() || null
     offerUntil = body.until?.trim() || null
+    licenseKey = body.key?.trim() || null
   } catch {
     offerSlug = null
     planSlug = null
     promoCode = null
     offerUntil = null
+    licenseKey = null
   }
 
   const result = await startCheckout(
@@ -113,7 +121,8 @@ export async function POST(request: Request) {
     offerSlug,
     planSlug,
     promoCode,
-    offerUntil
+    offerUntil,
+    licenseKey
   )
 
   if (!result.ok) {

@@ -1,31 +1,34 @@
 "use client"
 
+import { Minus, Plus } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import { useId, useState } from "react"
 
-import { FaqChevronIcon } from "@/components/macwall-marketing/FaqChevronIcon"
 import {
   MarketingReelFaqRefundCopy,
   MarketingRichText,
 } from "@/components/macwall-marketing/marketing-primitives"
+import {
+  landingBody,
+  landingH2,
+  landingLead,
+  landingSectionY,
+} from "@/components/macwall-marketing/landing-type"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { macwallPricingCopy as pricingCopy } from "@/lib/macwall-pricing-copy"
+import { mailtoSupport } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
-
-const answerClassName =
-  "pb-5 text-[15px] leading-[1.55] text-foreground/70 sm:text-[16px]"
-
-const faqEase = [0.22, 1, 0.36, 1] as const
 
 function FaqAnswer({
   question,
   answer,
 }: Readonly<{ question: string; answer: string }>) {
   if (question === "How does the Reel refund work?") {
-    return <MarketingReelFaqRefundCopy className={answerClassName} />
+    return <MarketingReelFaqRefundCopy className={cn("pb-5", landingBody)} />
   }
 
   return (
-    <MarketingRichText as="p" className={answerClassName}>
+    <MarketingRichText as="p" className={cn("max-w-xl pb-5", landingBody)}>
       {answer}
     </MarketingRichText>
   )
@@ -48,35 +51,26 @@ function FaqItem({
   const panelId = useId()
   const transition = reduceMotion
     ? { duration: 0 }
-    : { duration: 0.28, ease: faqEase }
+    : { duration: 0.22, ease: [0.22, 1, 0.36, 1] as const }
 
   return (
-    <div className="border-b border-border/70 last:border-b-0">
+    <div className="not-last:border-b not-last:border-landing-rule">
       <button
         id={buttonId}
         type="button"
         aria-expanded={isOpen}
         aria-controls={panelId}
         onClick={onToggle}
-        className={cn(
-          "flex min-h-11 w-full cursor-pointer items-center justify-between gap-4 rounded-sm py-4 text-left text-[15px] font-normal transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:gap-4 sm:py-5 sm:text-[16px]",
-          isOpen ? "text-foreground" : "text-foreground/90",
-        )}
+        className="flex w-full items-center justify-between gap-6 py-5 text-left text-[16px] leading-6 font-normal text-white outline-none"
       >
-        <span className="min-w-0 pr-2 leading-snug">{question}</span>
-        <motion.span
-          className="shrink-0"
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={transition}
-          aria-hidden
-        >
-          <FaqChevronIcon
-            className={cn(
-              "size-[18px] text-foreground/35 transition-colors duration-200",
-              isOpen && "text-foreground/65",
-            )}
-          />
-        </motion.span>
+        <span className="min-w-0">{question}</span>
+        <span className="relative size-4 shrink-0 text-landing-muted" aria-hidden>
+          {isOpen ? (
+            <Minus className="absolute inset-0 size-4" />
+          ) : (
+            <Plus className="absolute inset-0 size-4" />
+          )}
+        </span>
       </button>
       <AnimatePresence initial={false}>
         {isOpen ? (
@@ -100,7 +94,6 @@ function FaqItem({
 
 type MarketingFaqSectionProps = Readonly<{
   className?: string
-  /** Pre-open a question — useful on /pricing for the top objection. */
   defaultOpenQuestion?: string | null
 }>
 
@@ -109,18 +102,26 @@ export default function MarketingFaqSection({
   defaultOpenQuestion = null,
 }: MarketingFaqSectionProps) {
   const reduceMotion = useReducedMotion()
+  const landing = macwallMarketingCopy.landing
   const [openQuestion, setOpenQuestion] = useState<string | null>(
     defaultOpenQuestion
   )
 
   return (
-    <section className={cn("marketing-section-elevated bg-surface-elevated", className)}>
+    <section id="faq" className={cn(landingSectionY, className)}>
       <div className="marketing-container">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-[clamp(1.75rem,4vw,2.25rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
-            {pricingCopy.faqTitle}
-          </h2>
-          <div className="mt-10 border-t border-border/70 text-left md:mt-12">
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:gap-16">
+          <div className="flex min-w-0 flex-col gap-5 lg:sticky lg:top-24">
+            <h2 className={landingH2}>{pricingCopy.faqTitle}</h2>
+            <p className={landingLead}>{landing.faqLead}</p>
+            <a
+              href={mailtoSupport}
+              className="w-fit text-[16px] leading-6 text-landing-muted transition-colors hover:text-white"
+            >
+              {landing.contactUs}
+            </a>
+          </div>
+          <div className="min-w-0">
             {pricingCopy.faq.map((item) => (
               <FaqItem
                 key={item.q}
@@ -130,7 +131,7 @@ export default function MarketingFaqSection({
                 reduceMotion={reduceMotion}
                 onToggle={() =>
                   setOpenQuestion((current) =>
-                    current === item.q ? null : item.q,
+                    current === item.q ? null : item.q
                   )
                 }
               />

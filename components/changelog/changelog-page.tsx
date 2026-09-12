@@ -114,11 +114,11 @@ export function ChangelogPage({
             </p>
             <h1
               id={CHANGELOG_TITLE_ID}
-              className="font-serif text-[clamp(2.25rem,5vw,2.875rem)] font-normal leading-[1.06] tracking-[-0.03em] text-white"
+              className="text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px]"
             >
               {CHANGELOG_PAGE_TITLE}
             </h1>
-            <p className="mt-4 text-[16px] leading-[1.65] text-white/52">
+            <p className="mt-4 text-[16px] leading-6 text-landing-muted">
               {copy.lead}
             </p>
           </header>

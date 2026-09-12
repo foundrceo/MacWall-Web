@@ -5,6 +5,11 @@ import { useState } from "react"
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
+import {
+  ghostCtaHeroClass,
+  landingBody,
+  pillCtaHeroClass,
+} from "@/components/macwall-marketing/landing-type"
 import { macwall } from "@/lib/macwall-site"
 
 const SHARE_TITLE = `${macwall.name}, live wallpapers for Mac`
@@ -36,14 +41,14 @@ export function HeroMobileActions() {
   }
 
   return (
-    <div className="mt-8 sm:mt-10">
+    <div>
       <div className="flex flex-col items-stretch gap-2.5">
         <TrackedPricingButton
           href={pricing.checkoutUrl}
           size="pill"
           location="hero_mobile"
           ariaLabel={`Get ${macwall.name} Pro`}
-          className="marketing-hero-primary-btn justify-center px-4 py-3 text-[15px]"
+          className={`${pillCtaHeroClass} justify-center`}
         >
           {pricing.getProCta}
         </TrackedPricingButton>
@@ -51,13 +56,13 @@ export function HeroMobileActions() {
         <button
           type="button"
           onClick={() => void sendLinkToMac()}
-          className="marketing-hero-secondary-btn justify-center px-4 py-3 text-[15px]"
+          className={`${ghostCtaHeroClass} justify-center`}
         >
           {linkState === "copied" ? "Link copied" : "Send link to my Mac"}
         </button>
       </div>
 
-      <p className="mt-3 text-[12px] leading-snug text-marketing-muted sm:text-[13px]">
+      <p className={`${landingBody} mt-3 max-w-none`}>
         MacWall runs on a Mac, not a phone. Buy now and your license key is
         emailed straight away, so you can install it next time you sit down at
         your Mac.

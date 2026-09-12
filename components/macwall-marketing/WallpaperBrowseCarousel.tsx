@@ -87,7 +87,7 @@ export default function WallpaperBrowseCarousel({
 
   return (
     <div
-      className="flex h-full w-full flex-col gap-1.5 bg-black/25 p-2 sm:gap-2 sm:p-3"
+      className="flex aspect-video h-auto w-full flex-col gap-1.5 sm:gap-2"
       aria-hidden
     >
       {rows.map((rowItems, rowIndex) => (

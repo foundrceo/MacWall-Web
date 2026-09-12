@@ -62,7 +62,7 @@ function StepCard({
   const shaderConfig = AFFILIATE_SHADER_PRESETS[shaderId]
 
   return (
-    <article className="relative flex min-h-[300px] flex-col overflow-hidden rounded-[20px] p-6 ring-1 ring-white/[0.08] sm:min-h-[320px] sm:p-7">
+    <article className="relative flex min-h-[300px] flex-col overflow-hidden rounded-2xl bg-[#111] p-6 shadow-none sm:min-h-[320px] sm:p-7">
       <ShaderBackground
         className="absolute inset-0 opacity-75"
         config={shaderConfig}
@@ -90,13 +90,13 @@ export default function MacWallMarketingAffiliatePage() {
       <main id="main-content" className="marketing-main">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:items-stretch lg:gap-10 xl:gap-14">
           <div className="flex min-w-0 flex-col justify-center">
-            <h1 className="text-[clamp(2.35rem,4.8vw,3.75rem)] font-normal leading-[1.08] tracking-[-0.03em] text-white">
+            <h1 className="text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px] lg:text-[48px]">
               {copy.heroTitleLines[0]}
               <br />
               {copy.heroTitleLines[1]}
             </h1>
 
-            <p className="mt-5 max-w-[38ch] text-[16px] font-normal leading-[1.55] text-white/65 sm:text-[17px]">
+            <p className="mt-5 max-w-[34rem] text-[16px] leading-6 text-landing-muted">
               {copy.heroLead}
             </p>
 
@@ -127,7 +127,7 @@ export default function MacWallMarketingAffiliatePage() {
 
         <section className="mt-16 pb-4 md:mt-20">
           <div className="flex flex-col gap-7 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
-            <h2 className="max-w-[15ch] text-[clamp(1.85rem,4vw,3rem)] font-normal leading-[1.08] tracking-[-0.03em] text-white">
+            <h2 className="max-w-[15ch] text-[32px] leading-[1.15] font-normal tracking-tight text-white md:text-[40px]">
               {copy.socialProofTitle}
             </h2>
             <TrackedPricingButton

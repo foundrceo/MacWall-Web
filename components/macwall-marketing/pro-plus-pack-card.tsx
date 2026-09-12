@@ -16,7 +16,7 @@ import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 const pricingMutedButtonClass =
-  "inline-flex h-9 min-h-9 w-full items-center justify-center rounded-full bg-white/[0.08] px-3.5 text-[14px] font-medium text-white no-underline ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/[0.12]"
+  "inline-flex h-9 min-h-9 w-full items-center justify-center rounded-full border border-landing-rule bg-transparent px-3.5 text-[14px] font-medium text-white no-underline transition-colors hover:bg-white/5"
 
 const PICKER_NAME = "tier-picker-pro-plus-macs"
 

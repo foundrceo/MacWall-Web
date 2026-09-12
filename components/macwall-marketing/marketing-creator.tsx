@@ -13,13 +13,13 @@ export default function MacWallMarketingCreatorPage() {
 
       <main id="main-content" className="marketing-main">
         <header className="mx-auto max-w-3xl text-center">
-          <p className="text-[13px] font-medium text-marketing-muted sm:text-[14px]">
+          <p className="text-[13px] leading-5 text-landing-muted">
             {copy.pageTitle}
           </p>
-          <h1 className="mt-3 text-[clamp(2rem,5.5vw,3.25rem)] font-normal leading-[1.08] tracking-[-0.03em] text-foreground">
+          <h1 className="mt-3 text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px] lg:text-[48px]">
             {copy.heroTitle}
           </h1>
-          <p className="mx-auto mt-6 text-[15px] leading-[1.65] text-foreground/75 sm:text-[16px] sm:whitespace-nowrap">
+          <p className="mx-auto mt-6 max-w-[34rem] text-[16px] leading-6 text-landing-muted">
             {copy.heroLead}
           </p>
         </header>
@@ -41,8 +41,8 @@ export default function MacWallMarketingCreatorPage() {
           id="big-following"
           className="mx-auto mt-16 w-full max-w-3xl scroll-mt-24 sm:mt-20"
         >
-          <div className="rounded-[20px] bg-secondary/50 px-6 py-7 text-center sm:px-8 sm:py-8">
-            <h2 className="text-[clamp(1.25rem,3vw,1.5rem)] font-normal leading-[1.2] tracking-[-0.02em] text-foreground">
+          <div className="rounded-2xl bg-[#111] px-6 py-7 text-center sm:px-8 sm:py-8">
+            <h2 className="text-[20px] leading-7 font-normal text-white">
               {copy.influencerTitle}
             </h2>
             <MarketingRichText

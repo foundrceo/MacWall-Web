@@ -25,11 +25,11 @@ export function BlogIndexPage({
         <header className="marketing-page-header mx-auto max-w-xl text-center">
           <h1
             id={BLOG_TITLE_ID}
-            className="font-serif text-[clamp(2.25rem,5vw,2.875rem)] font-normal leading-[1.06] tracking-[-0.03em] text-foreground"
+            className="text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px] lg:text-[48px]"
           >
             Blog
           </h1>
-          <p className="mx-auto mt-4 max-w-[36rem] font-sans text-[16px] font-normal leading-[1.65] text-marketing-muted">
+          <p className="mx-auto mt-4 max-w-[34rem] font-sans text-[16px] leading-6 text-landing-muted">
             Guides, release notes, and ideas from the MacWall team on live wallpapers,
             macOS tips, and what we are building next.
           </p>

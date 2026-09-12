@@ -10,10 +10,10 @@ export const blogHeroEyebrow =
   "mb-2.5 font-sans text-[10px] font-medium uppercase tracking-[0.16em] text-marketing-muted"
 
 export const blogHeroTitle =
-  "font-serif text-[clamp(1.75rem,4.2vw,2.375rem)] font-normal leading-[1.1] tracking-[-0.03em] text-foreground"
+  "font-sans text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px]"
 
 export const blogHeroLead =
-  "mx-auto mt-3.5 max-w-[480px] font-sans text-[15px] font-normal leading-[1.6] text-marketing-muted"
+  "mx-auto mt-3.5 max-w-[34rem] font-sans text-[16px] font-normal leading-6 text-landing-muted"
 
 export const blogHeroMeta =
   "mt-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 font-sans text-[12px] font-normal leading-none text-marketing-muted"

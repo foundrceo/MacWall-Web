@@ -243,7 +243,7 @@ export function SocialProofPopups() {
   return (
     <div
       aria-live="polite"
-      className="pointer-events-none fixed right-3 bottom-[calc(max(1rem,env(safe-area-inset-bottom))+4.35rem)] z-[70] flex items-end sm:right-5 sm:bottom-[5.6rem]"
+      className="pointer-events-none fixed right-3 bottom-3 z-[70] flex items-end sm:right-5 sm:bottom-5"
     >
       <AnimatePresence initial={false} mode="wait">
         {visible && current ? (

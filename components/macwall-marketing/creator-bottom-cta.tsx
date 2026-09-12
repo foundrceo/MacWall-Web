@@ -24,12 +24,12 @@ export default function CreatorBottomCta() {
   return (
     <section
       aria-labelledby="creator-bottom-cta-title"
-      className="marketing-section-elevated border-t border-border/60 bg-background"
+      className="marketing-section-elevated bg-background"
     >
       <div className="marketing-container text-center">
         <h2
           id="creator-bottom-cta-title"
-          className="mx-auto max-w-3xl text-balance text-[clamp(1.875rem,5vw,2.75rem)] font-normal leading-[1.15] tracking-[-0.02em] text-foreground"
+          className="mx-auto max-w-3xl text-balance text-[32px] leading-[1.15] font-normal tracking-tight text-white md:text-[40px]"
         >
           {copy.midCtaTitle}
         </h2>

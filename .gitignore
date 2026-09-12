@@ -95,3 +95,4 @@ tmp/
 
 supabase/.temp/
 supabase/.branches/
+.env*

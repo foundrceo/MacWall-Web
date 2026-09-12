@@ -15,8 +15,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: DESCRIPTION,
     start_url: "/",
     display: "standalone",
-    background_color: "#0c0d0a",
-    theme_color: "#0c0d0a",
+    background_color: "#000000",
+    theme_color: "#000000",
     icons: [
       {
         src: macwallFavicons.android192,

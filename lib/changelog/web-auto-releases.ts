@@ -6,6 +6,32 @@ import type { ChangelogRelease } from "@/lib/changelog/types"
 
 export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
   {
+    id: "web-2026-09-08",
+    version: "2026.9.8",
+    date: "2026-09-08T12:00:00.000Z",
+    sections: [
+      {
+        kind: "fixes",
+        items: [
+          "Fix conversion funnel: checkout errors, CTAs, copy, and performance.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-09-06",
+    version: "2026.9.6",
+    date: "2026-09-06T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Remove website visitor chat and public wallpaper upload so support stays in the app.",
+        ],
+      },
+    ],
+  },
+  {
     id: "web-2026-08-30",
     version: "2026.8.30",
     date: "2026-08-30T12:00:00.000Z",
@@ -15,6 +41,19 @@ export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
         items: [
           "Public changelog page synced with shipping updates.",
           "Align the site catalog with the nine app categories.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-08-27",
+    version: "2026.8.27",
+    date: "2026-08-27T12:00:00.000Z",
+    sections: [
+      {
+        kind: "features",
+        items: [
+          "Feat: add canonical AI GEO content.",
         ],
       },
     ],

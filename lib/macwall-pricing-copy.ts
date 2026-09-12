@@ -14,7 +14,6 @@ export type PricingReview = {
   name: string
   context: string
   rating: number
-  /** Path under public/ — only use photos you have permission to publish. */
   avatarSrc?: string
 }
 
@@ -47,7 +46,8 @@ export const macwallPricingCopy = {
   },
 
   heroTitle: "Pay once. Yours forever.",
-  heroLead: "1,000+ cinematic 4K loops, your own videos, and hardware-decoded playback on every display. Lock Screen and Screen Saver video on macOS 26+.",
+  heroLead:
+    "1,000+ cinematic 4K loops, Bend lid fold, Lock Screen video, and hardware-decoded playback on every display.",
 
   reelRefundHook: {
     line: "Post a Reel, get up to 100% back",
@@ -92,17 +92,19 @@ export const macwallPricingCopy = {
   pro: {
     features: [
       "1,000+ live 4K wallpapers",
-      "One payment, lifetime updates",
+      "Bend: close the lid, desktop folds",
       "Live Lock Screen & Screen Saver (macOS 26+)",
       "Import your own videos",
       "Music Sync",
       "Multi-display, hardware decoded",
       "Pauses on battery and full screen",
+      "One payment, lifetime updates",
     ],
   },
 
   proPlus: {
     features: [
+      "Bend lid fold on every licensed Mac",
       "Works on up to 5 Macs",
       "One license, switch Macs anytime",
       "Lower price per Mac on bigger packs",
@@ -116,7 +118,7 @@ export const macwallPricingCopy = {
     cta: "Get the 5-Mac license",
   },
 
-  faqTitle: "Common questions",
+  faqTitle: "FAQ",
 
   faq: [
     {
@@ -191,62 +193,41 @@ export const macwallPricingCopy = {
   },
 
   reviews: {
-    title: "What Mac users are saying",
-    subtitle: "MacWall Pro users on Apple silicon and Intel Macs.",
+    eyebrow: "What people say",
+    title: "Trusted by Mac users",
+    subtitle: "Real notes from people using the app.",
     items: [
       {
         quote:
-          "Battery barely moves with a 4K loop running. I set it once and forget it's there.",
-        name: "James",
-        context: "MacBook Pro M3 · Seattle",
+          "Just got Virat's wallpaper and it's awesome. I really loved that one.",
+        name: "Dev Sharma",
+        context: "MacBook Air · M2",
         rating: 5,
-        avatarSrc:
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=96&h=96&fit=crop&crop=faces&auto=format&q=75",
+        avatarSrc: "/reviews/dev-sharma.jpg",
       },
       {
         quote:
-          "Lock Screen video on Tahoe sold me. Paid once and that was it. No subscription emails.",
-        name: "Priya",
-        context: "MacBook Air M2 · London",
+          "I love the app and the wallpapers. Just a request: add more anime like Toji and Pain.",
+        name: "Lakshay",
+        context: "Mac · M5",
         rating: 5,
-        avatarSrc:
-          "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=96&h=96&fit=crop&crop=faces&auto=format&q=75",
+        avatarSrc: "/reviews/lakshay.jpg",
       },
       {
         quote:
-          "Threw my own drone clips in 4K onto an ultrawide. Pauses when I go full screen. Exactly what I wanted.",
-        name: "Alex",
-        context: "Mac Studio · Toronto",
+          "Thank you so much. Make a couple fight scenes and take all the time you need. Appreciated.",
+        name: "Kranthi Kalyan",
+        context: "MacBook Air · M4",
         rating: 5,
-        avatarSrc:
-          "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=96&h=96&fit=crop&crop=faces&auto=format&q=75",
+        avatarSrc: "/reviews/kranthi-kalyan.jpg",
       },
       {
         quote:
-          "Took about 30 seconds to set up. My desk-setup posts look way better with the wallpaper actually moving.",
-        name: "Sofia",
-        context: "MacBook Pro M4 · Barcelona",
+          "I want to share with the community as much as possible. I'll be submitting many videos over time.",
+        name: "Dishan Shrestha",
+        context: "MacBook Air · M1",
         rating: 5,
-        avatarSrc:
-          "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=96&h=96&fit=crop&crop=faces&auto=format&q=75",
-      },
-      {
-        quote:
-          "Cheaper than the other Mac wallpaper apps I tried, and I actually own it instead of renting it. Catalog's solid too.",
-        name: "Marcus",
-        context: "iMac M1 · Atlanta",
-        rating: 5,
-        avatarSrc:
-          "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=96&h=96&fit=crop&crop=faces&auto=format&q=75",
-      },
-      {
-        quote:
-          "CPU barely moves. I tried three apps before this one. MacWall is the only one still on my Mac mini.",
-        name: "Daniel",
-        context: "Mac mini M2 · Berlin",
-        rating: 5,
-        avatarSrc:
-          "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=96&h=96&fit=crop&crop=faces&auto=format&q=75",
+        avatarSrc: "/reviews/dishan-shrestha.jpg",
       },
     ] satisfies readonly PricingReview[],
   },

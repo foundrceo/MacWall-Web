@@ -27,10 +27,18 @@ export async function GET(request: Request) {
   }
 
   try {
-    const session = await getStripe().checkout.sessions.retrieve(sessionId)
+    const session = await getStripe().checkout.sessions.retrieve(sessionId, {
+      expand: ["setup_intent"],
+    })
+    const setupComplete =
+      session.mode === "setup" &&
+      session.status === "complete" &&
+      (session.payment_status === "no_payment_required" ||
+        session.setup_intent != null)
     const paid =
       session.payment_status === "paid" ||
-      session.payment_status === "no_payment_required"
+      session.payment_status === "no_payment_required" ||
+      setupComplete
 
     if (!paid) {
       return NextResponse.json(

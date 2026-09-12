@@ -59,7 +59,7 @@ export default function LockScreenFeatureVideo({
   }, [reduceMotion])
 
   return (
-    <div className="relative aspect-video overflow-hidden rounded-2xl bg-black">
+    <div className="relative aspect-[16/9] w-full bg-black">
       <video
         ref={videoRef}
         poster={LOCK_SCREEN_POSTER_SRC}
@@ -68,7 +68,7 @@ export default function LockScreenFeatureVideo({
         loop={!reduceMotion}
         playsInline
         preload="none"
-        className="h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover"
         aria-label={ariaLabel}
       />
     </div>
