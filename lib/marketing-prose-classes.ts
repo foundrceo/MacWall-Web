@@ -3,10 +3,10 @@
 export const proseHero = "mb-10 text-center md:mb-14"
 
 export const proseHeroTitle =
-  "text-[clamp(2rem,4vw,2.75rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground"
+  "text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px] lg:text-[48px]"
 
 export const proseHeroLead =
-  "mx-auto mt-4 max-w-[640px] text-[17px] leading-[1.55] text-muted-foreground md:text-[19px]"
+  "mx-auto mt-4 max-w-[34rem] text-[16px] leading-6 text-landing-muted"
 
 export const proseHeroIntro =
   "mx-auto max-w-[640px] text-left text-[17px] leading-[1.55] text-muted-foreground sm:text-center"
@@ -20,27 +20,27 @@ export const proseArticle = "mx-auto"
 export const proseBody = "space-y-5"
 
 export const proseH2 =
-  "scroll-mt-28 text-[28px] font-semibold leading-[1.12] tracking-[-0.02em] text-foreground md:text-[32px]"
+  "scroll-mt-28 text-[32px] leading-[1.15] font-normal tracking-tight text-white md:text-[40px]"
 
 export const proseH3 =
-  "text-[22px] font-semibold leading-[1.2] tracking-[-0.02em] text-foreground"
+  "text-[20px] leading-7 font-normal text-white"
 
-export const proseP = "text-[17px] leading-[1.6] text-foreground/75"
+export const proseP = "text-[16px] leading-6 text-landing-muted"
 
 export const proseUl = "space-y-2 pl-0"
 
 export const proseUlItem =
-  "flex gap-2 text-[17px] leading-[1.6] text-foreground/75"
+  "flex gap-2 text-[16px] leading-6 text-landing-muted"
 
 export const proseUlBullet = "text-muted-foreground"
 
 export const proseOl =
-  "list-decimal space-y-2 pl-5 text-[17px] leading-[1.6] text-foreground/75"
+  "list-decimal space-y-2 pl-5 text-[16px] leading-6 text-landing-muted"
 
 export const proseFaq = "mt-0"
 
 export const proseFaqTitle =
-  "text-[28px] font-semibold tracking-[-0.02em] text-foreground md:text-[32px]"
+  "text-[32px] leading-[1.15] font-normal tracking-tight text-white md:text-[40px]"
 
 export const proseFaqList =
   "mt-8 divide-y divide-border border-t border-border"
@@ -48,10 +48,10 @@ export const proseFaqList =
 export const proseFaqItem = "py-5"
 
 export const proseFaqQuestion =
-  "text-[17px] font-semibold text-foreground md:text-[19px]"
+  "text-[16px] leading-6 font-normal text-white"
 
 export const proseFaqAnswer =
-  "mt-2 text-[17px] leading-[1.55] text-foreground/70"
+  "mt-2 text-[16px] leading-6 text-landing-muted"
 
 export const proseBreadcrumbs = "mb-8"
 
@@ -71,10 +71,10 @@ export const proseActionRow =
   "mt-12 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
 
 export const prosePrimaryBtn =
-  "inline-flex items-center justify-center rounded-full bg-foreground px-6 py-3 text-[15px] font-medium text-background no-underline transition outline-none hover:bg-foreground/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+  "inline-flex h-11 items-center justify-center rounded-full bg-white px-5 text-[14px] font-medium tracking-[0.01em] text-black no-underline transition outline-none hover:bg-zinc-100"
 
 export const proseGhostBtn =
-  "inline-flex items-center justify-center rounded-full border border-border bg-transparent px-6 py-3 text-[15px] font-medium text-foreground no-underline transition outline-none hover:bg-surface focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+  "inline-flex h-11 items-center justify-center rounded-full border border-landing-rule bg-transparent px-5 text-[14px] font-medium tracking-[0.01em] text-white no-underline transition outline-none hover:bg-white/5"
 
 export const proseLinkInline =
   "font-medium text-foreground underline decoration-foreground/25 underline-offset-4 transition-colors hover:decoration-foreground/50"

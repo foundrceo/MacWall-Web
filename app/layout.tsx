@@ -29,37 +29,14 @@ import {
 } from "@/lib/site-url"
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
-import { geistPixelSquare } from "@/lib/site-fonts"
-import { Geist, Geist_Mono, Instrument_Serif, Inter } from "next/font/google"
+import { ppNeueMontreal, ppNeueMontrealExtra } from "@/app/fonts"
 import { VercelAnalytics } from "@/components/analytics/vercel-analytics"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
-
-const geistSans = Geist({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-geist-sans",
-})
-
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-geist-mono",
-})
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  display: "swap",
-  variable: "--font-instrument-serif",
-})
-
-const SITE_DESCRIPTION_FALLBACK = `MacWall is a native Mac app for live 4K wallpapers. 1,000+ cinematic loops, your own videos, every display covered, and a live Lock Screen on macOS 26. Free to try, then one payment. No subscription. macOS 15+.`
+const SITE_DESCRIPTION_FALLBACK = `${macwall.tagline} Native Mac app with 1,000+ cinematic 4K loops, your own videos, every display covered, and a live Lock Screen on macOS 26. Free to try, then one payment. macOS 15+.`
 
 const SITE_TITLE_DEFAULT = macwall.fullTagline
 
@@ -227,8 +204,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#0c0d0a" },
-    { media: "(prefers-color-scheme: dark)", color: "#0c0d0a" },
+    { media: "(prefers-color-scheme: light)", color: "#000000" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],
 }
 
@@ -241,13 +218,11 @@ export default function RootLayout({
     <html
       lang="en"
       className={cn(
-        geistSans.variable,
-        geistMono.variable,
-        instrumentSerif.variable,
-        geistPixelSquare.variable,
-        "font-sans",
-        inter.variable
+        "dark h-full antialiased",
+        ppNeueMontreal.variable,
+        ppNeueMontrealExtra.variable
       )}
+      style={{ colorScheme: "dark" }}
       suppressHydrationWarning
     >
       <head>
@@ -260,13 +235,13 @@ export default function RootLayout({
       </head>
       {/* Avoid hydration warnings when extensions inject attributes on <body> */}
       <body
-        className="w-full bg-background font-sans font-light text-foreground antialiased"
+        className={`${ppNeueMontreal.className} w-full bg-background font-sans text-foreground antialiased`}
         suppressHydrationWarning
       >
         <VisitorPlatformScript />
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:bg-foreground focus:px-4 focus:py-2 focus:text-background focus:shadow-lg focus:outline-none"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-[14px] focus:font-medium focus:text-black focus:outline-none"
         >
           Skip to content
         </a>

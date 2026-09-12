@@ -6,10 +6,18 @@ import {
   TrackedPricingButton,
 } from "@/components/analytics/tracked-marketing-buttons"
 import {
+  ghostCtaHeroClass,
+  landingH2,
+  landingH2Muted,
+  pillCtaHeroClass,
+  secondaryCtaHeroClass,
+} from "@/components/macwall-marketing/landing-type"
+import StealthAsciiCanvas from "@/components/macwall-marketing/stealth-ascii-canvas"
+import {
   macwall,
   macwallInstallerLatestPath,
-  macwallMinimumMacOSVersionLabel,
 } from "@/lib/macwall-site"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { cn } from "@/lib/utils"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
@@ -25,58 +33,51 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
-/** Shared pre-footer CTA — same on home, pricing, and legal pages. */
 export default function MacWallMarketingBottomCta() {
   const pricing = useMarketingPricing()
+  const copy = macwallMarketingCopy.underFooter
+  const landing = macwallMarketingCopy.landing
 
   return (
-    <section className="marketing-section-elevated border-t border-border/60 bg-background">
-      <div className="marketing-container text-center">
-        <h2 className="text-[clamp(1.875rem,5vw,2.75rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
-          {`Try ${macwall.name} free.`}
-        </h2>
-        <div className="mt-8 sm:mt-10">
-          <div className="mw-when-desktop flex flex-wrap items-start justify-center gap-3">
-            <div className="flex flex-col items-center">
+    <section className="pt-10 pb-6 md:pt-16 md:pb-8">
+      <div className="marketing-container">
+        <div className="relative flex w-full flex-col items-center overflow-hidden rounded-2xl border border-landing-rule px-6 py-16 text-center md:px-10 md:py-24">
+          <div className="pointer-events-none absolute inset-0" aria-hidden>
+            <StealthAsciiCanvas src="/Img.png" className="opacity-55" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/62 to-black/75" />
+          </div>
+          <div className="relative z-10 flex flex-col items-center gap-6 md:gap-8">
+            <h2 className={landingH2}>
+              {copy.title}
+              <span className={landingH2Muted}>{landing.closingMuted}</span>
+            </h2>
+            <div className="mw-when-desktop flex flex-wrap items-center justify-center gap-2.5">
               <TrackedDownloadButton
                 href={macwallInstallerLatestPath}
                 size="pill"
                 location="bottom_cta"
-                className="marketing-hero-primary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
+                className={pillCtaHeroClass}
               >
                 <AppleIcon className="size-3.5" />
                 Download free for Mac
               </TrackedDownloadButton>
-              <p className="mt-2 text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
-                {macwallMinimumMacOSVersionLabel}
-              </p>
-            </div>
-            <div className="flex flex-col items-center">
               <TrackedPricingButton
                 href={pricing.checkoutUrl}
                 size="pill"
                 location="bottom_cta"
                 ariaLabel={`Get ${macwall.name} Pro`}
-                className={cn(
-                  "marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
-                )}
+                className={secondaryCtaHeroClass}
               >
                 {pricing.getProCta}
               </TrackedPricingButton>
-              <p className="mt-2 text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
-                License emailed instantly
-              </p>
             </div>
-          </div>
-
-          <div className="mw-when-mobile">
-            <div className="mx-auto flex max-w-sm flex-col items-stretch gap-2.5">
+            <div className="mw-when-mobile mx-auto flex w-full max-w-sm flex-col items-stretch gap-2.5">
               <TrackedPricingButton
                 href={pricing.checkoutUrl}
                 location="bottom_cta_mobile"
                 size="pill"
                 ariaLabel={`Get ${macwall.name} Pro`}
-                className="marketing-hero-primary-btn justify-center px-4 py-3 text-[15px]"
+                className={cn(pillCtaHeroClass, "justify-center")}
               >
                 {pricing.getProCta}
               </TrackedPricingButton>
@@ -84,14 +85,10 @@ export default function MacWallMarketingBottomCta() {
                 href="/pricing"
                 location="bottom_cta_mobile"
                 size="pill"
-                className="marketing-hero-secondary-btn justify-center px-4 py-3 text-[15px]"
+                className={cn(ghostCtaHeroClass, "justify-center")}
               >
                 See what&apos;s included
               </TrackedPricingButton>
-              <p className="mt-1 text-[12px] leading-snug text-marketing-muted">
-                Your license key is emailed straight away. Install on your Mac
-                later.
-              </p>
             </div>
           </div>
         </div>

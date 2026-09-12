@@ -1,66 +1,55 @@
 import HeroSectionActions from "@/components/macwall-marketing/HeroSectionActions"
 import { HeroWalkthroughVideo } from "@/components/macwall-marketing/hero-walkthrough-video"
-import { geistPixelSquare } from "@/lib/site-fonts"
-import { macwall } from "@/lib/macwall-site"
+import { LandingPillars } from "@/components/macwall-marketing/landing-pillars"
+import { LandingSurface } from "@/components/macwall-marketing/landing-surface"
+import {
+  landingBelow,
+  landingH1,
+  landingH1Muted,
+  landingLead,
+} from "@/components/macwall-marketing/landing-type"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
-
-const catalogGenres = [
-  "Anime",
-  "Nature",
-  "Cars",
-  "Gaming",
-  "Space",
-  "Heroes",
-  "Dark",
-  "Abstract",
-] as const
+import { cn } from "@/lib/utils"
 
 export default function HeroSection() {
   const ix = macwallMarketingCopy.interact
+  const landing = macwallMarketingCopy.landing
 
   return (
-    <section className="relative overflow-hidden bg-background">
-      <div className="marketing-container relative">
-        <div className="max-w-3xl pt-8 sm:pt-10 md:max-w-none md:pt-14 lg:pt-16">
-          <p className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-medium text-marketing-muted sm:text-[14px]">
-            <span>{ix.kicker}</span>
-            <span className="text-marketing-muted/60" aria-hidden>
-              ·
-            </span>
-            <span>{macwall.pro.socialProofMembers} wallpapers</span>
-          </p>
-
-          <h1 className="mt-5 max-w-4xl text-[clamp(2.125rem,6vw,3.75rem)] leading-[1.08] font-normal tracking-[-0.03em] text-foreground sm:mt-6">
-            {ix.title}
-          </h1>
-
-          <p className="mt-5 max-w-2xl text-[16px] leading-[1.55] text-marketing-muted sm:mt-6 sm:text-[18px] md:text-[19px]">
-            <span className="text-foreground/80">{ix.heroLead}</span>
-          </p>
-
-          <HeroSectionActions />
+    <section className="relative overflow-x-clip bg-background pt-8 pb-0 sm:pt-10 md:pt-14 lg:pt-16">
+      <div className="marketing-container">
+        <div className="flex min-w-0 flex-col gap-8 md:gap-12">
+          <div className="flex min-w-0 flex-col gap-6 sm:gap-8">
+            <div className="flex min-w-0 flex-col gap-4 sm:gap-5">
+              <h1 className={landingH1}>
+                {ix.title}
+                <span className={landingH1Muted}>{ix.titleMuted}</span>
+              </h1>
+              <p className={cn(landingLead, "max-w-3xl")}>{ix.heroLead}</p>
+            </div>
+            <HeroSectionActions />
+          </div>
+          <LandingPillars />
         </div>
 
-        <div className="mt-8 md:mt-10">
+        <div className={cn(landingBelow, "overflow-hidden rounded-2xl bg-[#111]")}>
           <HeroWalkthroughVideo />
         </div>
 
-        <div className="border-t border-border/60 py-12 md:py-16 lg:py-20">
-          <p className="mb-6 text-center text-[14px] text-marketing-muted sm:mb-8 sm:text-[15px]">
-            Hand-picked wallpapers across every genre
+        <div className="py-12 sm:py-16 md:py-20">
+          <p className="text-center text-[13px] leading-5 text-landing-muted">
+            {landing.catalogEyebrow}
           </p>
-          <ul className="grid w-full grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3 lg:grid-cols-8">
-            {catalogGenres.map((label) => (
-              <li
-                key={label}
-                className="flex min-h-[3.75rem] w-full items-center justify-center rounded-[20px] bg-secondary px-2.5 py-3 sm:min-h-[4.5rem] sm:rounded-[24px] sm:px-3 md:min-h-[5.5rem] md:px-4"
-              >
-                <span
-                  title={label}
-                  className={`${geistPixelSquare.className} text-center text-[clamp(11px,2.8vw,16px)] leading-tight text-foreground`}
+          <ul className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
+            {landing.genres.map((label) => (
+              <li key={label} className="min-w-0">
+                <LandingSurface
+                  className="flex min-h-[4rem] items-center justify-center rounded-none px-2.5 py-3 sm:min-h-[4.5rem] sm:px-3 sm:py-4 md:min-h-[5.5rem]"
                 >
-                  {label}
-                </span>
+                  <span className="text-center text-[14px] leading-5 font-normal text-white sm:text-[16px] sm:leading-6">
+                    {label}
+                  </span>
+                </LandingSurface>
               </li>
             ))}
           </ul>

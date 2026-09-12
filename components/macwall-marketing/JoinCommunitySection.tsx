@@ -1,30 +1,38 @@
 import Image from "next/image"
 import { TrackedLink } from "@/components/analytics/tracked-link"
+import {
+  ghostCtaHeroClass,
+  landingEyebrow,
+  landingH2,
+  landingH2Muted,
+  landingLead,
+  landingSectionY,
+  pillCtaHeroClass,
+} from "@/components/macwall-marketing/landing-type"
 import { macwall } from "@/lib/macwall-site"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
+import { cn } from "@/lib/utils"
 
 export default function JoinCommunitySection() {
+  const landing = macwallMarketingCopy.landing
+
   return (
-    <section className="marketing-section-elevated bg-background">
-      <div className="marketing-container">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-[13px] font-medium text-marketing-muted sm:text-[14px]">
-            Community
-          </p>
-          <h2 className="mt-3 text-[clamp(1.75rem,4vw,2.25rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground">
-            {macwall.name} is building the future of live desktops.
+    <section className={landingSectionY}>
+      <div className="marketing-container grid items-center gap-8 md:gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="min-w-0">
+          <p className={landingEyebrow}>{landing.communityEyebrow}</p>
+          <h2 className={cn(landingH2, "mt-2")}>
+            {landing.communityTitle}
+            <span className={landingH2Muted}>{landing.communityMuted}</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-[36rem] text-[16px] leading-[1.55] text-foreground/70 sm:text-[17px]">
-            Mac owners swap setups, new wallpaper drops, and tips in our
-            Discord. You can also follow along on TikTok for the latest
-            additions.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <p className={cn(landingLead, "mt-5")}>{landing.communityLead}</p>
+          <div className="mt-8 flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
             <TrackedLink
               href={macwall.discordInvite}
               eventName="cta_click"
               metadata={{ location: "join_community_discord" }}
               external
-              className="marketing-hero-primary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
+              className={cn(pillCtaHeroClass, "w-full justify-center sm:w-auto")}
             >
               Join Discord
             </TrackedLink>
@@ -32,21 +40,21 @@ export default function JoinCommunitySection() {
               href={macwall.reelRefundTiktokURL}
               target="_blank"
               rel="noopener noreferrer"
-              className="marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
+              className={cn(ghostCtaHeroClass, "w-full justify-center sm:w-auto")}
             >
               Follow on TikTok
             </a>
           </div>
         </div>
 
-        <div className="relative mx-auto mt-10 max-w-5xl overflow-hidden rounded-2xl md:mt-14">
+        <div className="relative min-w-0 overflow-hidden rounded-2xl bg-[#111]">
           <Image
             alt={`${macwall.name} live wallpapers on a MacBook`}
             src="/Img.png"
             width={1024}
             height={683}
             className="h-auto w-full object-cover"
-            sizes="(max-width: 896px) 100vw, 896px"
+            sizes="(max-width: 896px) 100vw, 560px"
           />
         </div>
       </div>

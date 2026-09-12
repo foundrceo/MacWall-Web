@@ -28,15 +28,15 @@ export function CreatorSectionHeading({
         .join(" ")}
     >
       {eyebrow ? (
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-marketing-muted">
+        <p className="text-[13px] leading-5 font-normal text-landing-muted">
           {eyebrow}
         </p>
       ) : null}
       <h2
         className={[
-          "font-heading text-balance font-normal tracking-[-0.02em] text-foreground",
-          eyebrow ? "mt-3" : "",
-          "text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.1]",
+          "text-balance font-normal tracking-tight text-white",
+          eyebrow ? "mt-2" : "",
+          "text-[32px] leading-[1.15] md:text-[40px]",
         ].join(" ")}
       >
         {title}
@@ -44,7 +44,7 @@ export function CreatorSectionHeading({
       {subtitle ? (
         <p
           className={[
-            "mx-auto mt-4 max-w-2xl text-balance text-[14px] leading-relaxed text-marketing-muted sm:text-base",
+            "mx-auto mt-4 max-w-[34rem] text-balance text-[16px] leading-6 text-landing-muted",
             align === "center" ? "text-center" : "text-left",
             subtitleClassName,
           ]

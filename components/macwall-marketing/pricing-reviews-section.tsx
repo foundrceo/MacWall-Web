@@ -1,92 +1,81 @@
-import { Star } from "lucide-react"
-
 import { PricingReviewAvatar } from "@/components/macwall-marketing/pricing-review-avatar"
+import { LandingSurface } from "@/components/macwall-marketing/landing-surface"
+import {
+  landingBelow,
+  landingBody,
+  landingEyebrow,
+  landingH2,
+  landingLead,
+  landingSectionY,
+} from "@/components/macwall-marketing/landing-type"
 import {
   macwallPricingCopy as p,
   type PricingReview,
 } from "@/lib/macwall-pricing-copy"
 import { cn } from "@/lib/utils"
 
-function StarRating({
-  count,
-  className,
-}: Readonly<{ count: number; className?: string }>) {
-  return (
-    <div
-      className={cn("flex items-center gap-0.5", className)}
-      aria-label={`${count} out of 5 stars`}
-    >
-      {Array.from({ length: count }, (_, index) => (
-        <Star
-          key={index}
-          className="size-3 fill-yellow-400 text-yellow-400"
-          aria-hidden
-        />
-      ))}
-    </div>
-  )
-}
-
 function ReviewCard({
   quote,
   name,
   context,
-  rating,
   avatarSrc,
 }: Readonly<PricingReview>) {
   return (
-    <figure className="flex h-full flex-col rounded-[20px] bg-secondary px-5 py-5 ring-1 ring-white/8">
-      <figcaption className="flex items-center gap-3">
-        <PricingReviewAvatar name={name} src={avatarSrc} />
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <p className="text-[13px] font-medium text-foreground">{name}</p>
-            <StarRating count={rating} />
+    <LandingSurface
+      className="flex h-full flex-col justify-between rounded-none p-5 sm:p-6 md:p-8"
+      hover={false}
+    >
+      <figure className="flex h-full flex-col justify-between">
+        <blockquote className={cn(landingBody, "text-white")}>
+          &ldquo;{quote}&rdquo;
+        </blockquote>
+        <figcaption className="mt-8 flex items-center gap-3">
+          <PricingReviewAvatar name={name} src={avatarSrc} className="size-10" />
+          <div className="min-w-0">
+            <p className="text-[14px] leading-5 font-medium text-white">
+              {name}
+            </p>
+            <p className="mt-0.5 text-[13px] leading-5 text-landing-muted">
+              {context}
+            </p>
           </div>
-          <p className="mt-0.5 text-[11px] text-marketing-muted">{context}</p>
-        </div>
-      </figcaption>
-      <blockquote className="mt-4 flex-1 text-[14px] leading-relaxed text-foreground/90">
-        &ldquo;{quote}&rdquo;
-      </blockquote>
-    </figure>
+        </figcaption>
+      </figure>
+    </LandingSurface>
   )
 }
 
 export function PricingReviewsSection({
   className,
 }: Readonly<{ className?: string }>) {
-  const { title, subtitle, items } = p.reviews
+  const { eyebrow, title, subtitle, items } = p.reviews
 
   return (
     <section
-      className={cn("marketing-section border-t border-border/40", className)}
+      className={cn(landingSectionY, className)}
       aria-labelledby="pricing-reviews-heading"
     >
       <div className="marketing-container">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-[13px] font-medium text-marketing-muted sm:text-[14px]">
-            Reviews
-          </p>
-          <h2
-            id="pricing-reviews-heading"
-            className="mt-3 text-[clamp(1.75rem,4vw,2.25rem)] leading-[1.15] font-normal tracking-[-0.02em] text-foreground"
-          >
+        <div className="mx-auto max-w-2xl text-center">
+          <p className={landingEyebrow}>{eyebrow}</p>
+          <h2 id="pricing-reviews-heading" className={cn(landingH2, "mt-2")}>
             {title}
           </h2>
-          <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed text-marketing-muted">
-            {subtitle}
-          </p>
+          <p className={cn(landingLead, "mx-auto mt-5")}>{subtitle}</p>
         </div>
 
-        <div className="mx-auto mt-10 grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:mt-12">
+        <ul
+          className={cn(
+            landingBelow,
+            "grid grid-cols-1 gap-2 sm:grid-cols-2"
+          )}
+        >
           {items.map((review) => (
-            <ReviewCard
-              key={`${review.name}-${review.context}`}
-              {...review}
-            />
+            <li key={`${review.name}-${review.context}`} className="min-w-0">
+              <ReviewCard {...review} />
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   )

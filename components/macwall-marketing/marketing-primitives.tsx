@@ -213,7 +213,7 @@ export function SectionEyebrow({
   return (
     <p
       className={cn(
-        "text-[17px] leading-[1.235] font-semibold text-marketing-muted",
+        "text-[13px] leading-5 font-normal text-landing-muted",
         className
       )}
     >
@@ -239,10 +239,10 @@ export function SectionTitle({
     <Tag
       id={id}
       className={cn(
-        "font-semibold tracking-[-0.025em]",
+        "font-normal tracking-tight text-white",
         Tag === "h1"
-          ? "text-[40px] leading-[1.05] md:text-[56px] md:leading-[1.04]"
-          : "text-[32px] leading-[1.08] md:text-[48px] md:leading-[1.05]",
+          ? "text-[32px] leading-[1.12] sm:text-[40px] lg:text-[48px]"
+          : "text-[32px] leading-[1.15] md:text-[40px]",
         inverted ? "text-foreground" : "text-foreground",
         className
       )}
@@ -263,7 +263,7 @@ export function SectionLead({
   return (
     <p
       className={cn(
-        "text-[19px] leading-[1.47] text-muted-foreground md:text-[21px] md:leading-[1.381]",
+        "text-[16px] leading-6 text-landing-muted",
         className
       )}
     >

@@ -124,7 +124,7 @@ export function HeroWalkthroughVideo({
             aria-label="Play MacWall preview"
             className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center bg-black/20 transition-colors hover:bg-black/30"
           >
-            <span className="inline-flex items-center gap-2 rounded-full bg-black/65 px-4 py-2 text-[13px] font-medium text-white backdrop-blur-sm">
+            <span className="inline-flex items-center gap-2 rounded-full bg-black/65 px-4 py-2 text-[13px] font-medium text-white">
               Play preview
             </span>
           </button>

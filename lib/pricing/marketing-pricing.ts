@@ -216,7 +216,7 @@ export function buildMarketingPricingFromLocalized(
     buyProAria: `Get ${macwall.name} Pro`,
     bannerHeadline: "Pay once, keep Pro forever",
     bannerSubline: "One-time license, lifetime updates",
-    bannerCta: "See pricing →",
+    bannerCta: "See pricing",
     priceLine: india
       ? `Pro is ${permanentPrice} in India (${permanentOffLabel} off ${permanentStrikePrice}). Pay once, no subscription.`
       : `Pro is ${permanentPrice} right now (normally ${permanentStrikePrice}). Pay once, no subscription.`,

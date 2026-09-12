@@ -1,9 +1,9 @@
 import type { LucideIcon } from "lucide-react"
 import {
   BadgePercent,
-  BarChart3,
   Battery,
   Film,
+  FlipVertical2,
   Infinity,
   Laptop,
   Layers,
@@ -40,9 +40,9 @@ function highlightFeatureText(
 function featureIcon(feature: string): LucideIcon {
   const line = feature.toLowerCase()
 
+  if (line.includes("bend") || line.includes("lid") || line.includes("fold"))
+    return FlipVertical2
   if (line.includes("affordable") || line.includes("price")) return BadgePercent
-  if (line.includes("more benefits") || line.includes("benefits than"))
-    return Sparkles
   if (line.includes("wallpaper") || line.includes("1,000")) return Film
   if (line.includes("lock screen") || line.includes("screen saver"))
     return Monitor
@@ -56,8 +56,8 @@ function featureIcon(feature: string): LucideIcon {
     return Infinity
   if (line.includes("lifetime") || line.includes("update")) return Star
   if (line.includes("music")) return Music2
-  if (line.includes("everything in pro")) return Layers
-  if (line.includes("larger") || line.includes("exclusive")) return BarChart3
+  if (line.includes("everything in pro") || line.includes("including bend"))
+    return Layers
   if (line.includes("forever") || line.includes("same pro")) return Lock
 
   return Sparkles
@@ -97,7 +97,6 @@ export function PricingTierCard({
   currency?: string
   priceSuffix?: ReactNode
   strikePrice?: string | null
-  /** Non-US: ₹… · charged in INR */
   localPriceHint?: string | null
   features: readonly string[]
   featuresPrefix?: string
@@ -111,7 +110,6 @@ export function PricingTierCard({
   badgeLabels?: readonly string[]
   highlightMacsLabel?: string
   topCenter?: ReactNode
-  /** When true, reserves the Mac-picker row height even without topCenter (pricing grid). */
   reserveTopCenterSlot?: boolean
   footer?: ReactNode
   className?: string
@@ -134,8 +132,8 @@ export function PricingTierCard({
           labels={badgeLabels}
           className={
             isFeatured
-              ? "bg-blue-800 text-[10px] font-semibold tracking-[0.08em] text-white uppercase"
-              : "bg-white/10 text-[10px] font-semibold tracking-[0.08em] text-white/80 uppercase"
+              ? "rounded-full bg-blue-800 px-2.5 py-0.5 text-[11px] leading-4 font-medium tracking-normal text-white normal-case"
+              : "rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] leading-4 font-medium text-white"
           }
         />
       ) : null}
@@ -143,10 +141,10 @@ export function PricingTierCard({
       <article
         aria-labelledby={id}
         className={cn(
-          "flex h-full min-h-0 flex-1 flex-col rounded-[24px] border px-5 py-5 sm:px-6 sm:py-6",
+          "flex h-full min-h-0 flex-1 flex-col rounded-2xl border px-5 py-5 shadow-none sm:px-6 sm:py-6",
           isFeatured
-            ? "border-blue-800/70 bg-secondary bg-[linear-gradient(180deg,rgba(30,64,175,0.22)_0%,transparent_48%)] shadow-[0_0_48px_-16px_rgba(37,99,235,0.35)]"
-            : "border-white/[0.08] bg-secondary"
+            ? "border-blue-800/70 bg-[#171717] bg-[linear-gradient(180deg,rgba(30,64,175,0.22)_0%,transparent_48%)]"
+            : "border-landing-rule bg-[#111]"
         )}
         data-highlight={isFeatured || undefined}
       >
@@ -154,11 +152,11 @@ export function PricingTierCard({
           <div className="min-h-[3.25rem]">
             <h2
               id={id}
-              className="font-sans text-[19px] font-normal tracking-tight text-foreground"
+              className="font-sans text-[19px] font-normal tracking-tight text-white"
             >
               {title}
             </h2>
-            <p className="mt-1 min-h-[2.5rem] text-[12px] leading-snug text-muted-foreground">
+            <p className="mt-1 min-h-[2.5rem] text-[13px] leading-snug text-landing-muted">
               {subtitle}
             </p>
           </div>
@@ -182,25 +180,23 @@ export function PricingTierCard({
                 price={price}
                 priceMajor={priceMajor}
                 currency={currency}
-                className="text-[1.75rem] font-normal tracking-tight text-foreground"
+                className="text-[36px] leading-none font-normal tracking-tight text-white"
               />
               {strikePrice ? (
                 <span
-                  className="text-[14px] text-muted-foreground line-through decoration-muted-foreground decoration-1"
+                  className="text-[14px] text-landing-muted line-through decoration-landing-muted decoration-1"
                   aria-label={`Was ${strikePrice}`}
                 >
                   {strikePrice}
                 </span>
               ) : null}
               {priceSuffix ? (
-                <span className="text-[12px] text-muted-foreground">
-                  {priceSuffix}
-                </span>
+                <span className="text-[12px] text-landing-muted">{priceSuffix}</span>
               ) : null}
             </p>
             <p
               className={cn(
-                "mt-1 min-h-[1.125rem] text-[12px] leading-snug text-muted-foreground",
+                "mt-1 min-h-[1.125rem] text-[12px] leading-snug text-landing-muted",
                 !localPriceHint && "invisible select-none"
               )}
               aria-hidden={!localPriceHint}
@@ -216,32 +212,32 @@ export function PricingTierCard({
           <div
             className={cn(
               "mt-4 h-px w-full",
-              isFeatured ? "bg-blue-800/35" : "bg-white/[0.08]"
+              isFeatured ? "bg-blue-800/35" : "bg-landing-rule"
             )}
             aria-hidden
           />
 
-          <p className="mt-3 text-[11px] font-medium tracking-wide text-muted-foreground">
+          <p className="mt-3 text-[11px] font-medium tracking-wide text-landing-muted">
             {featuresPrefix}
           </p>
 
-          <ul role="list" className="mt-2.5 min-h-[11.5rem] flex-1 space-y-2">
+          <ul role="list" className="mt-2.5 min-h-[12.5rem] flex-1 space-y-2.5">
             {features.map((feature) => {
               const Icon = featureIcon(feature)
               return (
                 <li
                   key={feature}
-                  className="flex gap-x-2 text-[13px] leading-snug text-foreground"
+                  className="flex gap-x-2.5 text-[13px] leading-snug text-zinc-200"
                 >
                   <Icon
                     className={cn(
-                      "mt-px size-3.5 shrink-0",
-                      isFeatured ? "text-blue-400" : "text-muted-foreground"
+                      "mt-0.5 size-3.5 shrink-0",
+                      isFeatured ? "text-blue-400" : "text-landing-muted"
                     )}
                     strokeWidth={2}
                     aria-hidden
                   />
-                  <span className="line-clamp-2 min-w-0">
+                  <span className="min-w-0">
                     {highlightFeatureText(feature, highlightMacsLabel)}
                   </span>
                 </li>
@@ -254,7 +250,7 @@ export function PricingTierCard({
               {action}
             </div>
             {footer ? (
-              <div className="pt-0.5 text-center text-[11px] leading-snug text-muted-foreground/90 sm:text-[12px]">
+              <div className="pt-0.5 text-center text-[11px] leading-snug text-landing-muted sm:text-[12px]">
                 {footer}
               </div>
             ) : null}

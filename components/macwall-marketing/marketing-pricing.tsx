@@ -8,10 +8,9 @@ import { useMarketingPricing } from "@/components/marketing/marketing-pricing-co
 import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
-import { PricingTryFreeRow } from "@/components/macwall-marketing/pricing-try-free-row"
-import { PricingReviewsSection } from "@/components/macwall-marketing/pricing-reviews-section"
 import { PricingCardFooter } from "@/components/macwall-marketing/pricing-card-footer"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
+import { PricingTryFreeRow } from "@/components/macwall-marketing/pricing-try-free-row"
 import {
   PricingSocialProof,
   PricingTrustStrip,
@@ -40,7 +39,7 @@ function withCheckoutPromo(
 }
 
 const pricingMutedButtonClass =
-  "inline-flex h-9 min-h-9 w-full items-center justify-center rounded-full bg-white/[0.08] px-3.5 text-[14px] font-medium text-white no-underline ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/[0.12]"
+  "inline-flex h-9 min-h-9 w-full items-center justify-center rounded-full border border-landing-rule bg-transparent px-3.5 text-[14px] font-medium text-white no-underline transition-colors hover:bg-white/5"
 
 function PricingPrimaryButton({
   href,
@@ -85,10 +84,10 @@ export default function MacWallMarketingPricingPage() {
         <section className="marketing-hero-section">
           <div className="marketing-container">
             <PricingSocialProof className="mb-3" />
-            <h1 className="text-center text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight text-foreground md:text-5xl">
+            <h1 className="mx-auto max-w-3xl text-center text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px] lg:text-[48px]">
               {p.heroTitle}
             </h1>
-            <p className="mx-auto mt-3 max-w-xl text-center text-[16px] leading-relaxed text-marketing-muted sm:text-[17px]">
+            <p className="mx-auto mt-3 max-w-xl text-center text-[16px] leading-6 text-landing-muted">
               {p.heroLead}
             </p>
             {checkoutError ? (
@@ -150,8 +149,6 @@ export default function MacWallMarketingPricingPage() {
             </div>
           </div>
         </section>
-
-        <PricingReviewsSection />
 
         <MarketingFaqSection defaultOpenQuestion={p.faq[0]?.q} />
       </main>

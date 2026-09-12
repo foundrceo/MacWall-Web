@@ -13,7 +13,7 @@ import type { Metadata } from "next"
 
 /** ≤155 chars; leads with the app entity to disambiguate from the unrelated "MACWALL" retaining-wall product. */
 const PAGE_DESCRIPTION =
-  "MacWall is the native macOS app for cinematic live 4K wallpapers on macOS 15+, with menu bar control and near-zero battery impact. Lock Screen video on macOS 26+. $7.99, paid once."
+  `${macwall.tagline} Native macOS app for live 4K wallpapers on macOS 15+, with menu bar control and near-zero battery impact. Lock Screen video on macOS 26+. $7.99, paid once.`
 
 export const metadata: Metadata = {
   title: { absolute: macwall.fullTagline },

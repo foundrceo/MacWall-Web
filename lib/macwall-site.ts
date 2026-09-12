@@ -109,7 +109,7 @@ export const macwallMinimumMacOSRequirementOrLater =
 const MACWALL_NAME = "MacWall" as const
 /** Also the <title> suffix and OG alt text — keep it short and keyword-led. */
 const MACWALL_TAGLINE =
-  "Live 4K wallpapers for your Mac, without the subscription." as const
+  "Cinematic live wallpapers, built for Mac." as const
 const MACWALL_FULL_TAGLINE = `${MACWALL_NAME} - ${MACWALL_TAGLINE}` as const
 
 export const macwall = {

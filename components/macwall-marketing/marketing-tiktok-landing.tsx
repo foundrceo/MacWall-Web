@@ -29,20 +29,20 @@ export default function TikTokLandingHero() {
     <section className="relative overflow-hidden bg-background">
       <div className="marketing-container max-w-5xl">
         <div className="max-w-3xl pt-10 pb-6 md:pt-14 md:pb-8">
-          <p className="text-[13px] font-semibold tracking-[0.08em] text-marketing-muted uppercase">
+          <p className="text-[13px] leading-5 text-landing-muted">
             Live wallpapers for Mac
           </p>
 
-          <h1 className="mt-4 text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.08] font-normal tracking-[-0.03em] text-foreground">
-            Make your Mac look cinematic in one tap
+          <h1 className="mt-4 text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px] lg:text-[48px]">
+            Cinematic live wallpapers, built for Mac.
           </h1>
 
-          <p className="mt-5 text-[18px] leading-[1.5] text-marketing-muted">
+          <p className="mt-5 max-w-[34rem] text-[16px] leading-6 text-landing-muted">
             1,000+ live wallpapers. Lock Screen support. Pay once, own it
             forever.
           </p>
 
-          <div className="mt-6 inline-flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-2xl border border-border bg-surface px-5 py-3">
+          <div className="mt-6 inline-flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-2xl bg-[#111] px-5 py-3">
             <span className="text-[32px] font-semibold tracking-[-0.03em] text-foreground">
               {pricing.permanentPrice}
             </span>

@@ -11,11 +11,19 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-heading: var(--font-sans);
-  --font-serif: var(--site-font-heading);
-  --font-mono: var(--site-font-mono);
-  --font-pixel-square: var(--font-geist-pixel-square);
+  --font-sans: var(--font-pp-neue-montreal), var(--font-pp-neue-montreal-extra),
+    ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-pp-neue-montreal),
+    var(--font-pp-neue-montreal-extra), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-pp-neue-montreal), var(--font-pp-neue-montreal-extra),
+    ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-pp-neue-montreal), var(--font-pp-neue-montreal-extra),
+    ui-sans-serif, system-ui, sans-serif;
+  --font-pixel-square: var(--font-pp-neue-montreal),
+    var(--font-pp-neue-montreal-extra), ui-sans-serif, system-ui, sans-serif;
+  --color-landing-rule: rgba(255, 255, 255, 0.08);
+  --color-landing-muted: #757575;
+  --color-landing-banner: #141414;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -45,13 +53,13 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 1.75rem;
   --color-hero-start: var(--hero-start);
   --color-hero-mid: var(--hero-mid);
   --color-hero-end: var(--hero-end);
@@ -70,7 +78,8 @@
   --spacing-marketing-section-xl: 6rem;
 }
 
-:root {
+:root,
+.dark {
   --marketing-banner-height: 3.25rem;
   --marketing-nav-height: 3.5rem;
   --marketing-chrome-height: calc(
@@ -79,122 +88,79 @@
   --macwall-marketing-banner-height: var(--marketing-banner-height);
   --macwall-marketing-nav-height: var(--marketing-nav-height);
 
-  --site-font-sans:
-    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --site-font-heading:
-    var(--font-instrument-serif), "Instrument Serif", ui-serif, Georgia, serif;
-  --site-font-mono:
-    var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  --site-font-sans: var(--font-pp-neue-montreal),
+    var(--font-pp-neue-montreal-extra), ui-sans-serif, system-ui, sans-serif;
+  --site-font-heading: var(--font-pp-neue-montreal),
+    var(--font-pp-neue-montreal-extra), ui-sans-serif, system-ui, sans-serif;
+  --site-font-mono: var(--font-pp-neue-montreal),
+    var(--font-pp-neue-montreal-extra), ui-sans-serif, system-ui, sans-serif;
 
-  --button-primary-bg: rgb(0, 113, 227);
-  --button-primary-hover: rgb(0, 119, 237);
-  --button-secondary-bg: rgb(66, 66, 69);
-  --button-secondary-hover: rgb(81, 81, 84);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --hero-start: oklch(0.68 0.13 245);
-  --hero-mid: oklch(0.91 0.045 245);
-  --hero-end: oklch(1 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --radius: 0.625rem;
-  --marketing-muted: oklch(0.556 0 0);
-  --surface: oklch(1 0 0);
-  --surface-elevated: oklch(0.985 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --button-primary-bg: #fafafa;
+  --button-primary-hover: #ededed;
+  --button-secondary-bg: #171717;
+  --button-secondary-hover: #1c1c1c;
+
+  --background: #000000;
+  --foreground: #fafafa;
+  --marketing-muted: #757575;
+  --surface: #000000;
+  --surface-elevated: #111111;
+  --card: #111111;
+  --card-foreground: #fafafa;
+  --popover: #141414;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #0a0a0a;
+  --secondary: #171717;
+  --secondary-foreground: #fafafa;
+  --hero-start: #111111;
+  --hero-mid: #0a0a0a;
+  --hero-end: #000000;
+  --muted: #171717;
+  --muted-foreground: #757575;
+  --accent: #1a1a1a;
+  --accent-foreground: #fafafa;
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: #fafafa;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: rgba(255, 255, 255, 0.22);
+  --radius: 0.875rem;
+  --chart-1: #34d399;
+  --chart-2: #a1a1a1;
+  --chart-3: #737373;
+  --chart-4: #525252;
+  --chart-5: #fafafa;
+  --sidebar: #000000;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #fafafa;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #171717;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: rgba(255, 255, 255, 0.22);
 }
 
 @media (min-width: 640px) {
-  :root {
+  :root,
+  .dark {
     --marketing-banner-height: 2.25rem;
   }
 }
 
-.dark {
-  --button-secondary-bg: oklch(0.22 0 0);
-  --button-secondary-hover: oklch(0.28 0 0);
-
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --marketing-muted: rgb(255 255 255 / 68%);
-  --surface: #0c0d0a;
-  --surface-elevated: #111111;
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --hero-start: oklch(0.28 0.04 265);
-  --hero-mid: oklch(0.18 0.02 265);
-  --hero-end: #0c0d0a;
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
 @layer components {
-  /* No overflow on this shell — overflow-x-clip breaks position:sticky on the nav. */
   .marketing-page {
-    @apply min-h-screen w-full max-w-full bg-background text-foreground;
+    @apply min-h-svh w-full min-w-0 max-w-full bg-background text-white;
+    overflow-wrap: break-word;
+    font-feature-settings: "ss07", "ss08", "liga" 0;
   }
 
   .launch-banner {
     @apply fixed inset-x-0 top-0 z-[51] h-[var(--marketing-banner-height)] border-b border-black/10 bg-white lg:static lg:z-auto;
   }
 
-  /* Position lives on the component — utilities must not fight fixed/sticky here. */
   .navbar-header {
-    @apply bg-background/45 backdrop-blur-xl backdrop-saturate-150;
+    @apply bg-background/80 backdrop-blur-xl backdrop-saturate-150;
   }
 
   .mobile-nav-sheet {
@@ -202,17 +168,11 @@
   }
 
   .marketing-container {
-    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-6 xl:px-8;
+    @apply mx-auto w-full min-w-0 max-w-[1120px] px-5 sm:px-8;
   }
 
-  /*
-   * Main content shells.
-   * Mobile/tablet: pad below fixed banner + nav.
-   * Desktop (lg+): nav is in flow — add comfortable top rhythm (was pt-14 md:pt-16 on every page).
-   */
   .marketing-main {
-    @apply mx-auto box-border w-full max-w-7xl px-4 pb-20 outline-none sm:px-6 md:pb-24 lg:px-6 xl:px-8;
-    padding-top: var(--marketing-chrome-height);
+    @apply mx-auto box-border w-full min-w-0 max-w-[1120px] px-5 pt-10 pb-20 outline-none sm:px-8 md:pb-24;
   }
 
   .marketing-main-offset {
@@ -220,10 +180,6 @@
   }
 
   @media (min-width: 1024px) {
-    .marketing-main {
-      @apply pt-14 lg:pt-16;
-    }
-
     .marketing-main-offset {
       padding-top: 0;
     }
@@ -233,19 +189,16 @@
     @apply mb-10 md:mb-14;
   }
 
-  /* Page hero blocks — pricing, intros, etc. */
   .marketing-hero-section {
-    @apply pt-12 pb-16 sm:pt-16 sm:pb-20 md:pt-24 md:pb-28;
+    @apply pt-16 pb-20 md:pt-16 md:pb-28;
   }
 
-  /* Default vertical section rhythm */
   .marketing-section {
-    @apply py-16 md:py-24 lg:py-28;
+    @apply py-20 md:py-28;
   }
 
-  /* Elevated bands — FAQ, community, bottom CTA */
   .marketing-section-elevated {
-    @apply py-16 md:py-24 lg:py-28;
+    @apply py-20 md:py-28;
   }
 
   .marketing-prose-rail {
@@ -253,24 +206,22 @@
   }
 
   .marketing-hero-primary-btn {
-    @apply inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-[15px] font-medium text-black transition-opacity outline-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+    @apply inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-5 text-[14px] leading-none font-medium tracking-[0.01em] text-black shadow-none transition-colors outline-none hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-white/30;
   }
 
   .marketing-hero-secondary-btn {
-    @apply inline-flex items-center rounded-full bg-[#222222] px-4 py-2.5 text-[15px] font-medium text-white transition-colors outline-none hover:bg-[#2a2a2a] focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+    @apply inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#222] px-5 text-[14px] leading-none font-medium tracking-[0.01em] text-white shadow-none transition-colors outline-none hover:bg-[#2a2a2a] focus-visible:ring-2 focus-visible:ring-white/20;
   }
 
   .marketing-inline-link {
-    @apply text-[#4da3ff] no-underline transition-opacity outline-none hover:underline hover:opacity-90 focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+    @apply text-white underline decoration-white/25 underline-offset-2 transition-colors outline-none hover:text-landing-muted hover:decoration-landing-muted focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-white/20;
   }
 
   .marketing-skip-link {
-    @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-[calc(3.25rem+3.5rem+0.75rem)] focus:z-[10000] focus:rounded-md focus:bg-card focus:px-4 focus:py-2 focus:text-[15px] focus:font-medium focus:text-foreground focus:shadow-md focus:outline-none focus:ring-2 focus:ring-ring/40 sm:focus:top-[calc(2.25rem+3.5rem+0.75rem)] lg:focus:top-[calc(3.5rem+0.75rem)];
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[10000] focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-[14px] focus:font-medium focus:text-black focus:outline-none;
   }
 }
 
-/* `data-platform` is set on <html> before first paint by VisitorPlatformScript,
-   so the right CTA paints once with no swap. Non-mobile is the default. */
 .mw-when-mobile {
   display: none;
 }
@@ -289,16 +240,12 @@
   }
 
   html {
-    font-family: var(--site-font-sans);
-    @apply font-sans;
+    @apply font-sans bg-background text-foreground;
+    color-scheme: dark;
   }
 
   body {
-    @apply antialiased bg-background text-foreground;
-  }
-
-  body.__className_f367f3 {
-    font-family: var(--site-font-sans) !important;
+    @apply bg-background font-sans text-foreground antialiased;
   }
 
   code,
@@ -315,23 +262,86 @@
   h5,
   h6 {
     font-family: var(--site-font-heading);
+    font-weight: 400;
   }
 
   .dark {
     color-scheme: dark;
   }
-  button:not(:disabled), [role="button"]:not(:disabled) {
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
     cursor: pointer;
   }
 }
 
 @utility font-pixel-square {
-  font-family: var(--font-pixel-square), ui-monospace, monospace;
+  font-family: var(--font-pp-neue-montreal), var(--font-pp-neue-montreal-extra),
+    ui-sans-serif, system-ui, sans-serif;
   font-weight: 500;
   font-style: normal;
 }
 
 @layer utilities {
+  .landing-root {
+    overflow-wrap: break-word;
+    font-feature-settings: "ss07", "ss08", "liga" 0;
+  }
+
+  .landing-pillar-mark .pillar-track,
+  .landing-pillar-mark .pillar-line,
+  .landing-pillar-mark .pillar-link-gleam,
+  .landing-pillar-mark .pillar-write-line {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .landing-pillar-mark .pillar-track {
+    stroke-width: 1.35;
+    opacity: 0.18;
+  }
+
+  .landing-pillar-mark .pillar-line {
+    stroke-width: 1.45;
+    opacity: 0.82;
+  }
+
+  .landing-pillar-mark .pillar-fill {
+    fill: currentColor;
+  }
+
+  .landing-pillar-mark .pillar-link-gleam {
+    stroke-width: 1.7;
+    stroke-dasharray: 0.16 1;
+    stroke-dashoffset: 0;
+  }
+
+  .landing-pillar-mark .pillar-write-line {
+    stroke-width: 1.45;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .font-sans,
+  .font-geist,
+  .font-serif,
+  .font-mono,
+  .font-heading {
+    font-family: var(--font-pp-neue-montreal),
+      var(--font-pp-neue-montreal-extra), ui-sans-serif, system-ui, sans-serif;
+  }
+
   .marketing-wallpaper-marquee {
     animation: marketing-wallpaper-marquee 40s linear infinite;
   }
@@ -366,39 +376,203 @@
   }
 }
 
-@keyframes nav-earn-pulse {
+@keyframes pillar-soft {
   0%,
-  100% {
+  18% {
+    opacity: 0.18;
+  }
+  40%,
+  70% {
     opacity: 1;
   }
-  50% {
-    opacity: 0.72;
-  }
-}
-
-.nav-earn-text {
-  animation: nav-earn-pulse 1.6s ease-in-out infinite;
-}
-
-@keyframes announcement-india-pulse {
-  0%,
   100% {
-    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.06);
-  }
-  50% {
-    box-shadow:
-      inset 0 -1px 0 rgba(0, 0, 0, 0.06),
-      inset 0 0 0 9999px rgba(5, 150, 105, 0.04);
+    opacity: 0.18;
   }
 }
 
-.announcement-india-banner {
-  animation: announcement-india-pulse 2.4s ease-in-out infinite;
+@keyframes pillar-tile {
+  0%,
+  12% {
+    opacity: 0.08;
+  }
+  22%,
+  34% {
+    opacity: 0.55;
+  }
+  48%,
+  100% {
+    opacity: 0.08;
+  }
+}
+
+@keyframes pillar-dot {
+  0%,
+  55% {
+    opacity: 0.2;
+  }
+  70%,
+  85% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes pillar-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  18% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  58% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  78%,
+  100% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes pillar-write-1 {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  26%,
+  88% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes pillar-write-2 {
+  0%,
+  30% {
+    stroke-dashoffset: 1;
+  }
+  50%,
+  88% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes pillar-link-gleam {
+  0% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  82% {
+    stroke-dashoffset: -0.84;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -1;
+    opacity: 0;
+  }
+}
+
+@keyframes pillar-lock {
+  0%,
+  55% {
+    transform: translateY(0);
+  }
+  65% {
+    transform: translateY(-2px);
+  }
+  78%,
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing-pillar-mark .pillar-soft {
+    animation: pillar-soft 3.2s ease-in-out infinite;
+  }
+
+  .landing-pillar-mark .pillar-tile-1 {
+    animation: pillar-tile 4.8s ease-in-out infinite;
+  }
+
+  .landing-pillar-mark .pillar-tile-2 {
+    animation: pillar-tile 4.8s ease-in-out infinite;
+    animation-delay: 1.2s;
+  }
+
+  .landing-pillar-mark .pillar-tile-3 {
+    animation: pillar-tile 4.8s ease-in-out infinite;
+    animation-delay: 2.4s;
+  }
+
+  .landing-pillar-mark .pillar-tile-4 {
+    animation: pillar-tile 4.8s ease-in-out infinite;
+    animation-delay: 3.6s;
+  }
+
+  .landing-pillar-mark .pillar-dot {
+    animation: pillar-dot 2.8s ease-in-out infinite;
+  }
+
+  .landing-pillar-mark .pillar-drop {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pillar-drop 2.8s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  }
+
+  .landing-pillar-mark .pillar-write-1 {
+    animation: pillar-write-1 2.8s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  }
+
+  .landing-pillar-mark .pillar-write-2 {
+    animation: pillar-write-2 3.6s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  }
+
+  .landing-pillar-mark .pillar-link-gleam {
+    animation: pillar-link-gleam 1.8s linear infinite;
+  }
+
+  .landing-pillar-mark .pillar-lock {
+    transform-box: fill-box;
+    transform-origin: center top;
+    animation: pillar-lock 3.4s ease-in-out infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav-earn-text,
-  .announcement-india-banner {
-    animation: none;
+  .landing-pillar-mark .pillar-soft,
+  .landing-pillar-mark .pillar-tile-1,
+  .landing-pillar-mark .pillar-tile-2,
+  .landing-pillar-mark .pillar-tile-3,
+  .landing-pillar-mark .pillar-tile-4,
+  .landing-pillar-mark .pillar-dot,
+  .landing-pillar-mark .pillar-drop,
+  .landing-pillar-mark .pillar-write-1,
+  .landing-pillar-mark .pillar-write-2,
+  .landing-pillar-mark .pillar-link-gleam,
+  .landing-pillar-mark .pillar-lock {
+    animation: none !important;
+  }
+
+  .landing-pillar-mark .pillar-write-line,
+  .landing-pillar-mark .pillar-link-gleam {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+
+  .landing-pillar-mark .pillar-tile-1,
+  .landing-pillar-mark .pillar-tile-2,
+  .landing-pillar-mark .pillar-tile-3,
+  .landing-pillar-mark .pillar-tile-4 {
+    opacity: 0.28;
   }
 }

@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/checkout-recovery",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/charge-trial",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

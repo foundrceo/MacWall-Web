@@ -7,11 +7,13 @@ import {
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import { HeroMobileActions } from "@/components/macwall-marketing/hero-mobile-actions"
 import {
+  pillCtaHeroClass,
+  secondaryCtaHeroClass,
+} from "@/components/macwall-marketing/landing-type"
+import {
   macwall,
   macwallInstallerLatestPath,
-  macwallMinimumMacOSVersionLabel,
 } from "@/lib/macwall-site"
-import { cn } from "@/lib/utils"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -31,40 +33,26 @@ export default function HeroSectionActions() {
 
   return (
     <>
-      <div className="mw-when-desktop mt-8 sm:mt-10">
-        <div className="flex flex-wrap items-start gap-3">
-          <div className="flex flex-col items-center">
-            <TrackedDownloadButton
-              href={macwallInstallerLatestPath}
-              size="pill"
-              location="hero"
-              className={cn(
-                "marketing-hero-primary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
-              )}
-            >
-              <AppleIcon className="size-3.5" />
-              Download free for Mac
-            </TrackedDownloadButton>
-            <p className="mt-2 text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
-              {macwallMinimumMacOSVersionLabel}
-            </p>
-          </div>
-          <div className="flex flex-col items-center">
-            <TrackedPricingButton
-              href={pricing.checkoutUrl}
-              size="pill"
-              location="hero"
-              ariaLabel={`Get ${macwall.name} Pro`}
-              className={cn(
-                "marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
-              )}
-            >
-              {pricing.getProCta}
-            </TrackedPricingButton>
-            <p className="mt-2 text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
-              License emailed instantly
-            </p>
-          </div>
+      <div className="mw-when-desktop">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <TrackedDownloadButton
+            href={macwallInstallerLatestPath}
+            size="pill"
+            location="hero"
+            className={pillCtaHeroClass}
+          >
+            <AppleIcon className="size-3.5" />
+            Download free for Mac
+          </TrackedDownloadButton>
+          <TrackedPricingButton
+            href={pricing.checkoutUrl}
+            size="pill"
+            location="hero"
+            ariaLabel={`Get ${macwall.name} Pro`}
+            className={secondaryCtaHeroClass}
+          >
+            {pricing.getProCta}
+          </TrackedPricingButton>
         </div>
       </div>
 

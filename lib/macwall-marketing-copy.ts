@@ -37,7 +37,8 @@ export const macwallMarketingCopy = {
   },
   interact: {
     kicker: "In the app",
-    title: "Live 4K wallpapers for your Mac.",
+    title: `Meet ${macwall.name}`,
+    titleMuted: "Cinematic live wallpapers, built for Mac.",
     moreLink: "How licensing works",
     demoVideoAria: "Background preview loop",
     dockAria: `Focus ${macwall.name}`,
@@ -48,7 +49,7 @@ export const macwallMarketingCopy = {
     menubarBrand: macwall.name,
     menubarStatus: "Runs in the menu bar",
     heroLead:
-      "Pick a wallpaper, click once, done. You get 1,000+ cinematic 4K loops, you can drop in your own videos, and it runs on every display without eating your battery. Free to try, then one payment to keep it.",
+      "1,000+ cinematic 4K loops, your own videos, and hardware-decoded playback on every display. Free to try, then one payment.",
     paragraph1Lead: "Try it right here",
     paragraph1Rest:
       "This demo is the real app. Click any wallpaper to set it. That's the whole learning curve. Built natively for macOS, with hardware-decoded video on every display.",
@@ -166,7 +167,7 @@ export const macwallMarketingCopy = {
       },
       {
         title: "No ads. No subscription.",
-        body: "One payment unlocks the app. No banner ads, no monthly billing, no upsells later.",
+        body: "One payment covers the app. No banner ads, no monthly billing, no upsells later.",
         accent: "orange",
       },
       {
@@ -177,9 +178,122 @@ export const macwallMarketingCopy = {
     ] as const,
   },
   underFooter: {
-    title: "Give your desktop something worth looking at.",
+    title: "Ready to start?",
     body: `Download MacWall free. Pro is ${macwall.pro.price} once and it's yours for good, and one Reel can pay for the whole thing.`,
     cta: "Get Pro",
+  },
+  landing: {
+    catalogEyebrow: "Categories",
+    featuresEyebrow: "Features",
+    featuresTitle: "One app",
+    featuresMuted: "Desktop, Lock Screen, and your own videos.",
+    browseTitle: "Browse 1,000+ wallpapers",
+    browseLead:
+      "Scroll a hand-picked catalog across every genre: anime, nature, cars, gaming, space, and more. Click one and it's your desktop background a second later.",
+    browseLink: "Open the full gallery",
+    importTitle: "Import your own",
+    importLead: "Drop in an MP4 or MOV. Files stay on your Mac.",
+    importPoints: [
+      "MP4 and MOV",
+      "No account required",
+      "Works offline after download",
+    ] as const,
+    lockPoints: [
+      "macOS 26+",
+      "Screen Saver included",
+      "No extensions",
+    ] as const,
+    howEyebrow: "How it works",
+    howTitle: "Download, pick, set, done",
+    bend: {
+      eyebrow: "Introducing Bend",
+      title: "Close the lid. Watch the desktop fold.",
+      lead: "Bend reads your MacBook lid angle and folds the screen with it. Soft blur, degree for degree. Open it again and everything snaps back.",
+      points: [
+        {
+          title: "Lid sensor",
+          body: "Follows the hinge angle on Apple silicon MacBooks.",
+        },
+        {
+          title: "One still",
+          body: "Grabs a desktop snapshot as you close. No recording stream.",
+        },
+        {
+          title: "On device",
+          body: "Frames stay in memory on your Mac. Nothing uploaded.",
+        },
+        {
+          title: "On by default",
+          body: "Needs an Apple silicon MacBook with a lid sensor.",
+        },
+      ] as const,
+    },
+    communityEyebrow: "Community",
+    communityTitle: "You pick. We run it.",
+    communityMuted: "One catalog. Every display.",
+    communityLead:
+      "Mac owners swap setups, wallpaper drops, and tips in Discord. New clips also show up on TikTok.",
+    faqLead: "Licenses, macOS versions, and the Reel refund.",
+    contactUs: "Contact us",
+    closingMuted: "Try MacWall free",
+    pillars: [
+      {
+        id: "pick",
+        title: "Pick a wallpaper",
+        body: "1,000+ cinematic 4K loops, sorted by genre.",
+      },
+      {
+        id: "import",
+        title: "Import your own",
+        body: "Drop in an MP4 or MOV. It stays on your Mac.",
+      },
+      {
+        id: "displays",
+        title: "Every display",
+        body: "Sync screens or set each one on its own.",
+      },
+      {
+        id: "lock",
+        title: "Lock Screen",
+        body: `Live video on ${macwallLockScreenMacOSVersion}.`,
+      },
+    ] as const,
+    steps: [
+      {
+        id: "download",
+        title: "Download the app",
+        body: "Free for Mac. macOS 15 or later.",
+        mark: "Free",
+      },
+      {
+        id: "browse",
+        title: "Browse the catalog",
+        body: "Preview loops in the app or on the web.",
+        mark: "1,000+",
+      },
+      {
+        id: "set",
+        title: "Click set",
+        body: "Hardware-decoded video on the desktop.",
+        mark: "Set",
+      },
+      {
+        id: "menu",
+        title: "Leave it running",
+        body: "It lives in the menu bar and pauses itself.",
+        mark: "Menu bar",
+      },
+    ] as const,
+    genres: [
+      "Anime",
+      "Nature",
+      "Cars",
+      "Gaming",
+      "Space",
+      "Heroes",
+      "Dark",
+      "Abstract",
+    ] as const,
   },
   footer: {
     shopTitle: "Store",

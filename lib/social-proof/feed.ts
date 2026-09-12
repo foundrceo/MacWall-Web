@@ -91,11 +91,11 @@ const MARKETING_LINES: readonly Line[] = [
   { kind: "activation", text: "Someone just activated on their Mac" },
   { kind: "activation", text: "Someone just activated their Pro key" },
   { kind: "activation", text: "A new Mac just activated Pro" },
-  // MacBook / desktop moments
-  { kind: "macbook", text: "Someone just set a live wallpaper on their MacBook" },
+  // MacBook / Bend moments
+  { kind: "macbook", text: "Someone just closed their lid with Bend on" },
   { kind: "macbook", text: "Someone's MacBook lid just went cinematic" },
-  { kind: "macbook", text: "A MacBook just got a new live wallpaper" },
-  { kind: "macbook", text: "Someone just elevated their Mac desktop" },
+  { kind: "macbook", text: "Someone just tried Bend Desktop on their MacBook" },
+  { kind: "macbook", text: "A MacBook just folded the desktop with Bend" },
   { kind: "macbook", text: "Someone's MacBook just lit up with MacWall" },
   // Other urgency
   { kind: "other", text: "Someone unlocked the complete catalog" },
