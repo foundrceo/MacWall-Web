@@ -1,5 +1,7 @@
 import { after, NextResponse } from "next/server"
 
+import { track as trackVercelServerEvent } from "@vercel/analytics/server"
+
 import { trackSiteEvent } from "@/lib/analytics/track-server"
 import { MACWALL_DEFAULT_INSTALLER_REDIRECT_URL } from "@/lib/macwall-installer-url"
 
@@ -69,7 +71,8 @@ export async function GET(request: Request) {
 
     const referrer = request.headers.get("referer")
     const userAgent = request.headers.get("user-agent")
-    // Don't block the 302 on Supabase analytics — cuts TTFB + Function duration.
+    const destinationHost = target.hostname
+    // Don't block the 302 on analytics — cuts TTFB + Function duration.
     after(() =>
       trackSiteEvent({
         eventName: "download_redirect",
@@ -77,9 +80,20 @@ export async function GET(request: Request) {
         referrer,
         userAgent,
         sessionId,
-        metadata: { destination: target.hostname },
+        metadata: { destination: destinationHost },
       })
     )
+    // Vercel Web Analytics custom event (server-side: no client equivalent,
+    // so no double-count with the `download_click` client event).
+    after(async () => {
+      try {
+        await trackVercelServerEvent("download_redirect", {
+          destination: destinationHost.slice(0, 255),
+        })
+      } catch {
+        // Analytics must never break the redirect.
+      }
+    })
 
     return NextResponse.redirect(target, 302)
   } catch {
