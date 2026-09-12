@@ -184,10 +184,6 @@ function licenseEmailSubject(appName = "MacWall"): string {
   return `Your ${appName} Pro license`
 }
 
-function trialStartedEmailSubject(appName = "MacWall"): string {
-  return `Your ${appName} 24-hour Pro trial`
-}
-
 function licenseEmailPreheader(appName = "MacWall"): string {
   return `Open ${appName} on your Mac to activate.`
 }
@@ -376,49 +372,6 @@ function textLinkCta(href: string, label: string): string {
       </td>
     </tr>
   </table>`
-}
-
-function buildTrialStartedEmailHtml(args: {
-  appName: string
-  licenseKey: string
-}): string {
-  const { appName, licenseKey } = args
-  const { deepLink } = licenseEmailLinks(licenseKey)
-  const cardInner = `
-    ${brandMark(appName)}
-    ${headline(`Your 24-hour ${escapeHtml(appName)}&nbsp;Pro trial`)}
-    ${bodyCopy(
-      `Your card is saved. ${escapeHtml(appName)} Pro is unlocked for 24 hours. We'll charge your list price after the trial for lifetime access. Open the app to activate.`
-    )}
-    ${licenseKeyBlock(licenseKey, "Works on up to 3 Macs")}
-    ${textLinkCta(deepLink, `Activate ${escapeHtml(appName)} Pro`)}
-  `
-  return emailShell({
-    title: trialStartedEmailSubject(appName),
-    preheader: `Your ${appName} trial is ready.`,
-    cardInner,
-    footnote: `If you didn’t start a ${escapeHtml(appName)} trial, you can ignore this email.`,
-    appName,
-  })
-}
-
-function buildTrialStartedEmailPlainText(args: {
-  appName: string
-  licenseKey: string
-}): string {
-  const { appName, licenseKey } = args
-  const { activateHref, deepLink } = licenseEmailLinks(licenseKey)
-  return [
-    `Your 24-hour ${appName} Pro trial`,
-    "",
-    `Your card is saved. ${appName} Pro is unlocked for 24 hours. We'll charge list price after the trial for lifetime access.`,
-    "",
-    `License: ${licenseKey}`,
-    `Activate: ${deepLink}`,
-    `Or open: ${activateHref}`,
-    "",
-    `Support: ${supportEmail()}`,
-  ].join("\n")
 }
 
 /** Production path — licenseKey is required (never SAMPLE_LICENSE_KEY). */
@@ -623,265 +576,6 @@ async function sendResendEmail(args: {
   }
 }
 
-async function handleTrialSetupCompleted(args: {
-  event: Stripe.Event
-  session: Stripe.Checkout.Session
-  supabase: ReturnType<typeof createClient>
-  resendKey: string
-  from: string
-}): Promise<Response> {
-  const { session, supabase, resendKey, from } = args
-
-  await cancelCheckoutRecovery(supabase, session.id)
-
-  const licenseKey =
-    session.metadata?.license_key?.trim() ||
-    (typeof session.client_reference_id === "string"
-      ? session.client_reference_id.trim()
-      : "")
-
-  const customerEmail =
-    session.customer_details?.email?.trim() ||
-    session.customer_email?.trim() ||
-    null
-
-  const customerId =
-    typeof session.customer === "string"
-      ? session.customer
-      : session.customer?.id ?? null
-
-  let paymentMethodId: string | null = null
-  const setupIntentRef = session.setup_intent
-  if (typeof setupIntentRef === "string") {
-    try {
-      const stripeSecret = Deno.env.get("STRIPE_SECRET_KEY")?.trim()
-      if (stripeSecret) {
-        const stripe = new Stripe(stripeSecret)
-        const setupIntent = await stripe.setupIntents.retrieve(setupIntentRef)
-        paymentMethodId =
-          typeof setupIntent.payment_method === "string"
-            ? setupIntent.payment_method
-            : setupIntent.payment_method?.id ?? null
-      }
-    } catch (e) {
-      console.error(
-        "[stripe-license-email] trial_setup_intent",
-        e instanceof Error ? e.message : "error"
-      )
-    }
-  } else if (setupIntentRef && typeof setupIntentRef === "object") {
-    paymentMethodId =
-      typeof setupIntentRef.payment_method === "string"
-        ? setupIntentRef.payment_method
-        : setupIntentRef.payment_method &&
-            typeof setupIntentRef.payment_method === "object" &&
-            "id" in setupIntentRef.payment_method
-          ? String((setupIntentRef.payment_method as { id: string }).id)
-          : null
-  }
-
-  if (!licenseKey) {
-    return Response.json({ ok: false, error: "no_license_key" }, { status: 422 })
-  }
-
-  if (customerId && (paymentMethodId || customerEmail)) {
-    try {
-      const stripeSecret = Deno.env.get("STRIPE_SECRET_KEY")?.trim()
-      if (stripeSecret) {
-        const stripe = new Stripe(stripeSecret)
-        await stripe.customers.update(customerId, {
-          ...(customerEmail ? { email: customerEmail } : {}),
-          ...(paymentMethodId
-            ? { invoice_settings: { default_payment_method: paymentMethodId } }
-            : {}),
-        })
-      }
-    } catch (e) {
-      console.error(
-        "[stripe-license-email] trial_customer_update",
-        e instanceof Error ? e.message : "error"
-      )
-    }
-  }
-
-  const trialEndsAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-  const rawVisitorCountry =
-    session.metadata?.visitor_country?.trim().toUpperCase() ||
-    session.customer_details?.address?.country?.trim().toUpperCase() ||
-    ""
-  const visitorCountry =
-    /^[A-Z]{2}$/.test(rawVisitorCountry) && rawVisitorCountry !== "XX"
-      ? rawVisitorCountry
-      : null
-
-  const licenseUpdate: Record<string, unknown> = {
-    status: "trial",
-    trial_ends_at: trialEndsAt,
-    ...(customerEmail ? { customer_email: customerEmail } : {}),
-    ...(customerId ? { stripe_customer_id: customerId } : {}),
-    ...(paymentMethodId ? { stripe_payment_method_id: paymentMethodId } : {}),
-    ...(visitorCountry ? { visitor_country: visitorCountry } : {}),
-  }
-
-  const { error: licenseUpdateError } = await supabase
-    .from("macwall_licenses")
-    .update(licenseUpdate)
-    .eq("license_key", licenseKey)
-
-  if (licenseUpdateError) {
-    console.error(
-      "[stripe-license-email] trial_setup_update",
-      licenseUpdateError.message
-    )
-  }
-
-  if (!customerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
-    return Response.json({ ok: true, trial: true, emailed: false })
-  }
-
-  const { error: insErr } = await supabase
-    .from("macwall_stripe_license_emails")
-    .insert({
-      webhook_event_id: args.event.id,
-      checkout_session_id: session.id,
-      license_key: licenseKey,
-      customer_email: customerEmail,
-    })
-
-  if (insErr) {
-    const code = (insErr as { code?: string }).code
-    if (code === "23505") {
-      return Response.json({ ok: true, duplicate: true, trial: true })
-    }
-    return Response.json({ ok: false, error: insErr.message }, { status: 500 })
-  }
-
-  const appName = Deno.env.get("APP_NAME")?.trim() || "MacWall"
-  const mailed = await sendResendEmail({
-    resendKey,
-    from,
-    to: customerEmail,
-    subject: trialStartedEmailSubject(appName),
-    html: buildTrialStartedEmailHtml({ appName, licenseKey }),
-    text: buildTrialStartedEmailPlainText({ appName, licenseKey }),
-  })
-  if (!mailed.ok) {
-    await supabase
-      .from("macwall_stripe_license_emails")
-      .delete()
-      .eq("webhook_event_id", args.event.id)
-    return Response.json({ ok: false, error: mailed.error }, { status: 502 })
-  }
-
-  return Response.json({
-    ok: true,
-    trial: true,
-    emailed_to: customerEmail,
-    trial_ends_at: trialEndsAt,
-  })
-}
-
-async function fulfillTrialCharge(args: {
-  event: Stripe.Event
-  paymentIntent: Stripe.PaymentIntent
-  supabase: ReturnType<typeof createClient>
-  resendKey: string
-  from: string
-}): Promise<Response> {
-  const licenseKey = args.paymentIntent.metadata?.license_key?.trim() || ""
-  if (!licenseKey) {
-    return Response.json({ ok: true, skipped: "no_license_key" })
-  }
-
-  const customerEmail =
-    args.paymentIntent.receipt_email?.trim() ||
-    null
-
-  let email = customerEmail
-  if (!email) {
-    const { data } = await args.supabase
-      .from("macwall_licenses")
-      .select("customer_email")
-      .eq("license_key", licenseKey)
-      .maybeSingle()
-    email =
-      typeof data?.customer_email === "string" ? data.customer_email : null
-  }
-
-  const { error: licenseUpdateError } = await args.supabase
-    .from("macwall_licenses")
-    .update({
-      status: "active",
-      stripe_payment_intent_id: args.paymentIntent.id,
-      activated_at: new Date().toISOString(),
-      billing_model: "permanent",
-      plan_slug: "pro",
-      ...(email ? { customer_email: email } : {}),
-    })
-    .eq("license_key", licenseKey)
-
-  if (licenseUpdateError) {
-    console.error(
-      "[stripe-license-email] trial_charge_activate",
-      licenseUpdateError.message
-    )
-  }
-
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return Response.json({ ok: true, activated: true, emailed: false })
-  }
-
-  const { error: insErr } = await args.supabase
-    .from("macwall_stripe_license_emails")
-    .insert({
-      webhook_event_id: args.event.id,
-      checkout_session_id: args.paymentIntent.id,
-      license_key: licenseKey,
-      customer_email: email,
-    })
-
-  if (insErr) {
-    const code = (insErr as { code?: string }).code
-    if (code === "23505") {
-      return Response.json({ ok: true, duplicate: true })
-    }
-    return Response.json({ ok: false, error: insErr.message }, { status: 500 })
-  }
-
-  const amountUsd =
-    typeof args.paymentIntent.amount_received === "number"
-      ? args.paymentIntent.amount_received / 100
-      : null
-  await sendTikTokPurchase({
-    email,
-    eventIdSeed: `stripe_${args.event.id}`,
-    amountUsd,
-  })
-  await sendXPurchase({
-    email,
-    eventIdSeed: `stripe_${args.event.id}`,
-  })
-
-  const appName = Deno.env.get("APP_NAME")?.trim() || "MacWall"
-  const mailed = await sendResendEmail({
-    resendKey: args.resendKey,
-    from: args.from,
-    to: email,
-    subject: licenseEmailSubject(appName),
-    html: buildLicenseEmailHtml({ appName, licenseKey, maxDevices: 3 }),
-    text: buildLicenseEmailPlainText({ appName, licenseKey, maxDevices: 3 }),
-  })
-  if (!mailed.ok) {
-    await args.supabase
-      .from("macwall_stripe_license_emails")
-      .delete()
-      .eq("webhook_event_id", args.event.id)
-    return Response.json({ ok: false, error: mailed.error }, { status: 502 })
-  }
-
-  return Response.json({ ok: true, emailed_to: email })
-}
-
 async function handleCheckoutCompleted(args: {
   event: Stripe.Event
   session: Stripe.Checkout.Session
@@ -891,11 +585,9 @@ async function handleCheckoutCompleted(args: {
 }): Promise<Response> {
   const { session, supabase, resendKey, from } = args
 
-  if (
-    session.mode === "setup" ||
-    session.metadata?.offer_slug === "trial"
-  ) {
-    return handleTrialSetupCompleted(args)
+  // Paid one-time Checkout only (mode payment / legacy subscription).
+  if (session.mode !== "payment" && session.mode !== "subscription") {
+    return Response.json({ ok: true, skipped: "not_payment_checkout" })
   }
 
   if (session.payment_status !== "paid") {
@@ -923,26 +615,10 @@ async function handleCheckoutCompleted(args: {
   }
 
   if (!customerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
-    if (session.metadata?.offer_slug === "complete_trial") {
-      const { data: existing } = await supabase
-        .from("macwall_licenses")
-        .select("customer_email")
-        .eq("license_key", licenseKey)
-        .maybeSingle()
-      const saved =
-        typeof existing?.customer_email === "string"
-          ? existing.customer_email.trim()
-          : ""
-      if (saved && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(saved)) {
-        customerEmail = saved
-      }
-    }
-    if (!customerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
-      return Response.json(
-        { ok: false, error: "no_customer_email" },
-        { status: 422 }
-      )
-    }
+    return Response.json(
+      { ok: false, error: "no_customer_email" },
+      { status: 422 }
+    )
   }
 
   const paymentIntentId =
@@ -1142,23 +818,6 @@ async function handlePaymentFailed(args: {
   supabase: ReturnType<typeof createClient>
 }): Promise<Response> {
   const paymentIntent = args.event.data.object as Stripe.PaymentIntent
-  if (paymentIntent.metadata?.trial_charge) {
-    const licenseKey = paymentIntent.metadata.license_key?.trim() || null
-    if (licenseKey) {
-      await args.supabase
-        .from("macwall_licenses")
-        .update({
-          status: "past_due",
-          stripe_payment_intent_id: paymentIntent.id,
-        })
-        .eq("license_key", licenseKey)
-    }
-    return Response.json({
-      ok: true,
-      trial_charge_failed: true,
-      license_key: licenseKey,
-    })
-  }
 
   // Checkout Sessions usually leave receipt_email null — email is on the session.
   let email = paymentIntent.receipt_email?.trim() || null
@@ -1213,12 +872,8 @@ async function handleCheckoutSessionCreated(args: {
   supabase: ReturnType<typeof createClient>
 }): Promise<Response> {
   const { session, supabase } = args
-  if (
-    session.mode === "setup" ||
-    session.metadata?.offer_slug === "trial" ||
-    session.metadata?.offer_slug === "complete_trial"
-  ) {
-    return Response.json({ ok: true, skipped: "trial_setup" })
+  if (session.mode !== "payment" && session.mode !== "subscription") {
+    return Response.json({ ok: true, skipped: "not_payment_checkout" })
   }
   const licenseKey = licenseKeyFromSession(session)
   const result = await enqueueCheckoutRecovery({
@@ -1246,12 +901,8 @@ async function handleCheckoutSessionExpired(args: {
   supabase: ReturnType<typeof createClient>
 }): Promise<Response> {
   const { session, supabase } = args
-  if (
-    session.mode === "setup" ||
-    session.metadata?.offer_slug === "trial" ||
-    session.metadata?.offer_slug === "complete_trial"
-  ) {
-    return Response.json({ ok: true, skipped: "trial_setup" })
+  if (session.mode !== "payment" && session.mode !== "subscription") {
+    return Response.json({ ok: true, skipped: "not_payment_checkout" })
   }
   const licenseKey = licenseKeyFromSession(session)
   const result = await enqueueCheckoutRecovery({
@@ -1482,16 +1133,6 @@ Deno.serve(async (req: Request) => {
   }
 
   if (event.type === "payment_intent.succeeded") {
-    const paymentIntent = event.data.object as Stripe.PaymentIntent
-    if (paymentIntent.metadata?.trial_charge) {
-      return fulfillTrialCharge({
-        event,
-        paymentIntent,
-        supabase,
-        resendKey,
-        from,
-      })
-    }
     return Response.json({ ok: true, skipped: "payment_intent.succeeded" })
   }
 

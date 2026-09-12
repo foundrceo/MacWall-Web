@@ -169,7 +169,7 @@ export function ProPlusPackCard({
       subtitle={subtitle}
       price={selected.price}
       priceMajor={selected.priceMajor}
-      currency="usd"
+      currency={selected.currency}
       strikePrice={selected.strikePrice}
       localPriceHint={selected.localPriceHint}
       priceSuffix="one-time"

@@ -29,7 +29,11 @@ import {
 } from "@/lib/site-url"
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
-import { ppNeueMontreal, ppNeueMontrealExtra } from "@/app/fonts"
+import {
+  instrumentSans,
+  ppNeueMontreal,
+  ppNeueMontrealExtra,
+} from "@/app/fonts"
 import { VercelAnalytics } from "@/components/analytics/vercel-analytics"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -220,7 +224,8 @@ export default function RootLayout({
       className={cn(
         "dark h-full antialiased",
         ppNeueMontreal.variable,
-        ppNeueMontrealExtra.variable
+        ppNeueMontrealExtra.variable,
+        instrumentSans.variable
       )}
       style={{ colorScheme: "dark" }}
       suppressHydrationWarning

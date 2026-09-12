@@ -184,7 +184,7 @@ export function PricingTierCard({
               />
               {strikePrice ? (
                 <span
-                  className="text-[14px] text-landing-muted line-through decoration-landing-muted decoration-1"
+                  className="font-instrument text-[14px] tabular-nums text-landing-muted line-through decoration-landing-muted decoration-1"
                   aria-label={`Was ${strikePrice}`}
                 >
                   {strikePrice}
@@ -196,7 +196,7 @@ export function PricingTierCard({
             </p>
             <p
               className={cn(
-                "mt-1 min-h-[1.125rem] text-[12px] leading-snug text-landing-muted",
+                "mt-1 min-h-[1.125rem] font-instrument text-[12px] leading-snug tabular-nums text-landing-muted",
                 !localPriceHint && "invisible select-none"
               )}
               aria-hidden={!localPriceHint}
