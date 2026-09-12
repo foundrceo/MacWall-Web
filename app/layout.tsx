@@ -35,6 +35,7 @@ import {
   ppNeueMontrealExtra,
 } from "@/app/fonts"
 import { VercelAnalytics } from "@/components/analytics/vercel-analytics"
+import { SiteFlagValues } from "@/components/analytics/site-flag-values"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
@@ -243,6 +244,8 @@ export default function RootLayout({
         className={`${ppNeueMontreal.className} w-full bg-background font-sans text-foreground antialiased`}
         suppressHydrationWarning
       >
+        {/* Feature flag values for Vercel Web Analytics + Flags Explorer. */}
+        <SiteFlagValues />
         <VisitorPlatformScript />
         <a
           href="#main-content"

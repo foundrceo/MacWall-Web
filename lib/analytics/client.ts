@@ -1,5 +1,7 @@
 "use client"
 
+import { track as trackVercelEvent } from "@vercel/analytics"
+
 import type {
   SiteAnalyticsEventName,
   SiteAnalyticsMetadata,
@@ -46,6 +48,48 @@ export function withAnalyticsSessionHref(href: string): string {
 /** Sample high-volume page_views — conversions always fire (cuts Function + Supabase writes). */
 const PAGE_VIEW_SAMPLE_RATE = 0.1
 
+/**
+ * Events mirrored to Vercel Web Analytics custom events (same names as the
+ * internal Supabase pipeline so the two stay 1:1 comparable).
+ * - `page_view` is skipped: Vercel tracks page views automatically.
+ * - `download_redirect` is server-only: fired from `/download/latest` via
+ *   `@vercel/analytics/server` (firing it here too would double-count).
+ */
+const VERCEL_CUSTOM_EVENTS: ReadonlySet<SiteAnalyticsEventName> = new Set([
+  "download_click",
+  "pricing_click",
+  "checkout_started",
+  "checkout_abandoned",
+  "cta_click",
+  "purchase_complete",
+])
+
+/** Fire-and-forget mirror to Vercel custom events. Never throws. */
+function fireVercelCustomEvent(
+  eventName: SiteAnalyticsEventName,
+  metadata: SiteAnalyticsMetadata
+) {
+  if (!VERCEL_CUSTOM_EVENTS.has(eventName)) return
+
+  try {
+    // Vercel limits: flat primitives only, keys/values ≤ 255 chars.
+    const data: Record<string, string | number | boolean> = {}
+    for (const [rawKey, value] of Object.entries(metadata).slice(0, 10)) {
+      const key = rawKey.slice(0, 255)
+      if (!key || value === null || value === undefined) continue
+      if (typeof value === "string") {
+        if (value.length > 0) data[key] = value.slice(0, 255)
+      } else if (typeof value === "number" || typeof value === "boolean") {
+        data[key] = value
+      }
+    }
+    // Flag values emitted via <SiteFlagValues /> are attached automatically.
+    trackVercelEvent(eventName, data)
+  } catch {
+    // Analytics must never break the product path.
+  }
+}
+
 export function trackSiteEventClient(
   eventName: SiteAnalyticsEventName,
   metadata?: SiteAnalyticsMetadata
@@ -70,6 +114,8 @@ export function trackSiteEventClient(
     sessionId: getAnalyticsSessionId(),
     metadata: enriched,
   }
+
+  fireVercelCustomEvent(eventName, enriched)
 
   const body = JSON.stringify(payload)
 
