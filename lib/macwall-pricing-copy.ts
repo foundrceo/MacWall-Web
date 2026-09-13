@@ -45,9 +45,8 @@ export const macwallPricingCopy = {
     },
   },
 
-  heroTitle: "One payment. Full catalog.",
-  heroLead:
-    "1,000+ 4K loops, Lock Screen on macOS 26, Bend, and hardware-decoded playback. No subscription.",
+  heroTitle: "Pay once. Keep Pro.",
+  heroLead: "Full catalog and updates. No subscription.",
 
   reelRefundHook: {
     line: "Post a Reel, get up to 100% back",
