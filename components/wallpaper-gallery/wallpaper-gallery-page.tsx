@@ -1,7 +1,6 @@
+import { MarketingRail } from "@/components/macwall-marketing/marketing-rail"
 import { Suspense, type ReactNode } from "react"
 import Link from "next/link"
-import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
-import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { WallpaperGallery } from "@/components/wallpaper-gallery/wallpaper-gallery"
 import {
   Breadcrumb,
@@ -50,9 +49,7 @@ export function WallpaperGalleryPageShell({
   afterGallery?: ReactNode
 }>) {
   return (
-    <div className="marketing-page">
-      <MarketingSiteChrome />
-      <main id="main-content" className="marketing-main min-h-[70vh]">
+    <MarketingRail innerClassName="min-h-[70vh]">
         <Suspense
           fallback={
             <GalleryFallback
@@ -70,9 +67,7 @@ export function WallpaperGalleryPageShell({
           />
         </Suspense>
         {afterGallery}
-      </main>
-      <MacWallMarketingPageEnd />
-    </div>
+    </MarketingRail>
   )
 }
 
@@ -137,7 +132,7 @@ function GalleryFallback({
         >
           {activeCategory
             ? `Cinematic ${activeCategory} loops, curated for desktop Macs.`
-            : "Cinematic loops for every genre. Preview here, set in MacWall."}
+            : "Preview here. Set in the app."}
         </p>
         <Skeleton
           className={cn(

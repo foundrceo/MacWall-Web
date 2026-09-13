@@ -3,16 +3,15 @@ import Link from "next/link"
 import { JsonLd } from "@/components/seo/json-ld"
 import { LegalNav } from "@/components/legal/legal-nav"
 import { legalLinkProse } from "@/components/legal/legal-classes"
-import { MarketingProseShell } from "@/components/content/marketing-prose-shell"
+import {
+  MarketingBodySection,
+  MarketingTitleSection,
+} from "@/components/macwall-marketing/marketing-inner-page"
+import { landingPageH1, landingPageLead } from "@/components/macwall-marketing/landing-type"
 import { LEGAL_DOCUMENTS, LEGAL_HUB_HREF } from "@/lib/legal/documents"
 import { legalHubMetadata } from "@/lib/legal/metadata"
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
 import { macwall } from "@/lib/macwall-site"
-import {
-  proseHero,
-  proseHeroIntro,
-  proseHeroTitle,
-} from "@/lib/marketing-prose-classes"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 import { cn } from "@/lib/utils"
 
@@ -33,49 +32,41 @@ export default function LegalHubPage() {
   return (
     <>
       <JsonLd payload={jsonLd} />
-      <MarketingProseShell
-        width="wide"
-        mainId="main-content"
-        labelledBy="legal-hub-title"
-        showBottomCta={false}
-      >
-        <div className="grid gap-10 md:grid-cols-[220px_minmax(0,1fr)] md:gap-12 lg:grid-cols-[240px_minmax(0,1fr)]">
-          <aside className="md:sticky md:top-28 md:self-start">
+      <MarketingTitleSection className="text-center" aria-labelledby="legal-hub-title">
+        <h1 id="legal-hub-title" className={cn(landingPageH1, "md:text-4xl")}>
+          Legal
+        </h1>
+        <p className={cn(landingPageLead, "mx-auto text-center")}>
+          Last updated: {macwall.legalEffectiveDate}
+        </p>
+      </MarketingTitleSection>
+      <MarketingBodySection>
+        <div className="grid divide-y divide-dashed divide-border lg:grid-cols-[240px_minmax(0,1fr)] lg:divide-x lg:divide-y-0">
+          <aside className="p-6 md:sticky md:top-28 md:self-start lg:p-8">
             <LegalNav />
           </aside>
-
           <div className="min-w-0">
-            <header className={proseHero}>
-              <p className="mb-3 text-sm text-muted-foreground">
-                {macwall.legalCompanyName} · Updated{" "}
-                {macwall.legalEffectiveDate}
+            <div className={cn("space-y-4 px-6 py-8 text-muted-foreground lg:px-8", legalLinkProse)}>
+              <p>
+                Policies for the {macwall.name} macOS app and website. Questions
+                go to{" "}
+                <a href={`mailto:${macwall.supportEmail}`}>
+                  {macwall.supportEmail}
+                </a>
+                .
               </p>
-              <h1 id="legal-hub-title" className={proseHeroTitle}>
-                Legal
-              </h1>
-              <div className={cn(proseHeroIntro, "space-y-4", legalLinkProse)}>
-                <p>
-                  Policies for the {macwall.name} macOS app and website.
-                  Questions go to{" "}
-                  <a href={`mailto:${macwall.supportEmail}`}>
-                    {macwall.supportEmail}
-                  </a>
-                  .
-                </p>
-              </div>
-            </header>
-
-            <ul className="m-0 mt-10 grid list-none gap-4 p-0 sm:grid-cols-2">
+            </div>
+            <ul className="m-0 grid list-none divide-y divide-dashed divide-border border-t border-dashed border-border p-0 sm:grid-cols-2 sm:divide-x">
               {LEGAL_DOCUMENTS.map((doc) => (
-                <li key={doc.slug}>
+                <li key={doc.slug} className="min-w-0">
                   <Link
                     href={doc.href}
-                    className="block h-full rounded-xl border border-border/70 bg-background/40 p-5 transition-colors hover:border-foreground/20 hover:bg-foreground/[0.03]"
+                    className="block h-full bg-card/50 p-6 transition-colors hover:bg-card/80"
                   >
-                    <span className="block text-base font-semibold text-foreground">
+                    <span className="block text-base font-medium text-foreground">
                       {doc.title}
                     </span>
-                    <span className="mt-2 block text-[15px] leading-relaxed text-muted-foreground">
+                    <span className="mt-2 block text-sm leading-relaxed text-muted-foreground">
                       {doc.description}
                     </span>
                   </Link>
@@ -84,7 +75,7 @@ export default function LegalHubPage() {
             </ul>
           </div>
         </div>
-      </MarketingProseShell>
+      </MarketingBodySection>
     </>
   )
 }

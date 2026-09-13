@@ -1,5 +1,4 @@
 import { macwall } from "@/lib/macwall-site"
-import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { marketingAiSummaryLinks } from "@/lib/marketing-ai-summary"
 import { cn } from "@/lib/utils"
 
@@ -71,17 +70,16 @@ export default function MarketingFooterAiSummary({
   className,
 }: MarketingFooterAiSummaryProps) {
   const links = marketingAiSummaryLinks
-  const year = new Date().getFullYear()
-  const copyrightName = macwallMarketingCopy.footer.copyrightName
 
   return (
     <div
-      className={cn(
-        "marketing-container flex flex-col gap-3 py-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4 md:py-7",
-        className,
-      )}
+      className={cn("flex items-center gap-4 pb-8 md:pb-10", className)}
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+      <span
+        aria-hidden
+        className="hidden h-px min-w-0 flex-1 border-t border-dashed border-border sm:block"
+      />
+      <div className="flex min-w-0 shrink-0 flex-col items-center gap-3 sm:flex-row sm:gap-4">
         <span className="text-[13px] leading-snug text-marketing-muted sm:text-[14px]">
           Get an AI summary of {macwall.name}
         </span>
@@ -115,9 +113,10 @@ export default function MarketingFooterAiSummary({
           </a>
         </div>
       </div>
-      <p className="shrink-0 text-[13px] leading-[1.45] text-white/40">
-        © {year} {copyrightName}
-      </p>
+      <span
+        aria-hidden
+        className="hidden h-px min-w-0 flex-1 border-t border-dashed border-border sm:block"
+      />
     </div>
   )
 }

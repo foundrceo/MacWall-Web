@@ -1,12 +1,13 @@
-import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
+import Link from "next/link"
 
+import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { MacWallBrandLink } from "@/components/macwall-marketing/MacWallBrandLink"
-import { LANDING_SHELL_CLASS } from "@/components/macwall-marketing/landing-type"
+import { landingShellPad } from "@/components/macwall-marketing/landing-type"
 import MarketingFooterAiSummary from "@/components/macwall-marketing/marketing-footer-ai-summary"
 import { MarketingSocialBrandIcon } from "@/components/macwall-marketing/marketing-social-icons"
-import { macwall } from "@/lib/macwall-site"
-import { cn } from "@/lib/utils"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
+import { macwall, macwallInstallerLatestPath } from "@/lib/macwall-site"
 import {
   footerCategoryLinks,
   footerCompareLinks,
@@ -14,15 +15,26 @@ import {
   getMarketingFooterSocialLinks,
   type MarketingFooterLink,
 } from "@/lib/marketing-footer-nav"
+import { cn } from "@/lib/utils"
+
+const footerColumnTitleClass =
+  "mb-4 text-[15px] font-medium leading-none text-foreground"
+
+const footerLinkClass =
+  "inline-block rounded-sm text-[14px] leading-[1.45] text-marketing-muted transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+
+const socialLinkClass =
+  "inline-flex size-9 items-center justify-center rounded-full text-white/70 transition-colors outline-none hover:bg-white/[0.06] hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
+
+const footerDownloadClass =
+  "mt-6 inline-flex w-fit items-center gap-1 text-[14px] font-medium text-foreground outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 
 function FooterLink({ link }: Readonly<{ link: MarketingFooterLink }>) {
-  const className = "transition-colors hover:text-landing-muted"
-
   if (link.external) {
     return (
       <a
         href={link.href}
-        className={className}
+        className={footerLinkClass}
         {...(link.href.startsWith("mailto:")
           ? {}
           : { target: "_blank", rel: "noopener noreferrer" })}
@@ -33,7 +45,7 @@ function FooterLink({ link }: Readonly<{ link: MarketingFooterLink }>) {
   }
 
   return (
-    <Link href={link.href} className={className}>
+    <Link href={link.href} className={footerLinkClass}>
       {link.label}
     </Link>
   )
@@ -61,21 +73,24 @@ export default function MacWallMarketingFooter() {
 
   return (
     <footer id="company" className="bg-background">
-      <div className={cn(LANDING_SHELL_CLASS, "py-20 md:py-28")}>
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-          <div className="flex flex-col justify-between gap-8">
-            <div className="flex flex-col gap-4">
+      <div className="container relative mx-auto">
+        <div className="border-border border-dashed sm:border-x">
+          <div className={cn(landingShellPad, "py-14 md:py-16 lg:py-20")}>
+            <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:justify-between lg:gap-16 xl:gap-24">
+              <div className="max-w-[18rem] shrink-0">
               <MacWallBrandLink variant="footer" priority />
-              <p className="max-w-sm text-[14px] leading-5 text-landing-muted">
+
+              <p className="mt-4 text-[14px] leading-[1.55] text-marketing-muted">
                 {macwall.tagline}
               </p>
-              <div className="-ml-2 flex items-center gap-0.5">
+
+              <div className="-ml-[9px] mt-5 flex items-center gap-0.5">
                 {socialLinks.map((social) => (
                   <a
                     key={social.label}
                     href={social.href}
                     aria-label={social.label}
-                    className="inline-flex size-9 items-center justify-center rounded-full text-white/70 transition-colors hover:text-white"
+                    className={socialLinkClass}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -83,41 +98,45 @@ export default function MacWallMarketingFooter() {
                   </a>
                 ))}
               </div>
-            </div>
-            <div className="flex flex-col gap-4">
-              <Link
-                href="/download"
-                className="inline-flex w-fit items-center gap-1 border-b border-current pb-0.5 text-[16px] leading-6 text-white"
+
+              <TrackedDownloadButton
+                href={macwallInstallerLatestPath}
+                size="pill"
+                location="footer"
+                className={footerDownloadClass}
               >
-                Download
-                <ArrowUpRight className="size-4" />
-              </Link>
-              <p className="text-[14px] leading-5 text-landing-muted">
-                © {macwall.legalCompanyName} {new Date().getFullYear()}
-              </p>
+                <span className="underline decoration-foreground underline-offset-4">
+                  {macwallMarketingCopy.footer.shop.download}
+                </span>
+                <ArrowUpRight className="size-3.5" strokeWidth={2} aria-hidden />
+              </TrackedDownloadButton>
+
+                <p className="mt-4 text-[13px] leading-[1.45] text-white/40">
+                  © {new Date().getFullYear()}{" "}
+                  {macwallMarketingCopy.footer.copyrightName}
+                </p>
+              </div>
+
+              <div className="grid flex-1 grid-cols-2 gap-x-10 gap-y-10 sm:grid-cols-3 sm:gap-x-12 lg:max-w-[42rem] lg:justify-self-end xl:max-w-[48rem] xl:gap-x-14">
+              {columns.map((column) => (
+                <nav key={column.title} aria-label={column.title}>
+                  <p className={footerColumnTitleClass}>{column.title}</p>
+                  <ul className="flex flex-col gap-3">
+                    {column.links.map((link) => (
+                      <li key={`${column.title}-${link.href}`}>
+                        <FooterLink link={link} />
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              ))}
+            </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
-            {columns.map((column) => (
-              <nav key={column.title} aria-label={column.title} className="flex flex-col gap-4">
-                <p className="text-[14px] leading-5 text-landing-muted">
-                  {column.title}
-                </p>
-                <ul className="flex flex-col gap-2.5 text-[16px] leading-6 text-white">
-                  {column.links.map((link) => (
-                    <li key={`${column.title}-${link.href}`}>
-                      <FooterLink link={link} />
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            ))}
-          </div>
+          <MarketingFooterAiSummary />
         </div>
       </div>
-
-      <MarketingFooterAiSummary />
     </footer>
   )
 }

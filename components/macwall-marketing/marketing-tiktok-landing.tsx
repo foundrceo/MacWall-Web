@@ -6,6 +6,8 @@ import {
   TrackedPricingButton,
 } from "@/components/analytics/tracked-marketing-buttons"
 import { HeroWalkthroughVideo } from "@/components/macwall-marketing/hero-walkthrough-video"
+import { LandingReveal } from "@/components/macwall-marketing/landing-reveal"
+import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import { macwall, macwallInstallerLatestPath } from "@/lib/macwall-site"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
@@ -21,36 +23,35 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
-/** TikTok-optimized landing: price above fold, direct Stripe checkout, minimal friction. */
+/** Paid-traffic landing: finishes the ad conversation, then checkout. */
 export default function TikTokLandingHero() {
   const pricing = useMarketingPricing()
 
   return (
-    <section className="relative overflow-hidden bg-background">
-      <div className="marketing-container max-w-5xl">
-        <div className="max-w-3xl pt-10 pb-6 md:pt-14 md:pb-8">
-          <p className="text-[13px] leading-5 text-landing-muted">
-            Live wallpapers for Mac
+    <MarketingSection className="relative overflow-hidden bg-dashed px-4 py-16 sm:px-16 sm:py-24">
+      <div className="max-w-3xl pb-4">
+        <LandingReveal className="flex max-w-3xl flex-col pt-10 pb-6 md:pt-14 md:pb-8">
+          <p className="text-[13px] leading-5 tracking-tight text-landing-muted">
+            The clip you watched is the wallpaper
           </p>
 
-          <h1 className="mt-4 text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px] lg:text-[48px]">
-            Cinematic live wallpapers, built for Mac.
+          <h1 className="mt-4 text-4xl leading-[1.08] font-normal tracking-tighter text-white sm:text-5xl lg:text-6xl">
+            Live wallpapers for Mac
           </h1>
 
-          <p className="mt-5 max-w-[34rem] text-[16px] leading-6 text-landing-muted">
-            1,000+ live wallpapers. Lock Screen support. Pay once, own it
-            forever.
+          <p className="mt-5 max-w-[34rem] text-base leading-relaxed tracking-tight text-landing-muted">
+            4K loops on the desktop. Lock Screen on macOS 26. Pay once, keep it.
           </p>
 
-          <div className="mt-6 inline-flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-2xl bg-[#111] px-5 py-3">
-            <span className="font-instrument text-[32px] font-semibold tracking-[-0.03em] tabular-nums text-foreground">
+          <div className="mt-6 inline-flex w-fit flex-wrap items-baseline gap-x-3 gap-y-1 border border-dashed border-border bg-background/60 px-5 py-3">
+            <span className="text-[32px] font-normal tracking-[-0.03em] tabular-nums text-foreground">
               {pricing.permanentPrice}
             </span>
             <span className="text-[15px] text-marketing-muted">
               one-time
             </span>
             <span className="w-full text-[13px] text-marketing-muted">
-              Up to 3 Macs · Post a Reel → get up to 100% back
+              Up to 3 Macs. Post a Reel, get up to 100% back.
             </span>
           </div>
 
@@ -73,13 +74,15 @@ export default function TikTokLandingHero() {
               Download for macOS
             </TrackedDownloadButton>
           </div>
-        </div>
+        </LandingReveal>
 
-        <HeroWalkthroughVideo
-          endCaption={`Live wallpapers on your Mac with ${macwall.name}.`}
-          ariaLabel={`${macwall.name} preview`}
-        />
+        <div className="overflow-hidden border border-dashed border-border">
+          <HeroWalkthroughVideo
+            endCaption={`Live wallpapers on your Mac with ${macwall.name}.`}
+            ariaLabel={`${macwall.name} preview`}
+          />
+        </div>
       </div>
-    </section>
+    </MarketingSection>
   )
 }

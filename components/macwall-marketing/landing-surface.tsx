@@ -14,8 +14,8 @@ export function LandingSurface({
   return (
     <div
       className={cn(
-        "min-w-0 rounded-2xl border-0 bg-[#111] shadow-none",
-        hover && "transition-colors hover:bg-[#171717]",
+        "min-w-0 rounded-none border-0 bg-transparent shadow-none",
+        hover && "transition-colors hover:bg-card/80",
         className
       )}
     >

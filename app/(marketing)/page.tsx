@@ -1,5 +1,7 @@
-import MacWallMarketingHome from "@/components/macwall-marketing/marketing-home"
 import { JsonLd } from "@/components/seo/json-ld"
+import { HeroVideoPreload } from "@/components/macwall-marketing/hero-video-preload"
+import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
+import { MarketingSeparator } from "@/components/macwall-marketing/marketing-separator"
 import { macwall } from "@/lib/macwall-site"
 import { macwallPricingCopy as pricingCopy } from "@/lib/macwall-pricing-copy"
 import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
@@ -11,9 +13,15 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-/** ≤155 chars; leads with the app entity to disambiguate from the unrelated "MACWALL" retaining-wall product. */
+import { Features } from "./_components/features"
+import { Hero } from "./_components/hero"
+import { Pillars } from "./_components/pillars"
+import { ProductPreview } from "./_components/product-preview"
+import { Proof } from "./_components/proof"
+import { Reviews } from "./_components/reviews"
+
 const PAGE_DESCRIPTION =
-  `${macwall.tagline} Native macOS app for live 4K wallpapers on macOS 15+, with menu bar control and near-zero battery impact. Lock Screen video on macOS 26+. $7.99, paid once.`
+  "Live wallpapers for Mac. 4K video on the desktop, Lock Screen on macOS 26. Native app, menu bar controls, one payment."
 
 export const metadata: Metadata = {
   title: { absolute: macwall.fullTagline },
@@ -69,7 +77,19 @@ export default async function Page() {
   return (
     <>
       <JsonLd payload={faqPageJsonLd([...HOME_FAQ])} />
-      <MacWallMarketingHome />
+      <HeroVideoPreload />
+      <Hero />
+      <Proof />
+      <MarketingSeparator />
+      <ProductPreview />
+      <MarketingSeparator />
+      <Pillars />
+      <MarketingSeparator />
+      <Features />
+      <MarketingSeparator />
+      <Reviews />
+      <MarketingSeparator />
+      <MarketingFaqSection />
     </>
   )
 }

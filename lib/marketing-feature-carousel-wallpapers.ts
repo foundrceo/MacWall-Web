@@ -8,17 +8,24 @@ export type MarketingFeatureCarouselWallpaper = {
   name: string
   posterUrl: string
   thumbUrl: string
+  videoUrl?: string
+  videoKey?: string
   createdAt?: string
 }
 
 /** Static fallback when Supabase/R2 catalog fetch is unavailable at build time. */
 export const MARKETING_FEATURE_CAROUSEL_FALLBACK: MarketingFeatureCarouselWallpaper[] =
-  FALLBACK_SEEDS.map((seed) => ({
-    id: seed.id,
-    name: seed.name,
-    posterUrl: buildMarketingGalleryWallpaper(seed).posterUrl,
-    thumbUrl: buildMarketingGalleryWallpaper(seed).thumbUrl,
-  }))
+  FALLBACK_SEEDS.map((seed) => {
+    const built = buildMarketingGalleryWallpaper(seed)
+    return {
+      id: seed.id,
+      name: seed.name,
+      posterUrl: built.posterUrl,
+      thumbUrl: built.thumbUrl,
+      videoUrl: built.videoUrl,
+      videoKey: seed.videoKey,
+    }
+  })
 
 export const FEATURE_CAROUSEL_ROW_COUNT = 5
 

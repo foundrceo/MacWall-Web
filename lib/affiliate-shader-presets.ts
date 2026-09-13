@@ -24,6 +24,7 @@ export type ShaderUniformConfig = {
   cursorRadius: number
   oklab: number
   timeScale: number
+  shade?: "warp" | "waves"
 }
 
 /** Shared step pattern — different wave from the hero; colors differ per step. */

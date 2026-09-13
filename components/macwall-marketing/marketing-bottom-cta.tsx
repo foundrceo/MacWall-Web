@@ -1,29 +1,22 @@
 "use client"
 
-import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
-import {
-  TrackedDownloadButton,
-  TrackedPricingButton,
-} from "@/components/analytics/tracked-marketing-buttons"
-import {
-  ghostCtaHeroClass,
-  landingH2,
-  landingH2Muted,
-  pillCtaHeroClass,
-  secondaryCtaHeroClass,
-} from "@/components/macwall-marketing/landing-type"
-import StealthAsciiCanvas from "@/components/macwall-marketing/stealth-ascii-canvas"
-import {
-  macwall,
-  macwallInstallerLatestPath,
-} from "@/lib/macwall-site"
+import { useState } from "react"
+
+import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
+import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
+import { ProModal } from "@/components/macwall-marketing/pro-modal"
+import { trackSiteEventClient } from "@/lib/analytics/client"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
+import {
+  macwallInstallerLatestPath,
+  macwallMinimumMacOSVersionLabel,
+} from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
-      className={className}
+      className={cn("size-3.5 shrink-0", className)}
       viewBox="0 0 24 24"
       fill="currentColor"
       aria-hidden
@@ -33,66 +26,49 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
+const heroOutlineCapsule =
+  "inline-flex h-11 items-center justify-center gap-2 rounded-full border-0 bg-muted/70 px-5 text-sm font-medium text-foreground no-underline shadow-none transition-colors hover:bg-muted"
+
+const heroFilledCapsule =
+  "inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-black no-underline shadow-none transition-opacity hover:opacity-90"
+
 export default function MacWallMarketingBottomCta() {
-  const pricing = useMarketingPricing()
+  const [proOpen, setProOpen] = useState(false)
   const copy = macwallMarketingCopy.underFooter
-  const landing = macwallMarketingCopy.landing
 
   return (
-    <section className="pt-10 pb-6 md:pt-16 md:pb-8">
-      <div className="marketing-container">
-        <div className="relative flex w-full flex-col items-center overflow-hidden rounded-2xl border border-landing-rule px-6 py-16 text-center md:px-10 md:py-24">
-          <div className="pointer-events-none absolute inset-0" aria-hidden>
-            <StealthAsciiCanvas src="/Img.png" className="opacity-55" />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/62 to-black/75" />
-          </div>
-          <div className="relative z-10 flex flex-col items-center gap-6 md:gap-8">
-            <h2 className={landingH2}>
-              {copy.title}
-              <span className={landingH2Muted}>{landing.closingMuted}</span>
-            </h2>
-            <div className="mw-when-desktop flex flex-wrap items-center justify-center gap-2.5">
-              <TrackedDownloadButton
-                href={macwallInstallerLatestPath}
-                size="pill"
-                location="bottom_cta"
-                className={pillCtaHeroClass}
-              >
-                <AppleIcon className="size-3.5" />
-                Download free for Mac
-              </TrackedDownloadButton>
-              <TrackedPricingButton
-                href={pricing.checkoutUrl}
-                size="pill"
-                location="bottom_cta"
-                ariaLabel={`Get ${macwall.name} Pro`}
-                className={secondaryCtaHeroClass}
-              >
-                {pricing.getProCta}
-              </TrackedPricingButton>
-            </div>
-            <div className="mw-when-mobile mx-auto flex w-full max-w-sm flex-col items-stretch gap-2.5">
-              <TrackedPricingButton
-                href={pricing.checkoutUrl}
-                location="bottom_cta_mobile"
-                size="pill"
-                ariaLabel={`Get ${macwall.name} Pro`}
-                className={cn(pillCtaHeroClass, "justify-center")}
-              >
-                {pricing.getProCta}
-              </TrackedPricingButton>
-              <TrackedPricingButton
-                href="/pricing"
-                location="bottom_cta_mobile"
-                size="pill"
-                className={cn(ghostCtaHeroClass, "justify-center")}
-              >
-                See what&apos;s included
-              </TrackedPricingButton>
-            </div>
-          </div>
+    <MarketingSection className="px-4 py-10 text-center md:px-6 md:py-14 lg:py-16">
+      <h2 className="mx-auto max-w-2xl text-3xl font-normal tracking-tighter md:text-5xl">
+        {copy.title}
+      </h2>
+      <div className="mt-8 flex flex-wrap items-start justify-center gap-3">
+        <div className="flex flex-col items-center">
+          <TrackedDownloadButton
+            href={macwallInstallerLatestPath}
+            size="pill"
+            location="bottom_cta"
+            className={heroFilledCapsule}
+          >
+            <AppleIcon />
+            Download for Mac
+          </TrackedDownloadButton>
+          <p className="mt-2 text-center text-[11px] leading-snug text-muted-foreground sm:text-[12px]">
+            {macwallMinimumMacOSVersionLabel}
+          </p>
         </div>
+        <button
+          type="button"
+          onClick={() => {
+            trackSiteEventClient("pricing_click", { location: "bottom_cta" })
+            setProOpen(true)
+          }}
+          className={heroOutlineCapsule}
+          aria-haspopup="dialog"
+        >
+          Get License
+        </button>
       </div>
-    </section>
+      <ProModal open={proOpen} onOpenChange={setProOpen} />
+    </MarketingSection>
   )
 }

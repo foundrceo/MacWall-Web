@@ -8,14 +8,13 @@ import { Mail } from "lucide-react"
 import { PurchaseConversionTracker } from "@/components/analytics/purchase-conversion-tracker"
 import { ThankYouDeepLinkRedirect } from "@/components/analytics/thank-you-deep-link-redirect"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
-import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
-import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { ThankYouSuccessMark } from "@/components/macwall-marketing/thank-you-success-mark"
 import {
   MarketingContainer,
   SectionLead,
   SectionTitle,
 } from "@/components/macwall-marketing/marketing-primitives"
+import { MarketingRail } from "@/components/macwall-marketing/marketing-rail"
 import { macwallThankYouCopy as copy } from "@/lib/macwall-thank-you-copy"
 import { prosePrimaryBtn } from "@/lib/marketing-prose-classes"
 import { macwall, mailtoSupport } from "@/lib/macwall-site"
@@ -86,13 +85,12 @@ function ThankYouActions() {
 
 export default function MacWallMarketingThankYouPage() {
   return (
-    <div className="marketing-page">
+    <>
       <Suspense fallback={null}>
         <PurchaseConversionTracker />
         <ThankYouDeepLinkRedirect />
       </Suspense>
-      <MarketingSiteChrome />
-      <main id="main-content" className="marketing-main">
+      <MarketingRail>
         <MarketingContainer>
           <div className="mx-auto max-w-[640px] text-center">
             <ThankYouSuccessMark />
@@ -143,8 +141,7 @@ export default function MacWallMarketingThankYouPage() {
             <ThankYouActions />
           </Suspense>
         </MarketingContainer>
-      </main>
-      <MacWallMarketingPageEnd showBottomCta={false} />
-    </div>
+      </MarketingRail>
+    </>
   )
 }

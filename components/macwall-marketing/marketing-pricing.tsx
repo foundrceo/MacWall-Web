@@ -5,9 +5,7 @@ import type { ReactNode } from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
-import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
-import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { PricingCardFooter } from "@/components/macwall-marketing/pricing-card-footer"
 import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
 import { PricingTryFreeRow } from "@/components/macwall-marketing/pricing-try-free-row"
@@ -17,6 +15,7 @@ import {
 } from "@/components/macwall-marketing/pricing-trust-strip"
 import { ProPlusPackCard } from "@/components/macwall-marketing/pro-plus-pack-card"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
+import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import { cn } from "@/lib/utils"
 
 const pricingFeaturedButtonClass =
@@ -77,83 +76,77 @@ export default function MacWallMarketingPricingPage() {
   const checkoutUrl = withCheckoutPromo(pricing.checkoutUrl, promo, until)
 
   return (
-    <div className="marketing-page antialiased">
-      <MarketingSiteChrome />
-
-      <main id="main-content" className="marketing-main-offset">
-        <section className="marketing-hero-section">
-          <div className="marketing-container">
-            <PricingSocialProof className="mb-3" />
-            <h1 className="mx-auto max-w-3xl text-center text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px] lg:text-[48px]">
-              {p.heroTitle}
-            </h1>
-            <p className="mx-auto mt-3 max-w-xl text-center text-[16px] leading-6 text-landing-muted">
-              {p.heroLead}
+    <>
+      <MarketingSection className="marketing-hero-section">
+        <div className="marketing-container">
+          <PricingSocialProof className="mb-3" />
+          <h1 className="mx-auto max-w-3xl text-center text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px] lg:text-[48px]">
+            {p.heroTitle}
+          </h1>
+          <p className="mx-auto mt-3 max-w-xl text-center text-[16px] leading-6 text-landing-muted">
+            {p.heroLead}
+          </p>
+          {checkoutError ? (
+            <p
+              role="alert"
+              className="mx-auto mt-4 max-w-xl rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-center text-[14px] leading-snug text-red-200"
+            >
+              {checkoutError}
             </p>
-            {checkoutError ? (
-              <p
-                role="alert"
-                className="mx-auto mt-4 max-w-xl rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-center text-[14px] leading-snug text-red-200"
-              >
-                {checkoutError}
-              </p>
-            ) : null}
+          ) : null}
 
-            <div className="mt-6 md:mt-8">
-              <div className="mx-auto grid max-w-3xl grid-cols-1 items-stretch gap-4 sm:gap-5 lg:grid-cols-2">
-                <PricingTierCard
-                  id="tier-pro"
-                  title={plans.pro.title}
-                  subtitle={plans.pro.subtitle}
-                  price={pricing.permanentPrice}
-                  priceMajor={pricing.permanentPriceMajor}
-                  currency={pricing.currency}
-                  strikePrice={pricing.permanentStrikePrice}
-                  localPriceHint={pricing.permanentLocalHint}
-                  priceSuffix="one-time"
-                  features={p.pro.features}
-                  featuresPrefix={plans.pro.featuresPrefix}
-                  featured
-                  badge={plans.pro.badge}
-                  badgeAlt={pricing.permanentOffLabel}
-                  reserveTopCenterSlot
-                  action={
-                    <PricingPrimaryButton
-                      href={checkoutUrl}
-                      location="pricing_card_permanent"
-                      ariaLabel={pricing.buyProAria}
-                    >
-                      {pricing.getProCta}
-                    </PricingPrimaryButton>
-                  }
+          <div className="mt-6 md:mt-8">
+            <div className="mx-auto grid max-w-3xl grid-cols-1 items-stretch gap-4 sm:gap-5 lg:grid-cols-2">
+              <PricingTierCard
+                id="tier-pro"
+                title={plans.pro.title}
+                subtitle={plans.pro.subtitle}
+                price={pricing.permanentPrice}
+                priceMajor={pricing.permanentPriceMajor}
+                currency={pricing.currency}
+                strikePrice={pricing.permanentStrikePrice}
+                localPriceHint={pricing.permanentLocalHint}
+                priceSuffix="one-time"
+                features={p.pro.features}
+                featuresPrefix={plans.pro.featuresPrefix}
+                featured
+                badge={plans.pro.badge}
+                badgeAlt={pricing.permanentOffLabel}
+                reserveTopCenterSlot
+                action={
+                  <PricingPrimaryButton
+                    href={checkoutUrl}
+                    location="pricing_card_permanent"
+                    ariaLabel={pricing.buyProAria}
+                  >
+                    {pricing.getProCta}
+                  </PricingPrimaryButton>
+                }
+                footer={<PricingCardFooter />}
+              />
+
+              {pricing.multiMacOffers.length > 0 ? (
+                <ProPlusPackCard
+                  offers={pricing.multiMacOffers}
+                  title={plans.proPlus.title}
+                  subtitle={plans.proPlus.subtitle}
+                  featuresPrefix={plans.proPlus.featuresPrefix}
+                  features={p.proPlus.features}
+                  cta={pricing.getProPlusCta}
+                  badge={plans.proPlus.badge}
+                  buttonClassName={pricingMutedButtonClass}
                   footer={<PricingCardFooter />}
                 />
-
-                {pricing.multiMacOffers.length > 0 ? (
-                  <ProPlusPackCard
-                    offers={pricing.multiMacOffers}
-                    title={plans.proPlus.title}
-                    subtitle={plans.proPlus.subtitle}
-                    featuresPrefix={plans.proPlus.featuresPrefix}
-                    features={p.proPlus.features}
-                    cta={pricing.getProPlusCta}
-                    badge={plans.proPlus.badge}
-                    buttonClassName={pricingMutedButtonClass}
-                    footer={<PricingCardFooter />}
-                  />
-                ) : null}
-              </div>
-
-              <PricingTrustStrip className="mt-5" />
-              <PricingTryFreeRow className="mt-4" />
+              ) : null}
             </div>
+
+            <PricingTrustStrip className="mt-5" />
+            <PricingTryFreeRow className="mt-4" />
           </div>
-        </section>
+        </div>
+      </MarketingSection>
 
-        <MarketingFaqSection defaultOpenQuestion={p.faq[0]?.q} />
-      </main>
-
-      <MacWallMarketingPageEnd />
-    </div>
+      <MarketingFaqSection defaultOpenQuestion={p.faq[0]?.q} />
+    </>
   )
 }

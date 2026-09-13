@@ -1,6 +1,4 @@
 import TikTokLandingHero from "@/components/macwall-marketing/marketing-tiktok-landing"
-import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
-import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import {
   macwall,
   macwallLockScreenMacOSVersion,
@@ -12,7 +10,7 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-const PAGE_DESCRIPTION = `Get ${macwall.name} Pro for ${macwall.pro.price}. Live wallpapers for Mac (macOS 15+) with Lock Screen on ${macwallLockScreenMacOSVersion}. One-time purchase, no subscription.`
+const PAGE_DESCRIPTION = `Live wallpapers for Mac. 4K on the desktop, Lock Screen on ${macwallLockScreenMacOSVersion}. ${macwall.name} Pro is ${macwall.pro.price} once.`
 
 export const metadata: Metadata = {
   title: "Live wallpapers for Mac",
@@ -43,13 +41,5 @@ export const metadata: Metadata = {
 }
 
 export default function TikTokLandingPage() {
-  return (
-    <div className="marketing-page">
-      <MarketingSiteChrome />
-      <main id="main-content" className="marketing-main-offset">
-        <TikTokLandingHero />
-      </main>
-      <MacWallMarketingPageEnd showBottomCta={false} />
-    </div>
-  )
+  return <TikTokLandingHero />
 }

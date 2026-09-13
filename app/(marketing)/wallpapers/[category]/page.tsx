@@ -123,7 +123,7 @@ export default async function WallpaperCategoryGalleryPage({
         loadError={loadError}
         afterGallery={
           showSeoContent ? (
-            <div className="marketing-container border-t border-border/60 py-14 md:py-20">
+            <div className="border-t border-dashed border-border px-4 py-10 md:px-6 md:py-14">
               <div className="marketing-prose-rail">
                 <div className={proseBody}>
                   <ContentBody sections={page.sections} />

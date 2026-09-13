@@ -243,8 +243,10 @@ export function buildMarketingPricingFromLocalized(
     getProPlusCta: MARKETING_GET_PRO_PLUS_CTA,
     buyProCta: MARKETING_GET_PRO_CTA,
     buyProAria: `Get ${macwall.name} Pro`,
-    bannerHeadline: "Pay once, keep Pro forever",
-    bannerSubline: "One-time license, lifetime updates",
+    bannerHeadline: india
+      ? "Last 10 Pro licenses at $3.99: after they're gone, the price is $4.99"
+      : "Last 10 Pro licenses at $7.99: after they're gone, the price is $9.99",
+    bannerSubline: "Last 10 left at this price.",
     bannerCta: "See pricing",
     priceLine: india
       ? `Pro is ${permanentPrice} in India (${permanentOffLabel} off ${permanentStrikePrice}). Pay once, no subscription.`

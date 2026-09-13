@@ -156,12 +156,7 @@ vec3 hueRotate(vec3 col, float a) {
   return toRGB * yiq;
 }
 
-vec3 shade(vec2 uv, vec2 p, float t) {
-  float y = uv.y
-    + sin(uv.x * (3.0 + u_intensity * 9.0) + t * 0.8) * 0.08
-    + (fbm(p * 2.0 + t * 0.1) - 0.5) * u_intensity * 0.6;
-  return palette(y);
-}
+/*SHADE*/
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
@@ -245,6 +240,27 @@ void main() {
 }
 `
 
+const SHADE_WAVES = `vec3 shade(vec2 uv, vec2 p, float t) {
+  float y = uv.y
+    + sin(uv.x * (3.0 + u_intensity * 9.0) + t * 0.8) * 0.08
+    + (fbm(p * 2.0 + t * 0.1) - 0.5) * u_intensity * 0.6;
+  return palette(y);
+}`
+
+const SHADE_WARP = `vec3 shade(vec2 uv, vec2 p, float t) {
+  float warp = fbm(p * 1.5 + t * 0.15 + u_seed) * u_intensity * 2.0;
+  float freq = 3.0 + u_paramA * 20.0;
+  float s = 0.5 + 0.5 * sin((p.x * 0.8 + p.y * 0.4 + warp) * freq + t * 0.5);
+  return palette(s);
+}`
+
+function fragmentSource(shade: ShaderUniformConfig["shade"]) {
+  return FRAG.replace(
+    "/*SHADE*/",
+    shade === "warp" ? SHADE_WARP : SHADE_WAVES
+  )
+}
+
 const pendingContextReleases = new WeakMap<HTMLCanvasElement, number>()
 
 function applyStaticUniforms(
@@ -320,7 +336,10 @@ export function ShaderBackground({
 
     const program = webgl.createProgram()!
     const vertexShader = compile(webgl.VERTEX_SHADER, VERT)
-    const fragmentShader = compile(webgl.FRAGMENT_SHADER, FRAG)
+    const fragmentShader = compile(
+      webgl.FRAGMENT_SHADER,
+      fragmentSource(config.shade)
+    )
     webgl.attachShader(program, vertexShader)
     webgl.attachShader(program, fragmentShader)
     webgl.linkProgram(program)

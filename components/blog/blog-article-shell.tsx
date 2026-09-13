@@ -1,7 +1,7 @@
 import { BlogContentBody } from "@/components/blog/blog-content-body"
 import { BlogTilePicture } from "@/components/blog/blog-tile-picture"
-import { MarketingProseShell } from "@/components/content/marketing-prose-shell"
 import { ProseBreadcrumbs } from "@/components/content/prose-breadcrumbs"
+import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import type { ContentBlock } from "@/lib/content/types"
 import {
   blogArticle,
@@ -50,12 +50,7 @@ export function BlogArticleShell({
   const titleId = "blog-article-title"
 
   return (
-    <MarketingProseShell
-      width="article"
-      mainId="main-content"
-      labelledBy={titleId}
-      showBottomCta={false}
-    >
+    <MarketingSection className="marketing-main" aria-labelledby={titleId}>
       <div className={blogRail}>
         {breadcrumbs ? (
           <ProseBreadcrumbs items={breadcrumbs} className={blogBreadcrumbs} />
@@ -95,9 +90,9 @@ export function BlogArticleShell({
 
         <article className={blogArticle}>
           {sections ? <BlogContentBody sections={sections} /> : null}
-          {children}
         </article>
       </div>
-    </MarketingProseShell>
+      {children}
+    </MarketingSection>
   )
 }

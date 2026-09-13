@@ -15,6 +15,7 @@ export function indexableMarketingPaths(): string[] {
     "/docs",
     "/learn",
     "/changelog",
+    "/bend",
     "/wallpapers",
     "/best-live-wallpaper-mac",
     "/affiliate",
