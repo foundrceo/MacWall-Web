@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import { trackMetaPurchase } from "@/lib/analytics/meta-client"
 import { markPurchaseCompleteInSession } from "@/lib/analytics/retargeting"
+import { trackWhopPurchase } from "@/lib/analytics/whop-client"
 import { macwall } from "@/lib/macwall-site"
 
 declare global {
@@ -50,7 +51,7 @@ function fireGa4Purchase(value: number, currency: string) {
   })
 }
 
-/** Fires once per verified purchase success visit — GA4 / Google Ads.
+/** Fires once per verified purchase success visit — GA4 / Google Ads / Whop.
  * Mounted on `/activate` (after Stripe verify) and `/thank-you`.
  */
 export function PurchaseConversionTracker({
@@ -71,9 +72,9 @@ export function PurchaseConversionTracker({
 
     const params = new URLSearchParams(window.location.search)
     const sessionId = params.get("session_id")?.trim() || undefined
-    const hasKey = Boolean(
-      params.get("key")?.trim() || params.get("license")?.trim()
-    )
+    const licenseKey =
+      params.get("key")?.trim() || params.get("license")?.trim() || undefined
+    const hasKey = Boolean(licenseKey)
 
     // Refuse to fire ads conversions for unverified session_id visits.
     if (sessionId && !verified) return
@@ -85,6 +86,7 @@ export function PurchaseConversionTracker({
           ? fallbackPurchaseValue
           : 7.99
     const curr = (currency || "USD").toUpperCase()
+    const whopEventId = sessionId || (licenseKey ? `lic_${licenseKey}` : undefined)
 
     trackSiteEventClient("purchase_complete", {
       product: "macwall_pro",
@@ -98,14 +100,19 @@ export function PurchaseConversionTracker({
     markPurchaseCompleteInSession()
 
     // TikTok Purchase fires server-side from the Stripe webhook — don't double-count.
-    // Meta Purchase fires here (browser Pixel) until CAPI is wired.
+    // Meta + Whop Purchase fire here (browser pixels) for Stripe checkout.
     const run = () => {
       trackMetaPurchase({ value, currency: curr })
+      trackWhopPurchase({
+        value,
+        currency: curr,
+        eventId: whopEventId,
+      })
       fireGoogleAdsConversion(value, curr)
       fireGa4Purchase(value, curr)
     }
 
-    if (typeof window.gtag === "function") {
+    if (typeof window.gtag === "function" || typeof window.whop?.track === "function") {
       run()
       return
     }
