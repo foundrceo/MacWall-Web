@@ -1,51 +1,64 @@
-export const LANDING_SHELL_CLASS =
-  "mx-auto w-full min-w-0 max-w-[1120px] px-5 sm:px-8"
+export const LANDING_SHELL_CLASS = "container relative mx-auto w-full min-w-0"
+
+export const landingShellPad = "px-4 lg:px-6"
+
+export const landingShellRules = "border-border border-dashed sm:border-x"
 
 export const landingH1 =
-  "w-full max-w-3xl min-w-0 text-[28px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px] lg:text-[48px]"
+  "max-w-2xl text-center text-5xl font-normal tracking-tighter text-foreground md:text-7xl"
 
-export const landingH1Muted = "mt-2 block text-landing-muted"
+export const landingH1Muted =
+  "mt-4 block text-xl tracking-tight text-muted-foreground md:text-2xl"
+
+export const landingPageH1 =
+  "font-normal text-3xl leading-tight tracking-tighter text-foreground md:text-5xl"
+
+export const landingPageLead =
+  "mt-2 max-w-xl text-left text-base leading-relaxed tracking-tight text-muted-foreground md:text-lg"
 
 export const landingH2 =
-  "min-w-0 text-[28px] leading-[1.15] font-normal tracking-tight text-white sm:text-[32px] md:text-[40px]"
+  "max-w-xl text-left text-3xl font-normal tracking-tighter text-foreground md:text-5xl"
 
-export const landingH2Muted = "mt-1 block text-landing-muted"
+export const landingH2Muted =
+  "mt-2 block text-lg tracking-tight text-muted-foreground md:text-xl"
 
-export const landingH3 = "text-[20px] leading-7 font-normal text-white"
+export const landingH3 = "text-xl tracking-tight text-foreground"
 
 export const landingLead =
-  "min-w-0 max-w-[34rem] text-[16px] leading-6 text-landing-muted"
+  "max-w-2xl text-lg leading-relaxed tracking-tight text-muted-foreground md:text-xl"
 
 export const landingEyebrow =
-  "text-[13px] leading-5 font-normal text-landing-muted"
+  "text-[13px] leading-5 font-normal tracking-tight text-landing-muted"
 
 export const landingBody =
-  "text-[16px] leading-6 font-normal text-landing-muted"
+  "text-base leading-relaxed font-normal tracking-tight text-landing-muted"
 
-export const landingSectionY = "py-14 sm:py-20 md:py-28"
+export const landingPad = "px-6 lg:px-8"
 
-export const landingProofY = "py-12 sm:py-16 md:py-20"
+export const landingSectionY = "py-10 md:py-14 lg:py-16"
 
-export const landingBelow = "mt-8 sm:mt-10 md:mt-14"
+export const landingProofY = "py-10 md:py-14"
 
-export const landingGrid = "grid min-w-0 gap-2 sm:gap-3 [&>*]:min-w-0"
+export const landingBelow = "mt-8 md:mt-10"
 
-export const landingCardPad = "p-6 md:p-8"
+export const landingGrid = "grid min-w-0 gap-0 [&>*]:min-w-0"
+
+export const landingCardPad = "p-8 md:p-10 lg:p-12"
 
 export const pillCtaHeroClass =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-5 text-[14px] leading-none font-medium tracking-[0.01em] text-black shadow-none transition-colors hover:bg-zinc-100 [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:translate-x-0.5"
+  "inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm leading-none font-medium text-primary-foreground shadow-none transition-colors hover:bg-primary/90 [&_svg]:transition-transform [&_svg]:duration-200 group-hover:[&_svg]:-rotate-12"
 
 export const pillCtaNavClass =
-  "inline-flex h-8 items-center justify-center gap-1 rounded-full bg-white px-3.5 text-[13px] leading-none font-medium tracking-[0.01em] text-black shadow-none transition-colors hover:bg-zinc-100"
+  "inline-flex h-8 items-center justify-center gap-1 rounded-md bg-primary px-3.5 text-[13px] leading-none font-medium text-primary-foreground shadow-none transition-colors hover:bg-primary/90"
 
 export const ghostCtaHeroClass =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-full border border-landing-rule bg-transparent px-5 text-[14px] leading-none font-medium tracking-[0.01em] text-white shadow-none transition-colors hover:bg-white/5 hover:text-white"
+  "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border bg-muted/70 px-5 text-sm leading-none font-medium text-foreground shadow-none transition-colors hover:bg-muted [&_svg]:transition-transform [&_svg]:duration-200 group-hover:[&_svg]:-rotate-12"
 
 export const secondaryCtaHeroClass =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#222] px-5 text-[14px] leading-none font-medium tracking-[0.01em] text-white shadow-none transition-colors hover:bg-[#2a2a2a] [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:translate-x-0.5"
+  "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border bg-muted/70 px-5 text-sm leading-none font-medium text-foreground shadow-none transition-colors hover:bg-muted [&_svg]:transition-transform [&_svg]:duration-200 group-hover:[&_svg]:-rotate-12"
 
 export const ghostCtaSectionClass =
-  "inline-flex h-9 items-center justify-center rounded-full border border-landing-rule bg-transparent px-4 text-sm leading-none font-medium tracking-[0.01em] text-white shadow-none transition-colors hover:bg-white/5 hover:text-white"
+  "inline-flex h-9 items-center justify-center rounded-md border border-border bg-muted/70 px-4 text-sm leading-none font-medium text-foreground shadow-none transition-colors hover:bg-muted"
 
 export const pillCtaSectionClass =
-  "inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-white px-4 text-sm leading-none font-medium tracking-[0.01em] text-black shadow-none transition-colors hover:bg-zinc-100"
+  "inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-primary px-4 text-sm leading-none font-medium text-primary-foreground shadow-none transition-colors hover:bg-primary/90"

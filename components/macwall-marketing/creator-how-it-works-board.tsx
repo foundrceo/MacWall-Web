@@ -173,7 +173,7 @@ function CreatorPinCard({
         >
           <span
             className={cn(
-              "font-heading mb-4 text-4xl font-normal leading-none tracking-[-0.03em]",
+              "mb-4 text-4xl font-normal leading-none tracking-[-0.03em]",
               accent,
             )}
           >

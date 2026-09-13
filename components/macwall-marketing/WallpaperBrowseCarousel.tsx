@@ -21,7 +21,7 @@ function CarouselThumb({
   if (hidden) return null
 
   return (
-    <div className="relative aspect-video h-full w-auto shrink-0 overflow-hidden rounded-md bg-black/40 sm:rounded-lg">
+    <div className="relative aspect-video h-full w-auto shrink-0 overflow-hidden bg-black/40">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
@@ -77,8 +77,10 @@ function MarqueeRow({
 
 export default function WallpaperBrowseCarousel({
   wallpapers,
+  className,
 }: Readonly<{
   wallpapers: readonly MarketingFeatureCarouselWallpaper[]
+  className?: string
 }>) {
   const rows = useMemo(
     () => assignLatestWallpapersToRows(wallpapers, FEATURE_CAROUSEL_ROW_COUNT),
@@ -87,7 +89,10 @@ export default function WallpaperBrowseCarousel({
 
   return (
     <div
-      className="flex aspect-video h-auto w-full flex-col gap-1.5 sm:gap-2"
+      className={cn(
+        "flex h-full min-h-[14rem] w-full flex-col gap-1.5 sm:min-h-[16rem] sm:gap-2",
+        className
+      )}
       aria-hidden
     >
       {rows.map((rowItems, rowIndex) => (

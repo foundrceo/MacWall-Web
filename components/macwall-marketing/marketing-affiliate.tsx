@@ -11,17 +11,20 @@ import {
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { AffiliateHeroVisual } from "@/components/macwall-marketing/affiliate-hero-visual"
 import { ShaderBackground } from "@/components/macwall-marketing/shader-background"
-import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
-import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 import { AFFILIATE_SHADER_PRESETS } from "@/lib/affiliate-shader-presets"
+import {
+  MarketingBodySection,
+  MarketingTitleSection,
+} from "@/components/macwall-marketing/marketing-inner-page"
+import { landingPageH1, landingPageLead } from "@/components/macwall-marketing/landing-type"
 import { macwallAffiliateCopy as copy } from "@/lib/macwall-affiliate-copy"
 import { macwallAffiliatePortalURL } from "@/lib/macwall-affiliate"
 
 const partnerPrimaryBtnClass =
-  "inline-flex h-11 min-h-11 items-center justify-center rounded-full bg-white px-6 text-[15px] font-normal text-black no-underline transition-opacity hover:opacity-90"
+  "inline-flex h-11 min-h-11 items-center justify-center rounded-md bg-white px-6 text-[15px] font-normal text-black no-underline transition-opacity hover:opacity-90"
 
 const partnerSecondaryBtnClass =
-  "inline-flex h-10 min-h-10 shrink-0 items-center justify-center rounded-full bg-white/10 px-5 text-[14px] font-normal text-white ring-1 ring-white/12 no-underline backdrop-blur-sm transition-colors hover:bg-white/14"
+  "inline-flex h-10 min-h-10 shrink-0 items-center justify-center rounded-md border border-border bg-transparent px-5 text-[14px] font-normal text-white no-underline transition-colors hover:bg-white/5"
 
 const perkIcons: Record<(typeof copy.perks)[number]["id"], IconSvgElement> = {
   channels: ShoppingBag01Icon,
@@ -62,7 +65,7 @@ function StepCard({
   const shaderConfig = AFFILIATE_SHADER_PRESETS[shaderId]
 
   return (
-    <article className="relative flex min-h-[300px] flex-col overflow-hidden rounded-2xl bg-[#111] p-6 shadow-none sm:min-h-[320px] sm:p-7">
+    <article className="relative flex min-h-[280px] flex-col overflow-hidden bg-card p-6 sm:min-h-[300px] sm:p-8">
       <ShaderBackground
         className="absolute inset-0 opacity-75"
         config={shaderConfig}
@@ -84,83 +87,67 @@ function StepCard({
 
 export default function MacWallMarketingAffiliatePage() {
   return (
-    <div className="marketing-page bg-black text-white antialiased">
-      <MarketingSiteChrome />
-
-      <main id="main-content" className="marketing-main">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)] lg:items-stretch lg:gap-10 xl:gap-14">
-          <div className="flex min-w-0 flex-col justify-center">
-            <h1 className="text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px] lg:text-[48px]">
-              {copy.heroTitleLines[0]}
-              <br />
-              {copy.heroTitleLines[1]}
-            </h1>
-
-            <p className="mt-5 max-w-[34rem] text-[16px] leading-6 text-landing-muted">
-              {copy.heroLead}
-            </p>
-
-            <AffiliateHeroVisual className="mt-8 lg:hidden" />
-
-            <ul className="mt-8 space-y-3.5 lg:mt-9">
-              {copy.perks.map((perk) => (
-                <PerkRow key={perk.id} {...perk} />
-              ))}
-            </ul>
-
-            <div className="mt-9 sm:mt-10">
-              <TrackedPricingButton
-                href={macwallAffiliatePortalURL}
-                location="affiliate_hero_partner"
-                external
-                size="pill"
-                className={partnerPrimaryBtnClass}
-                ariaLabel="Get your MacWall partner link"
-              >
-                {copy.primaryCta}
-              </TrackedPricingButton>
-            </div>
-          </div>
-
-          <AffiliateHeroVisual className="hidden lg:block" />
-        </div>
-
-        <section className="mt-16 pb-4 md:mt-20">
-          <div className="flex flex-col gap-7 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
-            <h2 className="max-w-[15ch] text-[32px] leading-[1.15] font-normal tracking-tight text-white md:text-[40px]">
-              {copy.socialProofTitle}
-            </h2>
+    <>
+      <MarketingTitleSection className="grid lg:grid-cols-2 lg:divide-x lg:divide-dashed lg:divide-border lg:p-0">
+        <div className="flex min-w-0 flex-col justify-center p-6 lg:p-10">
+          <h1 className={landingPageH1}>
+            {copy.heroTitleLines[0]}
+            <br />
+            {copy.heroTitleLines[1]}
+          </h1>
+          <p className={landingPageLead}>{copy.heroLead}</p>
+          <AffiliateHeroVisual className="mt-8 lg:hidden" />
+          <ul className="mt-8 space-y-3.5">
+            {copy.perks.map((perk) => (
+              <PerkRow key={perk.id} {...perk} />
+            ))}
+          </ul>
+          <div className="mt-9">
             <TrackedPricingButton
               href={macwallAffiliatePortalURL}
-              location="affiliate_steps_apply"
+              location="affiliate_hero_partner"
               external
               size="pill"
-              className={partnerSecondaryBtnClass}
-              ariaLabel="Apply to the MacWall affiliate program"
+              className={partnerPrimaryBtnClass}
+              ariaLabel="Get your MacWall partner link"
             >
-              {copy.secondaryCta}
+              {copy.primaryCta}
             </TrackedPricingButton>
           </div>
-
-          <div className="mt-11 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
-            {copy.steps.map((step) => (
-              <StepCard key={step.id} {...step} />
-            ))}
-          </div>
-
-          <p className="mt-11 text-[13px] font-normal text-white/40">
-            Questions?{" "}
-            <a
-              href={copy.contactHref}
-              className="text-white/60 underline-offset-2 hover:text-white/80 hover:underline"
-            >
-              {copy.contactLabel}
-            </a>
-          </p>
-        </section>
-      </main>
-
-      <MacWallMarketingPageEnd showBottomCta={false} />
-    </div>
+        </div>
+        <AffiliateHeroVisual className="hidden min-h-[22rem] lg:block" />
+      </MarketingTitleSection>
+      <MarketingBodySection>
+        <div className="flex flex-col gap-6 px-6 py-10 sm:flex-row sm:items-end sm:justify-between md:px-8">
+          <h2 className="max-w-[16ch] text-3xl font-normal tracking-tighter md:text-5xl">
+            {copy.socialProofTitle}
+          </h2>
+          <TrackedPricingButton
+            href={macwallAffiliatePortalURL}
+            location="affiliate_steps_apply"
+            external
+            size="pill"
+            className={partnerSecondaryBtnClass}
+            ariaLabel="Apply to the MacWall affiliate program"
+          >
+            {copy.secondaryCta}
+          </TrackedPricingButton>
+        </div>
+        <div className="grid grid-cols-1 divide-y divide-dashed divide-border border-t border-dashed border-border md:grid-cols-3 md:divide-x md:divide-y-0">
+          {copy.steps.map((step) => (
+            <StepCard key={step.id} {...step} />
+          ))}
+        </div>
+        <p className="border-t border-dashed border-border px-6 py-8 text-sm text-muted-foreground">
+          Questions?{" "}
+          <a
+            href={copy.contactHref}
+            className="text-foreground underline-offset-2 hover:underline"
+          >
+            {copy.contactLabel}
+          </a>
+        </p>
+      </MarketingBodySection>
+    </>
   )
 }

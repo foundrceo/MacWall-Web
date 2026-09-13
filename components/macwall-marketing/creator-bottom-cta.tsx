@@ -24,13 +24,13 @@ export default function CreatorBottomCta() {
   return (
     <section
       aria-labelledby="creator-bottom-cta-title"
-      className="marketing-section-elevated bg-background"
+      className="border-t border-dashed border-border px-4 py-10 text-center md:px-6 md:py-14"
     >
-      <div className="marketing-container text-center">
-        <h2
-          id="creator-bottom-cta-title"
-          className="mx-auto max-w-3xl text-balance text-[32px] leading-[1.15] font-normal tracking-tight text-white md:text-[40px]"
-        >
+      <div>
+          <h2
+            id="creator-bottom-cta-title"
+            className="mx-auto max-w-3xl text-3xl font-normal tracking-tighter md:text-5xl"
+          >
           {copy.midCtaTitle}
         </h2>
         <div className="mt-8 sm:mt-10">

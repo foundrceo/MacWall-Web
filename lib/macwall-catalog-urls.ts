@@ -58,6 +58,21 @@ export function catalogPublicVideoUrlFromKey(videoKey: string): string {
   return publicObjectUrlFromPath(catalogVideoObjectKey(videoKey))
 }
 
+/** Width-capped catalog preview. Falls back to the source file if the CDN ignores transforms. */
+export function catalogPreviewVideoUrlFromKey(
+  videoKey: string,
+  width: 854 | 1280
+): string {
+  const source = catalogPublicVideoUrlFromKey(videoKey)
+  try {
+    const url = new URL(source)
+    url.pathname = `/cdn-cgi/media/mode=video,width=${width},fit=scale-down${url.pathname}`
+    return url.toString()
+  } catch {
+    return source
+  }
+}
+
 export function catalogPublicThumbUrlFromKey(thumbKey: string): string {
   return publicObjectUrlFromPath(normalizeThumbsPath(thumbKey))
 }

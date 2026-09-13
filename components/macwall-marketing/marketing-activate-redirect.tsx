@@ -10,6 +10,7 @@ import {
   SectionLead,
   SectionTitle,
 } from "@/components/macwall-marketing/marketing-primitives"
+import { MarketingRail } from "@/components/macwall-marketing/marketing-rail"
 import { ThankYouSuccessMark } from "@/components/macwall-marketing/thank-you-success-mark"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import {
@@ -226,8 +227,10 @@ function ActivateRedirectBody() {
 
 export default function MarketingActivateRedirect() {
   return (
-    <Suspense fallback={null}>
-      <ActivateRedirectBody />
-    </Suspense>
+    <MarketingRail>
+      <Suspense fallback={null}>
+        <ActivateRedirectBody />
+      </Suspense>
+    </MarketingRail>
   )
 }

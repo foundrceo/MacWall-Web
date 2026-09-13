@@ -2,13 +2,17 @@ import { unstable_cache } from "next/cache"
 import {
   catalogMarketingGalleryPosterUrlFromKey,
   catalogPublicThumbUrlFromKey,
+  catalogPublicVideoUrlFromKey,
 } from "@/lib/macwall-catalog-urls"
 import {
   MARKETING_CATALOG_REVALIDATE_SECONDS,
   MARKETING_GALLERY_CACHE_TAG,
 } from "@/lib/marketing-cache"
 import {
+  compareCatalogRows,
   fetchLatestMarketingCatalogRows,
+  fetchMarketingCatalogRows,
+  isBrowserMp4,
   MARKETING_FEATURE_CAROUSEL_WALLPAPER_COUNT,
   pickLatestMarketingCarouselRows,
   type MarketingCatalogWallpaperRow,
@@ -26,6 +30,8 @@ function mapRow(row: MarketingCatalogWallpaperRow): MarketingFeatureCarouselWall
     name: row.name,
     posterUrl: catalogMarketingGalleryPosterUrlFromKey(row.thumb_key),
     thumbUrl: catalogPublicThumbUrlFromKey(row.thumb_key),
+    videoUrl: catalogPublicVideoUrlFromKey(row.video_key),
+    videoKey: row.video_key,
     createdAt: row.created_at,
   }
 }
@@ -96,4 +102,52 @@ export async function fetchMarketingFeatureCarouselWallpapers(): Promise<
   MarketingFeatureCarouselWallpaper[]
 > {
   return getCachedFeatureCarouselWallpapers()
+}
+
+const POPULAR_STREAM_COUNT = 12
+
+async function fetchPopularFromCatalog(): Promise<
+  MarketingFeatureCarouselWallpaper[]
+> {
+  const rows = await fetchMarketingCatalogRows()
+  const ranked = [...rows]
+    .filter(
+      (row) =>
+        row.thumb_key.trim().length > 0 && isBrowserMp4(row.video_key)
+    )
+    .sort((a, b) => {
+      const likes = (b.like_count ?? 0) - (a.like_count ?? 0)
+      if (likes !== 0) return likes
+      return compareCatalogRows(a, b)
+    })
+  const validated = await filterRowsWithReachableThumbs(
+    ranked.slice(0, POPULAR_STREAM_COUNT * 2)
+  )
+  const picked = validated.slice(0, POPULAR_STREAM_COUNT)
+  if (picked.length === 0) {
+    return MARKETING_FEATURE_CAROUSEL_FALLBACK.slice(0, POPULAR_STREAM_COUNT)
+  }
+  return picked.map(mapRow)
+}
+
+const getCachedPopularStreamWallpapers = unstable_cache(
+  async () => {
+    try {
+      return await fetchPopularFromCatalog()
+    } catch {
+      return MARKETING_FEATURE_CAROUSEL_FALLBACK.slice(0, POPULAR_STREAM_COUNT)
+    }
+  },
+  ["marketing-popular-stream-wallpapers-v2"],
+  {
+    revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
+    tags: [MARKETING_GALLERY_CACHE_TAG],
+  }
+)
+
+/** Top liked catalog posters for the homepage corridor. Max 12. */
+export async function fetchMarketingPopularStreamWallpapers(): Promise<
+  MarketingFeatureCarouselWallpaper[]
+> {
+  return getCachedPopularStreamWallpapers()
 }

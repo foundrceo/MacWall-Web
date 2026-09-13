@@ -101,11 +101,11 @@ export function ProModal({
           </div>
 
           <div className="mt-5 flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
-            <span className="font-instrument text-[26px] font-semibold tracking-tight tabular-nums text-foreground">
+            <span className="text-[26px] font-semibold tracking-tight tabular-nums text-foreground">
               {pricing.permanentPrice}
             </span>
             {pricing.permanentStrikePrice ? (
-              <span className="font-instrument text-[14px] tabular-nums text-marketing-muted line-through">
+              <span className="text-[14px] tabular-nums text-marketing-muted line-through">
                 {pricing.permanentStrikePrice}
               </span>
             ) : null}

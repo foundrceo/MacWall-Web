@@ -1,5 +1,4 @@
-import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
-import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
+import { MarketingRail } from "@/components/macwall-marketing/marketing-rail"
 import { WallpaperDetail } from "@/components/wallpaper-gallery/wallpaper-detail"
 import { JsonLd } from "@/components/seo/json-ld"
 import { wallpaperDetailPageJsonLd } from "@/lib/seo/wallpaper-json-ld"
@@ -64,7 +63,7 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
   const detailDescription = `${wallpaper.name} live wallpaper for Mac in ${wallpaper.category}. Preview the loop and set it with ${macwall.name}.`
 
   return (
-    <div className="marketing-page">
+    <>
       <JsonLd
         payload={wallpaperDetailPageJsonLd({
           origin,
@@ -73,15 +72,13 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
           durationSeconds: wallpaper.durationSeconds,
         })}
       />
-      <MarketingSiteChrome />
-      <main id="main-content" className="marketing-main min-h-[70vh]">
+      <MarketingRail innerClassName="min-h-[70vh]">
         <WallpaperDetail
           wallpaper={wallpaper}
           similar={similar}
           origin={origin}
         />
-      </main>
-      <MacWallMarketingPageEnd />
-    </div>
+      </MarketingRail>
+    </>
   )
 }

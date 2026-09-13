@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react"
 
+import { cn } from "@/lib/utils"
+
 /** H.264 rather than VP9 — Safari's WebM support is too patchy for the Mac audience. */
 const LOCK_SCREEN_VIDEO_SRC = "/hero/lockscreen.mp4"
 const LOCK_SCREEN_POSTER_SRC = "/hero/lockscreen-poster.jpg"
@@ -12,7 +14,8 @@ const LOCK_SCREEN_POSTER_SRC = "/hero/lockscreen-poster.jpg"
  */
 export default function LockScreenFeatureVideo({
   ariaLabel,
-}: Readonly<{ ariaLabel: string }>) {
+  className,
+}: Readonly<{ ariaLabel: string; className?: string }>) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [reduceMotion, setReduceMotion] = useState(false)
 
@@ -59,7 +62,7 @@ export default function LockScreenFeatureVideo({
   }, [reduceMotion])
 
   return (
-    <div className="relative aspect-[16/9] w-full bg-black">
+    <div className={cn("relative h-full w-full bg-black", className)}>
       <video
         ref={videoRef}
         poster={LOCK_SCREEN_POSTER_SRC}

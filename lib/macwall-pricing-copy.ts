@@ -45,9 +45,9 @@ export const macwallPricingCopy = {
     },
   },
 
-  heroTitle: "Pay once. Yours forever.",
+  heroTitle: "One payment. Full catalog.",
   heroLead:
-    "1,000+ cinematic 4K loops, Bend lid fold, Lock Screen video, and hardware-decoded playback on every display.",
+    "1,000+ 4K loops, Lock Screen on macOS 26, Bend, and hardware-decoded playback. No subscription.",
 
   reelRefundHook: {
     line: "Post a Reel, get up to 100% back",
@@ -168,7 +168,7 @@ export const macwallPricingCopy = {
   bottomCtaPro: "Get Pro",
   bottomCtaReel: "Get it free with a Reel",
 
-  socialProofLine: "1,000+ wallpapers · trusted by Mac users worldwide",
+  socialProofLine: "1,000+ users · trusted by Mac users worldwide",
   socialProofRating: 5,
 
   cardFooter: {
@@ -193,9 +193,9 @@ export const macwallPricingCopy = {
   },
 
   reviews: {
-    eyebrow: "What people say",
-    title: "Trusted by Mac users",
-    subtitle: "Real notes from people using the app.",
+    eyebrow: "Trusted by Mac users",
+    title: "What people say",
+    subtitle: "From people who set it on their Mac.",
     items: [
       {
         quote:

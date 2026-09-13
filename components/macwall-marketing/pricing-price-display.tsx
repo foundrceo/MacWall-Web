@@ -44,7 +44,7 @@ export function PricingPriceDisplay({
     return (
       <NumberFlow
         className={cn(
-          "font-instrument tabular-nums tracking-[-0.02em]",
+          "tabular-nums tracking-[-0.02em]",
           className
         )}
         value={priceMajor}
@@ -59,7 +59,7 @@ export function PricingPriceDisplay({
   }
 
   return (
-    <span className={cn("font-instrument tabular-nums tracking-[-0.02em]", className)}>
+    <span className={cn("tabular-nums tracking-[-0.02em]", className)}>
       {price}
     </span>
   )

@@ -1,72 +1,55 @@
 "use client"
 
-import { useState } from "react"
-
-import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { trackSiteEventClient } from "@/lib/analytics/client"
-import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
-import {
-  ghostCtaHeroClass,
-  landingBody,
-  pillCtaHeroClass,
-} from "@/components/macwall-marketing/landing-type"
-import { macwall } from "@/lib/macwall-site"
+import { macwallMinimumMacOSVersionLabel } from "@/lib/macwall-site"
+import { cn } from "@/lib/utils"
 
-const SHARE_TITLE = `${macwall.name}, live wallpapers for Mac`
-
-export function HeroMobileActions() {
-  const pricing = useMarketingPricing()
-  const [linkState, setLinkState] = useState<"idle" | "copied">("idle")
-
-  const sendLinkToMac = async () => {
-    const url = `${window.location.origin}/download`
-    trackSiteEventClient("cta_click", { location: "hero_mobile_send_link" })
-
-    if (typeof navigator.share === "function") {
-      try {
-        await navigator.share({ title: SHARE_TITLE, url })
-        return
-      } catch {
-        // Share sheet dismissed, so fall through to copying.
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(url)
-      setLinkState("copied")
-      window.setTimeout(() => setLinkState("idle"), 2500)
-    } catch {
-      window.location.href = "/download"
-    }
-  }
-
+function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
-    <div>
-      <div className="flex flex-col items-stretch gap-2.5">
-        <TrackedPricingButton
-          href={pricing.checkoutUrl}
-          size="pill"
-          location="hero_mobile"
-          ariaLabel={`Get ${macwall.name} Pro`}
-          className={`${pillCtaHeroClass} justify-center`}
-        >
-          {pricing.getProCta}
-        </TrackedPricingButton>
+    <svg
+      className={cn("size-3.5 shrink-0", className)}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+    </svg>
+  )
+}
 
-        <button
-          type="button"
-          onClick={() => void sendLinkToMac()}
-          className={`${ghostCtaHeroClass} justify-center`}
-        >
-          {linkState === "copied" ? "Link copied" : "Send link to my Mac"}
-        </button>
+const heroOutlineCapsule =
+  "inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border-0 bg-muted/70 px-5 text-sm font-medium text-foreground no-underline shadow-none transition-colors hover:bg-muted"
+
+const heroFilledCapsule =
+  "inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-black no-underline shadow-none transition-opacity hover:opacity-90"
+
+export function HeroMobileActions({
+  onGetLicense,
+}: Readonly<{
+  onGetLicense: () => void
+}>) {
+  return (
+    <div className="flex w-full max-w-sm flex-col gap-3">
+      <div className="flex w-full flex-col items-center">
+        <a href="/download" className={heroFilledCapsule}>
+          <AppleIcon />
+          Send link to my Mac
+        </a>
+        <p className="mt-2 text-center text-[11px] leading-snug text-muted-foreground sm:text-[12px]">
+          {macwallMinimumMacOSVersionLabel}
+        </p>
       </div>
-
-      <p className={`${landingBody} mt-3 max-w-none`}>
-        MacWall runs on a Mac, not a phone. Buy now and your license key is
-        emailed straight away, so you can install it next time you sit down at
-        your Mac.
-      </p>
+      <button
+        type="button"
+        onClick={() => {
+          trackSiteEventClient("pricing_click", { location: "hero_mobile" })
+          onGetLicense()
+        }}
+        className={heroOutlineCapsule}
+        aria-haspopup="dialog"
+      >
+        Get License
+      </button>
     </div>
   )
 }

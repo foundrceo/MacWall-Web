@@ -29,11 +29,7 @@ import {
 } from "@/lib/site-url"
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
-import {
-  instrumentSans,
-  ppNeueMontreal,
-  ppNeueMontrealExtra,
-} from "@/app/fonts"
+import { geistPixelSquare, geistSans } from "@/app/fonts"
 import { VercelAnalytics } from "@/components/analytics/vercel-analytics"
 import { SiteFlagValues } from "@/components/analytics/site-flag-values"
 import { GoogleAnalytics } from "@next/third-parties/google"
@@ -41,7 +37,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 
-const SITE_DESCRIPTION_FALLBACK = `${macwall.tagline} Native Mac app with 1,000+ cinematic 4K loops, your own videos, every display covered, and a live Lock Screen on macOS 26. Free to try, then one payment. macOS 15+.`
+const SITE_DESCRIPTION_FALLBACK = `${macwall.tagline} Native Mac app with 1,000+ 4K loops, your own videos, every display, and Lock Screen on macOS 26. Free to try, then one payment. macOS 15+.`
 
 const SITE_TITLE_DEFAULT = macwall.fullTagline
 
@@ -224,9 +220,9 @@ export default function RootLayout({
       lang="en"
       className={cn(
         "dark h-full antialiased",
-        ppNeueMontreal.variable,
-        ppNeueMontrealExtra.variable,
-        instrumentSans.variable
+        geistSans.variable,
+        geistPixelSquare.variable,
+        geistSans.className
       )}
       style={{ colorScheme: "dark" }}
       suppressHydrationWarning
@@ -241,7 +237,7 @@ export default function RootLayout({
       </head>
       {/* Avoid hydration warnings when extensions inject attributes on <body> */}
       <body
-        className={`${ppNeueMontreal.className} w-full bg-background font-sans text-foreground antialiased`}
+        className="w-full bg-background font-sans text-foreground antialiased"
         suppressHydrationWarning
       >
         {/* Feature flag values for Vercel Web Analytics + Flags Explorer. */}
