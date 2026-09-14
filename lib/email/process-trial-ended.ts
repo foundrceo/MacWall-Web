@@ -17,7 +17,8 @@ const EMAIL_FROM_DISPLAY = "MacWall <licenses@macwall.app>"
 const EMAIL_LOGO_URL = `${EMAIL_SITE_URL}/email/macwall-icon.png`
 
 const ENQUEUE_LIMIT = 40
-const SEND_LIMIT = 25
+const SEND_LIMIT = 5
+const SEND_GAP_MS = 800
 const LADDER_20_AFTER_MS = 24 * 60 * 60 * 1000
 const LADDER_30_AFTER_MS = 48 * 60 * 60 * 1000
 
@@ -56,6 +57,20 @@ function logoUrl(): string {
 
 function appName(): string {
   return process.env.APP_NAME?.trim() || "MacWall"
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function isResendRateLimit(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false
+  const e = error as { statusCode?: number; name?: string; message?: string }
+  if (e.statusCode === 429) return true
+  const name = (e.name ?? "").toLowerCase()
+  if (name.includes("rate_limit")) return true
+  const msg = (e.message ?? "").toLowerCase()
+  return msg.includes("too many requests") || msg.includes("429")
 }
 
 async function unsubscribeUrls(email: string): Promise<{
@@ -167,7 +182,7 @@ async function enqueueLadderFollowUps(input: {
 async function processQueueRow(
   row: QueueRow,
   resend: Resend
-): Promise<"sent" | "skipped" | "failed"> {
+): Promise<"sent" | "skipped" | "failed" | "rate_limited"> {
   const supabase = getSupabaseAdmin()
   const step = parseStep(row.step)
   if (!step) {
@@ -268,6 +283,7 @@ async function processQueueRow(
       .eq("visitor_id", row.visitor_id)
       .eq("step", step)
     console.error("[trial-ended] resend_failed", error.message)
+    if (isResendRateLimit(error)) return "rate_limited"
     return "failed"
   }
 
@@ -295,6 +311,7 @@ export async function processTrialEndedEmails(): Promise<{
   sent: number
   skipped: number
   failed: number
+  rate_limited: boolean
 }> {
   const resendKey = process.env.RESEND_API_KEY?.trim()
   if (!resendKey) {
@@ -328,12 +345,18 @@ export async function processTrialEndedEmails(): Promise<{
   let sent = 0
   let skipped = 0
   let failed = 0
+  let rateLimited = false
 
   for (const row of (rows ?? []) as QueueRow[]) {
     const result = await processQueueRow(row, resend)
     if (result === "sent") sent += 1
     else if (result === "skipped") skipped += 1
-    else failed += 1
+    else if (result === "rate_limited") {
+      failed += 1
+      rateLimited = true
+      break
+    } else failed += 1
+    await sleep(SEND_GAP_MS)
   }
 
   return {
@@ -343,5 +366,6 @@ export async function processTrialEndedEmails(): Promise<{
     sent,
     skipped,
     failed,
+    rate_limited: rateLimited,
   }
 }

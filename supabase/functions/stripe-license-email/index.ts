@@ -554,6 +554,30 @@ async function cancelTrialEndedEmails(
   }
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function adminAuthorized(req: Request): boolean {
+  const cronSecret = Deno.env.get("CRON_SECRET")?.trim()
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")?.trim()
+  const cronHeader = req.headers.get("x-cron-secret")?.trim()
+  const authHeader = req.headers.get("authorization")?.trim()
+  if (cronSecret && cronHeader && cronHeader === cronSecret) return true
+  if (
+    serviceKey &&
+    authHeader?.startsWith("Bearer ") &&
+    authHeader.slice(7) === serviceKey
+  ) {
+    return true
+  }
+  return false
+}
+
+type ResendSendResult =
+  | { ok: true; id: string | null }
+  | { ok: false; error: string; status: number; retryable: boolean }
+
 async function sendResendEmail(args: {
   resendKey: string
   from: string
@@ -561,36 +585,101 @@ async function sendResendEmail(args: {
   subject: string
   html: string
   text: string
-}): Promise<{ ok: true } | { ok: false; error: string }> {
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${args.resendKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: args.from,
-        to: [args.to],
-        subject: args.subject,
-        html: args.html,
-        text: args.text,
-      }),
-    })
-    if (!res.ok) {
-      const body = await res.json().catch(() => null)
+  idempotencyKey: string
+}): Promise<ResendSendResult> {
+  const maxAttempts = 5
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${args.resendKey}`,
+          "Content-Type": "application/json",
+          "Idempotency-Key": args.idempotencyKey,
+        },
+        body: JSON.stringify({
+          from: args.from,
+          to: [args.to],
+          subject: args.subject,
+          html: args.html,
+          text: args.text,
+        }),
+      })
+      const resBody: unknown = await res.json().catch(() => ({}))
+      if (res.ok) {
+        const id =
+          typeof resBody === "object" &&
+          resBody !== null &&
+          "id" in resBody &&
+          typeof (resBody as { id: unknown }).id === "string"
+            ? (resBody as { id: string }).id
+            : null
+        return { ok: true, id }
+      }
+      const retryable = res.status === 429 || res.status >= 500
+      if (retryable && attempt < maxAttempts) {
+        const retryAfterRaw = Number(res.headers.get("retry-after"))
+        const waitMs =
+          Number.isFinite(retryAfterRaw) && retryAfterRaw > 0
+            ? Math.min(retryAfterRaw * 1000, 15_000)
+            : Math.min(8_000, 700 * 2 ** (attempt - 1))
+        console.error(
+          "[stripe-license-email] resend_retry",
+          res.status,
+          `attempt ${attempt}/${maxAttempts}`
+        )
+        await sleep(waitMs)
+        continue
+      }
       return {
         ok: false,
-        error: resendErrorMessage(body, `resend_${res.status}`),
+        error: resendErrorMessage(resBody, `resend_${res.status}`),
+        status: res.status,
+        retryable,
+      }
+    } catch (e) {
+      if (attempt < maxAttempts) {
+        await sleep(Math.min(8_000, 700 * 2 ** (attempt - 1)))
+        continue
+      }
+      return {
+        ok: false,
+        error: e instanceof Error ? e.message : "resend_error",
+        status: 0,
+        retryable: true,
       }
     }
-    return { ok: true }
-  } catch (e) {
-    return {
-      ok: false,
-      error: e instanceof Error ? e.message : "resend_error",
-    }
   }
+  return { ok: false, error: "resend_exhausted", status: 429, retryable: true }
+}
+
+async function deliverLicenseEmail(args: {
+  resendKey: string
+  from: string
+  appName: string
+  to: string
+  licenseKey: string
+  maxDevices: number
+}): Promise<ResendSendResult> {
+  const html = buildLicenseEmailHtml({
+    appName: args.appName,
+    licenseKey: args.licenseKey,
+    maxDevices: args.maxDevices,
+  })
+  const text = buildLicenseEmailPlainText({
+    appName: args.appName,
+    licenseKey: args.licenseKey,
+    maxDevices: args.maxDevices,
+  })
+  return sendResendEmail({
+    resendKey: args.resendKey,
+    from: args.from,
+    to: args.to,
+    subject: licenseEmailSubject(args.appName),
+    html,
+    text,
+    idempotencyKey: `license/${args.licenseKey}`,
+  })
 }
 
 async function handleCheckoutCompleted(args: {
@@ -772,10 +861,14 @@ async function handleCheckoutCompleted(args: {
 
   if (insErr) {
     const code = (insErr as { code?: string }).code
-    if (code === "23505") {
-      return Response.json({ ok: true, duplicate: true })
+    if (code !== "23505") {
+      return Response.json({ ok: false, error: insErr.message }, { status: 500 })
     }
-    return Response.json({ ok: false, error: insErr.message }, { status: 500 })
+    // Same Stripe event retried after a Resend 429. Keep sending.
+    console.info(
+      "[stripe-license-email] audit_duplicate_retrying_send",
+      args.event.id
+    )
   }
 
   const amountUsd =
@@ -793,44 +886,123 @@ async function handleCheckoutCompleted(args: {
   })
 
   const appName = Deno.env.get("APP_NAME")?.trim() || "MacWall"
-  const html = buildLicenseEmailHtml({ appName, licenseKey, maxDevices })
-  const text = buildLicenseEmailPlainText({ appName, licenseKey, maxDevices })
+  const sent = await deliverLicenseEmail({
+    resendKey,
+    from,
+    appName,
+    to: customerEmail,
+    licenseKey,
+    maxDevices,
+  })
 
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: [customerEmail],
-        subject: licenseEmailSubject(appName),
-        html,
-        text,
-      }),
-    })
-
-    const resBody: unknown = await res.json().catch(() => ({}))
-    if (!res.ok) {
-      await supabase
-        .from("macwall_stripe_license_emails")
-        .delete()
-        .eq("webhook_event_id", args.event.id)
-      const msg = resendErrorMessage(resBody, res.statusText)
-      return Response.json({ ok: false, error: msg }, { status: 502 })
-    }
-  } catch (e) {
-    await supabase
-      .from("macwall_stripe_license_emails")
-      .delete()
-      .eq("webhook_event_id", args.event.id)
-    const msg = e instanceof Error ? e.message : "resend_error"
-    return Response.json({ ok: false, error: msg }, { status: 502 })
+  if (!sent.ok) {
+    console.error(
+      "[stripe-license-email] resend_failed",
+      sent.status,
+      sent.error
+    )
+    return Response.json(
+      { ok: false, error: sent.error },
+      { status: sent.retryable ? 503 : 502 }
+    )
   }
 
   return Response.json({ ok: true, emailed_to: customerEmail })
+}
+
+async function handleBackfillMissingLicenseEmails(args: {
+  supabase: ReturnType<typeof createClient>
+  resendKey: string
+  from: string
+}): Promise<Response> {
+  const since = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
+  const { data, error } = await args.supabase
+    .from("macwall_licenses")
+    .select(
+      "license_key, customer_email, max_devices, stripe_checkout_session_id"
+    )
+    .eq("status", "active")
+    .not("customer_email", "is", null)
+    .gte("activated_at", since)
+    .order("activated_at", { ascending: true })
+    .limit(80)
+
+  if (error) {
+    return Response.json({ ok: false, error: error.message }, { status: 500 })
+  }
+
+  const licenses = (data ?? []) as Array<{
+    license_key: string
+    customer_email: string | null
+    max_devices: number | null
+    stripe_checkout_session_id: string | null
+  }>
+  const keys = licenses.map((row) => row.license_key)
+  const { data: emailed } = keys.length
+    ? await args.supabase
+        .from("macwall_stripe_license_emails")
+        .select("license_key")
+        .in("license_key", keys)
+    : { data: [] as Array<{ license_key: string }> }
+
+  const emailedSet = new Set((emailed ?? []).map((row) => row.license_key))
+  const missing = licenses.flatMap((row) => {
+    const customerEmail = row.customer_email?.trim()
+    if (!customerEmail || emailedSet.has(row.license_key)) return []
+    return [{ ...row, customerEmail }]
+  })
+
+  const appName = Deno.env.get("APP_NAME")?.trim() || "MacWall"
+  const results: Array<{ license_key: string; ok: boolean; error?: string }> =
+    []
+
+  for (let i = 0; i < missing.length; i++) {
+    const row = missing[i]
+    const licenseKey = row.license_key
+    const customerEmail = row.customerEmail
+    const maxDevices = [1, 2, 3, 5].includes(Number(row.max_devices))
+      ? Number(row.max_devices)
+      : 3
+    const checkoutSessionId =
+      row.stripe_checkout_session_id?.trim() || `backfill:${licenseKey}`
+
+    const { error: insErr } = await args.supabase
+      .from("macwall_stripe_license_emails")
+      .insert({
+        webhook_event_id: `backfill:${licenseKey}`,
+        checkout_session_id: checkoutSessionId,
+        license_key: licenseKey,
+        customer_email: customerEmail,
+      })
+
+    if (insErr && (insErr as { code?: string }).code !== "23505") {
+      results.push({ license_key: licenseKey, ok: false, error: insErr.message })
+      continue
+    }
+
+    const sent = await deliverLicenseEmail({
+      resendKey: args.resendKey,
+      from: args.from,
+      appName,
+      to: customerEmail,
+      licenseKey,
+      maxDevices,
+    })
+    results.push(
+      sent.ok
+        ? { license_key: licenseKey, ok: true }
+        : { license_key: licenseKey, ok: false, error: sent.error }
+    )
+    if (i < missing.length - 1) await sleep(800)
+  }
+
+  return Response.json({
+    ok: true,
+    missing: missing.length,
+    sent: results.filter((row) => row.ok).length,
+    failed: results.filter((row) => !row.ok).length,
+    results,
+  })
 }
 
 async function handlePaymentFailed(args: {
@@ -1081,6 +1253,28 @@ Deno.serve(async (req: Request) => {
   const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
   const resendKey = Deno.env.get("RESEND_API_KEY")?.trim()
   const from = Deno.env.get("LICENSE_EMAIL_FROM")?.trim()
+
+  if (
+    req.headers.get("x-macwall-action")?.trim() === "backfill-license-emails"
+  ) {
+    if (!adminAuthorized(req)) {
+      return Response.json({ ok: false, error: "unauthorized" }, { status: 401 })
+    }
+    if (!supabaseUrl || !supabaseServiceKey || !resendKey || !from) {
+      return Response.json(
+        { ok: false, error: "missing_config" },
+        { status: 500 }
+      )
+    }
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    })
+    return handleBackfillMissingLicenseEmails({
+      supabase,
+      resendKey,
+      from,
+    })
+  }
 
   if (
     !stripeSecret ||

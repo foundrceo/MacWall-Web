@@ -4,6 +4,8 @@ import { createClient } from "npm:@supabase/supabase-js@2.105.4"
 
 const MAX_NO_EMAIL_RETRIES = 6
 const NO_EMAIL_RETRY_MINUTES = 30
+const SEND_LIMIT = 5
+const SEND_GAP_MS = 800
 
 /** Stripe allowlisted promo — auto-applied via checkout `promo=` param. */
 const EMAIL_RECOVERY_PROMO_CODE = "WALL10"
@@ -39,6 +41,10 @@ function logoUrl(): string {
   const fromEnv = Deno.env.get("LICENSE_EMAIL_LOGO_URL")?.trim()
   if (fromEnv) return fromEnv
   return `${siteBaseUrl()}/email/macwall-icon.png`
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 function originalCheckoutSessionId(id: string): string {
@@ -367,7 +373,7 @@ async function processQueueRow(args: {
   resendKey: string
   from: string
   appName: string
-}): Promise<"sent" | "skipped" | "failed" | "rescheduled"> {
+}): Promise<"sent" | "skipped" | "failed" | "rescheduled" | "rate_limited"> {
   const { row, stripe, supabase, resendKey, from, appName } = args
   const ladder = ladderFromReason(row.reason)
   const promoCode = ladder?.code ?? EMAIL_RECOVERY_PROMO_CODE
@@ -528,6 +534,7 @@ async function processQueueRow(args: {
         .delete()
         .eq("webhook_event_id", webhookEventId)
       console.error("[process-checkout-recovery] resend_failed", res.status)
+      if (res.status === 429) return "rate_limited"
       return "failed"
     }
   } catch (e) {
@@ -731,7 +738,7 @@ Deno.serve(async (req: Request) => {
     .eq("status", "pending")
     .lte("scheduled_send_at", now)
     .order("scheduled_send_at", { ascending: true })
-    .limit(25)
+    .limit(SEND_LIMIT)
 
   if (error) {
     return Response.json({ ok: false, error: error.message }, { status: 500 })
@@ -743,6 +750,7 @@ Deno.serve(async (req: Request) => {
   let skipped = 0
   let failed = 0
   let rescheduled = 0
+  let rateLimited = false
 
   for (const row of (rows ?? []) as QueueRow[]) {
     const result = await processQueueRow({
@@ -756,7 +764,12 @@ Deno.serve(async (req: Request) => {
     if (result === "sent") sent++
     else if (result === "rescheduled") rescheduled++
     else if (result === "skipped") skipped++
-    else failed++
+    else if (result === "rate_limited") {
+      failed++
+      rateLimited = true
+      break
+    } else failed++
+    await sleep(SEND_GAP_MS)
   }
 
   return Response.json({
@@ -766,6 +779,7 @@ Deno.serve(async (req: Request) => {
     skipped,
     rescheduled,
     failed,
+    rate_limited: rateLimited,
     ladderBackfilled,
   })
 })
