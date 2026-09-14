@@ -4,7 +4,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.105.4"
 
 const MAX_NO_EMAIL_RETRIES = 6
 const NO_EMAIL_RETRY_MINUTES = 30
-const SEND_LIMIT = 5
+const SEND_LIMIT = 0
 const SEND_GAP_MS = 800
 
 /** Stripe allowlisted promo — auto-applied via checkout `promo=` param. */
