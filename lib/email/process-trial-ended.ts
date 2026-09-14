@@ -17,7 +17,7 @@ const EMAIL_FROM_DISPLAY = "MacWall <licenses@macwall.app>"
 const EMAIL_LOGO_URL = `${EMAIL_SITE_URL}/email/macwall-icon.png`
 
 const ENQUEUE_LIMIT = 40
-const SEND_LIMIT = 0
+const SEND_LIMIT = 5
 const SEND_GAP_MS = 800
 const LADDER_20_AFTER_MS = 24 * 60 * 60 * 1000
 const LADDER_30_AFTER_MS = 48 * 60 * 60 * 1000

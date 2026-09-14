@@ -586,8 +586,9 @@ async function sendResendEmail(args: {
   html: string
   text: string
   idempotencyKey: string
+  maxAttempts?: number
 }): Promise<ResendSendResult> {
-  const maxAttempts = 5
+  const maxAttempts = args.maxAttempts ?? 5
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       const res = await fetch("https://api.resend.com/emails", {
@@ -596,6 +597,7 @@ async function sendResendEmail(args: {
           Authorization: `Bearer ${args.resendKey}`,
           "Content-Type": "application/json",
           "Idempotency-Key": args.idempotencyKey,
+          "User-Agent": "MacWall/1.0",
         },
         body: JSON.stringify({
           from: args.from,
@@ -660,6 +662,7 @@ async function deliverLicenseEmail(args: {
   to: string
   licenseKey: string
   maxDevices: number
+  maxAttempts?: number
 }): Promise<ResendSendResult> {
   const html = buildLicenseEmailHtml({
     appName: args.appName,
@@ -679,6 +682,7 @@ async function deliverLicenseEmail(args: {
     html,
     text,
     idempotencyKey: `license/${args.licenseKey}`,
+    maxAttempts: args.maxAttempts,
   })
 }
 
@@ -914,6 +918,7 @@ async function handleBackfillMissingLicenseEmails(args: {
   supabase: ReturnType<typeof createClient>
   resendKey: string
   from: string
+  limit: number
 }): Promise<Response> {
   const since = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
   const { data, error } = await args.supabase
@@ -949,8 +954,9 @@ async function handleBackfillMissingLicenseEmails(args: {
   const missing = licenses.flatMap((row) => {
     const customerEmail = row.customer_email?.trim()
     if (!customerEmail || emailedSet.has(row.license_key)) return []
+    if (!/^[\x20-\x7E]+$/.test(customerEmail)) return []
     return [{ ...row, customerEmail }]
-  })
+  }).slice(0, args.limit)
 
   const appName = Deno.env.get("APP_NAME")?.trim() || "MacWall"
   const results: Array<{ license_key: string; ok: boolean; error?: string }> =
@@ -973,6 +979,7 @@ async function handleBackfillMissingLicenseEmails(args: {
       to: customerEmail,
       licenseKey,
       maxDevices,
+      maxAttempts: 2,
     })
     if (!sent.ok) {
       results.push({ license_key: licenseKey, ok: false, error: sent.error })
@@ -1274,6 +1281,10 @@ Deno.serve(async (req: Request) => {
       supabase,
       resendKey,
       from,
+      limit: Math.min(
+        5,
+        Math.max(1, Number(new URL(req.url).searchParams.get("limit") || "3") || 3)
+      ),
     })
   }
 
