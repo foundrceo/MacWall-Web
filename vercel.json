@@ -7,14 +7,5 @@
     }
   },
   "regions": ["sin1"],
-  "crons": [
-    {
-      "path": "/api/cron/checkout-recovery",
-      "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/cron/trial-ended",
-      "schedule": "*/10 * * * *"
-    }
-  ]
+  "crons": []
 }
