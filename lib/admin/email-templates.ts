@@ -1,8 +1,15 @@
 /**
  * Transactional email HTML — admin preview source of truth.
- * Live sends use the matching builders in Supabase Edge Functions
- * (`stripe-license-email`, `process-checkout-recovery`).
+ * Live trial-ended sends use `emails/trial-ended.tsx` via Resend.
+ * License and recovery still send from the matching Edge Functions.
  */
+
+import {
+  trialEndedCopy,
+  trialEndedPlainText,
+  trialEndedPromo,
+  type TrialEndedEmailStep,
+} from "@/lib/email/trial-ended-copy"
 
 export const EMAIL_APP_NAME = "MacWall"
 export const EMAIL_SITE_URL = "https://macwall.app"
@@ -62,11 +69,35 @@ function licenseEmailLinks(licenseKey: string): {
   }
 }
 
-function checkoutHref(promoCode?: string): string {
+function checkoutHref(promoCode?: string, untilUnix?: number): string {
   const base = `${EMAIL_SITE_URL}/api/checkout/create-session?offer=permanent`
+  const params = new URLSearchParams()
   const code = promoCode?.trim()
-  if (!code) return base
-  return `${base}&promo=${encodeURIComponent(code)}`
+  if (code) params.set("promo", code)
+  if (untilUnix && untilUnix > 0) params.set("until", String(untilUnix))
+  const query = params.toString()
+  return query ? `${base}&${query}` : base
+}
+
+export {
+  EMAIL_TRIAL_LADDER_20,
+  EMAIL_TRIAL_LADDER_30,
+  EMAIL_TRIAL_PROMO_CODE,
+  EMAIL_TRIAL_PROMO_PERCENT,
+  trialEndedCopy,
+  trialEndedPromo,
+  type TrialEndedEmailStep,
+} from "@/lib/email/trial-ended-copy"
+
+export function trialEndedEmailSubject(
+  step: TrialEndedEmailStep,
+  appName = EMAIL_APP_NAME
+): string {
+  return trialEndedCopy(step, appName).subject
+}
+
+export function trialEndedEmailPreheader(step: TrialEndedEmailStep): string {
+  return trialEndedCopy(step).preheader
 }
 
 /** Card: content → CTA → note → © → legal. */
@@ -168,6 +199,24 @@ function headline(text: string): string {
               <p class="mw-headline" style="margin:0;font-family:${FONT};color:#111111;font-weight:600;font-size:40px;line-height:44px;letter-spacing:0.004em;text-align:center;">
                 ${text}
               </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>`
+}
+
+function trialHeadline(text: string): string {
+  return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+      <td class="mw-pad" style="padding-left:26px;padding-right:26px;">
+        <table role="presentation" cellspacing="0" width="100%" border="0" cellpadding="0" align="center" style="max-width:560px;margin:0 auto;">
+          <tr>
+            <td align="center" style="padding-top:12px;padding-bottom:20px;">
+              <h1 class="mw-headline" style="margin:0;font-family:${FONT};color:#111111;font-weight:600;font-size:40px;line-height:44px;letter-spacing:0.004em;text-align:center;">
+                ${escapeHtml(text)}
+              </h1>
             </td>
           </tr>
         </table>
@@ -356,11 +405,73 @@ export function buildRecoveryEmailPlainText(args?: {
   )
 }
 
+export function buildTrialEndedEmailHtml(args: {
+  step: TrialEndedEmailStep
+  appName?: string
+  checkoutHref?: string
+  unsubscribeHref?: string
+}): string {
+  const appName = args.appName ?? EMAIL_APP_NAME
+  const copy = trialEndedCopy(args.step, appName)
+  const promo = trialEndedPromo(args.step)
+  const untilUnix = promo.expiresHours
+    ? Math.floor(Date.now() / 1000) + promo.expiresHours * 3600
+    : undefined
+  const href = args.checkoutHref ?? checkoutHref(promo.code, untilUnix)
+  const unsub = args.unsubscribeHref?.trim()
+  const footnote = unsub
+    ? `Already paid? Ignore this email. <a href="${escapeHtml(unsub)}" class="mw-link" style="color:#888888;text-decoration:underline;">Unsubscribe</a>`
+    : `Already paid? Ignore this email.`
+
+  const cardInner = `
+    ${brandMark()}
+    ${trialHeadline(copy.headline)}
+    ${bodyCopy(escapeHtml(copy.body))}
+    ${highlightBlock({
+      label: copy.codeLabel,
+      value: promo.code,
+      hint: copy.codeHint,
+    })}
+    ${textLinkCta(href, copy.cta)}
+  `
+
+  return emailShell({
+    title: copy.subject,
+    preheader: copy.preheader,
+    cardInner,
+    footnote,
+  })
+}
+
+export function buildTrialEndedEmailPlainText(args: {
+  step: TrialEndedEmailStep
+  appName?: string
+  checkoutHref?: string
+  unsubscribeHref?: string
+}): string {
+  const appName = args.appName ?? EMAIL_APP_NAME
+  const promo = trialEndedPromo(args.step)
+  const untilUnix = promo.expiresHours
+    ? Math.floor(Date.now() / 1000) + promo.expiresHours * 3600
+    : undefined
+  const href = args.checkoutHref ?? checkoutHref(promo.code, untilUnix)
+  return trialEndedPlainText({
+    step: args.step,
+    appName,
+    checkoutHref: href,
+    unsubscribeHref: args.unsubscribeHref,
+    supportEmail: EMAIL_SUPPORT,
+  })
+}
+
 export type AdminEmailTemplateId =
   | "license-1"
   | "license-3"
   | "license-5"
   | "checkout-recovery"
+  | "trial-ended"
+  | "trial-ended-20"
+  | "trial-ended-30"
 
 export type AdminEmailTemplate = {
   id: AdminEmailTemplateId
@@ -370,7 +481,7 @@ export type AdminEmailTemplate = {
   from: string
   trigger: string
   edgeFunction: string
-  tone: "green" | "blue" | "amber"
+  tone: "green" | "blue" | "amber" | "violet"
   buildHtml: () => string
 }
 
@@ -418,5 +529,51 @@ export const ADMIN_EMAIL_TEMPLATES: readonly AdminEmailTemplate[] = [
     edgeFunction: "process-checkout-recovery",
     tone: "amber",
     buildHtml: () => buildPaymentRecoveryEmailHtml(),
+  },
+  {
+    id: "trial-ended",
+    label: "Trial ended (10% off)",
+    description:
+      "Mail 1, 24h after trial start, only if they did not buy. Headline: Your trial ended. WALL10.",
+    subject: trialEndedEmailSubject("ended"),
+    from: EMAIL_FROM_DISPLAY,
+    trigger: "process-trial-ended-emails cron, 24h after trial start",
+    edgeFunction: "process-trial-ended-emails",
+    tone: "violet",
+    buildHtml: () =>
+      buildTrialEndedEmailHtml({
+        step: "ended",
+        unsubscribeHref: `${EMAIL_SITE_URL}/unsubscribe/trial`,
+      }),
+  },
+  {
+    id: "trial-ended-20",
+    label: "Trial follow-up (20% off)",
+    description: "Mail 2, 24h after mail 1. Headline: 20% off Pro. R7N2WP8J.",
+    subject: trialEndedEmailSubject("ladder_20"),
+    from: EMAIL_FROM_DISPLAY,
+    trigger: "process-trial-ended-emails cron, 24h after first send",
+    edgeFunction: "process-trial-ended-emails",
+    tone: "violet",
+    buildHtml: () =>
+      buildTrialEndedEmailHtml({
+        step: "ladder_20",
+        unsubscribeHref: `${EMAIL_SITE_URL}/unsubscribe/trial`,
+      }),
+  },
+  {
+    id: "trial-ended-30",
+    label: "Trial follow-up (30% off)",
+    description: "Mail 3, 48h after mail 1. Headline: 30% off Pro. B3H9KF5Q.",
+    subject: trialEndedEmailSubject("ladder_30"),
+    from: EMAIL_FROM_DISPLAY,
+    trigger: "process-trial-ended-emails cron, 48h after first send",
+    edgeFunction: "process-trial-ended-emails",
+    tone: "violet",
+    buildHtml: () =>
+      buildTrialEndedEmailHtml({
+        step: "ladder_30",
+        unsubscribeHref: `${EMAIL_SITE_URL}/unsubscribe/trial`,
+      }),
   },
 ]
