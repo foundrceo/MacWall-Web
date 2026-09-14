@@ -2,7 +2,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from "npm:@supabase/supabase-js@2.105.4"
 
 const ENQUEUE_LIMIT = 40
-const SEND_LIMIT = 25
+const SEND_LIMIT = 5
+const SEND_GAP_MS = 800
 const LADDER_20_AFTER_MS = 24 * 60 * 60 * 1000
 const LADDER_30_AFTER_MS = 48 * 60 * 60 * 1000
 
@@ -18,6 +19,10 @@ type QueueRow = {
   visitor_id: string
   email: string
   step: TrialEndedStep
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 const FONT =
@@ -476,7 +481,7 @@ async function processQueueRow(args: {
   resendKey: string
   from: string
   appName: string
-}): Promise<"sent" | "skipped" | "failed"> {
+}): Promise<"sent" | "skipped" | "failed" | "rate_limited"> {
   const { row, supabase, resendKey, from, appName } = args
   const step = parseStep(row.step)
   if (!step) {
@@ -597,6 +602,7 @@ async function processQueueRow(args: {
         .eq("visitor_id", row.visitor_id)
         .eq("step", step)
       console.error("[process-trial-ended-emails] resend_failed", res.status)
+      if (res.status === 429) return "rate_limited"
       return "failed"
     }
 
@@ -699,6 +705,7 @@ Deno.serve(async (req: Request) => {
   let sent = 0
   let skipped = 0
   let failed = 0
+  let rateLimited = false
 
   for (const row of (rows ?? []) as QueueRow[]) {
     const result = await processQueueRow({
@@ -710,7 +717,12 @@ Deno.serve(async (req: Request) => {
     })
     if (result === "sent") sent += 1
     else if (result === "skipped") skipped += 1
-    else failed += 1
+    else if (result === "rate_limited") {
+      failed += 1
+      rateLimited = true
+      break
+    } else failed += 1
+    await sleep(SEND_GAP_MS)
   }
 
   return Response.json({
@@ -720,5 +732,6 @@ Deno.serve(async (req: Request) => {
     sent,
     skipped,
     failed,
+    rate_limited: rateLimited,
   })
 })
