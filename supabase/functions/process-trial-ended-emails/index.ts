@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from "npm:@supabase/supabase-js@2.105.4"
 
 const ENQUEUE_LIMIT = 40
-const SEND_LIMIT = 0
+const SEND_LIMIT = 5
 const SEND_GAP_MS = 800
 const LADDER_20_AFTER_MS = 24 * 60 * 60 * 1000
 const LADDER_30_AFTER_MS = 48 * 60 * 60 * 1000
@@ -580,6 +580,7 @@ async function processQueueRow(args: {
         Authorization: `Bearer ${resendKey}`,
         "Content-Type": "application/json",
         "Idempotency-Key": `trial-ended/${row.visitor_id}/${step}`,
+        "User-Agent": "MacWall/1.0",
       },
       body: JSON.stringify({
         from,
