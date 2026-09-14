@@ -46,7 +46,7 @@ export type CreateMacWallCheckoutResult = CreateCheckoutResult
  *
  * Omits `payment_method_types` so Dynamic Payment Methods apply.
  * Enables Adaptive Pricing so buyers pay in local currency.
- * India → $3.99 / $6.99 Prices. Everyone else → $7.99 / $12.99.
+ * India → $3.99 / $6.99 Prices. Everyone else → $9.99 / $12.99.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput

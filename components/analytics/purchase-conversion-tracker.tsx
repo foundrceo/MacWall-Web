@@ -39,12 +39,12 @@ function fireGa4Purchase(value: number, currency: string) {
 
   window.gtag("event", "purchase", {
     currency,
-    value: Number.isFinite(value) ? value : 7.99,
+    value: Number.isFinite(value) ? value : 9.99,
     items: [
       {
         item_id: "macwall-pro",
         item_name: `${macwall.name} Pro`,
-        price: Number.isFinite(value) ? value : 7.99,
+        price: Number.isFinite(value) ? value : 9.99,
         quantity: 1,
       },
     ],
@@ -84,7 +84,7 @@ export function PurchaseConversionTracker({
         ? amount
         : Number.isFinite(fallbackPurchaseValue)
           ? fallbackPurchaseValue
-          : 7.99
+          : 9.99
     const curr = (currency || "USD").toUpperCase()
     const whopEventId = sessionId || (licenseKey ? `lic_${licenseKey}` : undefined)
 

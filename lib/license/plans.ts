@@ -28,7 +28,7 @@ const STRIPE_PRICE_ENV_BY_SLUG: Record<LicensePlanSlug, string> = {
 }
 
 const DEFAULT_STRIPE_PRICE_BY_SLUG: Record<LicensePlanSlug, string> = {
-  pro: "price_1TzXi9IZgqo0QIlXq15x1mQM",
+  pro: "price_1UFPVKIZgqo0QIlXnuOInCqk",
   pro_plus: "price_1TzXi9IZgqo0QIlXDYmQvXI2",
 }
 

@@ -24,7 +24,7 @@ export const LICENSE_PLANS: Record<LicensePlanSlug, LicensePlan> = {
     name: "Pro",
     badge: "3 Macs",
     maxDevices: 3,
-    price: "$7.99",
+    price: "$9.99",
     strikePrice: "$14.99",
     description:
       "Every wallpaper, Lock Screen video, and free updates forever on up to 3 of your Macs.",

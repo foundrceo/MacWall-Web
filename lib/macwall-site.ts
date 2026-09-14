@@ -165,7 +165,7 @@ export const macwall = {
   pro: {
     headline: "Permanent License",
     strikePrice: null,
-    price: "$7.99",
+    price: "$9.99",
     suffix: "permanent",
     socialProofMembers: "1,000+",
     features: [

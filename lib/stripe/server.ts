@@ -23,7 +23,7 @@ export function getStripe(): Stripe {
 export function getStripePriceIdUsd(): string {
   const fromEnv = process.env.STRIPE_PRICE_ID_USD?.trim()
   if (fromEnv) return fromEnv
-  return "price_1TlWD3IZgqo0QIlX5ZpOgLSn"
+  return "price_1UFPVKIZgqo0QIlXnuOInCqk"
 }
 
 export function getSiteOrigin(): string {

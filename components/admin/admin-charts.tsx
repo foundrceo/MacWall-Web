@@ -932,7 +932,7 @@ export function DayOfWeekRadarChart({
 /* License plan distribution pie chart --------------------------------------- */
 
 const planConfig = {
-  pro: { label: "Pro ($7.99)", color: C.blue },
+  pro: { label: "Pro ($9.99)", color: C.blue },
   pro_plus: { label: "Pro Plus ($12.99)", color: C.violet },
   annual: { label: "Annual ($4.99)", color: C.cyan },
 } satisfies ChartConfig

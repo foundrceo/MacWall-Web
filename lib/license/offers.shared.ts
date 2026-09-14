@@ -38,7 +38,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     name: "Permanent license",
     billingModel: "permanent",
     maxDevices: 3,
-    usdCents: 799, // $7.99 global
+    usdCents: 999, // $9.99 global
     indiaUsdCents: 399, // $3.99 India
     strikeUsdCents: 1499,
   },
