@@ -2,7 +2,8 @@
 
 /**
  * Emails — preview the transactional HTML customers receive via Resend
- * (license delivery + checkout recovery). Sample data only; nothing is sent.
+ * (license delivery, checkout recovery, trial-ended). Sample data only;
+ * nothing is sent from this page.
  */
 
 import {
@@ -27,15 +28,46 @@ import { Button } from "@/components/ui/button"
 import {
   ADMIN_EMAIL_TEMPLATES,
   EMAIL_SITE_URL,
+  type AdminEmailTemplate,
   type AdminEmailTemplateId,
 } from "@/lib/admin/email-templates"
 import { cn } from "@/lib/utils"
 
 type PreviewWidth = "desktop" | "mobile"
 
+type TrialEmailStats = {
+  leads: number
+  uniqueEmails: number
+  converted: number
+  unconvertedEnded: number
+  stillInTrial: number
+  unsubscribed: number
+  queuedPending: number
+  queuedSent: number
+  queuedSkipped: number
+  queuedCancelled: number
+}
+
 const WIDTH_PX: Record<PreviewWidth, number> = {
   desktop: 760,
   mobile: 390,
+}
+
+function templateLaneLabel(tone: AdminEmailTemplate["tone"]): string {
+  switch (tone) {
+    case "green":
+      return "Active"
+    case "amber":
+      return "Recovery"
+    case "violet":
+      return "Trial"
+    case "blue":
+      return "Mail"
+    default: {
+      const _never: never = tone
+      return _never
+    }
+  }
 }
 
 export default function AdminEmailsPage() {
@@ -43,6 +75,7 @@ export default function AdminEmailsPage() {
     useState<AdminEmailTemplateId>("license-3")
   const [width, setWidth] = useState<PreviewWidth>("desktop")
   const [frameHeight, setFrameHeight] = useState(900)
+  const [stats, setStats] = useState<TrialEmailStats | null>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const selected = useMemo(
@@ -51,6 +84,19 @@ export default function AdminEmailsPage() {
   )
 
   const [html, setHtml] = useState(() => selected.buildHtml())
+
+  useEffect(() => {
+    let cancelled = false
+    void fetch("/api/admin/trial-emails")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((payload: TrialEmailStats | null) => {
+        if (!cancelled && payload) setStats(payload)
+      })
+      .catch(() => null)
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   /** Prefer local assets in preview so hero/logo load on localhost. */
   useEffect(() => {
@@ -101,8 +147,48 @@ export default function AdminEmailsPage() {
               Templates
             </p>
             <p className="mt-0.5 text-[12px] text-[var(--admin-muted)]">
-              Sample preview only. Not sent.
+              Sample preview. Trial sequence skips anyone who already bought.
             </p>
+            {stats ? (
+              <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-[var(--admin-muted)]">
+                <div className="flex justify-between gap-2">
+                  <dt>Leads</dt>
+                  <dd className="font-medium text-[var(--admin-fg-soft)]">
+                    {stats.uniqueEmails}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt>Bought</dt>
+                  <dd className="font-medium text-[var(--admin-fg-soft)]">
+                    {stats.converted}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt>Due</dt>
+                  <dd className="font-medium text-[var(--admin-fg-soft)]">
+                    {stats.unconvertedEnded}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt>In trial</dt>
+                  <dd className="font-medium text-[var(--admin-fg-soft)]">
+                    {stats.stillInTrial}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt>Sent</dt>
+                  <dd className="font-medium text-[var(--admin-fg-soft)]">
+                    {stats.queuedSent}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt>Pending</dt>
+                  <dd className="font-medium text-[var(--admin-fg-soft)]">
+                    {stats.queuedPending}
+                  </dd>
+                </div>
+              </dl>
+            ) : null}
           </div>
           <nav className="min-h-0 flex-1 overflow-y-auto p-2">
             {ADMIN_EMAIL_TEMPLATES.map((template) => {
@@ -141,7 +227,7 @@ export default function AdminEmailsPage() {
                       {template.label}
                     </span>
                     <AdminBadge tone={template.tone as Tone}>
-                      {template.tone === "green" ? "Active" : "Recovery"}
+                      {templateLaneLabel(template.tone)}
                     </AdminBadge>
                   </div>
                   <p className="line-clamp-2 pl-6 text-[11px] leading-relaxed text-[var(--admin-muted)]">

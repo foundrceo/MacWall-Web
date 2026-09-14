@@ -35,6 +35,7 @@ export default function robots(): MetadataRoute.Robots {
         "/open",
         "/activate",
         "/tiktok",
+        "/unsubscribe",
         // Internal handler behind the `/{path}.md` rewrite — the HTML page is
         // canonical, so the Markdown twin should never be indexed on its own.
         "/md/",

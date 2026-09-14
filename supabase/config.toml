@@ -1,0 +1,10 @@
+project_id = "pxoqpyroqzsawbwajvkr"
+
+[functions.process-trial-ended-emails]
+verify_jwt = false
+
+[functions.stripe-license-email]
+verify_jwt = false
+
+[functions.process-checkout-recovery]
+verify_jwt = false

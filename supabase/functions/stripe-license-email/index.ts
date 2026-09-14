@@ -537,6 +537,23 @@ async function cancelCheckoutRecovery(
     .eq("status", "pending")
 }
 
+async function cancelTrialEndedEmails(
+  supabase: ReturnType<typeof createClient>,
+  email: string
+): Promise<void> {
+  const normalized = email.trim().toLowerCase()
+  if (!normalized) return
+  const { error } = await supabase.rpc("cancel_macwall_trial_ended_emails", {
+    p_email: normalized,
+  })
+  if (error) {
+    console.error(
+      "[stripe-license-email] trial_ended_cancel",
+      error.message
+    )
+  }
+}
+
 async function sendResendEmail(args: {
   resendKey: string
   from: string
@@ -606,6 +623,10 @@ async function handleCheckoutCompleted(args: {
     session.customer_details?.email?.trim() ||
     session.customer_email?.trim() ||
     null
+
+  if (customerEmail) {
+    await cancelTrialEndedEmails(supabase, customerEmail)
+  }
 
   if (!licenseKey) {
     return Response.json(
