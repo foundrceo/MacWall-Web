@@ -924,8 +924,8 @@ async function handleBackfillMissingLicenseEmails(args: {
     .eq("status", "active")
     .not("customer_email", "is", null)
     .gte("activated_at", since)
-    .order("activated_at", { ascending: true })
-    .limit(80)
+    .order("activated_at", { ascending: false })
+    .limit(400)
 
   if (error) {
     return Response.json({ ok: false, error: error.message }, { status: 500 })
@@ -966,6 +966,19 @@ async function handleBackfillMissingLicenseEmails(args: {
     const checkoutSessionId =
       row.stripe_checkout_session_id?.trim() || `backfill:${licenseKey}`
 
+    const sent = await deliverLicenseEmail({
+      resendKey: args.resendKey,
+      from: args.from,
+      appName,
+      to: customerEmail,
+      licenseKey,
+      maxDevices,
+    })
+    if (!sent.ok) {
+      results.push({ license_key: licenseKey, ok: false, error: sent.error })
+      continue
+    }
+
     const { error: insErr } = await args.supabase
       .from("macwall_stripe_license_emails")
       .insert({
@@ -980,19 +993,7 @@ async function handleBackfillMissingLicenseEmails(args: {
       continue
     }
 
-    const sent = await deliverLicenseEmail({
-      resendKey: args.resendKey,
-      from: args.from,
-      appName,
-      to: customerEmail,
-      licenseKey,
-      maxDevices,
-    })
-    results.push(
-      sent.ok
-        ? { license_key: licenseKey, ok: true }
-        : { license_key: licenseKey, ok: false, error: sent.error }
-    )
+    results.push({ license_key: licenseKey, ok: true })
     if (i < missing.length - 1) await sleep(800)
   }
 
