@@ -20,8 +20,8 @@ export default function AnnouncementBanner() {
     setIndia(pricing.isIndia || isVisitorFromIndia())
   }, [pricing.isIndia])
 
-  const now = india ? "$3.99" : "$7.99"
-  const soon = india ? "$4.99" : "$9.99"
+  const now = india ? "$3.99" : "$9.99"
+  const soon = india ? "$4.99" : "$12.99"
   const flag = india ? "🇮🇳" : "🔥"
 
   return (

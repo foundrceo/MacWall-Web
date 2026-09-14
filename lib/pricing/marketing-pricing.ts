@@ -23,7 +23,7 @@ export type MarketingMultiMacOffer = {
   strikePriceMajor: number
   /** e.g. "50% off" — matches sale vs cutted price */
   offLabel: string
-  /** When primary is local: "$7.99 USD". When primary is USD: null. */
+  /** When primary is local: "$9.99 USD". When primary is USD: null. */
   localPriceHint: string | null
   checkoutUrl: string
   currency: string
@@ -42,7 +42,7 @@ export type MarketingPricing = {
   permanentStrikePriceMajor: number
   /** e.g. "33% off" — matches sale vs cutted price */
   permanentOffLabel: string
-  /** When primary is local: "$7.99 USD". Otherwise null. */
+  /** When primary is local: "$9.99 USD". Otherwise null. */
   permanentLocalHint: string | null
   /**
    * Banner strip prices — local presentment when FX is available;
@@ -245,7 +245,7 @@ export function buildMarketingPricingFromLocalized(
     buyProAria: `Get ${macwall.name} Pro`,
     bannerHeadline: india
       ? "Last 10 Pro licenses at $3.99: after they're gone, the price is $4.99"
-      : "Last 10 Pro licenses at $7.99: after they're gone, the price is $9.99",
+      : "Last 10 Pro licenses at $9.99: after they're gone, the price is $12.99",
     bannerSubline: "Last 10 left at this price.",
     bannerCta: "See pricing",
     priceLine: india

@@ -10,7 +10,7 @@ export const downloadPage: SeoContentPage = {
   title: "Download MacWall for Mac",
   headline: "Download MacWall for Mac",
   description:
-    "Download MacWall for macOS. Native live wallpapers with hardware decode, menu bar controls, and a hand-picked catalog. Free to try, then $7.99 once.",
+    "Download MacWall for macOS. Native live wallpapers with hardware decode, menu bar controls, and a hand-picked catalog. Free to try, then $9.99 once.",
   keywords: [
     "macwall download",
     "download live wallpaper mac",
@@ -20,7 +20,7 @@ export const downloadPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "**MacWall** is the native macOS app for live wallpapers. Download it, install in seconds, and your desktop becomes a cinematic video loop. One payment of $7.99 unlocks everything, with free updates forever and no subscription.",
+      text: "**MacWall** is the native macOS app for live wallpapers. Download it, install in seconds, and your desktop becomes a cinematic video loop. One payment of $9.99 unlocks everything, with free updates forever and no subscription.",
     },
     {
       type: "h2",
@@ -69,7 +69,7 @@ export const downloadPage: SeoContentPage = {
     {
       question: "How much does MacWall cost?",
       answer:
-        `MacWall is a one-time $7.99 payment with free updates forever on up to 3 Macs per license (Pro+: 5 Macs). No subscription. Post a Reel with #macwall and you can get up to 100% of it refunded.`,
+        `MacWall is a one-time $9.99 payment with free updates forever on up to 3 Macs per license (Pro+: 5 Macs). No subscription. Post a Reel with #macwall and you can get up to 100% of it refunded.`,
     },
     {
       question: "Is MacWall safe to install?",
@@ -142,7 +142,7 @@ export const wallpaperEngineAlternativePage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "Wallpaper Engine has no official Mac app. **MacWall** is the native alternative for video live wallpapers, built for macOS with a growing community catalog. $7.99 once, cheaper than Wallpaper Engine itself, with free updates forever.",
+      text: "Wallpaper Engine has no official Mac app. **MacWall** is the native alternative for video live wallpapers, built for macOS with a growing community catalog. $9.99 once, with free updates forever.",
     },
     {
       type: "h2",
@@ -178,7 +178,7 @@ export const macwallVsBackdropPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "Two good native apps. **MacWall** wins on price ($7.99 Pro), community uploads, and the Reel refund. **Backdrop** wins on its built-in editor and a longer-established library.",
+      text: "Two good native apps. **MacWall** is $9.99 Pro, with community uploads and the Reel refund. **Backdrop** wins on its built-in editor and a longer-established library.",
     },
     {
       type: "h2",
@@ -187,7 +187,7 @@ export const macwallVsBackdropPage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "MacWall: $7.99 once, everything included",
+        "MacWall: $9.99 once, everything included",
         "Backdrop: $9.99 one-time",
         `Both: 4K video, multi-monitor, Lock Screen on ${macwallLockScreenMacOSVersion}`,
         "MacWall: personalized video imports + community catalog",
@@ -226,7 +226,7 @@ export const macwallVsWallspacePage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "MacWall: $7.99 one-time, everything included, up to 3 Macs per license (Pro+: 5)",
+        "MacWall: $9.99 one-time, everything included, up to 3 Macs per license (Pro+: 5)",
         "Wallspace: $8.99 Pro one-time",
         "Both: native Swift, hardware-accelerated 4K, multi-monitor, battery-aware pause",
         "MacWall: 9-category community catalog with search, filters, and engagement",
@@ -275,7 +275,7 @@ export const livelyWallpaperMacPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "Searching for **Lively Wallpaper on Mac**? Lively is a popular live wallpaper app, but it's Windows-only and has no macOS version. **MacWall** is the closest native equivalent: desktop video wallpapers, your own MP4 and MOV imports, and a hand-picked community catalog, all for $7.99, paid once.",
+      text: "Searching for **Lively Wallpaper on Mac**? Lively is a popular live wallpaper app, but it's Windows-only and has no macOS version. **MacWall** is the closest native equivalent: desktop video wallpapers, your own MP4 and MOV imports, and a hand-picked community catalog, all for $9.99, paid once.",
     },
     {
       type: "h2",
@@ -284,7 +284,7 @@ export const livelyWallpaperMacPage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "$7.99 once, no subscription, free updates forever",
+        "$9.99 once, no subscription, free updates forever",
         "Native Swift app, built only for macOS",
         "Import the same video files you used in Lively",
         "Curated 4K catalog across Anime, Nature, Cars, Gaming, and more",
@@ -316,7 +316,7 @@ export const livelyWallpaperMacPage: SeoContentPage = {
     {
       question: "How much does MacWall cost?",
       answer:
-        "MacWall is a one-time $7.99 payment with free updates forever on up to 3 Macs per license (Pro+: 5 Macs). No subscription, and a Reel with #macwall can get you the whole thing refunded.",
+        "MacWall is a one-time $9.99 payment with free updates forever on up to 3 Macs per license (Pro+: 5 Macs). No subscription, and a Reel with #macwall can get you the whole thing refunded.",
     },
   ],
 }
@@ -380,7 +380,7 @@ export function wallpaperCategoryPage(categoryName: string): SeoContentPage {
       {
         question: `How do I get ${categoryName} live wallpapers on my Mac?`,
         answer:
-          "Download MacWall, unlock it with a one-time $7.99 payment, and the whole catalog including Lock Screen wallpapers is yours, with free updates forever and no subscription.",
+          "Download MacWall, unlock it with a one-time $9.99 payment, and the whole catalog including Lock Screen wallpapers is yours, with free updates forever and no subscription.",
       },
     ],
   }

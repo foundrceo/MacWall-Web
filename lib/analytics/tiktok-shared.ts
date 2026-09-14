@@ -29,7 +29,7 @@ export type TikTokContent = {
 
 export function macwallProValue(): number {
   const value = Number.parseFloat(macwall.pro.price.replace(/[^0-9.]/g, ""))
-  return Number.isFinite(value) ? value : 7.99
+  return Number.isFinite(value) ? value : 9.99
 }
 
 export function macwallProProperties(overrides?: Partial<TikTokContent>) {

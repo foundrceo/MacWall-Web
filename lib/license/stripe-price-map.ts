@@ -10,7 +10,7 @@ import type {
  * (prod_UrOJX8fIfNB2Gs):
  *
  * Global:
- *   - permanent:     $7.99 / 3 Macs
+ *   - permanent:     $9.99 / 3 Macs
  *   - permanent_5:   $12.99 / 5 Macs
  *   - permanent_10:  $24.99 / 10 Macs
  *   - permanent_15:  $33.99 / 15 Macs
@@ -27,7 +27,7 @@ import type {
 export const MACWALL_PRO_PRODUCT_ID = "prod_UrOJX8fIfNB2Gs"
 
 const STRIPE_PRICE_IDS: Record<LicenseOfferSlug, string> = {
-  permanent: "price_1TzXi9IZgqo0QIlXq15x1mQM",
+  permanent: "price_1UFPVKIZgqo0QIlXnuOInCqk",
   annual: "price_1TrfXPIZgqo0QIlXvzJrJgPU",
   permanent_5: "price_1TzXi9IZgqo0QIlXDYmQvXI2",
   permanent_10: "price_1TzXuqIZgqo0QIlXn93A3OAA",
