@@ -686,14 +686,62 @@ async function deliverLicenseEmail(args: {
   })
 }
 
+/** Keep in sync with lib/license/stripe-price-map.ts */
+const EXTRA_MACS_PRICE_ID_DEFAULT = "price_1UFqbqIZgqo0QIlX8ilJPEiU"
+const EXTRA_MACS_PRODUCT_ID_DEFAULT = "prod_VGNMGYek2P7KCl"
+const EXTRA_MACS_DEVICE_LIMIT = 5
+
+function extraMacsCatalogIds(): { priceId: string; productId: string } {
+  return {
+    priceId:
+      Deno.env.get("STRIPE_PRICE_ID_EXTRA_MACS")?.trim() ||
+      EXTRA_MACS_PRICE_ID_DEFAULT,
+    productId:
+      Deno.env.get("STRIPE_PRODUCT_ID_EXTRA_MACS")?.trim() ||
+      EXTRA_MACS_PRODUCT_ID_DEFAULT,
+  }
+}
+
+function lineItemIsExtraMacs(
+  item: Stripe.LineItem,
+  catalog: { priceId: string; productId: string }
+): boolean {
+  const price = item.price
+  if (!price) return false
+  if (price.id === catalog.priceId) return true
+  const product = price.product
+  if (typeof product === "string") return product === catalog.productId
+  return product?.id === catalog.productId
+}
+
+async function checkoutBoughtExtraMacs(
+  stripe: Stripe,
+  sessionId: string
+): Promise<boolean> {
+  const catalog = extraMacsCatalogIds()
+  try {
+    const items = await stripe.checkout.sessions.listLineItems(sessionId, {
+      limit: 100,
+    })
+    return items.data.some((item) => lineItemIsExtraMacs(item, catalog))
+  } catch (error) {
+    console.error(
+      "[stripe-license-email] extra_macs_line_items",
+      error instanceof Error ? error.message : "error"
+    )
+    return false
+  }
+}
+
 async function handleCheckoutCompleted(args: {
   event: Stripe.Event
   session: Stripe.Checkout.Session
+  stripe: Stripe
   supabase: ReturnType<typeof createClient>
   resendKey: string
   from: string
 }): Promise<Response> {
-  const { session, supabase, resendKey, from } = args
+  const { session, stripe, supabase, resendKey, from } = args
 
   // Paid one-time Checkout only (mode payment / legacy subscription).
   if (session.mode !== "payment" && session.mode !== "subscription") {
@@ -746,17 +794,23 @@ async function handleCheckoutCompleted(args: {
   // plan_slug-derived guess only for old sessions created before those keys
   // existed.
   const rawPlanSlug = session.metadata?.plan_slug?.trim() || "pro"
-  const planSlug =
+  let planSlug: "pro" | "pro_plus" =
     rawPlanSlug === "pro_plus" || rawPlanSlug === "pro_max" ? "pro_plus" : "pro"
   const metadataMaxDevices = Number.parseInt(
     session.metadata?.max_devices?.trim() ?? "",
     10
   )
-  const maxDevices = [1, 2, 3, 5].includes(metadataMaxDevices)
+  let maxDevices = [1, 2, 3, 5, 10, 15, 20].includes(metadataMaxDevices)
     ? metadataMaxDevices
     : planSlug === "pro_plus"
       ? 5
       : 3
+
+  if (await checkoutBoughtExtraMacs(stripe, session.id)) {
+    maxDevices = Math.max(maxDevices, EXTRA_MACS_DEVICE_LIMIT)
+    planSlug = "pro_plus"
+  }
+
   const rawBillingModel = session.metadata?.billing_model?.trim()
   const billingModel =
     rawBillingModel === "annual" || rawBillingModel === "permanent"
@@ -966,7 +1020,7 @@ async function handleBackfillMissingLicenseEmails(args: {
     const row = missing[i]
     const licenseKey = row.license_key
     const customerEmail = row.customerEmail
-    const maxDevices = [1, 2, 3, 5].includes(Number(row.max_devices))
+    const maxDevices = [1, 2, 3, 5, 10, 15, 20].includes(Number(row.max_devices))
       ? Number(row.max_devices)
       : 3
     const checkoutSessionId =
@@ -1348,6 +1402,7 @@ Deno.serve(async (req: Request) => {
     return handleCheckoutCompleted({
       event,
       session,
+      stripe,
       supabase,
       resendKey,
       from,
