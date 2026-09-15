@@ -65,6 +65,7 @@ import { playAdminNotificationSound } from "@/lib/admin/notification-sound"
 import { useAdminFeedbackStream } from "@/lib/admin/use-admin-feedback-stream"
 import { ChatAttachmentMedia } from "@/components/macwall-chat/chat-attachment-media"
 import { useSupportTypingEmitter } from "@/lib/macwall-chat/use-support-typing-emitter"
+import { isStaleSupportCloseNotice } from "@/lib/support/stale-ticket-copy"
 import { cn } from "@/lib/utils"
 
 const VISITOR_TYPING_TTL_MS = 2500
@@ -290,14 +291,25 @@ type MessageGroup = {
 }
 type TimelineItem =
   | { kind: "separator"; key: string; label: string }
+  | { kind: "system"; key: string; body: string }
   | { kind: "group"; key: string; group: MessageGroup }
 
+function isAutoClosedTicket(item: FeedbackItem): boolean {
+  return item.messages.some((msg) => isStaleSupportCloseNotice(msg.body))
+}
+
 function buildTimeline(messages: FeedbackMessage[]): TimelineItem[] {
+  const ordered = [...messages].sort((a, b) => {
+    const delta = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    if (delta !== 0) return delta
+    return a.id.localeCompare(b.id)
+  })
+
   const items: TimelineItem[] = []
   let lastDay = ""
   let lastTime = 0
 
-  for (const msg of messages) {
+  for (const msg of ordered) {
     const date = new Date(msg.createdAt)
     const day = date.toDateString()
     const time = date.getTime()
@@ -310,6 +322,16 @@ function buildTimeline(messages: FeedbackMessage[]): TimelineItem[] {
         label: formatDayLabel(msg.createdAt),
       })
       lastDay = day
+    }
+
+    if (isStaleSupportCloseNotice(msg.body)) {
+      items.push({
+        kind: "system",
+        key: `sys-${msg.id}`,
+        body: msg.body,
+      })
+      lastTime = time
+      continue
     }
 
     const tail = items.at(-1)
@@ -1093,7 +1115,9 @@ export default function AdminFeedbackPage() {
               <ul className="space-y-0.5">
                 {visibleItems.map((item) => {
                   const last = item.messages.at(-1)
-                  const preview = last?.body ?? originalIssuePreview(item)
+                  const preview = isStaleSupportCloseNotice(last?.body)
+                    ? "Closed automatically after 7 idle days"
+                    : (last?.body ?? originalIssuePreview(item))
                   const active = selectedId === item.id
                   const chatId = chatIdForItem(item)
                   return (
@@ -1161,7 +1185,11 @@ export default function AdminFeedbackPage() {
                               <AdminBadge tone="blue">Reply</AdminBadge>
                             ) : null}
                             {item.isResolved ? (
-                              <AdminBadge tone="neutral">Closed</AdminBadge>
+                              <AdminBadge tone="neutral">
+                                {isAutoClosedTicket(item)
+                                  ? "Closed automatically"
+                                  : "Closed"}
+                              </AdminBadge>
                             ) : null}
                           </div>
                         </div>
@@ -1227,7 +1255,11 @@ export default function AdminFeedbackPage() {
                       {SENTIMENT[selected.sentiment].label}
                     </AdminBadge>
                     {selected.isResolved ? (
-                      <AdminBadge tone="neutral">Closed</AdminBadge>
+                      <AdminBadge tone="neutral">
+                        {isAutoClosedTicket(selected)
+                          ? "Closed automatically"
+                          : "Closed"}
+                      </AdminBadge>
                     ) : null}
                   </div>
                   <p className="truncate text-xs text-[var(--admin-muted)]">
@@ -1333,6 +1365,15 @@ export default function AdminFeedbackPage() {
                             {item.label}
                           </span>
                           <span className="h-px flex-1 bg-[var(--admin-border)]" />
+                        </div>
+                      ) : item.kind === "system" ? (
+                        <div
+                          key={item.key}
+                          className="flex justify-center px-2 py-3"
+                        >
+                          <p className="max-w-md rounded-2xl bg-[var(--admin-fill)] px-3.5 py-2 text-center text-[12px] leading-relaxed text-[var(--admin-muted)]">
+                            {item.body}
+                          </p>
                         </div>
                       ) : (
                         <div
@@ -1479,7 +1520,9 @@ export default function AdminFeedbackPage() {
                   ) : null}
                   {selected.isResolved ? (
                     <p className="mb-2 px-1 text-xs text-[var(--admin-muted)]">
-                      This ticket is closed — replying will not reopen it.
+                      {isAutoClosedTicket(selected)
+                        ? "Closed automatically because nothing happened for 7 days. Reopen if you still need this thread."
+                        : "This ticket is closed. Replying will not reopen it."}
                     </p>
                   ) : null}
 

@@ -36,7 +36,7 @@ export function parseSupportSentiment(value: unknown): SupportSentiment {
 export function supportErrorMessage(code: string): string {
   switch (code) {
     case "ticket_closed":
-      return "This support ticket is closed. Submit a new support request if you need further assistance."
+      return "This chat is closed. Start a new chat if you still need help."
     case "name_required":
       return "Please enter your name so our support team can assist you."
     case "message_required":
