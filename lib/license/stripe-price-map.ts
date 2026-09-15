@@ -17,6 +17,9 @@ import type {
  *   - permanent_20:  $39.99 / 20 Macs
  *   - annual:        $4.99/year (archived)
  *
+ * Checkout add-on (separate product prod_VGNMGYek2P7KCl):
+ *   - extra macs:    $3.99, offered on 3-Mac Pro only
+ *
  * India (same product, separate Prices — no coupon):
  *   - permanent:     $3.99
  *   - permanent_5:   $6.99
@@ -25,6 +28,11 @@ import type {
  *   - permanent_20:  $21.99
  */
 export const MACWALL_PRO_PRODUCT_ID = "prod_UrOJX8fIfNB2Gs"
+
+/** Checkout add-on: Pro (3 Macs) to 5 Macs for $3.99. */
+export const EXTRA_MACS_PRODUCT_ID = "prod_VGNMGYek2P7KCl"
+export const EXTRA_MACS_PRICE_ID = "price_1UFqbqIZgqo0QIlX8ilJPEiU"
+export const EXTRA_MACS_DEVICE_LIMIT = 5
 
 const STRIPE_PRICE_IDS: Record<LicenseOfferSlug, string> = {
   permanent: "price_1UFPVKIZgqo0QIlXnuOInCqk",
@@ -53,4 +61,16 @@ export function stripePriceIdForOffer(
     return STRIPE_INDIA_PRICE_IDS[offerSlug] ?? STRIPE_PRICE_IDS[offerSlug]
   }
   return STRIPE_PRICE_IDS[offerSlug]
+}
+
+export function extraMacsPriceId(): string {
+  return process.env.STRIPE_PRICE_ID_EXTRA_MACS?.trim() || EXTRA_MACS_PRICE_ID
+}
+
+/** 3-Mac Pro checkout only. Multi-Mac packs already include 5+ seats. */
+export function extraMacsOptionalItems(
+  offerSlug: LicenseOfferSlug
+): Array<{ price: string; quantity: number }> | undefined {
+  if (offerSlug !== "permanent") return undefined
+  return [{ price: extraMacsPriceId(), quantity: 1 }]
 }

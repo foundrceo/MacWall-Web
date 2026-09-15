@@ -9,7 +9,10 @@ import {
   licenseOfferFromSlug,
   licenseOfferPriceCents,
 } from "@/lib/license/offers.shared"
-import { stripePriceIdForOffer } from "@/lib/license/stripe-price-map"
+import {
+  extraMacsOptionalItems,
+  stripePriceIdForOffer,
+} from "@/lib/license/stripe-price-map"
 import {
   CHECKOUT_INTEGRATION_ID,
   checkoutErrorMessage,
@@ -47,6 +50,7 @@ export type CreateMacWallCheckoutResult = CreateCheckoutResult
  * Omits `payment_method_types` so Dynamic Payment Methods apply.
  * Enables Adaptive Pricing so buyers pay in local currency.
  * India → $3.99 / $6.99 Prices. Everyone else → $9.99 / $12.99.
+ * 3-Mac Pro Checkout offers Add 5 Extra Macs as an optional $3.99 add-on.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
@@ -63,6 +67,7 @@ export async function createMacWallCheckoutSession(
     const planSlug = offer.maxDevices >= 5 ? "pro_plus" : "pro"
     const stripePriceId = stripePriceIdForOffer(offer.slug, region)
 
+    const extraMacsItems = extraMacsOptionalItems(offer.slug)
     const licenseKey = generateMacWallLicenseKey()
     const encodedKey = encodeURIComponent(licenseKey)
     const promoCode = normalizeConversionPromo(
@@ -96,6 +101,7 @@ export async function createMacWallCheckoutSession(
       {
         mode: "payment",
         line_items: [{ price: stripePriceId, quantity: 1 }],
+        ...(extraMacsItems ? { optional_items: extraMacsItems } : {}),
         success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${siteOrigin}/pricing`,
         client_reference_id: licenseKey,
