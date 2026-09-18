@@ -25,6 +25,7 @@ import {
   AdminInfoGrid,
   PanelHeader,
 } from "@/components/admin/admin-ui"
+import { AdminEmptyState, AdminNotice } from "@/components/admin/admin-states"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -205,6 +206,11 @@ export default function AdminWallpapersPage({
   return (
     <AdminShell
       title="Wallpapers"
+      subtitle={
+        data
+          ? `${data.total.toLocaleString()} in catalog${category ? ` · ${category}` : ""}`
+          : "Browse and edit the catalog"
+      }
       actions={
         <>
           {data ? (
@@ -225,7 +231,7 @@ export default function AdminWallpapersPage({
             disabled={refreshing}
           >
             <RefreshCw
-              className={cn("size-3.5", refreshing && "animate-spin")}
+              className={cn("size-3.5", refreshing && "animate-spin motion-reduce:animate-none")}
             />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
@@ -245,6 +251,8 @@ export default function AdminWallpapersPage({
                   setPage(1)
                 }}
                 placeholder="Search by name or ID…"
+                aria-label="Search wallpapers by name or ID"
+                type="search"
                 className="h-9 pl-9"
               />
             </div>
@@ -257,7 +265,7 @@ export default function AdminWallpapersPage({
                   setPage(1)
                 }}
               >
-                <SelectTrigger className="h-9 w-full min-w-40 lg:w-44">
+                <SelectTrigger className="h-9 w-full min-w-40 lg:w-44" aria-label="Filter by category">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -277,7 +285,7 @@ export default function AdminWallpapersPage({
                   setPage(1)
                 }}
               >
-                <SelectTrigger className="h-9 w-full min-w-36 lg:w-40">
+                <SelectTrigger className="h-9 w-full min-w-36 lg:w-40" aria-label="Sort wallpapers">
                   <SelectValue placeholder="Sort" />
                 </SelectTrigger>
                 <SelectContent>
@@ -306,7 +314,7 @@ export default function AdminWallpapersPage({
                     className={cn(
                       "cursor-pointer rounded-md px-2 py-1 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]/30",
                       active
-                        ? "bg-[var(--admin-blue-soft)] text-[var(--admin-blue)]"
+                        ? "bg-[var(--admin-blue-soft)] text-[var(--admin-blue-fg)]"
                         : "bg-[var(--admin-fill)] text-[var(--admin-fg-soft)] hover:bg-[var(--admin-fill-hover)]"
                     )}
                   >
@@ -321,17 +329,8 @@ export default function AdminWallpapersPage({
           ) : null}
         </Card>
 
-        {error ? (
-          <div className="flex items-center gap-2 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-red-soft)] px-4 py-2.5 text-[13px] text-[var(--admin-red)]">
-            <TriangleAlert className="size-4 shrink-0" />
-            {error}
-          </div>
-        ) : null}
-        {message ? (
-          <div className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-green-soft)] px-4 py-2.5 text-[13px] text-[var(--admin-green)]">
-            {message}
-          </div>
-        ) : null}
+        {error ? <AdminNotice>{error}</AdminNotice> : null}
+        {message ? <AdminNotice tone="success">{message}</AdminNotice> : null}
 
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
           {/* Table */}
@@ -354,18 +353,17 @@ export default function AdminWallpapersPage({
                 ))}
               </div>
             ) : (data?.wallpapers.length ?? 0) === 0 ? (
-              <div className="flex flex-col items-center gap-2 px-6 py-16 text-center">
-                <ImageOff className="size-7 text-[var(--admin-border-strong)]" />
-                <p className="text-[13px] font-medium text-[var(--admin-fg)]">
-                  No wallpapers found
-                </p>
-                <p className="text-xs text-[var(--admin-muted)]">
-                  Try a different search term or clear the filters.
-                </p>
-              </div>
+              <AdminEmptyState
+                icon={<ImageOff className="size-7" />}
+                title="No wallpapers found"
+                description="Try a different search term or clear the filters."
+              />
             ) : (
               <div className="overflow-x-auto">
               <Table>
+                <caption className="sr-only">
+                  Wallpapers catalog. Activate a row to edit it.
+                </caption>
                 <TableHeader>
                   <TableRow className="border-[var(--admin-border)] hover:bg-transparent">
                     <TableHead className="h-9 w-16 pl-5 text-[11px] font-semibold tracking-wide text-[var(--admin-muted)] uppercase">
@@ -403,6 +401,9 @@ export default function AdminWallpapersPage({
                           src={item.thumbUrl}
                           alt=""
                           loading="lazy"
+                          decoding="async"
+                          width={88}
+                          height={88}
                           className="size-11 rounded-lg bg-[var(--admin-fill)] object-cover"
                         />
                       </TableCell>
@@ -419,7 +420,7 @@ export default function AdminWallpapersPage({
                       </TableCell>
                       <TableCell className="py-2.5 text-right">
                         <span className="inline-flex items-center gap-1 text-[13px] font-medium text-[var(--admin-fg)] tabular-nums">
-                          <Heart className="size-3.5 text-[var(--admin-red)]" />
+                          <Heart className="size-3.5 text-[var(--admin-red-fg)]" />
                           {item.likeCount.toLocaleString()}
                         </span>
                       </TableCell>
@@ -598,7 +599,9 @@ function WallpaperEditor({
           poster={wallpaper.thumbUrl}
           controls
           playsInline
-          className="aspect-video w-full rounded-lg bg-[var(--admin-fill)] object-cover"
+          preload="metadata"
+          aria-label={`Preview of ${wallpaper.name}`}
+          className="aspect-video w-full rounded-xl border border-[var(--admin-border)] bg-[var(--admin-fill)] object-cover"
         />
 
         <div className="space-y-1.5">
@@ -633,7 +636,10 @@ function WallpaperEditor({
 
         <div className="space-y-1.5">
           <Label htmlFor="wallpaper-tags" className="text-xs">
-            Tags
+            Tags{" "}
+            <span className="font-normal text-[var(--admin-muted)]">
+              (comma-separated · up to 20, 32 chars each)
+            </span>
           </Label>
           <Input
             id="wallpaper-tags"
@@ -673,13 +679,14 @@ function WallpaperEditor({
               <Switch
                 checked={toggle.checked}
                 onCheckedChange={toggle.onChange}
+                aria-label={toggle.label}
               />
             </label>
           ))}
         </div>
 
         {error ? (
-          <p className="flex items-center gap-1.5 text-xs text-[var(--admin-red)]">
+          <p className="flex items-center gap-1.5 text-xs text-[var(--admin-red-fg)]">
             <TriangleAlert className="size-3.5" />
             {error}
           </p>

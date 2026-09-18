@@ -67,7 +67,11 @@ const axisTick = { fill: C.muted, fontSize: 11 } as const
 
 function ChartEmpty({ message }: Readonly<{ message: string }>) {
   return (
-    <div className="flex h-[220px] items-center justify-center rounded-lg border border-dashed border-[var(--admin-border)] bg-[var(--admin-canvas)]">
+    <div
+      role="status"
+      className="flex h-[220px] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--admin-border-strong)] bg-[var(--admin-canvas)]"
+    >
+      <div aria-hidden className="admin-dotted-bg h-8 w-24" />
       <p className="text-[13px] text-[var(--admin-muted)]">{message}</p>
     </div>
   )
@@ -1094,87 +1098,6 @@ export function LicenseStatusDonut({
   )
 }
 
-/* Device activations area chart --------------------------------------------- */
-
-const deviceConfig = {
-  devices: { label: "Devices Activated", color: C.green },
-} satisfies ChartConfig
-
-export function DeviceActivationsAreaChart({
-  daily,
-  days = 14,
-}: Readonly<{
-  daily: Array<{ day: string; count: number }>
-  days?: number
-}>) {
-  const data = lastNDays(
-    daily.map((r) => ({
-      day: r.day,
-      label: formatDayTick(r.day),
-      devices: r.count,
-    })),
-    days
-  )
-
-  if (data.length === 0) {
-    return <ChartEmpty message="No device activations in this period." />
-  }
-
-  return (
-    <ChartContainer config={deviceConfig} className={CHART_HEIGHT}>
-      <AreaChart data={data} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
-        <defs>
-          <linearGradient id="fill-devices" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={C.green} stopOpacity={0.28} />
-            <stop offset="100%" stopColor={C.green} stopOpacity={0.02} />
-          </linearGradient>
-        </defs>
-        <CartesianGrid vertical={false} stroke={C.grid} strokeDasharray="3 3" />
-        <XAxis
-          dataKey="label"
-          tickLine={false}
-          axisLine={false}
-          tickMargin={10}
-          minTickGap={20}
-          tick={axisTick}
-        />
-        <YAxis
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-          width={36}
-          tick={axisTick}
-          allowDecimals={false}
-        />
-        <ChartTooltip
-          cursor={{ stroke: C.grid, strokeWidth: 1 }}
-          content={
-            <ChartTooltipContent
-              className={TOOLTIP_CLASS}
-              formatter={(value) => (
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-[var(--admin-muted)]">Devices:</span>
-                  <span className="font-semibold text-[var(--admin-fg)] tabular-nums">
-                    {value} Macs
-                  </span>
-                </div>
-              )}
-            />
-          }
-        />
-        <Area
-          type="natural"
-          dataKey="devices"
-          stroke={C.green}
-          strokeWidth={2}
-          fill="url(#fill-devices)"
-          activeDot={{ r: 4, fill: "#fff", stroke: C.green, strokeWidth: 2 }}
-        />
-      </AreaChart>
-    </ChartContainer>
-  )
-}
-
 /* Promo code usage bar chart ------------------------------------------------ */
 
 const promoConfig = {
@@ -1243,13 +1166,21 @@ export function HourlyActivityHeatmapGrid({
     return <ChartEmpty message="No hourly activity data." />
   }
 
-  const getCell = (d: number, h: number) => {
-    return rows.find((r) => r.dayIndex === d && r.hour === h)
+  // Index once — the old per-cell `rows.find()` was O(168 × N) per render.
+  const cellByDayHour = new Map<string, (typeof rows)[number]>()
+  for (const row of rows) {
+    cellByDayHour.set(`${row.dayIndex}:${row.hour}`, row)
   }
+  const getCell = (d: number, h: number) => cellByDayHour.get(`${d}:${h}`)
+
+  const peak = rows.reduce((max, r) => Math.max(max, r.count), 0)
 
   return (
-    <div className="space-y-2 overflow-x-auto py-2">
-      <div className="min-w-[620px]">
+    <div
+      role="img"
+      aria-label={`Weekly activity heatmap. Peak hour has ${peak} events. Darker cells mean more activity.`}
+      className="space-y-2 overflow-x-auto py-2"
+    >      <div className="min-w-[620px]">
         {/* Hour Header */}
         <div className="flex items-center text-[10px] text-[var(--admin-muted)] mb-1 pl-10">
           {hours.filter((h) => h % 3 === 0).map((h) => (
@@ -1274,19 +1205,20 @@ export function HourlyActivityHeatmapGrid({
                   return (
                     <div
                       key={h}
-                      title={`${dayName} ${h}:00 - ${count} events`}
-                      className="group relative h-4.5 rounded-xs transition-transform hover:scale-125"
+                      title={`${dayName} ${h}:00 — ${count} events`}
+                      aria-hidden
+                      className="group relative h-4.5 rounded-xs"
                       style={{
                         backgroundColor:
                           intensity === 0
                             ? "var(--admin-fill)"
                             : intensity < 0.25
-                              ? "rgba(0, 113, 227, 0.25)"
+                              ? "rgba(59, 130, 246, 0.28)"
                               : intensity < 0.5
-                                ? "rgba(0, 113, 227, 0.50)"
+                                ? "rgba(59, 130, 246, 0.52)"
                                 : intensity < 0.75
-                                  ? "rgba(0, 113, 227, 0.75)"
-                                  : "rgba(0, 113, 227, 1)",
+                                  ? "rgba(59, 130, 246, 0.78)"
+                                  : "rgba(96, 165, 250, 1)",
                       }}
                     />
                   )
@@ -1299,12 +1231,12 @@ export function HourlyActivityHeatmapGrid({
         {/* Legend */}
         <div className="mt-3 flex items-center justify-end gap-2 text-[11px] text-[var(--admin-muted)]">
           <span>Less active</span>
-          <div className="flex gap-1">
+          <div className="flex gap-1" aria-hidden>
             <span className="size-3 rounded-xs bg-[var(--admin-fill)]" />
-            <span className="size-3 rounded-xs bg-[rgba(0,113,227,0.25)]" />
-            <span className="size-3 rounded-xs bg-[rgba(0,113,227,0.50)]" />
-            <span className="size-3 rounded-xs bg-[rgba(0,113,227,0.75)]" />
-            <span className="size-3 rounded-xs bg-[rgba(0,113,227,1)]" />
+            <span className="size-3 rounded-xs bg-[rgba(59,130,246,0.28)]" />
+            <span className="size-3 rounded-xs bg-[rgba(59,130,246,0.52)]" />
+            <span className="size-3 rounded-xs bg-[rgba(59,130,246,0.78)]" />
+            <span className="size-3 rounded-xs bg-[rgba(96,165,250,1)]" />
           </div>
           <span>Peak active</span>
         </div>

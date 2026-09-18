@@ -10,6 +10,8 @@ export const macwallMarketingCopy = {
     navOverview: "Overview",
     navGallery: "Wallpapers",
     navBlog: "Blog",
+    navLearn: "Learn",
+    navCreator: "Want Free?",
     navSocials: "Community",
     navSupport: "Help",
     navPricing: "Pricing",

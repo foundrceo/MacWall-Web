@@ -204,7 +204,7 @@ async function loadAnalytics(days: number, sinceIso: string) {
       days
     )
 
-    const licenseAnalytics = buildLicenseAnalytics(detailedLicenses, allSales.length)
+    const licenseAnalytics = buildLicenseAnalytics(detailedLicenses)
     const liveActivity = buildLiveActivity(liveEventRows)
     const dayOfWeekSales = buildDayOfWeekSales(allSales)
     const hourlyHeatmap = buildHourlyActivityHeatmap(eventRows)

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 
 import { requireAdminApi } from "@/lib/admin/auth"
 import {
+  getFeedbackAwaitingReplyCount,
   getFeedbackTotals,
   listAppFeedback,
   setFeedbackResolved,
@@ -24,6 +25,11 @@ export async function GET(request: Request) {
 
   try {
     const { searchParams } = new URL(request.url)
+    if (searchParams.get("totals") === "1") {
+      const awaitingReply = await getFeedbackAwaitingReplyCount()
+      return NextResponse.json({ totals: { awaitingReply } })
+    }
+
     const requested = searchParams.get("filter")
     const filter: FeedbackFilter =
       requested && ALLOWED.includes(requested as FeedbackFilter)

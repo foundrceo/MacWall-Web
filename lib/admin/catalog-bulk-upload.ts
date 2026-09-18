@@ -98,14 +98,6 @@ type ExistingWallpaperRow = {
   file_size_bytes: number
 }
 
-export function catalogUploadConfig() {
-  return {
-    bucket: STORAGE_BUCKET,
-    maxBatchItems: MAX_BATCH_ITEMS,
-    cacheControl: CACHE_CONTROL_SECONDS,
-  }
-}
-
 function assertPlainObject(
   value: unknown,
   label: string

@@ -1,4 +1,9 @@
 import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
+import {
+  LEGAL_DOCUMENTS,
+  LEGAL_HUB_HREF,
+  type LegalDocumentSlug,
+} from "@/lib/legal/documents"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { macwall, macwallProCheckoutURL } from "@/lib/macwall-site"
 import { categorySlugFromName } from "@/lib/seo/category-slugs"
@@ -35,25 +40,19 @@ export type MarketingFooterSocialLink = {
   href: string
 }
 
-export type MarketingFooterLegalLink = {
-  label: string
-  href: string
-}
-
-/** Visible footer columns — mirrors header nav funnel + resources + support. */
+/** Visible footer columns — Product → Resources → Company → Legal (funnel order). */
 export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
   const foot = macwallMarketingCopy.footer
 
   return [
     {
-      title: "Products",
+      title: "Product",
       links: [
         { label: "Wallpapers", href: "/wallpapers" },
         { label: foot.shop.pricing, href: "/pricing" },
         { label: foot.shop.download, href: "/download" },
-        ...(AFFILIATE_UI_VISIBLE
-          ? [{ label: foot.connect.affiliate, href: "/affiliate" }]
-          : []),
+        { label: "Bend", href: "/bend" },
+        { label: "Creator Program", href: "/creator" },
       ],
     },
     {
@@ -61,27 +60,46 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
       links: [
         { label: "Docs", href: "/docs" },
         { label: "Learn", href: "/learn" },
-        { label: "Blogs", href: "/blog" },
+        { label: foot.explore.blog, href: "/blog" },
         { label: "Changelog", href: "/changelog" },
-        { label: "AI product info", href: "/ai-info" },
-        { label: "Free with a Reel", href: "/creator" },
       ],
     },
     {
-      title: "Support",
+      title: "Company",
       links: [
         {
-          label: "Email us",
+          label: "Contact",
           href: `mailto:${macwall.supportEmail}`,
           external: true,
         },
-        { label: "Crawler & AI policy", href: "/crawlers" },
-        { label: foot.legal.hub, href: "/legal" },
-        { label: foot.legal.privacy, href: "/legal/privacy" },
-        { label: foot.legal.terms, href: "/legal/terms" },
+        {
+          label: "Discord",
+          href: macwall.discordInvite,
+          external: true,
+        },
+        ...(AFFILIATE_UI_VISIBLE
+          ? [{ label: foot.connect.affiliate, href: "/affiliate" }]
+          : []),
+      ],
+    },
+    {
+      title: foot.legal.hub,
+      links: [
+        legalFooterLink("terms"),
+        legalFooterLink("privacy"),
+        legalFooterLink("cookies"),
+        legalFooterLink("refund"),
+        { label: "All Policies", href: LEGAL_HUB_HREF },
       ],
     },
   ]
+}
+
+/** Footer shows only the binding essentials — the rest lives on the /legal hub. */
+function legalFooterLink(slug: LegalDocumentSlug): MarketingFooterLink {
+  const doc = LEGAL_DOCUMENTS.find((d) => d.slug === slug)
+  if (!doc) throw new Error(`Unknown legal document: ${slug}`)
+  return { label: doc.shortTitle, href: doc.href }
 }
 
 export function getMarketingFooterSocialLinks(): readonly MarketingFooterSocialLink[] {
@@ -93,19 +111,6 @@ export function getMarketingFooterSocialLinks(): readonly MarketingFooterSocialL
       href: macwall.reelRefundInstagramURL,
     },
     { brand: "TikTok", label: "TikTok", href: macwall.reelRefundTiktokURL },
-  ]
-}
-
-export function getMarketingFooterLegalLinks(): readonly MarketingFooterLegalLink[] {
-  const foot = macwallMarketingCopy.footer
-
-  return [
-    { label: foot.legal.hub, href: "/legal" },
-    { label: foot.legal.privacy, href: "/legal/privacy" },
-    { label: foot.legal.terms, href: "/legal/terms" },
-    { label: "DMCA", href: "/legal/dmca" },
-    { label: "Cookies", href: "/legal/cookies" },
-    { label: "Refunds", href: "/legal/refund" },
   ]
 }
 
@@ -165,10 +170,22 @@ export function getMarketingFooterSections(
       title: foot.exploreTitle,
       links: [
         { label: "Wallpapers", href: "/wallpapers", kind: "internal" },
+        { label: "Bend", href: "/bend", kind: "internal" },
+        { label: "Want Free?", href: "/creator", kind: "internal" },
         { label: "Docs", href: "/docs", kind: "internal" },
         { label: "Learn", href: "/learn", kind: "internal" },
         { label: foot.explore.blog, href: "/blog", kind: "internal" },
         { label: "Changelog", href: "/changelog", kind: "internal" },
+        {
+          label: foot.explore.liveWallpaper,
+          href: "/blog/how-to-set-live-wallpaper-mac",
+          kind: "internal",
+        },
+        {
+          label: foot.explore.lockScreen,
+          href: "/blog/lock-screen-live-wallpaper-macos",
+          kind: "internal",
+        },
         { label: "AI product info", href: "/ai-info", kind: "internal" },
       ],
     },
@@ -203,6 +220,11 @@ export function getMarketingFooterSections(
         {
           label: "Email us",
           href: `mailto:${macwall.supportEmail}`,
+          kind: "external",
+        },
+        {
+          label: macwallMarketingCopy.hover.links.discord.label,
+          href: macwall.discordInvite,
           kind: "external",
         },
       ],

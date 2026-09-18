@@ -1,8 +1,8 @@
 "use client"
 
 import { trackSiteEventClient } from "@/lib/analytics/client"
-import { macwallMinimumMacOSVersionLabel } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
+import { HeroPriceCaption } from "@/components/macwall-marketing/hero-price-caption"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -29,27 +29,25 @@ export function HeroMobileActions({
   onGetLicense: () => void
 }>) {
   return (
-    <div className="flex w-full max-w-sm flex-col gap-3">
-      <div className="flex w-full flex-col items-center">
+    <div className="flex w-full max-w-sm flex-col items-center">
+      <div className="flex w-full flex-col gap-2">
         <a href="/download" className={heroFilledCapsule}>
           <AppleIcon />
           Send link to my Mac
         </a>
-        <p className="mt-2 text-center text-[11px] leading-snug text-muted-foreground sm:text-[12px]">
-          {macwallMinimumMacOSVersionLabel}
-        </p>
+        <button
+          type="button"
+          onClick={() => {
+            trackSiteEventClient("pricing_click", { location: "hero_mobile" })
+            onGetLicense()
+          }}
+          className={heroOutlineCapsule}
+          aria-haspopup="dialog"
+        >
+          Get License
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={() => {
-          trackSiteEventClient("pricing_click", { location: "hero_mobile" })
-          onGetLicense()
-        }}
-        className={heroOutlineCapsule}
-        aria-haspopup="dialog"
-      >
-        Get License
-      </button>
+      <HeroPriceCaption />
     </div>
   )
 }

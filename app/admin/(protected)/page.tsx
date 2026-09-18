@@ -29,12 +29,12 @@ import {
   Sparkles,
   Tag,
   TrendingUp,
-  TriangleAlert,
   Users,
   Zap,
 } from "lucide-react"
 
 import { AdminShell } from "@/components/admin/admin-shell"
+import { AdminNotice } from "@/components/admin/admin-states"
 import {
   CategoryDonut,
   ConversionFunnelChart,
@@ -434,6 +434,7 @@ export default function AdminAnalyticsPage() {
   return (
     <AdminShell
       title="Analytics"
+      subtitle={`Live sales, traffic and catalog health · ${rangeLabel}`}
       largeTitle
       actions={
         <>
@@ -461,19 +462,14 @@ export default function AdminAnalyticsPage() {
             disabled={loading}
             aria-label="Refresh analytics"
           >
-            <RefreshCw className={cn("size-3.5", loading && "animate-spin")} />
+            <RefreshCw className={cn("size-3.5", loading && "animate-spin motion-reduce:animate-none")} />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
         </>
       }
     >
-      <div className="space-y-10">
-        {error ? (
-          <div className="flex items-center gap-2 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-red-soft)] px-4 py-3 text-[13px] text-[var(--admin-red)]">
-            <TriangleAlert className="size-4 shrink-0" />
-            {error}
-          </div>
-        ) : null}
+      <div className="space-y-8">
+        {error ? <AdminNotice>{error}</AdminNotice> : null}
 
         {loading && !data ? <DashboardSkeleton /> : null}
 
@@ -564,7 +560,7 @@ export default function AdminAnalyticsPage() {
               >
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <StatCard
-                    icon={<Radio className="size-4 text-emerald-500 animate-pulse" />}
+                    icon={<Radio className="size-4 text-emerald-500 animate-pulse motion-reduce:animate-none" />}
                     label="Active now (5m)"
                     value={live.activeUsers5m}
                     hint={`${live.activeUsers15m} in last 15m · ${live.activeUsers1h} in last 1h`}
@@ -1465,7 +1461,10 @@ function TrackingPill({ data }: Readonly<{ data: AnalyticsResponse }>) {
   }
 
   return (
-    <span className="hidden h-8 items-center gap-1.5 rounded-full bg-[var(--admin-fill)] px-2.5 text-xs font-medium text-[var(--admin-fg-soft)] sm:inline-flex">
+    <span
+      role="status"
+      className="hidden h-8 items-center gap-1.5 rounded-full border border-[var(--admin-border)] bg-[var(--admin-fill)] px-2.5 text-xs font-medium text-[var(--admin-fg-soft)] sm:inline-flex"
+    >
       <AdminStatusDot tone={tone} pulse={isRecent} />
       {label}
       {lastEventAt ? (

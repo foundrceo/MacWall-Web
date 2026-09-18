@@ -1,3 +1,5 @@
+import "server-only"
+
 import {
   catalogMarketingGalleryPosterUrlFromKey,
   catalogPublicVideoUrlFromKey,
@@ -131,8 +133,19 @@ export async function listAdminWallpapers(options: {
 
   const q = options.q?.trim()
   if (q) {
-    const escaped = q.replace(/[%_]/g, "\\$&")
-    query = query.or(`name.ilike.%${escaped}%,id.ilike.%${escaped}%`)
+    // Escape LIKE wildcards + backslashes, then strip PostgREST `or()` separators
+    // (`,`/`(`/`)`) so a crafted query can't break the filter syntax.
+    const escaped = q
+      .replace(/\\/g, "\\\\")
+      .replace(/[%_]/g, "\\$&")
+      .replace(/[,()]/g, "")
+      .slice(0, 120)
+    if (escaped) {
+      query = query.or(`name.ilike.%${escaped}%,id.ilike.%${escaped}%`)
+    } else {
+      // Degenerate query (only separators) — match nothing, not everything.
+      query = query.eq("id", "__no_match__")
+    }
   }
 
   if (options.category?.trim()) {
@@ -180,6 +193,7 @@ export async function updateAdminWallpaper(
   if (patch.name !== undefined) {
     const name = patch.name.trim()
     if (name.length < 2) throw new Error("Name must be at least 2 characters.")
+    if (name.length > 140) throw new Error("Name must be 140 characters or fewer.")
     updates.name = name
   }
 
@@ -192,7 +206,11 @@ export async function updateAdminWallpaper(
   }
 
   if (patch.tags !== undefined) {
-    updates.tags = patch.tags.map((tag) => tag.trim()).filter(Boolean)
+    const tags = patch.tags
+      .map((tag) => tag.trim().slice(0, 32))
+      .filter(Boolean)
+      .slice(0, 20)
+    updates.tags = [...new Set(tags)]
   }
 
   if (patch.isPro !== undefined) updates.is_pro = patch.isPro

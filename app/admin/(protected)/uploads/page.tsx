@@ -1,9 +1,9 @@
 "use client"
 
 /**
- * Uploads — community submission review plus the bulk catalog uploader.
- * The review queue lives inline here; the uploader keeps its own file because
- * it is a self-contained pipeline (parallel multipart R2 uploads, thumbnails, retries).
+ * Uploads — community submission review, live catalog bulk publish, and
+ * static still-image uploads to R2 `static-wallpapers/`.
+ * The review queue lives inline here; each uploader keeps its own file.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -27,7 +27,9 @@ import {
   PanelHeader,
   type Tone,
 } from "@/components/admin/admin-ui"
+import { AdminEmptyState, AdminNotice } from "@/components/admin/admin-states"
 import { CatalogBulkUploadPanel } from "@/components/admin/catalog-bulk-upload-panel"
+import { StaticWallpaperUploadPanel } from "@/components/admin/static-wallpaper-upload-panel"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -199,6 +201,7 @@ export default function AdminUploadsPage() {
   return (
     <AdminShell
       title="Uploads"
+      subtitle="Review community submissions, bulk-publish live wallpapers, or upload still images"
       actions={
         tab === "review" ? (
           <Button
@@ -208,7 +211,7 @@ export default function AdminUploadsPage() {
             disabled={refreshing}
           >
             <RefreshCw
-              className={cn("size-3.5", refreshing && "animate-spin")}
+              className={cn("size-3.5", refreshing && "animate-spin motion-reduce:animate-none")}
             />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
@@ -223,20 +226,14 @@ export default function AdminUploadsPage() {
           <TabsTrigger value="bulk" className="px-4 text-[13px]">
             Bulk upload
           </TabsTrigger>
+          <TabsTrigger value="static" className="px-4 text-[13px]">
+            Static images
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="review" className="space-y-4">
-          {error ? (
-            <div className="flex items-center gap-2 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-red-soft)] px-4 py-2.5 text-[13px] text-[var(--admin-red)]">
-              <TriangleAlert className="size-4 shrink-0" />
-              {error}
-            </div>
-          ) : null}
-          {message ? (
-            <div className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-green-soft)] px-4 py-2.5 text-[13px] text-[var(--admin-green)]">
-              {message}
-            </div>
-          ) : null}
+          {error ? <AdminNotice>{error}</AdminNotice> : null}
+          {message ? <AdminNotice tone="success">{message}</AdminNotice> : null}
 
           <div className="grid gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
             {/* Queue */}
@@ -274,12 +271,12 @@ export default function AdminUploadsPage() {
                     ))}
                   </div>
                 ) : uploads.length === 0 ? (
-                  <div className="flex flex-col items-center gap-2 px-4 py-14 text-center">
-                    <FileVideo className="size-6 text-[var(--admin-border-strong)]" />
-                    <p className="text-[13px] text-[var(--admin-muted)]">
-                      No uploads in this filter.
-                    </p>
-                  </div>
+                  <AdminEmptyState
+                    icon={<FileVideo className="size-6" />}
+                    title="Nothing in this filter"
+                    description="Pending community uploads show up here for review."
+                    className="py-14"
+                  />
                 ) : (
                   <ul className="space-y-0.5">
                     {uploads.map((upload) => {
@@ -345,21 +342,23 @@ export default function AdminUploadsPage() {
                 </div>
               ) : (
                 <div className="space-y-4 p-5">
-                  {videoUrl ? (
-                    <video
-                      key={videoUrl}
-                      src={videoUrl}
-                      poster={thumbUrl ?? undefined}
-                      controls
-                      playsInline
-                      className="aspect-video w-full rounded-lg bg-black object-contain"
-                    />
-                  ) : (
+                    {videoUrl ? (
+                      <video
+                        key={videoUrl}
+                        src={videoUrl}
+                        poster={thumbUrl ?? undefined}
+                        controls
+                        playsInline
+                        preload="metadata"
+                        aria-label={`Preview of ${selected.title}`}
+                        className="aspect-video w-full rounded-xl border border-[var(--admin-border)] bg-black object-contain"
+                      />
+                    ) : (
                     <Skeleton className="aspect-video w-full rounded-lg" />
                   )}
 
                   {mediaError ? (
-                    <p className="flex items-center gap-1.5 text-xs text-[var(--admin-red)]">
+                    <p className="flex items-center gap-1.5 text-xs text-[var(--admin-red-fg)]">
                       <TriangleAlert className="size-3.5" />
                       {mediaError}
                     </p>
@@ -393,14 +392,14 @@ export default function AdminUploadsPage() {
                   />
 
                   {selected.reviewNotes ? (
-                    <div className="rounded-lg bg-[var(--admin-amber-soft)] px-3.5 py-2.5 text-[13px] text-[var(--admin-amber)]">
+                    <div className="rounded-lg bg-[var(--admin-amber-soft)] px-3.5 py-2.5 text-[13px] text-[var(--admin-amber-fg)]">
                       <span className="font-medium">Review notes:</span>{" "}
                       {selected.reviewNotes}
                     </div>
                   ) : null}
 
                   {selected.approvedWallpaperId ? (
-                    <div className="flex items-center gap-2 rounded-lg bg-[var(--admin-green-soft)] px-3.5 py-2.5 text-[13px] text-[var(--admin-green)]">
+                    <div className="flex items-center gap-2 rounded-lg bg-[var(--admin-green-soft)] px-3.5 py-2.5 text-[13px] text-[var(--admin-green-fg)]">
                       <CircleCheck className="size-4 shrink-0" />
                       Published to the catalog as{" "}
                       <Link
@@ -415,10 +414,21 @@ export default function AdminUploadsPage() {
 
                   {selected.status === "pending" ? (
                     <div className="space-y-3 border-t border-[var(--admin-border)] pt-4">
+                      <label
+                        htmlFor="review-notes"
+                        className="text-xs font-medium text-[var(--admin-fg-soft)]"
+                      >
+                        Review note{" "}
+                        <span className="font-normal text-[var(--admin-muted)]">
+                          (optional, shown to the submitter)
+                        </span>
+                      </label>
                       <Textarea
+                        id="review-notes"
                         value={reviewNotes}
                         onChange={(event) => setReviewNotes(event.target.value)}
                         placeholder="Optional note for the submitter — shown in the MacWall app and notification when you approve or reject…"
+                        maxLength={2000}
                         className="min-h-20 resize-y"
                       />
                       <div className="flex flex-wrap gap-2">
@@ -448,6 +458,10 @@ export default function AdminUploadsPage() {
 
         <TabsContent value="bulk">
           <CatalogBulkUploadPanel />
+        </TabsContent>
+
+        <TabsContent value="static">
+          <StaticWallpaperUploadPanel />
         </TabsContent>
       </Tabs>
     </AdminShell>

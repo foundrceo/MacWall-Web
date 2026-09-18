@@ -1,3 +1,5 @@
+import "server-only"
+
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 import { notifyCommunityUploadReviewed } from "@/lib/push/notify-visitor"
 import { r2CopyObject, r2PresignGetUrl } from "@/lib/storage/r2"
@@ -136,8 +138,10 @@ export async function approveCommunityUpload(
     upload.videoKey
   )
 
-  await r2CopyObject(upload.videoKey, videoKey)
-  await r2CopyObject(upload.thumbKey, thumbKey)
+  await Promise.all([
+    r2CopyObject(upload.videoKey, videoKey),
+    r2CopyObject(upload.thumbKey, thumbKey),
+  ])
 
   const supabase = getSupabaseAdmin()
 

@@ -12,6 +12,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type SyntheticEvent,
 } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -34,6 +35,17 @@ import {
 import { cn } from "@/lib/utils"
 
 type PreviewWidth = "desktop" | "mobile"
+
+const subscribeToNothing = () => () => {}
+
+/** Browser origin once hydrated, empty string on the server so markup matches. */
+function useBrowserOrigin() {
+  return useSyncExternalStore(
+    subscribeToNothing,
+    () => window.location.origin,
+    () => ""
+  )
+}
 
 type TrialEmailStats = {
   leads: number
@@ -83,7 +95,13 @@ export default function AdminEmailsPage() {
     [selectedId]
   )
 
-  const [html, setHtml] = useState(() => selected.buildHtml())
+  const origin = useBrowserOrigin()
+
+  /** Prefer local assets in preview so hero/logo load on localhost. */
+  const html = useMemo(() => {
+    const built = selected.buildHtml()
+    return origin ? built.split(EMAIL_SITE_URL).join(origin) : built
+  }, [selected, origin])
 
   useEffect(() => {
     let cancelled = false
@@ -97,13 +115,6 @@ export default function AdminEmailsPage() {
       cancelled = true
     }
   }, [])
-
-  /** Prefer local assets in preview so hero/logo load on localhost. */
-  useEffect(() => {
-    const origin = window.location.origin
-    setHtml(selected.buildHtml().split(EMAIL_SITE_URL).join(origin))
-    setFrameHeight(900)
-  }, [selected])
 
   const measureFrame = useCallback(() => {
     const doc = iframeRef.current?.contentDocument
@@ -139,13 +150,16 @@ export default function AdminEmailsPage() {
   }, [width, html, measureFrame])
 
   return (
-    <AdminShell title="Emails" fill>
+    <AdminShell title="Emails" subtitle="Preview every transactional template" fill>
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <aside className="flex max-h-[40vh] w-full shrink-0 flex-col border-b border-[var(--admin-border)] bg-[var(--admin-surface)] lg:max-h-none lg:w-80 lg:border-r lg:border-b-0">
+        <aside
+          aria-label="Email templates"
+          className="flex max-h-[40vh] w-full shrink-0 flex-col border-b border-[var(--admin-border)] bg-[var(--admin-surface)] lg:max-h-none lg:w-80 lg:border-r lg:border-b-0"
+        >
           <div className="border-b border-[var(--admin-border)] px-4 py-3">
-            <p className="text-[13px] font-semibold text-[var(--admin-fg)]">
+            <h2 className="text-[13px] font-semibold tracking-tight text-[var(--admin-fg)]">
               Templates
-            </p>
+            </h2>
             <p className="mt-0.5 text-[12px] text-[var(--admin-muted)]">
               Sample preview. Trial sequence skips anyone who already bought.
             </p>
@@ -190,7 +204,7 @@ export default function AdminEmailsPage() {
               </dl>
             ) : null}
           </div>
-          <nav className="min-h-0 flex-1 overflow-y-auto p-2">
+          <nav className="admin-scroll min-h-0 flex-1 overflow-y-auto p-2" aria-label="Email templates">
             {ADMIN_EMAIL_TEMPLATES.map((template) => {
               const active = template.id === selectedId
               return (
@@ -212,7 +226,7 @@ export default function AdminEmailsPage() {
                       className={cn(
                         "size-4 shrink-0",
                         active
-                          ? "text-[var(--admin-blue)]"
+                          ? "text-[var(--admin-blue-fg)]"
                           : "text-[var(--admin-muted)]"
                       )}
                     />
@@ -239,7 +253,10 @@ export default function AdminEmailsPage() {
           </nav>
         </aside>
 
-        <section className="flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--admin-canvas)]">
+        <section
+          aria-label="Email preview"
+          className="flex min-h-0 min-w-0 flex-1 flex-col bg-[var(--admin-canvas)]"
+        >
           <div className="shrink-0 border-b border-[var(--admin-border)] bg-[var(--admin-surface)] px-4 py-3 sm:px-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0 space-y-1.5">
@@ -334,7 +351,7 @@ export default function AdminEmailsPage() {
                       href={EMAIL_SITE_URL}
                       target="_blank"
                       rel="noreferrer"
-                      className="ml-auto inline-flex items-center gap-1 text-[11px] font-medium text-[var(--admin-blue)] hover:underline"
+                      className="ml-auto inline-flex items-center gap-1 text-[11px] font-medium text-[var(--admin-blue-fg)] hover:underline"
                     >
                       macwall.app
                       <ExternalLink className="size-3" />

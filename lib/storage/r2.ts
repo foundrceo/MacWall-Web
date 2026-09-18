@@ -334,6 +334,56 @@ export async function r2CopyObject(
 
 export type R2ObjectInfo = { exists: boolean; sizeBytes: number | null }
 
+export type R2ListedObject = {
+  key: string
+  sizeBytes: number
+  lastModified: string | null
+}
+
+/** List objects under a prefix (S3 ListObjectsV2). Skips zero-byte folder markers. */
+export async function r2ListObjects(
+  prefix: string,
+  maxKeys = 200
+): Promise<R2ListedObject[]> {
+  const { client, config } = requireR2()
+  const normalizedPrefix = prefix.replace(/^\/+/, "")
+  const limit = Math.min(Math.max(1, Math.trunc(maxKeys)), 1000)
+
+  const url = new URL(
+    `https://${config.accountId}.r2.cloudflarestorage.com/${config.bucket}`
+  )
+  url.searchParams.set("list-type", "2")
+  url.searchParams.set("prefix", normalizedPrefix)
+  url.searchParams.set("max-keys", String(limit))
+
+  const response = await client.fetch(url.toString(), { method: "GET" })
+  if (!response.ok) {
+    const body = await response.text().catch(() => "")
+    throw new Error(
+      `R2 list failed for ${normalizedPrefix}: HTTP ${response.status} ${body}`
+    )
+  }
+
+  const xml = await response.text()
+  const blocks = xml.match(/<Contents>[\s\S]*?<\/Contents>/g) ?? []
+  const objects: R2ListedObject[] = []
+
+  for (const block of blocks) {
+    const key = block.match(/<Key>([^<]+)<\/Key>/)?.[1]
+    if (!key || key.endsWith("/")) continue
+    const size = Number(block.match(/<Size>(\d+)<\/Size>/)?.[1] ?? "0")
+    const lastModified =
+      block.match(/<LastModified>([^<]+)<\/LastModified>/)?.[1] ?? null
+    objects.push({
+      key,
+      sizeBytes: Number.isFinite(size) ? size : 0,
+      lastModified,
+    })
+  }
+
+  return objects
+}
+
 /** Existence + size via a HEAD against the public read base (objects are public). */
 export async function r2HeadPublicObject(key: string): Promise<R2ObjectInfo> {
   const base = getR2PublicBaseUrl()

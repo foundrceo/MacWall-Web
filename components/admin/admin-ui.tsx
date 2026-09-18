@@ -1,4 +1,9 @@
+"use client"
+
+import NumberFlow from "@number-flow/react"
+import { motion, useReducedMotion } from "motion/react"
 import type { ReactNode } from "react"
+import { useCallback } from "react"
 
 import { MacWallAppIcon } from "@/components/macwall-app-icon"
 import { Badge } from "@/components/ui/badge"
@@ -25,13 +30,19 @@ export function AdminAppIcon({
 export function AdminAppMark({ subtitle }: Readonly<{ subtitle?: string }>) {
   return (
     <div className="flex min-w-0 items-center gap-2.5">
-      <AdminAppIcon />
+      <span className="relative flex shrink-0 items-center justify-center">
+        <span
+          aria-hidden
+          className="absolute inset-0 -m-1 rounded-xl bg-[var(--admin-glow-blue)] blur-md"
+        />
+        <AdminAppIcon className="relative" />
+      </span>
       <div className="min-w-0 leading-tight">
-        <p className="truncate text-sm font-semibold text-[var(--admin-fg)]">
+        <p className="truncate text-sm font-semibold tracking-tight text-[var(--admin-fg)]">
           {macwall.name}
         </p>
         {subtitle ? (
-          <p className="truncate text-xs text-[var(--admin-muted)]">
+          <p className="truncate text-[11px] font-medium tracking-wider text-[var(--admin-muted)] uppercase">
             {subtitle}
           </p>
         ) : null}
@@ -40,19 +51,48 @@ export function AdminAppMark({ subtitle }: Readonly<{ subtitle?: string }>) {
   )
 }
 
+/* --- Spotlight -----------------------------------------------------------
+ * 21st.dev-style pointer-tracking glow. Sets --mx/--my so the
+ * `.admin-spotlight::before` radial follows the cursor. Pointer-only
+ * enhancement — content is identical without JS/mouse.
+ * ---------------------------------------------------------------------- */
+
+export function AdminSpotlight({
+  children,
+  className,
+}: Readonly<{ children: ReactNode; className?: string }>) {
+  const onMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    const el = event.currentTarget
+    const rect = el.getBoundingClientRect()
+    el.style.setProperty("--mx", `${event.clientX - rect.left}px`)
+    el.style.setProperty("--my", `${event.clientY - rect.top}px`)
+  }, [])
+
+  return (
+    <div onMouseMove={onMove} className={cn("admin-spotlight", className)}>
+      {children}
+    </div>
+  )
+}
+
 /* --- Badges --------------------------------------------------------------
  * A single tone scale so status colours never drift between pages.
+ * Text uses the -fg variants (4.5:1+ on tinted surfaces).
  * ---------------------------------------------------------------------- */
 
 export type Tone = "neutral" | "blue" | "green" | "amber" | "red" | "violet"
 
 const toneClass: Record<Tone, string> = {
-  neutral: "bg-[var(--admin-fill)] text-[var(--admin-fg-soft)]",
-  blue: "bg-[var(--admin-blue-soft)] text-[var(--admin-blue)]",
-  green: "bg-[var(--admin-green-soft)] text-[var(--admin-green)]",
-  amber: "bg-[var(--admin-amber-soft)] text-[var(--admin-amber)]",
-  red: "bg-[var(--admin-red-soft)] text-[var(--admin-red)]",
-  violet: "bg-[var(--admin-violet-soft)] text-[var(--admin-violet)]",
+  neutral:
+    "border-[var(--admin-border)] bg-[var(--admin-fill)] text-[var(--admin-fg-soft)]",
+  blue: "border-transparent bg-[var(--admin-blue-soft)] text-[var(--admin-blue-fg)]",
+  green:
+    "border-transparent bg-[var(--admin-green-soft)] text-[var(--admin-green-fg)]",
+  amber:
+    "border-transparent bg-[var(--admin-amber-soft)] text-[var(--admin-amber-fg)]",
+  red: "border-transparent bg-[var(--admin-red-soft)] text-[var(--admin-red-fg)]",
+  violet:
+    "border-transparent bg-[var(--admin-violet-soft)] text-[var(--admin-violet-fg)]",
 }
 
 export function AdminBadge({
@@ -64,7 +104,7 @@ export function AdminBadge({
     <Badge
       variant="secondary"
       className={cn(
-        "rounded-md px-1.5 font-medium",
+        "inline-flex items-center gap-1 rounded-md border px-1.5 py-px text-[11px] font-medium whitespace-nowrap",
         toneClass[tone],
         className
       )}
@@ -78,7 +118,8 @@ export function AdminBadge({
 export function AdminStatusDot({
   tone = "neutral",
   pulse,
-}: Readonly<{ tone?: Tone; pulse?: boolean }>) {
+  label,
+}: Readonly<{ tone?: Tone; pulse?: boolean; label?: string }>) {
   const dot: Record<Tone, string> = {
     neutral: "bg-[var(--admin-border-strong)]",
     blue: "bg-[var(--admin-blue)]",
@@ -88,16 +129,18 @@ export function AdminStatusDot({
     violet: "bg-[var(--admin-violet)]",
   }
   return (
-    <span className="relative flex size-1.5 shrink-0">
+    <span className="relative flex size-1.5 shrink-0" aria-hidden={label ? undefined : true}>
       {pulse ? (
         <span
+          aria-hidden
           className={cn(
-            "absolute inline-flex size-full animate-ping rounded-full opacity-60",
+            "absolute inline-flex size-full animate-ping rounded-full opacity-60 motion-reduce:animate-none",
             dot[tone]
           )}
         />
       ) : null}
       <span className={cn("inline-flex size-1.5 rounded-full", dot[tone])} />
+      {label ? <span className="sr-only">{label}</span> : null}
     </span>
   )
 }
@@ -123,11 +166,11 @@ export function SectionHeading({
       )}
     >
       <div className="min-w-0">
-        <h2 className="text-[15px] font-semibold text-[var(--admin-fg)]">
+        <h2 className="text-[15px] font-semibold tracking-tight text-[var(--admin-fg)]">
           {title}
         </h2>
         {description ? (
-          <p className="mt-0.5 text-[13px] text-[var(--admin-muted)]">
+          <p className="mt-0.5 max-w-2xl text-[13px] text-[var(--admin-muted)]">
             {description}
           </p>
         ) : null}
@@ -159,16 +202,16 @@ export function PanelHeader({
       )}
     >
       <div className="min-w-0">
-        <h3 className="text-sm font-semibold text-[var(--admin-fg)]">
+        <h3 className="text-sm font-semibold tracking-tight text-[var(--admin-fg)]">
           {title}
         </h3>
         {description ? (
-          <p className="mt-1 text-[13px] leading-relaxed text-[var(--admin-muted)]">
+          <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-[var(--admin-muted)]">
             {description}
           </p>
         ) : null}
       </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
+      {action ? <div className="flex shrink-0 items-center gap-2">{action}</div> : null}
     </div>
   )
 }
@@ -182,6 +225,7 @@ export function StatCard({
   icon,
   trend,
   className,
+  index = 0,
 }: Readonly<{
   label: string
   value: number | string
@@ -189,51 +233,86 @@ export function StatCard({
   icon?: ReactNode
   trend?: { value: number; label?: string }
   className?: string
+  /** Stagger position in a grid — drives entrance delay. */
+  index?: number
 }>) {
+  const reduceMotion = useReducedMotion()
   const trendUp = (trend?.value ?? 0) >= 0
+  const numeric = typeof value === "number"
+  const delay = reduceMotion ? 0 : Math.min(index, 8) * 0.045
+
   return (
-    <Card className={cn("h-full gap-0 rounded-xl p-5", className)}>
-      <div className="flex items-start justify-between gap-3">
-        <p className="truncate text-[13px] font-medium text-[var(--admin-muted)]">
-          {label}
-        </p>
-        {trend ? (
-          <span
-            className={cn(
-              "inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-medium tabular-nums",
-              trendUp
-                ? "bg-[var(--admin-green-soft)] text-[var(--admin-green)]"
-                : "bg-[var(--admin-red-soft)] text-[var(--admin-red)]"
+    <motion.div
+      initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+    >
+      <AdminSpotlight className="h-full">
+        <Card className="admin-lift h-full gap-0 rounded-2xl border-[var(--admin-border)] p-5">
+          <div className="flex items-start justify-between gap-3">
+            <p className="truncate text-[13px] font-medium text-[var(--admin-muted)]">
+              {label}
+            </p>
+            {trend ? (
+              <span
+                className={cn(
+                  "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums",
+                  trendUp
+                    ? "bg-[var(--admin-green-soft)] text-[var(--admin-green-fg)]"
+                    : "bg-[var(--admin-red-soft)] text-[var(--admin-red-fg)]"
+                )}
+              >
+                <span aria-hidden>{trendUp ? "↑" : "↓"}</span>
+                <span className="sr-only">
+                  {trendUp ? "Increased by " : "Decreased by "}
+                </span>
+                {Math.abs(trend.value).toFixed(1)}%
+              </span>
+            ) : icon ? (
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[var(--admin-border)] bg-gradient-to-b from-[var(--admin-fill-hover)] to-[var(--admin-fill)] text-[var(--admin-fg-soft)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+                {icon}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-3 text-[1.75rem] leading-none font-semibold tracking-tight text-[var(--admin-fg)] tabular-nums">
+            {numeric ? (
+              <NumberFlow
+                value={value}
+                format={{
+                  maximumFractionDigits: Number.isInteger(value) ? 0 : 2,
+                }}
+              />
+            ) : (
+              value
             )}
-          >
-            {trendUp ? "↑" : "↓"} {Math.abs(trend.value).toFixed(1)}%
-          </span>
-        ) : icon ? (
-          <span className="shrink-0 text-[var(--admin-muted)]">{icon}</span>
-        ) : null}
-      </div>
-      <p className="mt-3 text-[1.75rem] leading-none font-semibold tracking-tight text-[var(--admin-fg)] tabular-nums">
-        {typeof value === "number" ? value.toLocaleString() : value}
-      </p>
-      {hint ? (
-        <p className="mt-2 truncate text-xs text-[var(--admin-muted)]">
-          {hint}
-        </p>
-      ) : trend?.label ? (
-        <p className="mt-2 truncate text-xs text-[var(--admin-muted)]">
-          {trend.label}
-        </p>
-      ) : null}
-    </Card>
+          </p>
+          {hint ? (
+            <p className="mt-2 truncate text-xs text-[var(--admin-muted)]">
+              {hint}
+            </p>
+          ) : trend?.label ? (
+            <p className="mt-2 truncate text-xs text-[var(--admin-muted)]">
+              {trend.label}
+            </p>
+          ) : null}
+        </Card>
+      </AdminSpotlight>
+    </motion.div>
   )
 }
 
 export function StatCardSkeleton() {
   return (
-    <Card className="h-full gap-0 rounded-xl p-5">
+    <Card
+      className="h-full gap-0 rounded-2xl p-5"
+      role="status"
+      aria-label="Loading metric"
+    >
       <Skeleton className="h-3.5 w-24 rounded-md" />
-      <Skeleton className="mt-3 h-6 w-16 rounded-md" />
+      <Skeleton className="mt-3 h-7 w-20 rounded-md" />
       <Skeleton className="mt-2.5 h-3 w-28 rounded-md" />
+      <span className="sr-only">Loading…</span>
     </Card>
   )
 }
@@ -241,11 +320,11 @@ export function StatCardSkeleton() {
 /* --- Avatar --------------------------------------------------------------- */
 
 const avatarPalette = [
-  "bg-[var(--admin-blue-soft)] text-[var(--admin-blue)]",
-  "bg-[var(--admin-green-soft)] text-[var(--admin-green)]",
-  "bg-[var(--admin-amber-soft)] text-[var(--admin-amber)]",
-  "bg-[var(--admin-violet-soft)] text-[var(--admin-violet)]",
-  "bg-[var(--admin-red-soft)] text-[var(--admin-red)]",
+  "bg-[var(--admin-blue-soft)] text-[var(--admin-blue-fg)]",
+  "bg-[var(--admin-green-soft)] text-[var(--admin-green-fg)]",
+  "bg-[var(--admin-amber-soft)] text-[var(--admin-amber-fg)]",
+  "bg-[var(--admin-violet-soft)] text-[var(--admin-violet-fg)]",
+  "bg-[var(--admin-red-soft)] text-[var(--admin-red-fg)]",
   "bg-[#163238] text-[#5eead4]",
 ]
 
@@ -278,8 +357,9 @@ export function AdminAvatar({
     avatarPalette[hashString(name?.trim() || "anon") % avatarPalette.length]
   return (
     <span
+      aria-hidden
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-full font-semibold select-none",
+        "flex shrink-0 items-center justify-center rounded-full font-semibold ring-1 ring-white/10 select-none",
         palette,
         size === "sm" && "size-7 text-[11px]",
         size === "md" && "size-9 text-xs",
@@ -293,21 +373,6 @@ export function AdminAvatar({
 }
 
 /* --- Misc ----------------------------------------------------------------- */
-
-export function AdminFadeIn({
-  children,
-  className,
-  delay = 0,
-}: Readonly<{ children: ReactNode; className?: string; delay?: number }>) {
-  return (
-    <div
-      className={cn("admin-fade-in", className)}
-      style={delay > 0 ? { animationDelay: `${delay}ms` } : undefined}
-    >
-      {children}
-    </div>
-  )
-}
 
 /** Key/value pair used in detail panels. */
 export function AdminInfoGrid({
@@ -326,7 +391,9 @@ export function AdminInfoGrid({
     >
       {items.map((item) => (
         <div key={item.label} className="min-w-0">
-          <dt className="text-xs text-[var(--admin-muted)]">{item.label}</dt>
+          <dt className="text-[11px] font-medium tracking-wider text-[var(--admin-muted)] uppercase">
+            {item.label}
+          </dt>
           <dd className="mt-1 truncate text-[13px] font-medium text-[var(--admin-fg)]">
             {item.value}
           </dd>
