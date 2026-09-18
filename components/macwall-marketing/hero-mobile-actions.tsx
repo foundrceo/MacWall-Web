@@ -1,6 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import { trackSiteEventClient } from "@/lib/analytics/client"
+import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 import { HeroPriceCaption } from "@/components/macwall-marketing/hero-price-caption"
 
@@ -28,13 +30,55 @@ export function HeroMobileActions({
 }: Readonly<{
   onGetLicense: () => void
 }>) {
+  const [copied, setCopied] = useState(false)
+
+  const onSendLink = async () => {
+    trackSiteEventClient("cta_click", {
+      location: "hero_mobile",
+      action: "send_link",
+    })
+    const url = `${macwall.website}/download`
+    const shareData: ShareData = {
+      title: `${macwall.name} — ${macwall.tagline}`,
+      text: `Get ${macwall.name} for your Mac`,
+      url,
+    }
+
+    // Native sheet first (AirDrop / Messages / Mail straight to the Mac).
+    try {
+      if (
+        typeof navigator.share === "function" &&
+        (!navigator.canShare || navigator.canShare(shareData))
+      ) {
+        await navigator.share(shareData)
+        return
+      }
+      throw new Error("share-unavailable")
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return
+      // Fallback: copy the link so it can be pasted on the Mac.
+      try {
+        await navigator.clipboard.writeText(url)
+        setCopied(true)
+        window.setTimeout(() => setCopied(false), 2000)
+      } catch {
+        // Clipboard blocked — nothing else we can do inline.
+      }
+    }
+  }
+
   return (
     <div className="flex w-full max-w-sm flex-col items-center">
       <div className="flex w-full flex-col gap-2">
-        <a href="/download" className={heroFilledCapsule}>
+        <button
+          type="button"
+          onClick={() => void onSendLink()}
+          className={heroFilledCapsule}
+          aria-live="polite"
+        >
           <AppleIcon />
-          Send link to my Mac
-        </a>
+          {copied ? "Copied — open it on your Mac" : "Send link to my Mac"}
+        </button>
         <button
           type="button"
           onClick={() => {

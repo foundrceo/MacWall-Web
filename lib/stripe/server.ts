@@ -14,7 +14,7 @@ export function getStripe(): Stripe {
 
   cached = new Stripe(secretKey, {
     // Match installed `stripe` SDK LatestApiVersion.
-    apiVersion: "2026-07-29.dahlia",
+    apiVersion: "2026-08-26.dahlia",
   })
 
   return cached
