@@ -4,8 +4,8 @@ import {
   TrackedDownloadButton,
   TrackedPricingButton,
 } from "@/components/analytics/tracked-marketing-buttons"
+import { HeroPriceCaption } from "@/components/macwall-marketing/hero-price-caption"
 import { macwallCreatorCopy as copy } from "@/lib/macwall-creator-copy"
-import { macwallMinimumMacOSVersionLabel } from "@/lib/macwall-site"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -24,41 +24,35 @@ export default function CreatorBottomCta() {
   return (
     <section
       aria-labelledby="creator-bottom-cta-title"
-      className="border-t border-dashed border-border px-4 py-10 text-center md:px-6 md:py-14"
+      className="mx-auto max-w-2xl px-4 pt-14 pb-16 text-center md:px-6 md:pt-20 md:pb-24"
     >
-      <div>
-          <h2
-            id="creator-bottom-cta-title"
-            className="mx-auto max-w-3xl text-3xl font-normal tracking-tighter md:text-5xl"
+      <h2
+        id="creator-bottom-cta-title"
+        className="mx-auto max-w-2xl text-3xl font-normal tracking-tighter md:text-5xl"
+      >
+        {copy.midCtaTitle}
+      </h2>
+      <div className="mt-10 flex flex-col items-center">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <TrackedDownloadButton
+            href={copy.midCtaHref}
+            size="pill"
+            location="creator_bottom_cta"
+            className="marketing-hero-primary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
           >
-          {copy.midCtaTitle}
-        </h2>
-        <div className="mt-8 sm:mt-10">
-          <div className="flex flex-wrap items-start justify-center gap-3">
-            <div className="flex flex-col items-center">
-              <TrackedDownloadButton
-                href={copy.midCtaHref}
-                size="pill"
-                location="creator_bottom_cta"
-                className="marketing-hero-primary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
-              >
-                <AppleIcon className="size-3.5" />
-                {copy.midCtaLabel}
-              </TrackedDownloadButton>
-              <p className="mt-2 text-center text-[11px] leading-snug text-marketing-muted sm:text-[12px]">
-                {macwallMinimumMacOSVersionLabel}
-              </p>
-            </div>
-            <TrackedPricingButton
-              href="/pricing"
-              location="creator_bottom_cta"
-              size="pill"
-              className="marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
-            >
-              {copy.pricingLinkLabel}
-            </TrackedPricingButton>
-          </div>
+            <AppleIcon className="size-3.5" />
+            {copy.midCtaLabel}
+          </TrackedDownloadButton>
+          <TrackedPricingButton
+            href="/pricing"
+            location="creator_bottom_cta"
+            size="pill"
+            className="marketing-hero-secondary-btn shrink-0 px-4 py-2.5 text-[14px] sm:text-[15px]"
+          >
+            {copy.pricingLinkLabel}
+          </TrackedPricingButton>
         </div>
+        <HeroPriceCaption />
       </div>
     </section>
   )

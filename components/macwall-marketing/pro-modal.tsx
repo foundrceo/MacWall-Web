@@ -5,10 +5,7 @@ import { ArrowUpRight, BadgeCheck, Check, X } from "lucide-react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
-import {
-  useMarketingPricing,
-  usePricingReady,
-} from "@/components/marketing/marketing-pricing-context"
+import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import {
   applyDiscordMemberDiscountMajor,
@@ -53,7 +50,6 @@ export function ProModal({
   onOpenChange: (open: boolean) => void
 }>) {
   const pricing = useMarketingPricing()
-  const ready = usePricingReady()
   const discordPrice = formatMoney(
     applyDiscordMemberDiscountMajor(pricing.permanentPriceMajor),
     pricing.currency,
@@ -106,11 +102,11 @@ export function ProModal({
 
           <div className="mt-5 flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
             <span className="text-[26px] font-semibold tracking-tight tabular-nums text-foreground">
-              {ready ? pricing.permanentPrice : "\u00a0"}
+              {pricing.permanentPrice}
             </span>
             {pricing.permanentStrikePrice ? (
               <span className="text-[14px] tabular-nums text-marketing-muted line-through">
-                {ready ? pricing.permanentStrikePrice : "\u00a0"}
+                {pricing.permanentStrikePrice}
               </span>
             ) : null}
             <span className="w-full text-[12px] text-marketing-muted">
@@ -163,7 +159,7 @@ export function ProModal({
               </span>
             </span>
             <span className="inline-flex shrink-0 items-center gap-1 text-[13px] font-medium text-foreground tabular-nums">
-              {ready ? discordPrice : "\u00a0"}
+              {discordPrice}
               <ArrowUpRight
                 className="size-3.5 text-marketing-muted"
                 aria-hidden

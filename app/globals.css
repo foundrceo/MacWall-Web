@@ -211,11 +211,11 @@
   }
 
   .marketing-hero-primary-btn {
-    @apply inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-6 text-[14px] leading-none font-normal tracking-[0.01em] text-primary-foreground shadow-none transition-colors outline-none hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-white/30;
+    @apply inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 text-[14px] leading-none font-normal tracking-[0.01em] text-primary-foreground shadow-none transition-colors outline-none hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-white/30;
   }
 
   .marketing-hero-secondary-btn {
-    @apply inline-flex h-11 items-center justify-center gap-2 rounded-md border border-border bg-transparent px-6 text-[14px] leading-none font-normal tracking-[0.01em] text-foreground shadow-none transition-colors outline-none hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-white/20;
+    @apply inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-transparent px-6 text-[14px] leading-none font-normal tracking-[0.01em] text-foreground shadow-none transition-colors outline-none hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-white/20;
   }
 
   .marketing-inline-link {

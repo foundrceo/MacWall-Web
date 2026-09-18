@@ -4,6 +4,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useLayoutEffect,
   useState,
   type ReactNode,
 } from "react"
@@ -18,71 +19,71 @@ const MarketingPricingContext = createContext<MarketingPricing>(
   buildDefaultMarketingPricing()
 )
 
-/** True once regional pricing has settled (or fallback was accepted). */
-const MarketingPricingReadyContext = createContext(false)
+/** Layout effect on the client, passive effect on the server (SSR-safe). */
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect
 
-/** How long to wait for `/api/pricing` before falling back to default USD. */
+/** How long to wait for `/api/pricing` before keeping default USD. */
 const PRICING_FETCH_TIMEOUT_MS = 3000
 
 /** Last-known regional pricing — instant first paint for return visitors. */
 const PRICING_CACHE_KEY = "macwall-marketing-pricing-v1"
+/** Local cache freshness — background revalidate still runs on every mount. */
+const PRICING_CACHE_TTL_MS = 24 * 60 * 60 * 1000
+/** Same-session refetch guard — provider remounts reuse memory first. */
+const PRICING_MEMORY_TTL_MS = 5 * 60 * 1000
 
-function readCachedPricing(cookieCountry: string | null): MarketingPricing | null {
+type CachedPricing = {
+  at: number
+  pricing: MarketingPricing
+}
+
+let memoryCache: CachedPricing | null = null
+let inflightFetch: Promise<MarketingPricing | null> | null = null
+
+function isFresh(entry: CachedPricing | null, ttlMs: number): boolean {
+  return (
+    entry !== null &&
+    typeof entry.at === "number" &&
+    Date.now() - entry.at < ttlMs &&
+    !!entry.pricing &&
+    typeof entry.pricing.permanentPrice === "string"
+  )
+}
+
+function readCachedPricing(): MarketingPricing | null {
+  // Prerender-safe: storage only exists in the browser.
+  if (typeof window === "undefined") return null
+  // Same session first — no storage I/O, no serialization cost.
+  if (isFresh(memoryCache, PRICING_MEMORY_TTL_MS)) {
+    return (memoryCache as CachedPricing).pricing
+  }
   try {
     const raw = window.localStorage.getItem(PRICING_CACHE_KEY)
     if (!raw) return null
-    const data = JSON.parse(raw) as MarketingPricing
-    if (!data || typeof data.permanentPrice !== "string") return null
-    // Travelling visitor with a fresh cookie country: don't trust stale region.
-    if (cookieCountry && data.country && data.country !== cookieCountry) {
-      return null
-    }
-    return data
+    const entry = JSON.parse(raw) as CachedPricing
+    if (!isFresh(entry, PRICING_CACHE_TTL_MS)) return null
+    memoryCache = entry
+    return entry.pricing
   } catch {
     return null
   }
 }
 
 function writeCachedPricing(pricing: MarketingPricing) {
+  const entry: CachedPricing = { at: Date.now(), pricing }
+  memoryCache = entry
   try {
-    window.localStorage.setItem(PRICING_CACHE_KEY, JSON.stringify(pricing))
+    window.localStorage.setItem(PRICING_CACHE_KEY, JSON.stringify(entry))
   } catch {
     // Private mode etc. — pricing still works, just not cached.
   }
 }
 
-export function MarketingPricingProvider({
-  pricing: initialPricing,
-  children,
-}: Readonly<{
-  pricing?: MarketingPricing
-  children: ReactNode
-}>) {
-  const [pricing, setPricing] = useState<MarketingPricing>(() => {
-    if (initialPricing) return initialPricing
-    // Instant regional price for return visitors (revalidated below).
-    // First-timers start on default USD and stay blank until it resolves.
-    return readCachedPricing(getVisitorCountry()) ?? buildDefaultMarketingPricing()
-  })
-  // Cached/server pricing renders instantly — only uncached clients wait.
-  const [ready, setReady] = useState(
-    () =>
-      initialPricing !== undefined ||
-      readCachedPricing(getVisitorCountry()) !== null
-  )
-
-  useEffect(() => {
-    if (initialPricing) {
-      setReady(true)
-      return
-    }
-    let cancelled = false
-    const controller = new AbortController()
-    const timeout = window.setTimeout(
-      () => controller.abort(),
-      PRICING_FETCH_TIMEOUT_MS
-    )
-    const load = async () => {
+async function fetchPricing(signal: AbortSignal): Promise<MarketingPricing | null> {
+  // Dedupe concurrent mounts (StrictMode, fast remounts) into one request.
+  if (!inflightFetch) {
+    inflightFetch = (async () => {
       try {
         // Pass cookie country when present; otherwise the API resolves geo itself
         // (cookie / Vercel / IP / localhost egress) so INR hints still hydrate.
@@ -92,19 +93,61 @@ export function MarketingPricingProvider({
           credentials: "same-origin",
           headers: { Accept: "application/json" },
           cache: "no-store",
-          signal: controller.signal,
+          signal,
         })
-        if (!res.ok || cancelled) return
+        if (!res.ok) return null
         const data = (await res.json()) as MarketingPricing
-        if (!cancelled && data?.permanentPrice) {
-          setPricing(data)
-          writeCachedPricing(data)
-        }
+        return data?.permanentPrice ? data : null
       } catch {
-        // Keep SSR/default USD pricing.
+        // Timeout / offline — caller keeps SSR/default pricing.
+        return null
       } finally {
-        window.clearTimeout(timeout)
-        if (!cancelled) setReady(true)
+        inflightFetch = null
+      }
+    })()
+  }
+  return inflightFetch
+}
+
+export function MarketingPricingProvider({
+  pricing: initialPricing,
+  children,
+}: Readonly<{
+  pricing?: MarketingPricing
+  children: ReactNode
+}>) {
+  // First paint always shows a price instantly (default USD, matching SSR).
+  // Cached regional pricing swaps in pre-paint when available; the network
+  // revalidate then silently corrects any stale value. Never blank, never a
+  // loader — exactly one text swap at most, usually zero.
+  const [pricing, setPricing] = useState<MarketingPricing>(
+    () => initialPricing ?? buildDefaultMarketingPricing()
+  )
+
+  // Cached price applies synchronously BEFORE first paint, so return
+  // visitors see their regional price immediately with no flash.
+  useIsomorphicLayoutEffect(() => {
+    if (initialPricing) return
+    const cached = readCachedPricing()
+    if (cached) setPricing(cached)
+  }, [initialPricing])
+
+  // Background revalidate — keeps cache honest without blocking paint.
+  useEffect(() => {
+    if (initialPricing) return
+    let cancelled = false
+    const controller = new AbortController()
+    const timeout = window.setTimeout(
+      () => controller.abort(),
+      PRICING_FETCH_TIMEOUT_MS
+    )
+    const load = async () => {
+      const data = await fetchPricing(controller.signal)
+      window.clearTimeout(timeout)
+      if (cancelled) return
+      if (data) {
+        setPricing(data)
+        writeCachedPricing(data)
       }
     }
     void load()
@@ -117,17 +160,11 @@ export function MarketingPricingProvider({
 
   return (
     <MarketingPricingContext.Provider value={pricing}>
-      <MarketingPricingReadyContext.Provider value={ready}>
-        {children}
-      </MarketingPricingReadyContext.Provider>
+      {children}
     </MarketingPricingContext.Provider>
   )
 }
 
 export function useMarketingPricing(): MarketingPricing {
   return useContext(MarketingPricingContext)
-}
-
-export function usePricingReady(): boolean {
-  return useContext(MarketingPricingReadyContext)
 }
