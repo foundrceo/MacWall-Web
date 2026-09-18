@@ -12,7 +12,7 @@ import {
 import type { Metadata } from "next"
 
 const PAGE_TITLE = "Get MacWall Free With a Video"
-const PAGE_DESCRIPTION = `${macwallCreatorCopy.heroTitle} Post a short video of ${macwall.name} in action and get ${macwall.reelRefundHalfViews.toLocaleString()} views for 50% back, ${macwall.reelRefundFullViews.toLocaleString()} views for a full refund.`
+const PAGE_DESCRIPTION = `Download ${macwall.name} free with a 24-hour Pro trial. ${macwallCreatorCopy.heroTitle} Post a short video and get ${macwall.reelRefundHalfViews.toLocaleString()} views for 50% back, ${macwall.reelRefundFullViews.toLocaleString()} views for a full refund.`
 
 export const metadata: Metadata = {
   title: PAGE_TITLE,

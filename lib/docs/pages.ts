@@ -93,6 +93,10 @@ export const docsPages: DocsPage[] = [
           "Click **Set wallpaper**. MacWall downloads the loop, then starts hardware-decoded playback behind your windows.",
         ],
       },
+      {
+        type: "p",
+        text: "Fresh downloads include a 24-hour Pro trial: the full catalog unlocks for a day with no card required. It is the easiest window to evaluate Pro or film a [creator video](/creator).",
+      },
       { type: "h2", text: "Permissions MacWall asks for" },
       {
         type: "ul",
@@ -316,7 +320,7 @@ export const docsPages: DocsPage[] = [
       {
         question: "Are imported videos uploaded anywhere?",
         answer:
-          "No. Imports are read from disk and stay local. If you want a wallpaper published to the public catalog, submit it deliberately at [/submit](/submit).",
+          `No. Imports are read from disk and stay local. If you want a wallpaper published to the public catalog, share it with the [Discord community](${macwall.discordInvite}) for review.`,
       },
       {
         question: "Is there a file size limit for imports?",
@@ -425,7 +429,7 @@ export const docsPages: DocsPage[] = [
     sections: [
       {
         type: "p",
-        text: `MacWall Pro is a one-time ${proPrice} purchase, not a subscription. You get a license key, lifetime updates, and activation on up to ${maxMacs} Macs you own. There is no account to create and no recurring charge.`,
+        text: `MacWall Pro is a one-time ${proPrice} purchase, not a subscription. You get a license key, lifetime updates, and activation on up to ${maxMacs} Macs you own. There is no account to create and no recurring charge. Every fresh download starts with a free 24-hour Pro trial before you pay anything.`,
       },
       { type: "h2", text: "Activate after purchase" },
       {

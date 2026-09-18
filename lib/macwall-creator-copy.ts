@@ -10,18 +10,18 @@ const fullViews = macwall.reelRefundFullViews.toLocaleString()
 export const macwallCreatorCopy = {
   pageTitle: "Free with a video",
   heroTitle: "Post a video. Get your money back.",
-  heroLead: `Buy MacWall, post a short video of it running on your Mac, and we pay you back. You get 50% at ${halfViews} views and all of it at ${fullViews}.`,
+  heroLead: `Download free with a 24-hour Pro trial. Post a short video of it running on your Mac, and we pay you back: 50% at ${halfViews} views, all of it at ${fullViews}.`,
 
   steps: [
     {
       id: "1",
-      title: `Buy ${macwall.name} Pro`,
-      body: `We can only refund a real purchase, so you need a license running on your own Mac. Download it free first, try it for a few days, and buy when you're ready to film.`,
+      title: "Start your free 24-hour Pro trial",
+      body: "Download MacWall free and the full Pro catalog unlocks for 24 hours, no card needed. Film everything inside the trial, buy only when you're ready to post.",
     },
     {
       id: "2",
       title: "Record a short video of it in real use",
-      body: `Your real screen, your real setup, not a scripted ad. Show yourself browsing the catalog, setting a live wallpaper, the Lock Screen coming alive, the menu bar controls. Those are the moments people stop scrolling for.`,
+      body: "Your real screen, your real setup, not a scripted ad. Browse the catalog, set a live wallpaper, show the Lock Screen coming alive. Those are the moments people stop scrolling for.",
     },
     {
       id: "3",
@@ -35,15 +35,12 @@ export const macwallCreatorCopy = {
     },
     {
       id: "5",
-      title: "We check it and pay you back",
-      body: `We verify the numbers and refund within 48 hours: half at ${halfViews}, everything at ${fullViews}. If the same video keeps climbing, email again and we top up the difference. The money goes back to the card you paid with.`,
-    },
-    {
-      id: "6",
-      title: "The fine print",
-      body: `Post as many times as you like until one video hits ${halfViews} organic views. No bots, no paid promotion. We may check the numbers and turn down claims that look inflated. Refunds go back to the original payment method. We can end this offer at any time.`,
+      title: "We verify and pay you back",
+      body: `We check the numbers and refund within 48 hours to the card you paid with. If the same video keeps climbing, email again and we top up the difference.`,
     },
   ] as const,
+
+  finePrint: `One video has to hit ${halfViews} organic views on its own, views across posts don't add up. No bots, no paid promotion. We may turn down claims that look inflated, and we can end this offer at any time.`,
 
   midCtaTitle: "Try it free, film what you like, and let the video pay for it",
   midCtaLabel: "Download free for Mac",

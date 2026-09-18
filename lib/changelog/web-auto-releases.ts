@@ -6,6 +6,19 @@ import type { ChangelogRelease } from "@/lib/changelog/types"
 
 export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
   {
+    id: "web-2026-09-18",
+    version: "2026.9.18",
+    date: "2026-09-18T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Instant regional pricing via cache, blank until resolved.",
+        ],
+      },
+    ],
+  },
+  {
     id: "web-2026-09-15",
     version: "2026.9.15",
     date: "2026-09-15T12:00:00.000Z",
