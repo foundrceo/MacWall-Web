@@ -9,8 +9,6 @@ import { MarketingSocialBrandIcon } from "@/components/macwall-marketing/marketi
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { macwall, macwallInstallerLatestPath } from "@/lib/macwall-site"
 import {
-  footerCategoryLinks,
-  footerCompareLinks,
   getMarketingFooterColumns,
   getMarketingFooterSocialLinks,
   type MarketingFooterLink,
@@ -52,23 +50,7 @@ function FooterLink({ link }: Readonly<{ link: MarketingFooterLink }>) {
 }
 
 export default function MacWallMarketingFooter() {
-  const columns = [
-    ...getMarketingFooterColumns(),
-    {
-      title: "Compare",
-      links: footerCompareLinks.map((link) => ({
-        label: link.label,
-        href: link.href,
-      })),
-    },
-    {
-      title: "Categories",
-      links: footerCategoryLinks.map((link) => ({
-        label: link.label,
-        href: link.href,
-      })),
-    },
-  ]
+  const columns = getMarketingFooterColumns()
   const socialLinks = getMarketingFooterSocialLinks()
 
   return (
@@ -117,7 +99,7 @@ export default function MacWallMarketingFooter() {
                 </p>
               </div>
 
-              <div className="grid flex-1 grid-cols-2 gap-x-10 gap-y-10 sm:grid-cols-3 sm:gap-x-12 lg:max-w-[42rem] lg:justify-self-end xl:max-w-[48rem] xl:gap-x-14">
+              <div className="grid flex-1 grid-cols-2 gap-x-10 gap-y-10 sm:gap-x-12 lg:max-w-[46rem] lg:grid-cols-4 lg:justify-self-end xl:max-w-[52rem] xl:gap-x-14">
               {columns.map((column) => (
                 <nav key={column.title} aria-label={column.title}>
                   <p className={footerColumnTitleClass}>{column.title}</p>

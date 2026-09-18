@@ -4,12 +4,10 @@ import { useState } from "react"
 
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { HeroMobileActions } from "@/components/macwall-marketing/hero-mobile-actions"
+import { HeroPriceCaption } from "@/components/macwall-marketing/hero-price-caption"
 import { ProModal } from "@/components/macwall-marketing/pro-modal"
 import { trackSiteEventClient } from "@/lib/analytics/client"
-import {
-  macwallInstallerLatestPath,
-  macwallMinimumMacOSVersionLabel,
-} from "@/lib/macwall-site"
+import { macwallInstallerLatestPath } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
@@ -37,8 +35,8 @@ export function HeroActions() {
   return (
     <>
       <div className="mw-when-desktop">
-        <div className="flex flex-row items-start gap-3">
-          <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center">
+          <div className="flex flex-row items-center gap-2">
             <TrackedDownloadButton
               href={macwallInstallerLatestPath}
               size="pill"
@@ -48,21 +46,19 @@ export function HeroActions() {
               <AppleIcon />
               Download for Mac
             </TrackedDownloadButton>
-            <p className="mt-2 text-center text-[11px] leading-snug text-muted-foreground sm:text-[12px]">
-              {macwallMinimumMacOSVersionLabel}
-            </p>
+            <button
+              type="button"
+              onClick={() => {
+                trackSiteEventClient("pricing_click", { location: "hero" })
+                setProOpen(true)
+              }}
+              className={heroOutlineCapsule}
+              aria-haspopup="dialog"
+            >
+              Get License
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              trackSiteEventClient("pricing_click", { location: "hero" })
-              setProOpen(true)
-            }}
-            className={heroOutlineCapsule}
-            aria-haspopup="dialog"
-          >
-            Get License
-          </button>
+          <HeroPriceCaption />
         </div>
       </div>
 

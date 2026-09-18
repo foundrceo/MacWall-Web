@@ -1,8 +1,8 @@
 /**
  * Cloudflare R2 public read base for the `wallpaper-catalog` bucket.
  *
- * Object keys (`videos/...`, `thumbs/...`, `community-pending/...`, `assets/...`)
- * are appended directly — no Supabase Storage prefix.
+ * Object keys (`videos/...`, `thumbs/...`, `community-pending/...`, `assets/...`,
+ * `static-wallpapers/...`) are appended directly — no Supabase Storage prefix.
  */
 
 const DEFAULT_R2_PUBLIC_BASE_URL = "https://cdn.macwall.app"

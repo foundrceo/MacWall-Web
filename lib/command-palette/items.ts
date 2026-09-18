@@ -57,16 +57,27 @@ export function getCommandPaletteStaticItems(): {
   const h = macwallMarketingCopy.header
   const ho = macwallMarketingCopy.hover
 
+  const navKeywords: Record<string, string[]> = {
+    "/wallpapers": ["gallery", "catalog", "live wallpaper", "browse"],
+    "/pricing": ["pro", "license", "buy", "upgrade"],
+    "/learn": ["docs", "guides", "how it works", "explainers"],
+    "/creator": [
+      "reel",
+      "refund",
+      "video",
+      "tiktok",
+      "instagram",
+      "creator",
+      "want free",
+      "get it free",
+    ],
+    "/blog": ["news", "articles", "updates"],
+    "/affiliate": ["earn", "referral", "partner"],
+  }
+
   const navPages = getMarketingNavItems().map((item) =>
     page(`page-${item.href.slice(1).replace(/\//g, "-")}`, item.label, item.href, {
-      keywords:
-        item.href === "/wallpapers"
-          ? ["gallery", "catalog", "live wallpaper", "browse"]
-          : item.href === "/pricing"
-            ? ["pro", "license", "buy", "upgrade"]
-            : item.href === "/blog"
-              ? ["news", "articles", "updates"]
-              : ["earn", "referral", "partner"],
+      keywords: navKeywords[item.href],
     })
   )
 
@@ -77,9 +88,6 @@ export function getCommandPaletteStaticItems(): {
     ...navPages,
     page("page-changelog", "Changelog", "/changelog", {
       keywords: ["release notes", "updates", "history", "github"],
-    }),
-    page("page-creator", "Creator Solution", "/creator", {
-      keywords: ["reel", "refund", "video", "tiktok", "instagram", "creator"],
     }),
     page("page-download", "Download", "/download", {
       keywords: ["installer", "get macwall", "app"],

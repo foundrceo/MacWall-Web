@@ -73,14 +73,17 @@ export default function MarketingFooterAiSummary({
 
   return (
     <div
-      className={cn("flex items-center gap-4 pb-8 md:pb-10", className)}
+      className={cn(
+        "flex items-center justify-center gap-4 pb-8 md:pb-10",
+        className
+      )}
     >
       <span
         aria-hidden
         className="hidden h-px min-w-0 flex-1 border-t border-dashed border-border sm:block"
       />
       <div className="flex min-w-0 shrink-0 flex-col items-center gap-3 sm:flex-row sm:gap-4">
-        <span className="text-[13px] leading-snug text-marketing-muted sm:text-[14px]">
+        <span className="text-center text-[13px] leading-snug text-marketing-muted sm:text-[14px]">
           Get an AI summary of {macwall.name}
         </span>
         <div className="flex items-center gap-3">

@@ -6,6 +6,43 @@ import type { ChangelogRelease } from "@/lib/changelog/types"
 
 export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
   {
+    id: "web-2026-09-15",
+    version: "2026.9.15",
+    date: "2026-09-15T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "MacWall Assist live support chat improvements.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-09-14",
+    version: "2026.9.14",
+    date: "2026-09-14T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Restore throttled email crons after Resend Pro backfill.",
+          "Pause trial and recovery mail crons until license keys catch up.",
+          "Scan newest paid licenses when backfilling missing key emails.",
+          "Mail trial-ended conversion offers only to people who did not buy.",
+          "Tighten pricing hero copy to a one-line conversion pitch.",
+          "Ship the Geist marketing site with shared dashed chrome.",
+        ],
+      },
+      {
+        kind: "fixes",
+        items: [
+          "Fix license key emails failing behind Resend 429s.",
+        ],
+      },
+    ],
+  },
+  {
     id: "web-2026-09-12",
     version: "2026.9.12",
     date: "2026-09-12T12:00:00.000Z",

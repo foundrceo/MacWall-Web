@@ -28,12 +28,6 @@ const STRIPE_FEE_FIXED = Number.parseFloat(
   process.env.STRIPE_FEE_FIXED ?? "0.30"
 )
 
-export { netRevenueForAmount } from "@/lib/admin/sales-math"
-
-export function netRevenuePerSale(): number {
-  return netRevenueForAmount(PRO_PRICE_USD)
-}
-
 export type SaleRow = {
   sent_at: string
   amountUsd: number
@@ -434,8 +428,7 @@ export async function fetchAllLicensesDetailed(): Promise<LicenseDetailedRow[]> 
 
 /** Builds license metrics. Plan mix and geo are paid (active) licenses only. */
 export function buildLicenseAnalytics(
-  licenses: LicenseDetailedRow[],
-  _activeSalesCount?: number
+  licenses: LicenseDetailedRow[]
 ): LicenseAnalyticsSummary {
   let active = 0
   let pending = 0

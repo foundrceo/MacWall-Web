@@ -992,6 +992,7 @@ export default function AdminFeedbackPage() {
   return (
     <AdminShell
       title="Live Support"
+      subtitle="Real-time inbox · replies deliver instantly to the app"
       fill
       actions={
         <>
@@ -1014,7 +1015,7 @@ export default function AdminFeedbackPage() {
             disabled={refreshing}
           >
             <RefreshCw
-              className={cn("size-3.5", refreshing && "animate-spin")}
+              className={cn("size-3.5", refreshing && "animate-spin motion-reduce:animate-none")}
             />
             Refresh
           </Button>
@@ -1026,18 +1027,22 @@ export default function AdminFeedbackPage() {
         {/* Inbox                                                            */}
         {/* ---------------------------------------------------------------- */}
         <section
+          aria-label="Inbox"
           className={cn(
             "flex min-h-0 flex-col border-r border-[var(--admin-border)] bg-[var(--admin-surface)]",
             selected && "hidden md:flex"
           )}
         >
           <div className="shrink-0 space-y-3 border-b border-[var(--admin-border)] px-4 py-3">
+            <h2 className="sr-only">Inbox</h2>
             <div className="relative">
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--admin-muted)]" />
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--admin-muted)]" aria-hidden />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search name, Chat ID…"
+                aria-label="Search conversations by name or chat ID"
+                type="search"
                 className="h-9 rounded-full pl-9"
               />
             </div>
@@ -1157,7 +1162,7 @@ export default function AdminFeedbackPage() {
                             </p>
                           ) : null}
                           {item.id in visitorTypingUntil ? (
-                            <p className="mt-0.5 text-xs font-medium text-[var(--admin-blue)]">
+                            <p className="mt-0.5 text-xs font-medium text-[var(--admin-blue-fg)]">
                               Visitor is typing…
                             </p>
                           ) : (
@@ -1206,14 +1211,18 @@ export default function AdminFeedbackPage() {
         {/* Conversation                                                     */}
         {/* ---------------------------------------------------------------- */}
         <section
+          aria-label="Conversation"
           className={cn(
             "flex min-h-0 flex-col bg-[var(--admin-canvas)]",
             !selected && "hidden md:flex"
           )}
         >
           {error ? (
-            <div className="flex items-center gap-2 border-b border-[var(--admin-border)] bg-[var(--admin-red-soft)] px-4 py-2 text-[13px] text-[var(--admin-red)]">
-              <TriangleAlert className="size-4 shrink-0" />
+            <div
+              role="alert"
+              className="flex items-center gap-2 border-b border-[var(--admin-border)] bg-[var(--admin-red-soft)] px-4 py-2 text-[13px] text-[var(--admin-red-fg)]"
+            >
+              <TriangleAlert className="size-4 shrink-0" aria-hidden />
               {error}
             </div>
           ) : null}
@@ -1513,7 +1522,7 @@ export default function AdminFeedbackPage() {
               <footer className="shrink-0 border-t border-[var(--admin-border)] bg-[var(--admin-fill)]/70 px-3 py-2.5 backdrop-blur-sm sm:px-5">
                 <div className="mx-auto max-w-3xl">
                   {composerError ? (
-                    <p className="mb-2 flex items-center gap-1.5 px-1 text-xs text-[var(--admin-red)]">
+                    <p className="mb-2 flex items-center gap-1.5 px-1 text-xs text-[var(--admin-red-fg)]">
                       <TriangleAlert className="size-3.5" />
                       {composerError}
                     </p>
@@ -1570,7 +1579,7 @@ export default function AdminFeedbackPage() {
                         type="button"
                         disabled={sending}
                         onClick={() => fileRef.current?.click()}
-                        className="mb-1 flex size-8 shrink-0 items-center justify-center rounded-full text-[var(--admin-blue)] transition hover:bg-[var(--admin-blue-soft)] disabled:opacity-40"
+                        className="mb-1 flex size-8 shrink-0 items-center justify-center rounded-full text-[var(--admin-blue-fg)] transition hover:bg-[var(--admin-blue-soft)] disabled:opacity-40"
                         aria-label="Attach image"
                         title="Attach image"
                       >
@@ -1632,7 +1641,10 @@ export default function AdminFeedbackPage() {
         {/* ---------------------------------------------------------------- */}
         {/* Customer detail rail                                             */}
         {/* ---------------------------------------------------------------- */}
-        <aside className="admin-scroll hidden min-h-0 overflow-y-auto border-l border-[var(--admin-border)] bg-[var(--admin-surface)] xl:block">
+        <aside
+          aria-label="Customer details"
+          className="admin-scroll hidden min-h-0 overflow-y-auto border-l border-[var(--admin-border)] bg-[var(--admin-surface)] xl:block"
+        >
           {!selected ? (
             <div className="space-y-5 p-5">
               <p className="text-[11px] font-semibold tracking-wider text-[var(--admin-muted)] uppercase">
@@ -1726,7 +1738,7 @@ export default function AdminFeedbackPage() {
                         >
                           <span className="truncate">{selectedChatId}</span>
                           {copiedField === "rail-chatId" ? (
-                            <Check className="size-3 shrink-0 text-[var(--admin-green)]" />
+                            <Check className="size-3 shrink-0 text-[var(--admin-green-fg)]" />
                           ) : (
                             <Copy className="size-3 shrink-0 text-[var(--admin-muted)]" />
                           )}
@@ -1775,7 +1787,7 @@ export default function AdminFeedbackPage() {
                           {selected.id.slice(0, 8)}…
                         </span>
                         {copiedField === "rail-ticketId" ? (
-                          <Check className="size-3 shrink-0 text-[var(--admin-green)]" />
+                          <Check className="size-3 shrink-0 text-[var(--admin-green-fg)]" />
                         ) : (
                           <Copy className="size-3 shrink-0 text-[var(--admin-muted)]" />
                         )}
@@ -1825,7 +1837,7 @@ export default function AdminFeedbackPage() {
                             {selected.deviceId}
                           </span>
                           {copiedField === "rail-deviceId" ? (
-                            <Check className="size-3 shrink-0 text-[var(--admin-green)]" />
+                            <Check className="size-3 shrink-0 text-[var(--admin-green-fg)]" />
                           ) : (
                             <Copy className="size-3 shrink-0 text-[var(--admin-muted)]" />
                           )}

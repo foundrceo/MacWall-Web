@@ -26,10 +26,6 @@ export function formatUsd(value: number): string {
   })
 }
 
-export function formatCount(value: number): string {
-  return value.toLocaleString()
-}
-
 /** "Just now" · "12m ago" · "3h ago" · "Apr 8" */
 export function formatRelativeTime(iso: string): string {
   const date = new Date(iso)

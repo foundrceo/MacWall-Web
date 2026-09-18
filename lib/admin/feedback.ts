@@ -1,3 +1,5 @@
+import "server-only"
+
 import { notifySupportReply } from "@/lib/push/notify-visitor"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
@@ -305,6 +307,16 @@ export async function getFeedbackTotals(): Promise<FeedbackTotals> {
     unresolved,
     awaitingReply,
   }
+}
+
+export async function getFeedbackAwaitingReplyCount(): Promise<number> {
+  const supabase = getSupabaseAdmin()
+  const { count, error } = await supabase
+    .from("app_feedback")
+    .select("id", { count: "exact", head: true })
+    .eq("needs_admin_reply", true)
+  if (error) throw new Error(error.message)
+  return count ?? 0
 }
 
 export async function replyToFeedback(

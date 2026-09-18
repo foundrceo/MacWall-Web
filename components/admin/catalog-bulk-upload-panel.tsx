@@ -944,12 +944,12 @@ export function CatalogBulkUploadPanel({
         ) : null}
 
         {notice ? (
-          <p className="rounded-lg bg-[var(--admin-green-soft)] px-3.5 py-2.5 text-[13px] text-[var(--admin-green)]">
+          <p className="rounded-lg bg-[var(--admin-green-soft)] px-3.5 py-2.5 text-[13px] text-[var(--admin-green-fg)]">
             {notice}
           </p>
         ) : null}
         {error ? (
-          <p className="flex items-start gap-2 rounded-lg bg-[var(--admin-red-soft)] px-3.5 py-2.5 text-[13px] text-[var(--admin-red)]">
+          <p className="flex items-start gap-2 rounded-lg bg-[var(--admin-red-soft)] px-3.5 py-2.5 text-[13px] text-[var(--admin-red-fg)]">
             <CircleAlert className="mt-0.5 size-4 shrink-0" />
             {error}
           </p>
@@ -978,9 +978,9 @@ export function CatalogBulkUploadPanel({
         >
           <span className="flex size-10 items-center justify-center rounded-xl bg-[var(--admin-surface)] ring-1 ring-[var(--admin-border)]">
             {analyzing ? (
-              <Loader2 className="size-4 animate-spin text-[var(--admin-blue)]" />
+              <Loader2 className="size-4 animate-spin text-[var(--admin-blue-fg)]" />
             ) : (
-              <Upload className="size-4 text-[var(--admin-blue)]" />
+              <Upload className="size-4 text-[var(--admin-blue-fg)]" />
             )}
           </span>
           <span className="mt-3 text-sm font-semibold text-[var(--admin-fg)]">
@@ -1296,7 +1296,7 @@ function DraftRow({
           </div>
 
           {validation?.message || draft.error ? (
-            <p className="flex items-start gap-1.5 text-xs text-[var(--admin-red)] xl:col-span-2">
+            <p className="flex items-start gap-1.5 text-xs text-[var(--admin-red-fg)] xl:col-span-2">
               <CircleAlert className="mt-px size-3.5 shrink-0" />
               {validation?.message ?? draft.error}
             </p>
@@ -1362,6 +1362,7 @@ function TogglePill({
         checked={checked}
         disabled={disabled}
         onCheckedChange={onChange}
+        aria-label={label}
       />
       {label}
     </label>
@@ -1466,7 +1467,7 @@ function UploadPipelineProgress({ run }: Readonly<{ run: UploadRun }>) {
       </div>
 
       {run.failed ? (
-        <p className="mt-3 text-xs text-[var(--admin-red)]">
+        <p className="mt-3 text-xs text-[var(--admin-red-fg)]">
           {run.failed.toLocaleString()} failed. Fix the row error and upload
           again to retry only those wallpapers.
         </p>
