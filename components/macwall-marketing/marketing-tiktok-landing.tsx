@@ -1,6 +1,9 @@
 "use client"
 
-import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
+import {
+  useMarketingPricing,
+  usePricingReady,
+} from "@/components/marketing/marketing-pricing-context"
 import {
   TrackedDownloadButton,
   TrackedPricingButton,
@@ -26,6 +29,7 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
 /** Paid-traffic landing: finishes the ad conversation, then checkout. */
 export default function TikTokLandingHero() {
   const pricing = useMarketingPricing()
+  const ready = usePricingReady()
 
   return (
     <MarketingSection className="relative overflow-hidden bg-dashed px-4 py-16 sm:px-16 sm:py-24">
@@ -45,7 +49,7 @@ export default function TikTokLandingHero() {
 
           <div className="mt-6 inline-flex w-fit flex-wrap items-baseline gap-x-3 gap-y-1 border border-dashed border-border bg-background/60 px-5 py-3">
             <span className="text-[32px] font-normal tracking-[-0.03em] tabular-nums text-foreground">
-              {pricing.permanentPrice}
+              {ready ? pricing.permanentPrice : "\u00a0"}
             </span>
             <span className="text-[15px] text-marketing-muted">
               one-time

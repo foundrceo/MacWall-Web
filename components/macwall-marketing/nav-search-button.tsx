@@ -15,7 +15,7 @@ export function NavSearchButton({ className }: Readonly<{ className?: string }>)
       type="button"
       onClick={() => setOpen(true)}
       className={cn(
-        "inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 p-1.5 ps-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",
+        "inline-flex items-center gap-2 rounded-full border border-border bg-secondary/50 p-1.5 ps-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",
         className
       )}
       aria-label="Search"

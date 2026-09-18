@@ -46,19 +46,19 @@ export const landingGrid = "grid min-w-0 gap-0 [&>*]:min-w-0"
 export const landingCardPad = "p-8 md:p-10 lg:p-12"
 
 export const pillCtaHeroClass =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm leading-none font-medium text-primary-foreground shadow-none transition-colors hover:bg-primary/90 [&_svg]:transition-transform [&_svg]:duration-200 group-hover:[&_svg]:-rotate-12"
+  "inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm leading-none font-medium text-primary-foreground shadow-none transition-colors hover:bg-primary/90 [&_svg]:transition-transform [&_svg]:duration-200 group-hover:[&_svg]:-rotate-12"
 
 export const pillCtaNavClass =
-  "inline-flex h-8 items-center justify-center gap-1 rounded-md bg-primary px-3.5 text-[13px] leading-none font-medium text-primary-foreground shadow-none transition-colors hover:bg-primary/90"
+  "inline-flex h-8 items-center justify-center gap-1 rounded-full bg-primary px-3.5 text-[13px] leading-none font-medium text-primary-foreground shadow-none transition-colors hover:bg-primary/90"
 
 export const ghostCtaHeroClass =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border bg-muted/70 px-5 text-sm leading-none font-medium text-foreground shadow-none transition-colors hover:bg-muted [&_svg]:transition-transform [&_svg]:duration-200 group-hover:[&_svg]:-rotate-12"
+  "inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border bg-muted/70 px-5 text-sm leading-none font-medium text-foreground shadow-none transition-colors hover:bg-muted [&_svg]:transition-transform [&_svg]:duration-200 group-hover:[&_svg]:-rotate-12"
 
 export const secondaryCtaHeroClass =
-  "inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border bg-muted/70 px-5 text-sm leading-none font-medium text-foreground shadow-none transition-colors hover:bg-muted [&_svg]:transition-transform [&_svg]:duration-200 group-hover:[&_svg]:-rotate-12"
+  "inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border bg-muted/70 px-5 text-sm leading-none font-medium text-foreground shadow-none transition-colors hover:bg-muted [&_svg]:transition-transform [&_svg]:duration-200 group-hover:[&_svg]:-rotate-12"
 
 export const ghostCtaSectionClass =
-  "inline-flex h-9 items-center justify-center rounded-md border border-border bg-muted/70 px-4 text-sm leading-none font-medium text-foreground shadow-none transition-colors hover:bg-muted"
+  "inline-flex h-9 items-center justify-center rounded-full border border-border bg-muted/70 px-4 text-sm leading-none font-medium text-foreground shadow-none transition-colors hover:bg-muted"
 
 export const pillCtaSectionClass =
-  "inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-primary px-4 text-sm leading-none font-medium text-primary-foreground shadow-none transition-colors hover:bg-primary/90"
+  "inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-sm leading-none font-medium text-primary-foreground shadow-none transition-colors hover:bg-primary/90"

@@ -18,6 +18,7 @@ import type { ReactNode } from "react"
 
 import { PricingPriceDisplay } from "@/components/macwall-marketing/pricing-price-display"
 import { PricingRotatingBadge } from "@/components/macwall-marketing/pricing-rotating-badge"
+import { usePricingReady } from "@/components/marketing/marketing-pricing-context"
 import { cn } from "@/lib/utils"
 
 function highlightFeatureText(
@@ -115,6 +116,7 @@ export function PricingTierCard({
   className?: string
 }>) {
   const isFeatured = featured || highlight
+  const ready = usePricingReady()
   const badgeLabels =
     badgeLabelsProp && badgeLabelsProp.length > 0
       ? [...badgeLabelsProp]
@@ -185,9 +187,9 @@ export function PricingTierCard({
               {strikePrice ? (
                 <span
                   className="text-[14px] tabular-nums text-landing-muted line-through decoration-landing-muted decoration-1"
-                  aria-label={`Was ${strikePrice}`}
+                  aria-label={ready ? `Was ${strikePrice}` : "Loading price"}
                 >
-                  {strikePrice}
+                  {ready ? strikePrice : "\u00a0"}
                 </span>
               ) : null}
               {priceSuffix ? (
