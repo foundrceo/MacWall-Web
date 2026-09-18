@@ -4,12 +4,16 @@ import { ArrowUpRight } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
-import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
+import {
+  useMarketingPricing,
+  usePricingReady,
+} from "@/components/marketing/marketing-pricing-context"
 import { isVisitorFromIndia } from "@/lib/geo/country-client"
 
 /** Full-bleed offer strip. India vs rest from cookie, then /api/pricing. */
 export default function AnnouncementBanner() {
   const pricing = useMarketingPricing()
+  const ready = usePricingReady()
   const [india, setIndia] = useState(false)
 
   useEffect(() => {
@@ -34,8 +38,8 @@ export default function AnnouncementBanner() {
         className="flex h-full w-full items-center justify-center gap-1.5 px-4 text-black outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-black/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#67EDEC] sm:px-6"
       >
         <span className="min-w-0 truncate text-[12px] leading-4 font-medium tracking-normal sm:text-[13px] sm:leading-5">
-          {flag} Last 10 Pro licenses at {now}: after they&apos;re gone, the
-          price is {soon}
+          {flag} Last 10 Pro licenses at {ready ? now : "\u00a0"}: after
+          they&apos;re gone, the price is {ready ? soon : "\u00a0"}
         </span>
         <ArrowUpRight
           className="size-3.5 shrink-0 sm:size-4"

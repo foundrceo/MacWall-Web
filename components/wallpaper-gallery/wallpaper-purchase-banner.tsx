@@ -8,7 +8,10 @@ import { useEffect, useRef, useState } from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { MacWallAppIcon } from "@/components/macwall-app-icon"
-import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
+import {
+  useMarketingPricing,
+  usePricingReady,
+} from "@/components/marketing/marketing-pricing-context"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 
 const DWELL_MS = 15_000
@@ -101,6 +104,7 @@ function resetViewCycle(): void {
 export function WallpaperPurchaseBanner() {
   const pathname = usePathname()
   const pricing = useMarketingPricing()
+  const pricingReady = usePricingReady()
   const reduceMotion = useReducedMotion()
   const onWallpaper = isWallpaperPath(pathname)
 
@@ -251,7 +255,8 @@ export function WallpaperPurchaseBanner() {
                 </p>
                 <p className="mt-1 font-sans text-[13px] leading-snug text-white/65">
                   Pro unlocks all 1,000+ wallpapers on up to 3 Macs.{" "}
-                  {pricing.permanentPrice} once, no subscription.
+                  {pricingReady ? pricing.permanentPrice : "\u00a0"}{" "}
+                  once, no subscription.
                 </p>
                 <div className="mt-3">
                   <TrackedPricingButton

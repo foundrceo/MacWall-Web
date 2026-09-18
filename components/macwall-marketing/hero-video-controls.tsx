@@ -148,7 +148,7 @@ export function HeroVideoControls({
         <button
           type="button"
           aria-label={muted ? "Unmute video" : "Mute video"}
-          className="inline-flex size-8 cursor-pointer items-center justify-center rounded-md bg-black/50 text-white/85 backdrop-blur-sm transition-[background-color,color] duration-200 outline-none hover:bg-black/65 hover:text-white focus-visible:ring-2 focus-visible:ring-white/50"
+          className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white/85 backdrop-blur-sm transition-[background-color,color] duration-200 outline-none hover:bg-black/65 hover:text-white focus-visible:ring-2 focus-visible:ring-white/50"
           onClick={toggleMute}
         >
           {muted ? (
@@ -180,7 +180,7 @@ export function HeroVideoControls({
             <button
               type="button"
               aria-label="Replay video"
-              className="cursor-pointer rounded-md bg-black/50 px-2.5 py-1.5 text-[12px] text-white/85 backdrop-blur-sm transition-[background-color,color] duration-200 outline-none hover:bg-black/65 hover:text-white focus-visible:ring-2 focus-visible:ring-white/50 sm:text-[13px]"
+              className="cursor-pointer rounded-full bg-black/50 px-2.5 py-1.5 text-[12px] text-white/85 backdrop-blur-sm transition-[background-color,color] duration-200 outline-none hover:bg-black/65 hover:text-white focus-visible:ring-2 focus-visible:ring-white/50 sm:text-[13px]"
               onClick={replay}
             >
               Replay ↻

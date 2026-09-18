@@ -1,6 +1,9 @@
 "use client"
 
-import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
+import {
+  useMarketingPricing,
+  usePricingReady,
+} from "@/components/marketing/marketing-pricing-context"
 
 /**
  * Price-led microcopy under the hero download CTA.
@@ -9,10 +12,12 @@ import { useMarketingPricing } from "@/components/marketing/marketing-pricing-co
  */
 export function HeroPriceCaption() {
   const pricing = useMarketingPricing()
+  const ready = usePricingReady()
 
   return (
     <p className="mt-2 text-center text-[11px] leading-snug text-muted-foreground sm:text-[12px]">
-      Only from {pricing.permanentPrice} · 24-hour free trial
+      Only from {ready ? pricing.permanentPrice : "\u00a0"} · 24-hour free
+      trial
     </p>
   )
 }

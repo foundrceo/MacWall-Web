@@ -21,10 +21,10 @@ import { macwallAffiliateCopy as copy } from "@/lib/macwall-affiliate-copy"
 import { macwallAffiliatePortalURL } from "@/lib/macwall-affiliate"
 
 const partnerPrimaryBtnClass =
-  "inline-flex h-11 min-h-11 items-center justify-center rounded-md bg-white px-6 text-[15px] font-normal text-black no-underline transition-opacity hover:opacity-90"
+  "inline-flex h-11 min-h-11 items-center justify-center rounded-full bg-white px-6 text-[15px] font-normal text-black no-underline transition-opacity hover:opacity-90"
 
 const partnerSecondaryBtnClass =
-  "inline-flex h-10 min-h-10 shrink-0 items-center justify-center rounded-md border border-border bg-transparent px-5 text-[14px] font-normal text-white no-underline transition-colors hover:bg-white/5"
+  "inline-flex h-10 min-h-10 shrink-0 items-center justify-center rounded-full border border-border bg-transparent px-5 text-[14px] font-normal text-white no-underline transition-colors hover:bg-white/5"
 
 const perkIcons: Record<(typeof copy.perks)[number]["id"], IconSvgElement> = {
   channels: ShoppingBag01Icon,
