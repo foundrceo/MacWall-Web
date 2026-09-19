@@ -40,6 +40,10 @@ import {
 
 import { AdminShell } from "@/components/admin/admin-shell"
 import {
+  AdminSkeleton,
+  AdminSkeletonReveal,
+} from "@/components/admin/admin-skeleton-reveal"
+import {
   AdminAvatar,
   AdminBadge,
   AdminStatusDot,
@@ -54,7 +58,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   formatClockTime,
@@ -157,7 +160,7 @@ function extractChatId(text: string | null | undefined): string | null {
 /** Blue clickable URLs / emails in admin transcript bubbles. */
 function linkifyAdminText(text: string) {
   const linkClass =
-    "font-medium text-blue-600 underline decoration-blue-600/35 underline-offset-2 hover:decoration-blue-700"
+    "font-medium text-[var(--admin-blue-fg)] underline decoration-[var(--admin-blue-fg)]/40 underline-offset-2 hover:decoration-[var(--admin-blue-fg)]"
   const parts = text.split(/(https?:\/\/\S+|[\w.+-]+@[\w.-]+\.\w+)/gi)
   return parts.map((part, i) => {
     if (!part) return null
@@ -300,7 +303,8 @@ function isAutoClosedTicket(item: FeedbackItem): boolean {
 
 function buildTimeline(messages: FeedbackMessage[]): TimelineItem[] {
   const ordered = [...messages].sort((a, b) => {
-    const delta = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    const delta =
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     if (delta !== 0) return delta
     return a.id.localeCompare(b.id)
   })
@@ -419,7 +423,9 @@ export default function AdminFeedbackPage() {
 
   const selected = items.find((item) => item.id === selectedId) ?? null
   // Entries are removed by their TTL timer, so presence in the map means "typing now".
-  const selectedVisitorTyping = Boolean(selectedId && selectedId in visitorTypingUntil)
+  const selectedVisitorTyping = Boolean(
+    selectedId && selectedId in visitorTypingUntil
+  )
 
   /* --- data ------------------------------------------------------------- */
 
@@ -555,9 +561,7 @@ export default function AdminFeedbackPage() {
           // within the last few seconds).
           let cleaned = ticket.messages
           if (msg.author === "admin") {
-            cleaned = cleaned.filter(
-              (m) => !m.id.startsWith("optimistic-")
-            )
+            cleaned = cleaned.filter((m) => !m.id.startsWith("optimistic-"))
           }
 
           const newTicket: FeedbackItem = {
@@ -586,9 +590,7 @@ export default function AdminFeedbackPage() {
       if (event.ticketPatch?.id) {
         const patch = event.ticketPatch
         setItems((current) => {
-          const ticketIndex = current.findIndex(
-            (row) => row.id === patch.id
-          )
+          const ticketIndex = current.findIndex((row) => row.id === patch.id)
           if (ticketIndex === -1) {
             // New ticket appeared — full reload to pick it up.
             void load(true)
@@ -1015,7 +1017,10 @@ export default function AdminFeedbackPage() {
             disabled={refreshing}
           >
             <RefreshCw
-              className={cn("size-3.5", refreshing && "animate-spin motion-reduce:animate-none")}
+              className={cn(
+                "size-3.5",
+                refreshing && "animate-spin motion-reduce:animate-none"
+              )}
             />
             Refresh
           </Button>
@@ -1036,7 +1041,10 @@ export default function AdminFeedbackPage() {
           <div className="shrink-0 space-y-3 border-b border-[var(--admin-border)] px-4 py-3">
             <h2 className="sr-only">Inbox</h2>
             <div className="relative">
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--admin-muted)]" aria-hidden />
+              <Search
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--admin-muted)]"
+                aria-hidden
+              />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
@@ -1071,139 +1079,153 @@ export default function AdminFeedbackPage() {
           </div>
 
           <div className="admin-scroll min-h-0 flex-1 overflow-y-auto p-2">
-            {loading ? (
-              <div className="space-y-1 p-1">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <div key={index} className="flex gap-3 rounded-lg p-2.5">
-                    <Skeleton className="size-9 shrink-0 rounded-full" />
-                    <div className="min-w-0 flex-1 space-y-2">
-                      <Skeleton className="h-3.5 w-2/5 rounded-md" />
-                      <Skeleton className="h-3 w-4/5 rounded-md" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : visibleItems.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-                <Inbox className="size-7 text-[var(--admin-border-strong)]" />
-                <div>
-                  <p className="text-[13px] font-medium text-[var(--admin-fg)]">
-                    {search
-                      ? "No matches"
-                      : filter === "unread"
-                        ? "Nothing needs a reply"
-                        : filter === "open"
-                          ? "No open conversations"
-                          : filter === "closed"
-                            ? "No closed conversations"
-                            : "Nothing here"}
-                  </p>
-                  <p className="mt-1 text-xs text-[var(--admin-muted)]">
-                    {search
-                      ? "Try another name or Chat ID."
-                      : filter === "unread"
-                        ? "Open tickets waiting on the customer are under Open."
-                        : "New chats from the website will show up here live."}
-                  </p>
-                </div>
-                {!search && filter === "unread" ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setFilter("open")}
-                  >
-                    View open conversations
-                  </Button>
-                ) : null}
-              </div>
-            ) : (
-              <ul className="space-y-0.5">
-                {visibleItems.map((item) => {
-                  const last = item.messages.at(-1)
-                  const preview = isStaleSupportCloseNotice(last?.body)
-                    ? "Closed automatically after 7 idle days"
-                    : (last?.body ?? originalIssuePreview(item))
-                  const active = selectedId === item.id
-                  const chatId = chatIdForItem(item)
-                  return (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedId(item.id)}
-                        className={cn(
-                          "flex w-full cursor-pointer gap-3 rounded-2xl p-2.5 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]/30",
-                          active
-                            ? "bg-[var(--admin-blue-soft)]"
-                            : "hover:bg-[var(--admin-fill)]"
-                        )}
-                      >
-                        <AdminAvatar name={item.name} size="md" />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-baseline gap-2">
-                            <span
-                              className={cn(
-                                "min-w-0 flex-1 truncate text-[13px] font-semibold",
-                                item.isResolved
-                                  ? "text-[var(--admin-muted)]"
-                                  : "text-[var(--admin-fg)]"
-                              )}
-                            >
-                              {item.name?.trim() || "Anonymous"}
-                            </span>
-                            <span className="shrink-0 text-[11px] text-[var(--admin-muted)] tabular-nums">
-                              {formatRelativeTime(
-                                last?.createdAt ?? item.createdAt
-                              )}
-                            </span>
-                          </div>
-                          {chatId ? (
-                            <p className="mt-0.5 font-mono text-[10px] tracking-wide text-[var(--admin-muted)] tabular-nums">
-                              {chatId}
-                            </p>
-                          ) : null}
-                          {item.id in visitorTypingUntil ? (
-                            <p className="mt-0.5 text-xs font-medium text-[var(--admin-blue-fg)]">
-                              Visitor is typing…
-                            </p>
-                          ) : (
-                            <p
-                              className={cn(
-                                "mt-0.5 line-clamp-2 text-xs leading-relaxed",
-                                ticketNeedsReply(item)
-                                  ? "text-[var(--admin-fg-soft)]"
-                                  : "text-[var(--admin-muted)]"
-                              )}
-                            >
-                              {last?.author === "admin"
-                                ? "You: "
-                                : last?.author === "assist"
-                                  ? "Assist: "
-                                  : ""}
-                              {preview}
-                            </p>
-                          )}
-                          <div className="mt-1.5 flex flex-wrap items-center gap-1">
-                            <AdminBadge tone={SENTIMENT[item.sentiment].tone}>
-                              {SENTIMENT[item.sentiment].label}
-                            </AdminBadge>
-                            {ticketNeedsReply(item) ? (
-                              <AdminBadge tone="blue">Reply</AdminBadge>
-                            ) : null}
-                            {item.isResolved ? (
-                              <AdminBadge tone="neutral">
-                                {isAutoClosedTicket(item)
-                                  ? "Closed automatically"
-                                  : "Closed"}
-                              </AdminBadge>
-                            ) : null}
-                          </div>
+            <AdminSkeletonReveal
+              loading={loading}
+              minDuration={500}
+              skeleton={
+                <div className="space-y-0.5 p-1" aria-hidden="true">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div key={index} className="flex gap-3 rounded-2xl p-2.5">
+                      <AdminSkeleton className="size-9 shrink-0 rounded-full" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-baseline gap-2">
+                          <AdminSkeleton className="h-3.5 w-2/5 rounded-md" />
+                          <AdminSkeleton className="ml-auto h-2.5 w-10 shrink-0 rounded" />
                         </div>
-                      </button>
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
+                        <AdminSkeleton className="mt-1 h-3 w-4/5 rounded-md" />
+                        <AdminSkeleton className="mt-1 h-3 w-3/5 rounded-md" />
+                        <div className="mt-1.5 flex gap-1">
+                          <AdminSkeleton className="h-5 w-14 rounded-md" />
+                          <AdminSkeleton className="h-5 w-12 rounded-md" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              }
+            >
+              {visibleItems.length === 0 ? (
+                <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
+                  <Inbox className="size-7 text-[var(--admin-border-strong)]" />
+                  <div>
+                    <p className="text-[13px] font-medium text-[var(--admin-fg)]">
+                      {search
+                        ? "No matches"
+                        : filter === "unread"
+                          ? "Nothing needs a reply"
+                          : filter === "open"
+                            ? "No open conversations"
+                            : filter === "closed"
+                              ? "No closed conversations"
+                              : "Nothing here"}
+                    </p>
+                    <p className="mt-1 text-xs text-[var(--admin-muted)]">
+                      {search
+                        ? "Try another name or Chat ID."
+                        : filter === "unread"
+                          ? "Open tickets waiting on the customer are under Open."
+                          : "New chats from the website will show up here live."}
+                    </p>
+                  </div>
+                  {!search && filter === "unread" ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFilter("open")}
+                    >
+                      View open conversations
+                    </Button>
+                  ) : null}
+                </div>
+              ) : (
+                <ul className="space-y-0.5">
+                  {visibleItems.map((item) => {
+                    const last = item.messages.at(-1)
+                    const preview = isStaleSupportCloseNotice(last?.body)
+                      ? "Closed automatically after 7 idle days"
+                      : (last?.body ?? originalIssuePreview(item))
+                    const active = selectedId === item.id
+                    const chatId = chatIdForItem(item)
+                    return (
+                      <li key={item.id}>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedId(item.id)}
+                          className={cn(
+                            "flex w-full cursor-pointer gap-3 rounded-2xl p-2.5 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]/30",
+                            active
+                              ? "bg-[var(--admin-blue-soft)]"
+                              : "hover:bg-[var(--admin-fill)]"
+                          )}
+                        >
+                          <AdminAvatar name={item.name} size="md" />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-baseline gap-2">
+                              <span
+                                className={cn(
+                                  "min-w-0 flex-1 truncate text-[13px] font-semibold",
+                                  item.isResolved
+                                    ? "text-[var(--admin-muted)]"
+                                    : "text-[var(--admin-fg)]"
+                                )}
+                              >
+                                {item.name?.trim() || "Anonymous"}
+                              </span>
+                              <span className="shrink-0 text-[11px] text-[var(--admin-muted)] tabular-nums">
+                                {formatRelativeTime(
+                                  last?.createdAt ?? item.createdAt
+                                )}
+                              </span>
+                            </div>
+                            {chatId ? (
+                              <p className="mt-0.5 font-mono text-[10px] tracking-wide text-[var(--admin-muted)] tabular-nums">
+                                {chatId}
+                              </p>
+                            ) : null}
+                            {item.id in visitorTypingUntil ? (
+                              <p className="mt-0.5 text-xs font-medium text-[var(--admin-blue-fg)]">
+                                Visitor is typing…
+                              </p>
+                            ) : (
+                              <p
+                                className={cn(
+                                  "mt-0.5 line-clamp-2 text-xs leading-relaxed",
+                                  ticketNeedsReply(item)
+                                    ? "text-[var(--admin-fg-soft)]"
+                                    : "text-[var(--admin-muted)]"
+                                )}
+                              >
+                                {last?.author === "admin"
+                                  ? "You: "
+                                  : last?.author === "assist"
+                                    ? "Assist: "
+                                    : ""}
+                                {preview}
+                              </p>
+                            )}
+                            <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                              <AdminBadge tone={SENTIMENT[item.sentiment].tone}>
+                                {SENTIMENT[item.sentiment].label}
+                              </AdminBadge>
+                              {ticketNeedsReply(item) ? (
+                                <AdminBadge tone="blue">Reply</AdminBadge>
+                              ) : null}
+                              {item.isResolved ? (
+                                <AdminBadge tone="neutral">
+                                  {isAutoClosedTicket(item)
+                                    ? "Closed automatically"
+                                    : "Closed"}
+                                </AdminBadge>
+                              ) : null}
+                            </div>
+                          </div>
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </AdminSkeletonReveal>
           </div>
         </section>
 
@@ -1229,7 +1251,7 @@ export default function AdminFeedbackPage() {
 
           {!selected ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-                <span className="flex size-11 items-center justify-center rounded-xl bg-[var(--admin-surface)] ring-1 ring-[var(--admin-border)]">
+              <span className="flex size-11 items-center justify-center rounded-xl bg-[var(--admin-surface)] ring-1 ring-[var(--admin-border)]">
                 <MessageSquare className="size-5 text-[var(--admin-muted)]" />
               </span>
               <div>
@@ -1401,7 +1423,7 @@ export default function AdminFeedbackPage() {
                               className="mb-5"
                             />
                           ) : item.group.author === "assist" ? (
-                            <span className="mb-5 flex size-7 shrink-0 items-center justify-center rounded-full bg-[#1f2937] text-[9px] font-semibold tracking-wide text-white">
+                            <span className="mb-5 flex size-7 shrink-0 items-center justify-center rounded-full border border-[var(--admin-violet)]/30 bg-[var(--admin-violet-soft)] text-[9px] font-semibold tracking-wide text-[var(--admin-violet-fg)]">
                               AI
                             </span>
                           ) : (
@@ -1456,10 +1478,10 @@ export default function AdminFeedbackPage() {
                                           item.group.messages.length
                                         ),
                                         item.group.author === "admin"
-                                          ? "bg-[var(--admin-blue)] text-white"
+                                          ? "bg-gradient-to-b from-[var(--admin-blue)] to-[var(--admin-blue-hover)] text-white"
                                           : item.group.author === "assist"
-                                            ? "border border-[#c7d2fe] bg-[#eef2ff] text-[#101828]"
-                                            : "bg-[#e9e9eb] text-[#101828]"
+                                            ? "border border-[var(--admin-violet)]/30 bg-[var(--admin-violet-soft)] text-[var(--admin-fg)]"
+                                            : "border border-[var(--admin-border)] bg-[var(--admin-fill-hover)] text-[var(--admin-fg)]"
                                       )}
                                     >
                                       {linkifyAdminText(msg.body)}
@@ -1865,8 +1887,8 @@ export default function AdminFeedbackPage() {
                       Open report
                     </a>
                     <p className="text-[11px] text-[var(--admin-muted)]">
-                      Device snapshot, settings, extension state, app + extension
-                      logs, and the user’s action trail.
+                      Device snapshot, settings, extension state, app +
+                      extension logs, and the user’s action trail.
                       {selected.diagnosticsUpdatedAt
                         ? ` Updated ${new Date(selected.diagnosticsUpdatedAt).toLocaleString()}.`
                         : null}

@@ -26,6 +26,10 @@ import {
   PanelHeader,
 } from "@/components/admin/admin-ui"
 import { AdminEmptyState, AdminNotice } from "@/components/admin/admin-states"
+import {
+  AdminSkeleton,
+  AdminSkeletonReveal,
+} from "@/components/admin/admin-skeleton-reveal"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -37,7 +41,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import {
   Table,
@@ -231,14 +234,17 @@ export default function AdminWallpapersPage({
             disabled={refreshing}
           >
             <RefreshCw
-              className={cn("size-3.5", refreshing && "animate-spin motion-reduce:animate-none")}
+              className={cn(
+                "size-3.5",
+                refreshing && "animate-spin motion-reduce:animate-none"
+              )}
             />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
         </>
       }
     >
-      <div className="space-y-4">
+      <div className="space-y-5">
         {/* Filters */}
         <Card className="gap-0 py-0">
           <div className="flex flex-col gap-3 p-4 lg:flex-row lg:items-center">
@@ -265,7 +271,10 @@ export default function AdminWallpapersPage({
                   setPage(1)
                 }}
               >
-                <SelectTrigger className="h-9 w-full min-w-40 lg:w-44" aria-label="Filter by category">
+                <SelectTrigger
+                  className="h-9 w-full min-w-40 lg:w-44"
+                  aria-label="Filter by category"
+                >
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -285,7 +294,10 @@ export default function AdminWallpapersPage({
                   setPage(1)
                 }}
               >
-                <SelectTrigger className="h-9 w-full min-w-36 lg:w-40" aria-label="Sort wallpapers">
+                <SelectTrigger
+                  className="h-9 w-full min-w-36 lg:w-40"
+                  aria-label="Sort wallpapers"
+                >
                   <SelectValue placeholder="Sort" />
                 </SelectTrigger>
                 <SelectContent>
@@ -340,108 +352,121 @@ export default function AdminWallpapersPage({
               refreshing && "opacity-60"
             )}
           >
-            {loading ? (
-              <div className="space-y-3 p-4">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <Skeleton className="size-11 shrink-0 rounded-lg" />
-                    <div className="min-w-0 flex-1 space-y-2">
-                      <Skeleton className="h-3.5 w-2/5 rounded-md" />
-                      <Skeleton className="h-3 w-3/5 rounded-md" />
+            {loading || (data?.wallpapers.length ?? 0) > 0 ? (
+              <AdminSkeletonReveal
+                loading={loading}
+                skeleton={
+                  <div aria-hidden="true">
+                    <div className="flex items-center gap-3 border-b border-[var(--admin-border)] px-5 py-2.5">
+                      <AdminSkeleton className="h-3 w-16 rounded" />
+                      <AdminSkeleton className="h-3 w-24 rounded" />
+                      <AdminSkeleton className="h-3 w-20 rounded" />
+                      <AdminSkeleton className="ml-auto h-3 w-12 rounded" />
+                      <AdminSkeleton className="h-3 w-16 rounded" />
+                    </div>
+                    <div className="space-y-1 p-2">
+                      {Array.from({ length: 8 }).map((_, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 px-3 py-2"
+                        >
+                          <AdminSkeleton className="size-11 shrink-0 rounded-lg" />
+                          <div className="min-w-0 flex-1 space-y-1.5">
+                            <AdminSkeleton className="h-3.5 w-2/5 rounded-md" />
+                            <AdminSkeleton className="h-3 w-3/5 rounded-md" />
+                          </div>
+                          <AdminSkeleton className="hidden h-3.5 w-20 shrink-0 rounded-md sm:block" />
+                          <AdminSkeleton className="h-3.5 w-12 shrink-0 rounded-md" />
+                          <div className="hidden shrink-0 items-center gap-1 md:flex">
+                            <AdminSkeleton className="h-5 w-14 rounded-md" />
+                            <AdminSkeleton className="h-5 w-10 rounded-md" />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (data?.wallpapers.length ?? 0) === 0 ? (
+                }
+              >
+                <div className="overflow-x-auto">
+                  <Table>
+                    <caption className="sr-only">
+                      Wallpapers catalog. Activate a row to edit it.
+                    </caption>
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="w-16 pl-5">Preview</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead className="text-right">Likes</TableHead>
+                        <TableHead className="pr-5">Flags</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {data?.wallpapers.map((item) => (
+                        <TableRow
+                          key={item.id}
+                          onClick={() => setSelectedId(item.id)}
+                          aria-selected={selectedId === item.id}
+                          className={cn(
+                            "cursor-pointer border-[var(--admin-border)]",
+                            selectedId === item.id &&
+                              "bg-[var(--admin-blue-soft)] hover:bg-[var(--admin-blue-soft)]"
+                          )}
+                        >
+                          <TableCell className="py-2.5 pl-5">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={item.thumbUrl}
+                              alt=""
+                              loading="lazy"
+                              decoding="async"
+                              width={88}
+                              height={88}
+                              className="size-11 rounded-lg bg-[var(--admin-fill)] object-cover"
+                            />
+                          </TableCell>
+                          <TableCell className="py-2.5">
+                            <p className="max-w-56 truncate text-[13px] font-medium text-[var(--admin-fg)]">
+                              {item.name}
+                            </p>
+                            <p className="max-w-56 truncate text-xs text-[var(--admin-muted)]">
+                              {item.id}
+                            </p>
+                          </TableCell>
+                          <TableCell className="py-2.5 text-[13px] text-[var(--admin-fg-soft)]">
+                            {item.category}
+                          </TableCell>
+                          <TableCell className="py-2.5 text-right">
+                            <span className="inline-flex items-center gap-1 text-[13px] font-medium text-[var(--admin-fg)] tabular-nums">
+                              <Heart className="size-3.5 text-[var(--admin-red-fg)]" />
+                              {item.likeCount.toLocaleString()}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-2.5 pr-5">
+                            <div className="flex flex-wrap gap-1">
+                              {item.isFeatured ? (
+                                <AdminBadge tone="blue">Featured</AdminBadge>
+                              ) : null}
+                              {item.isCuratedPick ? (
+                                <AdminBadge tone="green">Pick</AdminBadge>
+                              ) : null}
+                              {item.isPro ? (
+                                <AdminBadge tone="amber">Pro</AdminBadge>
+                              ) : null}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </AdminSkeletonReveal>
+            ) : (
               <AdminEmptyState
                 icon={<ImageOff className="size-7" />}
                 title="No wallpapers found"
                 description="Try a different search term or clear the filters."
               />
-            ) : (
-              <div className="overflow-x-auto">
-              <Table>
-                <caption className="sr-only">
-                  Wallpapers catalog. Activate a row to edit it.
-                </caption>
-                <TableHeader>
-                  <TableRow className="border-[var(--admin-border)] hover:bg-transparent">
-                    <TableHead className="h-9 w-16 pl-5 text-[11px] font-semibold tracking-wide text-[var(--admin-muted)] uppercase">
-                      Preview
-                    </TableHead>
-                    <TableHead className="h-9 text-[11px] font-semibold tracking-wide text-[var(--admin-muted)] uppercase">
-                      Name
-                    </TableHead>
-                    <TableHead className="h-9 text-[11px] font-semibold tracking-wide text-[var(--admin-muted)] uppercase">
-                      Category
-                    </TableHead>
-                    <TableHead className="h-9 text-right text-[11px] font-semibold tracking-wide text-[var(--admin-muted)] uppercase">
-                      Likes
-                    </TableHead>
-                    <TableHead className="h-9 pr-5 text-[11px] font-semibold tracking-wide text-[var(--admin-muted)] uppercase">
-                      Flags
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data?.wallpapers.map((item) => (
-                    <TableRow
-                      key={item.id}
-                      onClick={() => setSelectedId(item.id)}
-                      aria-selected={selectedId === item.id}
-                      className={cn(
-                        "cursor-pointer border-[var(--admin-border)]",
-                        selectedId === item.id &&
-                          "bg-[var(--admin-blue-soft)] hover:bg-[var(--admin-blue-soft)]"
-                      )}
-                    >
-                      <TableCell className="py-2.5 pl-5">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={item.thumbUrl}
-                          alt=""
-                          loading="lazy"
-                          decoding="async"
-                          width={88}
-                          height={88}
-                          className="size-11 rounded-lg bg-[var(--admin-fill)] object-cover"
-                        />
-                      </TableCell>
-                      <TableCell className="py-2.5">
-                        <p className="max-w-56 truncate text-[13px] font-medium text-[var(--admin-fg)]">
-                          {item.name}
-                        </p>
-                        <p className="max-w-56 truncate text-xs text-[var(--admin-muted)]">
-                          {item.id}
-                        </p>
-                      </TableCell>
-                      <TableCell className="py-2.5 text-[13px] text-[var(--admin-fg-soft)]">
-                        {item.category}
-                      </TableCell>
-                      <TableCell className="py-2.5 text-right">
-                        <span className="inline-flex items-center gap-1 text-[13px] font-medium text-[var(--admin-fg)] tabular-nums">
-                          <Heart className="size-3.5 text-[var(--admin-red-fg)]" />
-                          {item.likeCount.toLocaleString()}
-                        </span>
-                      </TableCell>
-                      <TableCell className="py-2.5 pr-5">
-                        <div className="flex flex-wrap gap-1">
-                          {item.isFeatured ? (
-                            <AdminBadge tone="blue">Featured</AdminBadge>
-                          ) : null}
-                          {item.isCuratedPick ? (
-                            <AdminBadge tone="green">Pick</AdminBadge>
-                          ) : null}
-                          {item.isPro ? (
-                            <AdminBadge tone="amber">Pro</AdminBadge>
-                          ) : null}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              </div>
             )}
 
             {totalPages > 1 ? (

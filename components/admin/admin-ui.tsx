@@ -1,14 +1,13 @@
 "use client"
 
 import NumberFlow from "@number-flow/react"
-import { motion, useReducedMotion } from "motion/react"
 import type { ReactNode } from "react"
 import { useCallback } from "react"
 
 import { MacWallAppIcon } from "@/components/macwall-app-icon"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { AdminSkeleton } from "@/components/admin/admin-skeleton-reveal"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
@@ -129,7 +128,10 @@ export function AdminStatusDot({
     violet: "bg-[var(--admin-violet)]",
   }
   return (
-    <span className="relative flex size-1.5 shrink-0" aria-hidden={label ? undefined : true}>
+    <span
+      className="relative flex size-1.5 shrink-0"
+      aria-hidden={label ? undefined : true}
+    >
       {pulse ? (
         <span
           aria-hidden
@@ -195,23 +197,25 @@ export function PanelHeader({
   return (
     <div
       className={cn(
-        // min-h matches a header holding a 36px control, so panel headers sitting
+        // min-h matches a header holding a 32px control, so panel headers sitting
         // side by side line up whether they hold text or a segmented control
-        "flex min-h-16 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--admin-border)] px-5 py-4",
+        "flex min-h-14 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--admin-border)] px-5 py-3",
         className
       )}
     >
       <div className="min-w-0">
-        <h3 className="text-sm font-semibold tracking-tight text-[var(--admin-fg)]">
+        <h3 className="text-[13px] font-semibold tracking-tight text-[var(--admin-fg)]">
           {title}
         </h3>
         {description ? (
-          <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-[var(--admin-muted)]">
+          <p className="mt-0.5 max-w-xl truncate text-xs leading-relaxed text-[var(--admin-muted)]">
             {description}
           </p>
         ) : null}
       </div>
-      {action ? <div className="flex shrink-0 items-center gap-2">{action}</div> : null}
+      {action ? (
+        <div className="flex shrink-0 items-center gap-2">{action}</div>
+      ) : null}
     </div>
   )
 }
@@ -225,7 +229,6 @@ export function StatCard({
   icon,
   trend,
   className,
-  index = 0,
 }: Readonly<{
   label: string
   value: number | string
@@ -233,31 +236,22 @@ export function StatCard({
   icon?: ReactNode
   trend?: { value: number; label?: string }
   className?: string
-  /** Stagger position in a grid — drives entrance delay. */
-  index?: number
 }>) {
-  const reduceMotion = useReducedMotion()
   const trendUp = (trend?.value ?? 0) >= 0
   const numeric = typeof value === "number"
-  const delay = reduceMotion ? 0 : Math.min(index, 8) * 0.045
 
   return (
-    <motion.div
-      initial={reduceMotion ? false : { opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={className}
-    >
+    <div className={className}>
       <AdminSpotlight className="h-full">
-        <Card className="admin-lift h-full gap-0 rounded-2xl border-[var(--admin-border)] p-5">
+        <Card className="admin-lift h-full gap-0 rounded-2xl border-[var(--admin-border)] p-4">
           <div className="flex items-start justify-between gap-3">
-            <p className="truncate text-[13px] font-medium text-[var(--admin-muted)]">
+            <p className="truncate text-xs font-medium text-[var(--admin-muted)]">
               {label}
             </p>
             {trend ? (
               <span
                 className={cn(
-                  "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums",
+                  "inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-px text-[10px] font-semibold tabular-nums",
                   trendUp
                     ? "bg-[var(--admin-green-soft)] text-[var(--admin-green-fg)]"
                     : "bg-[var(--admin-red-soft)] text-[var(--admin-red-fg)]"
@@ -270,12 +264,12 @@ export function StatCard({
                 {Math.abs(trend.value).toFixed(1)}%
               </span>
             ) : icon ? (
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[var(--admin-border)] bg-gradient-to-b from-[var(--admin-fill-hover)] to-[var(--admin-fill)] text-[var(--admin-fg-soft)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-[var(--admin-border)] bg-gradient-to-b from-[var(--admin-fill-hover)] to-[var(--admin-fill)] text-[var(--admin-fg-soft)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                 {icon}
               </span>
             ) : null}
           </div>
-          <p className="mt-3 text-[1.75rem] leading-none font-semibold tracking-tight text-[var(--admin-fg)] tabular-nums">
+          <p className="mt-2 text-[1.625rem] leading-none font-semibold tracking-tight text-[var(--admin-fg)] tabular-nums">
             {numeric ? (
               <NumberFlow
                 value={value}
@@ -288,30 +282,35 @@ export function StatCard({
             )}
           </p>
           {hint ? (
-            <p className="mt-2 truncate text-xs text-[var(--admin-muted)]">
+            <p className="mt-1.5 truncate text-xs text-[var(--admin-muted)]">
               {hint}
             </p>
           ) : trend?.label ? (
-            <p className="mt-2 truncate text-xs text-[var(--admin-muted)]">
+            <p className="mt-1.5 truncate text-xs text-[var(--admin-muted)]">
               {trend.label}
             </p>
           ) : null}
         </Card>
       </AdminSpotlight>
-    </motion.div>
+    </div>
   )
 }
 
 export function StatCardSkeleton() {
   return (
     <Card
-      className="h-full gap-0 rounded-2xl p-5"
+      className="h-full gap-0 rounded-2xl p-4"
       role="status"
       aria-label="Loading metric"
     >
-      <Skeleton className="h-3.5 w-24 rounded-md" />
-      <Skeleton className="mt-3 h-7 w-20 rounded-md" />
-      <Skeleton className="mt-2.5 h-3 w-28 rounded-md" />
+      <div className="flex items-start justify-between gap-3">
+        <AdminSkeleton className="h-3.5 w-24 rounded-md" />
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-[var(--admin-border)] bg-[var(--admin-fill)]">
+          <AdminSkeleton className="size-4 rounded" />
+        </span>
+      </div>
+      <AdminSkeleton className="mt-2 h-7 w-20 rounded-md" />
+      <AdminSkeleton className="mt-1.5 h-3 w-28 rounded-md" />
       <span className="sr-only">Loading…</span>
     </Card>
   )
