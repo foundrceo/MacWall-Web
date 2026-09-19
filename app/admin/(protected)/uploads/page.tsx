@@ -28,11 +28,14 @@ import {
   type Tone,
 } from "@/components/admin/admin-ui"
 import { AdminEmptyState, AdminNotice } from "@/components/admin/admin-states"
+import {
+  AdminSkeleton,
+  AdminSkeletonReveal,
+} from "@/components/admin/admin-skeleton-reveal"
 import { CatalogBulkUploadPanel } from "@/components/admin/catalog-bulk-upload-panel"
 import { StaticWallpaperUploadPanel } from "@/components/admin/static-wallpaper-upload-panel"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { formatBytes, formatDuration } from "@/lib/admin/format"
@@ -211,7 +214,10 @@ export default function AdminUploadsPage() {
             disabled={refreshing}
           >
             <RefreshCw
-              className={cn("size-3.5", refreshing && "animate-spin motion-reduce:animate-none")}
+              className={cn(
+                "size-3.5",
+                refreshing && "animate-spin motion-reduce:animate-none"
+              )}
             />
             <span className="hidden sm:inline">Refresh</span>
           </Button>
@@ -231,7 +237,7 @@ export default function AdminUploadsPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="review" className="space-y-4">
+        <TabsContent value="review" className="space-y-5">
           {error ? <AdminNotice>{error}</AdminNotice> : null}
           {message ? <AdminNotice tone="success">{message}</AdminNotice> : null}
 
@@ -264,54 +270,69 @@ export default function AdminUploadsPage() {
               </div>
 
               <div className="admin-scroll max-h-[min(70vh,36rem)] overflow-y-auto p-2">
-                {loading ? (
-                  <div className="space-y-2 p-1">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <Skeleton key={index} className="h-14 w-full rounded-lg" />
-                    ))}
-                  </div>
-                ) : uploads.length === 0 ? (
-                  <AdminEmptyState
-                    icon={<FileVideo className="size-6" />}
-                    title="Nothing in this filter"
-                    description="Pending community uploads show up here for review."
-                    className="py-14"
-                  />
-                ) : (
-                  <ul className="space-y-0.5">
-                    {uploads.map((upload) => {
-                      const meta = STATUS_META[upload.status]
-                      const active = selectedId === upload.id
-                      return (
-                        <li key={upload.id}>
-                          <button
-                            type="button"
-                            onClick={() => setSelectedId(upload.id)}
-                            className={cn(
-                              "w-full cursor-pointer rounded-lg px-3 py-2.5 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]/30",
-                              active
-                                ? "bg-[var(--admin-blue-soft)]"
-                                : "hover:bg-[var(--admin-fill)]"
-                            )}
-                          >
-                            <p className="truncate text-[13px] font-medium text-[var(--admin-fg)]">
-                              {upload.title}
-                            </p>
-                            <div className="mt-1 flex items-center gap-2">
-                              <span className="truncate text-xs text-[var(--admin-muted)]">
-                                {upload.category}
-                              </span>
-                              <AdminBadge tone={meta.tone} className="ml-auto">
-                                <meta.icon className="size-3" />
-                                {meta.label}
-                              </AdminBadge>
-                            </div>
-                          </button>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                )}
+                <AdminSkeletonReveal
+                  loading={loading}
+                  minDuration={500}
+                  skeleton={
+                    <div className="space-y-0.5 p-1" aria-hidden="true">
+                      {Array.from({ length: 5 }).map((_, index) => (
+                        <div key={index} className="rounded-lg px-3 py-2.5">
+                          <AdminSkeleton className="h-3.5 w-3/5 rounded-md" />
+                          <div className="mt-1.5 flex items-center gap-2">
+                            <AdminSkeleton className="h-3 w-16 rounded-md" />
+                            <AdminSkeleton className="ml-auto h-5 w-16 rounded-md" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  }
+                >
+                  {uploads.length === 0 ? (
+                    <AdminEmptyState
+                      icon={<FileVideo className="size-6" />}
+                      title="Nothing in this filter"
+                      description="Pending community uploads show up here for review."
+                      className="py-14"
+                    />
+                  ) : (
+                    <ul className="space-y-0.5">
+                      {uploads.map((upload) => {
+                        const meta = STATUS_META[upload.status]
+                        const active = selectedId === upload.id
+                        return (
+                          <li key={upload.id}>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedId(upload.id)}
+                              className={cn(
+                                "w-full cursor-pointer rounded-lg px-3 py-2.5 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--admin-blue)]/30",
+                                active
+                                  ? "bg-[var(--admin-blue-soft)]"
+                                  : "hover:bg-[var(--admin-fill)]"
+                              )}
+                            >
+                              <p className="truncate text-[13px] font-medium text-[var(--admin-fg)]">
+                                {upload.title}
+                              </p>
+                              <div className="mt-1 flex items-center gap-2">
+                                <span className="truncate text-xs text-[var(--admin-muted)]">
+                                  {upload.category}
+                                </span>
+                                <AdminBadge
+                                  tone={meta.tone}
+                                  className="ml-auto"
+                                >
+                                  <meta.icon className="size-3" />
+                                  {meta.label}
+                                </AdminBadge>
+                              </div>
+                            </button>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  )}
+                </AdminSkeletonReveal>
               </div>
             </Card>
 
@@ -342,6 +363,23 @@ export default function AdminUploadsPage() {
                 </div>
               ) : (
                 <div className="space-y-4 p-5">
+                  <AdminSkeletonReveal
+                    loading={!videoUrl}
+                    minDuration={400}
+                    skeleton={
+                      <div className="space-y-4" aria-hidden="true">
+                        <AdminSkeleton className="aspect-video w-full rounded-xl" />
+                        <div className="grid grid-cols-3 gap-x-6 gap-y-4">
+                          {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="space-y-1.5">
+                              <AdminSkeleton className="h-2.5 w-14 rounded" />
+                              <AdminSkeleton className="h-3.5 w-4/5 rounded-md" />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    }
+                  >
                     {videoUrl ? (
                       <video
                         key={videoUrl}
@@ -353,9 +391,8 @@ export default function AdminUploadsPage() {
                         aria-label={`Preview of ${selected.title}`}
                         className="aspect-video w-full rounded-xl border border-[var(--admin-border)] bg-black object-contain"
                       />
-                    ) : (
-                    <Skeleton className="aspect-video w-full rounded-lg" />
-                  )}
+                    ) : null}
+                  </AdminSkeletonReveal>
 
                   {mediaError ? (
                     <p className="flex items-center gap-1.5 text-xs text-[var(--admin-red-fg)]">

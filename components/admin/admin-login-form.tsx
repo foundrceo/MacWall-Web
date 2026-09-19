@@ -11,7 +11,6 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { macwall } from "@/lib/macwall-site"
-import { cn } from "@/lib/utils"
 
 export function AdminLoginForm({
   nextPath = "/admin",
@@ -47,7 +46,7 @@ export function AdminLoginForm({
     <div className="relative flex min-h-svh items-center justify-center overflow-hidden bg-[var(--admin-canvas)] px-4 py-12">
       <DottedGrid
         className="pointer-events-none absolute inset-0"
-        backgroundColor="#09090b"
+        backgroundColor="var(--admin-canvas)"
         spacing={28}
         baseRadius={1.2}
       />
@@ -59,7 +58,7 @@ export function AdminLoginForm({
         aria-hidden
         className="admin-orb admin-orb-violet pointer-events-none absolute -bottom-40 left-1/2 h-80 w-[36rem] -translate-x-1/2"
       />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,#09090b_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,var(--admin-canvas)_100%)]" />
 
       <motion.div
         className="relative z-10 w-full max-w-sm"
@@ -152,7 +151,10 @@ export function AdminLoginForm({
               disabled={loading || password.length === 0}
             >
               {loading ? (
-                <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden />
+                <Loader2
+                  className="size-4 animate-spin motion-reduce:animate-none"
+                  aria-hidden
+                />
               ) : null}
               {loading ? "Signing in…" : "Sign in"}
             </Button>
@@ -162,11 +164,7 @@ export function AdminLoginForm({
           </form>
         </Card>
 
-        <p
-          className={cn(
-            "mt-4 text-center text-xs text-[var(--admin-muted)]"
-          )}
-        >
+        <p className="mt-4 text-center text-xs text-[var(--admin-muted)]">
           Authorised access only. All sign-ins are logged.
         </p>
       </motion.div>

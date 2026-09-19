@@ -1,6 +1,5 @@
 "use client"
 
-import { motion, useReducedMotion } from "motion/react"
 import type { ReactNode } from "react"
 import { CircleCheck, Inbox, TriangleAlert } from "lucide-react"
 
@@ -15,14 +14,10 @@ export function AdminNotice({
   children: ReactNode
   className?: string
 }>) {
-  const reduceMotion = useReducedMotion()
   const error = tone === "error"
   const success = tone === "success"
   return (
-    <motion.div
-      initial={reduceMotion ? false : { opacity: 0, y: -4 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+    <div
       role={error ? "alert" : "status"}
       className={cn(
         "flex items-start gap-2.5 rounded-2xl border px-4 py-3 text-[13px] leading-relaxed",
@@ -41,7 +36,7 @@ export function AdminNotice({
         <CircleCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
       )}
       <span className="min-w-0 flex-1">{children}</span>
-    </motion.div>
+    </div>
   )
 }
 
@@ -58,18 +53,17 @@ export function AdminEmptyState({
   action?: ReactNode
   className?: string
 }>) {
-  const reduceMotion = useReducedMotion()
   return (
-    <motion.div
-      initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+    <div
       className={cn(
         "relative flex flex-col items-center gap-2 overflow-hidden px-6 py-16 text-center",
         className
       )}
     >
-      <div aria-hidden className="admin-dotted-bg pointer-events-none absolute inset-0" />
+      <div
+        aria-hidden
+        className="admin-dotted-bg pointer-events-none absolute inset-0"
+      />
       <div className="relative mb-1 flex size-12 items-center justify-center rounded-2xl border border-[var(--admin-border)] bg-gradient-to-b from-[var(--admin-fill-hover)] to-[var(--admin-fill)] text-[var(--admin-muted)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
         {icon ?? <Inbox className="size-5" aria-hidden />}
       </div>
@@ -82,7 +76,7 @@ export function AdminEmptyState({
         </p>
       ) : null}
       {action ? <div className="relative mt-3">{action}</div> : null}
-    </motion.div>
+    </div>
   )
 }
 
