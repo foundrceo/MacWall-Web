@@ -66,12 +66,18 @@ function ladderFromReason(
   return { code: EMAIL_LADDER_30, percent: "30%", expiresHours: LADDER_30_HOURS }
 }
 
-function checkoutHref(promoCode?: string, untilUnix?: number): string {
+function checkoutHref(
+  promoCode?: string,
+  untilUnix?: number,
+  email?: string | null
+): string {
   const base = `${siteBaseUrl()}/api/checkout/create-session?offer=permanent`
   const params = new URLSearchParams()
   const code = (promoCode ?? EMAIL_RECOVERY_PROMO_CODE).trim()
   if (code) params.set("promo", code)
   if (untilUnix && untilUnix > 0) params.set("until", String(untilUnix))
+  const leadEmail = email?.trim().toLowerCase()
+  if (leadEmail) params.set("email", leadEmail)
   const query = params.toString()
   return query ? `${base}&${query}` : base
 }
@@ -382,7 +388,6 @@ async function processQueueRow(args: {
   const untilUnix = expiresHours
     ? Math.floor(Date.now() / 1000) + expiresHours * 3600
     : undefined
-  const checkoutHrefValue = checkoutHref(promoCode, untilUnix)
   const stripeSessionId = originalCheckoutSessionId(row.checkout_session_id)
 
   let session: Stripe.Checkout.Session | null = null
@@ -461,6 +466,8 @@ async function processQueueRow(args: {
     })
     return "rescheduled"
   }
+
+  const checkoutHrefValue = checkoutHref(promoCode, untilUnix, email)
 
   const paymentIntentId =
     row.payment_intent_id ||

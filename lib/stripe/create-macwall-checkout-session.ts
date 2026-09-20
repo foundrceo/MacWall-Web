@@ -11,6 +11,10 @@ import {
 } from "@/lib/license/offers.shared"
 import { stripePriceIdForOffer } from "@/lib/license/stripe-price-map"
 import {
+  normalizeCheckoutVisitorId,
+  resolveCheckoutCustomerEmail,
+} from "@/lib/stripe/checkout-email"
+import {
   CHECKOUT_INTEGRATION_ID,
   checkoutErrorMessage,
   resolvePromotionCodeId,
@@ -37,6 +41,13 @@ export type CreateMacWallCheckoutInput = {
   promoCode?: string | null
   /** Unix seconds / ms / ISO. Timed 20/30 codes fall back to MAC10 after this. */
   offerUntil?: string | null
+  /**
+   * Known lead email (trial, recovery CTA, app). Prefills Stripe and enables
+   * abandoned-checkout recovery even if they never type on the form.
+   */
+  customerEmail?: string | null
+  /** Mac app / trial visitor id — used to look up macwall_trial_leads.email. */
+  visitorId?: string | null
 }
 
 export type CreateMacWallCheckoutResult = CreateCheckoutResult
@@ -72,6 +83,11 @@ export async function createMacWallCheckoutSession(
     const promotionCodeId = promoCode
       ? await resolvePromotionCodeId(stripe, promoCode)
       : null
+    const customerEmail = await resolveCheckoutCustomerEmail({
+      email: input.customerEmail,
+      visitorId: input.visitorId,
+    })
+    const visitorId = normalizeCheckoutVisitorId(input.visitorId)
     const metadata = {
       license_key: licenseKey,
       source: "macwall",
@@ -85,6 +101,8 @@ export async function createMacWallCheckoutSession(
       visitor_country: input.country?.trim().toUpperCase() || "",
       ...(promoCode ? { promo_code: promoCode } : {}),
       ...(promotionCodeId ? { stripe_promotion_code_id: promotionCodeId } : {}),
+      ...(customerEmail ? { customer_email: customerEmail } : {}),
+      ...(visitorId ? { visitor_id: visitorId } : {}),
     }
 
     // Critical path: Stripe only. Localhost measured ~1.1–1.2s for this hop.
@@ -92,6 +110,7 @@ export async function createMacWallCheckoutSession(
     // reuse the session; a new click mints a new key → new session (correct).
     // Stripe forbids pairing `discounts` with `allow_promotion_codes`.
     // Annual is retired (normalized to permanent) — always one-time payment mode.
+    // customer_email prefills Checkout and is readable on abandon for recovery.
     const session = await stripe.checkout.sessions.create(
       {
         mode: "payment",
@@ -101,6 +120,7 @@ export async function createMacWallCheckoutSession(
         client_reference_id: licenseKey,
         locale: "auto",
         billing_address_collection: "auto",
+        ...(customerEmail ? { customer_email: customerEmail } : {}),
         ...(promotionCodeId
           ? { discounts: [{ promotion_code: promotionCodeId }] }
           : { allow_promotion_codes: true }),
@@ -136,6 +156,7 @@ export async function createMacWallCheckoutSession(
         max_devices: offer.maxDevices,
         billing_model: offer.billingModel,
         stripe_checkout_session_id: session.id,
+        ...(customerEmail ? { customer_email: customerEmail } : {}),
         ...(visitorCountry && /^[A-Z]{2}$/.test(visitorCountry)
           ? { visitor_country: visitorCountry }
           : {}),
@@ -172,6 +193,7 @@ export async function createMacWallCheckoutSession(
         await queueCheckoutRecovery({
           checkoutSessionId: session.id,
           licenseKey,
+          customerEmail,
           reason: "checkout_started",
         })
       } catch (queueError) {
@@ -182,7 +204,7 @@ export async function createMacWallCheckoutSession(
       }
     })
 
-    return { ok: true, url: session.url }
+    return { ok: true, url: session.url, customerEmail }
   } catch (error) {
     console.error(
       "[checkout]",
