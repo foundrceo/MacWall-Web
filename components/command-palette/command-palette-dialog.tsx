@@ -37,7 +37,7 @@ import { markCheckoutStartedInSession } from "@/lib/analytics/retargeting"
 import { trackMetaInitiateCheckout } from "@/lib/analytics/meta-client"
 import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
 import {
-  offerSlugFromCheckoutHref,
+  parseCheckoutHrefParams,
   waitForPrefetchedCheckoutUrl,
 } from "@/lib/checkout/prefetch-checkout"
 import { pricingPathWithCheckoutError } from "@/lib/checkout/checkout-session-client"
@@ -472,12 +472,17 @@ function CommandPaletteDialogContent({
         }
 
         // Same POST → Stripe URL path as TrackedLink (never router.push the API route).
-        const checkoutOffer = offerSlugFromCheckoutHref(staticItem.href)
-        if (checkoutOffer) {
+        const checkoutParams = parseCheckoutHrefParams(staticItem.href)
+        if (checkoutParams) {
           markCheckoutStartedInSession()
           trackMetaInitiateCheckout()
           void trackTikTokInitiateCheckoutWithIdentify()
-          void waitForPrefetchedCheckoutUrl(checkoutOffer)
+          void waitForPrefetchedCheckoutUrl(checkoutParams.offer, {
+            email: checkoutParams.email,
+            visitorId: checkoutParams.visitorId,
+            promo: checkoutParams.promo,
+            until: checkoutParams.until,
+          })
             .then((result) => {
               if (result.ok && result.url.startsWith("https://")) {
                 window.location.assign(result.url)

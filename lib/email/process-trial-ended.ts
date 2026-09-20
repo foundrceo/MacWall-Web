@@ -34,11 +34,19 @@ function parseStep(raw: string): TrialEndedEmailStep | null {
   return null
 }
 
-function checkoutHref(promoCode: string, untilUnix?: number): string {
+function checkoutHref(
+  promoCode: string,
+  untilUnix?: number,
+  lead?: { email?: string | null; visitorId?: string | null }
+): string {
   const base = `${EMAIL_SITE_URL}/api/checkout/create-session?offer=permanent`
   const params = new URLSearchParams()
   if (promoCode) params.set("promo", promoCode)
   if (untilUnix && untilUnix > 0) params.set("until", String(untilUnix))
+  const email = lead?.email?.trim().toLowerCase()
+  if (email) params.set("email", email)
+  const visitorId = lead?.visitorId?.trim()
+  if (visitorId) params.set("visitor_id", visitorId)
   const query = params.toString()
   return query ? `${base}&${query}` : base
 }
@@ -219,7 +227,10 @@ async function processQueueRow(
   const untilUnix = promo.expiresHours
     ? Math.floor(Date.now() / 1000) + promo.expiresHours * 3600
     : undefined
-  const href = checkoutHref(promo.code, untilUnix)
+  const href = checkoutHref(promo.code, untilUnix, {
+    email,
+    visitorId: row.visitor_id,
+  })
   const unsub = await unsubscribeUrls(email)
 
   const { error: insErr } = await supabase.from("macwall_trial_ended_emails").insert({

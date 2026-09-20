@@ -173,12 +173,20 @@ function trialEndedCopy(
   }
 }
 
-function checkoutHref(promoCode?: string, untilUnix?: number): string {
+function checkoutHref(
+  promoCode?: string,
+  untilUnix?: number,
+  lead?: { email?: string | null; visitorId?: string | null }
+): string {
   const base = `${siteBaseUrl()}/api/checkout/create-session?offer=permanent`
   const params = new URLSearchParams()
   const code = (promoCode ?? EMAIL_TRIAL_PROMO_CODE).trim()
   if (code) params.set("promo", code)
   if (untilUnix && untilUnix > 0) params.set("until", String(untilUnix))
+  const email = lead?.email?.trim().toLowerCase()
+  if (email) params.set("email", email)
+  const visitorId = lead?.visitorId?.trim()
+  if (visitorId) params.set("visitor_id", visitorId)
   const query = params.toString()
   return query ? `${base}&${query}` : base
 }
@@ -526,7 +534,10 @@ async function processQueueRow(args: {
   const untilUnix = promo.expiresHours
     ? Math.floor(Date.now() / 1000) + promo.expiresHours * 3600
     : undefined
-  const href = checkoutHref(promo.code, untilUnix)
+  const href = checkoutHref(promo.code, untilUnix, {
+    email,
+    visitorId: row.visitor_id,
+  })
   const unsub = await unsubscribeUrlsFor(email)
   const html = buildTrialEndedEmailHtml({
     step,

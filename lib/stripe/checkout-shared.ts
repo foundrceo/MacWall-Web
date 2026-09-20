@@ -9,7 +9,7 @@ import type { getStripe } from "@/lib/stripe/server"
 export const CHECKOUT_INTEGRATION_ID = "macwall_web_checkout_kxqmvrnp"
 
 export type CreateCheckoutResult =
-  | { ok: true; url: string }
+  | { ok: true; url: string; customerEmail?: string | null }
   | { ok: false; error: string; status: number }
 
 export function checkoutErrorMessage(error: unknown): string {

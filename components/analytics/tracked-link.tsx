@@ -16,7 +16,7 @@ import { trackMetaInitiateCheckout } from "@/lib/analytics/meta-client"
 import { markCheckoutStartedInSession } from "@/lib/analytics/retargeting"
 import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
 import {
-  offerSlugFromCheckoutHref,
+  parseCheckoutHrefParams,
   prefetchCheckoutSession,
   waitForPrefetchedCheckoutUrl,
 } from "@/lib/checkout/prefetch-checkout"
@@ -49,7 +49,8 @@ export function TrackedLink({
 }: TrackedLinkProps) {
   const isDownloadClick = eventName === "download_click"
   const isCheckoutClick = isCheckoutApiHref(href)
-  const checkoutOffer = isCheckoutClick ? offerSlugFromCheckoutHref(href) : null
+  const checkoutParams = isCheckoutClick ? parseCheckoutHrefParams(href) : null
+  const checkoutOffer = checkoutParams?.offer ?? null
   const isExternalHref =
     external ||
     href.startsWith("http") ||
@@ -81,21 +82,31 @@ export function TrackedLink({
   }
 
   const warmCheckout = () => {
-    if (!checkoutOffer) return
-    void prefetchCheckoutSession(checkoutOffer)
+    if (!checkoutParams) return
+    void prefetchCheckoutSession(checkoutParams.offer, {
+      email: checkoutParams.email,
+      visitorId: checkoutParams.visitorId,
+      promo: checkoutParams.promo,
+      until: checkoutParams.until,
+    })
   }
 
   const onNavigate = (event: MouseEvent<HTMLAnchorElement>) => {
     onClick?.(event)
     if (event.defaultPrevented) return
 
-    if (isCheckoutClick && checkoutOffer) {
+    if (isCheckoutClick && checkoutOffer && checkoutParams) {
       trackNavigation()
       // POST → Stripe Checkout URL. Never GET create-session (429 → /pricing?checkout_error).
       event.preventDefault()
       const anchor = event.currentTarget
       anchor.setAttribute("aria-busy", "true")
-      void waitForPrefetchedCheckoutUrl(checkoutOffer)
+      void waitForPrefetchedCheckoutUrl(checkoutOffer, {
+        email: checkoutParams.email,
+        visitorId: checkoutParams.visitorId,
+        promo: checkoutParams.promo,
+        until: checkoutParams.until,
+      })
         .then((result) => {
           if (result.ok && result.url.startsWith("https://")) {
             window.location.assign(result.url)
