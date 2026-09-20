@@ -3,6 +3,7 @@
 export const CONVERSION_PROMO_CODES = [
   "MAC10",
   "WALL10",
+  "WALL50",
   "X9K4Q2MH",
   "R7N2WP8J",
   "T4V8CL6Y",
