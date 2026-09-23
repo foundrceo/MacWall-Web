@@ -77,3 +77,17 @@ export async function r2InstallersGetText(key: string): Promise<string> {
   }
   return response.text()
 }
+
+/** HEAD check so versioned keys can fall back to the latest object. */
+export async function r2InstallersExists(key: string): Promise<boolean> {
+  const config = readR2Config()
+  const client = clientFor(config)
+  try {
+    const response = await client.fetch(objectEndpoint(config, key), {
+      method: "HEAD",
+    })
+    return response.ok
+  } catch {
+    return false
+  }
+}

@@ -14,9 +14,14 @@ function siteOrigin(): string {
   }
 }
 
-/** Stable HTTPS URL for the latest `.dmg` (302 → presigned R2 object). */
-export function macwallInstallerDmgApiUrl(): string {
-  return `${siteOrigin()}/api/installers/releases/MacWall.dmg`
+/** Stable HTTPS URL for a `.dmg` (302 → presigned R2 object). */
+export function macwallInstallerDmgApiUrl(version?: string): string {
+  const base = `${siteOrigin()}/api/installers/releases/MacWall.dmg`
+  const tag = version?.trim()
+  if (tag && /^\d+\.\d+\.\d+$/.test(tag)) {
+    return `${base}?version=${encodeURIComponent(tag)}`
+  }
+  return base
 }
 
 /** Default redirect target for `/download/latest`. */
