@@ -46,31 +46,31 @@ export function trialEndedCopy(
   switch (step) {
     case "ended":
       return {
-        subject: `Your ${appName} Pro trial ended`,
-        preheader: `The 24-hour Pro trial is over. ${promo.percent} off with ${promo.code}`,
+        subject: `Claim ${promo.percent} off ${appName} Pro`,
+        preheader: `Your Pro trial ended · ${promo.percent} off auto-applied at checkout`,
         headline: "Your trial ended",
         body: `The 24-hour ${appName} Pro trial is over. Keep live wallpapers and Lock Screen with a one-time Pro license.`,
-        cta: "Get Pro",
+        cta: `Claim ${promo.percent} off`,
         codeLabel: "Discount code",
         codeHint: `${promo.percent} off. Auto-applied at checkout.`,
       }
     case "ladder_20":
       return {
-        subject: `20% off ${appName} Pro for 24 hours`,
-        preheader: `Code ${promo.code} expires in 24 hours`,
+        subject: `Claim 20% off ${appName} Pro — 24h left`,
+        preheader: `Expires in 24 hours · auto-applied at checkout`,
         headline: "20% off Pro",
         body: `Your ${appName} Pro trial ended. This 20% code lasts 24 hours.`,
-        cta: "Get Pro",
+        cta: "Claim 20% off — 24h left",
         codeLabel: "Discount code",
         codeHint: `${promo.percent} off. Expires in 24 hours.`,
       }
     case "ladder_30":
       return {
-        subject: `30% off ${appName} Pro for 12 hours`,
-        preheader: `Code ${promo.code} expires in 12 hours`,
+        subject: `Claim 30% off ${appName} Pro — 12h left`,
+        preheader: `Last chance · expires in 12 hours`,
         headline: "30% off Pro",
         body: `Last mail about the trial. This 30% code lasts 12 hours.`,
-        cta: "Get Pro",
+        cta: "Claim 30% off — 12h left",
         codeLabel: "Discount code",
         codeHint: `${promo.percent} off. Expires in 12 hours.`,
       }
