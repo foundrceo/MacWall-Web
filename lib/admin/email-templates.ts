@@ -5,6 +5,11 @@
  */
 
 import {
+  appendEmailCheckoutUtm,
+  trialEndedUtmCampaign,
+  type EmailCheckoutUtmCampaign,
+} from "@/lib/email/email-checkout-utm"
+import {
   trialEndedCopy,
   trialEndedPlainText,
   trialEndedPromo,
@@ -72,7 +77,8 @@ function licenseEmailLinks(licenseKey: string): {
 function checkoutHref(
   promoCode?: string,
   untilUnix?: number,
-  lead?: { email?: string | null; visitorId?: string | null }
+  lead?: { email?: string | null; visitorId?: string | null },
+  utm?: { medium: "recovery" | "trial_ended"; campaign: EmailCheckoutUtmCampaign }
 ): string {
   const base = `${EMAIL_SITE_URL}/api/checkout/create-session?offer=permanent`
   const params = new URLSearchParams()
@@ -83,6 +89,11 @@ function checkoutHref(
   if (email) params.set("email", email)
   const visitorId = lead?.visitorId?.trim()
   if (visitorId) params.set("visitor_id", visitorId)
+  if (utm) {
+    appendEmailCheckoutUtm(params, utm)
+  } else {
+    appendEmailCheckoutUtm(params, { medium: "recovery", campaign: "wall10" })
+  }
   const query = params.toString()
   return query ? `${base}&${query}` : base
 }
@@ -425,7 +436,12 @@ export function buildTrialEndedEmailHtml(args: {
   const untilUnix = promo.expiresHours
     ? Math.floor(Date.now() / 1000) + promo.expiresHours * 3600
     : undefined
-  const href = args.checkoutHref ?? checkoutHref(promo.code, untilUnix)
+  const href =
+    args.checkoutHref ??
+    checkoutHref(promo.code, untilUnix, undefined, {
+      medium: "trial_ended",
+      campaign: trialEndedUtmCampaign(args.step),
+    })
   const unsub = args.unsubscribeHref?.trim()
   const footnote = unsub
     ? `Already paid? Ignore this email. <a href="${escapeHtml(unsub)}" class="mw-link" style="color:#888888;text-decoration:underline;">Unsubscribe</a>`
@@ -462,7 +478,12 @@ export function buildTrialEndedEmailPlainText(args: {
   const untilUnix = promo.expiresHours
     ? Math.floor(Date.now() / 1000) + promo.expiresHours * 3600
     : undefined
-  const href = args.checkoutHref ?? checkoutHref(promo.code, untilUnix)
+  const href =
+    args.checkoutHref ??
+    checkoutHref(promo.code, untilUnix, undefined, {
+      medium: "trial_ended",
+      campaign: trialEndedUtmCampaign(args.step),
+    })
   return trialEndedPlainText({
     step: args.step,
     appName,

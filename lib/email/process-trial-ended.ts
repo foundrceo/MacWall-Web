@@ -5,6 +5,10 @@ import { Resend } from "resend"
 import { TrialEndedEmail } from "@/emails/trial-ended"
 import { signTrialUnsubscribeToken } from "@/lib/email/trial-unsubscribe"
 import {
+  appendEmailCheckoutUtm,
+  trialEndedUtmCampaign,
+} from "@/lib/email/email-checkout-utm"
+import {
   trialEndedCopy,
   trialEndedPlainText,
   trialEndedPromo,
@@ -35,6 +39,7 @@ function parseStep(raw: string): TrialEndedEmailStep | null {
 }
 
 function checkoutHref(
+  step: TrialEndedEmailStep,
   promoCode: string,
   untilUnix?: number,
   lead?: { email?: string | null; visitorId?: string | null }
@@ -47,6 +52,10 @@ function checkoutHref(
   if (email) params.set("email", email)
   const visitorId = lead?.visitorId?.trim()
   if (visitorId) params.set("visitor_id", visitorId)
+  appendEmailCheckoutUtm(params, {
+    medium: "trial_ended",
+    campaign: trialEndedUtmCampaign(step),
+  })
   const query = params.toString()
   return query ? `${base}&${query}` : base
 }
@@ -227,7 +236,7 @@ async function processQueueRow(
   const untilUnix = promo.expiresHours
     ? Math.floor(Date.now() / 1000) + promo.expiresHours * 3600
     : undefined
-  const href = checkoutHref(promo.code, untilUnix, {
+  const href = checkoutHref(step, promo.code, untilUnix, {
     email,
     visitorId: row.visitor_id,
   })
