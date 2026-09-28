@@ -21,6 +21,16 @@ type PageProps = {
 /** ISR — wallpaper detail pages are crawl-heavy; avoid per-request SSR. */
 export const revalidate = 3600
 
+/**
+ * Required for the `revalidate` above to take effect: without
+ * `generateStaticParams` a dynamic segment renders on every request. Empty =
+ * nothing at build time; each wallpaper is rendered on first visit, then
+ * served from the ISR cache (also purged by the catalog tag on publish).
+ */
+export async function generateStaticParams() {
+  return []
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {

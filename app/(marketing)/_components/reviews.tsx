@@ -55,6 +55,8 @@ export function Reviews({ className }: Readonly<{ className?: string }>) {
                         alt=""
                         width={40}
                         height={40}
+                        loading="lazy"
+                        decoding="async"
                         className="size-10 rounded-full object-cover"
                       />
                     ) : (
