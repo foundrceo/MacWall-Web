@@ -356,6 +356,7 @@ function StickyMobileCta({ checkoutUrl }: Readonly<{ checkoutUrl: string }>) {
         <TrackedPricingButton
           href={checkoutUrl}
           location="pricing_sticky_mobile"
+          warmOnView
           ariaLabel={pricing.buyProAria}
           size="pill"
           className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 px-5 text-[14px] font-medium text-white no-underline hover:bg-blue-500"
