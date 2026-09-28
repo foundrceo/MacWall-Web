@@ -1,10 +1,11 @@
 /**
  * Public catalog media URLs — Cloudflare R2 via `cdn.macwall.app`.
  *
- * Videos are served from a public CDN base URL today. Player UI hardening and
- * short-lived presigned preview URLs (see `lib/public-catalog/preview-video-url.ts`)
- * reduce casual saving; true anti-hotlink still needs CDN signed URLs and/or
- * referrer policy on the bucket.
+ * `videos/*` objects are the full-resolution masters that Pro unlocks in the
+ * app. The website must never hand those out: anything rendered on a public
+ * page or returned by a public API uses `catalogPreviewVideoUrlFromKey`
+ * (a downscaled, silent Cloudflare Media Transformation). The master URL
+ * builder is for admin/server-only code.
  */
 
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
@@ -54,22 +55,29 @@ export function catalogVideoObjectKey(videoKey: string): string {
   return normalizeVideosPath(videoKey)
 }
 
+/**
+ * Full-resolution master file. Admin/server only — never render this on a
+ * public page or return it from a public API (it is the paid Pro asset).
+ */
 export function catalogPublicVideoUrlFromKey(videoKey: string): string {
   return publicObjectUrlFromPath(catalogVideoObjectKey(videoKey))
 }
 
-/** Width-capped catalog preview. Falls back to the source file if the CDN ignores transforms. */
+/**
+ * Web preview: width-capped, silent Media Transformation of the master.
+ * Never falls back to the master — callers show the poster if this fails.
+ */
 export function catalogPreviewVideoUrlFromKey(
   videoKey: string,
-  width: 854 | 1280
+  width: 854 | 1280 = 1280
 ): string {
-  const source = catalogPublicVideoUrlFromKey(videoKey)
+  if (!videoKey.trim()) return ""
   try {
-    const url = new URL(source)
-    url.pathname = `/cdn-cgi/media/mode=video,width=${width},fit=scale-down${url.pathname}`
+    const url = new URL(catalogPublicVideoUrlFromKey(videoKey))
+    url.pathname = `/cdn-cgi/media/mode=video,width=${width},fit=scale-down,audio=false${url.pathname}`
     return url.toString()
   } catch {
-    return source
+    return ""
   }
 }
 
