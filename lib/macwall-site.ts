@@ -134,7 +134,7 @@ export const macwall = {
   discordInvite: "https://discord.gg/4tq2Axvg2h",
   supportEmail: "support@macwall.app",
   /** Reel refund program — 50% at 2k views, 100% at 20k views. */
-  reelRefundEmail: "discount@macwall.com",
+  reelRefundEmail: "discount@macwall.app",
   reelRefundInstagram: "@macwallapp_",
   reelRefundInstagramURL: "https://www.instagram.com/macwallapp_",
   reelRefundTiktok: "@macwall.app",
