@@ -3,21 +3,26 @@
 import NumberFlow from "@number-flow/react"
 import type { ReactNode } from "react"
 
-import { moneyFractionDigits } from "@/lib/pricing/money"
+import { hasAmbiguousDollarSign, moneyFractionDigits } from "@/lib/pricing/money"
 import { cn } from "@/lib/utils"
 
 export function PricingPriceDisplay({
   price,
   priceMajor,
   currency = "usd",
+  locale,
   className,
 }: Readonly<{
   price: ReactNode
   priceMajor?: number
   currency?: string
+  /** Pricing locale; where it writes this currency as a bare "$", show `price` as is. */
+  locale?: string
   className?: string
 }>) {
-  if (typeof priceMajor === "number" && Number.isFinite(priceMajor)) {
+  // NumberFlow can't swap the sign, and `price` already says S$, CA$, A$ … there.
+  const ambiguousSign = locale !== undefined && hasAmbiguousDollarSign(currency, locale)
+  if (typeof priceMajor === "number" && Number.isFinite(priceMajor) && !ambiguousSign) {
     const code = currency.toUpperCase()
     const digits = moneyFractionDigits(priceMajor, currency)
 
