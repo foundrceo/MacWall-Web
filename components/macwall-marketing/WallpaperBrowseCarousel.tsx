@@ -5,6 +5,7 @@ import {
   FEATURE_CAROUSEL_ROW_COUNT,
   type MarketingFeatureCarouselWallpaper,
 } from "@/lib/marketing-feature-carousel-wallpapers"
+import { catalogImageUrlAtWidth } from "@/lib/macwall-catalog-urls"
 import { cn } from "@/lib/utils"
 import { useMemo, useState } from "react"
 
@@ -15,7 +16,7 @@ function CarouselThumb({
   posterUrl: string
   thumbUrl: string
 }>) {
-  const [src, setSrc] = useState(posterUrl)
+  const [src, setSrc] = useState(() => catalogImageUrlAtWidth(posterUrl, 640))
   const [hidden, setHidden] = useState(false)
 
   if (hidden) return null

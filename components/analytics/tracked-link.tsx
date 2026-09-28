@@ -1,7 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import type { MouseEvent, ReactNode, TouchEvent } from "react"
+import {
+  useEffect,
+  useRef,
+  type MouseEvent,
+  type PointerEvent,
+  type ReactNode,
+  type TouchEvent,
+} from "react"
 
 import {
   trackSiteEventClient,
@@ -17,6 +24,7 @@ import { markCheckoutStartedInSession } from "@/lib/analytics/retargeting"
 import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
 import {
   parseCheckoutHrefParams,
+  preconnectStripeCheckout,
   prefetchCheckoutSession,
   waitForPrefetchedCheckoutUrl,
 } from "@/lib/checkout/prefetch-checkout"
@@ -36,6 +44,12 @@ type TrackedLinkProps = {
 function isCheckoutApiHref(href: string): boolean {
   return href.includes("/api/checkout/")
 }
+
+/**
+ * Mouse must rest on a checkout CTA this long before we mint a session, so
+ * sweeping the cursor across the page does not create Stripe sessions.
+ */
+const CHECKOUT_HOVER_INTENT_MS = 120
 
 export function TrackedLink({
   href,
@@ -81,8 +95,31 @@ export function TrackedLink({
     event.currentTarget.href = withAnalyticsSessionHref(href)
   }
 
+  const hoverTimerRef = useRef<number | null>(null)
+  const cancelHoverWarm = () => {
+    if (hoverTimerRef.current === null) return
+    window.clearTimeout(hoverTimerRef.current)
+    hoverTimerRef.current = null
+  }
+  useEffect(() => cancelHoverWarm, [])
+
+  // Back from Stripe restores this page from bfcache mid-"busy"; reset it.
+  useEffect(() => {
+    if (!isCheckoutClick) return
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) return
+      document
+        .querySelectorAll('a[aria-busy="true"][href*="/api/checkout/"]')
+        .forEach((anchor) => anchor.removeAttribute("aria-busy"))
+    }
+    window.addEventListener("pageshow", onPageShow)
+    return () => window.removeEventListener("pageshow", onPageShow)
+  }, [isCheckoutClick])
+
   const warmCheckout = () => {
     if (!checkoutParams) return
+    cancelHoverWarm()
+    preconnectStripeCheckout()
     void prefetchCheckoutSession(checkoutParams.offer, {
       email: checkoutParams.email,
       visitorId: checkoutParams.visitorId,
@@ -149,6 +186,17 @@ export function TrackedLink({
   }
 
   const trackProps = {
+    // Desktop hover gives the Stripe session a few hundred ms head start
+    // over mousedown, so the click usually finds the URL ready.
+    onPointerEnter: (event: PointerEvent<HTMLAnchorElement>) => {
+      if (!checkoutParams || event.pointerType !== "mouse") return
+      cancelHoverWarm()
+      hoverTimerRef.current = window.setTimeout(
+        warmCheckout,
+        CHECKOUT_HOVER_INTENT_MS
+      )
+    },
+    onPointerLeave: cancelHoverWarm,
     onMouseDown: (event: MouseEvent<HTMLAnchorElement>) => {
       prepareDownloadHref(event)
       warmCheckout()

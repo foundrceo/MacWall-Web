@@ -30,7 +30,44 @@ function prefersLightweightMedia(): boolean {
   if (!connection) return false
   if (connection.saveData) return true
   const effectiveType = connection.effectiveType ?? ""
-  return effectiveType === "slow-2g" || effectiveType === "2g"
+  return (
+    effectiveType === "slow-2g" ||
+    effectiveType === "2g" ||
+    effectiveType === "3g"
+  )
+}
+
+/**
+ * Run after the page's own resources (JS, fonts, images) have loaded and the
+ * main thread is idle, so the multi-MB video never competes with them — or
+ * with a buyer's checkout request — on a slow connection.
+ */
+function afterPageLoadIdle(callback: () => void): () => void {
+  let cancelled = false
+  let idleId: number | null = null
+  let timeoutId: number | null = null
+
+  const schedule = () => {
+    if (cancelled) return
+    if (typeof window.requestIdleCallback === "function") {
+      idleId = window.requestIdleCallback(() => callback(), { timeout: 1500 })
+    } else {
+      timeoutId = window.setTimeout(callback, 200)
+    }
+  }
+
+  if (document.readyState === "complete") {
+    schedule()
+  } else {
+    window.addEventListener("load", schedule, { once: true })
+  }
+
+  return () => {
+    cancelled = true
+    window.removeEventListener("load", schedule)
+    if (idleId !== null) window.cancelIdleCallback(idleId)
+    if (timeoutId !== null) window.clearTimeout(timeoutId)
+  }
 }
 
 export function HeroWalkthroughVideo({
@@ -69,6 +106,7 @@ export function HeroWalkthroughVideo({
       return mobileSource.src
     }
 
+    let cancelIdle: (() => void) | null = null
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return
@@ -78,12 +116,15 @@ export function HeroWalkthroughVideo({
           setNeedsTapToLoad(true)
           return
         }
-        setActiveSrc(resolveSrc())
+        cancelIdle = afterPageLoadIdle(() => setActiveSrc(resolveSrc()))
       },
       { rootMargin: "300px 0px" }
     )
     observer.observe(container)
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      cancelIdle?.()
+    }
   }, [mobileSource.src, sources])
 
   const loadOnTap = () => {

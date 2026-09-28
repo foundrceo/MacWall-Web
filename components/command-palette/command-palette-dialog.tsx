@@ -54,6 +54,7 @@ import {
 } from "@/lib/command-palette/types"
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
 import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
+import { catalogImageLoader } from "@/lib/macwall-catalog-urls"
 import { cn } from "@/lib/utils"
 
 const WALLPAPER_LIMIT = 8
@@ -140,7 +141,7 @@ function ItemIcon({ item }: Readonly<{ item: CommandPaletteItem }>) {
           fill
           sizes="32px"
           className="object-cover"
-          unoptimized
+          loader={catalogImageLoader}
         />
       </span>
     )

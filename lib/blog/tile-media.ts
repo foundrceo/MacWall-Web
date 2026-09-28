@@ -53,8 +53,17 @@ export function blogTilePoster(
   return blogThumbPath(slug, variant)
 }
 
+/** AVIF sibling of a local tile/list mockup (written by the thumbs script). */
+export function blogThumbAvifSrc(src: string): string | null {
+  return /^\/blog\/thumbs\/[a-z0-9-]+\.jpg$/.test(src) &&
+    !src.endsWith("-og.jpg")
+    ? src.replace(/\.jpg$/, ".avif")
+    : null
+}
+
 export function isRemoteBlogTile(src: string): boolean {
   return src.startsWith("http://") || src.startsWith("https://")
 }
 
-export const BLOG_TILE_FALLBACK_IMAGE = "/blog/thumbs/what-is-macwall-complete-guide.jpg"
+export const BLOG_TILE_FALLBACK_IMAGE =
+  "/blog/thumbs/what-is-macwall-complete-guide.jpg"
