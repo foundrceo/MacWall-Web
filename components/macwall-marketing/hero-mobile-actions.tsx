@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { preloadProModal } from "@/components/macwall-marketing/pro-modal-lazy"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
@@ -87,6 +88,8 @@ export function HeroMobileActions({
           }}
           className={heroOutlineCapsule}
           aria-haspopup="dialog"
+          onPointerEnter={preloadProModal}
+          onFocus={preloadProModal}
         >
           Get License
         </button>

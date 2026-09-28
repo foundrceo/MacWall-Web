@@ -4,7 +4,10 @@ import { useState } from "react"
 
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
-import { ProModal } from "@/components/macwall-marketing/pro-modal"
+import {
+  ProModal,
+  preloadProModal,
+} from "@/components/macwall-marketing/pro-modal-lazy"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import {
@@ -64,6 +67,8 @@ export default function MacWallMarketingBottomCta() {
           }}
           className={heroOutlineCapsule}
           aria-haspopup="dialog"
+          onPointerEnter={preloadProModal}
+          onFocus={preloadProModal}
         >
           Get License
         </button>

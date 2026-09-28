@@ -1,15 +1,9 @@
 import { CollectionLinkStrip } from "@/components/wallpaper-gallery/collection-link-strip"
-import {
-  WallpaperGalleryPageShell,
-  parseGallerySort,
-} from "@/components/wallpaper-gallery/wallpaper-gallery-page"
+import { WallpaperGalleryPageShell } from "@/components/wallpaper-gallery/wallpaper-gallery-page"
 import { wallpaperCollections } from "@/lib/seo/wallpaper-collections"
 import { JsonLd } from "@/components/seo/json-ld"
 import { wallpaperGalleryIndexJsonLd } from "@/lib/seo/wallpaper-json-ld"
-import {
-  isGalleryFilteredView,
-  wallpaperGalleryIndexMetadata,
-} from "@/lib/seo/wallpaper-metadata"
+import { wallpaperGalleryIndexMetadata } from "@/lib/seo/wallpaper-metadata"
 import { listPublicWallpapers } from "@/lib/public-catalog/fetch"
 import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
@@ -18,32 +12,19 @@ import type { Metadata } from "next"
 const PAGE_TITLE = "Live Wallpapers for Mac"
 const PAGE_DESCRIPTION = `Browse cinematic live wallpapers for Mac on ${macwall.name}. Search by category, resolution, and style, then set any wallpaper in the MacWall app.`
 
-type PageProps = {
-  searchParams: Promise<{
-    q?: string
-    tag?: string
-    sort?: string
-  }>
-}
+export const metadata: Metadata = wallpaperGalleryIndexMetadata()
 
-export async function generateMetadata({
-  searchParams,
-}: PageProps): Promise<Metadata> {
-  const params = await searchParams
-  return wallpaperGalleryIndexMetadata(params)
-}
-
-export default async function WallpapersGalleryPage({
-  searchParams,
-}: PageProps) {
-  const params = await searchParams
+/**
+ * Prerendered (ISR via the catalog fetch's 1h revalidate + tag) with the
+ * unfiltered list. `?q=&tag=&sort=` are applied client-side by the gallery,
+ * and next.config marks those URLs `noindex` with an `X-Robots-Tag` header.
+ */
+export default async function WallpapersGalleryPage() {
   let initial
   let loadError = false
   try {
     initial = await listPublicWallpapers({
-      q: params.q,
-      tag: params.tag,
-      sort: parseGallerySort(params.sort),
+      sort: "newest",
       page: 1,
       limit: 24,
     })
@@ -59,7 +40,7 @@ export default async function WallpapersGalleryPage({
   }
 
   const origin = canonicalSiteOrigin()
-  const showJsonLd = !loadError && !isGalleryFilteredView(params)
+  const showJsonLd = !loadError
 
   return (
     <>
