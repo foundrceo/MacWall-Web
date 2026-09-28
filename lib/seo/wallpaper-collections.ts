@@ -26,6 +26,7 @@ export type WallpaperCollectionGroup =
   | "cars"
   | "moods"
   | "space"
+  | "colors"
 
 export const COLLECTION_GROUP_LABELS: Record<WallpaperCollectionGroup, string> =
   {
@@ -35,6 +36,7 @@ export const COLLECTION_GROUP_LABELS: Record<WallpaperCollectionGroup, string> =
     cars: "Cars",
     moods: "Moods & places",
     space: "Space",
+    colors: "Colors",
   }
 
 export const COLLECTION_GROUP_ORDER: readonly WallpaperCollectionGroup[] = [
@@ -44,6 +46,7 @@ export const COLLECTION_GROUP_ORDER: readonly WallpaperCollectionGroup[] = [
   "sports",
   "moods",
   "space",
+  "colors",
 ] as const
 
 export type WallpaperCollection = {
@@ -1080,6 +1083,402 @@ export const wallpaperCollections: WallpaperCollection[] = [
         "Dragons, knights, and souls-like scenes are grouped here whenever they are in the catalog, and the page updates as new fantasy loops are published.",
     },
     related: ["samurai", "black-hole", "batman", "japanese"],
+  }),
+  // Second wave, from the Semrush competitor gap (wallsflow/wallspace) and
+  // head terms with low difficulty: "purple wallpaper" 22.2k (KD 16), "red
+  // wallpaper" 12.1k (KD 13), "miles morales wallpaper" 8.1k, "lamborghini
+  // wallpaper" 6.6k, "sukuna wallpaper" 6.6k.
+  collection({
+    slug: "miles-morales",
+    name: "Miles Morales",
+    group: "heroes",
+    title: "Miles Morales Wallpapers for Mac: 4K Spider-Verse Loops",
+    description:
+      "Miles Morales live wallpapers for Mac: animated Spider-Verse loops of Miles swinging, glitching, and posing in the rain, in 4K for your Mac desktop.",
+    keywords: [
+      "miles morales wallpaper",
+      "miles morales live wallpaper",
+      "spider verse wallpaper",
+      "miles morales wallpaper 4k",
+      "miles morales wallpaper mac",
+    ],
+    intro:
+      "Glitch effects, halftone color, and a hoodie in the rain: Miles Morales loops carry the Spider-Verse art style better than any still. This collection gathers every Miles and Spider-Verse wallpaper in the MacWall catalog, from quiet winter streets to full-speed swings.",
+    patterns: ["miles morales", "spider[- ]?verse"],
+    category: "Heroes",
+    faq: {
+      question: "Are these Miles Morales wallpapers animated?",
+      answer:
+        "Yes. Each one is a looping video in the Spider-Verse style, played as your desktop wallpaper by MacWall with hardware decoding.",
+    },
+    related: ["spider-man", "marvel", "cyberpunk", "city"],
+  }),
+  collection({
+    slug: "sukuna",
+    name: "Sukuna",
+    group: "anime",
+    title: "Sukuna Wallpapers for Mac: 4K Live Jujutsu Kaisen Loops",
+    description:
+      "Ryomen Sukuna live wallpapers for Mac: animated Malevolent Shrine, Fuga flames, and Gojo vs Sukuna domain clashes in 4K for your Mac desktop.",
+    keywords: [
+      "sukuna wallpaper",
+      "sukuna live wallpaper",
+      "sukuna 4k wallpaper",
+      "ryomen sukuna wallpaper",
+      "sukuna wallpaper mac",
+    ],
+    intro:
+      "The King of Curses deserves motion. These Sukuna loops cover crimson cursed energy, Fuga flames, and the Gojo vs Sukuna domain clash, cut to repeat cleanly behind your windows.",
+    patterns: ["\\bsukuna\\b", "malevolent shrine"],
+    category: "Anime",
+    faq: {
+      question: "Is there a Gojo vs Sukuna live wallpaper?",
+      answer:
+        "Yes, the domain clash loop is part of this collection when it is in the catalog. Open it to preview the motion, then set it with MacWall.",
+    },
+    related: ["jujutsu-kaisen", "gojo", "itachi", "red"],
+  }),
+  collection({
+    slug: "itachi",
+    name: "Itachi",
+    group: "anime",
+    title: "Itachi Wallpapers for Mac: 4K Live Sharingan Loops",
+    description:
+      "Itachi Uchiha live wallpapers for Mac: animated Sharingan, red moon, and crimson forest loops in 4K. Preview each Itachi wallpaper and set it on your Mac.",
+    keywords: [
+      "itachi wallpaper",
+      "itachi live wallpaper",
+      "itachi uchiha wallpaper",
+      "itachi 4k wallpaper",
+      "sharingan wallpaper",
+    ],
+    intro:
+      "A spinning Sharingan, a silhouette against the red moon, crows scattering through a crimson forest. The Itachi collection is small and dark, which makes it one of the most readable anime sets for a dark-mode desktop.",
+    patterns: ["\\bitachi\\b"],
+    category: "Anime",
+    faq: {
+      question: "Do Itachi wallpapers work in dark mode?",
+      answer:
+        "Yes. The Itachi loops are mostly dark with red accents, so icons and menu bar text stay easy to read.",
+    },
+    related: ["naruto", "sukuna", "red", "moon"],
+  }),
+  collection({
+    slug: "anime-girl",
+    name: "Anime Girl",
+    group: "anime",
+    title: "Anime Girl Wallpapers for Mac: 4K Live & Aesthetic",
+    description:
+      "Anime girl live wallpapers for Mac: aesthetic animated loops of anime girls in rain, neon cities, and quiet rooms, in 4K for your Mac desktop.",
+    keywords: [
+      "anime girl wallpaper",
+      "anime girl live wallpaper",
+      "aesthetic anime girl wallpaper",
+      "anime girl wallpaper 4k",
+      "anime girl wallpaper mac",
+    ],
+    intro:
+      "Rain on a car window, a neon street at night, a quiet room with the lights low. The anime girl collection is one of the largest in the MacWall catalog, mostly calm, atmospheric loops rather than action scenes.",
+    patterns: ["anime girl", "\\bgirl\\b", "waifu"],
+    category: "Anime",
+    faq: {
+      question: "Are the anime girl wallpapers safe for work?",
+      answer:
+        "The catalog is moderated for a general audience. If any wallpaper looks out of place, report it from its detail page and the team reviews it.",
+    },
+    related: ["lofi", "rain", "japanese", "purple"],
+  }),
+  collection({
+    slug: "lamborghini",
+    name: "Lamborghini",
+    group: "cars",
+    title: "Lamborghini Wallpapers for Mac: 4K Live Aventador Loops",
+    description:
+      "Lamborghini live wallpapers for Mac: animated Aventador, Huracán, Urus, and Diablo loops in 4K. Preview every Lamborghini wallpaper and set it on your Mac.",
+    keywords: [
+      "lamborghini wallpaper",
+      "lamborghini live wallpaper",
+      "aventador wallpaper",
+      "lamborghini wallpaper 4k",
+      "lamborghini wallpaper mac",
+    ],
+    intro:
+      "Aventadors in dark garages, a Diablo under green neon, an Urus climbing a mountain road. The Lamborghini collection gathers every raging bull in the MacWall catalog as a seamless 4K loop.",
+    patterns: [
+      "lamborghini",
+      "\\blambo\\b",
+      "aventador",
+      "hurac[aá]n",
+      "revuelto",
+      "\\burus\\b",
+    ],
+    category: "Cars",
+    faq: {
+      question: "Which Lamborghini models are included?",
+      answer:
+        "Mostly Aventador loops, plus Huracán, Urus, and Diablo when they are in the catalog. The page updates automatically as new ones are published.",
+    },
+    related: ["supercars", "ferrari", "mclaren", "porsche"],
+  }),
+  collection({
+    slug: "ferrari",
+    name: "Ferrari",
+    group: "cars",
+    title: "Ferrari Wallpapers for Mac: 4K Live F1 & Road Car Loops",
+    description:
+      "Ferrari live wallpapers for Mac: animated F40, 812 Superfast, 458, and Scuderia Ferrari F1 loops in 4K. Preview each one and set it on your Mac desktop.",
+    keywords: [
+      "ferrari wallpaper",
+      "ferrari live wallpaper",
+      "ferrari f1 wallpaper",
+      "ferrari wallpaper 4k",
+      "ferrari wallpaper mac",
+    ],
+    intro:
+      "Rosso Corsa in motion: an F40 on a night run, an 812 Superfast in a tunnel, the latest Scuderia Ferrari car on track. This collection covers both Ferrari road cars and Formula 1 loops.",
+    patterns: ["ferrari", "scuderia", "\\bf40\\b", "\\b458\\b", "\\b812\\b"],
+    category: "Cars",
+    faq: {
+      question: "Are there Ferrari F1 live wallpapers?",
+      answer:
+        "Yes. Scuderia Ferrari F1 loops sit alongside the road cars here. For every team, see the F1 collection.",
+    },
+    related: ["f1", "lamborghini", "mclaren", "supercars"],
+  }),
+  collection({
+    slug: "mclaren",
+    name: "McLaren",
+    group: "cars",
+    title: "McLaren Wallpapers for Mac: 4K Live P1 & 720S Loops",
+    description:
+      "McLaren live wallpapers for Mac: animated P1, 720S, and McLaren F1 loops in 4K, from sunset drives to foggy garages. Set any one on your Mac desktop.",
+    keywords: [
+      "mclaren wallpaper",
+      "mclaren p1 wallpaper",
+      "mclaren live wallpaper",
+      "mclaren f1 wallpaper",
+      "mclaren wallpaper 4k",
+    ],
+    intro:
+      "Papaya orange at sunset, a P1 under gas station lights, a 720S on a mountain road. The McLaren collection mixes hypercars and Formula 1, and the McLaren P1 loops are among the most searched car wallpapers on MacWall.",
+    patterns: ["mclaren", "\\bp1\\b", "\\b720s\\b"],
+    category: "Cars",
+    faq: {
+      question: "Is there a McLaren P1 live wallpaper for Mac?",
+      answer:
+        "Yes, several. Open any McLaren P1 loop on this page to preview it, then use Set on Mac to apply it with MacWall.",
+    },
+    related: ["supercars", "f1", "lamborghini", "ferrari"],
+  }),
+  collection({
+    slug: "mercedes-amg",
+    name: "Mercedes-AMG",
+    group: "cars",
+    title: "Mercedes-AMG Wallpapers for Mac: 4K Live Loops",
+    description:
+      "Mercedes-AMG live wallpapers for Mac: animated C63, G63, drifting AMGs, and Mercedes F1 garage loops in 4K. Set any one on your Mac desktop.",
+    keywords: [
+      "mercedes amg wallpaper",
+      "mercedes wallpaper",
+      "amg live wallpaper",
+      "g63 wallpaper",
+      "mercedes f1 wallpaper",
+    ],
+    intro:
+      "A G63 in the city, a C63 coupe sliding sideways, the Silver Arrows in the pit garage. The Mercedes-AMG collection covers road cars and Mercedes F1 in one place.",
+    patterns: ["mercedes", "\\bamg\\b", "\\bg ?63\\b", "\\bc ?63\\b"],
+    category: "Cars",
+    faq: {
+      question: "Does the Mercedes collection include F1 cars?",
+      answer:
+        "Yes. Mercedes F1 garage and pit-lane loops are included with the AMG road cars.",
+    },
+    related: ["bmw", "f1", "porsche", "supercars"],
+  }),
+  collection({
+    slug: "moon",
+    name: "Moon",
+    group: "space",
+    title: "Moon Live Wallpapers for Mac: Moonlit 4K Loops",
+    description:
+      "Moon live wallpapers for Mac: animated full moons, blood moons, eclipses, and moonlit landscapes in 4K. Calm night-time motion for your Mac desktop.",
+    keywords: [
+      "moon wallpaper",
+      "moon live wallpaper",
+      "moonlight wallpaper",
+      "blood moon wallpaper",
+      "moon wallpaper mac",
+    ],
+    intro:
+      "A full moon over still water, a blood moon behind a silhouette, clouds sliding across a crescent. Moon loops are dark, slow, and quiet, which makes them some of the easiest wallpapers to live with all day.",
+    patterns: ["\\bmoon", "lunar", "eclipse"],
+    exclude: ["moon knight"],
+    category: "Space",
+    faq: {
+      question: "Are moon wallpapers good for dark mode?",
+      answer:
+        "Yes. Most of the frame is night sky, so menu bar text and desktop icons stay readable and the loop blends with macOS dark mode.",
+    },
+    related: ["galaxy", "black", "japanese", "itachi"],
+  }),
+  collection({
+    slug: "mountain",
+    name: "Mountain",
+    group: "moods",
+    title: "Mountain Live Wallpapers for Mac: 4K Peaks & Lakes",
+    description:
+      "Mountain live wallpapers for Mac: animated snowy peaks, mountain lakes, and alpine roads in 4K. Calm, cinematic landscape motion for your Mac desktop.",
+    keywords: [
+      "mountain wallpaper",
+      "mountain live wallpaper",
+      "mountain wallpaper mac",
+      "snowy mountain wallpaper",
+      "landscape live wallpaper",
+    ],
+    intro:
+      "An eagle over snowy ridges, a stag at a blue mountain lake, clouds crossing a dark citadel. The mountain collection is the landscape set for people who want scale and stillness on their desktop.",
+    patterns: [
+      "mountain",
+      "\\bpeaks?\\b",
+      "\\balps\\b",
+      "himalaya",
+      "\\bsummit\\b",
+    ],
+    category: "Nature",
+    faq: {
+      question: "Do mountain wallpapers look good on an iMac?",
+      answer:
+        "Wide landscape loops suit large 16:9 displays like the iMac and Studio Display. MacWall scales each loop to fill the screen.",
+    },
+    related: ["forest", "snow", "sunset", "ocean"],
+  }),
+  collection({
+    slug: "cat",
+    name: "Cat",
+    group: "moods",
+    title: "Cat Live Wallpapers for Mac: Cozy Animated Cats in 4K",
+    description:
+      "Cat live wallpapers for Mac: animated cats watching the sky, sleeping in cozy rooms, and wandering moonlit streets. Calm 4K loops for your Mac desktop.",
+    keywords: [
+      "cat wallpaper",
+      "cat live wallpaper",
+      "cute cat wallpaper mac",
+      "black cat wallpaper",
+      "cozy cat wallpaper",
+    ],
+    intro:
+      "A black cat by moonlit water, a cat watching a shooting star, one asleep in a cozy study room. The cat collection is small, soft, and very easy to leave running all day.",
+    patterns: ["\\bcats?\\b", "kitten", "kitty"],
+    category: "Others",
+    faq: {
+      question: "Are there cute cat live wallpapers for Mac?",
+      answer:
+        "Yes. The cat collection leans cozy: sleeping cats, window-watching cats, and moonlit night scenes, all as smooth video loops.",
+    },
+    related: ["lofi", "rain", "moon", "anime-girl"],
+  }),
+  collection({
+    slug: "purple",
+    name: "Purple",
+    group: "colors",
+    title: "Purple Wallpapers for Mac: 4K Live & Aesthetic",
+    description:
+      "Purple live wallpapers for Mac: aesthetic violet nebulae, neon portraits, and purple night skies in 4K. Animated purple backgrounds for your Mac desktop.",
+    keywords: [
+      "purple wallpaper",
+      "purple aesthetic wallpaper",
+      "purple live wallpaper",
+      "purple wallpaper mac",
+      "violet wallpaper 4k",
+    ],
+    intro:
+      "Violet nebulae, neon portraits, purple moonlit clouds. The purple collection gathers every loop in the catalog where purple leads the palette, and it pairs well with the purple accent color in macOS settings.",
+    patterns: ["purple", "violet", "lavender", "magenta"],
+    category: "Abstract",
+    faq: {
+      question: "Can I match my Mac accent color to a purple wallpaper?",
+      answer:
+        "Yes. Set a purple loop with MacWall, then choose Purple under System Settings > Appearance > Accent color for a matching interface.",
+    },
+    related: ["blue", "galaxy", "cyberpunk", "anime-girl"],
+  }),
+  collection({
+    slug: "red",
+    name: "Red",
+    group: "colors",
+    title: "Red Wallpapers for Mac: 4K Live & Dark Red Loops",
+    description:
+      "Red live wallpapers for Mac: crimson skies, red moons, Sharingan eyes, and red neon in 4K. Dark, dramatic animated red backgrounds for your Mac desktop.",
+    keywords: [
+      "red wallpaper",
+      "dark red wallpaper",
+      "red aesthetic wallpaper",
+      "red live wallpaper",
+      "crimson wallpaper",
+    ],
+    intro:
+      "Crimson moonlit skies, red neon reflections, glowing Sharingan eyes. The red collection is the most dramatic color set in the catalog, mostly dark frames with red light, so it stays readable behind your windows.",
+    patterns: ["\\bred\\b", "crimson", "scarlet"],
+    exclude: ["red dead", "red bull"],
+    category: "Dark",
+    faq: {
+      question: "Is a dark red wallpaper hard on the eyes?",
+      answer:
+        "Most loops in this collection are dark with red accents rather than solid red, which keeps brightness low. MacWall also pauses playback when a full-screen app is in front.",
+    },
+    related: ["black", "itachi", "sukuna", "moon"],
+  }),
+  collection({
+    slug: "black",
+    name: "Black",
+    group: "colors",
+    title: "Black Wallpapers for Mac: 4K Live Dark & Monochrome",
+    description:
+      "Black live wallpapers for Mac: animated monochrome portraits, black holes, and pitch-dark scenes in 4K. Minimal dark backgrounds that suit macOS dark mode.",
+    keywords: [
+      "black wallpaper",
+      "black aesthetic wallpaper",
+      "dark wallpaper mac",
+      "black live wallpaper",
+      "monochrome wallpaper",
+    ],
+    intro:
+      "Monochrome portraits, silhouettes, black holes, and near-black scenes with a single point of light. The black collection is the minimal end of the catalog, built for dark mode and for desktops full of icons.",
+    patterns: ["\\bblack\\b", "monochrome", "amoled", "\\bnoir\\b"],
+    exclude: ["black panther"],
+    category: "Dark",
+    faq: {
+      question: "Do black live wallpapers save battery on a MacBook?",
+      answer:
+        "MacBook panels are LCD or mini-LED, so black pixels save a little on mini-LED MacBook Pro and little on LCD. The bigger saving is MacWall pausing playback on battery.",
+    },
+    related: ["red", "moon", "black-hole", "hacker"],
+  }),
+  collection({
+    slug: "blue",
+    name: "Blue",
+    group: "colors",
+    title: "Blue Wallpapers for Mac: 4K Live & Aesthetic Loops",
+    description:
+      "Blue live wallpapers for Mac: animated blue oceans, nebulae, code rain, and blue-hour cities in 4K. Calm, cool-toned motion for your Mac desktop.",
+    keywords: [
+      "blue wallpaper",
+      "blue aesthetic wallpaper",
+      "dark blue wallpaper",
+      "blue live wallpaper",
+      "blue wallpaper mac",
+    ],
+    intro:
+      "Deep ocean blue, blue-hour skylines, cyan code rain, and nebula drift. Blue is the calmest color set in the catalog and the default favourite for people who want motion without distraction.",
+    patterns: ["\\bblue\\b", "azure", "\\bcyan\\b"],
+    exclude: ["blue archive", "blue lock"],
+    category: "Abstract",
+    faq: {
+      question: "Why are blue wallpapers popular for work?",
+      answer:
+        "Cool, low-contrast colors sit comfortably in peripheral vision, so a blue loop adds motion without competing with the windows you are working in.",
+    },
+    related: ["ocean", "purple", "galaxy", "hacker"],
   }),
 ]
 

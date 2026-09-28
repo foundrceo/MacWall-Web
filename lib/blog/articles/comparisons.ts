@@ -124,7 +124,8 @@ export const comparisonArticles: BlogArticle[] = [
           "No. Wallpaper Engine is only available for Windows on Steam and has no macOS version. Mac users use a native live wallpaper app such as MacWall instead.",
       },
       {
-        question: "Can I run Wallpaper Engine on Mac with Wine, CrossOver, or Parallels?",
+        question:
+          "Can I run Wallpaper Engine on Mac with Wine, CrossOver, or Parallels?",
         answer:
           "Not usefully. Compatibility layers and virtual machines run Wallpaper Engine inside their own window, not on the real macOS desktop, and cost far more CPU and battery than a native app.",
       },

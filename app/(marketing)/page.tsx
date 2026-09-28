@@ -13,6 +13,7 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
+import { Collections } from "./_components/collections"
 import { Features } from "./_components/features"
 import { Hero } from "./_components/hero"
 import { Pillars } from "./_components/pillars"
@@ -51,6 +52,9 @@ export const metadata: Metadata = {
     "animated wallpaper mac",
     "moving wallpaper mac",
     "video wallpaper mac",
+    "mac live backgrounds",
+    "live desktop backgrounds mac",
+    "dynamic wallpaper mac",
   ],
   openGraph: {
     title: PAGE_TITLE,
@@ -95,6 +99,8 @@ export default async function Page() {
       <Features />
       <MarketingSeparator />
       <Reviews />
+      <MarketingSeparator />
+      <Collections />
       <MarketingSeparator />
       <MarketingFaqSection />
     </>

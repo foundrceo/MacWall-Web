@@ -320,7 +320,10 @@ export const macosArticles: BlogArticle[] = [
         type: "p",
         text: "The still image files are stored in **/System/Library/Desktop Pictures**. Aerial wallpapers are downloaded on demand into a system cache rather than shipped with macOS, so they only appear on disk after you select them.",
       },
-      { type: "h2", text: "Dynamic, Aerial, and live: what is the difference?" },
+      {
+        type: "h2",
+        text: "Dynamic, Aerial, and live: what is the difference?",
+      },
       {
         type: "ul",
         items: [

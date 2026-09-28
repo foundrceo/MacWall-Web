@@ -428,7 +428,10 @@ export const guideArticles: BlogArticle[] = [
         type: "p",
         text: "**To change the wallpaper on a Mac, open System Settings, click Wallpaper in the sidebar, and choose a picture.** It applies immediately. On macOS Monterey and older, the same option lives in System Preferences under Desktop & Screen Saver. You can also right-click any image in Finder and choose **Set Desktop Picture**.",
       },
-      { type: "h2", text: "Change wallpaper in System Settings (macOS Ventura to Tahoe)" },
+      {
+        type: "h2",
+        text: "Change wallpaper in System Settings (macOS Ventura to Tahoe)",
+      },
       {
         type: "ol",
         items: [
@@ -452,7 +455,10 @@ export const guideArticles: BlogArticle[] = [
           "Choose an image from Apple, Photos, or a folder on the left, and pick a fit option.",
         ],
       },
-      { type: "h2", text: "Set a photo as wallpaper from Photos, Finder, or Safari" },
+      {
+        type: "h2",
+        text: "Set a photo as wallpaper from Photos, Finder, or Safari",
+      },
       {
         type: "ul",
         items: [
@@ -494,7 +500,8 @@ export const guideArticles: BlogArticle[] = [
           "The most common cause is a configuration profile installed by a school or employer that locks the desktop picture. Check System Settings > Privacy & Security > Profiles. Otherwise, restart the Mac and try again from System Settings > Wallpaper.",
       },
       {
-        question: "Can I have a different Lock Screen and desktop wallpaper on Mac?",
+        question:
+          "Can I have a different Lock Screen and desktop wallpaper on Mac?",
         answer:
           "Not with built-in settings. Since macOS Sonoma the Lock Screen mirrors the main display's wallpaper. On macOS 26 and later, a live wallpaper app such as MacWall can set a separate moving Lock Screen and Screen Saver.",
       },
@@ -571,7 +578,7 @@ export const guideArticles: BlogArticle[] = [
       { type: "h2", text: "Why the number in System Settings is smaller" },
       {
         type: "p",
-        text: "System Settings > Displays shows a *scaled* resolution such as \"looks like 1512×982\" on a 14-inch MacBook Pro. The panel really has twice as many pixels in each direction, and macOS renders at that size for sharp Retina text. Size your wallpaper for the physical pixels above, not the scaled number, or it will look soft. The full explanation is in [resolution and displays](/learn/wallpaper-resolution-and-displays).",
+        text: 'System Settings > Displays shows a *scaled* resolution such as "looks like 1512×982" on a 14-inch MacBook Pro. The panel really has twice as many pixels in each direction, and macOS renders at that size for sharp Retina text. Size your wallpaper for the physical pixels above, not the scaled number, or it will look soft. The full explanation is in [resolution and displays](/learn/wallpaper-resolution-and-displays).',
       },
       { type: "h2", text: "Aspect ratio and the notch" },
       {
@@ -608,6 +615,210 @@ export const guideArticles: BlogArticle[] = [
         question: "What aspect ratio are Mac wallpapers?",
         answer:
           "Current MacBooks are about 16:10 (slightly taller with the notch area), while iMacs, Apple displays, and most external monitors are 16:9.",
+      },
+    ],
+  },
+  {
+    slug: "how-to-change-screen-saver-mac",
+    pathname: "/blog/how-to-change-screen-saver-mac",
+    title: "How to Change the Screen Saver on Mac (and Use a Video)",
+    headline: "How to Change the Screen Saver on Mac",
+    description:
+      "Change your Mac screen saver in System Settings, use Apple's Aerial landscapes, set when it starts, turn it off, and play your own video as a screen saver.",
+    excerpt:
+      "Aerials, timing, hot corners, turning it off, and using a video as your Mac screen saver.",
+    category: "guides",
+    readMinutes: 5,
+    publishedAt: "2026-09-28",
+    keywords: [
+      "how to change screensaver on mac",
+      "how to change screen saver mac",
+      "mac screen saver",
+      "aerial screensaver mac",
+      "how to turn off screensaver mac",
+      "best mac screensavers",
+      "video screensaver mac",
+    ],
+    sections: [
+      {
+        type: "p",
+        text: "**To change the screen saver on a Mac, open System Settings, click Screen Saver in the sidebar, and pick one.** On macOS Monterey and older it is under System Preferences > Desktop & Screen Saver. When the screen saver starts is set separately in System Settings > Lock Screen.",
+      },
+      { type: "h2", text: "Change the screen saver (macOS Ventura to Tahoe)" },
+      {
+        type: "ol",
+        items: [
+          "Open the Apple menu > **System Settings**.",
+          "Click **Screen Saver** in the sidebar.",
+          "Choose an Aerial (Landscape, Cityscape, Underwater, Earth) or a classic screen saver such as Photos, Message, or Word of the Day.",
+          "For Aerials, turn on **Show as wallpaper** to use the same scene as your desktop picture.",
+          "Click **Preview** to see it full screen.",
+        ],
+      },
+      { type: "h2", text: "Set when the screen saver starts" },
+      {
+        type: "ul",
+        items: [
+          "**Timer**: System Settings > Lock Screen > **Start Screen Saver when inactive**, from 1 minute to 3 hours, or Never.",
+          "**Hot corner**: System Settings > Desktop & Dock > **Hot Corners**, then choose Start Screen Saver for a corner.",
+          "**Turn it off**: set Start Screen Saver when inactive to **Never**.",
+        ],
+      },
+      { type: "h2", text: "Best Mac screen savers" },
+      {
+        type: "ul",
+        items: [
+          "**Apple Aerials**: slow-motion landscapes and cities, built in since macOS Sonoma. They download the first time you pick them.",
+          "**Photos / Ken Burns**: your own albums, panned and zoomed.",
+          "**Word of the Day** and **Message**: minimal, readable, and light on power.",
+          "**Your own video**: not possible with built-in settings, see below.",
+        ],
+      },
+      { type: "h2", text: "Use a video as your Mac screen saver" },
+      {
+        type: "p",
+        text: "macOS only offers Apple's own Aerials as moving screen savers. On macOS 26 (Tahoe) and later, **MacWall Pro** can register any catalog loop, or your own MP4 or MOV, as the Lock Screen and Screen Saver video through Apple's wallpaper APIs. Pick something slow and dark, such as a [moon](/wallpapers/collections/moon), [rain](/wallpapers/collections/rain), or [galaxy](/wallpapers/collections/galaxy) loop. Setup: [live Lock Screen and Screen Saver](/docs/live-lock-screen-and-screen-saver).",
+      },
+      { type: "h2", text: "Screen saver not working?" },
+      {
+        type: "ul",
+        items: [
+          "Check the inactivity timer in System Settings > Lock Screen is not set to Never.",
+          "Apps that play video or keep the display awake (video calls, some games) block the screen saver while they run.",
+          "Aerials need a network connection the first time; if one shows black, pick it again once online.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Where is the screen saver setting on a Mac?",
+        answer:
+          "System Settings > Screen Saver on macOS Ventura and later, or System Preferences > Desktop & Screen Saver on Monterey and earlier.",
+      },
+      {
+        question: "How do I turn off the screen saver on a Mac?",
+        answer:
+          "Open System Settings > Lock Screen and set Start Screen Saver when inactive to Never.",
+      },
+      {
+        question: "Can I use my own video as a Mac screen saver?",
+        answer:
+          "Not with built-in settings. MacWall Pro on macOS 26 or later can set any video loop as the Lock Screen and Screen Saver.",
+      },
+    ],
+  },
+  {
+    slug: "how-to-customize-mac-desktop",
+    pathname: "/blog/how-to-customize-mac-desktop",
+    title: "How to Customize Your Mac Desktop: Aesthetic Setup Guide",
+    headline: "How to Customize Your Mac Desktop",
+    description:
+      "Customize your Mac desktop: live wallpapers, desktop widgets, hidden icons, a cleaner Dock and menu bar, accent colors, custom app and folder icons.",
+    excerpt:
+      "Ten changes that turn a stock macOS desktop into an aesthetic setup.",
+    category: "guides",
+    readMinutes: 7,
+    publishedAt: "2026-09-28",
+    keywords: [
+      "how to customize mac desktop",
+      "macbook customization",
+      "aesthetic mac setup",
+      "how to add widgets to mac desktop",
+      "how to hide desktop icons on mac",
+      "how to change mac icons",
+      "desktop customization mac",
+    ],
+    sections: [
+      {
+        type: "p",
+        text: "**To customize a Mac desktop, start with the wallpaper (System Settings > Wallpaper), add widgets by right-clicking the desktop and choosing Edit Widgets, then tidy the Dock, menu bar, and icons.** A live wallpaper app such as MacWall adds motion, which is the biggest single change you can make to how a Mac feels.",
+      },
+      { type: "h2", text: "1. Pick a wallpaper that sets the mood" },
+      {
+        type: "p",
+        text: "Everything else takes its color from the wallpaper, especially on macOS Tahoe's translucent Liquid Glass. Choose a still in System Settings > Wallpaper ([full guide](/blog/how-to-change-wallpaper-on-mac)) or a moving one with [MacWall](/download). Popular aesthetic picks: [lofi](/wallpapers/collections/lofi), [purple](/wallpapers/collections/purple), [rain](/wallpapers/collections/rain), and [anime](/wallpapers/anime).",
+      },
+      { type: "h2", text: "2. Add widgets to the desktop" },
+      {
+        type: "ol",
+        items: [
+          "Right-click (or Control-click) an empty part of the desktop.",
+          "Choose **Edit Widgets**.",
+          "Drag widgets such as Calendar, Weather, Reminders, or Clock onto the desktop. Widgets from iPhone apps work too when your iPhone is nearby or on the same network.",
+        ],
+      },
+      { type: "h2", text: "3. Hide desktop icons" },
+      {
+        type: "ul",
+        items: [
+          "Finder > Settings > General: uncheck hard disks, external disks, and connected servers under **Show these items on the desktop**.",
+          "Move files into folders, or turn on **Use Stacks** (right-click the desktop) to group them automatically.",
+          "To hide every icon, run `defaults write com.apple.finder CreateDesktop false; killall Finder` in Terminal. Replace `false` with `true` to bring them back.",
+        ],
+      },
+      { type: "h2", text: "4. Clean up the Dock" },
+      {
+        type: "ul",
+        items: [
+          "System Settings > Desktop & Dock: turn on **Automatically hide and show the Dock**.",
+          "Turn off **Show suggested and recent apps in Dock**.",
+          "Drag apps you rarely use out of the Dock until you see Remove.",
+        ],
+      },
+      { type: "h2", text: "5. Tidy the menu bar" },
+      {
+        type: "p",
+        text: "Hold Command and drag menu bar icons to reorder or remove them. In System Settings > Control Center you choose which system icons appear. Set the menu bar to hide automatically for a cleaner full-screen desktop.",
+      },
+      { type: "h2", text: "6. Change the accent and highlight color" },
+      {
+        type: "p",
+        text: "System Settings > Appearance lets you choose Light, Dark, or Auto, plus an accent color and highlight color. Matching the accent to your wallpaper, for example purple with a purple loop, makes the whole system feel designed.",
+      },
+      { type: "h2", text: "7. Custom app and folder icons" },
+      {
+        type: "ol",
+        items: [
+          "Copy an image (PNG works best) to the clipboard.",
+          "Select the app or folder in Finder and press Command-I to open Get Info.",
+          "Click the small icon at the top left of the Get Info window and press Command-V.",
+        ],
+      },
+      {
+        type: "p",
+        text: "On macOS 26 (Tahoe), folders can also take a color and a symbol or emoji directly from the Finder.",
+      },
+      { type: "h2", text: "8. Use Stage Manager or Spaces" },
+      {
+        type: "p",
+        text: "Stage Manager (Control Center) keeps one app in focus and parks the rest at the side, leaving the wallpaper visible. Spaces in Mission Control give each workspace its own wallpaper.",
+      },
+      { type: "h2", text: "9. Add motion to the Lock Screen" },
+      {
+        type: "p",
+        text: "On macOS 26 and later, MacWall Pro plays your wallpaper on the Lock Screen and as the Screen Saver, so the setup starts the moment you open the lid. See [how to change the screen saver on Mac](/blog/how-to-change-screen-saver-mac).",
+      },
+      { type: "h2", text: "10. Keep it fast" },
+      {
+        type: "p",
+        text: "Aesthetic should not cost battery. Native apps decode video in hardware and pause when you are on battery or in full screen; browser-based wallpaper tools do not. More in [live wallpaper battery drain on Mac](/blog/live-wallpaper-battery-drain-mac).",
+      },
+    ],
+    faq: [
+      {
+        question: "How do I make my Mac desktop aesthetic?",
+        answer:
+          "Choose a cohesive wallpaper (a live one adds the most), match the accent color in System Settings > Appearance, add a few widgets, hide desktop icons, and auto-hide the Dock.",
+      },
+      {
+        question: "How do I add widgets to the Mac desktop?",
+        answer:
+          "Right-click the desktop, choose Edit Widgets, and drag widgets from the gallery onto the desktop. This works on macOS Sonoma and later.",
+      },
+      {
+        question: "How do I hide desktop icons on a Mac?",
+        answer:
+          "Uncheck the items in Finder > Settings > General, use Stacks, or run defaults write com.apple.finder CreateDesktop false; killall Finder in Terminal.",
       },
     ],
   },
