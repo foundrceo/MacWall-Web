@@ -765,6 +765,37 @@ async function purchasedDeviceCount(
   return Math.min((base ?? fallbackBase) + added, MAX_LICENSE_DEVICES)
 }
 
+/**
+ * Cross-sell add-on prices (minor units) → Macs added. Keep in sync with
+ * CHECKOUT_ADDONS in lib/license/offers.shared.ts.
+ */
+const ADDON_DEVICES_BY_AMOUNT: Record<string, Record<number, number>> = {
+  usd: { 700: 2, 1500: 5 },
+  inr: { 29900: 2, 49900: 5 },
+}
+
+/**
+ * Offline fallback when Stripe's API is unreachable: the session subtotal
+ * minus the base license price (checkout metadata) is exactly the add-on
+ * that was bought, if any. Never blocks activation.
+ */
+function inferDeviceCountFromAmounts(
+  session: Stripe.Checkout.Session,
+  base: number
+): number {
+  const currency = (session.currency ?? "").toLowerCase()
+  const unit = Number(
+    session.metadata?.unit_amount ??
+      (currency === "usd" ? session.metadata?.unit_amount_usd : undefined)
+  )
+  const subtotal = session.amount_subtotal
+  if (!Number.isFinite(unit) || unit <= 0 || typeof subtotal !== "number") {
+    return base
+  }
+  const added = ADDON_DEVICES_BY_AMOUNT[currency]?.[subtotal - unit] ?? 0
+  return Math.min(base + added, MAX_LICENSE_DEVICES)
+}
+
 async function handleCheckoutCompleted(args: {
   event: Stripe.Event
   stripe: Stripe
@@ -840,15 +871,13 @@ async function handleCheckoutCompleted(args: {
   try {
     maxDevices = await purchasedDeviceCount(stripe, session, metadataMaxDevices)
   } catch (e) {
-    // Fail so Stripe retries. Never activate a cross-sell buyer with too
-    // few Macs. Everything above this point is idempotent.
+    // Stripe API unreachable (outage, rotated key): a paying customer must
+    // still get their license, so count Macs from the paid amounts instead.
+    maxDevices = inferDeviceCountFromAmounts(session, metadataMaxDevices)
     console.error(
-      "[stripe-license-email] line_items_failed",
+      "[stripe-license-email] line_items_failed_using_amounts",
+      maxDevices,
       e instanceof Error ? e.message : "error"
-    )
-    return Response.json(
-      { ok: false, error: "line_items_failed" },
-      { status: 500 }
     )
   }
   const planSlug = maxDevices >= 5 ? "pro_plus" : metadataPlanSlug
