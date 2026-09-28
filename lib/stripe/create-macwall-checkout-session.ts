@@ -20,7 +20,6 @@ import {
   resolvePromotionCodeId,
   type CreateCheckoutResult,
 } from "@/lib/stripe/checkout-shared"
-import { queueCheckoutRecovery } from "@/lib/stripe/queue-checkout-recovery"
 import {
   normalizeConversionPromo,
   parseOfferUntil,
@@ -218,23 +217,10 @@ export async function createMacWallCheckoutSession(
           }))
       }
 
+      // Recovery is queued by the license webhook when an opened session
+      // expires unpaid (checkout.session.expired), not here.
       if (insertError) {
         console.error("[checkout] license insert failed", insertError.message)
-        return
-      }
-
-      try {
-        await queueCheckoutRecovery({
-          checkoutSessionId: session.id,
-          licenseKey,
-          customerEmail,
-          reason: "checkout_started",
-        })
-      } catch (queueError) {
-        console.error(
-          "[checkout] recovery queue failed",
-          queueError instanceof Error ? queueError.message : "error"
-        )
       }
     })
 
