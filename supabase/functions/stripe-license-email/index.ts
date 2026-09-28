@@ -637,6 +637,8 @@ async function sendResendEmail(args: {
         body: JSON.stringify({
           from: args.from,
           to: [args.to],
+          // "Didn't get my key" replies land in support, not a dead inbox.
+          reply_to: supportEmail(),
           subject: args.subject,
           html: args.html,
           text: args.text,
