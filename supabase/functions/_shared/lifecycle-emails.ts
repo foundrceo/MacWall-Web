@@ -42,7 +42,7 @@ export type LifecycleEmailContext = {
   postalAddress?: string | null
   /** Recovery only: e.g. "MacWall Pro (3 Macs)". */
   planLabel?: string | null
-  /** Recovery only: e.g. "₹499" or "$12.99". */
+  /** Recovery only: e.g. "₹441.50" or "$12.99". */
   priceLabel?: string | null
 }
 

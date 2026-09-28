@@ -6,7 +6,6 @@ import { isIndiaCountry } from "@/lib/geo/country"
 import { generateMacWallLicenseKey } from "@/lib/license/generate-license-key"
 import {
   isIndiaDiscountEligible,
-  licenseOfferChargeAmount,
   licenseOfferFromSlug,
   licenseOfferPriceCents,
 } from "@/lib/license/offers.shared"
@@ -67,7 +66,7 @@ const CHECKOUT_SESSION_TTL_SECONDS = 60 * 60
  *
  * Omits `payment_method_types` so Dynamic Payment Methods apply.
  * Enables Adaptive Pricing so buyers pay in local currency.
- * Pro $12.99 / Pro+ $19.99 (India ₹499 / ₹799 in INR), each with a one-click
+ * Pro $12.99 / Pro+ $19.99 (India $4.99 / $7.99), each with a one-click
  * “more Macs” cross-sell (`optional_items`). The webhook counts Macs from
  * the paid line items, so an added add-on raises the license.
  */
@@ -82,8 +81,7 @@ export async function createMacWallCheckoutSession(
       isIndiaCountry(input.country) && isIndiaDiscountEligible(offer.slug)
         ? "india"
         : "default"
-    const displayUnitAmount = licenseOfferPriceCents(offer, region)
-    const charge = licenseOfferChargeAmount(offer, region)
+    const unitAmount = licenseOfferPriceCents(offer, region)
     const planSlug = offer.maxDevices >= 5 ? "pro_plus" : "pro"
     const checkoutPrices = await checkoutPricesForOffer(
       stripe,
@@ -116,11 +114,10 @@ export async function createMacWallCheckoutSession(
       // in the paid line items.
       max_devices: String(offer.maxDevices),
       pricing_region: region,
-      // Base license in the charged currency, plus its USD equivalent so
-      // USD reporting can convert INR sessions (ratio covers add-ons/promos).
-      unit_amount: String(charge.amount),
-      currency: charge.currency,
-      unit_amount_usd: String(displayUnitAmount),
+      // Base license price in USD cents (all Prices are USD).
+      unit_amount: String(unitAmount),
+      currency: "usd",
+      unit_amount_usd: String(unitAmount),
       visitor_country: input.country?.trim().toUpperCase() || "",
       ...(promoCode ? { promo_code: promoCode } : {}),
       ...(promotionCodeId ? { stripe_promotion_code_id: promotionCodeId } : {}),

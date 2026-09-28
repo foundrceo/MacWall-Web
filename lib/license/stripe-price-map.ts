@@ -12,12 +12,15 @@ import type {
  * metadata tells the license webhook how many Macs a line item is worth:
  * `max_devices` on licenses, `adds_devices` on add-ons.
  *
- *   Product                    Shown at Checkout          Global (USD)  India (INR)
- *   macwall_pro                MacWall Pro (3 Macs)            $12.99       ₹499
- *   macwall_pro_plus           MacWall Pro+ (5 Macs)           $19.99       ₹799
- *   macwall_upgrade_pro_plus   Upgrade to Pro+ (+2 Macs)        $7.00       ₹299  optional on Pro
- *   macwall_addon_5_macs       Add 5 more Macs                 $15.00       ₹499  optional on Pro+,
+ *   Product                    Shown at Checkout          Global (USD)  India (USD)
+ *   macwall_pro                MacWall Pro (3 Macs)            $12.99       $4.99
+ *   macwall_pro_plus           MacWall Pro+ (5 Macs)           $19.99       $7.99
+ *   macwall_upgrade_pro_plus   Upgrade to Pro+ (+2 Macs)        $7.00       $3.00  optional on Pro
+ *   macwall_addon_5_macs       Add 5 more Macs                 $15.00       $5.00  optional on Pro+,
  *                                                                               required for 10 Macs
+ *
+ * All Prices are USD. Adaptive Pricing converts at Checkout; the old INR
+ * India Prices are archived.
  *
  * Every ID can be overridden with an env var (see .env.example). Prices
  * without an ID are resolved by lookup key: `<product>_<global|india>`.
@@ -59,18 +62,18 @@ const CATALOG: Record<PricingRegion, RegionCatalog> = {
     ),
   },
   india: {
-    pro: envPrice("STRIPE_PRICE_PRO_INDIA", "price_1UKapzIZgqo0QIlX8mJXGk29"),
+    pro: envPrice("STRIPE_PRICE_PRO_INDIA", "price_1UKaSHIZgqo0QIlXNuzrWEh0"),
     proPlus: envPrice(
       "STRIPE_PRICE_PRO_PLUS_INDIA",
-      "price_1UKaq0IZgqo0QIlXBt1bicYD"
+      "price_1UKaSIIZgqo0QIlXGFVs0yOZ"
     ),
     upgradeProPlus: envPrice(
       "STRIPE_PRICE_UPGRADE_PRO_PLUS_INDIA",
-      "price_1UKaqsIZgqo0QIlXtFq8gwiF"
+      "price_1UKaSJIZgqo0QIlX4Xow4wYD"
     ),
     addon5Macs: envPrice(
       "STRIPE_PRICE_ADDON_5_MACS_INDIA",
-      "price_1UKaqtIZgqo0QIlXVY0tPMbK"
+      "price_1UKaSKIZgqo0QIlX1UAok3ar"
     ),
   },
 }

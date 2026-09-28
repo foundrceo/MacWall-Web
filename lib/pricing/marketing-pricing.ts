@@ -2,8 +2,8 @@ import {
   LICENSE_OFFERS,
   MULTI_MAC_OFFER_SLUGS,
   checkoutAddonAmount,
-  licenseOfferChargeAmount,
   licenseOfferCheckoutPath,
+  licenseOfferPriceCents,
   type LicenseOfferSlug,
   type PricingRegion,
 } from "@/lib/license/offers.shared"
@@ -72,7 +72,7 @@ const PRO_USD_CENTS = LICENSE_OFFERS.permanent.usdCents
 const PRO_PLUS_USD_CENTS = LICENSE_OFFERS.permanent_5.usdCents
 const ANNUAL_USD_CENTS = LICENSE_OFFERS.annual.usdCents
 
-/** India catalog USD equivalents (India is charged ₹499 / ₹799 in INR). */
+/** India catalog (USD, shown in INR at the live rate). */
 const PRO_INDIA_USD_CENTS = LICENSE_OFFERS.permanent.indiaUsdCents
 const PRO_PLUS_INDIA_USD_CENTS = LICENSE_OFFERS.permanent_5.indiaUsdCents
 
@@ -88,18 +88,6 @@ function usdMoney(cents: number, locale = "en-US"): LocalizedMoney {
     major,
     formatted: formatMoney(major, "usd", locale),
     isLocalized: false,
-  }
-}
-
-/** India catalog money — whole rupees, e.g. "₹499". */
-function inrMoney(paise: number): LocalizedMoney {
-  const major = paise / 100
-  return {
-    currency: "inr",
-    locale: "en-IN",
-    major,
-    formatted: formatMoney(major, "inr", "en-IN"),
-    isLocalized: true,
   }
 }
 
@@ -149,12 +137,12 @@ export function buildMarketingPricingFromLocalized(
   const india = isIndiaCountry(country)
   const region: PricingRegion = india ? "india" : "default"
 
-  // India is charged in INR (₹…99 catalog prices) — never FX-converted.
-  // Everyone else is charged in USD; show a local estimate when FX is known.
+  // Everyone is charged in USD (India at the India catalog price). Show the
+  // local currency at the live FX rate when it is known.
+  const proCents = licenseOfferPriceCents(LICENSE_OFFERS.permanent, region)
   const useLocal =
-    !india &&
-    (Boolean(fx && fx.currency !== "usd") ||
-      Boolean(permanentLocal?.isLocalized))
+    Boolean(fx && fx.currency !== "usd") ||
+    Boolean(permanentLocal?.isLocalized)
   const activeFx: MarketingFxRate | null = !useLocal
     ? null
     : fx && fx.currency !== "usd"
@@ -165,31 +153,25 @@ export function buildMarketingPricingFromLocalized(
             locale: permanentLocal.locale,
             usdPerUnit:
               permanentLocal.major > 0
-                ? PRO_USD_CENTS / 100 / permanentLocal.major
+                ? proCents / 100 / permanentLocal.major
                 : 0,
           }
         : null
 
-  /** Display money for an amount in this region's catalog currency. */
-  const money = (minor: number): LocalizedMoney =>
-    india
-      ? inrMoney(minor)
-      : activeFx
-        ? localMoneyFromFx(minor, activeFx)
-        : usdMoney(minor)
-  const hint = (minor: number): string | null =>
-    activeFx ? usdCatalogHint(minor) : null
+  /** Display money for a USD catalog amount (local when FX is known). */
+  const money = (usdCents: number): LocalizedMoney =>
+    activeFx ? localMoneyFromFx(usdCents, activeFx) : usdMoney(usdCents)
+  const hint = (usdCents: number): string | null =>
+    activeFx ? usdCatalogHint(usdCents) : null
   const amount = (slug: LicenseOfferSlug): number =>
-    licenseOfferChargeAmount(LICENSE_OFFERS[slug], region).amount
+    licenseOfferPriceCents(LICENSE_OFFERS[slug], region)
 
   const permanentAmount = amount("permanent")
   const permanent =
     activeFx && permanentLocal?.isLocalized
       ? permanentLocal
       : money(permanentAmount)
-  const annual = india
-    ? inrMoney(LICENSE_OFFERS.annual.indiaInrPaise)
-    : usdMoney(ANNUAL_USD_CENTS)
+  const annual = money(amount("annual"))
 
   const permanentPrice = permanent.formatted
   const permanentMacs = LICENSE_OFFERS.permanent.maxDevices
