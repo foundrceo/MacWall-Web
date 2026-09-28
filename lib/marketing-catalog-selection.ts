@@ -9,7 +9,7 @@ import {
 import {
   catalogMarketingGalleryPosterUrlFromKey,
   catalogPublicThumbUrlFromKey,
-  catalogPublicVideoUrlFromKey,
+  catalogPreviewVideoUrlFromKey,
 } from "@/lib/macwall-catalog-urls"
 import { MARKETING_CATALOG_SLIDES } from "@/lib/marketing-catalog-slides"
 import type { MarketingCatalogSlide } from "@/lib/marketing-catalog-slides"
@@ -219,6 +219,6 @@ export function catalogRowToMarketingSlide(
     like_count: row.like_count ?? 0,
     thumbPath: catalogMarketingGalleryPosterUrlFromKey(row.thumb_key),
     thumbFallbackPath: catalogPublicThumbUrlFromKey(row.thumb_key),
-    videoUrl: catalogPublicVideoUrlFromKey(row.video_key),
+    videoUrl: catalogPreviewVideoUrlFromKey(row.video_key),
   }
 }

@@ -1,7 +1,7 @@
 import {
   catalogMarketingGalleryPosterUrlFromKey,
   catalogPublicThumbUrlFromKey,
-  catalogPublicVideoUrlFromKey,
+  catalogPreviewVideoUrlFromKey,
 } from "@/lib/macwall-catalog-urls"
 
 export type MarketingGalleryWallpaper = {
@@ -29,7 +29,7 @@ export function buildMarketingGalleryWallpaper(input: {
     id: input.id,
     name: input.name,
     category: input.category,
-    videoUrl: catalogPublicVideoUrlFromKey(input.videoKey),
+    videoUrl: catalogPreviewVideoUrlFromKey(input.videoKey),
     thumbUrl: catalogPublicThumbUrlFromKey(input.thumbKey),
     posterUrl: catalogMarketingGalleryPosterUrlFromKey(input.thumbKey),
   }

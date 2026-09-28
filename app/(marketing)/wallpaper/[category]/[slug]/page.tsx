@@ -60,9 +60,7 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
     permanentRedirect(canonicalPath)
   }
 
-  // Do NOT mint short-lived signed preview URLs here — page ISR (1h) outlives
-  // signed TTL (15m) and left users with a blank player. The client player
-  // fetches a fresh URL from `/api/wallpapers/preview` on mount.
+  // `wallpaper.videoUrl` is a downscaled web preview — never the master file.
   let similar: Awaited<ReturnType<typeof listSimilarPublicWallpapers>> = []
   try {
     similar = await listSimilarPublicWallpapers(wallpaper, 6)

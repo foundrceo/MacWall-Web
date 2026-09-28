@@ -113,7 +113,6 @@ function PlanCard({
   priceMajor,
   currency,
   localPriceHint,
-  showHintRow,
   action,
   featuresLabel,
   features,
@@ -128,8 +127,6 @@ function PlanCard({
   priceMajor: number
   currency: string
   localPriceHint: string | null
-  /** Keep both cards' price blocks the same height when either has a hint. */
-  showHintRow: boolean
   action: ReactNode
   featuresLabel: string
   features: readonly string[]
@@ -189,25 +186,19 @@ function PlanCard({
             {headerAside}
           </div>
 
-          <div className="mt-8 flex items-end gap-1.5">
+          <div className="mt-8 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
             <PricingPriceDisplay
               price={price}
               priceMajor={priceMajor}
               currency={currency}
               className="font-display text-[52px] leading-[0.9] font-normal tracking-tight text-white"
             />
+            {localPriceHint ? (
+              <span className="text-[13px] leading-4 whitespace-nowrap text-zinc-400 tabular-nums">
+                {localPriceHint}
+              </span>
+            ) : null}
           </div>
-          {showHintRow ? (
-            <p
-              className={cn(
-                "mt-2 text-[12px] leading-4 text-zinc-500 tabular-nums",
-                !localPriceHint && "invisible"
-              )}
-              aria-hidden={!localPriceHint}
-            >
-              {localPriceHint ?? " "}
-            </p>
-          ) : null}
           <p className="mt-3 text-[13px] leading-5 text-zinc-400">{subtitle}</p>
 
           <div className="mt-5">{action}</div>
@@ -325,10 +316,6 @@ export function PricingPlans({
   const [macs, setMacs] = useState(offers[0]?.macs ?? 5)
   const selected = offers.find((offer) => offer.macs === macs) ?? offers[0]
 
-  const showHintRow = Boolean(
-    pricing.permanentLocalHint || selected?.localPriceHint
-  )
-
   return (
     <div
       className={cn(
@@ -351,7 +338,6 @@ export function PricingPlans({
         priceMajor={pricing.permanentPriceMajor}
         currency={pricing.currency}
         localPriceHint={pricing.permanentLocalHint}
-        showHintRow={showHintRow}
         featuresLabel={stripColon(plans.pro.featuresPrefix)}
         features={cardFeatures(p.pro.features)}
         action={
@@ -388,7 +374,6 @@ export function PricingPlans({
           priceMajor={selected.priceMajor}
           currency={selected.currency}
           localPriceHint={selected.localPriceHint}
-          showHintRow={showHintRow}
           featuresLabel={stripColon(plans.proPlus.featuresPrefix)}
           features={cardFeatures(
             withMacCount(p.proPlus.features, selected.macs)

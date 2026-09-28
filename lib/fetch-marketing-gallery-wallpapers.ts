@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache"
 import {
   catalogMarketingGalleryPosterUrlFromKey,
   catalogPublicThumbUrlFromKey,
-  catalogPublicVideoUrlFromKey,
+  catalogPreviewVideoUrlFromKey,
 } from "@/lib/macwall-catalog-urls"
 import {
   MARKETING_CATALOG_REVALIDATE_SECONDS,
@@ -24,7 +24,7 @@ function mapRow(row: MarketingCatalogWallpaperRow): MarketingGalleryWallpaper {
     id: row.id,
     name: row.name,
     category: row.category,
-    videoUrl: catalogPublicVideoUrlFromKey(row.video_key),
+    videoUrl: catalogPreviewVideoUrlFromKey(row.video_key),
     thumbUrl: catalogPublicThumbUrlFromKey(row.thumb_key),
     posterUrl: catalogMarketingGalleryPosterUrlFromKey(row.thumb_key),
   }

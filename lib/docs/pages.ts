@@ -740,7 +740,7 @@ export const docsPages: DocsPage[] = [
       },
       {
         type: "p",
-        text: "Returns `{ wallpapers, total, page, limit, hasMore }`. Each wallpaper includes `id`, `name`, `category`, `tags`, `resolution`, `durationSeconds`, `fileSizeBytes`, `thumbUrl`, `videoUrl`, `isPro`, `isFeatured`, `likeCount`, and `createdAt`. Pro assets are marked with `isPro` and require a license in the app to use.",
+        text: "Returns `{ wallpapers, total, page, limit, hasMore }`. Each wallpaper includes `id`, `name`, `category`, `tags`, `resolution`, `durationSeconds`, `fileSizeBytes`, `thumbUrl`, `videoUrl`, `isPro`, `isFeatured`, `likeCount`, and `createdAt`. `videoUrl` is a downscaled, silent web preview, not the source file; full-resolution wallpapers are only available in the app.",
       },
       {
         type: "h2",

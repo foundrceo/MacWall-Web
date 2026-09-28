@@ -3,7 +3,7 @@
  */
 import {
   catalogPublicThumbUrlFromKey,
-  catalogPublicVideoUrlFromKey,
+  catalogPreviewVideoUrlFromKey,
 } from "@/lib/macwall-catalog-urls"
 
 export type MarketingCatalogSlide = {
@@ -90,7 +90,7 @@ export const MARKETING_CATALOG_SLIDES: MarketingCatalogSlide[] = rows.map(
     duration_seconds: r.duration_seconds,
     like_count: r.like_count,
     thumbPath: catalogPublicThumbUrlFromKey(r.thumb_key),
-    videoUrl: catalogPublicVideoUrlFromKey(r.video_key),
+    videoUrl: catalogPreviewVideoUrlFromKey(r.video_key),
   })
 )
 

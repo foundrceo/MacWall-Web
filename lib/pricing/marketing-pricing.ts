@@ -22,7 +22,7 @@ export type MarketingMultiMacOffer = {
   priceMajor: number
   /** e.g. "$4.00" — price divided by Macs, same currency as `price`. */
   perMacPrice: string
-  /** When primary is local: "$19.99 USD". When primary is USD: null. */
+  /** When primary is local: "≈ USD 19.99". When primary is USD: null. */
   localPriceHint: string | null
   checkoutUrl: string
   currency: string
@@ -41,7 +41,7 @@ export type MarketingPricing = {
   permanentPriceMajor: number
   /** e.g. "$4.33" — Pro price divided by its Macs. */
   permanentPerMacPrice: string
-  /** When primary is local: "$12.99 USD". Otherwise null. */
+  /** When primary is local: "≈ USD 12.99". Otherwise null. */
   permanentLocalHint: string | null
   /** Pro → Pro+ add-on offered at Checkout (Pro+ price minus Pro price). */
   proPlusUpgradePrice: string
@@ -91,9 +91,9 @@ function usdMoney(cents: number, locale = "en-US"): LocalizedMoney {
   }
 }
 
-/** Secondary line under a local primary price (catalog USD). */
-function usdCatalogHint(usdCents: number, locale = "en-US"): string {
-  return `${formatMoney(usdCents / 100, "usd", locale)} USD`
+/** Approximate catalog USD shown beside a local primary price. */
+function usdCatalogHint(usdCents: number): string {
+  return `≈ USD ${(usdCents / 100).toFixed(2)}`
 }
 
 export type MarketingFxRate = {

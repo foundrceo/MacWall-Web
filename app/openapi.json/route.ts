@@ -187,7 +187,12 @@ export function GET(): Response {
             fileSizeBytes: { type: "integer" },
             videoKey: { type: "string" },
             thumbKey: { type: "string" },
-            videoUrl: { type: "string", format: "uri" },
+            videoUrl: {
+              type: "string",
+              format: "uri",
+              description:
+                "Downscaled, silent web preview (max 1280px wide). Not the source file.",
+            },
             thumbUrl: { type: "string", format: "uri" },
             isPro: {
               type: "boolean",

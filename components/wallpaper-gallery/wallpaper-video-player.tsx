@@ -38,27 +38,6 @@ function blockMediaContextMenu(event: SyntheticEvent) {
   event.preventDefault()
 }
 
-async function fetchFreshPreviewUrl(videoKey: string): Promise<string | null> {
-  const key = videoKey.trim()
-  if (!key) return null
-  try {
-    const res = await fetch(
-      `/api/wallpapers/preview?key=${encodeURIComponent(key)}`,
-      {
-        method: "GET",
-        headers: { Accept: "application/json" },
-        cache: "no-store",
-      }
-    )
-    if (!res.ok) return null
-    const data = (await res.json()) as { url?: string }
-    const url = data.url?.trim()
-    return url && url.startsWith("http") ? url : null
-  } catch {
-    return null
-  }
-}
-
 function VideoLoader({
   reduceMotion,
 }: Readonly<{ reduceMotion: boolean | null }>) {
@@ -81,76 +60,24 @@ function VideoLoader({
 
 export function WallpaperVideoPlayer({
   src,
-  videoKey,
   poster,
   title,
   className,
 }: Readonly<{
-  /** Public CDN fallback — safe to embed in ISR HTML. */
+  /** Downscaled web preview (never the full-resolution master). */
   src: string
-  /** When set, player mints a fresh signed URL client-side (never from ISR). */
-  videoKey?: string | null
   poster: string
   title: string
   className?: string
 }>) {
-  const fallbackSrc = src.trim()
-  const key = videoKey?.trim() || ""
-  const [playbackSrc, setPlaybackSrc] = useState(() =>
-    key ? "" : fallbackSrc
-  )
-  const [resolving, setResolving] = useState(Boolean(key))
+  const playbackSrc = src.trim()
   const [reloadNonce, setReloadNonce] = useState(0)
-  const signedAttemptedRef = useRef(false)
-
-  // Mint a fresh URL client-side — never trust ISR-baked signed links.
-  useEffect(() => {
-    if (!key) {
-      setResolving(false)
-      setPlaybackSrc(fallbackSrc)
-      return
-    }
-
-    let cancelled = false
-    signedAttemptedRef.current = false
-
-    async function resolve() {
-      setResolving(true)
-      setPlaybackSrc("")
-      const fresh = await fetchFreshPreviewUrl(key)
-      if (cancelled) return
-      if (fresh) {
-        signedAttemptedRef.current = true
-        setPlaybackSrc(fresh)
-      } else {
-        setPlaybackSrc(fallbackSrc)
-      }
-      setResolving(false)
-    }
-
-    void resolve()
-    return () => {
-      cancelled = true
-    }
-  }, [key, fallbackSrc, reloadNonce])
 
   const retryPlayback = useCallback(() => {
-    signedAttemptedRef.current = false
     setReloadNonce((n) => n + 1)
   }, [])
 
-  const onMediaError = useCallback(async () => {
-    // Expired / forbidden CDN → one fresh signed retry.
-    if (key && !signedAttemptedRef.current) {
-      signedAttemptedRef.current = true
-      const fresh = await fetchFreshPreviewUrl(key)
-      if (fresh && fresh !== playbackSrc) {
-        setPlaybackSrc(fresh)
-        return true
-      }
-    }
-    return false
-  }, [key, playbackSrc])
+  const onMediaError = useCallback(async () => false, [])
 
   return (
     <WallpaperVideoPlayerInner
@@ -159,7 +86,6 @@ export function WallpaperVideoPlayer({
       poster={poster}
       title={title}
       className={className}
-      bootstrapping={resolving && !playbackSrc}
       onMediaError={onMediaError}
       onRetry={retryPlayback}
     />
@@ -419,8 +345,8 @@ function WallpaperVideoPlayerInner({
       onContextMenu={blockMediaContextMenu}
     >
       {/*
-        Custom controls only — no native download UI. Signed preview URLs expire;
-        determined users can still capture network traffic or re-record the stream.
+        Custom controls only — no native download UI. `src` is a downscaled
+        preview; the full-resolution master is never sent to the browser.
       */}
       {src ? (
         <video
