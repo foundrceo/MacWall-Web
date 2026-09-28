@@ -152,7 +152,6 @@ export function WallpaperDetail({
       >
         <WallpaperVideoPlayer
           src={wallpaper.videoUrl}
-          videoKey={wallpaper.videoKey}
           poster={wallpaper.thumbUrl}
           title={wallpaper.name}
         />

@@ -8,7 +8,7 @@ import {
 } from "@/lib/env/catalog-supabase"
 import {
   catalogPublicThumbUrlFromKey,
-  catalogPublicVideoUrlFromKey,
+  catalogPreviewVideoUrlFromKey,
 } from "@/lib/macwall-catalog-urls"
 import {
   MARKETING_CATALOG_REVALIDATE_SECONDS,
@@ -91,7 +91,7 @@ function mapListRow(row: WallpaperListRow): PublicWallpaper {
     fileSizeBytes: 0,
     videoKey: row.video_key,
     thumbKey: row.thumb_key,
-    videoUrl: catalogPublicVideoUrlFromKey(row.video_key),
+    videoUrl: catalogPreviewVideoUrlFromKey(row.video_key),
     thumbUrl: catalogPublicThumbUrlFromKey(row.thumb_key),
     isPro: false,
     isFeatured: false,
@@ -112,7 +112,7 @@ function mapDetailRow(row: WallpaperDetailRow): PublicWallpaper {
     fileSizeBytes: row.file_size_bytes,
     videoKey: row.video_key,
     thumbKey: row.thumb_key,
-    videoUrl: catalogPublicVideoUrlFromKey(row.video_key),
+    videoUrl: catalogPreviewVideoUrlFromKey(row.video_key),
     thumbUrl: catalogPublicThumbUrlFromKey(row.thumb_key),
     isPro: false,
     isFeatured: false,

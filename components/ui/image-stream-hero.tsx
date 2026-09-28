@@ -2,10 +2,7 @@
 
 import * as React from "react"
 
-import {
-  catalogPreviewVideoUrlFromKey,
-  catalogPublicVideoUrlFromKey,
-} from "@/lib/macwall-catalog-urls"
+import { catalogPreviewVideoUrlFromKey } from "@/lib/macwall-catalog-urls"
 import { cn } from "@/lib/utils"
 
 export type CorridorPath = {
@@ -111,7 +108,7 @@ function StreamCardMedia({
   const videoRef = React.useRef<HTMLVideoElement>(null)
   const [src, setSrc] = React.useState<string | null>(null)
   const [showVideo, setShowVideo] = React.useState(false)
-  const triedOriginal = React.useRef(false)
+  const triedFallback = React.useRef(false)
 
   React.useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -120,7 +117,7 @@ function StreamCardMedia({
       setShowVideo(false)
       return
     }
-    triedOriginal.current = false
+    triedFallback.current = false
     setSrc(resolveVideoSrc(item))
     setShowVideo(true)
   }, [active, item])
@@ -162,13 +159,9 @@ function StreamCardMedia({
         preload="metadata"
         className="absolute inset-0 h-full w-full object-cover"
         onError={() => {
-          if (!triedOriginal.current && item.videoKey) {
-            triedOriginal.current = true
-            setSrc(catalogPublicVideoUrlFromKey(item.videoKey))
-            return
-          }
-          if (!triedOriginal.current && item.video && src !== item.video) {
-            triedOriginal.current = true
+          // Retry once with the server-built preview; never the master file.
+          if (!triedFallback.current && item.video && src !== item.video) {
+            triedFallback.current = true
             setSrc(item.video)
             return
           }
