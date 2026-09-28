@@ -39,7 +39,7 @@ export function Collections() {
     <MarketingSection className="relative w-full py-10">
       <div className="flex flex-col gap-8 px-6">
         <div className="flex flex-col gap-2">
-          <h2 className="max-w-xl text-left text-3xl font-normal tracking-tighter md:text-5xl">
+          <h2 className="font-display max-w-xl text-left text-3xl font-normal tracking-tighter md:text-5xl">
             Live backgrounds for every Mac desktop
           </h2>
           <p className="max-w-2xl text-left text-lg leading-relaxed tracking-tight text-muted-foreground">

@@ -34,7 +34,7 @@ export default function MacWallMarketingCreatorPage() {
           className="mx-auto max-w-2xl px-4 py-14 md:px-6 md:py-20"
         >
           <div className="rounded-3xl border border-border bg-card px-6 py-10 text-center sm:px-10 md:py-12">
-            <h2 className="text-2xl font-normal tracking-tighter md:text-3xl">
+            <h2 className="font-display text-2xl font-normal tracking-tighter md:text-3xl">
               {copy.influencerTitle}
             </h2>
             <MarketingRichText
@@ -52,7 +52,7 @@ export default function MacWallMarketingCreatorPage() {
           </div>
         </section>
         <section className="mx-auto max-w-2xl px-4 py-14 md:px-6 md:py-20">
-          <h2 className="text-2xl font-normal tracking-tighter md:text-3xl">
+          <h2 className="font-display text-2xl font-normal tracking-tighter md:text-3xl">
             {copy.closingTitle}
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">

@@ -28,7 +28,7 @@ export default function CreatorBottomCta() {
     >
       <h2
         id="creator-bottom-cta-title"
-        className="mx-auto max-w-2xl text-3xl font-normal tracking-tighter md:text-5xl"
+        className="font-display mx-auto max-w-2xl text-3xl font-normal tracking-tighter md:text-5xl"
       >
         {copy.midCtaTitle}
       </h2>

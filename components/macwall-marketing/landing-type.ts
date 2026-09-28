@@ -5,19 +5,19 @@ export const landingShellPad = "px-4 lg:px-6"
 export const landingShellRules = "border-border border-dashed sm:border-x"
 
 export const landingH1 =
-  "max-w-2xl text-center text-5xl font-normal tracking-tighter text-foreground md:text-7xl"
+  "max-w-2xl text-center font-display text-5xl font-normal tracking-tighter text-foreground md:text-7xl"
 
 export const landingH1Muted =
   "mt-4 block text-xl tracking-tight text-muted-foreground md:text-2xl"
 
 export const landingPageH1 =
-  "font-normal text-3xl leading-tight tracking-tighter text-foreground md:text-5xl"
+  "font-display font-normal text-3xl leading-tight tracking-tighter text-foreground md:text-5xl"
 
 export const landingPageLead =
   "mt-2 max-w-xl text-left text-base leading-relaxed tracking-tight text-muted-foreground md:text-lg"
 
 export const landingH2 =
-  "max-w-xl text-left text-3xl font-normal tracking-tighter text-foreground md:text-5xl"
+  "max-w-xl text-left font-display text-3xl font-normal tracking-tighter text-foreground md:text-5xl"
 
 export const landingH2Muted =
   "mt-2 block text-lg tracking-tight text-muted-foreground md:text-xl"

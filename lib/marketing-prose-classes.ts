@@ -3,7 +3,7 @@
 export const proseHero = "mb-10 text-center md:mb-14"
 
 export const proseHeroTitle =
-  "text-4xl leading-[1.08] font-normal tracking-tighter text-white sm:text-5xl lg:text-6xl"
+  "font-display text-4xl leading-[1.08] font-normal tracking-tighter text-white sm:text-5xl lg:text-6xl"
 
 export const proseHeroLead =
   "mx-auto mt-4 max-w-[34rem] text-[16px] leading-6 text-landing-muted"
@@ -21,7 +21,7 @@ export const proseArticle = "mx-auto"
 export const proseBody = "space-y-5"
 
 export const proseH2 =
-  "scroll-mt-28 text-3xl leading-[1.1] font-normal tracking-tighter text-white md:text-5xl"
+  "scroll-mt-28 font-display text-3xl leading-[1.1] font-normal tracking-tighter text-white md:text-5xl"
 
 export const proseH3 =
   "text-[20px] leading-7 font-normal text-white"
@@ -41,7 +41,7 @@ export const proseOl =
 export const proseFaq = "mt-0"
 
 export const proseFaqTitle =
-  "text-3xl leading-[1.1] font-normal tracking-tighter text-white md:text-5xl"
+  "font-display text-3xl leading-[1.1] font-normal tracking-tighter text-white md:text-5xl"
 
 export const proseFaqList =
   "mt-8 divide-y divide-dashed divide-border border-t border-dashed border-border"

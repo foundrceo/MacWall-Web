@@ -22,7 +22,7 @@ export function Reviews({ className }: Readonly<{ className?: string }>) {
         <div className="flex flex-col gap-2 px-6">
           <h2
             id="reviews-heading"
-            className="text-left text-3xl font-normal tracking-tighter whitespace-nowrap md:text-5xl"
+            className="font-display text-left text-3xl font-normal tracking-tighter whitespace-nowrap md:text-5xl"
           >
             {title}
           </h2>

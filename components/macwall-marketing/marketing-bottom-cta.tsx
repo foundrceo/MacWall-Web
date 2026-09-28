@@ -41,7 +41,7 @@ export default function MacWallMarketingBottomCta() {
 
   return (
     <MarketingSection className="px-4 py-10 text-center md:px-6 md:py-14 lg:py-16">
-      <h2 className="mx-auto max-w-2xl text-3xl font-normal tracking-tighter md:text-5xl">
+      <h2 className="font-display mx-auto max-w-2xl text-3xl font-normal tracking-tighter md:text-5xl">
         {copy.title}
       </h2>
       <div className="mt-8 flex flex-wrap items-start justify-center gap-3">

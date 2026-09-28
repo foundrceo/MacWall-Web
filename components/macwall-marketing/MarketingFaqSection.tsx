@@ -51,7 +51,7 @@ export default function MarketingFaqSection({
       innerClassName="grid lg:grid-cols-2 lg:divide-x lg:divide-y-0 lg:divide-dashed lg:divide-border"
     >
       <div className="flex flex-col gap-2 px-6 py-10 md:py-14">
-        <h2 className="max-w-xl text-left text-3xl font-normal tracking-tighter md:text-5xl">
+        <h2 className="font-display max-w-xl text-left text-3xl font-normal tracking-tighter md:text-5xl">
           {pricingCopy.faqTitle}
         </h2>
         <p className="max-w-xl text-left text-lg leading-relaxed tracking-tight text-muted-foreground lg:max-w-lg">

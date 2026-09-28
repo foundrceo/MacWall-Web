@@ -32,7 +32,7 @@ export function Pillars() {
     <MarketingSection className="relative w-full pt-10">
       <div className="flex flex-col gap-10">
         <div className="flex flex-col gap-2 px-6">
-          <h2 className="max-w-xl text-left text-3xl font-normal tracking-tighter md:text-5xl">
+          <h2 className="font-display max-w-xl text-left text-3xl font-normal tracking-tighter md:text-5xl">
             {landing.pillarsTitle}
           </h2>
           <p className="max-w-xl text-left text-lg leading-relaxed tracking-tight text-muted-foreground lg:max-w-lg">
