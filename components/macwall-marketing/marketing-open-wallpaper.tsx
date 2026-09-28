@@ -1,54 +1,152 @@
 "use client"
 
-import { Suspense, useEffect, useMemo } from "react"
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   macwallInstallerLatestPath,
   macwallWallpaperDeepLink,
 } from "@/lib/macwall-site"
 
-const INSTALL_FALLBACK_MS = 1750
+const APP_OPEN_WAIT_MS = 2500
+
+type OpenState = "opening" | "needs-install"
 
 function OpenWallpaperRedirect() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [state, setState] = useState<OpenState>("opening")
+  const settledRef = useRef(false)
+  const timerRef = useRef<number | null>(null)
+
   const wallpaperId = useMemo(() => {
     const raw = searchParams.get("id")?.trim()
     return raw && raw.length > 0 ? raw : null
   }, [searchParams])
+  const wallpaperName = useMemo(
+    () => searchParams.get("name")?.trim() || "this wallpaper",
+    [searchParams]
+  )
+
+  const fireDeepLink = useCallback(() => {
+    if (!wallpaperId) return
+    settledRef.current = false
+
+    const deepLink = macwallWallpaperDeepLink(wallpaperId)
+
+    const settle = () => {
+      if (settledRef.current) return
+      settledRef.current = true
+      if (timerRef.current != null) {
+        window.clearTimeout(timerRef.current)
+        timerRef.current = null
+      }
+      document.removeEventListener("visibilitychange", onVisibilityChange)
+      window.removeEventListener("blur", onWindowBlur)
+    }
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        // MacWall took focus — leave the timer dead, stay on this page.
+        settle()
+      }
+    }
+    const onWindowBlur = () => settle()
+
+    document.addEventListener("visibilitychange", onVisibilityChange)
+    window.addEventListener("blur", onWindowBlur)
+
+    // Hidden iframe handoff (not location.replace): if no app handles the
+    // scheme, the page stays intact and shows the install card instead of
+    // landing on a dead macwall:// URL. Still never auto-downloads.
+    const frame = document.createElement("iframe")
+    frame.setAttribute("aria-hidden", "true")
+    frame.setAttribute("tabindex", "-1")
+    frame.style.cssText =
+      "position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none;"
+    frame.src = deepLink
+    document.body.appendChild(frame)
+    window.setTimeout(() => frame.remove(), 5000)
+
+    timerRef.current = window.setTimeout(() => {
+      document.removeEventListener("visibilitychange", onVisibilityChange)
+      window.removeEventListener("blur", onWindowBlur)
+      if (!settledRef.current && document.visibilityState === "visible") {
+        settledRef.current = true
+        setState("needs-install")
+      }
+    }, APP_OPEN_WAIT_MS)
+  }, [wallpaperId])
+
+  const handleRetry = useCallback(() => {
+    setState("opening")
+    // Let the state commit before firing so the spinner shows.
+    window.setTimeout(() => fireDeepLink(), 0)
+  }, [fireDeepLink])
 
   useEffect(() => {
     if (!wallpaperId) {
       router.replace("/wallpapers")
       return
     }
-
-    const deepLink = macwallWallpaperDeepLink(wallpaperId)
-
-    const onVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        clearTimeout(fallbackTimer)
-        document.removeEventListener("visibilitychange", onVisibilityChange)
-      }
-    }
-
-    const fallbackTimer = setTimeout(() => {
-      document.removeEventListener("visibilitychange", onVisibilityChange)
-      if (document.visibilityState === "visible") {
-        window.location.href = macwallInstallerLatestPath
-      }
-    }, INSTALL_FALLBACK_MS)
-
-    document.addEventListener("visibilitychange", onVisibilityChange)
-    window.location.replace(deepLink)
-
+    fireDeepLink()
     return () => {
-      clearTimeout(fallbackTimer)
-      document.removeEventListener("visibilitychange", onVisibilityChange)
+      if (timerRef.current != null) window.clearTimeout(timerRef.current)
     }
-  }, [router, wallpaperId])
+  }, [router, wallpaperId, fireDeepLink])
 
-  return null
+  if (!wallpaperId) return null
+
+  return (
+    <div className="mx-auto flex min-h-[60vh] w-full max-w-md flex-col items-center justify-center px-6 py-16 text-center">
+      {state === "opening" ? (
+        <>
+          <span
+            role="status"
+            aria-label="Opening MacWall"
+            className="size-[18px] animate-spin rounded-full border-2 border-white/20 border-t-white/90"
+          />
+          <h1 className="mt-5 text-xl font-semibold tracking-tight text-white">
+            Opening {wallpaperName} in MacWall…
+          </h1>
+          <p className="mt-2 text-sm leading-relaxed text-white/60">
+            If the app doesn&rsquo;t open in a moment, install it below —
+            nothing downloads on its own.
+          </p>
+          <a
+            href={macwallInstallerLatestPath}
+            className="mt-6 inline-flex h-10 items-center rounded-full bg-white px-5 text-sm font-medium text-black transition-opacity hover:opacity-90"
+          >
+            Download MacWall
+          </a>
+        </>
+      ) : (
+        <>
+          <h1 className="text-xl font-semibold tracking-tight text-white">
+            Get MacWall to set {wallpaperName}
+          </h1>
+          <p className="mt-2 text-sm leading-relaxed text-white/60">
+            The app isn&rsquo;t installed on this Mac yet. Download it, then
+            come back and open this wallpaper.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a
+              href={macwallInstallerLatestPath}
+              className="inline-flex h-10 items-center rounded-full bg-white px-5 text-sm font-medium text-black transition-opacity hover:opacity-90"
+            >
+              Download MacWall
+            </a>
+            <button
+              type="button"
+              onClick={handleRetry}
+              className="inline-flex h-10 items-center rounded-full border border-white/15 px-5 text-sm text-white/80 transition hover:text-white"
+            >
+              Try again
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
 
 export default function MarketingOpenWallpaper() {
