@@ -61,6 +61,7 @@ export function TrackedPricingButton({
   ariaLabel,
   external,
   onClick,
+  warmOnView,
 }: Readonly<{
   href: string
   children: ReactNode
@@ -70,6 +71,8 @@ export function TrackedPricingButton({
   external?: boolean
   ariaLabel?: string
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
+  /** See `TrackedLink` — pre-create the Stripe session on touch devices. */
+  warmOnView?: boolean
 }>) {
   const isExternal =
     external ??
@@ -86,6 +89,7 @@ export function TrackedPricingButton({
       external={isExternal}
       ariaLabel={ariaLabel}
       onClick={onClick}
+      warmOnView={warmOnView}
     >
       {children}
     </TrackedLink>
