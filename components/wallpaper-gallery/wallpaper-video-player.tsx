@@ -459,6 +459,8 @@ function WallpaperVideoPlayerInner({
           src={poster}
           alt=""
           aria-hidden
+          fetchPriority="high"
+          decoding="async"
           className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover [-webkit-user-drag:none]"
           draggable={false}
         />
