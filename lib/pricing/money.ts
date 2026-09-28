@@ -15,22 +15,26 @@ export type LocalizedMoney = {
   isLocalized: boolean
 }
 
+/** Whole amounts drop the decimals (₹499, not ₹499.00); others keep 2. */
+export function moneyFractionDigits(major: number, currency: string): number {
+  return isZeroDecimalCurrency(currency) || Number.isInteger(major) ? 0 : 2
+}
+
 export function formatMoney(
   major: number,
   currency: string,
   locale: string
 ): string {
+  const digits = moneyFractionDigits(major, currency)
   try {
     return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: currency.toUpperCase(),
-      minimumFractionDigits: isZeroDecimalCurrency(currency) ? 0 : 2,
-      maximumFractionDigits: isZeroDecimalCurrency(currency) ? 0 : 2,
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
     }).format(major)
   } catch {
-    return `${currency.toUpperCase()} ${major.toFixed(
-      isZeroDecimalCurrency(currency) ? 0 : 2
-    )}`
+    return `${currency.toUpperCase()} ${major.toFixed(digits)}`
   }
 }
 

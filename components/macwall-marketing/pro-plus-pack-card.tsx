@@ -131,7 +131,7 @@ function MacPackPillPicker({
   )
 }
 
-/** Pro+ card with 5 / 10 / 15 / 20 Mac pack switcher. */
+/** Pro+ card with 5 / 10 Mac pack switcher. */
 export function ProPlusPackCard({
   offers,
   title,
@@ -170,7 +170,6 @@ export function ProPlusPackCard({
       price={selected.price}
       priceMajor={selected.priceMajor}
       currency={selected.currency}
-      strikePrice={selected.strikePrice}
       localPriceHint={selected.localPriceHint}
       priceSuffix="one-time"
       features={featureLinesForMacs(features, selected.macs)}

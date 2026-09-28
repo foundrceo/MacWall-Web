@@ -4,8 +4,6 @@ import { connection } from "next/server"
 import { COUNTRY_COOKIE, isIndiaCountry } from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 import {
-  PRO_INDIA_USD_CENTS,
-  PRO_PLUS_INDIA_USD_CENTS,
   PRO_PLUS_USD_CENTS,
   PRO_USD_CENTS,
   buildDefaultMarketingPricing,
@@ -36,8 +34,8 @@ function toLocalMoney(
 }
 
 /**
- * Catalog prices stay USD. India → $3.99 Pro / $6.99 Pro+ (separate Prices).
- * Everyone else → $9.99 / $12.99. No coupon.
+ * India → fixed INR catalog (₹499 Pro / ₹799 Pro+), charged in INR.
+ * Everyone else → USD $12.99 / $19.99 with a local-currency estimate.
  */
 export async function resolveMarketingPricing(): Promise<MarketingPricing> {
   await connection()
@@ -50,12 +48,12 @@ export async function resolveMarketingPricing(): Promise<MarketingPricing> {
       cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
     })
 
-    const india = isIndiaCountry(country)
-    const permanentCents = india ? PRO_INDIA_USD_CENTS : PRO_USD_CENTS
-    const proPlusCents = india ? PRO_PLUS_INDIA_USD_CENTS : PRO_PLUS_USD_CENTS
-
-    // US (and unknown→USD) — no local hint.
-    if (!country || country.toUpperCase() === "US") {
+    // US (and unknown→USD) — no local hint. India — fixed INR catalog.
+    if (
+      !country ||
+      country.toUpperCase() === "US" ||
+      isIndiaCountry(country)
+    ) {
       return buildMarketingPricingFromLocalized({
         country: country ?? "US",
         permanentLocal: null,
@@ -75,13 +73,13 @@ export async function resolveMarketingPricing(): Promise<MarketingPricing> {
     return buildMarketingPricingFromLocalized({
       country,
       permanentLocal: toLocalMoney(
-        permanentCents,
+        PRO_USD_CENTS,
         fx.currency,
         fx.locale,
         fx.usdPerUnit
       ),
       proPlusLocal: toLocalMoney(
-        proPlusCents,
+        PRO_PLUS_USD_CENTS,
         fx.currency,
         fx.locale,
         fx.usdPerUnit

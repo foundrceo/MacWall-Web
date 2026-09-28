@@ -6,10 +6,11 @@ import { isIndiaCountry } from "@/lib/geo/country"
 import { generateMacWallLicenseKey } from "@/lib/license/generate-license-key"
 import {
   isIndiaDiscountEligible,
+  licenseOfferChargeAmount,
   licenseOfferFromSlug,
   licenseOfferPriceCents,
 } from "@/lib/license/offers.shared"
-import { stripePriceIdForOffer } from "@/lib/license/stripe-price-map"
+import { checkoutPricesForOffer } from "@/lib/license/stripe-price-map"
 import {
   normalizeCheckoutVisitorId,
   resolveCheckoutCustomerEmail,
@@ -48,16 +49,27 @@ export type CreateMacWallCheckoutInput = {
   customerEmail?: string | null
   /** Mac app / trial visitor id — used to look up macwall_trial_leads.email. */
   visitorId?: string | null
+  /**
+   * "click" when the buyer asked for Checkout (link, button, email, app).
+   * "prefetch" when the session was warmed on hover; the page reports the
+   * real click later via /api/checkout/opened. Only opened sessions can
+   * trigger recovery email.
+   */
+  intent?: "click" | "prefetch"
 }
 
 export type CreateMacWallCheckoutResult = CreateCheckoutResult
+
+const CHECKOUT_SESSION_TTL_SECONDS = 60 * 60
 
 /**
  * One-time Stripe Checkout Session for paid MacWall licenses.
  *
  * Omits `payment_method_types` so Dynamic Payment Methods apply.
  * Enables Adaptive Pricing so buyers pay in local currency.
- * India → $3.99 / $6.99 Prices. Everyone else → $9.99 / $12.99.
+ * Pro $12.99 / Pro+ $19.99 (India ₹499 / ₹799 in INR), each with a one-click
+ * “more Macs” cross-sell (`optional_items`). The webhook counts Macs from
+ * the paid line items, so an added add-on raises the license.
  */
 export async function createMacWallCheckoutSession(
   input: CreateMacWallCheckoutInput
@@ -71,8 +83,13 @@ export async function createMacWallCheckoutSession(
         ? "india"
         : "default"
     const displayUnitAmount = licenseOfferPriceCents(offer, region)
+    const charge = licenseOfferChargeAmount(offer, region)
     const planSlug = offer.maxDevices >= 5 ? "pro_plus" : "pro"
-    const stripePriceId = stripePriceIdForOffer(offer.slug, region)
+    const checkoutPrices = await checkoutPricesForOffer(
+      stripe,
+      offer.slug,
+      region
+    )
 
     const licenseKey = generateMacWallLicenseKey()
     const encodedKey = encodeURIComponent(licenseKey)
@@ -95,14 +112,21 @@ export async function createMacWallCheckoutSession(
       offer_slug: offer.slug,
       billing_model: offer.billingModel,
       plan_slug: planSlug,
+      // Base license only — the webhook adds any cross-sell Macs it finds
+      // in the paid line items.
       max_devices: String(offer.maxDevices),
       pricing_region: region,
+      // Base license in the charged currency, plus its USD equivalent so
+      // USD reporting can convert INR sessions (ratio covers add-ons/promos).
+      unit_amount: String(charge.amount),
+      currency: charge.currency,
       unit_amount_usd: String(displayUnitAmount),
       visitor_country: input.country?.trim().toUpperCase() || "",
       ...(promoCode ? { promo_code: promoCode } : {}),
       ...(promotionCodeId ? { stripe_promotion_code_id: promotionCodeId } : {}),
       ...(customerEmail ? { customer_email: customerEmail } : {}),
       ...(visitorId ? { visitor_id: visitorId } : {}),
+      checkout_intent: input.intent ?? "click",
     }
 
     // Critical path: Stripe only. Localhost measured ~1.1–1.2s for this hop.
@@ -114,7 +138,20 @@ export async function createMacWallCheckoutSession(
     const session = await stripe.checkout.sessions.create(
       {
         mode: "payment",
-        line_items: [{ price: stripePriceId, quantity: 1 }],
+        // Expire after 1 hour so abandonment (and recovery) is known quickly.
+        expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_SESSION_TTL_SECONDS,
+        line_items: checkoutPrices.lineItems.map((price) => ({
+          price,
+          quantity: 1,
+        })),
+        ...(checkoutPrices.optionalItems.length > 0
+          ? {
+              optional_items: checkoutPrices.optionalItems.map((price) => ({
+                price,
+                quantity: 1,
+              })),
+            }
+          : {}),
         success_url: `${siteOrigin}/activate?key=${encodedKey}&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${siteOrigin}/pricing`,
         client_reference_id: licenseKey,

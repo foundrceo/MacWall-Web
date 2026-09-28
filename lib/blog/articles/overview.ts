@@ -110,7 +110,7 @@ export const overviewArticles: BlogArticle[] = [
         items: [
           `**Free download**: try the app, browse, set wallpapers within free tier limits`,
           `**Pro ${proPrice} one-time**: full catalog, Lock Screen (${macwallLockScreenMacOSVersion}+), playlists, lifetime updates, ${maxMacs} Macs per license`,
-          "**Pro Plus**: bundle licenses for 5, 10, 15, or 20 Macs (teams, studios)",
+          "**Pro+**: the same features on 5 or 10 Macs (families, teams, studios)",
           "**No subscription, no ads**: ever",
           "**Creator refund**: post a video with #macwall; 2,000 views = 50% back, 20,000 = full refund ([details](/creator))",
           "**Affiliate program**: earn 40% referring customers ([details](/affiliate))",

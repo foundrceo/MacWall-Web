@@ -63,8 +63,9 @@ export type StripeLivePayload = {
 }
 
 /**
- * Checkout Session amount_total is what the customer paid.
- * Adaptive Pricing may present INR, but Stripe still stores these totals in USD.
+ * Checkout Session amount_total is what the customer paid. USD catalog
+ * sessions (incl. Adaptive Pricing presentment) store totals in USD; India's
+ * INR catalog sessions are converted with the checkout metadata ratio.
  */
 function sessionAmountUsd(session: Stripe.Checkout.Session): number | null {
   const conversion = session.currency_conversion
@@ -86,6 +87,20 @@ function sessionAmountUsd(session: Stripe.Checkout.Session): number | null {
   const fxRate = Number(conversion?.fx_rate)
   if (Number.isFinite(fxRate) && fxRate > 0) {
     return round2(session.amount_total / fxRate / 100)
+  }
+
+  // INR catalog (India): checkout stores the base license amount in both the
+  // charged currency and USD, so the ratio converts the paid total.
+  const unitAmount = Number(metadataString(session.metadata, "unit_amount"))
+  const unitAmountUsd = Number(
+    metadataString(session.metadata, "unit_amount_usd")
+  )
+  if (
+    metadataString(session.metadata, "currency") === session.currency &&
+    unitAmount > 0 &&
+    unitAmountUsd > 0
+  ) {
+    return round2((session.amount_total * unitAmountUsd) / unitAmount / 100)
   }
 
   return null

@@ -17,10 +17,16 @@ export type LicenseOffer = {
   billingModel: LicenseBillingModel
   maxDevices: number
   usdCents: number
-  /** India catalog Price amount (separate Stripe Prices, no coupon). */
+  /** India price in paise — India is charged in INR (₹…99 prices). */
+  indiaInrPaise: number
+  /** USD equivalent of the India price, for USD-based reporting. */
   indiaUsdCents: number
-  /** Marketing strike / “was” price (USD cents). */
-  strikeUsdCents: number
+}
+
+/** Catalog currency per region. */
+export const REGION_CURRENCY: Record<PricingRegion, "usd" | "inr"> = {
+  default: "usd",
+  india: "inr",
 }
 
 /** Percent off vs catalog USD (rounded). */
@@ -32,15 +38,25 @@ export function indiaDiscountPercentOff(
   return Math.round((1 - indiaUsdCents / usdCents) * 100)
 }
 
+/**
+ * 2026-10 catalog. Every pack is Pro — packs only differ by Mac count.
+ *
+ *   Global (USD): Pro 3 Macs $12.99 · Pro+ 5 Macs $19.99 · 10 Macs $34.99
+ *   India  (INR): Pro 3 Macs   ₹499 · Pro+ 5 Macs   ₹799 · 10 Macs ₹1,298
+ *
+ * The 10-Mac pack is Pro+ plus the “Add 5 more Macs” add-on (India add-ons
+ * end in 99 too: +2 Macs ₹299, +5 Macs ₹499). 15/20-Mac packs are retired;
+ * old links normalize to 10 Macs.
+ */
 export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
   permanent: {
     slug: "permanent",
-    name: "Permanent license",
+    name: "Pro",
     billingModel: "permanent",
     maxDevices: 3,
-    usdCents: 999, // $9.99 global
-    indiaUsdCents: 399, // $3.99 India
-    strikeUsdCents: 1499,
+    usdCents: 1299,
+    indiaInrPaise: 49900,
+    indiaUsdCents: 499,
   },
   annual: {
     slug: "annual",
@@ -48,54 +64,70 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "annual",
     maxDevices: 3,
     usdCents: 499,
+    indiaInrPaise: 19900,
     indiaUsdCents: 199,
-    strikeUsdCents: 499,
   },
   permanent_5: {
     slug: "permanent_5",
-    name: "5-Mac permanent license",
+    name: "Pro+ (5 Macs)",
     billingModel: "permanent",
     maxDevices: 5,
-    usdCents: 1299, // $12.99
-    indiaUsdCents: 699, // $6.99
-    strikeUsdCents: 2499,
+    usdCents: 1999,
+    indiaInrPaise: 79900,
+    indiaUsdCents: 799,
   },
-  /** Volume packs — discount steps up ~+2pts vs 5-Mac after each tier. */
   permanent_10: {
     slug: "permanent_10",
-    name: "10-Mac permanent license",
+    name: "Pro+ (10 Macs)",
     billingModel: "permanent",
     maxDevices: 10,
-    usdCents: 2499, // $24.99 (~50% off)
-    indiaUsdCents: 1299, // $12.99
-    strikeUsdCents: 4999,
+    usdCents: 3499,
+    indiaInrPaise: 129800,
+    indiaUsdCents: 1298,
   },
+  // Retired — kept so old checkout links and analytics still resolve.
   permanent_15: {
     slug: "permanent_15",
-    name: "15-Mac permanent license",
+    name: "15-Mac license (retired)",
     billingModel: "permanent",
     maxDevices: 15,
-    usdCents: 3399, // $33.99 (~55% off)
-    indiaUsdCents: 1799, // $17.99
-    strikeUsdCents: 7499,
+    usdCents: 3499,
+    indiaInrPaise: 129800,
+    indiaUsdCents: 1298,
   },
   permanent_20: {
     slug: "permanent_20",
-    name: "20-Mac permanent license",
+    name: "20-Mac license (retired)",
     billingModel: "permanent",
     maxDevices: 20,
-    usdCents: 3999, // $39.99 (~60% off)
-    indiaUsdCents: 2199, // $21.99
-    strikeUsdCents: 9999,
+    usdCents: 3499,
+    indiaInrPaise: 129800,
+    indiaUsdCents: 1298,
   },
 }
 
 export const DEFAULT_LICENSE_OFFER_SLUG: LicenseOfferSlug = "permanent"
+
+/** Checkout cross-sell add-ons (minor units of each region's currency). */
+export const CHECKOUT_ADDONS = {
+  /** Pro → Pro+ (+2 Macs). */
+  upgradeProPlus: { usd: 700, inrPaise: 29900 },
+  /** Pro+ → 10 Macs (+5 Macs). */
+  addon5Macs: { usd: 1500, inrPaise: 49900 },
+} as const
+
+export function checkoutAddonAmount(
+  addon: keyof typeof CHECKOUT_ADDONS,
+  region: PricingRegion
+): number {
+  const amounts = CHECKOUT_ADDONS[addon]
+  return region === "india" ? amounts.inrPaise : amounts.usd
+}
+
+/** Multi-Mac packs on sale (Pro+). */
 export const MULTI_MAC_OFFER_SLUGS = [
   "permanent_5",
   "permanent_10",
-  "permanent_15",
-  "permanent_20",
 ] as const satisfies readonly LicenseOfferSlug[]
 
 export const INDIA_DISCOUNT_ELIGIBLE_OFFER_SLUGS = [
@@ -131,6 +163,8 @@ export function normalizeLicenseOfferSlug(
 ): LicenseOfferSlug {
   // Annual is retired — old ?offer=annual links become permanent one-time.
   if (value === "annual") return "permanent"
+  // 15/20-Mac packs are retired — the largest pack is 10 Macs.
+  if (value === "permanent_15" || value === "permanent_20") return "permanent_10"
 
   if (isLicenseOfferSlug(value)) return value
 
@@ -145,11 +179,22 @@ export function licenseOfferFromSlug(
   return LICENSE_OFFERS[normalizeLicenseOfferSlug(slug)]
 }
 
+/** USD cents (India: USD equivalent) — for reporting, not for charging. */
 export function licenseOfferPriceCents(
   offer: LicenseOffer,
   region: PricingRegion
 ): number {
   return region === "india" ? offer.indiaUsdCents : offer.usdCents
+}
+
+/** What the buyer is charged: minor units in the region's currency. */
+export function licenseOfferChargeAmount(
+  offer: LicenseOffer,
+  region: PricingRegion
+): { amount: number; currency: "usd" | "inr" } {
+  return region === "india"
+    ? { amount: offer.indiaInrPaise, currency: "inr" }
+    : { amount: offer.usdCents, currency: "usd" }
 }
 
 export function formatUsd(cents: number): string {

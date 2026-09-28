@@ -3,28 +3,8 @@
 import NumberFlow from "@number-flow/react"
 import type { ReactNode } from "react"
 
+import { moneyFractionDigits } from "@/lib/pricing/money"
 import { cn } from "@/lib/utils"
-
-function isZeroDecimalCurrency(currency: string): boolean {
-  return [
-    "bif",
-    "clp",
-    "djf",
-    "gnf",
-    "jpy",
-    "kmf",
-    "krw",
-    "mga",
-    "pyg",
-    "rwf",
-    "ugx",
-    "vnd",
-    "vuv",
-    "xaf",
-    "xof",
-    "xpf",
-  ].includes(currency.toLowerCase())
-}
 
 export function PricingPriceDisplay({
   price,
@@ -39,7 +19,7 @@ export function PricingPriceDisplay({
 }>) {
   if (typeof priceMajor === "number" && Number.isFinite(priceMajor)) {
     const code = currency.toUpperCase()
-    const zeroDecimal = isZeroDecimalCurrency(currency)
+    const digits = moneyFractionDigits(priceMajor, currency)
 
     return (
       <NumberFlow
@@ -51,8 +31,8 @@ export function PricingPriceDisplay({
         format={{
           style: "currency",
           currency: code,
-          minimumFractionDigits: zeroDecimal || priceMajor === 0 ? 0 : 2,
-          maximumFractionDigits: zeroDecimal || priceMajor === 0 ? 0 : 2,
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits,
         }}
       />
     )

@@ -24,7 +24,7 @@ export default async function TrialUnsubscribePage({
       : "Invalid unsubscribe link"
 
   const body = result.ok
-    ? "You will not get more MacWall trial emails at this address."
+    ? "You will not get more MacWall offers or reminders at this address. Receipts and license emails still arrive."
     : result.error === "update_failed"
       ? "Try the link again, or email support@macwall.app."
       : "That link is missing or expired. If mail keeps arriving, write to support@macwall.app."
