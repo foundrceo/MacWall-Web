@@ -17,16 +17,8 @@ export type LicenseOffer = {
   billingModel: LicenseBillingModel
   maxDevices: number
   usdCents: number
-  /** India price in paise — India is charged in INR (₹…99 prices). */
-  indiaInrPaise: number
-  /** USD equivalent of the India price, for USD-based reporting. */
+  /** India price in USD cents. Charged in USD; the site shows live INR. */
   indiaUsdCents: number
-}
-
-/** Catalog currency per region. */
-export const REGION_CURRENCY: Record<PricingRegion, "usd" | "inr"> = {
-  default: "usd",
-  india: "inr",
 }
 
 /** Percent off vs catalog USD (rounded). */
@@ -42,11 +34,11 @@ export function indiaDiscountPercentOff(
  * 2026-10 catalog. Every pack is Pro — packs only differ by Mac count.
  *
  *   Global (USD): Pro 3 Macs $12.99 · Pro+ 5 Macs $19.99 · 10 Macs $34.99
- *   India  (INR): Pro 3 Macs   ₹499 · Pro+ 5 Macs   ₹799 · 10 Macs ₹1,298
+ *   India  (USD): Pro 3 Macs  $4.99 · Pro+ 5 Macs  $7.99 · 10 Macs $12.99
  *
- * The 10-Mac pack is Pro+ plus the “Add 5 more Macs” add-on (India add-ons
- * end in 99 too: +2 Macs ₹299, +5 Macs ₹499). 15/20-Mac packs are retired;
- * old links normalize to 10 Macs.
+ * Everything is charged in USD. India visitors see prices converted to INR
+ * at the live rate on the site. The 10-Mac pack is Pro+ plus the “Add 5 more
+ * Macs” add-on. 15/20-Mac packs are retired; old links normalize to 10 Macs.
  */
 export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
   permanent: {
@@ -55,7 +47,6 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 3,
     usdCents: 1299,
-    indiaInrPaise: 49900,
     indiaUsdCents: 499,
   },
   annual: {
@@ -64,7 +55,6 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "annual",
     maxDevices: 3,
     usdCents: 499,
-    indiaInrPaise: 19900,
     indiaUsdCents: 199,
   },
   permanent_5: {
@@ -73,7 +63,6 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 5,
     usdCents: 1999,
-    indiaInrPaise: 79900,
     indiaUsdCents: 799,
   },
   permanent_10: {
@@ -82,8 +71,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 10,
     usdCents: 3499,
-    indiaInrPaise: 129800,
-    indiaUsdCents: 1298,
+    indiaUsdCents: 1299,
   },
   // Retired — kept so old checkout links and analytics still resolve.
   permanent_15: {
@@ -92,8 +80,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 15,
     usdCents: 3499,
-    indiaInrPaise: 129800,
-    indiaUsdCents: 1298,
+    indiaUsdCents: 1299,
   },
   permanent_20: {
     slug: "permanent_20",
@@ -101,19 +88,18 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     billingModel: "permanent",
     maxDevices: 20,
     usdCents: 3499,
-    indiaInrPaise: 129800,
-    indiaUsdCents: 1298,
+    indiaUsdCents: 1299,
   },
 }
 
 export const DEFAULT_LICENSE_OFFER_SLUG: LicenseOfferSlug = "permanent"
 
-/** Checkout cross-sell add-ons (minor units of each region's currency). */
+/** Checkout cross-sell add-ons in USD cents, per region. */
 export const CHECKOUT_ADDONS = {
   /** Pro → Pro+ (+2 Macs). */
-  upgradeProPlus: { usd: 700, inrPaise: 29900 },
+  upgradeProPlus: { usd: 700, indiaUsd: 300 },
   /** Pro+ → 10 Macs (+5 Macs). */
-  addon5Macs: { usd: 1500, inrPaise: 49900 },
+  addon5Macs: { usd: 1500, indiaUsd: 500 },
 } as const
 
 export function checkoutAddonAmount(
@@ -121,7 +107,7 @@ export function checkoutAddonAmount(
   region: PricingRegion
 ): number {
   const amounts = CHECKOUT_ADDONS[addon]
-  return region === "india" ? amounts.inrPaise : amounts.usd
+  return region === "india" ? amounts.indiaUsd : amounts.usd
 }
 
 /** Multi-Mac packs on sale (Pro+). */
@@ -179,22 +165,12 @@ export function licenseOfferFromSlug(
   return LICENSE_OFFERS[normalizeLicenseOfferSlug(slug)]
 }
 
-/** USD cents (India: USD equivalent) — for reporting, not for charging. */
+/** What the buyer is charged, in USD cents. */
 export function licenseOfferPriceCents(
   offer: LicenseOffer,
   region: PricingRegion
 ): number {
   return region === "india" ? offer.indiaUsdCents : offer.usdCents
-}
-
-/** What the buyer is charged: minor units in the region's currency. */
-export function licenseOfferChargeAmount(
-  offer: LicenseOffer,
-  region: PricingRegion
-): { amount: number; currency: "usd" | "inr" } {
-  return region === "india"
-    ? { amount: offer.indiaInrPaise, currency: "inr" }
-    : { amount: offer.usdCents, currency: "usd" }
 }
 
 export function formatUsd(cents: number): string {

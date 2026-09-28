@@ -92,11 +92,12 @@ async function startCheckout(
   const cookieStore = await cookies()
   const affonsoReferral =
     cookieStore.get(AFFONSO_REFERRAL_COOKIE)?.value?.trim().slice(0, 255) || ""
-  // Fast path: Vercel/edge headers + cookie only — never wait on IP whois.
+  // Vercel/edge headers, cookie, then language first; the IP lookup only
+  // runs when all of those are missing, so an unknown country never falls
+  // back to the global price for an India visitor.
   const country = await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
-    skipIpLookup: true,
   })
 
   const email =

@@ -42,7 +42,7 @@ async function sha256Hex(value: string): Promise<string> {
 async function sendTikTokPurchase(args: {
   email: string
   eventIdSeed: string
-  /** Major units in `currency` (e.g. 499 for ₹499, 12.99 for $12.99). */
+  /** Major units in `currency` (e.g. 441.5 for ₹441.50, 12.99 for $12.99). */
   amount?: number | null
   currency?: string | null
 }): Promise<void> {
@@ -58,7 +58,7 @@ async function sendTikTokPurchase(args: {
   const hasAmount =
     typeof args.amount === "number" && Number.isFinite(args.amount)
   const value = hasAmount ? (args.amount as number) : envFallback
-  // India is charged in INR, so report the real currency with the real amount.
+  // Report what the buyer paid, in the currency they paid (Adaptive Pricing).
   const currency =
     (hasAmount && args.currency?.trim().toUpperCase()) ||
     Deno.env.get("TIKTOK_PURCHASE_CURRENCY")?.trim() ||
@@ -770,7 +770,9 @@ async function purchasedDeviceCount(
  * CHECKOUT_ADDONS in lib/license/offers.shared.ts.
  */
 const ADDON_DEVICES_BY_AMOUNT: Record<string, Record<number, number>> = {
-  usd: { 700: 2, 1500: 5 },
+  // Global $7 / $15, India $3 / $5.
+  usd: { 700: 2, 1500: 5, 300: 2, 500: 5 },
+  // Archived INR India Prices (Sep 2026 sessions only).
   inr: { 29900: 2, 49900: 5 },
 }
 
@@ -783,12 +785,17 @@ function inferDeviceCountFromAmounts(
   session: Stripe.Checkout.Session,
   base: number
 ): number {
-  const currency = (session.currency ?? "").toLowerCase()
+  // Adaptive Pricing: compare in the USD Price currency, not the local one.
+  const conversion = session.currency_conversion
+  const converted =
+    conversion?.source_currency === "usd" &&
+    typeof conversion.amount_subtotal === "number"
+  const currency = converted ? "usd" : (session.currency ?? "").toLowerCase()
   const unit = Number(
     session.metadata?.unit_amount ??
       (currency === "usd" ? session.metadata?.unit_amount_usd : undefined)
   )
-  const subtotal = session.amount_subtotal
+  const subtotal = converted ? conversion.amount_subtotal : session.amount_subtotal
   if (!Number.isFinite(unit) || unit <= 0 || typeof subtotal !== "number") {
     return base
   }
