@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/trial-ended",
       "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/prune-checkouts",
+      "schedule": "7,22,37,52 * * * *"
     }
   ]
 }

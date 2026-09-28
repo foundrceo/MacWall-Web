@@ -9,6 +9,10 @@ import {
   clientIpFromRequest,
   createInMemoryRateLimiter,
 } from "@/lib/http/rate-limit"
+import {
+  isAutomationUserAgent,
+  isLikelyBotUserAgent,
+} from "@/lib/http/bot-user-agent"
 import { AFFONSO_REFERRAL_COOKIE } from "@/lib/macwall-affiliate"
 import {
   CHECKOUT_LEAD_EMAIL_COOKIE,
@@ -123,8 +127,32 @@ async function startCheckout(
   })
 }
 
+/**
+ * Crawlers, link checkers and browser prefetches follow buy links too. Each
+ * would mint a Stripe session and a pending license row, so send them to
+ * /pricing instead.
+ */
+function isNonHumanCheckoutRequest(request: Request): boolean {
+  const purpose =
+    request.headers.get("sec-purpose") || request.headers.get("purpose") || ""
+  if (/prefetch|prerender/i.test(purpose)) return true
+  return isLikelyBotUserAgent(request.headers.get("user-agent"))
+}
+
+function pricingRedirect(request: Request) {
+  const origin = resolveCheckoutSiteOrigin(request.url)
+  return NextResponse.redirect(new URL("/pricing", origin), 303)
+}
+
+/** Link checkers send HEAD; answer without creating a session. */
+export function HEAD(request: Request) {
+  return pricingRedirect(request)
+}
+
 /** Instant redirect to Stripe Checkout — paid one-time licenses only. */
 export async function GET(request: Request) {
+  if (isNonHumanCheckoutRequest(request)) return pricingRedirect(request)
+
   const url = new URL(request.url)
   const offerSlug = url.searchParams.get("offer")
   const planSlug = url.searchParams.get("plan")
@@ -154,6 +182,11 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  // Sent by our own page JS, so only refuse unmistakable automation here.
+  if (isAutomationUserAgent(request.headers.get("user-agent"))) {
+    return NextResponse.json({ error: "Checkout unavailable." }, { status: 403 })
+  }
+
   let offerSlug: string | null = null
   let planSlug: string | null = null
   let promoCode: string | null = null
