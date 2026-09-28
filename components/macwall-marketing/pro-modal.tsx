@@ -104,13 +104,8 @@ export function ProModal({
             <span className="text-[26px] font-semibold tracking-tight tabular-nums text-foreground">
               {pricing.permanentPrice}
             </span>
-            {pricing.permanentStrikePrice ? (
-              <span className="text-[14px] tabular-nums text-marketing-muted line-through">
-                {pricing.permanentStrikePrice}
-              </span>
-            ) : null}
             <span className="w-full text-[12px] text-marketing-muted">
-              one payment · no subscription
+              paid once · no subscription · yours forever
             </span>
           </div>
 

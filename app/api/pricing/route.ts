@@ -5,8 +5,6 @@ import { NextResponse } from "next/server"
 import { COUNTRY_COOKIE, isIndiaCountry } from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 import {
-  PRO_INDIA_USD_CENTS,
-  PRO_PLUS_INDIA_USD_CENTS,
   PRO_PLUS_USD_CENTS,
   PRO_USD_CENTS,
   buildDefaultMarketingPricing,
@@ -48,11 +46,8 @@ async function resolvePricingForCountry(
   country: string | null
 ): Promise<MarketingPricing> {
   try {
-    const india = isIndiaCountry(country)
-    const permanentCents = india ? PRO_INDIA_USD_CENTS : PRO_USD_CENTS
-    const proPlusCents = india ? PRO_PLUS_INDIA_USD_CENTS : PRO_PLUS_USD_CENTS
-
-    if (!country || country === "US") {
+    // India always sees fixed INR catalog prices (₹499 / ₹799) — no FX.
+    if (!country || country === "US" || isIndiaCountry(country)) {
       return buildMarketingPricingFromLocalized({
         country: country ?? "US",
         permanentLocal: null,
@@ -72,13 +67,13 @@ async function resolvePricingForCountry(
     return buildMarketingPricingFromLocalized({
       country,
       permanentLocal: toLocalMoney(
-        permanentCents,
+        PRO_USD_CENTS,
         fx.currency,
         fx.locale,
         fx.usdPerUnit
       ),
       proPlusLocal: toLocalMoney(
-        proPlusCents,
+        PRO_PLUS_USD_CENTS,
         fx.currency,
         fx.locale,
         fx.usdPerUnit
@@ -97,7 +92,7 @@ async function resolvePricingForCountry(
 const cachedPricingForCountry = unstable_cache(
   async (countryKey: string) =>
     resolvePricingForCountry(countryKey === "_" ? null : countryKey),
-  ["marketing-pricing-by-country-v7"],
+  ["marketing-pricing-by-country-v9"],
   { revalidate: 300 }
 )
 

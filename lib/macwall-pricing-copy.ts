@@ -25,7 +25,6 @@ export const macwallPricingCopy = {
       title: "Pro",
       subtitle: "For everyday use on up to 3 Macs",
       badge: "Most Popular",
-      badgeAlt: "47% off",
       featuresPrefix: "Includes:",
       ctaPermanent: "Get Pro",
     },
@@ -121,16 +120,28 @@ export const macwallPricingCopy = {
 
   faq: [
     {
-      q: "Is Pro a subscription?",
-      a: "No. One payment, then it's yours. Updates stay free and there's no account to create.",
+      q: "What's the difference between Pro and Pro+?",
+      a: "Only the number of Macs. Pro works on up to 3 Macs. Pro+ works on 5 or 10. Every feature is the same on both.",
     },
     {
-      q: "How does payment work?",
-      a: "Checkout runs on Stripe. Your license key is emailed the moment payment clears. Keep that email for reinstalls or a new Mac.",
+      q: "Is it really a one-time payment?",
+      a: "Yes. You pay once and keep Pro forever, including every future update. It's not a subscription and nothing renews.",
     },
     {
-      q: "How many Macs can I use one license on?",
-      a: "Pro covers 3 Macs. Pro+ covers 5, 10, 15, or 20 depending on the pack. Swapping machines? Unlink the old one in Settings → Devices and activate the new one.",
+      q: "Where is my license key?",
+      a: `We email it to the address you enter at checkout, usually within seconds. Check Spam or Promotions if you don't see it, or email ${macwall.supportEmail} with your receipt.`,
+    },
+    {
+      q: "What can I do for free?",
+      a: "Every download starts with a free 24-hour trial of everything. After the trial you can keep browsing the catalog. Setting live wallpapers, Lock Screen, and imports need Pro.",
+    },
+    {
+      q: "I have 4 or 5 Macs. Which plan do I need?",
+      a: "Pro+ with 5 Macs. If you're buying Pro, you can also add 2 more Macs right on the checkout page, which costs the same as Pro+.",
+    },
+    {
+      q: "How do I move my license to a new Mac?",
+      a: "Unlink the old Mac in Settings → Devices, then activate on the new one with the same key.",
     },
     {
       q: "I'm on my phone. Can I still buy it?",
@@ -143,10 +154,6 @@ export const macwallPricingCopy = {
     {
       q: "Which macOS versions are supported?",
       a: `${macwallMacOSRequirementsHint}. Apple silicon and Intel Macs both work.`,
-    },
-    {
-      q: "Can I try it before I pay?",
-      a: "Yes. Download MacWall free and run a selection of wallpapers on your desktop. Buy Pro when you want the full catalog, imports, and Lock Screen.",
     },
     {
       q: "How do I get my money back for posting a Reel?",

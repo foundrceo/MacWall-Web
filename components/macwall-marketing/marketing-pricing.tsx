@@ -104,14 +104,12 @@ export default function MacWallMarketingPricingPage() {
                 price={pricing.permanentPrice}
                 priceMajor={pricing.permanentPriceMajor}
                 currency={pricing.currency}
-                strikePrice={pricing.permanentStrikePrice}
                 localPriceHint={pricing.permanentLocalHint}
                 priceSuffix="one-time"
                 features={p.pro.features}
                 featuresPrefix={plans.pro.featuresPrefix}
                 featured
                 badge={plans.pro.badge}
-                badgeAlt={pricing.permanentOffLabel}
                 reserveTopCenterSlot
                 action={
                   <PricingPrimaryButton

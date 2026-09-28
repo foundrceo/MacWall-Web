@@ -42,7 +42,9 @@ async function sha256Hex(value: string): Promise<string> {
 async function sendTikTokPurchase(args: {
   email: string
   eventIdSeed: string
-  amountUsd?: number | null
+  /** Major units in `currency` (e.g. 499 for ₹499, 12.99 for $12.99). */
+  amount?: number | null
+  currency?: string | null
 }): Promise<void> {
   const accessToken = Deno.env.get("TIKTOK_EVENTS_API_ACCESS_TOKEN")?.trim()
   const pixelCode =
@@ -50,14 +52,17 @@ async function sendTikTokPurchase(args: {
   if (!accessToken || !pixelCode) return
 
   const parsedValue = Number.parseFloat(
-    Deno.env.get("TIKTOK_PURCHASE_VALUE")?.trim() || "9.99"
+    Deno.env.get("TIKTOK_PURCHASE_VALUE")?.trim() || "12.99"
   )
-  const envFallback = Number.isFinite(parsedValue) ? parsedValue : 9.99
-  const value =
-    typeof args.amountUsd === "number" && Number.isFinite(args.amountUsd)
-      ? args.amountUsd
-      : envFallback
-  const currency = Deno.env.get("TIKTOK_PURCHASE_CURRENCY")?.trim() || "USD"
+  const envFallback = Number.isFinite(parsedValue) ? parsedValue : 12.99
+  const hasAmount =
+    typeof args.amount === "number" && Number.isFinite(args.amount)
+  const value = hasAmount ? (args.amount as number) : envFallback
+  // India is charged in INR, so report the real currency with the real amount.
+  const currency =
+    (hasAmount && args.currency?.trim().toUpperCase()) ||
+    Deno.env.get("TIKTOK_PURCHASE_CURRENCY")?.trim() ||
+    "USD"
   const testCode = Deno.env.get("TIKTOK_EVENTS_API_TEST_EVENT_CODE")?.trim()
   const siteUrl = (
     Deno.env.get("LICENSE_EMAIL_SITE_URL")?.trim() || "https://macwall.app"
@@ -430,12 +435,6 @@ function buildLicenseEmailPlainText(args: {
 }
 
 
-const RECOVERY_DELAY_MINUTES = 5
-
-function recoveryScheduledAt(): string {
-  return new Date(Date.now() + RECOVERY_DELAY_MINUTES * 60 * 1000).toISOString()
-}
-
 function sessionCustomerEmail(session: Stripe.Checkout.Session): string | null {
   const email =
     session.customer_details?.email?.trim() ||
@@ -455,70 +454,98 @@ function licenseKeyFromSession(session: Stripe.Checkout.Session): string {
   )
 }
 
-async function enqueueCheckoutRecovery(args: {
-  supabase: ReturnType<typeof createClient>
+/** One recovery sequence per email address in this window. */
+const RECOVERY_PER_EMAIL_WINDOW_MS = 14 * 24 * 60 * 60 * 1000
+
+async function markCheckoutOpened(
+  supabase: ReturnType<typeof createClient>,
   checkoutSessionId: string
-  licenseKey?: string | null
-  customerEmail?: string | null
-  paymentIntentId?: string | null
-  reason: string
+): Promise<void> {
+  await supabase
+    .from("macwall_checkout_opens")
+    .upsert(
+      { checkout_session_id: checkoutSessionId },
+      { onConflict: "checkout_session_id", ignoreDuplicates: true }
+    )
+}
+
+/**
+ * Queue the first recovery email for an expired, unpaid Checkout Session,
+ * but only when the buyer really opened it (clicked Buy, not a hover
+ * prefetch) and has not had a recovery sequence in the last 14 days.
+ */
+async function enqueueRecoveryForExpiredSession(args: {
+  supabase: ReturnType<typeof createClient>
+  session: Stripe.Checkout.Session
 }): Promise<{ queued: boolean; skipped?: string }> {
-  const { supabase, checkoutSessionId } = args
+  const { supabase, session } = args
 
-  const { data: existing } = await supabase
+  const email = (
+    sessionCustomerEmail(session) ||
+    session.metadata?.customer_email?.trim() ||
+    ""
+  ).toLowerCase()
+  if (!email) return { queued: false, skipped: "no_email" }
+
+  if (session.metadata?.checkout_intent !== "click") {
+    const { data: opened } = await supabase
+      .from("macwall_checkout_opens")
+      .select("checkout_session_id")
+      .eq("checkout_session_id", session.id)
+      .maybeSingle()
+    if (!opened) return { queued: false, skipped: "never_opened" }
+  }
+
+  const since = new Date(Date.now() - RECOVERY_PER_EMAIL_WINDOW_MS).toISOString()
+  const { data: recent } = await supabase
     .from("macwall_checkout_recovery_queue")
-    .select("status")
-    .eq("checkout_session_id", checkoutSessionId)
-    .maybeSingle()
-
-  if (existing?.status === "sent" || existing?.status === "cancelled") {
-    return { queued: false, skipped: existing.status }
+    .select("id")
+    .ilike("customer_email", email)
+    .like("reason", "recovery:%")
+    .gte("created_at", since)
+    .limit(1)
+  if (recent && recent.length > 0) {
+    return { queued: false, skipped: "recent_sequence" }
   }
 
-  const row = {
-    checkout_session_id: checkoutSessionId,
-    license_key: args.licenseKey?.trim() || null,
-    customer_email: args.customerEmail?.trim() || null,
-    payment_intent_id: args.paymentIntentId?.trim() || null,
-    reason: args.reason,
-    scheduled_send_at: recoveryScheduledAt(),
-    status: "pending" as const,
-    sent_at: null,
-    skip_reason: null,
-    updated_at: new Date().toISOString(),
-  }
+  // Checkout intent beats the trial sequence: stop its pending emails.
+  await supabase
+    .from("macwall_trial_ended_queue")
+    .update({
+      status: "cancelled",
+      skip_reason: "checkout_recovery",
+      updated_at: new Date().toISOString(),
+    })
+    .ilike("email", email)
+    .eq("status", "pending")
 
-  if (existing) {
-    const { error } = await supabase
-      .from("macwall_checkout_recovery_queue")
-      .update(row)
-      .eq("checkout_session_id", checkoutSessionId)
-    if (error) {
-      console.error(
-        "[stripe-license-email] recovery_queue_update",
-        error.message
-      )
-      return { queued: false, skipped: "update_failed" }
-    }
-  } else {
-    const { error } = await supabase
-      .from("macwall_checkout_recovery_queue")
-      .insert(row)
-    if (error) {
-      console.error(
-        "[stripe-license-email] recovery_queue_insert",
-        error.message
-      )
-      return { queued: false, skipped: "insert_failed" }
-    }
+  const { error } = await supabase.from("macwall_checkout_recovery_queue").upsert(
+    {
+      checkout_session_id: session.id,
+      license_key: licenseKeyFromSession(session) || null,
+      customer_email: email,
+      payment_intent_id:
+        typeof session.payment_intent === "string"
+          ? session.payment_intent
+          : (session.payment_intent?.id ?? null),
+      reason: "recovery:r1",
+      scheduled_send_at: new Date().toISOString(),
+      status: "pending",
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "checkout_session_id", ignoreDuplicates: true }
+  )
+  if (error) {
+    console.error("[stripe-license-email] recovery_queue_insert", error.message)
+    return { queued: false, skipped: "insert_failed" }
   }
-
   return { queued: true }
 }
 
 async function cancelCheckoutRecovery(
   supabase: ReturnType<typeof createClient>,
-  checkoutSessionId: string
+  checkoutSessionId: string,
+  customerEmail?: string | null
 ): Promise<void> {
   const patch = {
     status: "cancelled",
@@ -535,6 +562,14 @@ async function cancelCheckoutRecovery(
     .update(patch)
     .like("checkout_session_id", `${checkoutSessionId}::%`)
     .eq("status", "pending")
+  const email = customerEmail?.trim().toLowerCase()
+  if (email) {
+    await supabase
+      .from("macwall_checkout_recovery_queue")
+      .update(patch)
+      .ilike("customer_email", email)
+      .eq("status", "pending")
+  }
 }
 
 async function cancelTrialEndedEmails(
@@ -686,14 +721,57 @@ async function deliverLicenseEmail(args: {
   })
 }
 
+const MAX_LICENSE_DEVICES = 100
+
+function parseDeviceCount(value: string | null | undefined): number | null {
+  const n = Number.parseInt(value?.trim() ?? "", 10)
+  return Number.isInteger(n) && n >= 1 && n <= MAX_LICENSE_DEVICES ? n : null
+}
+
+/**
+ * Macs purchased in this Checkout, from the paid line items' Price metadata
+ * (falling back to Product metadata): `max_devices` on licenses,
+ * `adds_devices` on cross-sell add-ons (e.g. Pro 3 + “Upgrade to Pro+
+ * (+2 Macs)” = 5). Older catalog items carry neither, so the license base
+ * falls back to the session metadata.
+ */
+async function purchasedDeviceCount(
+  stripe: Stripe,
+  session: Stripe.Checkout.Session,
+  fallbackBase: number
+): Promise<number> {
+  const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+    limit: 20,
+    expand: ["data.price.product"],
+  })
+
+  let base: number | null = null
+  let added = 0
+  for (const item of lineItems.data) {
+    const product = item.price?.product
+    const productMetadata =
+      product && typeof product === "object" && !product.deleted
+        ? product.metadata
+        : {}
+    const metadata = { ...productMetadata, ...(item.price?.metadata ?? {}) }
+    const licenseDevices = parseDeviceCount(metadata.max_devices)
+    if (licenseDevices) base = Math.max(base ?? 0, licenseDevices)
+    const addonDevices = parseDeviceCount(metadata.adds_devices)
+    if (addonDevices) added += addonDevices * (item.quantity ?? 1)
+  }
+
+  return Math.min((base ?? fallbackBase) + added, MAX_LICENSE_DEVICES)
+}
+
 async function handleCheckoutCompleted(args: {
   event: Stripe.Event
+  stripe: Stripe
   session: Stripe.Checkout.Session
   supabase: ReturnType<typeof createClient>
   resendKey: string
   from: string
 }): Promise<Response> {
-  const { session, supabase, resendKey, from } = args
+  const { stripe, session, supabase, resendKey, from } = args
 
   // Paid one-time Checkout only (mode payment / legacy subscription).
   if (session.mode !== "payment" && session.mode !== "subscription") {
@@ -704,7 +782,11 @@ async function handleCheckoutCompleted(args: {
     return Response.json({ ok: true, skipped: "not_paid" })
   }
 
-  await cancelCheckoutRecovery(supabase, session.id)
+  await cancelCheckoutRecovery(
+    supabase,
+    session.id,
+    session.customer_details?.email || session.customer_email
+  )
 
   const licenseKey =
     session.metadata?.license_key?.trim() ||
@@ -746,17 +828,28 @@ async function handleCheckoutCompleted(args: {
   // plan_slug-derived guess only for old sessions created before those keys
   // existed.
   const rawPlanSlug = session.metadata?.plan_slug?.trim() || "pro"
-  const planSlug =
+  const metadataPlanSlug =
     rawPlanSlug === "pro_plus" || rawPlanSlug === "pro_max" ? "pro_plus" : "pro"
-  const metadataMaxDevices = Number.parseInt(
-    session.metadata?.max_devices?.trim() ?? "",
-    10
-  )
-  const maxDevices = [1, 2, 3, 5].includes(metadataMaxDevices)
-    ? metadataMaxDevices
-    : planSlug === "pro_plus"
-      ? 5
-      : 3
+  const metadataMaxDevices =
+    parseDeviceCount(session.metadata?.max_devices) ??
+    (metadataPlanSlug === "pro_plus" ? 5 : 3)
+
+  let maxDevices: number
+  try {
+    maxDevices = await purchasedDeviceCount(stripe, session, metadataMaxDevices)
+  } catch (e) {
+    // Fail so Stripe retries. Never activate a cross-sell buyer with too
+    // few Macs. Everything above this point is idempotent.
+    console.error(
+      "[stripe-license-email] line_items_failed",
+      e instanceof Error ? e.message : "error"
+    )
+    return Response.json(
+      { ok: false, error: "line_items_failed" },
+      { status: 500 }
+    )
+  }
+  const planSlug = maxDevices >= 5 ? "pro_plus" : metadataPlanSlug
   const rawBillingModel = session.metadata?.billing_model?.trim()
   const billingModel =
     rawBillingModel === "annual" || rawBillingModel === "permanent"
@@ -875,13 +968,14 @@ async function handleCheckoutCompleted(args: {
     )
   }
 
-  const amountUsd =
+  const amount =
     typeof session.amount_total === "number" ? session.amount_total / 100 : null
 
   await sendTikTokPurchase({
     email: customerEmail,
     eventIdSeed: `stripe_${args.event.id}`,
-    amountUsd,
+    amount,
+    currency: session.currency,
   })
 
   await sendXPurchase({
@@ -966,9 +1060,7 @@ async function handleBackfillMissingLicenseEmails(args: {
     const row = missing[i]
     const licenseKey = row.license_key
     const customerEmail = row.customerEmail
-    const maxDevices = [1, 2, 3, 5].includes(Number(row.max_devices))
-      ? Number(row.max_devices)
-      : 3
+    const maxDevices = parseDeviceCount(String(row.max_devices ?? "")) ?? 3
     const checkoutSessionId =
       row.stripe_checkout_session_id?.trim() || `backfill:${licenseKey}`
 
@@ -1050,21 +1142,16 @@ async function handlePaymentFailed(args: {
     return Response.json({ ok: true, skipped: "no_checkout_session" })
   }
 
-  const result = await enqueueCheckoutRecovery({
-    supabase: args.supabase,
-    checkoutSessionId,
-    licenseKey,
-    customerEmail: email,
-    paymentIntentId: paymentIntent.id,
-    reason,
-  })
+  // The buyer really tried to pay. Record it so that, if the session expires
+  // unpaid, recovery treats it as a real attempt. No email now: they may
+  // still retry and succeed on the same page.
+  await markCheckoutOpened(args.supabase, checkoutSessionId)
 
   return Response.json({
     ok: true,
-    recovery_queued: result.queued,
     checkout_session_id: checkoutSessionId,
-    scheduled_in_minutes: RECOVERY_DELAY_MINUTES,
-    ...(result.skipped ? { skipped: result.skipped } : {}),
+    marked_opened: true,
+    failure: reason.slice(0, 120),
   })
 }
 
@@ -1072,29 +1159,9 @@ async function handleCheckoutSessionCreated(args: {
   session: Stripe.Checkout.Session
   supabase: ReturnType<typeof createClient>
 }): Promise<Response> {
-  const { session, supabase } = args
-  if (session.mode !== "payment" && session.mode !== "subscription") {
-    return Response.json({ ok: true, skipped: "not_payment_checkout" })
-  }
-  const licenseKey = licenseKeyFromSession(session)
-  const result = await enqueueCheckoutRecovery({
-    supabase,
-    checkoutSessionId: session.id,
-    licenseKey: licenseKey || null,
-    customerEmail: sessionCustomerEmail(session),
-    paymentIntentId:
-      typeof session.payment_intent === "string"
-        ? session.payment_intent
-        : (session.payment_intent?.id ?? null),
-    reason: "checkout_created",
-  })
-
-  return Response.json({
-    ok: true,
-    recovery_queued: result.queued,
-    scheduled_in_minutes: RECOVERY_DELAY_MINUTES,
-    ...(result.skipped ? { skipped: result.skipped } : {}),
-  })
+  // Sessions are also created by hover prefetch, so creation says nothing
+  // about intent. Recovery is decided when an opened session expires.
+  return Response.json({ ok: true, skipped: "created_not_tracked", id: args.session.id })
 }
 
 async function handleCheckoutSessionExpired(args: {
@@ -1105,23 +1172,13 @@ async function handleCheckoutSessionExpired(args: {
   if (session.mode !== "payment" && session.mode !== "subscription") {
     return Response.json({ ok: true, skipped: "not_payment_checkout" })
   }
-  const licenseKey = licenseKeyFromSession(session)
-  const result = await enqueueCheckoutRecovery({
-    supabase,
-    checkoutSessionId: session.id,
-    licenseKey: licenseKey || null,
-    customerEmail: sessionCustomerEmail(session),
-    paymentIntentId:
-      typeof session.payment_intent === "string"
-        ? session.payment_intent
-        : (session.payment_intent?.id ?? null),
-    reason: "checkout_expired",
-  })
-
+  if (session.payment_status === "paid") {
+    return Response.json({ ok: true, skipped: "paid" })
+  }
+  const result = await enqueueRecoveryForExpiredSession({ supabase, session })
   return Response.json({
     ok: true,
     recovery_queued: result.queued,
-    scheduled_in_minutes: RECOVERY_DELAY_MINUTES,
     ...(result.skipped ? { skipped: result.skipped } : {}),
   })
 }
@@ -1347,6 +1404,7 @@ Deno.serve(async (req: Request) => {
     const session = event.data.object as Stripe.Checkout.Session
     return handleCheckoutCompleted({
       event,
+      stripe,
       session,
       supabase,
       resendKey,

@@ -77,7 +77,8 @@ async function startCheckout(
   planSlug: string | null,
   promoCode: string | null,
   offerUntil: string | null,
-  lead: CheckoutLeadInput
+  lead: CheckoutLeadInput,
+  intent: "click" | "prefetch" = "click"
 ) {
   const rate = checkCheckoutRateLimit(clientIpFromRequest(request))
   if (rate.limited) {
@@ -117,6 +118,7 @@ async function startCheckout(
     siteOrigin: resolveCheckoutSiteOrigin(request.url),
     customerEmail: email,
     visitorId,
+    intent,
   })
 }
 
@@ -157,6 +159,9 @@ export async function POST(request: Request) {
   let offerUntil: string | null = null
   let email: string | null = null
   let visitorId: string | null = null
+  // POST is how the site warms a session on hover; the real click is
+  // reported separately, so default to "prefetch".
+  let intent: "click" | "prefetch" = "prefetch"
   try {
     const body = (await request.json()) as {
       offer?: string
@@ -166,6 +171,7 @@ export async function POST(request: Request) {
       email?: string
       visitor_id?: string
       visitorId?: string
+      intent?: string
     }
     offerSlug = body.offer?.trim() || null
     planSlug = body.plan?.trim() || null
@@ -173,6 +179,7 @@ export async function POST(request: Request) {
     offerUntil = body.until?.trim() || null
     email = body.email?.trim() || null
     visitorId = body.visitor_id?.trim() || body.visitorId?.trim() || null
+    intent = body.intent === "click" ? "click" : "prefetch"
   } catch {
     offerSlug = null
     planSlug = null
@@ -198,7 +205,8 @@ export async function POST(request: Request) {
     planSlug,
     promoCode,
     offerUntil,
-    { email, visitorId }
+    { email, visitorId },
+    intent
   )
 
   if (!result.ok) {

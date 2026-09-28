@@ -22,7 +22,7 @@ export function checkoutErrorMessage(error: unknown): string {
   if (/invalid api key/i.test(message)) {
     return "Checkout is temporarily unavailable. Please try again shortly or email support@macwall.app."
   }
-  if (/no such price/i.test(message)) {
+  if (/no such price|pricing option is unavailable/i.test(message)) {
     return "This pricing option is unavailable right now. Please refresh and try again."
   }
 

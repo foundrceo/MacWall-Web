@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
 
-import { processTrialEndedEmails } from "@/lib/email/process-trial-ended"
 import { secretsEqual } from "@/lib/http/secrets"
 
 export const runtime = "nodejs"
@@ -43,9 +42,8 @@ async function proxyToEdge(cronSecret: string): Promise<NextResponse> {
 }
 
 /**
- * Vercel Cron: mail Continue-free trial leads who did not buy.
- * Prefers Resend + React Email on this host. Falls back to the Edge Function
- * if RESEND_API_KEY is not set here.
+ * Vercel Cron → Supabase `process-trial-ended-emails`, the only sender of
+ * trial emails (templates in supabase/functions/_shared/lifecycle-emails.ts).
  */
 export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET?.trim()
@@ -59,20 +57,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 })
   }
 
-  if (!process.env.RESEND_API_KEY?.trim()) {
-    return proxyToEdge(cronSecret)
-  }
-
-  try {
-    const body = await processTrialEndedEmails()
-    return NextResponse.json({ ...body, via: "resend" })
-  } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: error instanceof Error ? error.message : "trial_ended_failed",
-      },
-      { status: 500 }
-    )
-  }
+  return proxyToEdge(cronSecret)
 }

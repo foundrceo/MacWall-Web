@@ -291,7 +291,41 @@ export async function waitForAffonsoReferralIfLanding(
  * Prefer cached/in-flight session; otherwise create one (forced).
  * Never use GET /api/checkout/create-session as a fallback (429 → /pricing error).
  */
+/**
+ * Tell the server the buyer really opened this Checkout (sessions warmed on
+ * hover are not counted as abandoned carts). Fire-and-forget; survives the
+ * navigation to Stripe.
+ */
+function reportCheckoutOpened(url: string): void {
+  const sessionId = url.match(/\b(cs_(?:live|test)_[A-Za-z0-9]+)/)?.[1]
+  if (!sessionId || typeof navigator === "undefined") return
+  const body = JSON.stringify({ session_id: sessionId })
+  try {
+    if (navigator.sendBeacon?.("/api/checkout/opened", new Blob([body], { type: "application/json" }))) {
+      return
+    }
+  } catch {
+    // Fall through to fetch.
+  }
+  void fetch("/api/checkout/opened", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+    keepalive: true,
+  }).catch(() => {})
+}
+
+/** Resolve the Checkout URL for a real click and report the open. */
 export async function waitForPrefetchedCheckoutUrl(
+  offer: string,
+  options: Omit<PrefetchOptions, "force"> = {}
+): Promise<CheckoutSessionResult> {
+  const result = await resolveCheckoutUrlForClick(offer, options)
+  if (result.ok) reportCheckoutOpened(result.url)
+  return result
+}
+
+async function resolveCheckoutUrlForClick(
   offer: string,
   options: Omit<PrefetchOptions, "force"> = {}
 ): Promise<CheckoutSessionResult> {

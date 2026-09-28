@@ -122,5 +122,30 @@ export async function unsubscribeTrialEmailByToken(
     return { ok: false, error: "update_failed" }
   }
 
+  // One unsubscribe stops every marketing email (trial and checkout
+  // recovery), including for addresses that never started a trial.
+  const { error: suppressionError } = await supabase
+    .from("macwall_email_suppressions")
+    .upsert(
+      { email, reason: "unsubscribed" },
+      { onConflict: "email", ignoreDuplicates: true }
+    )
+  const { error: recoveryError } = await supabase
+    .from("macwall_checkout_recovery_queue")
+    .update({
+      status: "cancelled",
+      skip_reason: "unsubscribed",
+      updated_at: now,
+    })
+    .eq("status", "pending")
+    .ilike("customer_email", email)
+  if (suppressionError || recoveryError) {
+    console.error(
+      "[trial-unsubscribe] suppression_update",
+      suppressionError?.message ?? recoveryError?.message
+    )
+    return { ok: false, error: "update_failed" }
+  }
+
   return { ok: true, email }
 }
