@@ -130,7 +130,10 @@ export async function createMacWallCheckoutSession(
     // reuse the session; a new click mints a new key → new session (correct).
     // Stripe forbids pairing `discounts` with `allow_promotion_codes`.
     // Annual is retired (normalized to permanent) — always one-time payment mode.
-    // customer_email prefills Checkout and is readable on abandon for recovery.
+    // The known email is NOT passed as customer_email: Stripe uses it (and a
+    // saved Link profile) to guess the buyer's country, which can hide the
+    // local-currency option (e.g. an India buyer seeing USD only). It stays in
+    // metadata.customer_email, which recovery reads when a session expires.
     const session = await stripe.checkout.sessions.create(
       {
         mode: "payment",
@@ -153,7 +156,6 @@ export async function createMacWallCheckoutSession(
         client_reference_id: licenseKey,
         locale: "auto",
         billing_address_collection: "auto",
-        ...(customerEmail ? { customer_email: customerEmail } : {}),
         ...(promotionCodeId
           ? { discounts: [{ promotion_code: promotionCodeId }] }
           : { allow_promotion_codes: true }),
