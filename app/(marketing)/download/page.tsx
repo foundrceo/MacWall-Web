@@ -3,7 +3,6 @@ import { JsonLd } from "@/components/seo/json-ld"
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
 import { downloadPage } from "@/lib/seo/landing-pages"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
-import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const metadata = createSeoPageMetadata(downloadPage)
@@ -20,15 +19,9 @@ export default function DownloadPage() {
     description: downloadPage.description,
   })
 
-  const faqLd =
-    downloadPage.faq && downloadPage.faq.length > 0
-      ? faqPageJsonLd(downloadPage.faq)
-      : null
-
   return (
     <>
       <JsonLd payload={webPageLd} />
-      {faqLd ? <JsonLd payload={faqLd} /> : null}
       <SeoLandingPage
         page={downloadPage}
         breadcrumbs={[

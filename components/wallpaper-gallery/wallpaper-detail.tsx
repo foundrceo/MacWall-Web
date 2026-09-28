@@ -32,7 +32,6 @@ import {
   GALLERY_TITLE_AFTER_BREADCRUMB_CLASS,
 } from "@/lib/public-catalog/chrome"
 import {
-  aspectRatioLabel,
   formatFileSize,
   formatLikeCount,
   formatLoopDuration,
@@ -50,6 +49,8 @@ import {
   WALLPAPER_SECTION_SERIF_HEADING_CLASS,
 } from "@/lib/public-catalog/typography"
 import { buildWallpaperReportMessage } from "@/lib/support/shared"
+import type { WallpaperDetailContent } from "@/lib/seo/wallpaper-detail-content"
+import { wallpaperCollectionPath } from "@/lib/seo/wallpaper-collections"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
@@ -61,48 +62,18 @@ const DETAIL_CHIP_CLASS =
   "inline-flex h-9 shrink-0 items-center rounded-full border-0 bg-white/[0.06] px-3.5 text-[13px] font-normal text-white/65 shadow-none ring-0 transition duration-200 ease-out outline-none hover:border-0 hover:bg-white/[0.1] hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
 
 /** Soft aside surface without outline — Apple-style fill only. */
-const DETAIL_ASIDE_SURFACE_CLASS =
-  "border-0 bg-white/[0.06] shadow-none ring-0"
-
-function buildDetailCopy(wallpaper: PublicWallpaper): {
-  lead: string
-  detail: string
-} {
-  const lead = `${wallpaper.name} is a live wallpaper from the ${wallpaper.category} collection.`
-
-  const facts: string[] = []
-  const hasResolution =
-    wallpaper.resolution.length > 0 && wallpaper.resolution !== "—"
-
-  if (hasResolution) {
-    const aspect = aspectRatioLabel(wallpaper.resolution)
-    facts.push(
-      aspect
-        ? `${wallpaper.resolution} (${aspect})`
-        : wallpaper.resolution
-    )
-  }
-
-  if (wallpaper.durationSeconds > 0) {
-    facts.push(`${formatLoopDuration(wallpaper.durationSeconds)} loop`)
-  }
-
-  const detail =
-    facts.length > 0
-      ? `${facts.join(" · ")}. Preview above, then set it on your Mac with MacWall.`
-      : "Preview the motion above, then set it on your Mac with the MacWall app."
-
-  return { lead, detail }
-}
+const DETAIL_ASIDE_SURFACE_CLASS = "border-0 bg-white/[0.06] shadow-none ring-0"
 
 export function WallpaperDetail({
   wallpaper,
   similar,
   origin,
+  content,
 }: Readonly<{
   wallpaper: PublicWallpaper
   similar: PublicWallpaper[]
   origin: string
+  content: WallpaperDetailContent
 }>) {
   const categorySlug = wallpaperCategorySlugOrFallback(wallpaper.category)
   const categoryHref = wallpapersGalleryHref(categorySlug)
@@ -113,7 +84,6 @@ export function WallpaperDetail({
   )}&body=${encodeURIComponent(buildWallpaperReportMessage(wallpaper, shareUrl))}`
   const loopTime = formatLoopDuration(wallpaper.durationSeconds)
   const sizeLabel = formatFileSize(wallpaper.fileSizeBytes)
-  const { lead: detailLead, detail: detailBody } = buildDetailCopy(wallpaper)
 
   return (
     <div className={WALLPAPER_SECTION_FONT_CLASS}>
@@ -125,19 +95,13 @@ export function WallpaperDetail({
           )}
         >
           <BreadcrumbItem>
-            <BreadcrumbLink
-              asChild
-              className="transition hover:text-white"
-            >
+            <BreadcrumbLink asChild className="transition hover:text-white">
               <Link href={wallpapersGalleryPath()}>Wallpapers</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator className="text-white/35" />
           <BreadcrumbItem>
-            <BreadcrumbLink
-              asChild
-              className="transition hover:text-white"
-            >
+            <BreadcrumbLink asChild className="transition hover:text-white">
               <Link href={categoryHref}>{wallpaper.category}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -197,8 +161,8 @@ export function WallpaperDetail({
       <section className="mt-8 grid gap-8 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-start lg:gap-x-10">
         <div className="flex min-w-0 flex-col gap-7">
           <div className="space-y-4 text-[16px] leading-[1.65]">
-            <p className={GALLERY_TEXT_PRIMARY_CLASS}>{detailLead}</p>
-            <p className={GALLERY_TEXT_SECONDARY_CLASS}>{detailBody}</p>
+            <p className={GALLERY_TEXT_PRIMARY_CLASS}>{content.lead}</p>
+            <p className={GALLERY_TEXT_SECONDARY_CLASS}>{content.detail}</p>
           </div>
 
           {wallpaper.tags.length > 0 ? (
@@ -210,9 +174,7 @@ export function WallpaperDetail({
                   variant="ghost"
                   className={DETAIL_CHIP_CLASS}
                 >
-                  <Link
-                    href={wallpapersGalleryHref(categorySlug, { tag })}
-                  >
+                  <Link href={wallpapersGalleryHref(categorySlug, { tag })}>
                     {tag}
                   </Link>
                 </Badge>
@@ -223,6 +185,55 @@ export function WallpaperDetail({
               <Link href={categoryHref}>{wallpaper.category}</Link>
             </Badge>
           )}
+
+          {content.collections.length > 0 ? (
+            <div>
+              <p
+                className={cn(
+                  "mb-3 text-[12px] font-medium tracking-[0.06em] uppercase",
+                  GALLERY_TEXT_TERTIARY_CLASS
+                )}
+              >
+                In collections
+              </p>
+              <div className="flex flex-wrap gap-2.5">
+                {content.collections.slice(0, 4).map((entry) => (
+                  <Badge
+                    key={entry.slug}
+                    asChild
+                    variant="ghost"
+                    className={DETAIL_CHIP_CLASS}
+                  >
+                    <Link href={wallpaperCollectionPath(entry.slug)}>
+                      {entry.name} wallpapers
+                    </Link>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <section aria-labelledby="wallpaper-howto">
+            <h2
+              id="wallpaper-howto"
+              className={cn(
+                "text-[17px] font-medium tracking-[-0.01em]",
+                GALLERY_TEXT_PRIMARY_CLASS
+              )}
+            >
+              How to set {wallpaper.name} as your Mac wallpaper
+            </h2>
+            <ol
+              className={cn(
+                "mt-3 list-decimal space-y-1.5 pl-5 text-[15px] leading-[1.6]",
+                GALLERY_TEXT_SECONDARY_CLASS
+              )}
+            >
+              {content.steps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+          </section>
         </div>
 
         <aside
@@ -256,6 +267,40 @@ export function WallpaperDetail({
         </aside>
       </section>
 
+      <section
+        aria-labelledby="wallpaper-faq"
+        className="mt-14 max-w-3xl md:mt-16"
+      >
+        <h2
+          id="wallpaper-faq"
+          className={WALLPAPER_SECTION_SERIF_HEADING_CLASS}
+        >
+          {wallpaper.name} FAQ
+        </h2>
+        <dl className="mt-6 space-y-5">
+          {content.faq.map((item) => (
+            <div key={item.question}>
+              <dt
+                className={cn(
+                  "text-[15px] leading-snug font-medium",
+                  GALLERY_TEXT_PRIMARY_CLASS
+                )}
+              >
+                {item.question}
+              </dt>
+              <dd
+                className={cn(
+                  "mt-1.5 text-[15px] leading-[1.6]",
+                  GALLERY_TEXT_SECONDARY_CLASS
+                )}
+              >
+                {item.answer}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
       {similar.length > 0 ? (
         <section className="mt-14 md:mt-16">
           <div className="mb-7 flex items-baseline justify-between gap-5 sm:gap-6">
@@ -271,11 +316,7 @@ export function WallpaperDetail({
           </div>
           <div className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-9">
             {similar.map((item, index) => (
-              <WallpaperCard
-                key={item.id}
-                wallpaper={item}
-                index={index}
-              />
+              <WallpaperCard key={item.id} wallpaper={item} index={index} />
             ))}
           </div>
         </section>

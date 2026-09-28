@@ -1,5 +1,12 @@
+import { siteMarkdownDocuments } from "@/lib/ai/site-content"
+import { listCollectionSummaries } from "@/lib/public-catalog/collections"
 import { listPublicWallpaperSitemapEntries } from "@/lib/public-catalog/fetch"
 import { indexableMarketingPaths } from "@/lib/seo/routes"
+import {
+  WALLPAPER_COLLECTIONS_HUB_PATH,
+  wallpaperCollectionPath,
+  wallpaperCollections,
+} from "@/lib/seo/wallpaper-collections"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 import type { MetadataRoute } from "next"
 
@@ -11,9 +18,11 @@ function priorityForPath(path: string): number {
     path === "/ai-info" ||
     path === "/blog" ||
     path === "/wallpapers" ||
+    path === WALLPAPER_COLLECTIONS_HUB_PATH ||
     path === "/docs"
   )
     return 0.9
+  if (path.startsWith(`${WALLPAPER_COLLECTIONS_HUB_PATH}/`)) return 0.85
   if (path === "/learn") return 0.85
   if (path.startsWith("/blog/") || path.startsWith("/docs/")) return 0.8
   if (path.startsWith("/learn/")) return 0.75
@@ -32,14 +41,25 @@ function changeFrequencyForPath(
 ): MetadataRoute.Sitemap[number]["changeFrequency"] {
   if (path === "/" || path === "/blog" || path === "/wallpapers")
     return "weekly"
+  if (path.startsWith(WALLPAPER_COLLECTIONS_HUB_PATH)) return "weekly"
   if (path.startsWith("/blog/") || path.startsWith("/wallpaper/"))
     return "weekly"
   return "monthly"
 }
 
+/** Real content dates only — a lastmod that always says "now" gets ignored by crawlers. */
+function editorialLastModifiedByPath(): Map<string, Date> {
+  const dates = new Map<string, Date>()
+  for (const document of siteMarkdownDocuments()) {
+    if (!document.updatedAt) continue
+    const parsed = Date.parse(document.updatedAt)
+    if (Number.isFinite(parsed)) dates.set(document.path, new Date(parsed))
+  }
+  return dates
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = canonicalSiteOrigin()
-  const stamp = new Date()
 
   let detailEntries: Awaited<
     ReturnType<typeof listPublicWallpaperSitemapEntries>
@@ -50,17 +70,48 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     detailEntries = []
   }
 
-  const detailLastModByPath = new Map(
-    detailEntries.map((entry) => [entry.path, entry.lastModified])
+  const collectionSummaries = await listCollectionSummaries()
+  // Newest wallpaper in the catalog stands in for "collection last changed".
+  const newestWallpaper = detailEntries.reduce<Date | undefined>(
+    (latest, entry) =>
+      !latest || entry.lastModified > latest ? entry.lastModified : latest,
+    undefined
   )
-  const staticPaths = indexableMarketingPaths()
-  const detailPaths = detailEntries.map((entry) => entry.path)
-  const paths = [...staticPaths, ...detailPaths]
 
-  return paths.map((path) => ({
-    url: path === "/" ? origin : `${origin}${path}`,
-    lastModified: detailLastModByPath.get(path) ?? stamp,
-    changeFrequency: changeFrequencyForPath(path),
-    priority: priorityForPath(path),
-  }))
+  const lastModByPath = editorialLastModifiedByPath()
+  for (const entry of detailEntries) {
+    lastModByPath.set(entry.path, entry.lastModified)
+  }
+
+  // Catalog outage: keep every registered topic listed rather than dropping them.
+  const collectionSlugs =
+    collectionSummaries.length > 0
+      ? collectionSummaries
+          .filter((summary) => summary.indexable)
+          .map((summary) => summary.collection.slug)
+      : wallpaperCollections.map((entry) => entry.slug)
+  const collectionPaths = [
+    WALLPAPER_COLLECTIONS_HUB_PATH,
+    ...collectionSlugs.map(wallpaperCollectionPath),
+  ]
+  if (newestWallpaper) {
+    for (const path of collectionPaths) lastModByPath.set(path, newestWallpaper)
+    lastModByPath.set("/wallpapers", newestWallpaper)
+  }
+
+  const paths = [
+    ...indexableMarketingPaths(),
+    ...collectionPaths,
+    ...detailEntries.map((entry) => entry.path),
+  ]
+
+  return paths.map((path) => {
+    const lastModified = lastModByPath.get(path)
+    return {
+      url: path === "/" ? origin : `${origin}${path}`,
+      ...(lastModified ? { lastModified } : {}),
+      changeFrequency: changeFrequencyForPath(path),
+      priority: priorityForPath(path),
+    }
+  })
 }

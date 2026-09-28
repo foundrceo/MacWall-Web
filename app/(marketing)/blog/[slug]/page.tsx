@@ -5,7 +5,7 @@ import { getAllBlogSlugs, getBlogArticle } from "@/lib/blog"
 import { getRelatedBlogArticles } from "@/lib/blog/partition-articles"
 import { blogTilePoster } from "@/lib/blog/tile-media"
 import { BLOG_CATEGORY_LABELS, type BlogCategory } from "@/lib/content/types"
-import { articleJsonLd } from "@/lib/seo/json-ld-helpers"
+import { articleJsonLd, faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 import type { Metadata } from "next"
@@ -76,10 +76,14 @@ export default async function BlogArticlePage({ params }: PageProps) {
   return (
     <>
       <JsonLd payload={articleLd} />
+      {article.faq && article.faq.length > 0 ? (
+        <JsonLd payload={faqPageJsonLd(article.faq)} />
+      ) : null}
       <BlogArticleShell
         headline={article.headline}
         description={article.description}
         sections={article.sections}
+        faq={article.faq}
         categoryLabel={BLOG_CATEGORY_LABELS[article.category as BlogCategory]}
         readMinutes={article.readMinutes}
         publishedAt={article.publishedAt}

@@ -13,6 +13,7 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
+import { Collections } from "./_components/collections"
 import { Features } from "./_components/features"
 import { Hero } from "./_components/hero"
 import { Pillars } from "./_components/pillars"
@@ -21,10 +22,13 @@ import { Proof } from "./_components/proof"
 import { Reviews } from "./_components/reviews"
 
 const PAGE_DESCRIPTION =
-  "Live wallpapers for Mac. 4K video on the desktop, Lock Screen on macOS 26. Native app, menu bar controls, one payment."
+  "Live wallpapers for Mac: 4K animated video on your desktop and Lock Screen (macOS 26). Native app, pauses on battery, 800+ loops, one payment."
+
+/** Brand first, then the head term people search ("live wallpaper mac"). */
+const PAGE_TITLE = `${macwall.name}: Live Wallpapers for Mac – 4K Desktop & Lock Screen`
 
 export const metadata: Metadata = {
-  title: { absolute: macwall.fullTagline },
+  title: { absolute: PAGE_TITLE },
   description: PAGE_DESCRIPTION,
   alternates: {
     canonical: canonicalSitePath("/"),
@@ -44,9 +48,16 @@ export const metadata: Metadata = {
     "wallpaper engine alternative mac",
     "lock screen live wallpaper mac",
     "live wallpaper for mac",
+    "live wallpaper mac",
+    "animated wallpaper mac",
+    "moving wallpaper mac",
+    "video wallpaper mac",
+    "mac live backgrounds",
+    "live desktop backgrounds mac",
+    "dynamic wallpaper mac",
   ],
   openGraph: {
-    title: macwall.fullTagline,
+    title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
     url: canonicalSitePath("/"),
     siteName: macwall.name,
@@ -62,7 +73,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: macwall.fullTagline,
+    title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
     images: [openGraphImageAbsoluteUrl()],
   },
@@ -88,6 +99,8 @@ export default async function Page() {
       <Features />
       <MarketingSeparator />
       <Reviews />
+      <MarketingSeparator />
+      <Collections />
       <MarketingSeparator />
       <MarketingFaqSection />
     </>

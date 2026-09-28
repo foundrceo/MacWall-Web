@@ -206,44 +206,93 @@ export const featureArticles: BlogArticle[] = [
   {
     slug: "multi-monitor-wallpaper-mac",
     pathname: "/blog/multi-monitor-wallpaper-mac",
-    title: "Multi-Monitor Live Wallpapers on Mac",
-    headline: "Multi-Monitor Live Wallpapers on Mac",
+    title: "Dual Monitor Wallpaper on Mac: Different Wallpaper per Display",
+    headline: "Dual Monitor Wallpaper on Mac",
     description:
-      "Set a different live wallpaper on every display with MacWall, from dual monitors to ultrawide-plus-laptop desk setups, with one decoder per screen.",
+      "Set a different wallpaper on each monitor on a Mac, span one image across two screens, and run live wallpapers on dual, triple, and ultrawide setups.",
     excerpt:
-      "Independent wallpapers on every display. One app, full desk coverage.",
+      "Different wallpapers per display, spanning one image, and live wallpapers across every screen.",
     category: "features",
-    readMinutes: 4,
+    readMinutes: 5,
     publishedAt: "2026-03-15",
+    updatedAt: "2026-09-28",
     keywords: [
+      "dual monitor wallpaper",
+      "dual monitor wallpaper mac",
       "multi monitor wallpaper mac",
+      "different wallpaper on each monitor mac",
+      "span wallpaper across two monitors mac",
+      "ultrawide wallpaper mac",
       "dual monitor live wallpaper macos",
-      "per display wallpaper mac",
     ],
     sections: [
       {
         type: "p",
-        text: "Productivity setups often run two or three displays. **MacWall** assigns one player per monitor, mirror the same loop or pick different wallpapers for each screen.",
+        text: "**To set a different wallpaper on each monitor on a Mac, open System Settings > Wallpaper; with two or more displays connected, each one gets its own wallpaper choice.** macOS cannot stretch a single image across two screens by itself, so to span one picture you split it into two images sized to each display. For live wallpapers on every screen, MacWall runs one player per monitor, synced or independent.",
+      },
+      { type: "h2", text: "Set a different wallpaper on each display" },
+      {
+        type: "ol",
+        items: [
+          "Connect your external monitor and open **System Settings > Wallpaper**.",
+          "At the top of the pane, select the display you want to change.",
+          "Choose its wallpaper, then select the next display and repeat.",
+        ],
       },
       {
-        type: "h2",
-        text: "Common setups",
+        type: "p",
+        text: "Each Space in Mission Control can also hold its own wallpaper per display. Full basics: [how to change wallpaper on Mac](/blog/how-to-change-wallpaper-on-mac).",
+      },
+      { type: "h2", text: "Span one wallpaper across two monitors" },
+      {
+        type: "ol",
+        items: [
+          "Find a panoramic image at least as wide as both displays combined, for example 7680×2160 for two 4K monitors side by side.",
+          "Crop it into a left half and a right half matching each display's resolution.",
+          "Set the left half on the left monitor and the right half on the right monitor, both with **Fill Screen**.",
+        ],
+      },
+      { type: "h2", text: "Dual monitor sizes to target" },
+      {
+        type: "ul",
+        items: [
+          "**Two 1080p monitors**: 3840×1080 total, 1920×1080 each",
+          "**Two 1440p monitors**: 5120×1440 total, 2560×1440 each",
+          "**Two 4K monitors**: 7680×2160 total, 3840×2160 each",
+          "**Ultrawide 34-inch**: 3440×1440; **49-inch super-ultrawide**: 5120×1440",
+          "**MacBook + external**: size each separately; see [MacBook wallpaper size](/blog/macbook-wallpaper-size)",
+        ],
+      },
+      { type: "h2", text: "Live wallpapers on every display" },
+      {
+        type: "p",
+        text: "**MacWall** assigns one player per monitor: mirror the same loop everywhere or pick a different wallpaper for each screen. Mixed setups work too, such as a MacBook next to an ultrawide, dual 4K monitors, or three displays on a Mac Studio. Playback is hardware-decoded and pauses when a display sleeps or a full-screen app covers it.",
       },
       {
         type: "ul",
         items: [
-          "MacBook + external ultrawide, different aspect ratios, both supported",
-          "Dual 4K monitors, independent 4K loops without duplicate decode load",
-          "Sidecar iPad, focus MacWall on built-in and primary external displays",
+          "Use calmer loops such as [rain](/wallpapers/collections/rain) or [ocean](/wallpapers/collections/ocean) on your main work monitor.",
+          "Put bolder motion like [cyberpunk](/wallpapers/collections/cyberpunk) or [JDM cars](/wallpapers/collections/jdm) on a secondary screen.",
+          "Match each loop's resolution to its display so you are not decoding pixels you never see.",
         ],
       },
+    ],
+    faq: [
       {
-        type: "h2",
-        text: "Tips",
+        question: "Can a Mac have different wallpapers on two monitors?",
+        answer:
+          "Yes. System Settings > Wallpaper shows a separate choice for each connected display. MacWall does the same for live wallpapers.",
       },
       {
-        type: "p",
-        text: "Match wallpaper resolution to each display. Use calmer loops on your work monitor and bolder motion on a secondary screen.",
+        question: "How do I stretch one wallpaper across two monitors on Mac?",
+        answer:
+          "macOS has no span option. Split a panoramic image into two halves sized to each display and set one half on each monitor with Fill Screen.",
+      },
+      {
+        question:
+          "Do live wallpapers on two monitors use double the resources?",
+        answer:
+          "Each display plays its own loop, but decoding runs on Apple's media engine rather than the CPU, and MacWall pauses any display that is asleep or covered by a full-screen app.",
       },
     ],
   },

@@ -85,7 +85,7 @@ export const comparisonArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Wallpaper Engine dominates Windows with interactive scenes and a massive Workshop library. On Mac, you need a **native** alternative, not a Wine wrapper. **MacWall** is built for macOS from the ground up with SwiftUI, Metal decode, and menu bar controls.",
+        text: "**No. Wallpaper Engine does not work on Mac: it is a Windows-only app on Steam, with no macOS version.** Wallpaper Engine dominates Windows with interactive scenes and a massive Workshop library. On Mac, you need a **native** alternative, not a Wine wrapper. **MacWall** is built for macOS from the ground up with SwiftUI, Metal decode, and menu bar controls.",
       },
       {
         type: "h2",
@@ -114,7 +114,25 @@ export const comparisonArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Export or download MP4 versions of your favorite loops, then import into MacWall. Browse our catalog for fresh 4K content across nine categories. MacWall is the better daily driver for native performance.",
+        text: "Export or download MP4 versions of your favorite loops, then import into MacWall. Browse our catalog for fresh 4K content across nine categories, or jump straight into popular [collections](/wallpapers/collections) like [anime](/wallpapers/anime), [Gojo](/wallpapers/collections/gojo), and [cyberpunk](/wallpapers/collections/cyberpunk). MacWall is the better daily driver for native performance.",
+      },
+    ],
+    faq: [
+      {
+        question: "Does Wallpaper Engine work on Mac?",
+        answer:
+          "No. Wallpaper Engine is only available for Windows on Steam and has no macOS version. Mac users use a native live wallpaper app such as MacWall instead.",
+      },
+      {
+        question:
+          "Can I run Wallpaper Engine on Mac with Wine, CrossOver, or Parallels?",
+        answer:
+          "Not usefully. Compatibility layers and virtual machines run Wallpaper Engine inside their own window, not on the real macOS desktop, and cost far more CPU and battery than a native app.",
+      },
+      {
+        question: "What is the best Wallpaper Engine alternative for Mac?",
+        answer:
+          "MacWall: a native Swift app with hardware video decoding, 800+ curated 4K loops, MP4 and MOV imports, multi-display support, and live Lock Screen on macOS 26, for a one-time $12.99.",
       },
     ],
   },
@@ -204,7 +222,7 @@ export const comparisonArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Subtle, system-integrated, zero third-party software. Great if you want calm gradients that match light/dark mode schedules.",
+        text: "Subtle, system-integrated, zero third-party software. Great if you want calm gradients that match light/dark mode schedules. To set one, open System Settings > Wallpaper and pick any wallpaper marked Dynamic.",
       },
       {
         type: "h2",
@@ -213,6 +231,23 @@ export const comparisonArticles: BlogArticle[] = [
       {
         type: "p",
         text: "You want cinematic motion, custom imports, category browsing, multi-monitor independence, and optional Lock Screen video. MacWall pauses intelligently so live motion does not fight your workflow.",
+      },
+    ],
+    faq: [
+      {
+        question: "What is a dynamic wallpaper on Mac?",
+        answer:
+          "A dynamic wallpaper is a set of still images in one HEIC file that macOS swaps based on the time of day or your Light and Dark appearance. It changes a few times a day but never plays motion.",
+      },
+      {
+        question: "How do I get a dynamic wallpaper on Mac?",
+        answer:
+          "Open System Settings > Wallpaper and choose any wallpaper labelled Dynamic. For moving video instead, install a live wallpaper app such as MacWall.",
+      },
+      {
+        question: "Is a live wallpaper the same as a dynamic wallpaper?",
+        answer:
+          "No. A dynamic wallpaper is scheduled stills; a live wallpaper is a looping video that plays continuously behind your windows.",
       },
     ],
   },

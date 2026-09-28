@@ -6,7 +6,7 @@ import {
   openGraphImageAbsoluteUrl,
   openGraphImageSize,
 } from "@/lib/site-url"
-import { formatLoopDurationLabel } from "@/lib/public-catalog/format"
+import { buildWallpaperDetailContent } from "@/lib/seo/wallpaper-detail-content"
 import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
 import type { Metadata } from "next"
@@ -169,18 +169,26 @@ function absoluteMediaUrl(url: string): string {
 
 /** Detail page metadata with absolute OG/Twitter thumbnail URLs. */
 export function wallpaperDetailMetadata(wallpaper: PublicWallpaper): Metadata {
-  const durationLabel = formatLoopDurationLabel(wallpaper.durationSeconds)
-  const title = `${wallpaper.name} – Live Wallpaper for Mac`
-  const description = `${wallpaper.name} is a ${durationLabel} ${wallpaper.category.toLowerCase()} live wallpaper for Mac on ${macwall.name}. Preview the loop and set it on your Mac desktop.`
+  const content = buildWallpaperDetailContent(wallpaper)
+  const quality = content.qualityLabel ? ` (${content.qualityLabel})` : ""
+  // People search "{name} wallpaper"; keep that phrase at the front of the title.
+  const title = `${wallpaper.name} Live Wallpaper for Mac${quality}`
+  const description = content.metaDescription
   const canonical = canonicalSitePath(wallpaperDetailPath(wallpaper))
   const thumbUrl = absoluteMediaUrl(wallpaper.thumbUrl)
+  const name = wallpaper.name.toLowerCase()
+  const category = wallpaper.category.toLowerCase()
   const keywords = [
-    `${wallpaper.name} live wallpaper mac`,
-    `${wallpaper.name} mac wallpaper`,
-    `${wallpaper.category.toLowerCase()} live wallpaper macos`,
-    `${wallpaper.category.toLowerCase()} wallpaper mac`,
+    `${name} wallpaper`,
+    `${name} live wallpaper`,
+    `${name} live wallpaper mac`,
+    `${name} 4k wallpaper`,
+    `${name} macbook wallpaper`,
+    `${category} live wallpaper mac`,
+    ...content.collections
+      .slice(0, 3)
+      .map((entry) => `${entry.name.toLowerCase()} live wallpaper`),
     "live wallpaper macos",
-    "animated desktop mac",
     `${macwall.name.toLowerCase()} wallpaper`,
   ]
 
