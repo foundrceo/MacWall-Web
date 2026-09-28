@@ -29,6 +29,7 @@ import {
   waitForPrefetchedCheckoutUrl,
 } from "@/lib/checkout/prefetch-checkout"
 import { pricingPathWithCheckoutError } from "@/lib/checkout/checkout-session-client"
+import { isLikelyBotUserAgent } from "@/lib/http/bot-user-agent"
 
 type TrackedLinkProps = {
   href: string
@@ -70,9 +71,7 @@ function canWarmCheckoutOnView(): boolean {
   if (!window.matchMedia("(hover: none)").matches) return false
   const nav = navigator as Navigator & { connection?: { saveData?: boolean } }
   if (nav.webdriver || nav.connection?.saveData) return false
-  return !/bot|crawl|spider|slurp|headless|lighthouse|pagespeed|preview/i.test(
-    nav.userAgent
-  )
+  return !isLikelyBotUserAgent(nav.userAgent)
 }
 
 export function TrackedLink({
@@ -299,7 +298,11 @@ export function TrackedLink({
         {...trackProps}
         target={resolvedHref.startsWith("http") ? "_blank" : undefined}
         rel={
-          resolvedHref.startsWith("http") ? "noopener noreferrer" : undefined
+          resolvedHref.startsWith("http")
+            ? "noopener noreferrer"
+            : isCheckoutClick
+              ? "nofollow"
+              : undefined
         }
         aria-label={ariaLabel}
       >

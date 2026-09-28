@@ -30,6 +30,8 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         "/admin/",
         "/api/admin/",
+        // Buy links mint a Stripe Checkout Session per request.
+        "/api/checkout/",
         "/auth/",
         "/thank-you",
         "/open",
