@@ -20,6 +20,7 @@ import {
   GALLERY_TEXT_PRIMARY_CLASS,
   GALLERY_TEXT_TERTIARY_CLASS,
 } from "@/lib/public-catalog/chrome"
+import { catalogImageLoader } from "@/lib/macwall-catalog-urls"
 import { cn } from "@/lib/utils"
 
 const PLAY_ICON_SIZE = 20
@@ -98,9 +99,8 @@ function WallpaperCardMedia({
           className="object-cover [-webkit-user-drag:none]"
           priority={priority}
           draggable={false}
-          // Thumbs already live on Cloudflare R2 CDN — skip Vercel Image
-          // Optimization (major Image Optimization + Fast Data Transfer cost).
-          unoptimized
+          // Sized by Cloudflare on the R2 CDN, not Vercel Image Optimization.
+          loader={catalogImageLoader}
         />
 
         {videoSrc && !reduceMotion ? (

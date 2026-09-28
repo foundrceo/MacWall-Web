@@ -86,6 +86,38 @@ export function catalogPublicThumbUrlFromKey(thumbKey: string): string {
 }
 
 /**
+ * Width-capped catalog image via Cloudflare Image Transformations on the CDN
+ * zone: AVIF/WebP when the browser accepts it, never upscaled, and
+ * `onerror=redirect` falls back to the original if a transform fails. Keeps
+ * thumbs off Vercel Image Optimization. Non-CDN URLs pass through untouched.
+ */
+export function catalogImageUrlAtWidth(
+  url: string,
+  width: number,
+  quality = 75
+): string {
+  const base = getR2PublicBaseUrl()
+  if (!url.startsWith(`${base}/`) || url.includes("/cdn-cgi/")) return url
+  const path = url.slice(base.length)
+  const w = Math.max(16, Math.round(width))
+  const q = Math.min(100, Math.max(1, Math.round(quality)))
+  return `${base}/cdn-cgi/image/width=${w},quality=${q},format=auto,fit=scale-down,onerror=redirect${path}`
+}
+
+/** `next/image` loader for catalog thumbs — responsive srcset from the CDN. */
+export function catalogImageLoader({
+  src,
+  width,
+  quality,
+}: {
+  src: string
+  width: number
+  quality?: number
+}): string {
+  return catalogImageUrlAtWidth(src, width, quality)
+}
+
+/**
  * Marketing gallery poster — full thumb URL on Cloudflare R2 CDN.
  * Call sites must use `unoptimized` (or plain `<img>`) so Vercel Image
  * Optimization does not re-encode every catalog thumb.
