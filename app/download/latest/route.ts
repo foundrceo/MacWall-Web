@@ -3,6 +3,10 @@ import { after, NextResponse } from "next/server"
 import { track as trackVercelServerEvent } from "@vercel/analytics/server"
 
 import { trackSiteEvent } from "@/lib/analytics/track-server"
+import {
+  cannotOpenInstaller,
+  installerPlatformFromUserAgent,
+} from "@/lib/installer-platform"
 import { MACWALL_DEFAULT_INSTALLER_REDIRECT_URL } from "@/lib/macwall-installer-url"
 
 export const runtime = "nodejs"
@@ -71,6 +75,34 @@ export async function GET(request: Request) {
 
     const referrer = request.headers.get("referer")
     const userAgent = request.headers.get("user-agent")
+    const os = installerPlatformFromUserAgent(userAgent)
+
+    // Phones and Windows can't open a DMG. Send them to the home page's
+    // "send the link to your Mac" hero instead of a file they can't use.
+    if (cannotOpenInstaller(os)) {
+      after(() =>
+        trackSiteEvent({
+          eventName: "download_send_to_mac",
+          path: "/download/latest",
+          referrer,
+          userAgent,
+          sessionId,
+          metadata: { os },
+        })
+      )
+      after(async () => {
+        try {
+          await trackVercelServerEvent("download_send_to_mac", { os })
+        } catch {
+          // Analytics must never break the redirect.
+        }
+      })
+      return NextResponse.redirect(new URL("/?send=1", request.url), {
+        status: 303,
+        headers: { "Cache-Control": "private, no-store" },
+      })
+    }
+
     const destinationHost = target.hostname
     // Don't block the 302 on analytics — cuts TTFB + Function duration.
     after(() =>
@@ -80,7 +112,7 @@ export async function GET(request: Request) {
         referrer,
         userAgent,
         sessionId,
-        metadata: { destination: destinationHost },
+        metadata: { destination: destinationHost, os },
       })
     )
     // Vercel Web Analytics custom event (server-side: no client equivalent,
@@ -89,6 +121,7 @@ export async function GET(request: Request) {
       try {
         await trackVercelServerEvent("download_redirect", {
           destination: destinationHost.slice(0, 255),
+          os,
         })
       } catch {
         // Analytics must never break the redirect.
