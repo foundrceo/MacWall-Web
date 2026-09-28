@@ -239,7 +239,7 @@ export function SectionTitle({
     <Tag
       id={id}
       className={cn(
-        "font-normal tracking-tight text-white",
+        "font-display font-normal tracking-tight text-white",
         Tag === "h1"
           ? "text-[32px] leading-[1.12] sm:text-[40px] lg:text-[48px]"
           : "text-[32px] leading-[1.15] md:text-[40px]",

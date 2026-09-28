@@ -16,6 +16,7 @@
   --font-serif: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-pixel: var(--font-geist-pixel-square), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-averia-serif), "Averia Serif Libre", Georgia, serif;
   --color-landing-rule: rgba(255, 255, 255, 0.08);
   --color-landing-muted: #a1a1a1;
   --color-landing-banner: #141414;
@@ -145,6 +146,14 @@
   }
 }
 
+/* Announcement banner off (`FLAGS.announcementBanner`): reclaim its space. */
+.dark.no-announcement-banner,
+.no-announcement-banner {
+  --marketing-banner-height: 0px;
+  --macwall-marketing-banner-height: 0px;
+  --marketing-chrome-height: var(--marketing-nav-height);
+}
+
 /* Same as SaasCN: stepped container, 1400px only at 2xl. */
 @utility container {
   width: 100%;
@@ -268,6 +277,15 @@
   h6 {
     font-family: var(--site-font-heading);
     font-weight: 400;
+  }
+
+  /* Page titles use the display serif; the admin portal keeps Geist. */
+  h1 {
+    font-family: var(--font-display);
+  }
+
+  .admin-portal h1 {
+    font-family: var(--site-font-heading);
   }
 
   .dark {

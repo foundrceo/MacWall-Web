@@ -30,7 +30,7 @@ export async function Features() {
   return (
     <MarketingSection id="features">
       <div className="flex flex-col items-start gap-2 px-6 pt-10 text-left">
-        <h2 className="max-w-xl text-3xl font-normal tracking-tighter md:text-5xl">
+        <h2 className="font-display max-w-xl text-3xl font-normal tracking-tighter md:text-5xl">
           {landing.featuresTitle}
         </h2>
         <p className="max-w-xl text-lg leading-relaxed tracking-tight text-muted-foreground">
@@ -50,7 +50,7 @@ export async function Features() {
             />
           </div>
           <div className="flex flex-1 flex-col px-6 py-10 lg:px-8">
-            <h2 className="text-3xl font-normal tracking-tighter md:text-4xl">
+            <h2 className="font-display text-3xl font-normal tracking-tighter md:text-4xl">
               {native.title}
             </h2>
             <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground md:text-lg">
@@ -67,7 +67,7 @@ export async function Features() {
             />
           </div>
           <div className="flex flex-1 flex-col px-6 py-10 lg:px-8">
-            <h2 className="text-3xl font-normal tracking-tighter md:text-4xl">
+            <h2 className="font-display text-3xl font-normal tracking-tighter md:text-4xl">
               {ls.title}
             </h2>
             <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground md:text-lg">
@@ -80,7 +80,7 @@ export async function Features() {
 
       <div className="border-t border-dashed border-border">
         <div className="flex flex-col items-center gap-2 px-6 py-8 text-center">
-          <h2 className="max-w-xl text-3xl font-normal tracking-tighter md:text-5xl">
+          <h2 className="font-display max-w-xl text-3xl font-normal tracking-tighter md:text-5xl">
             {landing.browseTitle}
           </h2>
           <p className="max-w-xl text-lg leading-relaxed tracking-tight text-muted-foreground">

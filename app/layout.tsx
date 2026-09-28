@@ -29,7 +29,7 @@ import {
 } from "@/lib/site-url"
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
-import { geistPixelSquare, geistSans } from "@/app/fonts"
+import { averiaSerif, geistPixelSquare, geistSans } from "@/app/fonts"
 import { VercelAnalytics } from "@/components/analytics/vercel-analytics"
 import { SiteFlagValues } from "@/components/analytics/site-flag-values"
 import { GoogleAnalytics } from "@next/third-parties/google"
@@ -221,6 +221,7 @@ export default function RootLayout({
       className={cn(
         "dark h-full antialiased",
         geistSans.variable,
+        averiaSerif.variable,
         geistPixelSquare.variable,
         geistSans.className
       )}

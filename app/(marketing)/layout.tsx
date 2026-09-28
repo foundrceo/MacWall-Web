@@ -9,6 +9,8 @@ import { SocialProofMount } from "@/components/macwall-marketing/social-proof-mo
 import { WallpaperPurchaseBannerMount } from "@/components/wallpaper-gallery/wallpaper-purchase-banner-mount"
 import type { ReactNode } from "react"
 
+import { cn } from "@/lib/utils"
+
 /**
  * Shared marketing chrome lives here, not in each page.
  * Geo + Stripe FX prices hydrate via `/api/pricing` so these routes stay cacheable.
@@ -21,7 +23,12 @@ export default async function MarketingLayout({
   return (
     <MarketingPricingProvider>
       <CommandPaletteMount>
-        <div className="dark min-h-screen bg-background text-foreground">
+        <div
+          className={cn(
+            "dark min-h-screen bg-background text-foreground",
+            !FLAGS.announcementBanner && "no-announcement-banner"
+          )}
+        >
           {/* Wallpaper videos load without CORS, so the warm connection must
               not be `crossorigin` or the browser opens a second one. Catalog
               reads happen server-side, so there's no Supabase hint here. */}
