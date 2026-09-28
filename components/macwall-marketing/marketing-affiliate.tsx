@@ -119,7 +119,7 @@ export default function MacWallMarketingAffiliatePage() {
       </MarketingTitleSection>
       <MarketingBodySection>
         <div className="flex flex-col gap-6 px-6 py-10 sm:flex-row sm:items-end sm:justify-between md:px-8">
-          <h2 className="max-w-[16ch] text-3xl font-normal tracking-tighter md:text-5xl">
+          <h2 className="font-display max-w-[16ch] text-3xl font-normal tracking-tighter md:text-5xl">
             {copy.socialProofTitle}
           </h2>
           <TrackedPricingButton
