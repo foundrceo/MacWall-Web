@@ -1,16 +1,10 @@
-import {
-  WallpaperGalleryPageShell,
-  parseGallerySort,
-} from "@/components/wallpaper-gallery/wallpaper-gallery-page"
+import { WallpaperGalleryPageShell } from "@/components/wallpaper-gallery/wallpaper-gallery-page"
 import { ContentBody } from "@/components/content/content-body"
 import { CollectionLinkStrip } from "@/components/wallpaper-gallery/collection-link-strip"
 import { wallpaperCollections } from "@/lib/seo/wallpaper-collections"
 import { JsonLd } from "@/components/seo/json-ld"
 import { wallpaperCategoryGalleryJsonLd } from "@/lib/seo/wallpaper-json-ld"
-import {
-  isGalleryFilteredView,
-  wallpaperCategoryGalleryMetadata,
-} from "@/lib/seo/wallpaper-metadata"
+import { wallpaperCategoryGalleryMetadata } from "@/lib/seo/wallpaper-metadata"
 import { listPublicWallpapers } from "@/lib/public-catalog/fetch"
 import {
   categoryNameFromSlug,
@@ -35,11 +29,6 @@ import { notFound, permanentRedirect } from "next/navigation"
 
 type PageProps = {
   params: Promise<{ category: string }>
-  searchParams: Promise<{
-    q?: string
-    tag?: string
-    sort?: string
-  }>
 }
 
 export async function generateStaticParams() {
@@ -48,7 +37,6 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-  searchParams,
 }: PageProps): Promise<Metadata> {
   const { category } = await params
   const legacySlug = LEGACY_CATEGORY_SLUG_REDIRECTS[category]
@@ -56,13 +44,16 @@ export async function generateMetadata({
   const name = categoryNameFromSlug(category)
   if (!name) return {}
 
-  const filters = await searchParams
-  return wallpaperCategoryGalleryMetadata(name, filters)
+  return wallpaperCategoryGalleryMetadata(name)
 }
 
+/**
+ * Prerendered per category (ISR via the catalog fetch's 1h revalidate + tag).
+ * `?q=&tag=&sort=` are applied client-side by the gallery, and next.config
+ * marks those URLs `noindex` with an `X-Robots-Tag` header.
+ */
 export default async function WallpaperCategoryGalleryPage({
   params,
-  searchParams,
 }: PageProps) {
   const { category } = await params
   const legacySlug = LEGACY_CATEGORY_SLUG_REDIRECTS[category]
@@ -70,7 +61,6 @@ export default async function WallpaperCategoryGalleryPage({
   const name = categoryNameFromSlug(category)
   if (!name) notFound()
 
-  const query = await searchParams
   const page = wallpaperCategoryPage(name)
   const origin = canonicalSiteOrigin()
 
@@ -79,9 +69,7 @@ export default async function WallpaperCategoryGalleryPage({
   try {
     initial = await listPublicWallpapers({
       category: name,
-      q: query.q,
-      tag: query.tag,
-      sort: parseGallerySort(query.sort),
+      sort: "newest",
       page: 1,
       limit: 24,
     })
@@ -96,8 +84,7 @@ export default async function WallpaperCategoryGalleryPage({
     }
   }
 
-  const filtered = isGalleryFilteredView(query)
-  const showSeoContent = !filtered && !loadError
+  const showSeoContent = !loadError
 
   return (
     <>

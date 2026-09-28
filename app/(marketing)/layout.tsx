@@ -1,5 +1,4 @@
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
-import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
 import { FLAGS } from "@/lib/flags"
 import { CommandPaletteMount } from "@/components/command-palette/command-palette-mount"
 import { MarketingPricingProvider } from "@/components/marketing/marketing-pricing-context"
@@ -17,25 +16,16 @@ import type { ReactNode } from "react"
 export default async function MarketingLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
-  const catalogOrigin = getCatalogSupabaseOrigin()
   const mediaOrigin = getR2PublicBaseUrl()
 
   return (
     <MarketingPricingProvider>
       <CommandPaletteMount>
         <div className="dark min-h-screen bg-background text-foreground">
-          <link rel="preconnect" href={mediaOrigin} crossOrigin="anonymous" />
-          <link rel="dns-prefetch" href={mediaOrigin} />
-          {catalogOrigin ? (
-            <>
-              <link
-                rel="preconnect"
-                href={catalogOrigin}
-                crossOrigin="anonymous"
-              />
-              <link rel="dns-prefetch" href={catalogOrigin} />
-            </>
-          ) : null}
+          {/* Wallpaper videos load without CORS, so the warm connection must
+              not be `crossorigin` or the browser opens a second one. Catalog
+              reads happen server-side, so there's no Supabase hint here. */}
+          <link rel="preconnect" href={mediaOrigin} />
           <MarketingPageFrame>
             <a href="#main-content" className="marketing-skip-link">
               Skip to main content

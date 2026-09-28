@@ -21,10 +21,7 @@ import {
   GALLERY_TITLE_AFTER_BREADCRUMB_CLASS,
   GALLERY_TITLE_BLOCK_BOTTOM_CLASS,
 } from "@/lib/public-catalog/chrome"
-import type {
-  PublicCatalogSort,
-  PublicWallpaperListResult,
-} from "@/lib/public-catalog/types"
+import type { PublicWallpaperListResult } from "@/lib/public-catalog/types"
 import {
   WALLPAPER_DISPLAY_HEADING_CLASS,
   WALLPAPER_SECTION_FONT_CLASS,
@@ -172,17 +169,4 @@ function GalleryFallback({
       </div>
     </div>
   )
-}
-
-export function parseGallerySort(
-  value: string | undefined
-): PublicCatalogSort {
-  switch (value) {
-    case "popular":
-    case "older":
-    case "newest":
-      return value
-    default:
-      return "newest"
-  }
 }

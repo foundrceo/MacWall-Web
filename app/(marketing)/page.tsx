@@ -1,5 +1,4 @@
 import { JsonLd } from "@/components/seo/json-ld"
-import { HeroVideoPreload } from "@/components/macwall-marketing/hero-video-preload"
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
 import { MarketingSeparator } from "@/components/macwall-marketing/marketing-separator"
 import { macwall } from "@/lib/macwall-site"
@@ -88,7 +87,6 @@ export default async function Page() {
   return (
     <>
       <JsonLd payload={faqPageJsonLd([...HOME_FAQ])} />
-      <HeroVideoPreload />
       <Hero />
       <Proof />
       <MarketingSeparator />

@@ -84,7 +84,6 @@ const nextConfig = {
   turbopack: {
     root: projectRoot,
   },
-  transpilePackages: ["geist"],
   async redirects() {
     return [
       {
@@ -192,7 +191,21 @@ const nextConfig = {
     ]
   },
   async headers() {
+    /**
+     * Gallery pages are prerendered and apply `?q=&tag=&sort=` client-side, so
+     * filtered views share the canonical HTML. Keep them out of the index here
+     * (they were `noindex, follow` when the pages rendered per request).
+     */
+    const filteredGalleryNoindex = ["q", "tag", "sort"].flatMap((key) =>
+      ["/wallpapers", "/wallpapers/:category"].map((source) => ({
+        source,
+        has: [{ type: "query", key }],
+        headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
+      }))
+    )
+
     return [
+      ...filteredGalleryNoindex,
       {
         source: "/:path*",
         headers: [

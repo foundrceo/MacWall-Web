@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
+  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -20,6 +21,7 @@ import {
   useCommandPaletteShortcutLabel,
 } from "@/components/command-palette/kbd-badge"
 import { useCommandPalette } from "@/components/command-palette/command-palette-provider"
+import { preloadCommandPaletteDialog } from "@/components/command-palette/command-palette-mount"
 import { ChevronDown, Search, X } from "lucide-react"
 import { CategoryIcon } from "@/components/wallpaper-gallery/category-icons"
 import { WallpaperCard } from "@/components/wallpaper-gallery/wallpaper-card"
@@ -163,6 +165,49 @@ function LoadMoreSkeletonRow() {
   )
 }
 
+type GalleryFilters = {
+  q: string
+  tag: string
+  sort: PublicCatalogSort
+}
+
+/** What the prerendered page (and `initial`) shows: no search, no tag, newest. */
+const DEFAULT_GALLERY_FILTERS: GalleryFilters = {
+  q: "",
+  tag: "",
+  sort: "newest",
+}
+
+function galleryFilterKey(
+  category: string | null,
+  filters: GalleryFilters,
+  limit: number
+): string {
+  return `${category ?? ""}|${filters.q}|${filters.tag}|${filters.sort}|${limit}`
+}
+
+/**
+ * Reads `?q=&tag=&sort=` and reports it up. Kept in its own Suspense boundary
+ * so the gallery pages can be prerendered: in a static route
+ * `useSearchParams()` renders client-only up to the nearest boundary, and that
+ * must be this empty component, not the wallpaper grid crawlers need in HTML.
+ */
+function GallerySearchParamsSync({
+  onChange,
+}: Readonly<{ onChange: (filters: GalleryFilters) => void }>) {
+  const searchParams = useSearchParams()
+  const q = searchParams.get("q") ?? ""
+  const tag = searchParams.get("tag") ?? ""
+  const sort = parseSort(searchParams.get("sort"))
+
+  // Layout effect: on client-side navigation the real filters land before paint.
+  useLayoutEffect(() => {
+    onChange({ q, tag, sort })
+  }, [onChange, q, tag, sort])
+
+  return null
+}
+
 export function WallpaperGallery({
   initial,
   activeCategory = null,
@@ -172,14 +217,31 @@ export function WallpaperGallery({
 }: WallpaperGalleryProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const { setOpen: openCommandPalette } = useCommandPalette()
   const paletteShortcut = useCommandPaletteShortcutLabel()
   const [isPending, startTransition] = useTransition()
 
-  const qParam = searchParams.get("q") ?? ""
-  const tagParam = searchParams.get("tag") ?? ""
-  const sort = parseSort(searchParams.get("sort"))
+  // Filters start at the prerendered defaults and switch to the URL's values
+  // once `GallerySearchParamsSync` reports. Until then (`filtersReady`), the
+  // restore / persist / refresh effects stay idle so the default grid never
+  // overwrites a filtered view's Back snapshot.
+  const [filters, setFilters] = useState<GalleryFilters | null>(null)
+  const filtersReady = filters !== null
+  const {
+    q: qParam,
+    tag: tagParam,
+    sort,
+  } = filters ?? DEFAULT_GALLERY_FILTERS
+  const onFiltersChange = useCallback((next: GalleryFilters) => {
+    setFilters((current) =>
+      current &&
+      current.q === next.q &&
+      current.tag === next.tag &&
+      current.sort === next.sort
+        ? current
+        : next
+    )
+  }, [])
 
   /**
    * Cache key MUST be the gallery route — never `usePathname()`.
@@ -211,6 +273,10 @@ export function WallpaperGallery({
   // Cache is applied in useLayoutEffect before paint when returning from detail.
   const [query, setQuery] = useState(qParam)
   const [wallpapers, setWallpapers] = useState(initial.wallpapers)
+  /** Filters the current `wallpapers` list was loaded for (`initial` = defaults). */
+  const [listFilterKey, setListFilterKey] = useState(() =>
+    galleryFilterKey(activeCategory, DEFAULT_GALLERY_FILTERS, initial.limit)
+  )
   const [page, setPage] = useState(initial.page)
   const [hasMore, setHasMore] = useState(initial.hasMore)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -268,19 +334,19 @@ export function WallpaperGallery({
   const persistSnapshotRef = useRef(persistSnapshot)
   persistSnapshotRef.current = persistSnapshot
 
-  // Only refetch when the user changes filters — NOT when callback identity churns.
-  // (Including `persistSnapshot` in deps re-fired this on Back and wiped Show more
-  // via `{ replace: true }` → browser-verified 48→24 regression.)
-  const filterKey = `${activeCategory ?? ""}|${qParam}|${tagParam}|${sort}|${initial.limit}`
-  const filterKeyRef = useRef<string | null>(null)
+  // Only refetch when the list doesn't match the filters — NOT when callback
+  // identity churns. (Including `persistSnapshot` in deps re-fired this on Back
+  // and wiped Show more via `{ replace: true }` → browser-verified 48→24
+  // regression.) A Back restore sets `listFilterKey`, so it never refetches.
+  const filterKey = galleryFilterKey(
+    activeCategory,
+    { q: qParam, tag: tagParam, sort },
+    initial.limit
+  )
+  const listMatchesFilters = listFilterKey === filterKey
 
   useEffect(() => {
-    if (filterKeyRef.current === null) {
-      filterKeyRef.current = filterKey
-      return
-    }
-    if (filterKeyRef.current === filterKey) return
-    filterKeyRef.current = filterKey
+    if (!filtersReady || listMatchesFilters) return
 
     let cancelled = false
 
@@ -301,6 +367,7 @@ export function WallpaperGallery({
         const data = (await res.json()) as PublicWallpaperListResult
         if (cancelled) return
         setWallpapers(data.wallpapers)
+        setListFilterKey(filterKey)
         setPage(data.page)
         setHasMore(data.hasMore)
         setEntranceIndices(buildEntranceIndices(data.wallpapers))
@@ -326,7 +393,16 @@ export function WallpaperGallery({
     return () => {
       cancelled = true
     }
-  }, [filterKey, activeCategory, qParam, tagParam, sort, initial.limit])
+  }, [
+    filtersReady,
+    listMatchesFilters,
+    filterKey,
+    activeCategory,
+    qParam,
+    tagParam,
+    sort,
+    initial.limit,
+  ])
 
   // Own scroll — Next/browser restoration is what dumps you on the footer.
   useEffect(() => {
@@ -347,16 +423,25 @@ export function WallpaperGallery({
 
   // Keep cache warm for focus marking — only while still on a gallery route.
   useEffect(() => {
-    if (!onGalleryRoute) return
+    if (!onGalleryRoute || !filtersReady || !listMatchesFilters) return
     persistSnapshot({
       wallpapers,
       page,
       hasMore,
     })
-  }, [wallpapers, page, hasMore, persistSnapshot, onGalleryRoute])
+  }, [
+    wallpapers,
+    page,
+    hasMore,
+    persistSnapshot,
+    onGalleryRoute,
+    filtersReady,
+    listMatchesFilters,
+  ])
 
   // Restore expanded list + lock scroll to the opened card after Back.
   useLayoutEffect(() => {
+    if (!filtersReady) return
     const saved = getGalleryReturnForFilters(returnFilters)
     if (
       !saved ||
@@ -366,7 +451,10 @@ export function WallpaperGallery({
     }
 
     // Re-apply whenever React remounted behind the cache (Strict Mode / Back).
-    const behindCache = wallpapers.length < saved.wallpapers.length
+    // The prerendered list is for the default filters; a filtered view's
+    // snapshot always beats it.
+    const behindCache =
+      !listMatchesFilters || wallpapers.length < saved.wallpapers.length
     const needsFocusScroll = Boolean(saved.focusWallpaperId)
     if (!behindCache && !needsFocusScroll) return
 
@@ -374,6 +462,7 @@ export function WallpaperGallery({
     if (behindCache) {
       flushSync(() => {
         setWallpapers(saved.wallpapers)
+        setListFilterKey(filterKey)
         setPage(saved.page)
         setHasMore(saved.hasMore)
         setEntranceIndices(buildEntranceIndices(saved.wallpapers))
@@ -384,6 +473,9 @@ export function WallpaperGallery({
       return scrollGalleryToWallpaper(saved.focusWallpaperId)
     }
   }, [
+    filtersReady,
+    listMatchesFilters,
+    filterKey,
     returnFilters,
     initial.wallpapers.length,
     wallpapers.length,
@@ -399,7 +491,7 @@ export function WallpaperGallery({
 
   const updateParams = useCallback(
     (patch: Record<string, string | null>) => {
-      const next = new URLSearchParams(searchParams.toString())
+      const next = new URLSearchParams(window.location.search)
       for (const [key, value] of Object.entries(patch)) {
         if (!value) next.delete(key)
         else next.set(key, value)
@@ -409,7 +501,7 @@ export function WallpaperGallery({
         router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
       })
     },
-    [pathname, router, searchParams]
+    [pathname, router]
   )
 
   const onSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -493,6 +585,9 @@ export function WallpaperGallery({
 
   return (
     <div className={WALLPAPER_SECTION_FONT_CLASS}>
+      <Suspense fallback={null}>
+        <GallerySearchParamsSync onChange={onFiltersChange} />
+      </Suspense>
       <Breadcrumb>
         <BreadcrumbList
           className={cn(
@@ -593,6 +688,8 @@ export function WallpaperGallery({
               <button
                 type="button"
                 onClick={() => openCommandPalette(true)}
+                onPointerEnter={preloadCommandPaletteDialog}
+                onFocus={preloadCommandPaletteDialog}
                 className="pointer-events-auto flex h-[22px] shrink-0 appearance-none items-center justify-center border-0 bg-transparent p-0 leading-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:outline-none"
                 aria-label={`Open command palette (${paletteShortcut})`}
               >
@@ -722,7 +819,8 @@ export function WallpaperGallery({
           className={cn(
             GALLERY_GRID_LAYOUT_CLASS,
             "mt-5",
-            isPending && "opacity-60 transition-opacity duration-300"
+            (isPending || (filtersReady && !listMatchesFilters)) &&
+              "opacity-60 transition-opacity duration-300"
           )}
         >
           {wallpapers.map((wallpaper: PublicWallpaper, index) => (

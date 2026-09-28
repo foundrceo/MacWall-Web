@@ -5,7 +5,10 @@ import { useState } from "react"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { HeroMobileActions } from "@/components/macwall-marketing/hero-mobile-actions"
 import { HeroPriceCaption } from "@/components/macwall-marketing/hero-price-caption"
-import { ProModal } from "@/components/macwall-marketing/pro-modal"
+import {
+  ProModal,
+  preloadProModal,
+} from "@/components/macwall-marketing/pro-modal-lazy"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import { macwallInstallerLatestPath } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
@@ -54,6 +57,8 @@ export function HeroActions() {
               }}
               className={heroOutlineCapsule}
               aria-haspopup="dialog"
+              onPointerEnter={preloadProModal}
+              onFocus={preloadProModal}
             >
               Get License
             </button>
