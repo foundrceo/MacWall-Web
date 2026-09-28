@@ -28,7 +28,7 @@ export function Hero() {
         </Link>
         <div className="flex flex-col items-center gap-4">
           <h1 className="max-w-4xl text-center text-5xl font-normal tracking-tighter md:text-7xl">
-            Cinematic 4K wallpapers
+            Cinematic 4K live wallpapers
             <br />
             Built for Mac
           </h1>

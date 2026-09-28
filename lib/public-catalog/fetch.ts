@@ -462,3 +462,68 @@ export async function countPublicWallpapers(
   })
   return result.total
 }
+
+type CollectionIndexRow = WallpaperListRow & Pick<WallpaperRow, "tags">
+
+const COLLECTION_INDEX_SELECT_COLUMNS = `${LIST_SELECT_COLUMNS},tags`
+
+async function fetchCollectionIndexRowsUncached(): Promise<
+  CollectionIndexRow[]
+> {
+  const origin = requireOrigin()
+  const rows: CollectionIndexRow[] = []
+  const seen = new Set<string>()
+
+  for (let page = 1; page <= SITEMAP_MAX_PAGES; page += 1) {
+    const params = new URLSearchParams({
+      select: COLLECTION_INDEX_SELECT_COLUMNS,
+      order: "like_count.desc,created_at.desc",
+      limit: String(SITEMAP_PAGE_SIZE),
+      offset: String((page - 1) * SITEMAP_PAGE_SIZE),
+    })
+
+    const res = await fetch(`${origin}/rest/v1/wallpapers?${params}`, {
+      headers: catalogHeaders(),
+      next: {
+        revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
+        tags: [PUBLIC_CATALOG_CACHE_TAG],
+      },
+    })
+
+    if (!res.ok) {
+      throw new Error(`Collection catalog list failed: HTTP ${res.status}`)
+    }
+
+    const batch = (await res.json()) as CollectionIndexRow[]
+    for (const row of batch) {
+      if (seen.has(row.id) || REMOVED_PUBLIC_WALLPAPER_IDS.has(row.id)) continue
+      seen.add(row.id)
+      rows.push(row)
+    }
+
+    if (batch.length < SITEMAP_PAGE_SIZE) break
+  }
+
+  return rows
+}
+
+const getCachedCollectionIndexRows = unstable_cache(
+  async () => fetchCollectionIndexRowsUncached(),
+  ["public-wallpaper-collection-index-v1"],
+  {
+    revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
+    tags: [PUBLIC_CATALOG_CACHE_TAG],
+  }
+)
+
+/**
+ * Every public wallpaper with its tags, most-liked first.
+ * One cached read shared by collection pages, the hub, the sitemap, and
+ * detail-page collection links.
+ */
+export const listPublicWallpapersForCollections = cache(
+  async (): Promise<PublicWallpaper[]> => {
+    const rows = await getCachedCollectionIndexRows()
+    return rows.map((row) => ({ ...mapListRow(row), tags: row.tags ?? [] }))
+  }
+)

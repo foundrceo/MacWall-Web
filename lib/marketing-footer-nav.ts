@@ -49,6 +49,7 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
       title: "Product",
       links: [
         { label: "Wallpapers", href: "/wallpapers" },
+        { label: "Collections", href: "/wallpapers/collections" },
         { label: foot.shop.pricing, href: "/pricing" },
         { label: foot.shop.download, href: "/download" },
         { label: "Bend", href: "/bend" },
@@ -170,6 +171,11 @@ export function getMarketingFooterSections(
       title: foot.exploreTitle,
       links: [
         { label: "Wallpapers", href: "/wallpapers", kind: "internal" },
+        {
+          label: "Wallpaper collections",
+          href: "/wallpapers/collections",
+          kind: "internal",
+        },
         { label: "Bend", href: "/bend", kind: "internal" },
         { label: "Want Free?", href: "/creator", kind: "internal" },
         { label: "Docs", href: "/docs", kind: "internal" },
