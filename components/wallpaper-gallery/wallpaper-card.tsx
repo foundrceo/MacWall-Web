@@ -45,11 +45,13 @@ function WallpaperCardMedia({
   const [isHovered, setIsHovered] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [videoSrc, setVideoSrc] = useState<string | null>(null)
+  const masterFallbackDoneRef = useRef(false)
   const resolvedVideoUrl = previewVideoUrl ?? wallpaper.videoUrl
 
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true)
     if (reduceMotion || !resolvedVideoUrl) return
+    masterFallbackDoneRef.current = false
     setVideoSrc(resolvedVideoUrl)
   }, [reduceMotion, resolvedVideoUrl])
 
@@ -124,6 +126,17 @@ function WallpaperCardMedia({
             onDragStart={blockMediaContextMenu}
             onPlaying={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
+            onError={() => {
+              // Transform quota exhausted (Cloudflare 9422) → play the
+              // direct CDN object once instead of a dead hover preview.
+              if (masterFallbackDoneRef.current) return
+              masterFallbackDoneRef.current = true
+              const master = resolvedVideoUrl.replace(
+                /\/cdn-cgi\/media\/[^/]+/,
+                ""
+              )
+              if (master && master !== videoSrc) setVideoSrc(master)
+            }}
           />
         ) : null}
 

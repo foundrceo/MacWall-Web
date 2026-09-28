@@ -70,14 +70,51 @@ export function WallpaperVideoPlayer({
   title: string
   className?: string
 }>) {
-  const playbackSrc = src.trim()
+  const initialSrc = src.trim()
+  const [[playbackSrc, fallbackUsed], setPlayback] = useState<
+    [string, boolean]
+  >([initialSrc, false])
   const [reloadNonce, setReloadNonce] = useState(0)
 
-  const retryPlayback = useCallback(() => {
-    setReloadNonce((n) => n + 1)
-  }, [])
+  // Adjust state during render (not in an effect) when the wallpaper changes.
+  const [prevSrc, setPrevSrc] = useState(initialSrc)
+  if (prevSrc !== initialSrc) {
+    setPrevSrc(initialSrc)
+    setPlayback([initialSrc, false])
+  }
 
-  const onMediaError = useCallback(async () => false, [])
+  const retryPlayback = useCallback(() => {
+    setPlayback([initialSrc, false])
+    setReloadNonce((n) => n + 1)
+  }, [initialSrc])
+
+  const onMediaError = useCallback(async () => {
+    // Cloudflare Media Transformations run on a limited quota (free tier:
+    // error 9422 when unique transformations are exhausted). The transform
+    // URL then 404s/429s for every wallpaper. Fall back once to the direct
+    // CDN object so previews keep working; drop this when quota recovers.
+    if (!fallbackUsed) {
+      const master = initialSrc.replace(/\/cdn-cgi\/media\/[^/]+/, "")
+      if (master && master !== playbackSrc) {
+        setPlayback([master, true])
+        return true
+      }
+    }
+    return false
+  }, [initialSrc, playbackSrc, fallbackUsed])
+
+  const onStuckBuffering = useCallback(() => {
+    // Same fallback for streams that hang without firing `error`
+    // (transform URLs time out instead of failing fast).
+    if (!fallbackUsed) {
+      const master = initialSrc.replace(/\/cdn-cgi\/media\/[^/]+/, "")
+      if (master && master !== playbackSrc) {
+        setPlayback([master, true])
+        return true
+      }
+    }
+    return false
+  }, [initialSrc, playbackSrc, fallbackUsed])
 
   return (
     <WallpaperVideoPlayerInner
@@ -87,6 +124,7 @@ export function WallpaperVideoPlayer({
       title={title}
       className={className}
       onMediaError={onMediaError}
+      onStuckBuffering={onStuckBuffering}
       onRetry={retryPlayback}
     />
   )
@@ -99,6 +137,7 @@ function WallpaperVideoPlayerInner({
   className,
   bootstrapping,
   onMediaError,
+  onStuckBuffering,
   onRetry,
 }: Readonly<{
   src: string
@@ -107,6 +146,7 @@ function WallpaperVideoPlayerInner({
   className?: string
   bootstrapping?: boolean
   onMediaError: () => Promise<boolean>
+  onStuckBuffering: () => boolean
   onRetry: () => void
 }>) {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -180,14 +220,16 @@ function WallpaperVideoPlayerInner({
   }, [])
 
   // Never sit on a black shell forever if the stream dies silently.
+  // Hanging transform URLs get one fallback attempt before giving up.
   useEffect(() => {
     if (ready || failed || !src) return
     const timer = window.setTimeout(() => {
+      if (onStuckBuffering()) return
       setBuffering(false)
       setFailed(true)
     }, STUCK_BUFFERING_MS)
     return () => window.clearTimeout(timer)
-  }, [ready, failed, src, bootstrapping])
+  }, [ready, failed, src, bootstrapping, onStuckBuffering])
 
   useEffect(() => {
     if (!src?.trim() && !bootstrapping) {

@@ -19,8 +19,8 @@ const CONTENT_SECURITY_POLICY_REPORT_ONLY = [
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://analytics.tiktok.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.googletagmanager.com https://va.vercel-scripts.com https://cdn.affonso.io https://t.whop.tw",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
-  `img-src 'self' data: blob: https://${R2_CDN_HOST} https://*.supabase.co https://images.unsplash.com https://www.apple.com https://analytics.tiktok.com https://t.co https://analytics.twitter.com https://www.google-analytics.com`,
-  `media-src 'self' blob: https://${R2_CDN_HOST} https://*.supabase.co`,
+  `img-src 'self' data: blob: https://${R2_CDN_HOST} https://*.r2.cloudflarestorage.com https://*.supabase.co https://images.unsplash.com https://www.apple.com https://analytics.tiktok.com https://t.co https://analytics.twitter.com https://www.google-analytics.com`,
+  `media-src 'self' blob: https://${R2_CDN_HOST} https://*.r2.cloudflarestorage.com https://*.supabase.co`,
   "connect-src 'self' https://*.supabase.co https://*.r2.cloudflarestorage.com https://business-api.tiktok.com https://analytics.tiktok.com https://ads-api.x.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://vitals.vercel-insights.com https://va.vercel-scripts.com https://api.affonso.io https://cdn.affonso.io https://t.whop.tw",
   `frame-src 'self'`,
   "frame-ancestors 'self'",
@@ -204,6 +204,24 @@ const nextConfig = {
       }))
     )
 
+    /**
+     * Dev preview fix: `next dev` is typically embedded in an IDE iframe
+     * (different origin) over plain http://localhost. Sending production
+     * headers in dev breaks that in two ways:
+     * 1. `X-Frame-Options: SAMEORIGIN` / `frame-ancestors 'self'` blocks the
+     *    iframe → "Preview couldn't load".
+     * 2. `Strict-Transport-Security` (with preload) tells the browser to
+     *    upgrade http://localhost to https:// where no cert exists, and the
+     *    HSTS pin can stick around after dev. Only send them in production.
+     */
+    const isDev = process.env.NODE_ENV !== "production"
+    const csp = isDev
+      ? CONTENT_SECURITY_POLICY_REPORT_ONLY.replace(
+          "; frame-ancestors 'self'",
+          ""
+        )
+      : CONTENT_SECURITY_POLICY_REPORT_ONLY
+
     return [
       ...filteredGalleryNoindex,
       {
@@ -212,11 +230,16 @@ const nextConfig = {
           { key: "X-DNS-Prefetch-Control", value: "on" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "X-Content-Type-Options", value: "nosniff" },
-          {
-            key: "Strict-Transport-Security",
-            value: "max-age=63072000; includeSubDomains; preload",
-          },
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          // Production-only: breaks http://localhost previews + iframe embeds.
+          ...(isDev
+            ? []
+            : [
+                {
+                  key: "Strict-Transport-Security",
+                  value: "max-age=63072000; includeSubDomains; preload",
+                },
+                { key: "X-Frame-Options", value: "SAMEORIGIN" },
+              ]),
           {
             key: "Permissions-Policy",
             value:
@@ -228,7 +251,7 @@ const nextConfig = {
           },
           {
             key: "Content-Security-Policy-Report-Only",
-            value: CONTENT_SECURITY_POLICY_REPORT_ONLY,
+            value: csp,
           },
         ],
       },
