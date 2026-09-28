@@ -1,25 +1,22 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import type { ReactNode } from "react"
+import { Suspense, useEffect, useState } from "react"
 
-import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
-import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
-import { PricingCardFooter } from "@/components/macwall-marketing/pricing-card-footer"
-import { PricingTierCard } from "@/components/macwall-marketing/pricing-tier-card"
-import { PricingTryFreeRow } from "@/components/macwall-marketing/pricing-try-free-row"
-import {
-  PricingSocialProof,
-  PricingTrustStrip,
-} from "@/components/macwall-marketing/pricing-trust-strip"
-import { ProPlusPackCard } from "@/components/macwall-marketing/pro-plus-pack-card"
-import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
-import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
-import { cn } from "@/lib/utils"
+import { PricingPagePlans } from "@/components/macwall-marketing/pricing-page-plans"
 
-const pricingFeaturedButtonClass =
-  "inline-flex h-9 min-h-9 w-full items-center justify-center rounded-full bg-blue-800 px-3.5 text-[14px] font-medium text-white no-underline transition-colors hover:bg-blue-700"
+type PricingUrlState = {
+  checkoutError: string | null
+  promo: string | null
+  until: string | null
+}
+
+const EMPTY_URL_STATE: PricingUrlState = {
+  checkoutError: null,
+  promo: null,
+  until: null,
+}
 
 function withCheckoutPromo(
   url: string,
@@ -37,114 +34,45 @@ function withCheckoutPromo(
   }
 }
 
-const pricingMutedButtonClass =
-  "inline-flex h-9 min-h-9 w-full items-center justify-center rounded-full border border-landing-rule bg-transparent px-3.5 text-[14px] font-medium text-white no-underline transition-colors hover:bg-white/5"
-
-function PricingPrimaryButton({
-  href,
-  children,
-  location,
-  ariaLabel,
-  className,
-}: Readonly<{
-  href: string
-  children: ReactNode
-  location: string
-  ariaLabel?: string
-  className?: string
-}>) {
-  return (
-    <TrackedPricingButton
-      href={href}
-      location={location}
-      ariaLabel={ariaLabel}
-      size="pill"
-      className={cn(pricingFeaturedButtonClass, className)}
-    >
-      {children}
-    </TrackedPricingButton>
-  )
-}
-
-export default function MacWallMarketingPricingPage() {
-  const pricing = useMarketingPricing()
-  const plans = p.plans
+/**
+ * Reads `?checkout_error=`, `?promo=` and `?until=`. Isolated in its own
+ * Suspense boundary so `/pricing` prerenders with the full page in the HTML:
+ * in a static route `useSearchParams()` renders client-only up to the nearest
+ * boundary, and that must be this empty component, not the pricing content.
+ */
+function PricingUrlParams({
+  onChange,
+}: Readonly<{ onChange: (state: PricingUrlState) => void }>) {
   const searchParams = useSearchParams()
   const checkoutError = searchParams.get("checkout_error")?.trim() || null
   const promo = searchParams.get("promo")?.trim().toUpperCase() || null
   const until = searchParams.get("until")?.trim() || null
-  const checkoutUrl = withCheckoutPromo(pricing.checkoutUrl, promo, until)
+
+  useEffect(() => {
+    onChange({ checkoutError, promo, until })
+  }, [onChange, checkoutError, promo, until])
+
+  return null
+}
+
+export default function MacWallMarketingPricingPage() {
+  const pricing = useMarketingPricing()
+  const [urlState, setUrlState] = useState(EMPTY_URL_STATE)
+  const checkoutUrl = withCheckoutPromo(
+    pricing.checkoutUrl,
+    urlState.promo,
+    urlState.until
+  )
 
   return (
     <>
-      <MarketingSection className="marketing-hero-section">
-        <div className="marketing-container">
-          <PricingSocialProof className="mb-3" />
-          <h1 className="mx-auto max-w-3xl text-center text-[32px] leading-[1.12] font-normal tracking-tight text-white sm:text-[40px] lg:text-[48px]">
-            {p.heroTitle}
-          </h1>
-          <p className="mx-auto mt-3 max-w-xl text-center text-[16px] leading-6 text-landing-muted">
-            {p.heroLead}
-          </p>
-          {checkoutError ? (
-            <p
-              role="alert"
-              className="mx-auto mt-4 max-w-xl rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-center text-[14px] leading-snug text-red-200"
-            >
-              {checkoutError}
-            </p>
-          ) : null}
-
-          <div className="mt-6 md:mt-8">
-            <div className="mx-auto grid max-w-3xl grid-cols-1 items-stretch gap-4 sm:gap-5 lg:grid-cols-2">
-              <PricingTierCard
-                id="tier-pro"
-                title={plans.pro.title}
-                subtitle={plans.pro.subtitle}
-                price={pricing.permanentPrice}
-                priceMajor={pricing.permanentPriceMajor}
-                currency={pricing.currency}
-                localPriceHint={pricing.permanentLocalHint}
-                priceSuffix="one-time"
-                features={p.pro.features}
-                featuresPrefix={plans.pro.featuresPrefix}
-                featured
-                badge={plans.pro.badge}
-                reserveTopCenterSlot
-                action={
-                  <PricingPrimaryButton
-                    href={checkoutUrl}
-                    location="pricing_card_permanent"
-                    ariaLabel={pricing.buyProAria}
-                  >
-                    {pricing.getProCta}
-                  </PricingPrimaryButton>
-                }
-                footer={<PricingCardFooter />}
-              />
-
-              {pricing.multiMacOffers.length > 0 ? (
-                <ProPlusPackCard
-                  offers={pricing.multiMacOffers}
-                  title={plans.proPlus.title}
-                  subtitle={plans.proPlus.subtitle}
-                  featuresPrefix={plans.proPlus.featuresPrefix}
-                  features={p.proPlus.features}
-                  cta={pricing.getProPlusCta}
-                  badge={plans.proPlus.badge}
-                  buttonClassName={pricingMutedButtonClass}
-                  footer={<PricingCardFooter />}
-                />
-              ) : null}
-            </div>
-
-            <PricingTrustStrip className="mt-5" />
-            <PricingTryFreeRow className="mt-4" />
-          </div>
-        </div>
-      </MarketingSection>
-
-      <MarketingFaqSection defaultOpenQuestion={p.faq[0]?.q} />
+      <Suspense fallback={null}>
+        <PricingUrlParams onChange={setUrlState} />
+      </Suspense>
+      <PricingPagePlans
+        checkoutUrl={checkoutUrl}
+        checkoutError={urlState.checkoutError}
+      />
     </>
   )
 }

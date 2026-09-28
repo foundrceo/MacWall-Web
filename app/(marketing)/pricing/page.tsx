@@ -1,5 +1,3 @@
-import { Suspense } from "react"
-
 import { JsonLd } from "@/components/seo/json-ld"
 import MacWallMarketingPricingPage from "@/components/macwall-marketing/marketing-pricing"
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
@@ -64,9 +62,7 @@ export default function PricingPage() {
       <link rel="preconnect" href="https://js.stripe.com" />
       <link rel="dns-prefetch" href="https://js.stripe.com" />
       <JsonLd payload={jsonLd} />
-      <Suspense fallback={null}>
-        <MacWallMarketingPricingPage />
-      </Suspense>
+      <MacWallMarketingPricingPage />
     </>
   )
 }
