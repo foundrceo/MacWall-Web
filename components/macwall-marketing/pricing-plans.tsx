@@ -112,6 +112,7 @@ function PlanCard({
   price,
   priceMajor,
   currency,
+  locale,
   localPriceHint,
   action,
   featuresLabel,
@@ -126,6 +127,7 @@ function PlanCard({
   price: string
   priceMajor: number
   currency: string
+  locale: string
   localPriceHint: string | null
   action: ReactNode
   featuresLabel: string
@@ -191,6 +193,7 @@ function PlanCard({
               price={price}
               priceMajor={priceMajor}
               currency={currency}
+              locale={locale}
               className="font-display text-[52px] leading-[0.9] font-normal tracking-tight text-white"
             />
             {localPriceHint ? (
@@ -337,6 +340,7 @@ export function PricingPlans({
         price={pricing.permanentPrice}
         priceMajor={pricing.permanentPriceMajor}
         currency={pricing.currency}
+        locale={pricing.locale}
         localPriceHint={pricing.permanentLocalHint}
         featuresLabel={stripColon(plans.pro.featuresPrefix)}
         features={cardFeatures(p.pro.features)}
@@ -374,6 +378,7 @@ export function PricingPlans({
           price={selected.price}
           priceMajor={selected.priceMajor}
           currency={selected.currency}
+          locale={pricing.locale}
           localPriceHint={selected.localPriceHint}
           featuresLabel={stripColon(plans.proPlus.featuresPrefix)}
           features={cardFeatures(
