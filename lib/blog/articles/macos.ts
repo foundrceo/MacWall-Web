@@ -281,4 +281,90 @@ export const macosArticles: BlogArticle[] = [
       },
     ],
   },
+  {
+    slug: "macos-tahoe-wallpapers",
+    pathname: "/blog/macos-tahoe-wallpapers",
+    title: "macOS Tahoe Wallpapers: Default, Dynamic & Live (macOS 26)",
+    headline: "macOS Tahoe Wallpapers: Default, Dynamic, and Live",
+    description:
+      "Where to find the macOS Tahoe (macOS 26) wallpapers, how Dynamic and Aerial wallpapers work on Tahoe, and how to put a moving video on the desktop and Lock Screen.",
+    excerpt:
+      "Everything about wallpapers on macOS 26 Tahoe, from Apple's defaults to live Lock Screen video.",
+    category: "macos",
+    readMinutes: 5,
+    publishedAt: "2026-09-28",
+    keywords: [
+      "macos tahoe wallpaper",
+      "macos 26 wallpaper",
+      "macos tahoe wallpapers download",
+      "macos tahoe live wallpaper",
+      "macos tahoe dynamic wallpaper",
+      "macos tahoe lock screen wallpaper",
+    ],
+    sections: [
+      {
+        type: "p",
+        text: "**macOS Tahoe (macOS 26) wallpapers live in System Settings > Wallpaper, where Apple's new Tahoe designs sit alongside Dynamic Desktops, Aerial landscapes, and your own photos.** Tahoe is also the first macOS version that lets third-party apps put a moving video on the Lock Screen and Screen Saver, which is what makes true live wallpapers possible on a Mac.",
+      },
+      { type: "h2", text: "Where to find the macOS Tahoe wallpapers" },
+      {
+        type: "ol",
+        items: [
+          "Open **System Settings** from the Apple menu.",
+          "Click **Wallpaper** in the sidebar.",
+          "Scroll through the Apple sections: the new macOS designs, Dynamic Desktop, Landscape, Cityscape, Underwater, Earth, and Colors.",
+          "Click a thumbnail to apply it. Aerial wallpapers download the first time you choose them.",
+        ],
+      },
+      {
+        type: "p",
+        text: "The still image files are stored in **/System/Library/Desktop Pictures**. Aerial wallpapers are downloaded on demand into a system cache rather than shipped with macOS, so they only appear on disk after you select them.",
+      },
+      { type: "h2", text: "Dynamic, Aerial, and live: what is the difference?" },
+      {
+        type: "ul",
+        items: [
+          "**Dynamic Desktop**: a set of still images that swap with the time of day or your Light and Dark appearance. No motion.",
+          "**Aerial wallpapers**: slow-motion landscape footage that plays on the Lock Screen and as the screen saver, then settles to a still frame on the desktop.",
+          "**Live wallpaper**: a video loop that keeps playing on the desktop behind your windows. macOS has no built-in option for this; apps like [MacWall](/download) add it.",
+        ],
+      },
+      {
+        type: "p",
+        text: "The longer explanation is in [dynamic wallpaper vs live wallpaper on Mac](/blog/dynamic-wallpaper-vs-live-wallpaper-mac).",
+      },
+      { type: "h2", text: "Live Lock Screen wallpaper on Tahoe" },
+      {
+        type: "p",
+        text: "Before Tahoe, no third-party app could put its own video on the Lock Screen, because that surface is drawn by the system before you log in. macOS 26 exposed wallpaper APIs that let apps register a video as a system wallpaper, and MacWall Pro uses them to play any catalog loop on the Lock Screen and as a Screen Saver. Setup is covered in [live Lock Screen and Screen Saver](/docs/live-lock-screen-and-screen-saver).",
+      },
+      { type: "h2", text: "Wallpapers that suit Tahoe's Liquid Glass look" },
+      {
+        type: "p",
+        text: "Tahoe's translucent Liquid Glass menus and Dock pick up color from whatever sits behind them, so the wallpaper shapes how the whole interface looks. Darker, slower loops keep menu text readable; bright, busy scenes can wash it out. Good starting points in the MacWall catalog: [galaxy](/wallpapers/collections/galaxy), [rain](/wallpapers/collections/rain), [ocean](/wallpapers/collections/ocean), and [Japanese](/wallpapers/collections/japanese) collections.",
+      },
+      { type: "h2", text: "Can I use the Tahoe wallpaper on an older Mac?" },
+      {
+        type: "p",
+        text: "Apple's wallpaper files are licensed for use on macOS, so we do not host copies. If your Mac cannot run Tahoe, copy the image from a Mac that can (it is a normal image file in /System/Library/Desktop Pictures) and set it with Finder > right-click > **Set Desktop Picture**. Step-by-step: [how to change wallpaper on Mac](/blog/how-to-change-wallpaper-on-mac).",
+      },
+    ],
+    faq: [
+      {
+        question: "Where are macOS Tahoe wallpapers stored?",
+        answer:
+          "Still wallpapers are in /System/Library/Desktop Pictures. Aerial wallpapers are downloaded on demand into a system cache the first time you select them in System Settings > Wallpaper.",
+      },
+      {
+        question: "Does macOS Tahoe support live wallpapers?",
+        answer:
+          "Tahoe's Aerial wallpapers move on the Lock Screen and screen saver but stay still on the desktop. For a video that keeps playing on the desktop, and for your own video on the Lock Screen, use a live wallpaper app such as MacWall.",
+      },
+      {
+        question: "Can I set a different Lock Screen wallpaper on macOS Tahoe?",
+        answer:
+          "Built-in settings mirror the main display's wallpaper on the Lock Screen. MacWall Pro on macOS 26 or later can set a separate moving Lock Screen and Screen Saver.",
+      },
+    ],
+  },
 ]

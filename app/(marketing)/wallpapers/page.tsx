@@ -1,4 +1,9 @@
-import { WallpaperGalleryPageShell, parseGallerySort } from "@/components/wallpaper-gallery/wallpaper-gallery-page"
+import { CollectionLinkStrip } from "@/components/wallpaper-gallery/collection-link-strip"
+import {
+  WallpaperGalleryPageShell,
+  parseGallerySort,
+} from "@/components/wallpaper-gallery/wallpaper-gallery-page"
+import { wallpaperCollections } from "@/lib/seo/wallpaper-collections"
 import { JsonLd } from "@/components/seo/json-ld"
 import { wallpaperGalleryIndexJsonLd } from "@/lib/seo/wallpaper-json-ld"
 import {
@@ -28,7 +33,9 @@ export async function generateMetadata({
   return wallpaperGalleryIndexMetadata(params)
 }
 
-export default async function WallpapersGalleryPage({ searchParams }: PageProps) {
+export default async function WallpapersGalleryPage({
+  searchParams,
+}: PageProps) {
   const params = await searchParams
   let initial
   let loadError = false
@@ -72,6 +79,12 @@ export default async function WallpapersGalleryPage({ searchParams }: PageProps)
         initial={initial}
         title="Live wallpapers for Mac"
         loadError={loadError}
+        afterGallery={
+          <CollectionLinkStrip
+            title="Popular collections"
+            collections={wallpaperCollections}
+          />
+        }
       />
     </>
   )

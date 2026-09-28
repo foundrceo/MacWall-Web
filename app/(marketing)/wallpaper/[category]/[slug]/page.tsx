@@ -1,6 +1,8 @@
 import { MarketingRail } from "@/components/macwall-marketing/marketing-rail"
 import { WallpaperDetail } from "@/components/wallpaper-gallery/wallpaper-detail"
 import { JsonLd } from "@/components/seo/json-ld"
+import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
+import { buildWallpaperDetailContent } from "@/lib/seo/wallpaper-detail-content"
 import { wallpaperDetailPageJsonLd } from "@/lib/seo/wallpaper-json-ld"
 import { wallpaperDetailMetadata } from "@/lib/seo/wallpaper-metadata"
 import {
@@ -8,7 +10,6 @@ import {
   listSimilarPublicWallpapers,
 } from "@/lib/public-catalog/fetch"
 import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
-import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 import type { Metadata } from "next"
 import { notFound, permanentRedirect } from "next/navigation"
@@ -60,7 +61,7 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
   }
 
   const origin = canonicalSiteOrigin()
-  const detailDescription = `${wallpaper.name} live wallpaper for Mac in ${wallpaper.category}. Preview the loop and set it with ${macwall.name}.`
+  const content = buildWallpaperDetailContent(wallpaper)
 
   return (
     <>
@@ -68,15 +69,17 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
         payload={wallpaperDetailPageJsonLd({
           origin,
           wallpaper,
-          description: detailDescription,
+          description: content.metaDescription,
           durationSeconds: wallpaper.durationSeconds,
         })}
       />
+      <JsonLd payload={faqPageJsonLd(content.faq)} />
       <MarketingRail innerClassName="min-h-[70vh]">
         <WallpaperDetail
           wallpaper={wallpaper}
           similar={similar}
           origin={origin}
+          content={content}
         />
       </MarketingRail>
     </>

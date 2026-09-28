@@ -21,7 +21,7 @@ export const guideArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "macOS ships with a handful of dynamic wallpapers, but they are limited and you cannot use your own video loops. **MacWall** is a native app that plays motion wallpapers behind your desktop windows, with hardware decoding on Apple Silicon, menu bar controls, and an offline-friendly catalog.",
+        text: "**To set a live wallpaper on a Mac, install a live wallpaper app such as MacWall, pick a video loop, and click Set. macOS has no built-in option for video wallpapers.** It ships with a handful of dynamic wallpapers, but they are scheduled still images and you cannot use your own video loops. **MacWall** is a native app that plays motion wallpapers behind your desktop windows, with hardware decoding on Apple Silicon, menu bar controls, and an offline-friendly catalog.",
       },
       {
         type: "h2",
@@ -62,6 +62,36 @@ export const guideArticles: BlogArticle[] = [
       {
         type: "p",
         text: "MacWall Pro adds Lock Screen live wallpaper on macOS 26 (Tahoe) and later. One-time purchase, lifetime updates, up to 3 Macs per license (Pro Plus: 5 Macs).",
+      },
+      {
+        type: "h2",
+        text: "Where to find live wallpapers",
+      },
+      {
+        type: "p",
+        text: "Browse the [web gallery](/wallpapers) or start from a collection: [Gojo](/wallpapers/collections/gojo), [Spider-Man](/wallpapers/collections/spider-man), [JDM cars](/wallpapers/collections/jdm), [rain](/wallpapers/collections/rain), [lofi](/wallpapers/collections/lofi), or [galaxy](/wallpapers/collections/galaxy). Every wallpaper page has a **Set on Mac** button that opens it straight in the app.",
+      },
+    ],
+    faq: [
+      {
+        question: "Can you have a live wallpaper on a Mac?",
+        answer:
+          "Yes, with a live wallpaper app. macOS only supports still and dynamic wallpapers on its own; apps like MacWall play video loops as the desktop wallpaper on macOS 15 and later.",
+      },
+      {
+        question: "How do I get live wallpapers on my MacBook?",
+        answer:
+          "Download MacWall, open it, pick a wallpaper from the catalog or import your own MP4 or MOV, and click Set. It works on every MacBook Air and MacBook Pro running macOS 15 or later.",
+      },
+      {
+        question: "Do live wallpapers drain the battery on a Mac?",
+        answer:
+          "Very little with a native app. MacWall decodes video in hardware and pauses automatically on battery, in full-screen apps, and when the display sleeps.",
+      },
+      {
+        question: "How do I remove a live wallpaper on Mac?",
+        answer:
+          "Choose Stop from the MacWall menu bar icon, or quit the app, then pick any still wallpaper in System Settings > Wallpaper.",
       },
     ],
   },
@@ -369,6 +399,215 @@ export const guideArticles: BlogArticle[] = [
           "Export at 4K HEVC if you can; Apple Silicon decodes it for free",
           "Popular likes push your wallpaper up the Most Popular ranking",
         ],
+      },
+    ],
+  },
+  {
+    slug: "how-to-change-wallpaper-on-mac",
+    pathname: "/blog/how-to-change-wallpaper-on-mac",
+    title: "How to Change Wallpaper on Mac (macOS Tahoe, Sequoia & Older)",
+    headline: "How to Change the Wallpaper on a Mac",
+    description:
+      "Change your Mac wallpaper in System Settings, from Photos, Finder, or Safari, set one per display, rotate it automatically, and add a live video wallpaper.",
+    excerpt:
+      "Every way to change the desktop wallpaper on a Mac, for every macOS version, plus how to make it move.",
+    category: "guides",
+    readMinutes: 6,
+    publishedAt: "2026-09-28",
+    keywords: [
+      "how to change wallpaper on mac",
+      "how to change mac wallpaper",
+      "how to change desktop wallpaper on mac",
+      "how to set wallpaper on mac",
+      "how to change wallpaper on macbook air",
+      "how to set a photo as wallpaper on mac",
+      "how to change lock screen wallpaper on mac",
+    ],
+    sections: [
+      {
+        type: "p",
+        text: "**To change the wallpaper on a Mac, open System Settings, click Wallpaper in the sidebar, and choose a picture.** It applies immediately. On macOS Monterey and older, the same option lives in System Preferences under Desktop & Screen Saver. You can also right-click any image in Finder and choose **Set Desktop Picture**.",
+      },
+      { type: "h2", text: "Change wallpaper in System Settings (macOS Ventura to Tahoe)" },
+      {
+        type: "ol",
+        items: [
+          "Click the Apple menu, then **System Settings**.",
+          "Select **Wallpaper** in the sidebar.",
+          "Pick one of Apple's wallpapers, a Dynamic Desktop, a color, or scroll to **Your Photos** or **Pictures**.",
+          "To use your own folder, click **Add Folder or Album**, then choose the folder.",
+          "Choose how the image fits: Fill Screen, Fit to Screen, Stretch to Fill Screen, Center, or Tile.",
+        ],
+      },
+      {
+        type: "p",
+        text: "This works the same on MacBook Air, MacBook Pro, iMac, Mac mini, and Mac Studio. If the Wallpaper pane is greyed out, the Mac is managed by an organization profile that locks the desktop picture.",
+      },
+      { type: "h2", text: "Change wallpaper on macOS Monterey and older" },
+      {
+        type: "ol",
+        items: [
+          "Open the Apple menu, then **System Preferences**.",
+          "Click **Desktop & Screen Saver**, then the **Desktop** tab.",
+          "Choose an image from Apple, Photos, or a folder on the left, and pick a fit option.",
+        ],
+      },
+      { type: "h2", text: "Set a photo as wallpaper from Photos, Finder, or Safari" },
+      {
+        type: "ul",
+        items: [
+          "**Photos**: select a photo, click the Share button, and choose **Set Wallpaper**.",
+          "**Finder**: right-click (or Control-click) an image file and choose **Set Desktop Picture**.",
+          "**Safari**: right-click an image on a web page and choose **Use Image as Desktop Picture**.",
+        ],
+      },
+      { type: "h2", text: "Use a different wallpaper on each display" },
+      {
+        type: "p",
+        text: "With more than one monitor connected, System Settings shows a wallpaper choice for each display. Select the display at the top of the Wallpaper pane, then pick its image. Each Space (desktop in Mission Control) can also carry its own wallpaper: switch to the Space first, then change the picture.",
+      },
+      { type: "h2", text: "Rotate wallpapers automatically" },
+      {
+        type: "p",
+        text: "Add a folder or album in the Wallpaper pane, then turn on the shuffle or **Change picture** option and choose an interval such as every hour or every day. Dynamic Desktop wallpapers change on their own through the day, following the time or your light and dark appearance setting.",
+      },
+      { type: "h2", text: "Change the Lock Screen wallpaper" },
+      {
+        type: "p",
+        text: "Since macOS Sonoma, the Lock Screen shows the same wallpaper as your main display, so changing the desktop wallpaper changes the Lock Screen too. macOS has no separate Lock Screen picture setting. On macOS 26 (Tahoe) and later, apps like MacWall can put a moving video on the Lock Screen and Screen Saver through Apple's wallpaper APIs. See the [Lock Screen live wallpaper guide](/blog/lock-screen-live-wallpaper-macos).",
+      },
+      { type: "h2", text: "Make your Mac wallpaper move" },
+      {
+        type: "p",
+        text: "macOS cannot use a video as a desktop wallpaper on its own. A live wallpaper app fills that gap. [MacWall](/download) plays 4K video loops behind your windows with hardware decoding, pauses on battery and in full-screen apps, and has a catalog of 800+ curated loops, from [anime](/wallpapers/anime) and [cars](/wallpapers/cars) to [rain](/wallpapers/collections/rain) and [space](/wallpapers/space). Full steps: [how to set a live wallpaper on Mac](/blog/how-to-set-live-wallpaper-mac).",
+      },
+      { type: "h2", text: "Pick the right image size" },
+      {
+        type: "p",
+        text: "A wallpaper looks sharpest at your display's physical resolution: 2560×1664 on a 13-inch MacBook Air, 3024×1964 on a 14-inch MacBook Pro, 5120×2880 on a 5K display. Every model is listed in [MacBook wallpaper size](/blog/macbook-wallpaper-size).",
+      },
+    ],
+    faq: [
+      {
+        question: "Why can't I change the wallpaper on my Mac?",
+        answer:
+          "The most common cause is a configuration profile installed by a school or employer that locks the desktop picture. Check System Settings > Privacy & Security > Profiles. Otherwise, restart the Mac and try again from System Settings > Wallpaper.",
+      },
+      {
+        question: "Can I have a different Lock Screen and desktop wallpaper on Mac?",
+        answer:
+          "Not with built-in settings. Since macOS Sonoma the Lock Screen mirrors the main display's wallpaper. On macOS 26 and later, a live wallpaper app such as MacWall can set a separate moving Lock Screen and Screen Saver.",
+      },
+      {
+        question: "Can I set a video or GIF as my Mac wallpaper?",
+        answer:
+          "Not natively. macOS only supports still images and Dynamic Desktop files. A live wallpaper app like MacWall plays MP4, MOV, and GIF files as the desktop wallpaper.",
+      },
+      {
+        question: "How do I change the wallpaper on a MacBook Air?",
+        answer:
+          "The same way as any Mac: Apple menu > System Settings > Wallpaper, then choose an image. On older macOS versions use System Preferences > Desktop & Screen Saver.",
+      },
+    ],
+  },
+  {
+    slug: "macbook-wallpaper-size",
+    pathname: "/blog/macbook-wallpaper-size",
+    title: "MacBook Wallpaper Size: Resolution for Every Mac (2026)",
+    headline: "MacBook Wallpaper Size for Every Model",
+    description:
+      "The exact wallpaper size for every MacBook Air, MacBook Pro, iMac, and Apple display, plus the aspect ratio to use and how to size one image for all Macs.",
+    excerpt:
+      "Native wallpaper dimensions for every current Mac, and one size that fits them all.",
+    category: "guides",
+    readMinutes: 4,
+    publishedAt: "2026-09-28",
+    keywords: [
+      "macbook wallpaper size",
+      "mac wallpaper size",
+      "macbook wallpaper dimensions",
+      "macbook pro wallpaper dimensions",
+      "macbook air wallpaper size",
+      "what size is mac wallpaper",
+      "imac wallpaper size",
+    ],
+    sections: [
+      {
+        type: "p",
+        text: "**The best MacBook wallpaper size is the display's native resolution: 2560×1664 for a 13-inch MacBook Air, 2880×1864 for a 15-inch MacBook Air, 3024×1964 for a 14-inch MacBook Pro, and 3456×2234 for a 16-inch MacBook Pro.** If one image has to fit every Mac, use 3456×2234 or larger at roughly a 16:10 ratio and let macOS scale it down.",
+      },
+      { type: "h2", text: "MacBook Air wallpaper sizes" },
+      {
+        type: "ul",
+        items: [
+          "**MacBook Air 13-inch (M2, M3, M4 and later)**: 2560×1664",
+          "**MacBook Air 15-inch (M2, M3, M4 and later)**: 2880×1864",
+          "**MacBook Air 13-inch (M1, 2020)**: 2560×1600",
+          "**MacBook Air 13-inch Retina (Intel, 2018 to 2020)**: 2560×1600",
+        ],
+      },
+      { type: "h2", text: "MacBook Pro wallpaper sizes" },
+      {
+        type: "ul",
+        items: [
+          "**MacBook Pro 14-inch (M1 Pro and later)**: 3024×1964",
+          "**MacBook Pro 16-inch (M1 Pro and later)**: 3456×2234",
+          "**MacBook Pro 13-inch (M1, M2)**: 2560×1600",
+          "**MacBook Pro 16-inch (Intel, 2019)**: 3072×1920",
+          "**MacBook Pro 15-inch Retina (Intel)**: 2880×1800",
+        ],
+      },
+      { type: "h2", text: "iMac and Apple display wallpaper sizes" },
+      {
+        type: "ul",
+        items: [
+          "**iMac 24-inch (M1 and later)**: 4480×2520",
+          "**iMac 27-inch 5K (Intel)**: 5120×2880",
+          "**Studio Display**: 5120×2880",
+          "**Pro Display XDR**: 6016×3384",
+          "**4K external monitor**: 3840×2160",
+        ],
+      },
+      { type: "h2", text: "Why the number in System Settings is smaller" },
+      {
+        type: "p",
+        text: "System Settings > Displays shows a *scaled* resolution such as \"looks like 1512×982\" on a 14-inch MacBook Pro. The panel really has twice as many pixels in each direction, and macOS renders at that size for sharp Retina text. Size your wallpaper for the physical pixels above, not the scaled number, or it will look soft. The full explanation is in [resolution and displays](/learn/wallpaper-resolution-and-displays).",
+      },
+      { type: "h2", text: "Aspect ratio and the notch" },
+      {
+        type: "ul",
+        items: [
+          "Recent MacBooks are close to **16:10**; external monitors are usually **16:9**. A 16:10 image cropped slightly works on both.",
+          "On notched MacBooks the top strip sits behind the menu bar. Keep faces and text out of the top 40 or so pixels of the image.",
+          "Desktop icons live on the right edge by default, so a subject on the left or centre stays readable.",
+        ],
+      },
+      { type: "h2", text: "Live wallpaper sizes" },
+      {
+        type: "p",
+        text: "Video wallpapers follow the same rule, but bigger is not free: a 4K loop on a 1080p monitor decodes pixels you never see. [MacWall](/download) catalog loops are mostly 4K or 1440p and scale to each display automatically. Browse [4K live wallpapers](/wallpapers) or read about [4K video wallpaper on Mac](/blog/4k-video-wallpaper-mac).",
+      },
+    ],
+    faq: [
+      {
+        question: "What size should a MacBook Air wallpaper be?",
+        answer:
+          "2560×1664 pixels for the 13-inch MacBook Air with M2 or later, 2880×1864 for the 15-inch model, and 2560×1600 for the M1 and Intel Retina models.",
+      },
+      {
+        question: "What size should a MacBook Pro wallpaper be?",
+        answer:
+          "3024×1964 for the 14-inch MacBook Pro and 3456×2234 for the 16-inch model (M1 Pro and later). Older 13-inch models use 2560×1600.",
+      },
+      {
+        question: "Is a 4K wallpaper good for a MacBook?",
+        answer:
+          "Yes. A 3840×2160 image is larger than every MacBook panel, so macOS scales it down cleanly. It is 16:9, so a thin strip is cropped on 16:10 MacBook screens.",
+      },
+      {
+        question: "What aspect ratio are Mac wallpapers?",
+        answer:
+          "Current MacBooks are about 16:10 (slightly taller with the notch area), while iMacs, Apple displays, and most external monitors are 16:9.",
       },
     ],
   },
