@@ -386,7 +386,7 @@ export const learnPages: LearnPage[] = [
     sections: [
       {
         type: "p",
-        text: "Wallpaper resolution advice usually skips the part that matters on a Mac: the number in System Settings is a *scaled* resolution, not the panel's real pixel count. Target the physical pixels and everything looks right.",
+        text: "Wallpaper resolution advice usually skips the part that matters on a Mac: the number in System Settings is a *scaled* resolution, not the panel's real pixel count. Target the physical pixels and everything looks right. For the exact pixel dimensions of every MacBook, iMac, and Apple display, see [MacBook wallpaper size](/blog/macbook-wallpaper-size).",
       },
       { type: "h2", text: "Retina scaling in one paragraph" },
       {

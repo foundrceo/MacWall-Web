@@ -20,6 +20,18 @@ import {
   wallpaperEngineAlternativePage,
 } from "@/lib/seo/landing-pages"
 import { canonicalSiteOrigin } from "@/lib/site-url"
+import { listCollectionWallpapers } from "@/lib/public-catalog/collections"
+import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
+import {
+  COLLECTION_GRID_LIMIT,
+  COLLECTION_GROUP_LABELS,
+  COLLECTION_GROUP_ORDER,
+  WALLPAPER_COLLECTIONS_HUB_PATH,
+  collectionFaq,
+  wallpaperCollectionPath,
+  wallpaperCollections,
+  type WallpaperCollection,
+} from "@/lib/seo/wallpaper-collections"
 
 /**
  * Single registry of every Markdown-representable page on the site.
@@ -166,6 +178,18 @@ const wallpapersIndexPage: SeoContentPage = {
         const page = wallpaperCategoryPage(name)
         return `[${name}](${page.pathname}): ${page.description}`
       }),
+    },
+    { type: "h2", text: "Collections" },
+    {
+      type: "p",
+      text: `Topic collections group the catalog by what people search for: characters, cars, sports, moods, and space. Index: [wallpaper collections](${WALLPAPER_COLLECTIONS_HUB_PATH}).`,
+    },
+    {
+      type: "ul",
+      items: wallpaperCollections.map(
+        (entry) =>
+          `[${entry.name} live wallpapers](${wallpaperCollectionPath(entry.slug)}): ${entry.description}`
+      ),
     },
     { type: "h2", text: "Machine access" },
     {
@@ -377,6 +401,86 @@ function seoDoc(
   }
 }
 
+function collectionsHubMarkdown(): string {
+  const origin = canonicalSiteOrigin()
+  const groups = COLLECTION_GROUP_ORDER.map((group) => {
+    const items = wallpaperCollections
+      .filter((entry) => entry.group === group)
+      .map(
+        (entry) =>
+          `- [${entry.name} live wallpapers](${origin}${wallpaperCollectionPath(entry.slug)}): ${entry.description}`
+      )
+      .join("\n")
+    return items ? `## ${COLLECTION_GROUP_LABELS[group]}\n\n${items}` : ""
+  })
+    .filter(Boolean)
+    .join("\n\n")
+
+  return `---
+title: "Live Wallpaper Collections for Mac"
+description: "Curated MacWall live wallpaper collections grouped by character, car, sport, mood, and space."
+canonical: "${origin}${WALLPAPER_COLLECTIONS_HUB_PATH}"
+---
+
+# Live wallpaper collections for Mac
+
+Hand-picked topic sets from the ${macwall.name} catalog. Each collection lists every matching 4K loop and updates automatically as new wallpapers are published.
+
+${groups}
+
+---
+
+Source: ${origin}${WALLPAPER_COLLECTIONS_HUB_PATH}
+`
+}
+
+async function collectionMarkdown(entry: WallpaperCollection): Promise<string> {
+  let wallpapers: Awaited<ReturnType<typeof listCollectionWallpapers>> = []
+  try {
+    wallpapers = await listCollectionWallpapers(entry)
+  } catch {
+    wallpapers = []
+  }
+
+  const listed = wallpapers
+    .slice(0, COLLECTION_GRID_LIMIT)
+    .map(
+      (wallpaper) => `[${wallpaper.name}](${wallpaperDetailPath(wallpaper)})`
+    )
+
+  return seoPageToMarkdown({
+    slug: entry.slug,
+    pathname: wallpaperCollectionPath(entry.slug),
+    title: entry.title,
+    headline: `${entry.name} live wallpapers for Mac`,
+    description: entry.description,
+    keywords: entry.keywords,
+    sections: [
+      { type: "p", text: entry.intro },
+      {
+        type: "h2",
+        text: `${wallpapers.length} ${entry.name} wallpapers`,
+      },
+      listed.length > 0
+        ? { type: "ul", items: listed }
+        : {
+            type: "p",
+            text: "The catalog is temporarily unavailable. Browse [the gallery](/wallpapers).",
+          },
+      { type: "h2", text: `How to set a ${entry.name} live wallpaper on Mac` },
+      {
+        type: "ol",
+        items: [
+          `[Download ${macwall.name}](/download) (macOS 15 or later).`,
+          `Open any ${entry.name} wallpaper above and choose **Set on Mac**, or search "${entry.name}" in the app.`,
+          `Optional: with Pro on ${macwallLockScreenMacOSVersion} or later, use it on the Lock Screen and as a Screen Saver.`,
+        ],
+      },
+    ],
+    faq: collectionFaq(entry, wallpapers.length),
+  })
+}
+
 let cachedDocuments: MarkdownDocument[] | null = null
 
 export function siteMarkdownDocuments(): MarkdownDocument[] {
@@ -565,6 +669,25 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
     })),
 
     seoDoc(wallpapersIndexPage, "wallpapers", { includeInFullText: false }),
+    {
+      path: WALLPAPER_COLLECTIONS_HUB_PATH,
+      title: "Live Wallpaper Collections for Mac",
+      summary:
+        "Curated live wallpaper collections: anime characters, heroes, cars, sports, moods, and space.",
+      group: "wallpapers",
+      includeInFullText: false,
+      render: collectionsHubMarkdown,
+    },
+    ...wallpaperCollections.map(
+      (entry): MarkdownDocument => ({
+        path: wallpaperCollectionPath(entry.slug),
+        title: entry.title,
+        summary: entry.description,
+        group: "wallpapers",
+        includeInFullText: false,
+        render: () => collectionMarkdown(entry),
+      })
+    ),
     ...macwall.categories.map((name) =>
       seoDoc(wallpaperCategoryPage(name), "wallpapers", {
         includeInFullText: false,

@@ -3,6 +3,8 @@ import {
   parseGallerySort,
 } from "@/components/wallpaper-gallery/wallpaper-gallery-page"
 import { ContentBody } from "@/components/content/content-body"
+import { CollectionLinkStrip } from "@/components/wallpaper-gallery/collection-link-strip"
+import { wallpaperCollections } from "@/lib/seo/wallpaper-collections"
 import { JsonLd } from "@/components/seo/json-ld"
 import { wallpaperCategoryGalleryJsonLd } from "@/lib/seo/wallpaper-json-ld"
 import {
@@ -123,28 +125,41 @@ export default async function WallpaperCategoryGalleryPage({
         loadError={loadError}
         afterGallery={
           showSeoContent ? (
-            <div className="border-t border-dashed border-border px-4 py-10 md:px-6 md:py-14">
-              <div className="marketing-prose-rail">
-                <div className={proseBody}>
-                  <ContentBody sections={page.sections} />
+            <>
+              <CollectionLinkStrip
+                title={`${name} collections`}
+                collections={wallpaperCollections.filter(
+                  (entry) => entry.category === name
+                )}
+              />
+              <div className="border-t border-dashed border-border px-4 py-10 md:px-6 md:py-14">
+                <div className="marketing-prose-rail">
+                  <div className={proseBody}>
+                    <ContentBody sections={page.sections} />
+                  </div>
+                  {page.faq && page.faq.length > 0 ? (
+                    <section
+                      className={proseFaq}
+                      aria-labelledby="category-faq"
+                    >
+                      <h2 id="category-faq" className={proseFaqTitle}>
+                        Frequently asked questions
+                      </h2>
+                      <dl className={proseFaqList}>
+                        {page.faq.map((item) => (
+                          <div key={item.question} className={proseFaqItem}>
+                            <dt className={proseFaqQuestion}>
+                              {item.question}
+                            </dt>
+                            <dd className={proseFaqAnswer}>{item.answer}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </section>
+                  ) : null}
                 </div>
-                {page.faq && page.faq.length > 0 ? (
-                  <section className={proseFaq} aria-labelledby="category-faq">
-                    <h2 id="category-faq" className={proseFaqTitle}>
-                      Frequently asked questions
-                    </h2>
-                    <dl className={proseFaqList}>
-                      {page.faq.map((item) => (
-                        <div key={item.question} className={proseFaqItem}>
-                          <dt className={proseFaqQuestion}>{item.question}</dt>
-                          <dd className={proseFaqAnswer}>{item.answer}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </section>
-                ) : null}
               </div>
-            </div>
+            </>
           ) : null
         }
       />

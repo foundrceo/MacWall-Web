@@ -215,3 +215,58 @@ export function wallpaperDetailPageJsonLd(input: {
     ],
   } as const
 }
+
+/** CollectionPage + ItemList for a topic collection (`/wallpapers/collections/{slug}`). */
+export function wallpaperCollectionJsonLd(input: {
+  origin: string
+  pathname: string
+  name: string
+  pageTitle: string
+  description: string
+  wallpapers: PublicWallpaper[]
+  totalCount: number
+}) {
+  const origin = input.origin.replace(/\/+$/, "")
+  const url = absoluteUrl(origin, input.pathname)
+  const wallpapersIndexUrl = absoluteUrl(origin, "/wallpapers")
+  const hubUrl = absoluteUrl(origin, "/wallpapers/collections")
+  const cover = input.wallpapers[0]
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbListJsonLd([
+        { name: macwall.name, item: origin },
+        { name: "Wallpapers", item: wallpapersIndexUrl },
+        { name: "Collections", item: hubUrl },
+        { name: input.name, item: url },
+      ]),
+      {
+        "@type": "CollectionPage",
+        "@id": `${url}#webpage`,
+        url,
+        name: input.pageTitle,
+        headline: `${input.name} live wallpapers for Mac`,
+        description: input.description,
+        inLanguage: "en-US",
+        isPartOf: { "@id": `${origin}/#website` },
+        about: { "@id": `${origin}/#softwareapplication` },
+        ...(cover
+          ? {
+              primaryImageOfPage: {
+                "@type": "ImageObject",
+                url: cover.thumbUrl,
+                caption: `${cover.name}, a ${input.name} live wallpaper for Mac`,
+              },
+            }
+          : {}),
+        mainEntity: itemListElementFromWallpapers(
+          origin,
+          input.wallpapers,
+          `${input.name} live wallpapers for Mac`,
+          input.totalCount
+        ),
+      },
+    ],
+  } as const
+}

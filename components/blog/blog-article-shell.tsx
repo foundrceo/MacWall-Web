@@ -2,7 +2,15 @@ import { BlogContentBody } from "@/components/blog/blog-content-body"
 import { BlogTilePicture } from "@/components/blog/blog-tile-picture"
 import { ProseBreadcrumbs } from "@/components/content/prose-breadcrumbs"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
-import type { ContentBlock } from "@/lib/content/types"
+import type { ContentBlock, ContentFaq } from "@/lib/content/types"
+import {
+  proseFaq,
+  proseFaqAnswer,
+  proseFaqItem,
+  proseFaqList,
+  proseFaqQuestion,
+  proseFaqTitle,
+} from "@/lib/marketing-prose-classes"
 import {
   blogArticle,
   blogBreadcrumbs,
@@ -30,6 +38,7 @@ export function BlogArticleShell({
   headline,
   description,
   sections,
+  faq,
   breadcrumbs,
   categoryLabel,
   readMinutes,
@@ -40,6 +49,7 @@ export function BlogArticleShell({
   headline: string
   description: string
   sections?: ContentBlock[]
+  faq?: ContentFaq[]
   breadcrumbs?: { label: string; href: string }[]
   categoryLabel: string
   readMinutes: number
@@ -90,6 +100,21 @@ export function BlogArticleShell({
 
         <article className={blogArticle}>
           {sections ? <BlogContentBody sections={sections} /> : null}
+          {faq && faq.length > 0 ? (
+            <section className={proseFaq} aria-labelledby="blog-article-faq">
+              <h2 id="blog-article-faq" className={proseFaqTitle}>
+                Frequently asked questions
+              </h2>
+              <dl className={proseFaqList}>
+                {faq.map((item) => (
+                  <div key={item.question} className={proseFaqItem}>
+                    <dt className={proseFaqQuestion}>{item.question}</dt>
+                    <dd className={proseFaqAnswer}>{item.answer}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          ) : null}
         </article>
       </div>
       {children}
