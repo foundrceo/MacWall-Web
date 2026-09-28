@@ -2,7 +2,10 @@
 
 import * as React from "react"
 
-import { catalogPreviewVideoUrlFromKey } from "@/lib/macwall-catalog-urls"
+import {
+  catalogImageUrlAtWidth,
+  catalogPreviewVideoUrlFromKey,
+} from "@/lib/macwall-catalog-urls"
 import { cn } from "@/lib/utils"
 
 export type CorridorPath = {
@@ -134,7 +137,7 @@ function StreamCardMedia({
   const poster = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={item.poster}
+      src={catalogImageUrlAtWidth(item.poster, 640)}
       alt=""
       loading="lazy"
       decoding="async"

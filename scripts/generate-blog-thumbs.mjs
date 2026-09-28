@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Generates Apple-style MacBook mockup thumbnails for every blog post.
- * Output: public/blog/thumbs/{slug}.jpg (1200×800, 3:2)
+ * Output: public/blog/thumbs/{slug}.jpg (1200×800, 3:2), plus -og / -list
+ * variants and AVIF siblings of the main and list images.
  *
  * Usage: npm run blog-thumbs:generate
  */
@@ -258,6 +259,25 @@ async function writeDerivedVariants(slug, mainPath) {
     .toFile(join(outDir, `${slug}-list.jpg`))
 }
 
+/**
+ * AVIF siblings of the on-page tiles (~75% smaller than the JPEGs). Served
+ * via <picture><source type="image/avif">, with the JPEG as fallback.
+ */
+async function writeAvifVariants(slug) {
+  for (const name of [slug, `${slug}-list`]) {
+    await sharp(join(outDir, `${name}.jpg`))
+      .avif({ quality: 55, effort: 6 })
+      .toFile(join(outDir, `${name}.avif`))
+  }
+}
+
+function avifMissing(slug) {
+  return (
+    !existsSync(join(outDir, `${slug}.avif`)) ||
+    !existsSync(join(outDir, `${slug}-list.avif`))
+  )
+}
+
 async function main() {
   if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true })
 
@@ -280,7 +300,16 @@ async function main() {
     const list = join(outDir, `${slug}-list.jpg`)
 
     if (!force && existsSync(out) && existsSync(og) && existsSync(list)) {
-      process.stdout.write(`  ${slug} … skip (exists)\n`)
+      if (avifMissing(slug)) {
+        try {
+          await writeAvifVariants(slug)
+          process.stdout.write(`  ${slug} … avif added\n`)
+        } catch (err) {
+          console.log(`  ${slug} … avif FAIL (${err.message})`)
+        }
+      } else {
+        process.stdout.write(`  ${slug} … skip (exists)\n`)
+      }
       skipped++
       ok++
       continue
@@ -290,6 +319,7 @@ async function main() {
       process.stdout.write(`  ${slug} … `)
       await generateThumb(url, out)
       await writeDerivedVariants(slug, out)
+      await writeAvifVariants(slug)
       console.log("ok")
       ok++
     } catch (err) {

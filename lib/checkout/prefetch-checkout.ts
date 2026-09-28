@@ -60,6 +60,22 @@ export function readCheckoutVisitorIdCookie(): string {
   return readCookie(VISITOR_ID_COOKIE)
 }
 
+let stripePreconnected = false
+
+/**
+ * Open the TLS connection to Stripe Checkout as soon as the buyer shows
+ * intent, so the redirect skips DNS + TCP + TLS (several round trips on a
+ * slow mobile network). The pricing page also declares this statically.
+ */
+export function preconnectStripeCheckout(): void {
+  if (stripePreconnected || typeof document === "undefined") return
+  stripePreconnected = true
+  const link = document.createElement("link")
+  link.rel = "preconnect"
+  link.href = "https://checkout.stripe.com"
+  document.head.appendChild(link)
+}
+
 export type CheckoutHrefParams = {
   offer: string
   email: string | null

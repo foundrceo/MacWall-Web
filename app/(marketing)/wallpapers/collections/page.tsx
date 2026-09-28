@@ -1,6 +1,6 @@
-import Image from "next/image"
 import Link from "next/link"
 import { MarketingRail } from "@/components/macwall-marketing/marketing-rail"
+import { CatalogImage } from "@/components/wallpaper-gallery/catalog-image"
 import { JsonLd } from "@/components/seo/json-ld"
 import {
   Breadcrumb,
@@ -190,13 +190,12 @@ export default async function WallpaperCollectionsHubPage() {
                         )}
                       >
                         {cover ? (
-                          <Image
+                          <CatalogImage
                             src={cover.thumbUrl}
                             alt={`${collection.name} live wallpaper for Mac: ${cover.name}`}
                             fill
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                             className="object-cover transition duration-300 group-hover:scale-[1.03]"
-                            unoptimized
                           />
                         ) : null}
                       </div>

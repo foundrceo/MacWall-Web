@@ -616,3 +616,23 @@
     opacity: 0.28;
   }
 }
+
+/* Checkout CTA: instant press feedback while the Stripe URL resolves. */
+a[href*="/api/checkout/"][aria-busy="true"] {
+  cursor: progress;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a[href*="/api/checkout/"][aria-busy="true"] {
+    animation: checkout-cta-busy 0.9s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes checkout-cta-busy {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.72;
+  }
+}
