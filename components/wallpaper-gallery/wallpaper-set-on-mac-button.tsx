@@ -3,19 +3,25 @@
 import { useCallback } from "react"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import { GALLERY_PRIMARY_CTA_CLASS } from "@/lib/public-catalog/chrome"
-import { macwallWallpaperDeepLink } from "@/lib/macwall-site"
+import { macwallOpenWallpaperHref } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 export function WallpaperSetOnMacButton({
   wallpaperId,
-  wallpaperName: _wallpaperName,
+  wallpaperName,
   className,
 }: Readonly<{
   wallpaperId: string
   wallpaperName: string
   className?: string
 }>) {
-  const href = macwallWallpaperDeepLink(wallpaperId)
+  /**
+   * Route through the `/open` HTTPS bridge (not the raw `macwall://` scheme):
+   * it attempts `macwall://wallpaper?id=…` so the installed app opens that
+   * exact wallpaper, and falls back to the installer download when the app
+   * isn't installed — a dead scheme click otherwise.
+   */
+  const href = macwallOpenWallpaperHref(wallpaperId, { name: wallpaperName })
 
   const handleClick = useCallback(() => {
     trackSiteEventClient("download_click", {
