@@ -42,8 +42,9 @@ export default function LegalSubprocessorsPage() {
         <LegalSection id="categories" title="Categories of Subprocessors">
           <ul className={legalBulletList}>
             <li>
-              <strong>Payments:</strong> processors that handle checkout,
-              billing metadata, and related fraud checks.
+              <strong>Payments:</strong> {macwall.paymentProcessor} handles
+              checkout, card processing, billing metadata, sales tax, and
+              related fraud checks.
             </li>
             <li>
               <strong>Infrastructure:</strong> cloud hosting, databases, APIs,
