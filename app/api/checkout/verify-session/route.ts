@@ -6,11 +6,54 @@ import {
 } from "@/lib/http/rate-limit"
 import { isZeroDecimalCurrency } from "@/lib/pricing/money"
 import { getStripe } from "@/lib/stripe/server"
+import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 const checkRateLimit = createInMemoryRateLimiter({ max: 30, windowMs: 60_000 })
+
+const LICENSE_KEY = /^MW-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/
+
+/**
+ * Whop checkouts return to /activate?key=…&provider=whop. The
+ * `whop-license-email` webhook flips the license to `active` once Whop
+ * confirms payment, so the page polls here while it is still `pending`.
+ */
+async function verifyWhopLicense(rawKey: string | null) {
+  const licenseKey = rawKey?.trim().toUpperCase() ?? ""
+  if (!LICENSE_KEY.test(licenseKey)) {
+    return NextResponse.json({ error: "invalid_key" }, { status: 400 })
+  }
+  const { data, error } = await getSupabaseAdmin()
+    .from("macwall_licenses")
+    .select("status, source")
+    .eq("license_key", licenseKey)
+    .maybeSingle()
+  if (error) {
+    console.error("[checkout/verify] whop lookup", error.message)
+    return NextResponse.json({ error: "verify_failed" }, { status: 502 })
+  }
+  if (data?.status === "active") {
+    return NextResponse.json({
+      ok: true,
+      paid: true,
+      licenseKey,
+      amountTotal: null,
+      amountMajor: null,
+      currency: null,
+      offerSlug: null,
+    })
+  }
+  if (!data || data.status === "pending") {
+    // Not confirmed yet (or the pending row is still being written).
+    return NextResponse.json({ ok: false, paid: false, pending: true }, { status: 202 })
+  }
+  return NextResponse.json(
+    { ok: false, paid: false, error: "not_paid" },
+    { status: 402 }
+  )
+}
 
 /**
  * Verifies a Stripe Checkout Session is paid before the client deep-links
@@ -25,7 +68,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 })
   }
 
-  const sessionId = new URL(request.url).searchParams.get("session_id")?.trim()
+  const params = new URL(request.url).searchParams
+  if (params.get("provider") === "whop") {
+    return verifyWhopLicense(params.get("key"))
+  }
+
+  const sessionId = params.get("session_id")?.trim()
   if (!sessionId || !/^cs_[a-zA-Z0-9_]+$/.test(sessionId)) {
     return NextResponse.json({ error: "invalid_session" }, { status: 400 })
   }
