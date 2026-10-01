@@ -118,9 +118,10 @@ export default function LegalTermsPage() {
             {macwall.name} Pro is sold through our payment processor,{" "}
             <a href={macwall.paymentProcessorUrl}>{macwall.paymentProcessor}</a>.
             Checkout, receipts, refunds, and taxes may also be governed by{" "}
-            {macwall.paymentProcessor}&apos;s policies. Pro covers up to{" "}
-            {macwall.maxLicensedMacs} personal Macs; Pro Plus covers up to 5.
-            Device limits are enforced per license key.
+            {macwall.paymentProcessor}&apos;s policies. Each license covers the
+            number of personal Macs shown for the pack you buy (Pro covers{" "}
+            {macwall.maxLicensedMacs}; larger packs cover more). Device limits
+            are enforced per license key.
           </p>
           <p>
             You agree to provide accurate information and not to share keys
@@ -132,6 +133,28 @@ export default function LegalTermsPage() {
             <Link href="/legal/refund">Refund Policy</Link>. The creator Reel
             program on <Link href="/creator">/creator</Link> is a separate
             promotional offer with its own conditions.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="prices" title="Prices, Taxes and Checkout">
+          <p>
+            Prices are shown before you pay and are one-time charges: there is
+            no subscription and nothing renews automatically. Prices may vary
+            by region and may change for future purchases; a change never
+            affects a license you already bought.
+          </p>
+          <p>
+            Sales tax, VAT or GST, where they apply, are calculated and
+            collected at checkout by {macwall.paymentProcessor} and shown
+            before you confirm. Promotional codes apply only as stated and
+            cannot be combined unless the offer says so.
+          </p>
+          <p>
+            Your license key is delivered by email immediately after payment
+            and is also shown on the activation page. If it does not arrive,
+            email{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>{" "}
+            from the address you paid with.
           </p>
         </LegalSection>
 
@@ -147,6 +170,23 @@ export default function LegalTermsPage() {
             use them on your devices. Community submissions must comply with our{" "}
             <Link href="/legal/acceptable-use">Acceptable Use</Link> and{" "}
             <Link href="/legal/dmca">DMCA</Link> policies.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="trademarks" title="Trademarks and Third-Party Content">
+          <p>
+            Names, characters, logos and brands that appear in wallpaper titles,
+            tags or artwork belong to their respective owners. {macwall.name}{" "}
+            is an independent product and is not affiliated with, sponsored by
+            or endorsed by any of them, and no license to their trademarks is
+            granted to you.
+          </p>
+          <p>
+            If you own rights in something shown in the catalog and want it
+            removed, send a notice under our{" "}
+            <Link href="/legal/dmca">DMCA / Copyright</Link> policy or email{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>
+            . We review every notice and remove infringing material promptly.
           </p>
         </LegalSection>
 
@@ -204,6 +244,30 @@ export default function LegalTermsPage() {
             to bring a claim in your local courts. Nothing in these Terms
             limits consumer rights that cannot be waived under the law that
             applies to you.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="termination" title="Suspension and Termination">
+          <p>
+            You can stop using {macwall.name} at any time. We may suspend or
+            revoke a license key that was obtained through fraud, a stolen
+            payment method, a reversed or charged-back payment, or that is
+            shared beyond its Mac limit, and we may suspend access for serious
+            or repeated breaches of these Terms. Where reasonable, we will
+            contact you first so you can resolve the issue.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="general" title="General">
+          <p>
+            These Terms, together with the policies they link to, are the whole
+            agreement between you and {macwall.legalCompanyName} about{" "}
+            {macwall.name}. If a provision is found unenforceable, the rest
+            stays in effect. Not enforcing a provision is not a waiver. You may
+            not transfer these Terms or your license without our consent; we
+            may transfer them as part of a reorganization or sale of the
+            business. Nothing in these Terms limits rights you have under
+            consumer laws that cannot be waived by contract.
           </p>
         </LegalSection>
 
