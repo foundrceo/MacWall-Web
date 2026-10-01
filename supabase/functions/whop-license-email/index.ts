@@ -15,15 +15,19 @@ import {
  * Whop webhook → activate the MacWall license and email the key.
  *
  * Whop (MacWall business) → Developer → Webhooks → this function's URL, with
- * `payment.succeeded` and refund events. Every event is re-read from Whop's
- * API by payment id, so a forged or replayed body cannot activate anything.
+ * `payment.succeeded` and refund events. Following Whop's guidance, the
+ * Standard Webhooks signature (WHOP_WEBHOOK_SECRET) is verified first and a
+ * verified payload is trusted. With WHOP_API_KEY set the payment is also
+ * re-read from Whop's API; without a secret the API re-read is mandatory, so
+ * a forged body can never activate a license.
  *
  * The license key comes from the checkout metadata set by macwall.app
  * (lib/whop/create-macwall-checkout.ts). Purchases made straight from the
  * Whop store page carry no key, so one is minted here.
  *
- * Env: WHOP_API_KEY, WHOP_WEBHOOK_SECRET, RESEND_API_KEY, LICENSE_EMAIL_FROM,
- * SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (+ optional pixel/email vars).
+ * Env: WHOP_WEBHOOK_SECRET and/or WHOP_API_KEY, RESEND_API_KEY,
+ * LICENSE_EMAIL_FROM, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (+ optional
+ * pixel/email vars).
  */
 
 const LOG = "[whop-license-email]"
@@ -377,7 +381,7 @@ Deno.serve(async (req: Request) => {
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
   const resendKey = Deno.env.get("RESEND_API_KEY")?.trim()
   const from = Deno.env.get("LICENSE_EMAIL_FROM")?.trim()
-  if (!apiKey || !supabaseUrl || !serviceKey || !resendKey || !from) {
+  if (!supabaseUrl || !serviceKey || !resendKey || !from || (!apiKey && !webhookSecret)) {
     console.error(LOG, "missing_env")
     return Response.json({ ok: false, error: "missing_env" }, { status: 500 })
   }
@@ -411,12 +415,17 @@ Deno.serve(async (req: Request) => {
     return Response.json({ ok: false, error: "no_payment_id" }, { status: 422 })
   }
 
-  let payment: Json
-  try {
-    payment = await fetchPayment(apiKey, paymentId)
-  } catch (e) {
-    console.error(LOG, e instanceof Error ? e.message : "payment_fetch_failed")
-    return Response.json({ ok: false, error: "payment_fetch_failed" }, { status: 502 })
+  // A signed payload is trusted as-is; the API (when configured) is fresher.
+  let payment: Json = isPaid ? data : obj(data.payment)
+  if (apiKey) {
+    try {
+      payment = await fetchPayment(apiKey, paymentId)
+    } catch (e) {
+      console.error(LOG, e instanceof Error ? e.message : "payment_fetch_failed")
+      if (!webhookSecret) {
+        return Response.json({ ok: false, error: "payment_fetch_failed" }, { status: 502 })
+      }
+    }
   }
 
   const accountId = paymentAccountId(payment)
