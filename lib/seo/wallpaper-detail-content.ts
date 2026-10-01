@@ -15,7 +15,7 @@ import {
  * Per-wallpaper copy for detail pages, metadata, and structured data.
  *
  * Everything is derived from the wallpaper's own fields (resolution, length,
- * tags, category, collections), so each of the ~1,000 detail pages says
+ * tags, category, collections), so each of the ~800 detail pages says
  * something specific about its loop instead of repeating one template line.
  */
 

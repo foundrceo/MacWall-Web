@@ -68,7 +68,7 @@ export const macwallMarketingCopy = {
   },
   landing: {
     catalogEyebrow: "Browse by genre",
-    browseTitle: "1,000+ live wallpapers",
+    browseTitle: "800+ live wallpapers",
     browseLead: "Anime, nature, cars, gaming, space. Preview here. Set in the app.",
     browseLink: "Open the gallery",
     howEyebrow: "How it works",
@@ -150,7 +150,7 @@ export const macwallMarketingCopy = {
         id: "browse",
         title: "Pick a wallpaper",
         body: "Preview in the app or on the web.",
-        mark: "1,000+",
+        mark: "800+",
       },
       {
         id: "set",

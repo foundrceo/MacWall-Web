@@ -77,7 +77,7 @@ export default function LearnHubPage() {
               href: "/wallpapers",
               label: "Browse the wallpaper gallery",
               description:
-                "Over 1,000 curated 4K loops, filterable by category, tag, and popularity.",
+                "Over 800 curated loops, most in 4K, filterable by category, tag, and popularity.",
             },
           ]}
         />

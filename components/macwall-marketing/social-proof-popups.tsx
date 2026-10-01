@@ -147,7 +147,7 @@ export function SocialProofPopups() {
     const feed = feedRef.current
     const queue = buildSocialProofQueue(feed, Date.now())
 
-    // Walk the synthetic pool before falling back to the rotating set.
+    // Real recent purchases first, then the real aggregate lines once each.
     while (queueIndexRef.current < queue.length) {
       const item = queue[queueIndexRef.current]
       queueIndexRef.current += 1
@@ -157,7 +157,8 @@ export function SocialProofPopups() {
     }
 
     const fallback = socialProofFallbackMessages(feed)
-    if (fallback.length === 0) return null
+    // Show each real aggregate line once per session, then stay quiet.
+    if (fallbackIndexRef.current >= fallback.length) return null
 
     const picked = fallback[fallbackIndexRef.current % fallback.length]
     fallbackIndexRef.current += 1

@@ -123,7 +123,7 @@ const homePage: SeoContentPage = {
     { type: "h2", text: "Catalog" },
     {
       type: "p",
-      text: `Over 1,000 curated loops across ${macwall.categories.length} categories (${macwall.categories.join(", ")}), browsable in the app or on the web at [macwall.app/wallpapers](/wallpapers). Community members publish new wallpapers from inside the MacWall app (Add Wallpaper → Share with the community).`,
+      text: `Over 800 curated loops across ${macwall.categories.length} categories (${macwall.categories.join(", ")}), browsable in the app or on the web at [macwall.app/wallpapers](/wallpapers). Community members publish new wallpapers from inside the MacWall app (Add Wallpaper → Share with the community).`,
     },
     { type: "h2", text: "Performance model" },
     {
@@ -169,7 +169,7 @@ const wallpapersIndexPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: `The web gallery at [macwall.app/wallpapers](/wallpapers) mirrors the in-app catalog: over 1,000 curated 4K loops, searchable and filterable by category, tag, and popularity. Each wallpaper has its own page with a preview, resolution, duration, file size, and a **Set on Mac** deep link that hands it to the installed app.`,
+      text: `The web gallery at [macwall.app/wallpapers](/wallpapers) mirrors the in-app catalog: over 800 curated loops (most in 4K), searchable and filterable by category, tag, and popularity. Each wallpaper has its own page with a preview, resolution, duration, file size, and a **Set on Mac** deep link that hands it to the installed app.`,
     },
     { type: "h2", text: "Categories" },
     {

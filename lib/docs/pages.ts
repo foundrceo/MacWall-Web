@@ -254,7 +254,7 @@ export const docsPages: DocsPage[] = [
       {
         question: "How many wallpapers are in the catalog?",
         answer:
-          "Over 1,000 curated loops, with new sets published regularly. The free tier keeps 6 starter wallpapers; Pro unlocks the full cloud catalog.",
+          "Over 800 curated loops, with new sets published regularly. The free tier keeps 6 starter wallpapers; Pro unlocks the full cloud catalog.",
       },
     ],
   }),

@@ -144,7 +144,7 @@ function PricingHero({
         Bring your Mac to life.
       </h1>
       <p className="mx-auto mt-4 max-w-2xl text-base text-balance text-zinc-400 sm:text-lg">
-        1,000+ cinematic 4K wallpapers for your desktop and Lock Screen, running
+        800+ cinematic live wallpapers for your desktop and Lock Screen, running
         native and near idle so your Mac stays fast. Pay once, keep every future
         update, and try it all free for 24 hours first.
       </p>
@@ -170,7 +170,7 @@ type Tile = { icon: IconSvgElement; title: string; body: ReactNode }
 const FEATURE_TILES: readonly Tile[] = [
   {
     icon: Video01Icon,
-    title: "1,000+ wallpapers",
+    title: "800+ wallpapers",
     body: "Every cinematic loop, set in one tap.",
   },
   {

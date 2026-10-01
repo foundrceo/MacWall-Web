@@ -181,7 +181,7 @@ export const macwall = {
     suffix: "permanent",
     socialProofMembers: "1,000+",
     features: [
-      "Complete cloud catalog (1,000+ live wallpapers)",
+      "Complete cloud catalog (800+ live wallpapers)",
       `Live Lock Screen & Screen Saver (${macwallLockScreenMacOSVersion}+)`,
       "Unlimited favorites and playlists",
       "Lifetime updates and future Pro benefits",

@@ -20,7 +20,7 @@ import { formatMoney } from "@/lib/pricing/money"
 import { cn } from "@/lib/utils"
 
 const PRO_MODAL_FEATURES = [
-  "1,000+ curated 4K wallpapers",
+  "800+ curated live wallpapers",
   "Lifetime license & updates",
   `Up to ${macwall.maxLicensedMacs} personal Macs`,
   "Lock Screen, Screen Saver & Music Sync",

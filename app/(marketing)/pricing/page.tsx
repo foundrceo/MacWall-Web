@@ -11,7 +11,7 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-const PAGE_DESCRIPTION = `${macwall.name} Pro is a one-time payment, not a subscription. Get 1,000+ live 4K wallpapers, a live Lock Screen on macOS 26, and free updates forever.`
+const PAGE_DESCRIPTION = `${macwall.name} Pro is a one-time payment, not a subscription. Get 800+ live wallpapers (most in 4K), a live Lock Screen on macOS 26, and free updates forever.`
 
 export const metadata: Metadata = {
   title: "Pricing",

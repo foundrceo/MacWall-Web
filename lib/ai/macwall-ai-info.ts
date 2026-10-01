@@ -76,7 +76,7 @@ export const macwallAiInfoPage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "Curated cloud catalog with over 1,000 live wallpapers across 9 categories, plus search, filters, featured, newest, and popular views.",
+        "Curated cloud catalog with over 800 live wallpapers across 9 categories, plus search, filters, featured, newest, and popular views.",
         "Native macOS desktop playback for H.264 and HEVC video, including 4K sources where the Mac and display setup support them.",
         "Apple Silicon and Intel support on current supported macOS versions.",
         "Per-display playback with synced or independent wallpaper choices.",
