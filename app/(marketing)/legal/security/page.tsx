@@ -42,7 +42,8 @@ export default function LegalSecurityPage() {
         <LegalSection id="payments" title="Payments">
           <ul className={legalBulletList}>
             <li>
-              Card payments are processed by our payment provider. We do not
+              Card payments are processed by our payment provider,{" "}
+              {macwall.paymentProcessor}. We do not
               store full card numbers on MacWall servers.
             </li>
             <li>
