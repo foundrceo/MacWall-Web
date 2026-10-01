@@ -20,6 +20,7 @@ import { useEffect, useState, type ReactNode } from "react"
 
 import { TrackedLink } from "@/components/analytics/tracked-link"
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
+import { PurchaseTermsNote } from "@/components/legal/purchase-terms-note"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
@@ -391,6 +392,7 @@ export function PricingPagePlans({
           />
           Pro and Pro+ have the same features. Pro+ just covers more Macs.
         </p>
+        <PurchaseTermsNote className="mx-auto mt-3 max-w-xl" />
       </MarketingSection>
 
       <MarketingSection className="px-4 py-16 sm:py-20 lg:px-6">

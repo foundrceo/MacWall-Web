@@ -155,6 +155,38 @@ export default function LegalPrivacyPage() {
           </p>
         </LegalSection>
 
+        <LegalSection id="emails" title="Emails We Send">
+          <ul className={legalBulletList}>
+            <li>
+              <strong>Purchase emails:</strong> your license key, receipt
+              details and anything needed to deliver what you bought.
+            </li>
+            <li>
+              <strong>Reminders:</strong> if you give us your email in the App
+              or start a checkout without finishing it, we may send a small
+              number of follow-up emails about your trial or that checkout,
+              sometimes with a discount code.
+            </li>
+            <li>
+              Every reminder email has an unsubscribe link that works with one
+              click. Unsubscribing never affects purchase or license emails.
+            </li>
+          </ul>
+        </LegalSection>
+
+        <LegalSection id="retention" title="Data Retention">
+          <p>
+            We keep license and purchase records for as long as your license
+            is active and as required for tax, accounting and fraud-prevention
+            obligations. Abandoned checkout records are deleted automatically
+            after 14 days. Support emails are kept while needed to help you and
+            for a reasonable period afterward. You can ask us to delete your
+            data at any time by emailing{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>
+            , except where we must keep it by law.
+          </p>
+        </LegalSection>
+
         <LegalSection
           id="your-content"
           title="Catalog Content and Local Imports"

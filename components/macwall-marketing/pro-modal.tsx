@@ -4,6 +4,7 @@ import Image from "next/image"
 import { ArrowUpRight, BadgeCheck, Check, X } from "lucide-react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
+import { PurchaseTermsNote } from "@/components/legal/purchase-terms-note"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import { trackSiteEventClient } from "@/lib/analytics/client"
@@ -133,6 +134,7 @@ export function ProModal({
           >
             {pricing.getProCta}
           </TrackedPricingButton>
+          <PurchaseTermsNote className="mt-2" />
 
           <a
             href={macwall.discordInvite}
