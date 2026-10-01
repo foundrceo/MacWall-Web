@@ -131,12 +131,22 @@ export default function LegalPrivacyPage() {
           title="What We Do Not Use Data For"
         >
           <ul className={legalBulletList}>
-            <li>Behavioral ad profiling across unrelated apps or sites.</li>
-            <li>Selling personal information as a standalone product.</li>
+            <li>Selling personal information.</li>
+            <li>
+              Advertising inside the App, or using what you do in the App to
+              target ads.
+            </li>
             <li>
               Re-identifying you from pseudonymous community IDs for marketing.
             </li>
           </ul>
+          <p>
+            Our marketing website does use ad-measurement pixels (Meta, TikTok,
+            X, Google and Whop) to see which ads lead to downloads and
+            purchases. Visitors in the EEA, UK and Switzerland are asked first,
+            and browsers sending Global Privacy Control never load them. See
+            the <Link href="/legal/cookies">Cookie Policy</Link>.
+          </p>
         </LegalSection>
 
         <LegalSection
@@ -207,6 +217,18 @@ export default function LegalPrivacyPage() {
               import and set as wallpapers.
             </li>
           </ul>
+        </LegalSection>
+
+        <LegalSection id="your-rights" title="Your Rights">
+          <p>
+            Wherever you live, you can ask us to access, correct, export or
+            delete your personal data, or object to or restrict how we use it.
+            Email{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>{" "}
+            and we will respond within the time the law requires (one month
+            under GDPR, 45 days under CCPA). You can also complain to your
+            local data protection authority.
+          </p>
         </LegalSection>
 
         <LegalSection id="gdpr-basis" title="Legal Basis for Processing (GDPR)">
