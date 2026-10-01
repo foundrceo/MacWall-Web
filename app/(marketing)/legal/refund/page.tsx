@@ -58,6 +58,10 @@ export default function LegalRefundPage() {
           <ul className={legalBulletList}>
             <li>A clear billing error or duplicate charge on our side.</li>
             <li>
+              You were charged but never received a working license key, and
+              we could not deliver one after you contacted support.
+            </li>
+            <li>
               The App cannot run on a supported macOS version we advertised at
               the time of purchase, after reasonable troubleshooting.
             </li>
@@ -76,6 +80,32 @@ export default function LegalRefundPage() {
           </p>
         </LegalSection>
 
+        <LegalSection id="statutory-rights" title="Your Statutory Rights">
+          <p>
+            Nothing in this policy limits rights you have under the consumer
+            laws of your country that cannot be excluded by contract. If{" "}
+            {macwall.name} is faulty or not as described, you may be entitled
+            to a repair, replacement or refund under those laws, and we will
+            honor them.
+          </p>
+          <p>
+            Customers in the EU, UK and similar jurisdictions: {macwall.name}{" "}
+            Pro is digital content supplied immediately after payment. By
+            completing checkout you request immediate delivery and acknowledge
+            that the statutory right of withdrawal ends once the license key is
+            delivered, to the extent the law allows.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="how-refunds-work" title="How Approved Refunds Are Paid">
+          <p>
+            Approved refunds go back to the original payment method through
+            our payment processor, {macwall.paymentProcessor}. Banks usually
+            show them within 5 to 10 business days. The refunded license key
+            is deactivated when the refund is issued.
+          </p>
+        </LegalSection>
+
         <LegalSection id="creator-program" title="Creator Reel Program">
           <p>
             The creator / Reel program on <Link href="/creator">/creator</Link>{" "}
@@ -87,8 +117,10 @@ export default function LegalRefundPage() {
 
         <LegalSection id="chargebacks" title="Chargebacks">
           <p>
-            Please contact us before filing a chargeback. Abuse of chargebacks
-            may result in license revocation.
+            Please contact us before filing a chargeback; most problems are
+            solved by email within a few business days. A charged-back payment
+            deactivates the license key, and abuse of chargebacks may result in
+            refusal of future sales.
           </p>
         </LegalSection>
 
