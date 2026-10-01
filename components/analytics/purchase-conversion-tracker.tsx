@@ -52,7 +52,7 @@ function fireGa4Purchase(value: number, currency: string) {
 }
 
 /** Fires once per verified purchase success visit — GA4 / Google Ads / Whop.
- * Mounted on `/activate` (after Stripe verify) and `/thank-you`.
+ * Mounted on `/activate` (after payment verify) and `/thank-you`.
  */
 export function PurchaseConversionTracker({
   amount,
@@ -75,6 +75,8 @@ export function PurchaseConversionTracker({
     const licenseKey =
       params.get("key")?.trim() || params.get("license")?.trim() || undefined
     const hasKey = Boolean(licenseKey)
+    // Whop records its own checkout sales; a pixel purchase would double-count.
+    const paidOnWhop = params.get("provider") === "whop"
 
     // Refuse to fire ads conversions for unverified session_id visits.
     if (sessionId && !verified) return
@@ -99,15 +101,17 @@ export function PurchaseConversionTracker({
     })
     markPurchaseCompleteInSession()
 
-    // TikTok Purchase fires server-side from the Stripe webhook — don't double-count.
-    // Meta + Whop Purchase fire here (browser pixels) for Stripe checkout.
+    // TikTok Purchase fires server-side from the license webhooks — don't double-count.
+    // Meta fires here; the Whop pixel only for off-Whop (Stripe) sales.
     const run = () => {
       trackMetaPurchase({ value, currency: curr })
-      trackWhopPurchase({
-        value,
-        currency: curr,
-        eventId: whopEventId,
-      })
+      if (!paidOnWhop) {
+        trackWhopPurchase({
+          value,
+          currency: curr,
+          eventId: whopEventId,
+        })
+      }
       fireGoogleAdsConversion(value, curr)
       fireGa4Purchase(value, curr)
     }

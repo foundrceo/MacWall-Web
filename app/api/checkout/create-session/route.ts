@@ -127,23 +127,18 @@ async function startCheckout(
     intent,
   }
 
-  // Whop is the live gateway; CHECKOUT_PROVIDER=stripe makes Stripe primary.
-  // Each falls back to the other, so one gateway being down or closed never
-  // stops a sale. Both webhooks activate and email the same MW- license.
-  const stripeFirst =
+  // Whop is the only live gateway. Stripe stays switched off until the
+  // owner sets CHECKOUT_PROVIDER=stripe; then Stripe is tried first and Whop
+  // catches its failures. Both webhooks activate and email the same MW- key.
+  const stripeEnabled =
     process.env.CHECKOUT_PROVIDER?.trim().toLowerCase() === "stripe"
-  const [primary, fallback] = stripeFirst
-    ? [createMacWallCheckoutSession, createMacWallWhopCheckout]
-    : [createMacWallWhopCheckout, createMacWallCheckoutSession]
+  if (!stripeEnabled) return createMacWallWhopCheckout(input)
 
-  const result = await primary(input)
+  const result = await createMacWallCheckoutSession(input)
   if (result.ok) return result
-  console.error(
-    `[checkout] ${stripeFirst ? "stripe" : "whop"} failed, trying fallback:`,
-    result.error
-  )
-  const second = await fallback(input)
-  return second.ok ? second : result
+  console.error("[checkout] stripe failed, falling back to whop:", result.error)
+  const whop = await createMacWallWhopCheckout(input)
+  return whop.ok ? whop : result
 }
 
 /**

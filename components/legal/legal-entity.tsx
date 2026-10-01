@@ -42,7 +42,7 @@ export function LegalEntityDetails() {
     ],
     ["Mailing address", macwall.legalMailingAddress],
     ["Products", `${macwall.name} (macOS app and ${macwall.website.replace(/^https?:\/\//, "")})`],
-    ["Card statement descriptor", macwall.statementDescriptor],
+    ["Payment processor", `${macwall.paymentProcessor} (whop.com)`],
     ["Contact", macwall.supportEmail],
   ]
 
