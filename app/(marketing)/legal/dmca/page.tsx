@@ -135,6 +135,22 @@ export default function LegalDmcaPage() {
           </p>
         </LegalSection>
 
+        <LegalSection id="agent" title="Designated Copyright Agent">
+          <p>
+            Copyright Agent, {macwall.legalCompanyName}
+            <br />
+            {macwall.legalMailingAddress}
+            <br />
+            Email:{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>{" "}
+            (subject line &ldquo;DMCA Notice&rdquo;)
+          </p>
+          <p>
+            Email is the fastest route. We review notices promptly and usually
+            act within a few business days.
+          </p>
+        </LegalSection>
+
         <LegalSection id="contact" title="Contact">
           <p>
             Copyright agent / notices:{" "}
