@@ -23,7 +23,11 @@ import {
 } from "@/lib/stripe/conversion-promos"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { whopPlanIdForOffer } from "@/lib/whop/plan-map"
-import { createWhopCheckoutConfiguration } from "@/lib/whop/server"
+import {
+  createWhopCheckoutConfiguration,
+  isWhopApiConfigured,
+  whopPlanCheckoutUrl,
+} from "@/lib/whop/server"
 
 /**
  * One-time Whop checkout for a paid MacWall license.
@@ -32,6 +36,11 @@ import { createWhopCheckoutConfiguration } from "@/lib/whop/server"
  * in the checkout metadata (Whop copies it onto the payment), and a pending
  * `macwall_licenses` row waits for the `whop-license-email` webhook to
  * activate it and email the key.
+ *
+ * If the Whop API is unusable (no WHOP_API_KEY, outage, revoked key) the
+ * buyer still reaches the plan's hosted checkout. That payment carries no
+ * key, so the webhook mints one and emails it; only the auto-activation
+ * redirect is lost. A sale must never fail on our configuration.
  */
 export async function createMacWallWhopCheckout(
   input: CreateMacWallCheckoutInput
@@ -76,16 +85,35 @@ export async function createMacWallWhopCheckout(
       ...(visitorId ? { visitor_id: visitorId } : {}),
     }
 
-    const checkout = await createWhopCheckoutConfiguration({
-      planId,
-      metadata,
-      redirectUrl: `${siteOrigin}/activate?key=${encodeURIComponent(licenseKey)}&provider=whop`,
-      idempotencyKey: `mw_whop_checkout_${licenseKey}`,
-    })
+    const fallbackUrl = () => {
+      const url = new URL(whopPlanCheckoutUrl(planId))
+      if (promoCode) url.searchParams.set("promoCode", promoCode)
+      return { ok: true as const, url: url.toString(), customerEmail }
+    }
+
+    if (!isWhopApiConfigured()) {
+      console.error("[checkout/whop] WHOP_API_KEY missing; using plan link")
+      return fallbackUrl()
+    }
+
+    let checkout: Awaited<ReturnType<typeof createWhopCheckoutConfiguration>>
+    try {
+      checkout = await createWhopCheckoutConfiguration({
+        planId,
+        metadata,
+        redirectUrl: `${siteOrigin}/activate?key=${encodeURIComponent(licenseKey)}&provider=whop`,
+        idempotencyKey: `mw_whop_checkout_${licenseKey}`,
+      })
+    } catch (error) {
+      console.error(
+        "[checkout/whop] checkout configuration failed; using plan link",
+        error instanceof Error ? error.message : "error"
+      )
+      return fallbackUrl()
+    }
 
     const url = new URL(checkout.purchase_url)
     if (promoCode) url.searchParams.set("promoCode", promoCode)
-    if (customerEmail) url.searchParams.set("email", customerEmail)
 
     after(async () => {
       const { error } = await getSupabaseAdmin()

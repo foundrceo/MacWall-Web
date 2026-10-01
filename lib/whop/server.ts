@@ -1,6 +1,10 @@
 import "server-only"
 
-const WHOP_API_BASE = "https://api.whop.com/api/v1"
+/** Overridable for local tests against a mock Whop API. */
+function whopApiBase(): string {
+  const base = process.env.WHOP_API_BASE?.trim() || "https://api.whop.com/api/v1"
+  return base.replace(/\/+$/, "")
+}
 
 /** MacWall's Whop business. Never FoundrList. */
 export const WHOP_MACWALL_ACCOUNT_ID =
@@ -16,6 +20,16 @@ export class WhopApiError extends Error {
   }
 }
 
+/** Whether server-side Whop calls can be made at all. */
+export function isWhopApiConfigured(): boolean {
+  return Boolean(process.env.WHOP_API_KEY?.trim())
+}
+
+/** Hosted checkout for a plan; works without an API key (no metadata). */
+export function whopPlanCheckoutUrl(planId: string): string {
+  return `https://whop.com/checkout/${encodeURIComponent(planId)}`
+}
+
 function whopApiKey(): string {
   const key = process.env.WHOP_API_KEY?.trim()
   if (!key) throw new WhopApiError("WHOP_API_KEY is not configured.", 500)
@@ -27,7 +41,7 @@ export async function whopApi<T>(
   path: string,
   init: { method?: "GET" | "POST"; body?: unknown; idempotencyKey?: string } = {}
 ): Promise<T> {
-  const res = await fetch(`${WHOP_API_BASE}${path}`, {
+  const res = await fetch(`${whopApiBase()}${path}`, {
     method: init.method ?? "GET",
     headers: {
       Authorization: `Bearer ${whopApiKey()}`,
