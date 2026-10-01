@@ -34,8 +34,9 @@ export default function LegalCcpaPage() {
           <p>
             This page describes California privacy rights under the California
             Consumer Privacy Act (CCPA) as amended by the CPRA for users of{" "}
-            {macwall.name}. It complements our{" "}
-            <Link href="/legal/privacy">Privacy Policy</Link>.
+            {macwall.name}. The business responsible for your information is{" "}
+            {macwall.legalCompanyName}, which operates {macwall.name}. It
+            complements our <Link href="/legal/privacy">Privacy Policy</Link>.
           </p>
         }
       >

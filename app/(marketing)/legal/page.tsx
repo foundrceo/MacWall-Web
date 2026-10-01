@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { JsonLd } from "@/components/seo/json-ld"
+import { LegalEntityDetails } from "@/components/legal/legal-entity"
 import { LegalNav } from "@/components/legal/legal-nav"
 import { legalLinkProse } from "@/components/legal/legal-classes"
 import {
@@ -55,6 +56,12 @@ export default function LegalHubPage() {
                 </a>
                 .
               </p>
+              <p>
+                {macwall.name} is a product and trade name of{" "}
+                {macwall.legalCompanyName}, {macwall.legalCompanyDescriptor}.
+                All {macwall.name} policies, purchases, and licenses are
+                provided by {macwall.legalCompanyName}.
+              </p>
             </div>
             <ul className="m-0 grid list-none divide-y divide-dashed divide-border border-t border-dashed border-border p-0 sm:grid-cols-2 sm:divide-x">
               {LEGAL_DOCUMENTS.map((doc) => (
@@ -73,6 +80,22 @@ export default function LegalHubPage() {
                 </li>
               ))}
             </ul>
+            <section
+              id="company"
+              aria-labelledby="legal-company-title"
+              className={cn(
+                "scroll-mt-28 space-y-4 border-t border-dashed border-border px-6 py-8 text-muted-foreground lg:px-8",
+                legalLinkProse
+              )}
+            >
+              <h2
+                id="legal-company-title"
+                className="text-lg font-medium text-foreground"
+              >
+                Company information
+              </h2>
+              <LegalEntityDetails />
+            </section>
           </div>
         </div>
       </MarketingBodySection>

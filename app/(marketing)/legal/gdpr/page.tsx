@@ -42,7 +42,10 @@ export default function LegalGdprPage() {
         <LegalSection id="controller" title="Controller">
           <p>
             For personal data processed through the {macwall.name} app and
-            website, the controller is {macwall.name}. Contact:{" "}
+            website, the controller is {macwall.legalCompanyName},{" "}
+            {macwall.legalCompanyDescriptor}, registered office{" "}
+            {macwall.legalRegisteredOffice}, which operates {macwall.name}.
+            Contact:{" "}
             <a href={`mailto:${macwall.supportEmail}`}>
               {macwall.supportEmail}
             </a>
