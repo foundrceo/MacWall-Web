@@ -17,3 +17,26 @@ export function WhopPixel() {
     />
   )
 }
+
+/**
+ * Funnel events, written the way Whop documents them (`whop.track('lead')`).
+ * Rendered as a plain inline <script> from the root layout so the calls sit
+ * verbatim in the page HTML, where Whop's setup panel scans for them; the
+ * site fires them through `trackWhopEvent` in lib/analytics/whop-client.ts.
+ */
+const WHOP_FUNNEL_EVENTS_SCRIPT =
+  "window.macwallWhopEvents={" +
+  "view_content:function(){whop.track('view_content')}," +
+  "lead:function(){whop.track('lead')}," +
+  "add_to_cart:function(){whop.track('add_to_cart')}," +
+  "activated:function(){whop.track('activated')}" +
+  "};"
+
+export function WhopFunnelEvents() {
+  return (
+    <script
+      id="whop-funnel-events"
+      dangerouslySetInnerHTML={{ __html: WHOP_FUNNEL_EVENTS_SCRIPT }}
+    />
+  )
+}

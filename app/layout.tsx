@@ -14,7 +14,7 @@ import {
   resolveXAdsPixelId,
   XAdsPixel,
 } from "@/components/analytics/x-ads-pixel"
-import { WhopPixel } from "@/components/analytics/whop-pixel"
+import { WhopFunnelEvents, WhopPixel } from "@/components/analytics/whop-pixel"
 import { VisitorPlatformScript } from "@/components/platform/visitor-platform-script"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { JsonLd } from "@/components/seo/json-ld"
@@ -251,6 +251,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <JsonLd payload={jsonLd} />
+        <WhopFunnelEvents />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
