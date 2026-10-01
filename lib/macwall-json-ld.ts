@@ -40,6 +40,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         "@type": "Organization",
         "@id": orgId,
         name: `${macwall.name} App`,
+        legalName: macwall.legalCompanyName,
         alternateName: [...MACWALL_ALTERNATE_NAMES],
         url: origin,
         logo: logoUrl,
