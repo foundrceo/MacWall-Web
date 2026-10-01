@@ -18,6 +18,7 @@ import {
   macwallInstallerLatestPath,
   macwallLicenseActivationDeepLink,
 } from "@/lib/macwall-site"
+import { trackWhopEvent } from "@/lib/analytics/whop-client"
 import { prosePrimaryBtn } from "@/lib/marketing-prose-classes"
 import { cn } from "@/lib/utils"
 
@@ -145,6 +146,7 @@ function ActivateRedirectBody() {
   useEffect(() => {
     if (!licenseKey) return
     if (needsVerify && verify.status !== "paid") return
+    trackWhopActivatedOnce(licenseKey)
     window.location.replace(deepLink)
   }, [deepLink, licenseKey, needsVerify, verify.status])
 
@@ -252,4 +254,16 @@ export default function MarketingActivateRedirect() {
       </Suspense>
     </MarketingRail>
   )
+}
+
+/** One `activated` per key per tab, so reloading /activate does not recount. */
+function trackWhopActivatedOnce(licenseKey: string) {
+  const storageKey = `mw_whop_activated_${licenseKey}`
+  try {
+    if (window.sessionStorage.getItem(storageKey)) return
+    window.sessionStorage.setItem(storageKey, "1")
+  } catch {
+    // Storage blocked: still report the activation.
+  }
+  trackWhopEvent("activated")
 }

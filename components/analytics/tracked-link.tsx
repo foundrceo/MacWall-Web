@@ -22,6 +22,7 @@ import { withMarketingAttribution } from "@/lib/analytics/marketing-attribution"
 import { trackMetaInitiateCheckout } from "@/lib/analytics/meta-client"
 import { markCheckoutStartedInSession } from "@/lib/analytics/retargeting"
 import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
+import { trackWhopEvent } from "@/lib/analytics/whop-client"
 import {
   parseCheckoutHrefParams,
   preconnectStripeCheckout,
@@ -100,6 +101,7 @@ export function TrackedLink({
 
   const trackNavigation = () => {
     trackSiteEventClient(eventName, metadata)
+    if (isDownloadClick) trackWhopEvent("lead")
 
     if (
       eventName === "pricing_click" &&
@@ -109,6 +111,7 @@ export function TrackedLink({
       trackSiteEventClient("checkout_started", metadata)
       trackMetaInitiateCheckout()
       void trackTikTokInitiateCheckoutWithIdentify()
+      trackWhopEvent("add_to_cart")
     }
   }
 
