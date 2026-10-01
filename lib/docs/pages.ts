@@ -435,8 +435,8 @@ export const docsPages: DocsPage[] = [
       {
         type: "ol",
         items: [
-          "Complete checkout from [/pricing](/pricing). Payment is processed by Stripe; MacWall never sees your card details.",
-          "Stripe returns you to the activation page, which verifies the payment server-side and shows your license key.",
+          "Complete checkout from [/pricing](/pricing). Payment is processed by Whop; MacWall never sees your card details.",
+          "Whop returns you to the activation page, which verifies the payment server-side and shows your license key.",
           "Click **Activate on this Mac**. That opens MacWall and applies the key automatically.",
           "Prefer manual entry? Open MacWall → **Settings** → **License**, paste the key, and click **Activate**.",
         ],
@@ -444,7 +444,7 @@ export const docsPages: DocsPage[] = [
       { type: "h2", text: "Lost your key" },
       {
         type: "p",
-        text: `Your key is in the receipt Stripe emailed you. If you cannot find it, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) from the address you paid with and we will resend it.`,
+        text: `Your key is in the email we send from licenses@macwall.app right after payment. If you cannot find it, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) from the address you paid with and we will resend it.`,
       },
       { type: "h2", text: "Move a license to a new Mac" },
       {

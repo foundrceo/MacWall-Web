@@ -56,7 +56,8 @@ export default function LegalCookiesPage() {
               operators.
             </li>
             <li>
-              <strong>Payments:</strong> our payment processor may set cookies
+              <strong>Payments:</strong> our payment processor,{" "}
+              {macwall.paymentProcessor}, may set cookies
               during checkout to process your purchase securely.
             </li>
             <li>

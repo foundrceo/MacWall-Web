@@ -125,7 +125,7 @@ export const macwall = {
   productInfoLastReviewedLabel: "August 27, 2026",
   /**
    * Legal entity that owns and operates MacWall, exactly as on its Delaware
-   * Certificate of Formation. Must match the Stripe account's legal entity.
+   * Certificate of Formation. Must match the payment account's legal entity.
    */
   legalCompanyName: "OG APPS, LLC",
   legalCompanyDescriptor: "a Delaware limited liability company",
@@ -134,8 +134,9 @@ export const macwall = {
   legalRegisteredAgent: "Legalinc Corporate Services Inc.",
   legalRegisteredOffice: "131 Continental Dr, Suite 305, Newark, DE 19713, USA",
   legalMailingAddress: "2261 Market Street STE 73057, San Francisco, CA 94114, USA",
-  /** How MacWall charges appear on card statements (Stripe statement descriptor). */
-  statementDescriptor: "MACWALL",
+  /** Checkout and card processing for Pro purchases. */
+  paymentProcessor: "Whop",
+  paymentProcessorUrl: "https://whop.com",
   /** Short brand tagline — one line, no breaks. */
   tagline: MACWALL_TAGLINE,
   /** Full brand title for document titles, OG alt text, and JSON-LD. */

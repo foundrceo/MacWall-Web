@@ -84,7 +84,7 @@ export default function LegalPrivacyPage() {
             </li>
             <li>
               <strong>Purchase data:</strong> Checkout is handled by our payment
-              processor. We do not collect or store your full payment card
+              processor, {macwall.paymentProcessor}. We do not collect or store your full payment card
               details on our servers. We may receive transaction identifiers,
               license status, and your email for fulfillment and support.
             </li>

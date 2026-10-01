@@ -59,8 +59,6 @@ export default function PricingPage() {
     <>
       <link rel="preconnect" href="https://whop.com" />
       <link rel="dns-prefetch" href="https://whop.com" />
-      <link rel="preconnect" href="https://js.stripe.com" />
-      <link rel="dns-prefetch" href="https://js.stripe.com" />
       <JsonLd payload={jsonLd} />
       <MacWallMarketingPricingPage />
     </>

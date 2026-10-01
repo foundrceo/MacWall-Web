@@ -66,8 +66,9 @@ export default function LegalTermsPage() {
           </p>
           <p>
             When you buy {macwall.name} Pro, the seller is{" "}
-            {macwall.legalCompanyName}. Charges appear on your card statement
-            as &ldquo;{macwall.statementDescriptor}&rdquo;. Company details,
+            {macwall.legalCompanyName}. Payments are processed by{" "}
+            {macwall.paymentProcessor}, so your card statement may show{" "}
+            {macwall.paymentProcessor}&apos;s name. Company details,
             including our registered office, are listed under{" "}
             <Link href={LEGAL_COMPANY_HREF}>company information</Link>.
           </p>
@@ -114,9 +115,10 @@ export default function LegalTermsPage() {
 
         <LegalSection id="pro" title="Pro Licenses and Payment">
           <p>
-            {macwall.name} Pro is sold through our payment processor. Checkout,
-            receipts, refunds, and taxes may also be governed by that
-            processor&apos;s policies. Pro covers up to{" "}
+            {macwall.name} Pro is sold through our payment processor,{" "}
+            <a href={macwall.paymentProcessorUrl}>{macwall.paymentProcessor}</a>.
+            Checkout, receipts, refunds, and taxes may also be governed by{" "}
+            {macwall.paymentProcessor}&apos;s policies. Pro covers up to{" "}
             {macwall.maxLicensedMacs} personal Macs; Pro Plus covers up to 5.
             Device limits are enforced per license key.
           </p>
