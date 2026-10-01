@@ -84,17 +84,37 @@ export default function LegalAcceptableUsePage() {
               content.
             </li>
             <li>
+              Upload anything that sexualizes minors, depicts graphic violence,
+              gore, self-harm or animal cruelty, or promotes terrorism,
+              extremism or discrimination.
+            </li>
+            <li>
+              Share other people&apos;s personal data without consent, or post
+              content designed to deceive, phish or impersonate.
+            </li>
+            <li>Misrepresent who made a submission or where it came from.</li>
+            <li>
               Share license keys beyond the Mac limit for your plan, or use
               stolen payment methods.
             </li>
           </ul>
         </LegalSection>
 
+        <LegalSection id="reporting" title="Reporting Violations">
+          <p>
+            If you see content or behavior that breaks this policy, email{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>{" "}
+            with a link, screenshot or description. Copyright complaints should
+            use our <Link href="/legal/dmca">DMCA / Copyright</Link> process.
+          </p>
+        </LegalSection>
+
         <LegalSection id="enforcement" title="Enforcement">
           <p>
             We may reject submissions, remove content, suspend licenses, or
-            block access when this policy is violated. Repeated abuse may lead
-            to permanent bans. Report issues to{" "}
+            block access when this policy is violated, and preserve or disclose
+            information to law enforcement where the law requires. Repeated
+            abuse may lead to permanent bans. Report issues to{" "}
             <a href={`mailto:${macwall.supportEmail}`}>
               {macwall.supportEmail}
             </a>
