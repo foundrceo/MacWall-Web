@@ -120,8 +120,12 @@ export default function LegalSubprocessorsPage() {
 
         <LegalSection id="updates" title="Updates">
           <p>
-            We may change providers as the product evolves. This page describes
-            categories of processing; the effective date is{" "}
+            We may change providers as the product evolves. We choose
+            providers with strong security practices (such as SOC 2 or ISO
+            27001 reports), rely on their data processing terms and, for
+            transfers out of the EEA/UK, Standard Contractual Clauses or the
+            EU-U.S. Data Privacy Framework where available. Changes are posted
+            on this page with a new effective date; the current date is{" "}
             {macwall.legalEffectiveDate}.
           </p>
         </LegalSection>

@@ -53,10 +53,18 @@ export default function LegalCcpaPage() {
 
         <LegalSection id="sale" title="Sale and Sharing">
           <p>
-            We do not sell personal information for money. We do not share
-            personal information for cross-context behavioral advertising as a
-            business model. Limited analytics or affiliate attribution partners
-            may receive technical data as described in our{" "}
+            We do not sell personal information for money. Our marketing
+            website uses ad-measurement pixels (Meta, TikTok, X, Google and
+            Whop), which California law may treat as &ldquo;sharing&rdquo; for
+            cross-context behavioral advertising.
+          </p>
+          <p>
+            <strong>To opt out of sharing:</strong> turn on Global Privacy
+            Control in your browser (we honor it automatically and the pixels
+            never load), block third-party cookies, or email{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>{" "}
+            with the subject <strong>Do Not Sell or Share</strong>. Details of
+            each partner are in our{" "}
             <Link href="/legal/cookies">Cookie Policy</Link> and{" "}
             <Link href="/legal/subprocessors">Subprocessors</Link> list.
           </p>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { CookieChoiceReset } from "@/components/consent/ad-consent"
 import { JsonLd } from "@/components/seo/json-ld"
 import { LegalDocumentShell } from "@/components/legal/legal-document-shell"
 import { LegalSection, legalBulletList } from "@/components/legal/legal-section"
@@ -104,7 +105,44 @@ export default function LegalCookiesPage() {
             X (Twitter) Pixel, Whop Pixel, Vercel Web Analytics and Ahrefs Web
             Analytics. They measure visits and which ads lead to downloads or
             purchases, and may set their own cookies under their own policies.
-            Our legal pages and docs do not load ad pixels.
+            Our legal pages and docs do not load ad pixels. Vercel and Ahrefs
+            analytics are cookieless and always on.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="consent" title="Your Choice">
+          <ul className={legalBulletList}>
+            <li>
+              <strong>EEA, UK and Switzerland:</strong> ad and analytics pixels
+              stay off until you choose &ldquo;Accept all&rdquo; in the cookie
+              banner. &ldquo;Essential only&rdquo; keeps them off.
+            </li>
+            <li>
+              <strong>Global Privacy Control:</strong> if your browser sends
+              it, we never load ad pixels, wherever you are.
+            </li>
+            <li>
+              Your current setting on this device: <CookieChoiceReset />.
+            </li>
+          </ul>
+        </LegalSection>
+
+        <LegalSection id="legal-basis" title="Legal Basis">
+          <p>
+            Essential cookies rely on our legitimate interest in running a
+            secure, working site and on contractual necessity for checkout.
+            Analytics and ad cookies rely on your consent where the law
+            requires it.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="rights" title="Your Rights">
+          <p>
+            You can ask to access or delete data collected through cookies, and
+            withdraw consent at any time. California residents can opt out of
+            sharing as described in our{" "}
+            <Link href="/legal/ccpa">CCPA</Link> page. Email{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>.
           </p>
         </LegalSection>
 

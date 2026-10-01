@@ -87,17 +87,21 @@ export default function LegalTermsPage() {
         <LegalSection id="eligibility" title="Eligibility">
           <p>
             The Service is intended for individuals who are at least 13 years
-            old (or the minimum age in your region). If you accept these Terms
-            for an organization, you confirm you have authority to bind that
-            organization.
+            old (or the minimum age in your region). If you are under the age
+            of majority where you live, a parent or guardian must agree to
+            these Terms for you. If you accept these Terms for an organization,
+            you confirm you have authority to bind that organization.
           </p>
         </LegalSection>
 
         <LegalSection id="license" title="License to the App">
           <p>
             Subject to these Terms, we grant you a personal, non-exclusive,
-            non-transferable license to download and run the App on Mac
-            computers you control for personal or internal business use.
+            non-transferable, revocable license to download and run the App on
+            Mac computers you control for personal or internal business use.
+            The App, the Site, their code, design and our logos are owned by{" "}
+            {macwall.legalCompanyName} or its licensors; no other rights are
+            granted.
           </p>
           <p>You may not:</p>
           <ul className={legalBulletList}>
@@ -108,6 +112,14 @@ export default function LegalTermsPage() {
             <li>
               Redistribute the App as your own product or misrepresent its
               origin;
+            </li>
+            <li>
+              Copy, sell, resell, lease, sublicense or distribute the App or a
+              license key;
+            </li>
+            <li>
+              Bypass license checks or device limits, or share a license key
+              with people outside its Mac limit;
             </li>
             <li>Use the App to violate law or others&apos; rights.</li>
           </ul>
@@ -266,7 +278,9 @@ export default function LegalTermsPage() {
           <p>
             Some jurisdictions do not allow certain limitations; in those
             jurisdictions our liability is limited to the fullest extent allowed
-            by law.
+            by law. Nothing in these Terms limits liability for fraud, gross
+            negligence, willful misconduct, death or personal injury caused by
+            negligence, or anything else that cannot be limited by law.
           </p>
         </LegalSection>
 
@@ -342,8 +356,11 @@ export default function LegalTermsPage() {
           <p>
             We may update these Terms. We will post the new version on{" "}
             <Link href={doc.href}>{doc.href}</Link> with an updated effective
-            date. Continued use after the effective date means you accept the
-            revised Terms.
+            date, and announce material changes on the Site or in the App.
+            Continued use after the effective date means you accept the
+            revised Terms. Your use of {macwall.name} is also covered by our{" "}
+            <Link href="/legal/privacy">Privacy Policy</Link> and{" "}
+            <Link href="/legal/cookies">Cookie Policy</Link>.
           </p>
         </LegalSection>
 

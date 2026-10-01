@@ -15,6 +15,10 @@ import {
   XAdsPixel,
 } from "@/components/analytics/x-ads-pixel"
 import { WhopFunnelEvents, WhopPixel } from "@/components/analytics/whop-pixel"
+import {
+  AdPixelsGate,
+  CookieConsentBanner,
+} from "@/components/consent/ad-consent"
 import { VisitorPlatformScript } from "@/components/platform/visitor-platform-script"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { JsonLd } from "@/components/seo/json-ld"
@@ -260,14 +264,19 @@ export default function RootLayout({
         >
           {children}
           <MarketingOnlyScripts>
-            <AffonsoPixel />
-            <WhopPixel />
-            {metaPixelId ? <MetaPixel pixelId={metaPixelId} /> : null}
-            {tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}
-            {xAdsPixelId ? <XAdsPixel pixelId={xAdsPixelId} /> : null}
+            {/* Ad and analytics pixels wait for consent in the EEA/UK/CH
+                and stay off for Global Privacy Control browsers. */}
+            <AdPixelsGate>
+              <AffonsoPixel />
+              <WhopPixel />
+              {metaPixelId ? <MetaPixel pixelId={metaPixelId} /> : null}
+              {tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}
+              {xAdsPixelId ? <XAdsPixel pixelId={xAdsPixelId} /> : null}
+              {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
+            </AdPixelsGate>
+            <CookieConsentBanner />
             <PageViewTracker />
             <CheckoutRetargetingTracker />
-            {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
             {ahrefsWebAnalyticsKey ? (
               <Script
                 src="https://analytics.ahrefs.com/analytics.js"
