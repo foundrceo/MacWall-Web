@@ -39,7 +39,9 @@ export default function LegalPrivacyPage() {
             <p>
               {macwall.name} is committed to your privacy. This Privacy Policy
               explains how we collect, use, disclose, and store information when
-              you use our macOS app and website.
+              you use our macOS app and website. {macwall.name} is operated by{" "}
+              {macwall.legalCompanyName}, {macwall.legalCompanyDescriptor},{" "}
+              {macwall.legalCompanyAddress}.
             </p>
             <p>
               {macwall.name} does not require user accounts. To manage licensing

@@ -41,6 +41,12 @@ export default function LegalTermsPage() {
               Site, or purchasing {macwall.name} Pro, you agree to these Terms.
             </p>
             <p>
+              {macwall.name} is operated by {macwall.legalCompanyName},{" "}
+              {macwall.legalCompanyDescriptor}, {macwall.legalCompanyAddress}
+              . References to &ldquo;we&rdquo; or &ldquo;us&rdquo; mean{" "}
+              {macwall.legalCompanyName}.
+            </p>
+            <p>
               Related policies:{" "}
               <Link href="/legal/privacy">Privacy Policy</Link>,{" "}
               <Link href="/legal/acceptable-use">Acceptable Use</Link>,{" "}

@@ -123,8 +123,10 @@ export const macwall = {
   /** Review stamp for the canonical `/ai-info` product reference. */
   productInfoLastReviewedIso: "2026-08-27",
   productInfoLastReviewedLabel: "August 27, 2026",
-  /** Public operator name shown in copyright / legal footers. */
-  legalCompanyName: "MacWall",
+  /** Legal entity that operates MacWall; must match the Stripe account. */
+  legalCompanyName: "OG Apps LLC",
+  legalCompanyDescriptor: "a Delaware limited liability company",
+  legalCompanyAddress: "2261 Market Street STE 73057, San Francisco, CA 94114, USA",
   /** Short brand tagline — one line, no breaks. */
   tagline: MACWALL_TAGLINE,
   /** Full brand title for document titles, OG alt text, and JSON-LD. */
