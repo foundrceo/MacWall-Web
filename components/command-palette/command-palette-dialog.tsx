@@ -36,6 +36,7 @@ import { trackSiteEventClient } from "@/lib/analytics/client"
 import { markCheckoutStartedInSession } from "@/lib/analytics/retargeting"
 import { trackMetaInitiateCheckout } from "@/lib/analytics/meta-client"
 import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
+import { trackWhopEvent } from "@/lib/analytics/whop-client"
 import {
   parseCheckoutHrefParams,
   waitForPrefetchedCheckoutUrl,
@@ -478,6 +479,7 @@ function CommandPaletteDialogContent({
           markCheckoutStartedInSession()
           trackMetaInitiateCheckout()
           void trackTikTokInitiateCheckoutWithIdentify()
+          trackWhopEvent("add_to_cart")
           void waitForPrefetchedCheckoutUrl(checkoutParams.offer, {
             email: checkoutParams.email,
             visitorId: checkoutParams.visitorId,

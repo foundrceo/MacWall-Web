@@ -1,7 +1,9 @@
 "use client"
 
 /**
- * Browser Whop Pixel helpers for Stripe checkout (off-Whop sales).
+ * Browser Whop Pixel helpers: funnel events for every visitor, plus
+ * `purchase` for Stripe checkout (off-Whop sales). Whop records purchases
+ * on its own checkout automatically.
  * @see https://docs.whop.com/developer/ads/pixel
  */
 
@@ -50,4 +52,29 @@ export function trackWhopPurchase(options: {
   }
 
   window.setTimeout(fire, 1200)
+}
+
+/** Funnel moments reported to Whop so ads can optimize toward them. */
+export type WhopFunnelEvent =
+  | "view_content" // landing, pricing and TikTok pages
+  | "lead" // Download for Mac / send link to my Mac
+  | "add_to_cart" // Buy click on its way to checkout
+  | "activated" // paid key handed to the app on /activate
+
+/**
+ * Track a funnel event. The pixel snippet loads `afterInteractive`, so an
+ * early call waits up to ~5 s for `window.whop` instead of being dropped.
+ */
+export function trackWhopEvent(event: WhopFunnelEvent): void {
+  if (typeof window === "undefined") return
+  let attempts = 0
+  const fire = () => {
+    if (isWhopAvailable()) {
+      window.whop!.track(event)
+      return
+    }
+    attempts += 1
+    if (attempts < 10) window.setTimeout(fire, 500)
+  }
+  fire()
 }
