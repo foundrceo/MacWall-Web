@@ -72,7 +72,7 @@ export function preconnectStripeCheckout(): void {
   stripePreconnected = true
   const link = document.createElement("link")
   link.rel = "preconnect"
-  link.href = "https://checkout.stripe.com"
+  link.href = "https://whop.com"
   document.head.appendChild(link)
 }
 

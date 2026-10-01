@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.process-checkout-recovery]
 verify_jwt = false
+
+[functions.whop-license-email]
+verify_jwt = false

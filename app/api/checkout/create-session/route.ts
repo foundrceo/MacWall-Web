@@ -22,6 +22,7 @@ import {
 } from "@/lib/stripe/checkout-email"
 import { resolveCheckoutSiteOrigin } from "@/lib/stripe/checkout-origin"
 import { createMacWallCheckoutSession } from "@/lib/stripe/create-macwall-checkout-session"
+import { createMacWallWhopCheckout } from "@/lib/whop/create-macwall-checkout"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -113,7 +114,13 @@ async function startCheckout(
     cookieStore.get(CHECKOUT_VISITOR_ID_COOKIE)?.value ||
     null
 
-  return createMacWallCheckoutSession({
+  // Whop is the live gateway; CHECKOUT_PROVIDER=stripe switches back.
+  const createCheckout =
+    process.env.CHECKOUT_PROVIDER?.trim().toLowerCase() === "stripe"
+      ? createMacWallCheckoutSession
+      : createMacWallWhopCheckout
+
+  return createCheckout({
     country,
     offerSlug,
     planSlug,

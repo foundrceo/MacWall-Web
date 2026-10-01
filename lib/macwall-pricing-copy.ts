@@ -184,8 +184,8 @@ export const macwallPricingCopy = {
   },
 
   trust: {
-    checkoutLabel: "Secure Stripe checkout",
-    checkoutDetail: "Powered by Stripe · SSL encrypted",
+    checkoutLabel: "Secure checkout",
+    checkoutDetail: "Powered by Whop · SSL encrypted",
     deliveryLabel: "License emailed instantly",
     deliveryDetail: "Your license key arrives in seconds",
     guaranteeLabel: "1,000+ wallpapers",

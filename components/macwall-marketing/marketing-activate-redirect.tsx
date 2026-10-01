@@ -46,21 +46,39 @@ function ActivateRedirectBody() {
     return trimmed && trimmed.length > 0 ? trimmed : null
   }, [searchParams])
 
+  // Whop returns here with ?key=…&provider=whop; the key only works once
+  // the webhook has confirmed payment, so it is verified like a Stripe session.
+  const whopKey = useMemo(
+    () => (searchParams.get("provider") === "whop" ? urlKey : null),
+    [searchParams, urlKey]
+  )
+  const needsVerify = Boolean(sessionId || whopKey)
+
   const [verify, setVerify] = useState<VerifyState>(() =>
-    sessionId ? { status: "loading" } : { status: "idle" }
+    needsVerify ? { status: "loading" } : { status: "idle" }
   )
 
   useEffect(() => {
-    if (!sessionId) return
+    if (!sessionId && !whopKey) return
 
     let cancelled = false
-    const run = async () => {
+    const verifyUrl = sessionId
+      ? `/api/checkout/verify-session?session_id=${encodeURIComponent(sessionId)}`
+      : `/api/checkout/verify-session?provider=whop&key=${encodeURIComponent(whopKey ?? "")}`
+    const run = async (attempt = 1): Promise<void> => {
       try {
-        const res = await fetch(
-          `/api/checkout/verify-session?session_id=${encodeURIComponent(sessionId)}`,
-          { credentials: "same-origin" }
-        )
+        const res = await fetch(verifyUrl, { credentials: "same-origin" })
         if (cancelled) return
+        if (res.status === 202) {
+          // Paid at Whop but the webhook hasn't landed yet: poll ~90s.
+          if (attempt >= 45) {
+            setVerify({ status: "error" })
+            return
+          }
+          await new Promise((resolve) => setTimeout(resolve, 2000))
+          if (!cancelled) await run(attempt + 1)
+          return
+        }
         if (res.status === 402) {
           setVerify({ status: "unpaid" })
           return
@@ -101,12 +119,12 @@ function ActivateRedirectBody() {
     return () => {
       cancelled = true
     }
-  }, [sessionId, urlKey])
+  }, [sessionId, urlKey, whopKey])
 
   const licenseKey =
     verify.status === "paid"
       ? verify.licenseKey
-      : !sessionId
+      : !needsVerify
         ? urlKey
         : null
 
@@ -115,7 +133,7 @@ function ActivateRedirectBody() {
     : macwallLicenseActivationDeepLink()
 
   const shouldTrackPurchase =
-    verify.status === "paid" || (!sessionId && Boolean(urlKey))
+    verify.status === "paid" || (!needsVerify && Boolean(urlKey))
 
   const conversionAmount =
     verify.status === "paid" && verify.amountMajor != null
@@ -126,9 +144,9 @@ function ActivateRedirectBody() {
 
   useEffect(() => {
     if (!licenseKey) return
-    if (sessionId && verify.status !== "paid") return
+    if (needsVerify && verify.status !== "paid") return
     window.location.replace(deepLink)
-  }, [deepLink, licenseKey, sessionId, verify.status])
+  }, [deepLink, licenseKey, needsVerify, verify.status])
 
   if (verify.status === "loading") {
     return (
@@ -136,7 +154,8 @@ function ActivateRedirectBody() {
         <div className="mx-auto max-w-[640px] py-16 text-center md:py-24">
           <SectionTitle as="h1">Confirming your purchase…</SectionTitle>
           <SectionLead className="mx-auto mt-4 max-w-[480px]">
-            Hang tight, we&apos;re verifying payment with Stripe.
+            Hang tight, we&apos;re confirming your payment. This can take a
+            few seconds.
           </SectionLead>
         </div>
       </MarketingContainer>
@@ -171,7 +190,7 @@ function ActivateRedirectBody() {
         <PurchaseConversionTracker
           amount={conversionAmount}
           currency={conversionCurrency}
-          verified={Boolean(sessionId)}
+          verified={needsVerify}
         />
       ) : null}
       <div className="mx-auto max-w-[640px] py-16 text-center md:py-24">

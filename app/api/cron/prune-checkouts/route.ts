@@ -51,6 +51,17 @@ export async function GET(request: Request) {
   ]
 
   try {
+    const supabase = getSupabaseAdmin()
+    // Whop checkouts never expire, so drop unpaid Whop rows after 14 days.
+    // A late payment still activates: the webhook recreates a missing row.
+    const { count: whopDeleted, error: whopError } = await supabase
+      .from("macwall_licenses")
+      .delete({ count: "exact" })
+      .eq("source", "whop")
+      .eq("status", "pending")
+      .lt("created_at", new Date(Date.now() - 14 * DAY_S * 1000).toISOString())
+    if (whopError) throw new Error(whopError.message)
+
     const stripe = getStripe()
     const expiredIds: string[] = []
     for (const created of windows) {
@@ -63,8 +74,7 @@ export async function GET(request: Request) {
       }
     }
 
-    const supabase = getSupabaseAdmin()
-    let deleted = 0
+    let deleted = whopDeleted ?? 0
     for (let i = 0; i < expiredIds.length; i += DELETE_CHUNK) {
       const { count, error } = await supabase
         .from("macwall_licenses")
