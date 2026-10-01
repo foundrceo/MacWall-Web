@@ -173,6 +173,41 @@ export default function LegalTermsPage() {
           </p>
         </LegalSection>
 
+        <LegalSection id="free-trial" title="Free Trial">
+          <p>
+            New installs of the App may include a free Pro trial for a limited
+            time (currently 24 hours). The trial is free: no payment details
+            are collected for it and nothing is charged when it ends. When the
+            trial ends, Pro features stop until you buy a license. One trial
+            per Mac; we may change or end trial offers at any time.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="submissions" title="Community Submissions">
+          <p>
+            If you submit a wallpaper, video or other content to {macwall.name}{" "}
+            (for example through the community upload or creator programs),
+            you confirm that you created it or have every right needed to share
+            it, and that it does not infringe anyone else&apos;s rights.
+          </p>
+          <p>
+            You keep ownership of your submission. You give{" "}
+            {macwall.legalCompanyName} a worldwide, non-exclusive, royalty-free
+            license to host, review, edit for format, display and distribute it
+            in the App and on the Site, and to use it to promote{" "}
+            {macwall.name}. You can ask us to remove a submission at any time;
+            we will take it out of the catalog within a reasonable time. We may
+            decline or remove any submission at our discretion.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="feedback" title="Feedback">
+          <p>
+            If you send us ideas or suggestions, we may use them to improve{" "}
+            {macwall.name} without any obligation to you.
+          </p>
+        </LegalSection>
+
         <LegalSection id="trademarks" title="Trademarks and Third-Party Content">
           <p>
             Names, characters, logos and brands that appear in wallpaper titles,
@@ -235,6 +270,27 @@ export default function LegalTermsPage() {
           </p>
         </LegalSection>
 
+        <LegalSection id="indemnification" title="Indemnification">
+          <p>
+            To the extent the law allows, you agree to defend and indemnify{" "}
+            {macwall.legalCompanyName} against claims, losses and reasonable
+            legal costs arising from your misuse of the App or Site, content you
+            submit or import, or your breach of these Terms. This does not
+            apply to consumers where local law forbids it.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="disputes" title="Resolving Problems">
+          <p>
+            Most problems are solved quickly by email. Before starting any
+            formal dispute, including a chargeback, please contact{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>{" "}
+            and give us 30 days to try to resolve it informally. Either of us
+            may still bring an individual claim in a small-claims court that
+            has jurisdiction.
+          </p>
+        </LegalSection>
+
         <LegalSection id="governing-law" title="Governing Law">
           <p>
             These Terms are governed by the laws of the State of Delaware, USA,
@@ -268,6 +324,17 @@ export default function LegalTermsPage() {
             may transfer them as part of a reorganization or sale of the
             business. Nothing in these Terms limits rights you have under
             consumer laws that cannot be waived by contract.
+          </p>
+          <p>
+            <strong>Updates:</strong> we release updates to fix problems and
+            add features; some features may require a current version of the
+            App or macOS. <strong>Electronic communications:</strong> you agree
+            that receipts, license keys and notices may be sent to you by
+            email. <strong>Events outside our control:</strong> we are not
+            responsible for delays or failures caused by events beyond our
+            reasonable control, such as outages of hosting or payment
+            providers. <strong>Export and sanctions:</strong> you may not use or
+            buy {macwall.name} where U.S. export or sanctions laws prohibit it.
           </p>
         </LegalSection>
 

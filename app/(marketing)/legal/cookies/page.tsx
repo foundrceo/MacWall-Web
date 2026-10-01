@@ -70,6 +70,44 @@ export default function LegalCookiesPage() {
           </ul>
         </LegalSection>
 
+        <LegalSection id="list" title="Cookies and Technologies We Use">
+          <p>
+            <strong>Our own cookies</strong>
+          </p>
+          <ul className={legalBulletList}>
+            <li>
+              <code>mw_country</code>: approximate country, used to show
+              regional prices. Expires after 30 days.
+            </li>
+            <li>
+              <code>mw_visitor_id</code> and <code>mw_lead_email</code>: link a
+              checkout to the Mac that started it and pre-fill the email you
+              entered, so your license reaches you. Expire after 30 days.
+            </li>
+            <li>
+              <code>affonso_referral</code>: records which affiliate referred
+              you, so the right partner is credited. Set only when you arrive
+              through an affiliate link.
+            </li>
+            <li>
+              <code>macwall_admin_session</code>: signs in our own staff to the
+              admin area. Never set for customers.
+            </li>
+          </ul>
+          <p>
+            We also keep an anonymous analytics session ID and a few display
+            preferences in your browser&apos;s local storage.
+          </p>
+          <p>
+            <strong>Third-party pixels and analytics</strong> (marketing pages
+            only, where configured): Google Analytics, Meta Pixel, TikTok Pixel,
+            X (Twitter) Pixel, Whop Pixel, Vercel Web Analytics and Ahrefs Web
+            Analytics. They measure visits and which ads lead to downloads or
+            purchases, and may set their own cookies under their own policies.
+            Our legal pages and docs do not load ad pixels.
+          </p>
+        </LegalSection>
+
         <LegalSection id="managing" title="Managing Cookies">
           <p>
             You can control cookies through your browser settings. Blocking

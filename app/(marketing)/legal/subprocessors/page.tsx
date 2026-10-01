@@ -71,6 +71,45 @@ export default function LegalSubprocessorsPage() {
           </p>
         </LegalSection>
 
+        <LegalSection id="list" title="Current Subprocessors">
+          <ul className={legalBulletList}>
+            <li>
+              <strong>{macwall.paymentProcessor}</strong>: checkout, payments,
+              sales tax and fraud checks for new purchases.
+            </li>
+            <li>
+              <strong>Stripe</strong>: payment records and refunds for
+              purchases made before {macwall.paymentProcessor} checkout.
+            </li>
+            <li>
+              <strong>Vercel</strong>: website hosting and privacy-friendly
+              web analytics.
+            </li>
+            <li>
+              <strong>Supabase</strong>: database, license verification and
+              server functions.
+            </li>
+            <li>
+              <strong>Cloudflare</strong>: storage and delivery of wallpaper
+              media and app downloads.
+            </li>
+            <li>
+              <strong>Resend</strong>: delivery of license and support emails.
+            </li>
+            <li>
+              <strong>Google Analytics, Meta, TikTok, X, Ahrefs</strong>:
+              website analytics and ad measurement on marketing pages.
+            </li>
+            <li>
+              <strong>Affonso</strong>: affiliate referral tracking.
+            </li>
+            <li>
+              <strong>Discord</strong>: our community server, only if you
+              choose to join it.
+            </li>
+          </ul>
+        </LegalSection>
+
         <LegalSection id="transfers" title="International Transfers">
           <p>
             Some subprocessors may process data outside your country. Where
