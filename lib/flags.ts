@@ -19,7 +19,7 @@ export const FLAGS = {
   /** Floating purchase nudges (`SocialProofMount`). Kill-switch + A/B lever. */
   socialProof: true,
   /** Top launch strip above the navbar (`AnnouncementBanner`). */
-  announcementBanner: false,
+  announcementBanner: true,
 } as const
 
 export type SiteFlagKey = keyof typeof FLAGS
