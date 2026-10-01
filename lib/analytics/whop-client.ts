@@ -62,6 +62,18 @@ export type WhopFunnelEvent =
   | "activated" // paid key handed to the app on /activate
 
 /**
+ * One literal `whop.track("…")` per event: Whop's setup panel finds events
+ * by scanning the site's JavaScript for these calls, so the names must not
+ * be passed through a variable.
+ */
+const WHOP_FUNNEL_TRACKERS: Record<WhopFunnelEvent, () => void> = {
+  view_content: () => window.whop?.track("view_content"),
+  lead: () => window.whop?.track("lead"),
+  add_to_cart: () => window.whop?.track("add_to_cart"),
+  activated: () => window.whop?.track("activated"),
+}
+
+/**
  * Track a funnel event. The pixel snippet loads `afterInteractive`, so an
  * early call waits up to ~5 s for `window.whop` instead of being dropped.
  */
@@ -70,7 +82,7 @@ export function trackWhopEvent(event: WhopFunnelEvent): void {
   let attempts = 0
   const fire = () => {
     if (isWhopAvailable()) {
-      window.whop!.track(event)
+      WHOP_FUNNEL_TRACKERS[event]()
       return
     }
     attempts += 1
