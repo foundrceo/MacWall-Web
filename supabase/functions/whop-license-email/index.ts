@@ -159,13 +159,19 @@ function paymentAccountId(payment: Json): string | null {
   )
 }
 
-function paymentEmail(payment: Json, metadata: Json): string | null {
+/**
+ * The email the buyer paid with at Whop. Never the checkout metadata's
+ * `customer_email`: that is a guessed lead email (trial signup on the same
+ * device) used for prefill and recovery, and a paid key must only ever go
+ * to the person who paid.
+ */
+function paymentEmail(payment: Json): string | null {
   const candidates = [
+    payment.customer_email,
     obj(payment.user).email,
     obj(payment.member).email,
     payment.email,
     obj(payment.billing_details).email,
-    metadata.customer_email,
   ]
   for (const c of candidates) {
     const email = str(c)?.toLowerCase()
@@ -277,7 +283,7 @@ async function handlePaid(args: {
   }
 
   const metadata = obj(payment.metadata)
-  const email = paymentEmail(payment, metadata)
+  const email = paymentEmail(payment)
   if (!email) {
     console.error(LOG, "no_customer_email", paymentId)
     return Response.json({ ok: false, error: "no_customer_email" }, { status: 422 })
