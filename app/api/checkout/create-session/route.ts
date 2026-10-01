@@ -114,13 +114,7 @@ async function startCheckout(
     cookieStore.get(CHECKOUT_VISITOR_ID_COOKIE)?.value ||
     null
 
-  // Whop is the live gateway; CHECKOUT_PROVIDER=stripe switches back.
-  const createCheckout =
-    process.env.CHECKOUT_PROVIDER?.trim().toLowerCase() === "stripe"
-      ? createMacWallCheckoutSession
-      : createMacWallWhopCheckout
-
-  return createCheckout({
+  const input = {
     country,
     offerSlug,
     planSlug,
@@ -131,7 +125,25 @@ async function startCheckout(
     customerEmail: email,
     visitorId,
     intent,
-  })
+  }
+
+  // Whop is the live gateway; CHECKOUT_PROVIDER=stripe makes Stripe primary.
+  // Each falls back to the other, so one gateway being down or closed never
+  // stops a sale. Both webhooks activate and email the same MW- license.
+  const stripeFirst =
+    process.env.CHECKOUT_PROVIDER?.trim().toLowerCase() === "stripe"
+  const [primary, fallback] = stripeFirst
+    ? [createMacWallCheckoutSession, createMacWallWhopCheckout]
+    : [createMacWallWhopCheckout, createMacWallCheckoutSession]
+
+  const result = await primary(input)
+  if (result.ok) return result
+  console.error(
+    `[checkout] ${stripeFirst ? "stripe" : "whop"} failed, trying fallback:`,
+    result.error
+  )
+  const second = await fallback(input)
+  return second.ok ? second : result
 }
 
 /**
