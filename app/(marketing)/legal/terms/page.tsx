@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { JsonLd } from "@/components/seo/json-ld"
+import { LEGAL_COMPANY_HREF } from "@/components/legal/legal-entity"
 import { LegalDocumentShell } from "@/components/legal/legal-document-shell"
 import { LegalSection, legalBulletList } from "@/components/legal/legal-section"
 import { legalDocumentBySlug } from "@/lib/legal/documents"
@@ -36,15 +37,9 @@ export default function LegalTermsPage() {
           <>
             <p>
               These Terms of Service (&ldquo;Terms&rdquo;) govern your access to
-              the {macwall.name} macOS application (&ldquo;App&rdquo;) and our
-              website at {siteHost} (&ldquo;Site&rdquo;). By using the App or
+              the {macwall.name}{" "}macOS application (&ldquo;App&rdquo;) and our
+              website at {siteHost}{" "}(&ldquo;Site&rdquo;). By using the App or
               Site, or purchasing {macwall.name} Pro, you agree to these Terms.
-            </p>
-            <p>
-              {macwall.name} is operated by {macwall.legalCompanyName},{" "}
-              {macwall.legalCompanyDescriptor}, {macwall.legalCompanyAddress}
-              . References to &ldquo;we&rdquo; or &ldquo;us&rdquo; mean{" "}
-              {macwall.legalCompanyName}.
             </p>
             <p>
               Related policies:{" "}
@@ -60,6 +55,24 @@ export default function LegalTermsPage() {
           </>
         }
       >
+        <LegalSection id="who-we-are" title="Who We Are">
+          <p>
+            {macwall.name} is owned and operated by {macwall.legalCompanyName},{" "}
+            {macwall.legalCompanyDescriptor} (Delaware file number{" "}
+            {macwall.legalCompanyFileNumber}). {macwall.name} is a trade name
+            and product of {macwall.legalCompanyName}; it is not a separate
+            legal entity. These Terms are an agreement between you and{" "}
+            {macwall.legalCompanyName}.
+          </p>
+          <p>
+            When you buy {macwall.name} Pro, the seller is{" "}
+            {macwall.legalCompanyName}. Charges appear on your card statement
+            as &ldquo;{macwall.statementDescriptor}&rdquo;. Company details,
+            including our registered office, are listed under{" "}
+            <Link href={LEGAL_COMPANY_HREF}>company information</Link>.
+          </p>
+        </LegalSection>
+
         <LegalSection id="the-service" title="The Service">
           <p>
             {macwall.name} provides live and video desktop wallpapers, including
@@ -177,6 +190,18 @@ export default function LegalTermsPage() {
             Some jurisdictions do not allow certain limitations; in those
             jurisdictions our liability is limited to the fullest extent allowed
             by law.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="governing-law" title="Governing Law">
+          <p>
+            These Terms are governed by the laws of the State of Delaware, USA,
+            without regard to its conflict-of-laws rules. Courts located in
+            Delaware have jurisdiction over disputes arising from these Terms,
+            except where the law of the country you live in gives you the right
+            to bring a claim in your local courts. Nothing in these Terms
+            limits consumer rights that cannot be waived under the law that
+            applies to you.
           </p>
         </LegalSection>
 

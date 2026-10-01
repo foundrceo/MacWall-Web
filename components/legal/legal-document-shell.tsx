@@ -1,5 +1,6 @@
 import { LegalNav } from "@/components/legal/legal-nav"
 import { legalArticle, legalLinkProse } from "@/components/legal/legal-classes"
+import { LegalOperatorNotice } from "@/components/legal/legal-entity"
 import {
   MarketingBodySection,
   MarketingTitleSection,
@@ -38,6 +39,7 @@ export function LegalDocumentShell({
           </aside>
           <div className="min-w-0 px-6 py-8 lg:px-8 lg:py-10">
             <div className={cn("mb-8 space-y-4 text-muted-foreground", legalLinkProse)}>
+              <LegalOperatorNotice />
               {intro}
             </div>
             <article className={cn(legalArticle, legalLinkProse)}>{children}</article>
