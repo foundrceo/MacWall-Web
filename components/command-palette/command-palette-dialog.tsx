@@ -490,7 +490,7 @@ function CommandPaletteDialogContent({
                 return
               }
               const error = result.ok
-                ? "Stripe did not return a checkout URL."
+                ? "Checkout did not return a URL."
                 : result.error
               window.location.assign(pricingPathWithCheckoutError(error))
             })
