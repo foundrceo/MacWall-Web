@@ -70,8 +70,7 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
       links: [
         {
           label: "Contact",
-          href: `mailto:${macwall.supportEmail}`,
-          external: true,
+          href: "/contact",
         },
         {
           label: "Discord",

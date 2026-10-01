@@ -24,6 +24,7 @@ export function indexableMarketingPaths(): string[] {
     "/alternatives/macwall-vs-wallspace",
     "/alternatives/lively-wallpaper-mac",
     "/crawlers",
+    "/contact",
     "/legal",
     "/legal/terms",
     "/legal/privacy",
