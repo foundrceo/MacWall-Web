@@ -68,8 +68,9 @@ export default function LegalTermsPage() {
             When you buy {macwall.name} Pro, the seller is{" "}
             {macwall.legalCompanyName}. Payments are processed by{" "}
             {macwall.paymentProcessor}, so your card statement may show{" "}
-            {macwall.paymentProcessor}&apos;s name. Company details, including
-            our registered office, are listed under{" "}
+            {macwall.paymentProcessor}&apos;s name. Purchases made in India are
+            processed by {macwall.indiaPaymentProcessor}. Company details,
+            including our registered office, are listed under{" "}
             <Link href={LEGAL_COMPANY_HREF}>company information</Link>.
           </p>
         </LegalSection>

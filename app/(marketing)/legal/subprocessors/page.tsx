@@ -44,7 +44,8 @@ export default function LegalSubprocessorsPage() {
             <li>
               <strong>Payments:</strong> {macwall.paymentProcessor} handles
               checkout, card processing, billing metadata, sales tax, and
-              related fraud checks.
+              related fraud checks. For purchases made in India,{" "}
+              {macwall.indiaPaymentProcessor} handles checkout and payments.
             </li>
             <li>
               <strong>Infrastructure:</strong> cloud hosting, databases, APIs,
@@ -80,6 +81,10 @@ export default function LegalSubprocessorsPage() {
             <li>
               <strong>{macwall.paymentProcessor}</strong>: checkout, payments,
               sales tax and fraud checks for new purchases.
+            </li>
+            <li>
+              <strong>{macwall.indiaPaymentProcessor}</strong>: checkout and
+              payments (UPI, cards, netbanking) for purchases made in India.
             </li>
             <li>
               <strong>Stripe</strong>: payment records and refunds for purchases
