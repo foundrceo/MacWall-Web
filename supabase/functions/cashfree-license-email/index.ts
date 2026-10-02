@@ -199,7 +199,6 @@ async function handlePaid(args: {
   supabase: Supabase
   orderId: string
   order: Json
-  event: Json
   resendKey: string
   from: string
 }): Promise<Response> {
@@ -214,10 +213,12 @@ async function handlePaid(args: {
     return Response.json({ ok: true, skipped: "already_emailed" })
   }
 
-  // The email on the order, else whatever Cashfree's checkout collected.
-  const buyerEmail =
-    email(obj(order.customer_details).customer_email) ??
-    email(obj(obj(args.event.data).customer_details).customer_email)
+  // Only an email the buyer typed (tagged at order creation). Older orders
+  // could carry a guessed lead email, so they are activated but not emailed.
+  const typedByBuyer = str(obj(order.order_tags).email_source) === "buyer"
+  const buyerEmail = typedByBuyer
+    ? email(obj(order.customer_details).customer_email)
+    : null
 
   const { licenseKey, maxDevices } = await activateLicense(
     supabase,
@@ -361,7 +362,7 @@ Deno.serve(async (req: Request) => {
     if (str(order.order_status) !== "PAID") {
       return Response.json({ ok: true, skipped: "not_paid" })
     }
-    return await handlePaid({ supabase, orderId, order, event, resendKey, from })
+    return await handlePaid({ supabase, orderId, order, resendKey, from })
   } catch (e) {
     const message = e instanceof Error ? e.message : "error"
     console.error(LOG, message)

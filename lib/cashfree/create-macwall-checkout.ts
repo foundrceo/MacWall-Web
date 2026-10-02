@@ -104,6 +104,10 @@ export async function createMacWallCashfreeCheckout(
         visitor_country: (input.country ?? "").toUpperCase(),
         checkout_intent: input.intent ?? "click",
         list_amount_inr: String(listInr),
+        // Marks the customer email as typed by the buyer. Orders without it
+        // (made before 2026-10-02's fix) may carry a guessed email and are
+        // never emailed the key.
+        email_source: "buyer",
         ...(percentOff > 0 && promoCode ? { promo_code: promoCode } : {}),
         affonso_referral: input.affonsoReferral?.trim().slice(0, 100) || "",
       },
