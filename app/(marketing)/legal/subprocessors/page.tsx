@@ -33,9 +33,9 @@ export default function LegalSubprocessorsPage() {
         intro={
           <p>
             A subprocessor is a third party that may process personal data on
-            our behalf so we can run {macwall.name}. We list categories of
-            processing below, not a public inventory of every vendor name. See
-            also the <Link href="/legal/privacy">Privacy Policy</Link>.
+            our behalf so we can run {macwall.name}. Below are the categories of
+            processing and the current list of providers. See also the{" "}
+            <Link href="/legal/privacy">Privacy Policy</Link>.
           </p>
         }
       >
@@ -55,8 +55,12 @@ export default function LegalSubprocessorsPage() {
               email such as license delivery and support replies.
             </li>
             <li>
-              <strong>Analytics &amp; attribution:</strong> limited product
-              analytics and referral attribution where configured on the Site.
+              <strong>Analytics &amp; attribution:</strong> product analytics in
+              the App, and analytics and referral attribution on the Site.
+            </li>
+            <li>
+              <strong>AI assistance:</strong> suggesting a title and category
+              for a wallpaper you submit, from its thumbnail.
             </li>
           </ul>
           <p>
@@ -78,12 +82,12 @@ export default function LegalSubprocessorsPage() {
               sales tax and fraud checks for new purchases.
             </li>
             <li>
-              <strong>Stripe</strong>: payment records and refunds for
-              purchases made before {macwall.paymentProcessor} checkout.
+              <strong>Stripe</strong>: payment records and refunds for purchases
+              made before {macwall.paymentProcessor} checkout.
             </li>
             <li>
-              <strong>Vercel</strong>: website hosting and privacy-friendly
-              web analytics.
+              <strong>Vercel</strong>: website hosting and privacy-friendly web
+              analytics.
             </li>
             <li>
               <strong>Supabase</strong>: database, license verification and
@@ -97,6 +101,18 @@ export default function LegalSubprocessorsPage() {
               <strong>Resend</strong>: delivery of license and support emails.
             </li>
             <li>
+              <strong>Mixpanel</strong>: product analytics in the App, linked to
+              a pseudonymous install ID (and your trial email if you give one).
+            </li>
+            <li>
+              <strong>OpenAI</strong>: suggests a title and category for a
+              wallpaper you submit, from its thumbnail image only.
+            </li>
+            <li>
+              <strong>Apple</strong>: push notifications about your submissions,
+              if you allow them.
+            </li>
+            <li>
               <strong>Google Analytics, Meta, TikTok, X, Ahrefs</strong>:
               website analytics and ad measurement on marketing pages.
             </li>
@@ -104,8 +120,8 @@ export default function LegalSubprocessorsPage() {
               <strong>Affonso</strong>: affiliate referral tracking.
             </li>
             <li>
-              <strong>Discord</strong>: our community server, only if you
-              choose to join it.
+              <strong>Discord</strong>: our community server, only if you choose
+              to join it.
             </li>
           </ul>
         </LegalSection>
@@ -120,13 +136,13 @@ export default function LegalSubprocessorsPage() {
 
         <LegalSection id="updates" title="Updates">
           <p>
-            We may change providers as the product evolves. We choose
-            providers with strong security practices (such as SOC 2 or ISO
-            27001 reports), rely on their data processing terms and, for
-            transfers out of the EEA/UK, Standard Contractual Clauses or the
-            EU-U.S. Data Privacy Framework where available. Changes are posted
-            on this page with a new effective date; the current date is{" "}
-            {macwall.legalEffectiveDate}.
+            We may change providers as the product evolves. We choose providers
+            with strong security practices (such as SOC 2 or ISO 27001 reports),
+            rely on their data processing terms and, for transfers out of the
+            EEA/UK, Standard Contractual Clauses or the EU-U.S. Data Privacy
+            Framework where available. Changes are posted on this page with a
+            new effective date; the current date is {macwall.legalEffectiveDate}
+            .
           </p>
         </LegalSection>
 

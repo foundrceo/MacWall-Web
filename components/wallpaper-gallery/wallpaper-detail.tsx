@@ -36,6 +36,8 @@ import {
   formatLikeCount,
   formatLoopDuration,
 } from "@/lib/public-catalog/format"
+import { wallpaperCreditName } from "@/lib/public-catalog/attribution"
+import { wallpaperQualityLabel } from "@/lib/seo/wallpaper-detail-content"
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
 import {
   wallpaperShareUrl,
@@ -80,14 +82,11 @@ function loopLengthArticle(seconds: number): string {
 
 export function WallpaperDetail({
   wallpaper,
-  uploaderCredit,
   similar,
   origin,
   content,
 }: Readonly<{
   wallpaper: PublicWallpaper
-  /** Credit name typed by the community uploader; null for everything else. */
-  uploaderCredit: string | null
   similar: PublicWallpaper[]
   origin: string
   content: WallpaperDetailContent
@@ -101,6 +100,16 @@ export function WallpaperDetail({
   )}&body=${encodeURIComponent(buildWallpaperReportMessage(wallpaper, shareUrl))}`
   const loopTime = formatLoopDuration(wallpaper.durationSeconds)
   const sizeLabel = formatFileSize(wallpaper.fileSizeBytes)
+  const credit = wallpaperCreditName(wallpaper)
+  const factLine = [
+    wallpaperQualityLabel(wallpaper.resolution),
+    wallpaper.durationSeconds > 0
+      ? `${Math.round(wallpaper.durationSeconds)} sec`
+      : null,
+    wallpaper.category,
+  ]
+    .filter(Boolean)
+    .join(" • ")
 
   return (
     <div className={WALLPAPER_SECTION_FONT_CLASS}>
@@ -154,10 +163,19 @@ export function WallpaperDetail({
             <span className="text-white/45">
               {" "}
               — {loopLengthArticle(wallpaper.durationSeconds)} live wallpaper
-              {uploaderCredit ? ` by ${uploaderCredit}` : ""}, ready for your
-              Mac.
+              {credit ? ` by ${credit}` : ""}, ready for your Mac.
             </span>
           </h1>
+          {factLine ? (
+            <p
+              className={cn(
+                "mt-2 text-[13px] tracking-wide",
+                GALLERY_TEXT_SECONDARY_CLASS
+              )}
+            >
+              {factLine}
+            </p>
+          ) : null}
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2.5 md:pt-0.5">
           <WallpaperSetOnMacButton
@@ -267,8 +285,11 @@ export function WallpaperDetail({
           )}
         >
           <MetaBlock title="Details">
-            {uploaderCredit ? (
-              <MetaRow icon={UserIcon}>{uploaderCredit}</MetaRow>
+            {credit ? (
+              <MetaRow icon={UserIcon}>
+                <span className="sr-only">Creator: </span>
+                {credit}
+              </MetaRow>
             ) : null}
             <MetaRow icon={HeartIcon}>
               {formatLikeCount(wallpaper.likeCount)} likes

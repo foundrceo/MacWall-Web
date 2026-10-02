@@ -54,6 +54,61 @@ type UploadItem = {
   reviewNotes: string | null
   approvedWallpaperId: string | null
   createdAt: string
+  submitterId: string
+  authorName: string | null
+  rightsBasis: "own_work" | "licensed" | null
+  rightsHolder: string | null
+  sourceUrl: string | null
+  licenseType: string | null
+  rightsEvidenceUrl: string | null
+  rightsAttestedAt: string | null
+  rightsAttestationVersion: string | null
+  authorOriginConfirmed: boolean
+  infoRequestedAt: string | null
+  ipFlags: string[]
+}
+
+type ModerationEvent = {
+  id: number
+  action: string
+  actor: string
+  notes: string | null
+  createdAt: string
+}
+
+const RIGHTS_STATEMENTS: Record<"own_work" | "licensed", string> = {
+  own_work:
+    "I created this wallpaper and own the rights necessary to publish it.",
+  licensed:
+    "I have permission or a license allowing me to publish and distribute this wallpaper through MacWall.",
+}
+
+const LICENSE_LABELS: Record<string, string> = {
+  creative_commons: "Creative Commons license",
+  free_stock_license: "Free stock license",
+  written_permission: "Written permission from the creator",
+  purchased_license: "Purchased license",
+  other: "Other license",
+}
+
+const EVENT_LABELS: Record<string, string> = {
+  submitted: "Submitted with rights declaration",
+  approved: "Approved and published",
+  rejected: "Rejected",
+  info_requested: "More information requested",
+  removed: "Removed from the catalog",
+  submitter_blocked: "Uploader blocked",
+  rights_status_changed: "Rights status changed",
+}
+
+function formatDateTime(value: string) {
+  return new Date(value).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  })
 }
 
 type MediaResponse = {
@@ -84,6 +139,10 @@ export default function AdminUploadsPage() {
   const [videoUrl, setVideoUrl] = useState<string | null>(null)
   const [thumbUrl, setThumbUrl] = useState<string | null>(null)
   const [reviewNotes, setReviewNotes] = useState("")
+  const [eventLog, setEventLog] = useState<{
+    uploadId: string
+    events: ModerationEvent[]
+  } | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [acting, setActing] = useState(false)
@@ -173,8 +232,49 @@ export default function AdminUploadsPage() {
 
   const selected = uploads.find((upload) => upload.id === selectedId) ?? null
 
-  async function review(action: "approve" | "reject") {
+  // Only shown when it belongs to the selected upload, so no reset is needed.
+  const events =
+    eventLog && eventLog.uploadId === selectedId ? eventLog.events : []
+
+  useEffect(() => {
+    if (!selectedId) return
+    let cancelled = false
+    void fetch(`/api/admin/uploads/${selectedId}/events`, {
+      credentials: "same-origin",
+    })
+      .then((res) => (res.ok ? res.json() : { events: [] }))
+      .then((json: { events?: ModerationEvent[] }) => {
+        if (!cancelled) {
+          setEventLog({ uploadId: selectedId, events: json.events ?? [] })
+        }
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [selectedId, uploads])
+
+  async function review(
+    action: "approve" | "reject" | "request-info" | "block"
+  ) {
     if (!selected) return
+    const note = reviewNotes.trim()
+    if ((action === "request-info" || action === "block") && !note) {
+      setError(
+        action === "request-info"
+          ? "Write what you need from the uploader in the note first."
+          : "Write the reason for blocking in the note first."
+      )
+      return
+    }
+    if (
+      action === "block" &&
+      !window.confirm(
+        "Block this uploader? Their install can no longer submit, and their other pending uploads are rejected."
+      )
+    ) {
+      return
+    }
     setActing(true)
     setMessage(null)
     setError(null)
@@ -182,7 +282,13 @@ export default function AdminUploadsPage() {
       const res = await fetch(`/api/admin/uploads/${selected.id}/${action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reviewNotes }),
+        body: JSON.stringify(
+          action === "request-info"
+            ? { message: note }
+            : action === "block"
+              ? { reason: note }
+              : { reviewNotes }
+        ),
         credentials: "same-origin",
       })
       const json = (await res.json()) as { error?: string }
@@ -190,7 +296,11 @@ export default function AdminUploadsPage() {
       setMessage(
         action === "approve"
           ? `Approved “${selected.title}” and published it to the catalog.`
-          : `Rejected “${selected.title}”.`
+          : action === "reject"
+            ? `Rejected “${selected.title}”.`
+            : action === "request-info"
+              ? `Asked the uploader of “${selected.title}” for more information.`
+              : "Blocked the uploader and rejected their pending uploads."
       )
       setReviewNotes("")
       await load(filter)
@@ -428,6 +538,8 @@ export default function AdminUploadsPage() {
                     ]}
                   />
 
+                  <RightsDeclarationPanel upload={selected} />
+
                   {selected.reviewNotes ? (
                     <div className="rounded-lg bg-[var(--admin-amber-soft)] px-3.5 py-2.5 text-[13px] text-[var(--admin-amber-fg)]">
                       <span className="font-medium">Review notes:</span>{" "}
@@ -464,17 +576,32 @@ export default function AdminUploadsPage() {
                         id="review-notes"
                         value={reviewNotes}
                         onChange={(event) => setReviewNotes(event.target.value)}
-                        placeholder="Optional note for the submitter — shown in the MacWall app and notification when you approve or reject…"
+                        placeholder="Note for the submitter, shown in the MacWall app. Required to request information or block."
                         maxLength={2000}
                         className="min-h-20 resize-y"
                       />
+                      {!selected.rightsAttestedAt ? (
+                        <p className="text-xs text-[var(--admin-red-fg)]">
+                          This upload has no rights declaration, so it cannot be
+                          approved. Reject it and ask the uploader to submit
+                          again from the latest MacWall.
+                        </p>
+                      ) : null}
                       <div className="flex flex-wrap gap-2">
                         <Button
                           onClick={() => void review("approve")}
-                          disabled={acting}
+                          disabled={acting || !selected.rightsAttestedAt}
                         >
                           <Check className="size-4" />
                           Approve & publish
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => void review("request-info")}
+                          disabled={acting}
+                        >
+                          <Clock className="size-4" />
+                          Request more information
                         </Button>
                         <Button
                           variant="destructive"
@@ -484,9 +611,19 @@ export default function AdminUploadsPage() {
                           <X className="size-4" />
                           Reject
                         </Button>
+                        <Button
+                          variant="ghost"
+                          onClick={() => void review("block")}
+                          disabled={acting}
+                        >
+                          <TriangleAlert className="size-4" />
+                          Block uploader
+                        </Button>
                       </div>
                     </div>
                   ) : null}
+
+                  <ModerationLog events={events} />
                 </div>
               )}
             </Card>
@@ -502,5 +639,139 @@ export default function AdminUploadsPage() {
         </TabsContent>
       </Tabs>
     </AdminShell>
+  )
+}
+
+function RightsDeclarationPanel({ upload }: { upload: UploadItem }) {
+  const declared = Boolean(upload.rightsAttestedAt && upload.rightsBasis)
+  return (
+    <div className="space-y-3 rounded-lg border border-[var(--admin-border)] px-3.5 py-3 text-[13px]">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-medium">Rights declaration</span>
+        <AdminBadge tone={declared ? "green" : "red"}>
+          {declared ? "Declared by uploader" : "No declaration"}
+        </AdminBadge>
+      </div>
+      <dl className="grid grid-cols-[9rem_1fr] gap-x-3 gap-y-1.5">
+        <dt className="text-[var(--admin-muted)]">Uploader</dt>
+        <dd className="font-mono text-xs break-all">
+          {upload.submitterId}{" "}
+          <span className="font-sans text-[var(--admin-muted)]">
+            (anonymous install ID)
+          </span>
+        </dd>
+        <dt className="text-[var(--admin-muted)]">Author display name</dt>
+        <dd>{upload.authorName?.trim() || "None given"}</dd>
+        <dt className="text-[var(--admin-muted)]">Origin</dt>
+        <dd>Community upload</dd>
+        <dt className="text-[var(--admin-muted)]">Submitted</dt>
+        <dd>{formatDateTime(upload.createdAt)}</dd>
+        {declared && upload.rightsBasis ? (
+          <>
+            <dt className="text-[var(--admin-muted)]">Statement</dt>
+            <dd>“{RIGHTS_STATEMENTS[upload.rightsBasis]}”</dd>
+            <dt className="text-[var(--admin-muted)]">Author and origin</dt>
+            <dd>
+              {upload.authorOriginConfirmed
+                ? "Confirmed accurate by uploader"
+                : "Not confirmed"}
+            </dd>
+            <dt className="text-[var(--admin-muted)]">Declared</dt>
+            <dd>
+              {formatDateTime(upload.rightsAttestedAt as string)} · statement{" "}
+              {upload.rightsAttestationVersion}
+            </dd>
+          </>
+        ) : (
+          <>
+            <dt className="text-[var(--admin-muted)]">Statement</dt>
+            <dd>
+              Submitted before the declaration existed (2 Oct 2026), or from an
+              older app.
+            </dd>
+          </>
+        )}
+        {upload.rightsBasis === "licensed" ? (
+          <>
+            <dt className="text-[var(--admin-muted)]">Rights holder</dt>
+            <dd>{upload.rightsHolder}</dd>
+            <dt className="text-[var(--admin-muted)]">License type</dt>
+            <dd>
+              {upload.licenseType
+                ? (LICENSE_LABELS[upload.licenseType] ?? upload.licenseType)
+                : "None"}
+            </dd>
+          </>
+        ) : null}
+        <dt className="text-[var(--admin-muted)]">Source</dt>
+        <dd>
+          {upload.sourceUrl ? (
+            <a
+              href={upload.sourceUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="break-all underline underline-offset-2"
+            >
+              {upload.sourceUrl}
+            </a>
+          ) : (
+            "None given"
+          )}
+        </dd>
+        <dt className="text-[var(--admin-muted)]">Evidence</dt>
+        <dd>
+          {upload.rightsEvidenceUrl ? (
+            <a
+              href={upload.rightsEvidenceUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="break-all underline underline-offset-2"
+            >
+              {upload.rightsEvidenceUrl}
+            </a>
+          ) : (
+            "None given"
+          )}
+        </dd>
+      </dl>
+      {upload.ipFlags.length ? (
+        <div className="rounded-md bg-[var(--admin-amber-soft)] px-3 py-2 text-[var(--admin-amber-fg)]">
+          <p className="font-medium">IP-risk keyword hints</p>
+          <ul className="mt-1 list-disc pl-4">
+            {upload.ipFlags.map((flag) => (
+              <li key={flag}>{flag}</li>
+            ))}
+          </ul>
+          <p className="mt-1 text-xs opacity-80">
+            Matched words in the title, not a finding. Check the source and
+            license before approving.
+          </p>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function ModerationLog({ events }: { events: ModerationEvent[] }) {
+  if (!events.length) return null
+  return (
+    <div className="space-y-2 border-t border-[var(--admin-border)] pt-4 text-[13px]">
+      <p className="font-medium">Moderation log</p>
+      <ol className="space-y-1.5">
+        {events.map((event) => (
+          <li key={event.id} className="flex flex-col">
+            <span>
+              {EVENT_LABELS[event.action] ?? event.action}{" "}
+              <span className="text-[var(--admin-muted)]">
+                · {event.actor} · {formatDateTime(event.createdAt)}
+              </span>
+            </span>
+            {event.notes ? (
+              <span className="text-[var(--admin-muted)]">{event.notes}</span>
+            ) : null}
+          </li>
+        ))}
+      </ol>
+    </div>
   )
 }

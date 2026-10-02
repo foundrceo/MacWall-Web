@@ -5,7 +5,6 @@ import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import { buildWallpaperDetailContent } from "@/lib/seo/wallpaper-detail-content"
 import { wallpaperDetailPageJsonLd } from "@/lib/seo/wallpaper-json-ld"
 import { wallpaperDetailMetadata } from "@/lib/seo/wallpaper-metadata"
-import { getWallpaperUploaderCredit } from "@/lib/public-catalog/credits"
 import {
   getPublicWallpaperByDetailSlug,
   listSimilarPublicWallpapers,
@@ -69,7 +68,6 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
     similar = []
   }
 
-  const uploaderCredit = await getWallpaperUploaderCredit(wallpaper)
   const origin = canonicalSiteOrigin()
   const content = buildWallpaperDetailContent(wallpaper)
 
@@ -87,7 +85,6 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
       <MarketingRail innerClassName="min-h-[70vh]">
         <WallpaperDetail
           wallpaper={wallpaper}
-          uploaderCredit={uploaderCredit}
           similar={similar}
           origin={origin}
           content={content}

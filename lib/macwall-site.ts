@@ -108,8 +108,7 @@ export const macwallMinimumMacOSRequirementOrLater =
 
 const MACWALL_NAME = "MacWall" as const
 /** Also the <title> suffix and OG alt text — keep it short and keyword-led. */
-const MACWALL_TAGLINE =
-  "Live wallpapers for Mac." as const
+const MACWALL_TAGLINE = "Live wallpapers for Mac." as const
 const MACWALL_FULL_TAGLINE = `${MACWALL_NAME} - ${MACWALL_TAGLINE}` as const
 
 export const macwall = {
@@ -133,7 +132,8 @@ export const macwall = {
   legalCompanyFormedLabel: "March 19, 2026",
   legalRegisteredAgent: "Legalinc Corporate Services Inc.",
   legalRegisteredOffice: "131 Continental Dr, Suite 305, Newark, DE 19713, USA",
-  legalMailingAddress: "2261 Market Street STE 73057, San Francisco, CA 94114, USA",
+  legalMailingAddress:
+    "2261 Market Street STE 73057, San Francisco, CA 94114, USA",
   /** Checkout and card processing for Pro purchases. */
   paymentProcessor: "Whop",
   paymentProcessorUrl: "https://whop.com",
@@ -159,9 +159,9 @@ export const macwall = {
   legalTerms: "https://macwall.app/legal/terms",
   legalPrivacy: "https://macwall.app/legal/privacy",
   /** Shown at top of Terms / Privacy (update when policies change). */
-  legalEffectiveDate: "October 1, 2026",
+  legalEffectiveDate: "October 2, 2026",
   /** ISO form for JSON-LD `dateModified` (keep in sync with `legalEffectiveDate`). */
-  legalEffectiveDateIso: "2026-10-01",
+  legalEffectiveDateIso: "2026-10-02",
   /** Same buckets as Home → Categories in the Mac app */
   categories: [
     "Anime",

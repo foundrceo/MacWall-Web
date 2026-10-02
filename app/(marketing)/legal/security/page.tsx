@@ -43,8 +43,8 @@ export default function LegalSecurityPage() {
           <ul className={legalBulletList}>
             <li>
               Card payments are processed by our payment provider,{" "}
-              {macwall.paymentProcessor}. We do not
-              store full card numbers on MacWall servers.
+              {macwall.paymentProcessor}. We do not store full card numbers on
+              MacWall servers.
             </li>
             <li>
               License keys are issued after successful payment and validated by
@@ -62,6 +62,12 @@ export default function LegalSecurityPage() {
             <li>
               Administrative access to production systems is limited to
               authorized operators and protected by authentication controls.
+            </li>
+            <li>
+              Community submissions upload to a separate pending area. A
+              moderator reviews each one, together with its rights declaration,
+              before it is copied into the public catalog, and every moderation
+              decision is recorded in an audit log.
             </li>
             <li>
               Hosting and storage providers apply their own infrastructure

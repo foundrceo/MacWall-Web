@@ -56,21 +56,23 @@ export default function LegalGdprPage() {
         <LegalSection id="bases" title="Legal Bases">
           <ul className={legalBulletList}>
             <li>
-              <strong>Contract:</strong> processing purchases and delivering
-              license entitlements.
+              <strong>Contract:</strong> processing purchases, delivering
+              license entitlements, and reviewing and publishing wallpapers you
+              submit under the license you grant us.
             </li>
             <li>
               <strong>Legitimate interests:</strong> securing the service,
               preventing abuse, and improving reliability, balanced against your
-              rights.
+              rights, and keeping records of who submitted each wallpaper and
+              its rights declaration so we can handle copyright notices.
             </li>
             <li>
               <strong>Consent:</strong> where we ask for it (for example
               optional non-essential communications).
             </li>
             <li>
-              <strong>Legal obligation:</strong> when we must retain or
-              disclose data to comply with law.
+              <strong>Legal obligation:</strong> when we must retain or disclose
+              data to comply with law.
             </li>
           </ul>
         </LegalSection>

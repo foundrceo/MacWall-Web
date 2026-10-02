@@ -1,4 +1,5 @@
 import { macwall } from "@/lib/macwall-site"
+import { wallpaperNamedAuthor } from "@/lib/public-catalog/attribution"
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
 import {
   wallpaperDetailPath,
@@ -183,6 +184,12 @@ export function wallpaperDetailPageJsonLd(input: {
       name: macwall.name,
       url: origin,
     },
+  }
+
+  // Only a real attribution record names a creator; never the placeholder.
+  const namedAuthor = wallpaperNamedAuthor(wallpaper)
+  if (namedAuthor) {
+    videoObject.creator = { "@type": "Person", name: namedAuthor }
   }
 
   if (input.durationSeconds && input.durationSeconds > 0) {
