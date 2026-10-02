@@ -3,10 +3,20 @@ import "server-only"
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 import { notifyCommunityUploadReviewed } from "@/lib/push/notify-visitor"
 import { r2CopyObject, r2PresignGetUrl } from "@/lib/storage/r2"
+import { ipKeywordFlags } from "@/lib/admin/ip-flags"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { randomUUID } from "crypto"
 
 export type CommunityUploadStatus = "pending" | "approved" | "rejected"
+
+export type CommunityRightsBasis = "own_work" | "licensed"
+
+export type CommunityLicenseType =
+  | "creative_commons"
+  | "free_stock_license"
+  | "written_permission"
+  | "purchased_license"
+  | "other"
 
 export type AdminCommunityUpload = {
   id: string
@@ -24,6 +34,18 @@ export type AdminCommunityUpload = {
   approvedWallpaperId: string | null
   createdAt: string
   updatedAt: string
+  /** Null for submissions made before the declaration existed (2026-10-02). */
+  rightsBasis: CommunityRightsBasis | null
+  rightsHolder: string | null
+  sourceUrl: string | null
+  licenseType: CommunityLicenseType | null
+  rightsEvidenceUrl: string | null
+  rightsAttestedAt: string | null
+  rightsAttestationVersion: string | null
+  authorOriginConfirmed: boolean
+  infoRequestedAt: string | null
+  /** Keyword hits in the title (franchises, brands, real people). Not a finding. */
+  ipFlags: string[]
 }
 
 type UploadRow = {
@@ -42,7 +64,19 @@ type UploadRow = {
   approved_wallpaper_id: string | null
   created_at: string
   updated_at: string
+  rights_basis: CommunityRightsBasis | null
+  rights_holder: string | null
+  source_url: string | null
+  license_type: CommunityLicenseType | null
+  rights_evidence_url: string | null
+  rights_attested_at: string | null
+  rights_attestation_version: string | null
+  author_origin_confirmed: boolean | null
+  info_requested_at: string | null
 }
+
+const UPLOAD_SELECT_COLUMNS =
+  "id,submitter_id,title,category,author_name,video_key,thumb_key,resolution,duration_seconds,file_size_bytes,status,review_notes,approved_wallpaper_id,created_at,updated_at,rights_basis,rights_holder,source_url,license_type,rights_evidence_url,rights_attested_at,rights_attestation_version,author_origin_confirmed,info_requested_at"
 
 function mapUpload(row: UploadRow): AdminCommunityUpload {
   return {
@@ -61,6 +95,16 @@ function mapUpload(row: UploadRow): AdminCommunityUpload {
     approvedWallpaperId: row.approved_wallpaper_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    rightsBasis: row.rights_basis,
+    rightsHolder: row.rights_holder,
+    sourceUrl: row.source_url,
+    licenseType: row.license_type,
+    rightsEvidenceUrl: row.rights_evidence_url,
+    rightsAttestedAt: row.rights_attested_at,
+    rightsAttestationVersion: row.rights_attestation_version,
+    authorOriginConfirmed: row.author_origin_confirmed === true,
+    infoRequestedAt: row.info_requested_at,
+    ipFlags: ipKeywordFlags(`${row.title} ${row.author_name ?? ""}`),
   }
 }
 
@@ -70,9 +114,7 @@ export async function listCommunityUploads(
   const supabase = getSupabaseAdmin()
   let query = supabase
     .from("community_uploads")
-    .select(
-      "id,submitter_id,title,category,author_name,video_key,thumb_key,resolution,duration_seconds,file_size_bytes,status,review_notes,approved_wallpaper_id,created_at,updated_at"
-    )
+    .select(UPLOAD_SELECT_COLUMNS)
     .order("created_at", { ascending: false })
     .limit(200)
 
@@ -91,9 +133,7 @@ export async function getCommunityUpload(
   const supabase = getSupabaseAdmin()
   const { data, error } = await supabase
     .from("community_uploads")
-    .select(
-      "id,submitter_id,title,category,author_name,video_key,thumb_key,resolution,duration_seconds,file_size_bytes,status,review_notes,approved_wallpaper_id,created_at,updated_at"
-    )
+    .select(UPLOAD_SELECT_COLUMNS)
     .eq("id", uploadId)
     .maybeSingle()
 
@@ -129,9 +169,10 @@ export async function approveCommunityUpload(
   }
 
   const wallpaperID =
-    wallpaperId?.trim() ||
-    upload.approvedWallpaperId?.trim() ||
-    randomUUID()
+    wallpaperId?.trim() || upload.approvedWallpaperId?.trim() || randomUUID()
+
+  if (upload.status !== "pending") throw new Error("upload_not_pending")
+  if (!upload.rightsAttestedAt) throw new Error("rights_declaration_missing")
 
   const { videoKey, thumbKey } = canonicalCommunityCatalogKeys(
     wallpaperID,
@@ -143,41 +184,23 @@ export async function approveCommunityUpload(
     r2CopyObject(upload.thumbKey, thumbKey),
   ])
 
+  // One transaction in the database: re-checks the rights declaration and
+  // pending status, publishes the wallpaper with its attribution and
+  // provenance, marks the upload approved and writes the moderation log.
   const supabase = getSupabaseAdmin()
-
-  const { error: wallpaperError } = await supabase.from("wallpapers").upsert(
+  const { error: approveError } = await supabase.rpc(
+    "approve_and_publish_community_upload",
     {
-      id: wallpaperID,
-      name: upload.title,
-      category: upload.category,
-      tags: ["community"],
-      resolution: upload.resolution,
-      duration_seconds: upload.durationSeconds,
-      file_size_bytes: upload.fileSizeBytes,
-      video_key: videoKey,
-      thumb_key: thumbKey,
-      is_pro: false,
-      is_featured: false,
-      is_curated_pick: false,
-      like_count: 0,
-    },
-    { onConflict: "id" }
+      p_upload_id: uploadId,
+      p_wallpaper_id: wallpaperID,
+      p_video_key: videoKey,
+      p_thumb_key: thumbKey,
+      p_review_notes: trimmedNotes,
+      p_actor: "admin",
+    }
   )
-  if (wallpaperError) {
-    throw new Error(`wallpapers upsert: ${wallpaperError.message}`)
-  }
-
-  const { error: uploadError } = await supabase
-    .from("community_uploads")
-    .update({
-      status: "approved",
-      approved_wallpaper_id: wallpaperID,
-      review_notes: trimmedNotes,
-    })
-    .eq("id", uploadId)
-
-  if (uploadError) {
-    throw new Error(`community_uploads update: ${uploadError.message}`)
+  if (approveError) {
+    throw new Error(approveError.message)
   }
 
   void notifyCommunityUploadReviewed({
@@ -198,7 +221,10 @@ export async function approveCommunityUpload(
   }
 }
 
-function canonicalCommunityCatalogKeys(wallpaperId: string, sourceVideoKey: string) {
+function canonicalCommunityCatalogKeys(
+  wallpaperId: string,
+  sourceVideoKey: string
+) {
   const ext = videoExtensionFromKey(sourceVideoKey)
   return {
     videoKey: `videos/${wallpaperId}.${ext}`,
@@ -238,6 +264,62 @@ export async function rejectCommunityUpload(
   }
 
   return data
+}
+
+export async function requestCommunityUploadInfo(
+  uploadId: string,
+  message: string
+) {
+  const upload = await getCommunityUpload(uploadId)
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase.rpc("request_community_upload_info", {
+    p_upload_id: uploadId,
+    p_message: message,
+    p_actor: "admin",
+  })
+  if (error) throw new Error(error.message)
+  return { result: data, upload }
+}
+
+export async function blockCommunitySubmitter(
+  uploadId: string,
+  reason: string
+) {
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase.rpc("block_community_submitter", {
+    p_upload_id: uploadId,
+    p_reason: reason,
+    p_actor: "admin",
+  })
+  if (error) throw new Error(error.message)
+  return data
+}
+
+export type ModerationEvent = {
+  id: number
+  action: string
+  actor: string
+  notes: string | null
+  createdAt: string
+}
+
+export async function listModerationEvents(
+  uploadId: string
+): Promise<ModerationEvent[]> {
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase
+    .from("community_upload_moderation_events")
+    .select("id,action,actor,notes,created_at")
+    .eq("upload_id", uploadId)
+    .order("created_at", { ascending: true })
+  if (error) throw new Error(error.message)
+  return (data ?? []).map((row) => ({
+    id: row.id as number,
+    action: row.action as string,
+    actor: row.actor as string,
+    notes: (row.notes as string | null) ?? null,
+    createdAt: row.created_at as string,
+  }))
 }
 
 export async function createPendingUploadSignedUrls(

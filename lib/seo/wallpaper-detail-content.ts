@@ -5,6 +5,7 @@ import {
   macwallMinimumMacOSVersion,
 } from "@/lib/macwall-site"
 import { aspectRatioLabel, parseResolution } from "@/lib/public-catalog/format"
+import { wallpaperCreditName } from "@/lib/public-catalog/attribution"
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
 import {
   collectionsForWallpaper,
@@ -113,7 +114,10 @@ export function buildWallpaperDetailContent(
   const primaryCollection = collections[0]
 
   const kind = describedKind(category, qualityLabel)
-  const leadParts = [`${name} is ${kind} live wallpaper for Mac`]
+  const credit = wallpaperCreditName(wallpaper)
+  const leadParts = [
+    `${name} is ${kind} live wallpaper for Mac${credit ? ` by ${credit}` : ""}`,
+  ]
   if (primaryCollection) {
     leadParts.push(`from the ${primaryCollection.name} collection`)
   }

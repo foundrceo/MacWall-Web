@@ -39,8 +39,8 @@ export default function LegalPrivacyPage() {
             <p>
               {macwall.name} is committed to your privacy. This Privacy Policy
               explains how we collect, use, disclose, and store information when
-              you use our macOS app and website. {macwall.legalCompanyName}{" "}
-              is responsible for the personal information described here.
+              you use our macOS app and website. {macwall.legalCompanyName} is
+              responsible for the personal information described here.
             </p>
             <p>
               {macwall.name} does not require user accounts. To manage licensing
@@ -84,9 +84,10 @@ export default function LegalPrivacyPage() {
             </li>
             <li>
               <strong>Purchase data:</strong> Checkout is handled by our payment
-              processor, {macwall.paymentProcessor}. We do not collect or store your full payment card
-              details on our servers. We may receive transaction identifiers,
-              license status, and your email for fulfillment and support.
+              processor, {macwall.paymentProcessor}. We do not collect or store
+              your full payment card details on our servers. We may receive
+              transaction identifiers, license status, and your email for
+              fulfillment and support.
             </li>
             <li>
               <strong>Website and infrastructure logs:</strong> When you visit{" "}
@@ -99,9 +100,24 @@ export default function LegalPrivacyPage() {
               retain your message and address to respond.
             </li>
             <li>
+              <strong>App usage analytics:</strong> The App sends usage events
+              (for example app launches, onboarding steps, wallpapers applied
+              and errors) to our analytics provider, Mixpanel, linked to a
+              pseudonymous install ID. If you enter your email to start a free
+              trial, that email is attached to the same analytics profile.
+            </li>
+            <li>
               <strong>Community submissions:</strong> If you submit a wallpaper
-              through the Site, we process the files and metadata you provide
-              for review and, if approved, public distribution in the catalog.
+              from the App, we receive the video or image, its thumbnail, title
+              and category, the author name you enter (shown publicly with the
+              wallpaper), your rights declaration (whether you made it or have a
+              license, and any rights holder, source link, license type and
+              permission link you give), the time you declared it, and the
+              install ID and device token of the Mac that sent it. We use these
+              to review the submission, keep a record of its origin and rights,
+              handle copyright notices, and, if approved, distribute it in the
+              catalog. To suggest a title and category, the App sends the
+              thumbnail (not the video) to OpenAI.
             </li>
           </ul>
         </LegalSection>
@@ -144,8 +160,8 @@ export default function LegalPrivacyPage() {
             Our marketing website does use ad-measurement pixels (Meta, TikTok,
             X, Google and Whop) to see which ads lead to downloads and
             purchases. Visitors in the EEA, UK and Switzerland are asked first,
-            and browsers sending Global Privacy Control never load them. See
-            the <Link href="/legal/cookies">Cookie Policy</Link>.
+            and browsers sending Global Privacy Control never load them. See the{" "}
+            <Link href="/legal/cookies">Cookie Policy</Link>.
           </p>
         </LegalSection>
 
@@ -186,13 +202,19 @@ export default function LegalPrivacyPage() {
 
         <LegalSection id="retention" title="Data Retention">
           <p>
-            We keep license and purchase records for as long as your license
-            is active and as required for tax, accounting and fraud-prevention
+            We keep license and purchase records for as long as your license is
+            active and as required for tax, accounting and fraud-prevention
             obligations. Abandoned checkout records are deleted automatically
             after 14 days. Support emails are kept while needed to help you and
-            for a reasonable period afterward. You can ask us to delete your
+            for a reasonable period afterward. Community submissions are kept
+            while they are under review or published; the record of who
+            submitted a wallpaper, its rights declaration and its moderation
+            history is kept after removal so we can answer copyright notices and
+            enforce our repeat-infringer policy. You can ask us to delete your
             data at any time by emailing{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>
+            <a href={`mailto:${macwall.supportEmail}`}>
+              {macwall.supportEmail}
+            </a>
             , except where we must keep it by law.
           </p>
         </LegalSection>
@@ -202,9 +224,11 @@ export default function LegalPrivacyPage() {
           title="Catalog Content and Local Imports"
         >
           <p>
-            Wallpapers in our catalog are licensed or provided for distribution
-            through the service. Your license to use the App does not give you
-            ownership of catalog media.
+            Community wallpapers are licensed to us by the people who submit
+            them; older wallpapers that {macwall.name} added are under rights
+            review (see our <Link href="/legal/terms#content">Terms</Link>).
+            Your license to use the App does not give you ownership of catalog
+            media.
           </p>
           <ul className={legalBulletList}>
             <li>
@@ -224,10 +248,12 @@ export default function LegalPrivacyPage() {
             Wherever you live, you can ask us to access, correct, export or
             delete your personal data, or object to or restrict how we use it.
             Email{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>
+              {macwall.supportEmail}
+            </a>{" "}
             and we will respond within the time the law requires (one month
-            under GDPR, 45 days under CCPA). You can also complain to your
-            local data protection authority.
+            under GDPR, 45 days under CCPA). You can also complain to your local
+            data protection authority.
           </p>
         </LegalSection>
 

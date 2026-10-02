@@ -2,6 +2,13 @@
 
 export type PublicCatalogSort = "newest" | "popular" | "older"
 
+export type WallpaperOriginType =
+  | "community_upload"
+  | "macwall_original"
+  | "licensed_content"
+  | "legacy_catalog"
+  | "unknown"
+
 export type PublicWallpaper = {
   id: string
   name: string
@@ -19,6 +26,10 @@ export type PublicWallpaper = {
   isCuratedPick: boolean
   likeCount: number
   createdAt: string
+  /** Detail pages only: credit from the attribution record, if any. */
+  authorDisplayName?: string | null
+  /** Detail pages only: where the wallpaper came from. */
+  originType?: WallpaperOriginType | null
 }
 
 export type PublicWallpaperListResult = {
