@@ -59,8 +59,8 @@ export default function ContactPage() {
             </h2>
             <p>
               {macwall.name} Pro is a one-time purchase with no subscription.
-              If something is wrong with a charge, please email us before
-              contacting your bank; we fix billing problems quickly. See the{" "}
+              If something is wrong with a charge, email us and we&apos;ll fix
+              it, usually within 1 to 2 business days. See the{" "}
               <Link href="/legal/refund">Refund Policy</Link> and{" "}
               <Link href="/legal/terms">Terms of Service</Link>.
             </p>
