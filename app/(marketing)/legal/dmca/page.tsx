@@ -121,10 +121,29 @@ export default function LegalDmcaPage() {
           <p>
             If you submit wallpapers to {macwall.name}, you represent that you
             own the rights or have a license that allows us to host and
-            distribute the content through the Service. Do not upload ripped
-            films, games, TV, music videos, or brand assets without permission.
-            See also <Link href="/legal/acceptable-use">Acceptable Use</Link>.
+            distribute the content through the Service. See also{" "}
+            <Link href="/legal/acceptable-use">Acceptable Use</Link>.
           </p>
+          <ul className={legalBulletList}>
+            <li>
+              Do not upload footage from films, TV shows, music videos, video
+              games, stock libraries or other artists without written
+              permission from the rights holder.
+            </li>
+            <li>
+              Do not use copyrighted characters, logos, brand assets or
+              trademarks without a license to do so.
+            </li>
+            <li>
+              Keep a record of any license you rely on for as long as the
+              wallpaper stays on {macwall.name}, and share it with us if we
+              ask.
+            </li>
+            <li>
+              If we receive a valid notice about your submission, we remove
+              it and may stop accepting uploads from you.
+            </li>
+          </ul>
         </LegalSection>
 
         <LegalSection id="misuse" title="Misuse of the Process">

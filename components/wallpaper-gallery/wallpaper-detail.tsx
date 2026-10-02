@@ -64,13 +64,30 @@ const DETAIL_CHIP_CLASS =
 /** Soft aside surface without outline — Apple-style fill only. */
 const DETAIL_ASIDE_SURFACE_CLASS = "border-0 bg-white/[0.06] shadow-none ring-0"
 
+/** "a 31-second", "a 1-minute 5-second", or "a" when the length is unknown. */
+function loopLengthArticle(seconds: number): string {
+  const total = Math.max(0, Math.round(seconds))
+  if (total === 0) return "a"
+  const mins = Math.floor(total / 60)
+  const secs = total % 60
+  const parts: string[] = []
+  if (mins > 0) parts.push(`${mins}-minute`)
+  if (secs > 0) parts.push(`${secs}-second`)
+  // "an 8-second", "an 11-minute", "an 18-second"
+  const article = /^(8|11|18|8\d)-/.test(parts[0]) ? "an" : "a"
+  return `${article} ${parts.join(" ")}`
+}
+
 export function WallpaperDetail({
   wallpaper,
+  uploaderCredit,
   similar,
   origin,
   content,
 }: Readonly<{
   wallpaper: PublicWallpaper
+  /** Credit name typed by the community uploader; null for everything else. */
+  uploaderCredit: string | null
   similar: PublicWallpaper[]
   origin: string
   content: WallpaperDetailContent
@@ -129,10 +146,17 @@ export function WallpaperDetail({
           <h1
             className={cn(
               WALLPAPER_DETAIL_HEADING_CLASS,
+              "line-clamp-none",
               GALLERY_TEXT_PRIMARY_CLASS
             )}
           >
             {wallpaper.name}
+            <span className="text-white/45">
+              {" "}
+              — {loopLengthArticle(wallpaper.durationSeconds)} live wallpaper
+              {uploaderCredit ? ` by ${uploaderCredit}` : ""}, ready for your
+              Mac.
+            </span>
           </h1>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2.5 md:pt-0.5">
@@ -243,7 +267,9 @@ export function WallpaperDetail({
           )}
         >
           <MetaBlock title="Details">
-            <MetaRow icon={UserIcon}>MacWall catalog</MetaRow>
+            {uploaderCredit ? (
+              <MetaRow icon={UserIcon}>{uploaderCredit}</MetaRow>
+            ) : null}
             <MetaRow icon={HeartIcon}>
               {formatLikeCount(wallpaper.likeCount)} likes
             </MetaRow>
