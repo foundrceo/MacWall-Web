@@ -137,6 +137,9 @@ export const macwall = {
   /** Checkout and card processing for Pro purchases. */
   paymentProcessor: "Whop",
   paymentProcessorUrl: "https://whop.com",
+  /** Checkout and payments for purchases made in India. */
+  indiaPaymentProcessor: "Cashfree Payments",
+  indiaPaymentProcessorUrl: "https://www.cashfree.com",
   /** Short brand tagline — one line, no breaks. */
   tagline: MACWALL_TAGLINE,
   /** Full brand title for document titles, OG alt text, and JSON-LD. */
