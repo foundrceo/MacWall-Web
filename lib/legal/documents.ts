@@ -52,7 +52,7 @@ export const LEGAL_DOCUMENTS: readonly LegalDocument[] = [
     title: "Refund Policy",
     shortTitle: "Refund Policy",
     description:
-      "MacWall does not offer a general refund policy, only rare exceptions we approve.",
+      "Every MacWall license has a 14-day money-back guarantee. How to request a refund and how it is paid.",
   },
   {
     slug: "subprocessors",
