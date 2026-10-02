@@ -296,12 +296,13 @@ export default function LegalTermsPage() {
 
         <LegalSection id="disputes" title="Resolving Problems">
           <p>
-            Most problems are solved quickly by email. Before starting any
-            formal dispute, including a chargeback, please contact{" "}
+            Most problems are solved quickly by email. If something is wrong
+            with your purchase or a charge, we encourage you to contact{" "}
             <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>{" "}
-            and give us 30 days to try to resolve it informally. Either of us
-            may still bring an individual claim in a small-claims court that
-            has jurisdiction.
+            first; we aim to reply within 1 to 2 business days. This does not
+            limit any right you have to dispute a charge with your bank or
+            card issuer. Either of us may bring an individual claim in a
+            small-claims court that has jurisdiction.
           </p>
         </LegalSection>
 
