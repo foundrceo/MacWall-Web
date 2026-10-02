@@ -80,8 +80,10 @@ function writeCachedPricing(pricing: MarketingPricing) {
   }
 }
 
-async function fetchPricing(signal: AbortSignal): Promise<MarketingPricing | null> {
+async function fetchPricing(): Promise<MarketingPricing | null> {
   // Dedupe concurrent mounts (StrictMode, fast remounts) into one request.
+  // The request owns its timeout: a mount that unmounts must not abort the
+  // fetch another mount is waiting on.
   if (!inflightFetch) {
     inflightFetch = (async () => {
       try {
@@ -93,7 +95,7 @@ async function fetchPricing(signal: AbortSignal): Promise<MarketingPricing | nul
           credentials: "same-origin",
           headers: { Accept: "application/json" },
           cache: "no-store",
-          signal,
+          signal: AbortSignal.timeout(PRICING_FETCH_TIMEOUT_MS),
         })
         if (!res.ok) return null
         const data = (await res.json()) as MarketingPricing
@@ -136,14 +138,8 @@ export function MarketingPricingProvider({
   useEffect(() => {
     if (initialPricing) return
     let cancelled = false
-    const controller = new AbortController()
-    const timeout = window.setTimeout(
-      () => controller.abort(),
-      PRICING_FETCH_TIMEOUT_MS
-    )
     const load = async () => {
-      const data = await fetchPricing(controller.signal)
-      window.clearTimeout(timeout)
+      const data = await fetchPricing()
       if (cancelled) return
       if (data) {
         setPricing(data)
@@ -153,8 +149,6 @@ export function MarketingPricingProvider({
     void load()
     return () => {
       cancelled = true
-      window.clearTimeout(timeout)
-      controller.abort()
     }
   }, [initialPricing])
 

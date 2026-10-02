@@ -1,6 +1,7 @@
 import { cookies, headers } from "next/headers"
 import { connection } from "next/server"
 
+import { isCashfreeIndiaEnabled } from "@/lib/cashfree/server"
 import { COUNTRY_COOKIE, isIndiaCountry } from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 import {
@@ -49,6 +50,16 @@ export async function resolveMarketingPricing(): Promise<MarketingPricing> {
       headers: headerStore,
       cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
     })
+
+    // India on Cashfree: fixed rupee prices, no live conversion.
+    if (isIndiaCountry(country) && isCashfreeIndiaEnabled()) {
+      return buildMarketingPricingFromLocalized({
+        country,
+        permanentLocal: null,
+        proPlusLocal: null,
+        fixedIndiaInr: true,
+      })
+    }
 
     // US (and unknown→USD) — no local hint.
     if (!country || country.toUpperCase() === "US") {
