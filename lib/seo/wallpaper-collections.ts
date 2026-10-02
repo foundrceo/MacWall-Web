@@ -346,7 +346,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     faq: {
       question: "Are these official Marvel wallpapers?",
       answer:
-        "No. They are community-made fan loops published in the MacWall catalog. MacWall is not affiliated with Marvel; report any wallpaper that should not be listed from its detail page.",
+        "No. MacWall is not affiliated with Marvel. If you own rights in a wallpaper listed here, report it from its detail page or send a notice under our DMCA policy and we will take it down.",
     },
     related: ["spider-man", "batman", "cyberpunk", "city"],
   }),
