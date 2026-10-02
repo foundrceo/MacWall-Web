@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.whop-license-email]
 verify_jwt = false
+
+[functions.cashfree-license-email]
+verify_jwt = false

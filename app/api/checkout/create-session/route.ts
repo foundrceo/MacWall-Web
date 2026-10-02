@@ -1,8 +1,11 @@
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
+import { createMacWallCashfreeCheckout } from "@/lib/cashfree/create-macwall-checkout"
+import { isCashfreeIndiaEnabled } from "@/lib/cashfree/server"
 import {
   COUNTRY_COOKIE,
+  isIndiaCountry,
   resolveVisitorCountry,
 } from "@/lib/geo/resolve-visitor-country"
 import {
@@ -126,7 +129,12 @@ async function startCheckout(
     intent,
   }
 
-  // Whop is the only checkout. The Stripe account is closed, so there is no
+  // India-only gateway, off unless CHECKOUT_INDIA_PROVIDER=cashfree.
+  if (isIndiaCountry(country) && isCashfreeIndiaEnabled()) {
+    return createMacWallCashfreeCheckout(input)
+  }
+
+  // Whop for everyone else. The Stripe account is closed, so there is no
   // Stripe path here; past Stripe orders are only read and refunded.
   return createMacWallWhopCheckout(input)
 }

@@ -4,6 +4,7 @@ import {
   clientIpFromRequest,
   createInMemoryRateLimiter,
 } from "@/lib/http/rate-limit"
+import { getCashfreeOrder } from "@/lib/cashfree/server"
 import { isZeroDecimalCurrency } from "@/lib/pricing/money"
 import { getStripe } from "@/lib/stripe/server"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
@@ -56,6 +57,58 @@ async function verifyWhopLicense(rawKey: string | null) {
 }
 
 /**
+ * Cashfree (India) returns to /activate?key=…&provider=cashfree after the
+ * return route has confirmed and activated the order. Reports the rupees
+ * actually paid so purchase pixels get the real value.
+ */
+async function verifyCashfreeLicense(rawKey: string | null) {
+  const licenseKey = rawKey?.trim().toUpperCase() ?? ""
+  if (!LICENSE_KEY.test(licenseKey)) {
+    return NextResponse.json({ error: "invalid_key" }, { status: 400 })
+  }
+  const { data, error } = await getSupabaseAdmin()
+    .from("macwall_licenses")
+    .select("status, cashfree_order_id")
+    .eq("license_key", licenseKey)
+    .eq("source", "cashfree")
+    .maybeSingle()
+  if (error) {
+    console.error("[checkout/verify] cashfree lookup", error.message)
+    return NextResponse.json({ error: "verify_failed" }, { status: 502 })
+  }
+  if (!data || data.status === "pending") {
+    return NextResponse.json({ ok: false, paid: false, pending: true }, { status: 202 })
+  }
+  if (data.status !== "active") {
+    return NextResponse.json(
+      { ok: false, paid: false, error: "not_paid" },
+      { status: 402 }
+    )
+  }
+
+  let amountMajor: number | null = null
+  let currency: string | null = null
+  if (data.cashfree_order_id) {
+    try {
+      const order = await getCashfreeOrder(data.cashfree_order_id)
+      amountMajor = order.order_amount
+      currency = order.order_currency
+    } catch {
+      // Value is a nice-to-have for pixels; the purchase is confirmed.
+    }
+  }
+  return NextResponse.json({
+    ok: true,
+    paid: true,
+    licenseKey,
+    amountTotal: amountMajor == null ? null : Math.round(amountMajor * 100),
+    amountMajor,
+    currency,
+    offerSlug: null,
+  })
+}
+
+/**
  * Verifies a Stripe Checkout Session is paid before the client deep-links
  * a license key or fires purchase conversions.
  *
@@ -69,9 +122,9 @@ export async function GET(request: Request) {
   }
 
   const params = new URL(request.url).searchParams
-  if (params.get("provider") === "whop") {
-    return verifyWhopLicense(params.get("key"))
-  }
+  const provider = params.get("provider")
+  if (provider === "whop") return verifyWhopLicense(params.get("key"))
+  if (provider === "cashfree") return verifyCashfreeLicense(params.get("key"))
 
   const sessionId = params.get("session_id")?.trim()
   if (!sessionId || !/^cs_[a-zA-Z0-9_]+$/.test(sessionId)) {

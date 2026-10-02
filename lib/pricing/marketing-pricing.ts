@@ -1,4 +1,5 @@
 import {
+  INDIA_FIXED_INR_PER_USD,
   LICENSE_OFFERS,
   MULTI_MAC_OFFER_SLUGS,
   checkoutAddonAmount,
@@ -113,6 +114,8 @@ export type MarketingPriceBundle = {
   proPlusLocal: LocalizedMoney | null
   /** When set, every multi-Mac pack uses this rate for local primary prices. */
   fx?: MarketingFxRate | null
+  /** India on Cashfree: fixed ₹499 / ₹799 / ₹1,299, no USD hint. */
+  fixedIndiaInr?: boolean
 }
 
 function localMoneyFromFx(
@@ -136,9 +139,17 @@ function perMac(money: LocalizedMoney, macs: number): string {
 export function buildMarketingPricingFromLocalized(
   bundle: MarketingPriceBundle
 ): MarketingPricing {
-  const { country, permanentLocal, proPlusLocal, fx } = bundle
+  const { country, fixedIndiaInr } = bundle
   const india = isIndiaCountry(country)
   const region: PricingRegion = india ? "india" : "default"
+  const fixedInr = india && Boolean(fixedIndiaInr)
+  // Fixed rupee prices are a constant ₹100 per catalog dollar, so the rate
+  // path below renders them exactly. Live FX inputs are ignored.
+  const fx: MarketingFxRate | null | undefined = fixedInr
+    ? { currency: "inr", locale: "en-IN", usdPerUnit: 1 / INDIA_FIXED_INR_PER_USD }
+    : bundle.fx
+  const permanentLocal = fixedInr ? null : bundle.permanentLocal
+  const proPlusLocal = fixedInr ? null : bundle.proPlusLocal
 
   // Everyone is charged in USD (India at the India catalog price). Show the
   // local currency at the live FX rate when it is known.
@@ -165,7 +176,7 @@ export function buildMarketingPricingFromLocalized(
   const money = (usdCents: number): LocalizedMoney =>
     activeFx ? localMoneyFromFx(usdCents, activeFx) : usdMoney(usdCents)
   const hint = (usdCents: number): string | null =>
-    activeFx ? usdCatalogHint(usdCents) : null
+    activeFx && !fixedInr ? usdCatalogHint(usdCents) : null
   const amount = (slug: LicenseOfferSlug): number =>
     licenseOfferPriceCents(LICENSE_OFFERS[slug], region)
 

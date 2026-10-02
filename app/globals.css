@@ -617,22 +617,50 @@
   }
 }
 
-/* Checkout CTA: instant press feedback while the Stripe URL resolves. */
+/*
+ * Checkout CTA while checkout opens: the label gives way to a small spinner
+ * in the button's own text colour. The button keeps its size and nothing
+ * else on the page changes. Taps are ignored so checkout opens only once.
+ */
 a[href*="/api/checkout/"][aria-busy="true"] {
-  cursor: progress;
+  position: relative;
+  pointer-events: none;
+  -webkit-text-fill-color: transparent;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a[href*="/api/checkout/"][aria-busy="true"] {
-    animation: checkout-cta-busy 0.9s ease-in-out infinite alternate;
+a[href*="/api/checkout/"][aria-busy="true"] > * {
+  visibility: hidden;
+}
+
+a[href*="/api/checkout/"][aria-busy="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 1.125em;
+  height: 1.125em;
+  border-radius: 9999px;
+  border: 2px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-top-color: currentColor;
+  animation: checkout-cta-spin 0.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a[href*="/api/checkout/"][aria-busy="true"]::after {
+    animation-duration: 1.8s;
   }
 }
 
-@keyframes checkout-cta-busy {
-  from {
-    opacity: 1;
-  }
+@keyframes checkout-cta-spin {
   to {
-    opacity: 0.72;
+    transform: rotate(360deg);
   }
+}
+
+/*
+ * Cashfree's redirect covers the whole page in a dark overlay with a centred
+ * spinner. The buy button already shows progress, so keep the page as is.
+ */
+[id^="loaderfull-global"] {
+  display: none !important;
 }

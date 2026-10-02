@@ -38,6 +38,8 @@ import { trackMetaInitiateCheckout } from "@/lib/analytics/meta-client"
 import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
 import { trackWhopEvent } from "@/lib/analytics/whop-client"
 import {
+  followCheckoutUrl,
+  isFollowableCheckoutUrl,
   parseCheckoutHrefParams,
   waitForPrefetchedCheckoutUrl,
 } from "@/lib/checkout/prefetch-checkout"
@@ -487,8 +489,8 @@ function CommandPaletteDialogContent({
             until: checkoutParams.until,
           })
             .then((result) => {
-              if (result.ok && result.url.startsWith("https://")) {
-                window.location.assign(result.url)
+              if (result.ok && isFollowableCheckoutUrl(result.url)) {
+                followCheckoutUrl(result.url)
                 return
               }
               const error = result.ok

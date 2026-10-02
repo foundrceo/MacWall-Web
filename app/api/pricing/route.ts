@@ -2,6 +2,7 @@ import { cookies } from "next/headers"
 import { unstable_cache } from "next/cache"
 import { NextResponse } from "next/server"
 
+import { isCashfreeIndiaEnabled } from "@/lib/cashfree/server"
 import { COUNTRY_COOKIE, isIndiaCountry } from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 import {
@@ -48,6 +49,16 @@ async function resolvePricingForCountry(
   country: string | null
 ): Promise<MarketingPricing> {
   try {
+    // India on Cashfree: fixed rupee prices, no live conversion.
+    if (isIndiaCountry(country) && isCashfreeIndiaEnabled()) {
+      return buildMarketingPricingFromLocalized({
+        country,
+        permanentLocal: null,
+        proPlusLocal: null,
+        fixedIndiaInr: true,
+      })
+    }
+
     if (!country || country === "US") {
       return buildMarketingPricingFromLocalized({
         country: country ?? "US",
@@ -92,8 +103,10 @@ async function resolvePricingForCountry(
 }
 
 const cachedPricingForCountry = unstable_cache(
-  async (countryKey: string) =>
-    resolvePricingForCountry(countryKey === "_" ? null : countryKey),
+  async (countryKey: string) => {
+    const country = countryKey.split(":")[0]!
+    return resolvePricingForCountry(country === "_" ? null : country)
+  },
   ["marketing-pricing-by-country-v10"],
   { revalidate: 300 }
 )
@@ -117,7 +130,11 @@ export async function GET(request: Request) {
       cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
     }))
 
-  const cacheKey = country ?? "_"
+  // The India price depends on the gateway, so it is part of the key.
+  const cacheKey =
+    isIndiaCountry(country) && isCashfreeIndiaEnabled()
+      ? `${country}:cashfree`
+      : (country ?? "_")
   const pricing = await cachedPricingForCountry(cacheKey)
 
   return NextResponse.json(pricing, {

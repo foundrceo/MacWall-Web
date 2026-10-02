@@ -22,6 +22,8 @@ import { markCheckoutStartedInSession } from "@/lib/analytics/retargeting"
 import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
 import { trackWhopEvent } from "@/lib/analytics/whop-client"
 import {
+  followCheckoutUrl,
+  isFollowableCheckoutUrl,
   parseCheckoutHrefParams,
   preconnectStripeCheckout,
   prefetchCheckoutSession,
@@ -133,8 +135,8 @@ export function TrackedLink({
         until: checkoutParams.until,
       })
         .then((result) => {
-          if (result.ok && result.url.startsWith("https://")) {
-            window.location.assign(result.url)
+          if (result.ok && isFollowableCheckoutUrl(result.url)) {
+            followCheckoutUrl(result.url)
             return
           }
           anchor.removeAttribute("aria-busy")
