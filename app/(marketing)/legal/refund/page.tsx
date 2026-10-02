@@ -32,51 +32,69 @@ export default function LegalRefundPage() {
         title={`${macwall.name} Refund Policy`}
         intro={
           <p>
-            {macwall.name} does <strong>not</strong> offer a general refund
-            policy. License purchases are final once a key is delivered. This
-            page only describes rare exceptions, and those are never
-            guaranteed. Mandatory consumer rights in your country still apply
-            where they cannot be waived.
+            Every {macwall.name} license comes with a{" "}
+            <strong>{macwall.refundWindowDays}-day money-back guarantee</strong>.
+            If you&apos;re not happy for any reason, email us within{" "}
+            {macwall.refundWindowDays} days of purchase and we&apos;ll refund
+            you in full.
           </p>
         }
       >
-        <LegalSection id="no-general-refunds" title="No General Refunds">
+        <LegalSection id="guarantee" title={`${macwall.refundWindowDays}-Day Money-Back Guarantee`}>
+          <ul className={legalBulletList}>
+            <li>
+              Covers every {macwall.name} license purchase: Pro, Pro+ and
+              multi-Mac packs.
+            </li>
+            <li>
+              Applies even if you have downloaded, installed or activated the
+              App. No reason is needed, though feedback helps us improve.
+            </li>
+            <li>
+              The {macwall.refundWindowDays} days are counted from the date of
+              purchase.
+            </li>
+          </ul>
+        </LegalSection>
+
+        <LegalSection id="how-to-request" title="How to Request a Refund">
           <p>
-            Digital licenses are sold as-is. We do not provide refunds for
-            change of mind, unused licenses, preference changes, or similar
-            reasons. Buying {macwall.name} Pro means you accept that sales are
-            final under normal circumstances.
+            Email{" "}
+            <a href={`mailto:${macwall.supportEmail}?subject=Refund%20request`}>
+              {macwall.supportEmail}
+            </a>{" "}
+            with the subject &ldquo;Refund request&rdquo;, from the email you
+            paid with if you can. Include your license key or the approximate
+            purchase date so we can find the order. We reply within 1 to 2
+            business days.
           </p>
         </LegalSection>
 
-        <LegalSection id="exceptions" title="Exceptions (Discretionary Only)">
+        <LegalSection id="after-window" title={`After ${macwall.refundWindowDays} Days`}>
           <p>
-            In a small number of cases we <em>may</em> choose to refund, but only
-            if we decide the situation clearly warrants it. That decision is
-            entirely ours. Examples we might consider:
+            We still fix billing problems at any time: duplicate charges,
+            charges you don&apos;t recognize, or a license key that was never
+            delivered are refunded or corrected whenever you contact us.
           </p>
+        </LegalSection>
+
+        <LegalSection id="declined" title="When a Refund May Be Declined">
           <ul className={legalBulletList}>
-            <li>A clear billing error or duplicate charge on our side.</li>
             <li>
-              You were charged but never received a working license key, and
-              we could not deliver one after you contacted support.
+              The request arrives after {macwall.refundWindowDays} days and is
+              not a billing problem described above.
             </li>
             <li>
-              The App cannot run on a supported macOS version we advertised at
-              the time of purchase, after reasonable troubleshooting.
+              The purchase used a stolen payment method or is otherwise
+              fraudulent.
+            </li>
+            <li>
+              Repeated buy-and-refund cycles, or a license that was resold or
+              shared beyond its Mac limit.
             </li>
           </ul>
           <p>
-            Even in those situations, a refund is not automatic. Contacting
-            support does not create a right to a refund.
-          </p>
-          <p>
-            If you want us to review an exceptional case, email{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>
-              {macwall.supportEmail}
-            </a>{" "}
-            with your purchase email, approximate purchase date, and what went
-            wrong. We aim to reply within a few business days.
+            None of this limits rights you have under consumer law.
           </p>
         </LegalSection>
 
@@ -89,11 +107,9 @@ export default function LegalRefundPage() {
             honor them.
           </p>
           <p>
-            Customers in the EU, UK and similar jurisdictions: {macwall.name}{" "}
-            Pro is digital content supplied immediately after payment. By
-            completing checkout you request immediate delivery and acknowledge
-            that the statutory right of withdrawal ends once the license key is
-            delivered, to the extent the law allows.
+            Our {macwall.refundWindowDays}-day guarantee is offered in addition
+            to those rights everywhere we sell, including the EU and UK, and
+            never reduces them.
           </p>
         </LegalSection>
 
@@ -109,9 +125,8 @@ export default function LegalRefundPage() {
         <LegalSection id="creator-program" title="Creator Reel Program">
           <p>
             The creator / Reel program on <Link href="/creator">/creator</Link>{" "}
-            is a separate promotional offer with its own rules. It is not a
-            standard refund policy and does not change the “sales are final”
-            rule above for ordinary purchases.
+            is a separate promotional offer with its own rules. It works
+            alongside, and does not replace, the money-back guarantee above.
           </p>
         </LegalSection>
 

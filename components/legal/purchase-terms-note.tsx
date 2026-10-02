@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 /**
@@ -17,8 +18,9 @@ export function PurchaseTermsNote({
         className
       )}
     >
-      One-time payment, no subscription. Taxes, if any, are calculated at
-      checkout. By purchasing you agree to our{" "}
+      One-time payment, no subscription. {macwall.refundWindowDays}-day
+      money-back guarantee. Taxes, if any, are calculated at checkout. By
+      purchasing you agree to our{" "}
       <Link href="/legal/terms" className="underline underline-offset-2">
         Terms
       </Link>{" "}

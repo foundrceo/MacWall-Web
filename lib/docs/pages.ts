@@ -461,7 +461,7 @@ export const docsPages: DocsPage[] = [
       { type: "h2", text: "Refunds" },
       {
         type: "p",
-        text: `If MacWall does not work on your Mac, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) and we will refund you, the exact terms live in [Terms](/legal/terms). Separately, the [creator program](/creator) refunds your purchase for posting a MacWall video that reaches the view thresholds.`,
+        text: `Every license has a ${macwall.refundWindowDays}-day money-back guarantee. Email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) within ${macwall.refundWindowDays} days of purchase for a full refund, no reason needed; details are in the [Refund Policy](/legal/refund). Separately, the [creator program](/creator) refunds your purchase for posting a MacWall video that reaches the view thresholds.`,
       },
     ],
     faq: [

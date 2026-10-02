@@ -535,7 +535,7 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
             { type: "h2", text: "Getting your money back" },
             {
               type: "p",
-              text: `If MacWall does not work on your Mac, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) and we will help. Separately, the [creator program](/creator) refunds you in full for a MacWall video that hits ${macwall.reelRefundFullViews.toLocaleString("en-US")} views, or half at ${macwall.reelRefundHalfViews.toLocaleString("en-US")}.`,
+              text: `Every license has a ${macwall.refundWindowDays}-day money-back guarantee: email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) within ${macwall.refundWindowDays} days of purchase for a full refund, no reason needed. Separately, the [creator program](/creator) refunds you in full for a MacWall video that hits ${macwall.reelRefundFullViews.toLocaleString("en-US")} views, or half at ${macwall.reelRefundHalfViews.toLocaleString("en-US")}.`,
             },
           ],
           faq: [

@@ -133,6 +133,16 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/refund",
+        destination: "/legal/refund",
+        permanent: true,
+      },
+      {
+        source: "/refunds",
+        destination: "/legal/refund",
+        permanent: true,
+      },
+      {
         source: "/terms",
         destination: "/legal/terms",
         permanent: true,

@@ -116,6 +116,7 @@ export const macwallAiInfoPage: SeoContentPage = {
         "**Free:** no account required; continue after onboarding with 6 starter wallpapers.",
         `**Pro permanent license:** the default USD price currently shown is ${macwall.pro.price} one time for up to ${macwall.maxLicensedMacs} personal Macs. It unlocks the full catalog, private imports, supported Lock Screen and Screen Saver motion, playlists, and current Pro benefits.`,
         "**Pro+:** permanent multi-Mac packs for larger personal, family, studio, or lab setups; available device counts and prices are shown on the live pricing page.",
+        `**Refunds:** every license has a ${macwall.refundWindowDays}-day money-back guarantee; email support within ${macwall.refundWindowDays} days of purchase.`,
         "**Creator refund:** eligible public videos can receive a 50% refund at 2,000 organic views or a 100% refund at 20,000 organic views, subject to the published creator-program terms.",
       ],
     },
