@@ -136,7 +136,11 @@ export function TrackedLink({
       })
         .then((result) => {
           if (result.ok && isFollowableCheckoutUrl(result.url)) {
-            followCheckoutUrl(result.url)
+            // India asks for the buyer's email in a dialog first; the
+            // button stops spinning while it is open.
+            if (followCheckoutUrl(result.url) === "dialog") {
+              anchor.removeAttribute("aria-busy")
+            }
             return
           }
           anchor.removeAttribute("aria-busy")

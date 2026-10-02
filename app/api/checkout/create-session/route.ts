@@ -1,7 +1,10 @@
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
-import { createMacWallCashfreeCheckout } from "@/lib/cashfree/create-macwall-checkout"
+import {
+  cashfreeEmailStepUrl,
+  createMacWallCashfreeCheckout,
+} from "@/lib/cashfree/create-macwall-checkout"
 import { isCashfreeIndiaEnabled } from "@/lib/cashfree/server"
 import {
   COUNTRY_COOKIE,
@@ -40,6 +43,11 @@ const LEAD_COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 30
 type CheckoutLeadInput = {
   email: string | null
   visitorId: string | null
+  /**
+   * Email the buyer typed for this purchase (India / Cashfree only). Unlike
+   * `email`, never guessed from cookies or links: the license key is sent here.
+   */
+  buyerEmail?: string | null
 }
 
 function readLeadFromSearchParams(url: URL): CheckoutLeadInput {
@@ -129,9 +137,13 @@ async function startCheckout(
     intent,
   }
 
-  // India-only gateway, off unless CHECKOUT_INDIA_PROVIDER=cashfree.
+  // India-only gateway, off unless CHECKOUT_INDIA_PROVIDER=cashfree. The
+  // order is created only once the buyer has typed their email; until then
+  // the buy button gets the email step (no order, no guessed email).
   if (isIndiaCountry(country) && isCashfreeIndiaEnabled()) {
-    return createMacWallCashfreeCheckout(input)
+    const buyerEmail = normalizeCheckoutEmail(lead.buyerEmail)
+    if (!buyerEmail) return cashfreeEmailStepUrl(input)
+    return createMacWallCashfreeCheckout(input, buyerEmail)
   }
 
   // Whop for everyone else. The Stripe account is closed, so there is no
@@ -204,6 +216,7 @@ export async function POST(request: Request) {
   let promoCode: string | null = null
   let offerUntil: string | null = null
   let email: string | null = null
+  let buyerEmail: string | null = null
   let visitorId: string | null = null
   // POST is how the site warms a session on hover; the real click is
   // reported separately, so default to "prefetch".
@@ -215,6 +228,7 @@ export async function POST(request: Request) {
       promo?: string
       until?: string
       email?: string
+      buyer_email?: string
       visitor_id?: string
       visitorId?: string
       intent?: string
@@ -224,6 +238,7 @@ export async function POST(request: Request) {
     promoCode = body.promo?.trim() || null
     offerUntil = body.until?.trim() || null
     email = body.email?.trim() || null
+    buyerEmail = body.buyer_email?.trim() || null
     visitorId = body.visitor_id?.trim() || body.visitorId?.trim() || null
     intent = body.intent === "click" ? "click" : "prefetch"
   } catch {
@@ -251,7 +266,7 @@ export async function POST(request: Request) {
     planSlug,
     promoCode,
     offerUntil,
-    { email, visitorId },
+    { email, visitorId, buyerEmail },
     intent
   )
 
