@@ -2,6 +2,11 @@
 
 import { AFFONSO_REFERRAL_COOKIE } from "@/lib/macwall-affiliate"
 import {
+  cashfreeSessionFromUrl,
+  openCashfreeCheckout,
+  preloadCashfreeSdk,
+} from "@/lib/cashfree/client"
+import {
   DEFAULT_CHECKOUT_ERROR,
   type CheckoutSessionResult,
   parseCheckoutCreateError,
@@ -88,6 +93,35 @@ export type CheckoutHrefParams = {
  * Parse offer + optional lead identity from a checkout API href.
  * Email CTAs and the Mac app can append `email` / `visitor_id`.
  */
+/**
+ * Where a buy click may send the browser: any HTTPS checkout, or a page on
+ * this site (India's Cashfree hand-off, which is plain http on localhost).
+ */
+export function isFollowableCheckoutUrl(url: string): boolean {
+  if (url.startsWith("https://")) return true
+  try {
+    return new URL(url).origin === window.location.origin
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Sends a buy click to its checkout. India's Cashfree sessions open from the
+ * current page, so no in-between page ever shows.
+ */
+export function followCheckoutUrl(url: string): void {
+  const cashfree = cashfreeSessionFromUrl(url)
+  if (!cashfree) {
+    window.location.assign(url)
+    return
+  }
+  void openCashfreeCheckout(cashfree.session, cashfree.mode).then((opened) => {
+    // Hand-off page retries once, then returns to /pricing with an error.
+    if (!opened) window.location.assign(url)
+  })
+}
+
 export function parseCheckoutHrefParams(href: string): CheckoutHrefParams | null {
   try {
     const url = new URL(href, "https://macwall.app")
@@ -239,6 +273,8 @@ export function prefetchCheckoutSession(
       }
 
       failureCooldownUntil.delete(key)
+      // Warm cashfree.js so the click opens Cashfree instantly.
+      if (cashfreeSessionFromUrl(url)) void preloadCashfreeSdk().catch(() => {})
       cache.set(key, {
         url,
         expiresAt: Date.now() + CACHE_TTL_MS,

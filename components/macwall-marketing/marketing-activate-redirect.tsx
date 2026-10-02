@@ -47,11 +47,12 @@ function ActivateRedirectBody() {
     return trimmed && trimmed.length > 0 ? trimmed : null
   }, [searchParams])
 
-  // Whop returns here with ?key=…&provider=whop; the key only works once
-  // the webhook has confirmed payment, so it is verified like a Stripe session.
+  // Whop and Cashfree return here with ?key=…&provider=…; the key only works
+  // once payment is confirmed, so it is verified like a Stripe session.
+  const provider = searchParams.get("provider")
   const whopKey = useMemo(
-    () => (searchParams.get("provider") === "whop" ? urlKey : null),
-    [searchParams, urlKey]
+    () => (provider === "whop" || provider === "cashfree" ? urlKey : null),
+    [provider, urlKey]
   )
   const needsVerify = Boolean(sessionId || whopKey)
 
@@ -65,7 +66,7 @@ function ActivateRedirectBody() {
     let cancelled = false
     const verifyUrl = sessionId
       ? `/api/checkout/verify-session?session_id=${encodeURIComponent(sessionId)}`
-      : `/api/checkout/verify-session?provider=whop&key=${encodeURIComponent(whopKey ?? "")}`
+      : `/api/checkout/verify-session?provider=${provider}&key=${encodeURIComponent(whopKey ?? "")}`
     const run = async (attempt = 1): Promise<void> => {
       try {
         const res = await fetch(verifyUrl, { credentials: "same-origin" })
@@ -120,7 +121,7 @@ function ActivateRedirectBody() {
     return () => {
       cancelled = true
     }
-  }, [sessionId, urlKey, whopKey])
+  }, [provider, sessionId, urlKey, whopKey])
 
   const licenseKey =
     verify.status === "paid"

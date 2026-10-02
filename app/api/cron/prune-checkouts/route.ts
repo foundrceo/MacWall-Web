@@ -62,6 +62,16 @@ export async function GET(request: Request) {
       .lt("created_at", new Date(Date.now() - 14 * DAY_S * 1000).toISOString())
     if (whopError) throw new Error(whopError.message)
 
+    // Same for unpaid Cashfree (India) rows; a late payment is recreated by
+    // the return route or the cashfree-license-email webhook.
+    const { count: cashfreeDeleted, error: cashfreeError } = await supabase
+      .from("macwall_licenses")
+      .delete({ count: "exact" })
+      .eq("source", "cashfree")
+      .eq("status", "pending")
+      .lt("created_at", new Date(Date.now() - 14 * DAY_S * 1000).toISOString())
+    if (cashfreeError) throw new Error(cashfreeError.message)
+
     const stripe = getStripe()
     const expiredIds: string[] = []
     for (const created of windows) {
@@ -74,7 +84,7 @@ export async function GET(request: Request) {
       }
     }
 
-    let deleted = whopDeleted ?? 0
+    let deleted = (whopDeleted ?? 0) + (cashfreeDeleted ?? 0)
     for (let i = 0; i < expiredIds.length; i += DELETE_CHUNK) {
       const { count, error } = await supabase
         .from("macwall_licenses")
