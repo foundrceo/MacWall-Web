@@ -115,7 +115,7 @@ const homePage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "**Free**: download with no account required and continue after onboarding with 6 starter wallpapers.",
+        "**Free trial**: download with no account required and get full access to everything for 24 hours.",
         `**Pro (permanent license)**: ${macwall.pro.price} one time in default USD pricing, activates on up to ${macwall.maxLicensedMacs} personal Macs, and unlocks the full catalog, private imports, and current Pro benefits.`,
         "**Pro+ packs**: permanent multi-Mac licenses for families, studios, and labs. Available device counts and regional prices are on [pricing](/pricing).",
       ],
@@ -198,7 +198,7 @@ const wallpapersIndexPage: SeoContentPage = {
     },
     {
       type: "p",
-      text: "Wallpaper videos are licensed for use inside MacWall and are not redistributable. See [Terms](/legal/terms).",
+      text: "Wallpaper videos are for personal use inside MacWall and may not be redistributed. See [Terms](/legal/terms).",
     },
   ],
 }
@@ -493,7 +493,7 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
     {
       path: "/pricing",
       title: `${macwall.name} Pricing`,
-      summary: `Free tier, one-time ${macwall.pro.price} default-USD Pro license, and permanent Pro+ multi-Mac packs. No recurring subscription.`,
+      summary: `Free 24-hour full-access trial, one-time ${macwall.pro.price} default-USD Pro license, and permanent Pro+ multi-Mac packs. No recurring subscription.`,
       group: "product",
       updatedAt: macwall.productInfoLastReviewedIso,
       includeInFullText: true,
@@ -503,7 +503,7 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
           pathname: "/pricing",
           title: `${macwall.name} Pricing`,
           headline: `${macwall.name} pricing`,
-          description: `Free tier, one-time ${macwall.pro.price} default-USD Pro license, and permanent Pro+ multi-Mac packs. No recurring subscription.`,
+          description: `Free 24-hour full-access trial, one-time ${macwall.pro.price} default-USD Pro license, and permanent Pro+ multi-Mac packs. No recurring subscription.`,
           keywords: [
             "macwall pricing",
             "macwall pro price",
@@ -513,13 +513,13 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
           sections: [
             {
               type: "p",
-              text: `${macwall.name} is free to download and can continue after onboarding with 6 starter wallpapers. Pro unlocks the full cloud catalog, private imports, and Pro-only features for a **one-time ${macwall.pro.price}** in default USD pricing, not a recurring subscription. Regional pricing may differ, and checkout is handled by Stripe.`,
+              text: `${macwall.name} is free to download, and every download starts with a 24-hour trial with full access to everything. After the trial you can keep browsing the catalog; Pro keeps the full cloud catalog, private imports, and Pro-only features unlocked for a **one-time ${macwall.pro.price}** in default USD pricing, not a recurring subscription. Regional pricing may differ, and checkout is handled by ${macwall.paymentProcessor}.`,
             },
             { type: "h2", text: "Programs" },
             {
               type: "ul",
               items: [
-                "**Free**: install with no account and keep 6 starter wallpapers after onboarding.",
+                "**Free trial**: install with no account and get full access to everything for 24 hours.",
                 `**Permanent Pro license**: ${macwall.pro.price} once in default USD pricing. Activates on up to ${macwall.maxLicensedMacs} personal Macs and unlocks the full catalog, private imports, and current Pro benefits.`,
                 "**Pro+ packs**: permanent multi-Mac options for studios, labs, and families.",
                 "**Annual plan**: retired for new purchases.",

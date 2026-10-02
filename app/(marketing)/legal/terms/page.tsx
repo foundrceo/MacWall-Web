@@ -395,7 +395,10 @@ export default function LegalTermsPage() {
           <p>
             <strong>Updates:</strong> we release updates to fix problems and add
             features; some features may require a current version of the App or
-            macOS. <strong>Electronic communications:</strong> you agree that
+            macOS. &ldquo;Lifetime updates&rdquo; and &ldquo;free updates
+            forever&rdquo; mean every update to the App that we release, for as
+            long as we develop and distribute it, at no extra charge to your
+            license. <strong>Electronic communications:</strong> you agree that
             receipts, license keys and notices may be sent to you by email.{" "}
             <strong>Events outside our control:</strong> we are not responsible
             for delays or failures caused by events beyond our reasonable

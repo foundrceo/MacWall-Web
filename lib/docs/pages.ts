@@ -120,7 +120,7 @@ export const docsPages: DocsPage[] = [
       {
         question: "Do I need an account to use MacWall?",
         answer:
-          "No. The free tier works immediately after install with no sign-up. A Pro license is a key you activate, with still no account, no password, or email wall.",
+          "No. The free 24-hour trial starts right after install with no sign-up. A Pro license is a key you activate, with still no account, no password, or email wall.",
       },
       {
         question: "Where does MacWall store downloaded wallpapers?",
@@ -254,7 +254,7 @@ export const docsPages: DocsPage[] = [
       {
         question: "How many wallpapers are in the catalog?",
         answer:
-          "Over 800 curated loops, with new sets published regularly. The free tier keeps 6 starter wallpapers; Pro unlocks the full cloud catalog.",
+          "Over 800 curated loops, with new sets published regularly. Every download starts with a free 24-hour trial of the full catalog; after that, Pro keeps it unlocked.",
       },
     ],
   }),
@@ -328,9 +328,9 @@ export const docsPages: DocsPage[] = [
           "No hard limit, but large ProRes files use more disk and more decode bandwidth. An HEVC export usually gives identical on-screen quality at a fraction of the size.",
       },
       {
-        question: "Can I import videos on the free tier?",
+        question: "Can I import videos without Pro?",
         answer:
-          "Yes. Importing your own MP4 and MOV clips works without Pro. Pro unlocks the full cloud catalog, playlists, and Lock Screen motion.",
+          "During the free 24-hour trial, yes: everything works, including imports. After the trial, importing your own MP4 and MOV clips, setting catalog wallpapers, and Lock Screen motion need Pro.",
       },
     ],
   }),

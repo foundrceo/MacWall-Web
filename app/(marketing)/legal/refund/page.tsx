@@ -128,6 +128,13 @@ export default function LegalRefundPage() {
             is a separate promotional offer with its own rules. It works
             alongside, and does not replace, the money-back guarantee above.
           </p>
+          <p>
+            Because we pay you back for the post, it has to be disclosed as
+            paid: include #ad or the platform&apos;s paid-partnership label.
+            Posts without it don&apos;t qualify. A 50% refund keeps your
+            license active. A 100% refund is a full refund, so it deactivates
+            that license key like any other full refund.
+          </p>
         </LegalSection>
 
         <LegalSection id="chargebacks" title="Disputed Charges">
@@ -135,7 +142,7 @@ export default function LegalRefundPage() {
             If you don&apos;t recognize a charge or something went wrong, email
             us; we usually fix it within 1 to 2 business days and can refund
             directly. You can always dispute a charge with your bank or card
-            issuer. A charged-back payment deactivates the license key it paid
+            issuer. A charged-back payment may deactivate the license key it paid
             for.
           </p>
         </LegalSection>
