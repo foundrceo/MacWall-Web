@@ -14,7 +14,6 @@ import type {
   CreateMacWallCheckoutInput,
   CreateMacWallCheckoutResult,
 } from "@/lib/stripe/create-macwall-checkout-session"
-import { normalizeCheckoutEmail } from "@/lib/stripe/checkout-email"
 import {
   conversionPromoPercentOff,
   normalizeConversionPromo,
@@ -36,11 +35,31 @@ const PLACEHOLDER_PHONE = "9999999999"
  * has no coupon field, so app/email codes (?promo=) are taken off the order
  * amount here, rounded to whole rupees (MAC10: ₹499 → ₹449).
  *
+ * `buyerEmail` must be the email the buyer typed in the email step: it is
+ * where the license key is sent. Never pass a guessed lead email.
+ *
  * The returned URL carries the payment session; buy buttons open Cashfree
  * from the current page (lib/cashfree/client.ts) and never navigate to it.
  */
-export async function createMacWallCashfreeCheckout(
+/**
+ * Where an India buy click goes before the buyer has typed an email: the
+ * email step. Buy buttons show it as a dialog on the current page; links
+ * from the app or emails open it as /checkout/india. No order is created.
+ */
+export function cashfreeEmailStepUrl(
   input: CreateMacWallCheckoutInput
+): CreateMacWallCheckoutResult {
+  const offer = licenseOfferFromSlug(input.offerSlug ?? input.planSlug)
+  const url = new URL("/checkout/india", input.siteOrigin)
+  url.searchParams.set("offer", offer.slug)
+  if (input.promoCode?.trim()) url.searchParams.set("promo", input.promoCode.trim())
+  if (input.offerUntil?.trim()) url.searchParams.set("until", input.offerUntil.trim())
+  return { ok: true, url: url.toString(), customerEmail: null }
+}
+
+export async function createMacWallCashfreeCheckout(
+  input: CreateMacWallCheckoutInput,
+  buyerEmail: string
 ): Promise<CreateMacWallCheckoutResult> {
   try {
     const siteOrigin = input.siteOrigin.replace(/\/+$/, "")
@@ -56,10 +75,9 @@ export async function createMacWallCashfreeCheckout(
     const planSlug = offer.maxDevices >= 5 ? "pro_plus" : "pro"
     const licenseKey = generateMacWallLicenseKey()
     const orderId = `mw_${randomUUID().replace(/-/g, "").slice(0, 24)}`
-    // A guessed lead email (trial signup) only prefills; it is never required.
-    const email = normalizeCheckoutEmail(input.customerEmail)
+    const email = buyerEmail
     const customerId = `mw_${createHash("sha256")
-      .update(email ?? orderId)
+      .update(email)
       .digest("hex")
       .slice(0, 32)}`
 
@@ -106,7 +124,7 @@ export async function createMacWallCashfreeCheckout(
         billing_model: offer.billingModel,
         cashfree_order_id: orderId,
         visitor_country: "IN",
-        ...(email ? { customer_email: email } : {}),
+        customer_email: email,
       })
       if (error) {
         console.error("[checkout/cashfree] license insert failed", error.message)
