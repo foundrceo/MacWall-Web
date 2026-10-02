@@ -114,6 +114,8 @@ function PlanCard({
   currency,
   locale,
   localPriceHint,
+  fullPrice,
+  promoLabel,
   action,
   featuresLabel,
   features,
@@ -129,6 +131,10 @@ function PlanCard({
   currency: string
   locale: string
   localPriceHint: string | null
+  /** Price before a coupon, shown struck through (India ?promo= links). */
+  fullPrice?: string | null
+  /** e.g. "MAC10 applied · 10% off" */
+  promoLabel?: string | null
   action: ReactNode
   featuresLabel: string
   features: readonly string[]
@@ -196,12 +202,23 @@ function PlanCard({
               locale={locale}
               className="font-display text-[52px] leading-[0.9] font-normal tracking-tight text-white"
             />
+            {fullPrice ? (
+              <s className="text-[17px] leading-none whitespace-nowrap text-zinc-500 tabular-nums decoration-zinc-500/70">
+                <span className="sr-only">Was </span>
+                {fullPrice}
+              </s>
+            ) : null}
             {localPriceHint ? (
               <span className="text-[13px] leading-4 whitespace-nowrap text-zinc-400 tabular-nums">
                 {localPriceHint}
               </span>
             ) : null}
           </div>
+          {fullPrice && promoLabel ? (
+            <p className="mt-3 inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] leading-none font-medium text-emerald-300 ring-1 ring-emerald-400/20 ring-inset">
+              {promoLabel}
+            </p>
+          ) : null}
           <p className="mt-3 text-[13px] leading-5 text-zinc-400">{subtitle}</p>
 
           <div className="mt-5">{action}</div>
@@ -317,6 +334,9 @@ export function PricingPlans({
     [pricing.multiMacOffers]
   )
   const [macs, setMacs] = useState(offers[0]?.macs ?? 5)
+  const promoLabel = pricing.promoCode
+    ? `${pricing.promoCode} applied · ${pricing.promoPercentOff}% off`
+    : null
   const selected = offers.find((offer) => offer.macs === macs) ?? offers[0]
 
   return (
@@ -342,6 +362,8 @@ export function PricingPlans({
         currency={pricing.currency}
         locale={pricing.locale}
         localPriceHint={pricing.permanentLocalHint}
+        fullPrice={pricing.permanentFullPrice}
+        promoLabel={promoLabel}
         featuresLabel={stripColon(plans.pro.featuresPrefix)}
         features={cardFeatures(p.pro.features)}
         action={
@@ -379,6 +401,8 @@ export function PricingPlans({
           currency={selected.currency}
           locale={pricing.locale}
           localPriceHint={selected.localPriceHint}
+          fullPrice={selected.fullPrice}
+          promoLabel={promoLabel}
           featuresLabel={stripColon(plans.proPlus.featuresPrefix)}
           features={cardFeatures(
             withMacCount(p.proPlus.features, selected.macs)
