@@ -99,3 +99,6 @@ supabase/.branches/
 
 # Local MCP config (contains an API key)
 .mcp.json
+
+# Local-only exports with customer data (never commit)
+/private/

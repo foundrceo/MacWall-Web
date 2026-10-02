@@ -334,7 +334,7 @@ const LIFECYCLE_META: Record<
     tone: "violet",
   },
   trial_reminder: {
-    label: "Trial 2: free with a Reel",
+    label: "Trial 2: money back with a Reel",
     description: "2 days after trial 1. Reel refund angle, WALL10 still works.",
     trigger: "process-trial-ended-emails cron, +2 days",
     edgeFunction: "process-trial-ended-emails",

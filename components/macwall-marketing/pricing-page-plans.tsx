@@ -57,28 +57,6 @@ function SectionHeading({
   )
 }
 
-/** Solid rating star — crisper than a filled stroke icon at small sizes. */
-function StarGlyph({ size }: Readonly<{ size: number }>) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 20 20" fill="currentColor">
-      <path d="M10 1.6l2.47 5.2 5.7.72-4.2 3.93 1.07 5.65L10 14.3l-5.04 2.8 1.07-5.65-4.2-3.93 5.7-.72L10 1.6z" />
-    </svg>
-  )
-}
-
-function Stars({ size = 14 }: Readonly<{ size?: number }>) {
-  return (
-    <span
-      className="inline-flex items-center gap-0.5 text-amber-400"
-      aria-hidden
-    >
-      {Array.from({ length: 5 }, (_, index) => (
-        <StarGlyph key={index} size={size} />
-      ))}
-    </span>
-  )
-}
-
 const reviewers = p.reviews.items.filter((item) => item.avatarSrc)
 
 function AvatarStack({ size = 24 }: Readonly<{ size?: number }>) {
@@ -112,20 +90,12 @@ function SocialProof() {
     <div className="group inline-flex items-center gap-2 rounded-full border border-white/[0.09] bg-white/[0.03] py-1 pr-3 pl-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
       <AvatarStack />
       <p className="text-[13px] text-zinc-400">
-        Loved by{" "}
+        Bought by{" "}
         <span className="font-medium text-white">
           {macwall.pro.socialProofMembers}
         </span>{" "}
         Mac users
-        <span className="sr-only">, rated 5 stars</span>
       </p>
-      <span
-        aria-hidden
-        className="hidden h-3.5 w-px bg-white/[0.12] min-[400px]:block"
-      />
-      <span className="hidden min-[400px]:inline-flex">
-        <Stars size={12} />
-      </span>
     </div>
   )
 }
@@ -292,7 +262,8 @@ function ReelRefundCallout() {
             <p className="mt-2 max-w-md text-[14px] leading-6 text-landing-muted">
               {macwall.reelRefundHalfViews.toLocaleString()} views gets you 50%
               back. {macwall.reelRefundFullViews.toLocaleString()} views gets
-              you 100% back. Instagram or TikTok, organic views only.
+              you 100% back. Instagram or TikTok, organic views only, tagged
+              #ad.
             </p>
           </div>
         </div>
@@ -351,7 +322,6 @@ function StickyMobileCta({ checkoutUrl }: Readonly<{ checkoutUrl: string }>) {
         <TrackedPricingButton
           href={checkoutUrl}
           location="pricing_sticky_mobile"
-          warmOnView
           ariaLabel={pricing.buyProAria}
           size="pill"
           className="inline-flex h-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 px-5 text-[14px] font-medium text-white no-underline hover:bg-blue-500"

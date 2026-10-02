@@ -89,7 +89,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         },
         featureList: [
           "Live video wallpapers for the Mac desktop, up to 4K",
-          "Curated cloud catalog with 6 free starter wallpapers and full Pro access",
+          "Curated cloud catalog with a free 24-hour full-access trial and full Pro access",
           "Import and play your own MP4 and MOV clips with Pro",
           "Multi-display playback, synced or solo, with hardware decoding",
           "Menu bar control and auto-pause on battery, full screen, and high CPU",

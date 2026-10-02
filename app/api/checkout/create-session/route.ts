@@ -21,7 +21,6 @@ import {
   normalizeCheckoutVisitorId,
 } from "@/lib/stripe/checkout-email"
 import { resolveCheckoutSiteOrigin } from "@/lib/stripe/checkout-origin"
-import { createMacWallCheckoutSession } from "@/lib/stripe/create-macwall-checkout-session"
 import { createMacWallWhopCheckout } from "@/lib/whop/create-macwall-checkout"
 
 export const runtime = "nodejs"
@@ -127,18 +126,9 @@ async function startCheckout(
     intent,
   }
 
-  // Whop is the only live gateway. Stripe stays switched off until the
-  // owner sets CHECKOUT_PROVIDER=stripe; then Stripe is tried first and Whop
-  // catches its failures. Both webhooks activate and email the same MW- key.
-  const stripeEnabled =
-    process.env.CHECKOUT_PROVIDER?.trim().toLowerCase() === "stripe"
-  if (!stripeEnabled) return createMacWallWhopCheckout(input)
-
-  const result = await createMacWallCheckoutSession(input)
-  if (result.ok) return result
-  console.error("[checkout] stripe failed, falling back to whop:", result.error)
-  const whop = await createMacWallWhopCheckout(input)
-  return whop.ok ? whop : result
+  // Whop is the only checkout. The Stripe account is closed, so there is no
+  // Stripe path here; past Stripe orders are only read and refunded.
+  return createMacWallWhopCheckout(input)
 }
 
 /**

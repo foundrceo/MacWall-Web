@@ -411,7 +411,7 @@ function buildLicenseEmailHtml(args: {
     title: licenseEmailSubject(appName),
     preheader: licenseEmailPreheader(appName),
     cardInner,
-    footnote: `If you didn’t purchase ${escapeHtml(appName)}&nbsp;Pro, you can ignore this email.`,
+    footnote: `Didn’t buy ${escapeHtml(appName)}&nbsp;Pro, or want your money back? Email ${escapeHtml(supportEmail())} and we’ll refund you. Every license has a 14-day money-back guarantee.`,
     appName,
   })
 }
@@ -434,7 +434,8 @@ function buildLicenseEmailPlainText(args: {
     `License key (${macsLabel}): ${licenseKey}\n\n` +
     `Activate: ${deepLink}\n` +
     `Or: ${activateHref}\n\n` +
-    `Help: ${support}`
+    `Help: ${support}\n` +
+    `Didn't buy ${appName} Pro, or want your money back? Email ${support} and we'll refund you. Every license has a 14-day money-back guarantee.`
   )
 }
 

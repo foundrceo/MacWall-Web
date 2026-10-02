@@ -8,8 +8,8 @@ export const macwallAffiliateCopy = {
   pageTitle: "Affiliate Program",
 
   heroTitleLines: [
-    "Get paid when you sleep",
-    "with affiliate commissions",
+    `Earn ${AFFILIATE_COMMISSION_PERCENT}% on every sale`,
+    "you refer to MacWall",
   ] as const,
   heroLead: `Join the MacWall affiliate program and earn ${AFFILIATE_COMMISSION_PERCENT}% of every sale you refer.`,
   primaryCta: "Get your affiliate link",

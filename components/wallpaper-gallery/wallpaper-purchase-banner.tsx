@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
+import { PurchaseTermsNote } from "@/components/legal/purchase-terms-note"
 import { MacWallAppIcon } from "@/components/macwall-app-icon"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import { trackSiteEventClient } from "@/lib/analytics/client"
@@ -265,6 +266,7 @@ export function WallpaperPurchaseBanner() {
                     {ctaLabel}
                   </TrackedPricingButton>
                 </div>
+                <PurchaseTermsNote className="mt-2 text-left text-[11px] leading-4 text-white/50" />
               </div>
               <button
                 type="button"
