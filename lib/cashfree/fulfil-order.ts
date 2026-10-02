@@ -38,7 +38,11 @@ export async function fulfilCashfreeOrder(
 
   const supabase = getSupabaseAdmin()
   const tags = order.order_tags ?? {}
-  const email = order.customer_details?.customer_email?.trim().toLowerCase() || null
+  // Only trust the order's email when the buyer typed it (see email_source).
+  const email =
+    tags.email_source === "buyer"
+      ? order.customer_details?.customer_email?.trim().toLowerCase() || null
+      : null
 
   const { data: existing } = await supabase
     .from("macwall_licenses")
