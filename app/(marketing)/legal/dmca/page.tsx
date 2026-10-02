@@ -90,15 +90,29 @@ export default function LegalDmcaPage() {
         <LegalSection id="response" title="Our Response">
           <ul className={legalBulletList}>
             <li>
-              We review complete notices promptly and may remove or disable
-              access to the material.
-            </li>
-            <li>
-              Where appropriate, we notify the uploader and may suspend repeat
-              infringers.
+              We review complete notices promptly. When a notice is valid we
+              remove the wallpaper from the App and the Site, whether it came
+              from a community submission or was added by us.
             </li>
             <li>Incomplete or abusive notices may be rejected.</li>
           </ul>
+          <p>
+            This process exists to fix mistakes quickly. It does not make it
+            acceptable to upload material without the rights to it: every
+            submission must already be the uploader&apos;s own work or covered
+            by a license or permission before it is submitted.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="repeat-infringers" title="Repeat Infringers">
+          <p>
+            We keep a record of every removal. When an uploader has repeatedly
+            submitted infringing material, or has clearly done so on purpose, we
+            block the device they submit from: it can no longer send
+            submissions, and its other pending submissions are rejected. Because{" "}
+            {macwall.name} has no user accounts, blocks apply to the device that
+            submitted the material.
+          </p>
         </LegalSection>
 
         <LegalSection id="counter" title="Counter-Notice">
@@ -127,8 +141,8 @@ export default function LegalDmcaPage() {
           <ul className={legalBulletList}>
             <li>
               Do not upload footage from films, TV shows, music videos, video
-              games, stock libraries or other artists without written
-              permission from the rights holder.
+              games, stock libraries or other artists without written permission
+              from the rights holder.
             </li>
             <li>
               Do not use copyrighted characters, logos, brand assets or
@@ -136,12 +150,11 @@ export default function LegalDmcaPage() {
             </li>
             <li>
               Keep a record of any license you rely on for as long as the
-              wallpaper stays on {macwall.name}, and share it with us if we
-              ask.
+              wallpaper stays on {macwall.name}, and share it with us if we ask.
             </li>
             <li>
-              If we receive a valid notice about your submission, we remove
-              it and may stop accepting uploads from you.
+              If we receive a valid notice about your submission, we remove it
+              and may stop accepting uploads from you.
             </li>
           </ul>
         </LegalSection>
@@ -161,7 +174,9 @@ export default function LegalDmcaPage() {
             {macwall.legalMailingAddress}
             <br />
             Email:{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>
+              {macwall.supportEmail}
+            </a>{" "}
             (subject line &ldquo;DMCA Notice&rdquo;)
           </p>
           <p>

@@ -54,8 +54,10 @@ export default function LegalAcceptableUsePage() {
               Import your own video files when you have the rights to use them.
             </li>
             <li>
-              Submit original or properly licensed wallpapers through the
-              community submit flow for review.
+              Submit wallpapers you created, or that you have permission or a
+              license to share, through the App&apos;s upload flow. Every
+              submission needs a rights declaration and is reviewed by a person
+              before it is published.
             </li>
           </ul>
         </LegalSection>
@@ -92,7 +94,10 @@ export default function LegalAcceptableUsePage() {
               Share other people&apos;s personal data without consent, or post
               content designed to deceive, phish or impersonate.
             </li>
-            <li>Misrepresent who made a submission or where it came from.</li>
+            <li>
+              Misrepresent who made a submission or where it came from, or give
+              a false rights declaration.
+            </li>
             <li>
               Share license keys beyond the Mac limit for your plan, or use
               stolen payment methods.
@@ -103,7 +108,9 @@ export default function LegalAcceptableUsePage() {
         <LegalSection id="reporting" title="Reporting Violations">
           <p>
             If you see content or behavior that breaks this policy, email{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>
+              {macwall.supportEmail}
+            </a>{" "}
             with a link, screenshot or description. Copyright complaints should
             use our <Link href="/legal/dmca">DMCA / Copyright</Link> process.
           </p>

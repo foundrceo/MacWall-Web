@@ -17,6 +17,7 @@ import {
 import type {
   PublicCatalogSort,
   PublicWallpaper,
+  WallpaperOriginType,
   PublicWallpaperListQuery,
   PublicWallpaperListResult,
 } from "@/lib/public-catalog/types"
@@ -46,6 +47,8 @@ type WallpaperRow = {
   is_curated_pick: boolean
   like_count: number
   created_at: string
+  author_display_name: string | null
+  origin_type: WallpaperOriginType | null
 }
 
 type WallpaperListRow = Pick<
@@ -72,13 +75,15 @@ type WallpaperDetailRow = Pick<
   | "thumb_key"
   | "like_count"
   | "created_at"
+  | "author_display_name"
+  | "origin_type"
 >
 
 const LIST_SELECT_COLUMNS =
   "id,name,category,video_key,thumb_key,like_count,created_at"
 
 const DETAIL_SELECT_COLUMNS =
-  "id,name,category,tags,resolution,duration_seconds,file_size_bytes,video_key,thumb_key,like_count,created_at"
+  "id,name,category,tags,resolution,duration_seconds,file_size_bytes,video_key,thumb_key,like_count,created_at,author_display_name,origin_type"
 
 function mapListRow(row: WallpaperListRow): PublicWallpaper {
   return {
@@ -119,6 +124,8 @@ function mapDetailRow(row: WallpaperDetailRow): PublicWallpaper {
     isCuratedPick: false,
     likeCount: row.like_count ?? 0,
     createdAt: row.created_at,
+    authorDisplayName: row.author_display_name,
+    originType: row.origin_type,
   }
 }
 
@@ -185,7 +192,10 @@ async function fetchListPublicWallpapersUncached(
   const q = options.q?.trim()
   if (q) {
     // PostgREST treats `*` as `%` in like/ilike patterns.
-    const escaped = q.replace(/[%*,()]/g, " ").replace(/\s+/g, " ").trim()
+    const escaped = q
+      .replace(/[%*,()]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
     if (escaped) {
       params.set(
         "or",
@@ -281,7 +291,7 @@ async function fetchPublicWallpaperByIdUncached(
 
 const getCachedPublicWallpaperById = unstable_cache(
   async (id: string) => fetchPublicWallpaperByIdUncached(id),
-  ["public-wallpaper-by-id-v3"],
+  ["public-wallpaper-by-id-v4"],
   {
     revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
     tags: [PUBLIC_CATALOG_CACHE_TAG],
