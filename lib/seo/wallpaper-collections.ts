@@ -441,7 +441,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     category: "Others",
     faq: {
       question: "Are Ronaldo wallpapers free on MacWall?",
-      answer: `MacWall includes 6 free starter wallpapers. The full catalog, including every Ronaldo loop, unlocks with a one-time ${macwall.pro.price} Pro license with no subscription.`,
+      answer: `MacWall starts with a free 24-hour trial with full access. After that, the full catalog, including every Ronaldo loop, stays unlocked with a one-time ${macwall.pro.price} Pro license with no subscription.`,
     },
     related: ["football", "f1", "supercars", "bmw"],
   }),

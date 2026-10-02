@@ -13,7 +13,6 @@ export type PricingReview = {
   quote: string
   name: string
   context: string
-  rating: number
   avatarSrc?: string
 }
 
@@ -36,8 +35,8 @@ export const macwallPricingCopy = {
       cta: "Get Pro+",
     },
     reel: {
-      title: "Get it for free",
-      subtitle: "Post a Reel about your setup",
+      title: "Get paid back",
+      subtitle: "Post a Reel about your setup, tagged #ad",
       price: "Up to 100% refunded",
       featuresPrefix: "How it works:",
       cta: "See how it works",
@@ -66,7 +65,7 @@ export const macwallPricingCopy = {
       {
         icon: "tag" as const,
         title: "Post and tag us",
-        body: `Post it on Instagram ${macwall.reelRefundInstagram} or TikTok ${macwall.reelRefundTiktok} with ${macwall.reelRefundHashtag}.`,
+        body: `Post it on Instagram ${macwall.reelRefundInstagram} or TikTok ${macwall.reelRefundTiktok} with ${macwall.reelRefundHashtag} and #ad (or the paid-partnership label).`,
       },
       {
         icon: "views" as const,
@@ -82,7 +81,7 @@ export const macwallPricingCopy = {
     influencerTitle: "Got a big following?",
     finePrintLabel: "The fine print:",
     finePrint:
-      "Post as many times as you like until one Reel hits 2,000 organic views. No bots, no paid promotion. We check the numbers and can decline suspicious claims. Refunds go back to the card you paid with. We can end this offer at any time.",
+      "Post as many times as you like until one Reel hits 2,000 organic views. No bots, no paid promotion. Posts without #ad or a paid-partnership label don't qualify. We check the numbers and can decline suspicious claims. Refunds go back to the card you paid with. A 100% refund deactivates that license key, like any full refund. We can end this offer at any time.",
     cta: "Email us to claim your refund",
     ctaHref: mailtoReelRefund,
   },
@@ -157,7 +156,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "How do I get my money back for posting a Reel?",
-      a: `Buy Pro, post about ${macwall.name} on Instagram ${macwall.reelRefundInstagram} or TikTok ${macwall.reelRefundTiktok} with ${macwall.reelRefundHashtag}, then email ${macwall.reelRefundEmail}. ${macwall.reelRefundHalfViews.toLocaleString()} views gets you half back, ${macwall.reelRefundFullViews.toLocaleString()} views gets you the full amount back.`,
+      a: `Buy Pro, post about ${macwall.name} on Instagram ${macwall.reelRefundInstagram} or TikTok ${macwall.reelRefundTiktok} with ${macwall.reelRefundHashtag} and #ad, then email ${macwall.reelRefundEmail}. ${macwall.reelRefundHalfViews.toLocaleString()} views gets you half back and your license stays active. ${macwall.reelRefundFullViews.toLocaleString()} views gets you the full amount back, and like any full refund, that license key is deactivated.`,
     },
     {
       q: "Can I get a refund without posting a Reel?",
@@ -172,10 +171,8 @@ export const macwallPricingCopy = {
   bottomTitle: "Unlock every wallpaper.",
   bottomDesc: "One payment. License emailed instantly.",
   bottomCtaPro: "Get Pro",
-  bottomCtaReel: "Get it free with a Reel",
+  bottomCtaReel: "Get money back with a Reel",
 
-  socialProofLine: "1,000+ users · trusted by Mac users worldwide",
-  socialProofRating: 5,
 
   cardFooter: {
     tryFreeLabel: "Free to try",
@@ -208,7 +205,6 @@ export const macwallPricingCopy = {
           "Just got Virat's wallpaper and it's awesome. I really loved that one.",
         name: "Dev Sharma",
         context: "MacBook Air · M2",
-        rating: 5,
         avatarSrc: "/reviews/dev-sharma.jpg",
       },
       {
@@ -216,7 +212,6 @@ export const macwallPricingCopy = {
           "I love the app and the wallpapers. Just a request: add more anime like Toji and Pain.",
         name: "Lakshay",
         context: "Mac · M5",
-        rating: 5,
         avatarSrc: "/reviews/lakshay.jpg",
       },
       {
@@ -224,7 +219,6 @@ export const macwallPricingCopy = {
           "Thank you so much. Make a couple fight scenes and take all the time you need. Appreciated.",
         name: "Kranthi Kalyan",
         context: "MacBook Air · M4",
-        rating: 5,
         avatarSrc: "/reviews/kranthi-kalyan.jpg",
       },
       {
@@ -232,7 +226,6 @@ export const macwallPricingCopy = {
           "I want to share with the community as much as possible. I'll be submitting many videos over time.",
         name: "Dishan Shrestha",
         context: "MacBook Air · M1",
-        rating: 5,
         avatarSrc: "/reviews/dishan-shrestha.jpg",
       },
     ] satisfies readonly PricingReview[],

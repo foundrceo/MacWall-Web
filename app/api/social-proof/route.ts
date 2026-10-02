@@ -15,6 +15,9 @@ export const revalidate = 300
 
 const RECENT_LIMIT = 24
 const DAY_MS = 24 * 60 * 60 * 1000
+/** Only licenses someone paid for; comped, creator and test keys never count. */
+const PAID_LICENSE_FILTER =
+  "stripe_payment_intent_id.not.is.null,whop_payment_id.not.is.null"
 
 type LicenseRow = {
   activated_at: string | null
@@ -44,6 +47,7 @@ async function fetchRecentPurchases(
       .from("macwall_licenses")
       .select(columns)
       .eq("status", "active")
+      .or(PAID_LICENSE_FILTER)
       .not("activated_at", "is", null)
       .order("activated_at", { ascending: false })
       .limit(RECENT_LIMIT)
@@ -82,6 +86,7 @@ async function countActivatedSince(
     .from("macwall_licenses")
     .select("activated_at", { count: "exact", head: true })
     .eq("status", "active")
+    .or(PAID_LICENSE_FILTER)
     .not("activated_at", "is", null)
 
   if (sinceIso) {

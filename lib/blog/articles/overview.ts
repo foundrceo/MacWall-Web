@@ -108,7 +108,7 @@ export const overviewArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          `**Free download**: try the app, browse, set wallpapers within free tier limits`,
+          `**Free download**: a 24-hour trial with full access to everything, then keep browsing the catalog`,
           `**Pro ${proPrice} one-time**: full catalog, Lock Screen (${macwallLockScreenMacOSVersion}+), playlists, lifetime updates, ${maxMacs} Macs per license`,
           "**Pro+**: the same features on 5 or 10 Macs (families, teams, studios)",
           "**No subscription, no ads**: ever",

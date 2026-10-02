@@ -41,24 +41,24 @@ export type SocialProofMessage = {
 }
 
 /**
- * Older purchases still count in the totals, but a "just purchased" popup
- * is only shown for purchases from the last 48 hours.
+ * Older purchases still count in the totals, but a purchase popup is only
+ * shown for purchases from the last 24 hours.
  */
-const MAX_PURCHASE_AGE_MS = 48 * 60 * 60 * 1000
+const MAX_PURCHASE_AGE_MS = 24 * 60 * 60 * 1000
 
 /** Below these real counts the aggregate line is not worth showing. */
 const MIN_WEEK_FOR_STAT = 5
 const MIN_ALL_TIME_FOR_STAT = 50
 
 const PRO_LINES: ReadonlyArray<{ text: string }> = [
-  { text: "Someone just bought MacWall Pro" },
-  { text: "Someone just went Pro" },
-  { text: "Someone just unlocked the whole catalog" },
+  { text: "Someone bought MacWall Pro" },
+  { text: "Someone went Pro" },
+  { text: "Someone unlocked the whole catalog" },
 ]
 
 const PRO_PLUS_LINES: ReadonlyArray<{ text: string }> = [
-  { text: "Someone just bought a multi-Mac Pro pack" },
-  { text: "Someone just went Pro on every Mac they own" },
+  { text: "Someone bought a multi-Mac Pro pack" },
+  { text: "Someone went Pro on every Mac they own" },
 ]
 
 function hashString(value: string): number {
@@ -107,22 +107,22 @@ function realPurchaseMessage(
       purchase.plan === "pro_plus"
         ? [
             {
-              text: `Someone in ${place} just bought a multi-Mac Pro pack`,
+              text: `Someone in ${place} bought a multi-Mac Pro pack`,
             },
             {
-              text: `Someone in ${place} just activated a Pro pack`,
+              text: `Someone in ${place} activated a Pro pack`,
             },
           ]
         : [
             {
-              text: `Someone in ${place} just purchased MacWall Pro`,
+              text: `Someone in ${place} purchased MacWall Pro`,
             },
-            { text: `Someone in ${place} just went Pro` },
+            { text: `Someone in ${place} went Pro` },
             {
-              text: `Someone in ${place} just unlocked MacWall Pro`,
+              text: `Someone in ${place} unlocked MacWall Pro`,
             },
             {
-              text: `Someone in ${place} just activated Pro`,
+              text: `Someone in ${place} activated Pro`,
             },
           ]
 
@@ -170,7 +170,7 @@ function statMessages(stats: SocialProofStats | null): SocialProofMessage[] {
 }
 
 /**
- * Real purchases from the last 48 hours (with country when known), with a
+ * Real purchases from the last 24 hours (with country when known), with a
  * real aggregate line after every few. Nothing here is invented: when there
  * is no recent activity, the queue is short or empty and no popup shows.
  */

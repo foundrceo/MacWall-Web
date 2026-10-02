@@ -348,7 +348,6 @@ export function PricingPlans({
           <TrackedPricingButton
             href={checkoutUrl}
             location="pricing_card_permanent"
-            warmOnView
             ariaLabel={pricing.buyProAria}
             size="pill"
             className={cn(
@@ -388,7 +387,6 @@ export function PricingPlans({
             <TrackedPricingButton
               href={selected.checkoutUrl}
               location={`pricing_multi_mac_${selected.macs}`}
-              warmOnView
               ariaLabel={`Get ${macwall.name} Pro+ for ${selected.macs} Macs at ${selected.price}`}
               size="pill"
               className={cn(

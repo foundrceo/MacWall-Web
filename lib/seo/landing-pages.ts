@@ -97,7 +97,7 @@ export const bestLiveWallpaperMacPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "**The best live wallpaper app for Mac in 2026 is a native Swift app that decodes video in hardware, pauses on battery, and supports the Lock Screen on macOS 26.** MacWall, Backdrop, and Wallspace all qualify; MacWall adds the largest community catalog, your own video imports, and a one-time $12.99 price with no subscription.",
+      text: "**The best live wallpaper app for Mac in 2026 is a native Swift app that decodes video in hardware, pauses on battery, and supports the Lock Screen on macOS 26.** MacWall, Backdrop, and Wallspace all qualify; MacWall adds an 800+ wallpaper catalog, your own video imports, and a one-time $12.99 price with no subscription.",
     },
     {
       type: "h2",
@@ -144,7 +144,7 @@ export const bestLiveWallpaperMacPage: SeoContentPage = {
     {
       question: "Is there a free live wallpaper app for Mac?",
       answer:
-        "MacWall is free to download and keeps 6 starter wallpapers with no account. The full catalog and imports unlock with a one-time Pro license. Open-source projects on GitHub also exist but have no catalog and fewer battery safeguards.",
+        "MacWall is free to download with a 24-hour full-access trial and no account. After that, the full catalog and imports stay unlocked with a one-time Pro license. Open-source projects on GitHub also exist but have no catalog and fewer battery safeguards.",
     },
     {
       question: "Do live wallpapers slow down a Mac?",
@@ -194,9 +194,8 @@ export const wallpaperEngineAlternativePage: SeoContentPage = {
     {
       type: "ol",
       items: [
-        "Export favorite loops as MP4 from Wallpaper Engine on Windows.",
-        "Import MP4 files into MacWall Library.",
-        "Browse MacWall catalog for fresh 4K content.",
+        "Gather MP4 or MOV loops you made yourself or have the rights to use.",
+        "Import them into MacWall Library.",
         "Browse the catalog for fresh 4K drops, then control everything from the menu bar.",
       ],
     },
@@ -215,7 +214,7 @@ export const wallpaperEngineAlternativePage: SeoContentPage = {
     {
       question: "Can I use my Wallpaper Engine wallpapers on Mac?",
       answer:
-        "Video-type Wallpaper Engine wallpapers can be exported as MP4 files and imported into MacWall. Interactive scene and web wallpapers only run inside Wallpaper Engine on Windows.",
+        "No. Wallpaper Engine content is licensed for Wallpaper Engine on Windows, and scene and web wallpapers only run there. MacWall imports videos you made or have the rights to use.",
     },
   ],
 }
@@ -247,7 +246,7 @@ export const macwallVsBackdropPage: SeoContentPage = {
       type: "ul",
       items: [
         "MacWall: $12.99 once, everything included",
-        "Backdrop: $29.99 lifetime, or $14.99/year",
+        "Backdrop: $29.99 lifetime, or $14.99/year (listed price, September 2026)",
         `Both: 4K video, multi-monitor, Lock Screen on ${macwallLockScreenMacOSVersion}`,
         "MacWall: personalized video imports + community catalog",
         "MacWall: post a Reel and get up to 100% refunded",
@@ -286,7 +285,7 @@ export const macwallVsWallspacePage: SeoContentPage = {
       type: "ul",
       items: [
         "MacWall: $12.99 one-time, everything included, up to 3 Macs per license (Pro+: 5)",
-        "Wallspace: $12.99 Pro one-time",
+        "Wallspace: $12.99 Pro one-time (listed price, September 2026)",
         "Both: native Swift, hardware-accelerated 4K, multi-monitor, battery-aware pause",
         "MacWall: 9-category community catalog with search, filters, and engagement",
         `Both: live Lock Screen on ${macwallLockScreenMacOSVersion}. MacWall adds Screen Saver video too`,

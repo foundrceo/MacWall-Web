@@ -97,12 +97,12 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
       }
     case "trial_reminder":
       return {
-        subject: `Want ${app} Pro for free?`,
+        subject: `Get your ${app} Pro money back with a Reel`,
         preheader: "Post one Reel of your desktop and get up to 100% of your money back.",
-        headline: "Get Pro for free with a Reel",
+        headline: "Get your money back with a Reel",
         paragraphs: [
-          `Here's a way to get ${app} Pro without paying for it.`,
-          `Buy Pro, then post a short Reel or TikTok of ${app} running on your Mac with #macwall. At 2,000 views we refund half. At 20,000 views we refund all of it.`,
+          `Here's a way to get some or all of your ${app} Pro money back.`,
+          `Buy Pro, then post a short Reel or TikTok of ${app} running on your Mac with #macwall and #ad. At 2,000 views we refund half and your license stays active. At 20,000 views we refund all of it, which deactivates the license like any full refund.`,
           `Your ${ten.percent} code still works too.`,
         ],
         code: {

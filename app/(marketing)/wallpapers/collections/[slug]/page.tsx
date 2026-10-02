@@ -132,7 +132,7 @@ function collectionSections(entry: WallpaperCollection): ContentBlock[] {
         "**Real video, not a GIF**: loops play at full frame rate and up to 4K, decoded on Apple's media engine instead of the CPU.",
         "**Battery-aware**: playback pauses on battery, in full-screen apps, and when the display sleeps. See [live wallpaper battery drain on Mac](/blog/live-wallpaper-battery-drain-mac).",
         "**Every display**: sync one loop across monitors or give each screen its own wallpaper.",
-        `**One payment**: 6 starter wallpapers are free; the full catalog unlocks with a one-time ${macwall.pro.price} license, no subscription. See [pricing](/pricing).`,
+        `**One payment**: try everything free for 24 hours; the full catalog then stays unlocked with a one-time ${macwall.pro.price} license, no subscription. See [pricing](/pricing).`,
       ],
     },
     {

@@ -191,7 +191,7 @@ export default function LegalDmcaPage() {
             <a href={`mailto:${macwall.supportEmail}`}>
               {macwall.supportEmail}
             </a>
-            . © {year} {macwall.name}. Last updated {macwall.legalEffectiveDate}
+            . © {year} {macwall.legalCompanyName}. Last updated {macwall.legalEffectiveDate}
             .
           </p>
         </LegalSection>

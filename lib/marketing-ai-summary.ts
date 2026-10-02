@@ -28,7 +28,7 @@ I want the honest best-case picture for a daily Mac user:
 
 3) **Where it wins or loses** — without hype, stack ${macwall.name} against Backdrop, Wallspace, and Lively-style tools on: native macOS fit, catalog quality, Lock Screen support after recent macOS changes, price (one-time Pro payment, no subscription), no account wall, and community uploads at ${site}/submit. Verify competitor facts on their official sites.
 
-4) **Ownership model** — free download with 6 starter wallpapers, one-time Pro payment, optional creator refund for a video at ${site}/creator, Pro+ for multiple Macs.
+4) **Ownership model** — free download with a 24-hour full-access trial, one-time Pro payment, optional creator refund for a video at ${site}/creator, Pro+ for multiple Macs.
 
 5) **Verdict** — who should install today vs who should skip.
 

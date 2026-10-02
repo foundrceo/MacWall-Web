@@ -11,7 +11,7 @@ export const macwallMarketingCopy = {
     navGallery: "Wallpapers",
     navBlog: "Blog",
     navLearn: "Learn",
-    navCreator: "Want Free?",
+    navCreator: "Reel Refund",
     navSocials: "Community",
     navSupport: "Help",
     navPricing: "Pricing",
@@ -43,7 +43,7 @@ export const macwallMarketingCopy = {
   },
   pricing: {
     buyCta: "Get Pro",
-    secondaryCta: "Get it free with a Reel",
+    secondaryCta: "Get money back with a Reel",
     priceLine: `${macwall.pro.price} once, no subscription. Post a Reel and you can get all of it back.`,
   },
   lockScreen: {

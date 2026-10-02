@@ -128,7 +128,6 @@ export function ProModal({
           <TrackedPricingButton
             href={pricing.checkoutUrl}
             location="hero_pro_modal"
-            warmOnView
             ariaLabel={pricing.buyProAria}
             className="mt-6 flex h-11 w-full items-center justify-center rounded-full bg-white text-[14px] font-medium text-black no-underline transition-opacity hover:opacity-90"
           >

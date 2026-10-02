@@ -8,7 +8,7 @@ const halfViews = macwall.reelRefundHalfViews.toLocaleString()
 const fullViews = macwall.reelRefundFullViews.toLocaleString()
 
 export const macwallCreatorCopy = {
-  pageTitle: "Free with a video",
+  pageTitle: "Money back for a video",
   heroTitle: "Post a video. Get your money back.",
   heroLead: `Download free with a 24-hour Pro trial. Post a short video of it running on your Mac, and we pay you back: 50% at ${halfViews} views, all of it at ${fullViews}.`,
 
@@ -21,12 +21,12 @@ export const macwallCreatorCopy = {
     {
       id: "2",
       title: "Record a short video of it in real use",
-      body: "Your real screen, your real setup, not a scripted ad. Browse the catalog, set a live wallpaper, show the Lock Screen coming alive. Those are the moments people stop scrolling for.",
+      body: "Your real screen, your real setup. Browse the catalog, set a live wallpaper, show the Lock Screen coming alive. Those are the moments people stop scrolling for.",
     },
     {
       id: "3",
       title: "Post it publicly",
-      body: `Instagram, TikTok, YouTube Shorts, Threads, or X. Your pick. Add ${macwall.reelRefundHashtag} and tag ${macwall.reelRefundInstagram} or ${macwall.reelRefundTiktok} so we can find it.`,
+      body: `Instagram, TikTok, YouTube Shorts, Threads, or X. Your pick. Because we pay you back for it, the post has to say so: add #ad (or turn on the platform's paid-partnership label) along with ${macwall.reelRefundHashtag}, and tag ${macwall.reelRefundInstagram} or ${macwall.reelRefundTiktok} so we can find it.`,
     },
     {
       id: "4",
@@ -36,11 +36,11 @@ export const macwallCreatorCopy = {
     {
       id: "5",
       title: "We verify and pay you back",
-      body: `We check the numbers and refund within 48 hours to the card you paid with. If the same video keeps climbing, email again and we top up the difference.`,
+      body: `We check the numbers and refund within 48 hours to the card you paid with. If the same video keeps climbing, email again and we top up the difference. At 50% back your license stays active. A 100% refund is a full refund, so like any full refund it deactivates that license key.`,
     },
   ] as const,
 
-  finePrint: `One video has to hit ${halfViews} organic views on its own, views across posts don't add up. No bots, no paid promotion. We may turn down claims that look inflated, and we can end this offer at any time.`,
+  finePrint: `One video has to hit ${halfViews} organic views on its own, views across posts don't add up. No bots, no paid promotion. Posts without #ad or a paid-partnership label don't qualify. We may turn down claims that look inflated, and we can end this offer at any time.`,
 
   midCtaTitle: "Try it free, film what you like, and let the video pay for it",
   midCtaLabel: "Download free for Mac",

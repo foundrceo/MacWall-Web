@@ -176,7 +176,7 @@ export function getMarketingFooterSections(
           kind: "internal",
         },
         { label: "Bend", href: "/bend", kind: "internal" },
-        { label: "Want Free?", href: "/creator", kind: "internal" },
+        { label: "Reel Refund", href: "/creator", kind: "internal" },
         { label: "Docs", href: "/docs", kind: "internal" },
         { label: "Learn", href: "/learn", kind: "internal" },
         { label: foot.explore.blog, href: "/blog", kind: "internal" },

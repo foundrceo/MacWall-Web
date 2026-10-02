@@ -114,7 +114,7 @@ export const comparisonArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Export or download MP4 versions of your favorite loops, then import into MacWall. Browse our catalog for fresh 4K content across nine categories, or jump straight into popular [collections](/wallpapers/collections) like [anime](/wallpapers/anime), [Gojo](/wallpapers/collections/gojo), and [cyberpunk](/wallpapers/collections/cyberpunk). MacWall is the better daily driver for native performance.",
+        text: "Import MP4 or MOV loops you made yourself or have the rights to use. Then browse the catalog for 4K loops, or jump straight into popular [collections](/wallpapers/collections) like [anime](/wallpapers/anime), [Gojo](/wallpapers/collections/gojo), and [cyberpunk](/wallpapers/collections/cyberpunk). MacWall is the better daily driver for native performance.",
       },
     ],
     faq: [
@@ -165,7 +165,7 @@ export const comparisonArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          "Pro at $12.99 one-time (less than half of Backdrop's $29.99 lifetime), with a Reel refund path",
+          "Pro at $12.99 one-time (less than half of Backdrop's $29.99 lifetime, listed price September 2026), with a Reel refund path",
           "Community uploads and personal imports",
           "Reel refund program, earn up to 100% back",
           "Menu bar-first controls that mirror real Mac utilities",
@@ -273,18 +273,18 @@ export const comparisonArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "**Wallspace** pitches itself on simplicity: a small Swift app, low CPU, one-time Pro. **MacWall** matches the native-Swift efficiency and adds what Wallspace lacks, a real catalog, community uploads, music sync, playlists, and broader Lock Screen support.",
+        text: "**Wallspace** pitches itself on simplicity: a small Swift app, low CPU, one-time Pro. **MacWall** matches the native-Swift efficiency and adds a larger built-in catalog, community uploads, music sync, playlists, and broader Lock Screen support.",
       },
       { type: "h2", text: "Quick verdict" },
       {
         type: "p",
-        text: "**MacWall wins on depth and compatibility.** Both are lightweight native apps. MacWall and Wallspace both cost $12.99, but MacWall includes far more in that one payment, and its Lock Screen integration ships dedicated macOS 26 (Tahoe) support, where competitors' Lock Screen features broke after recent Apple betas.",
+        text: "**MacWall wins on depth and compatibility.** Both are lightweight native apps. MacWall and Wallspace both cost $12.99, but MacWall includes far more in that one payment, and its Lock Screen integration ships dedicated macOS 26 (Tahoe) support.",
       },
       { type: "h2", text: "Side by side" },
       {
         type: "ul",
         items: [
-          "**Price**: MacWall Pro $12.99 one-time (3 Macs) vs Wallspace Pro $12.99 one-time",
+          "**Price**: MacWall Pro $12.99 one-time (3 Macs) vs Wallspace Pro $12.99 one-time (listed price, September 2026)",
           "**Catalog**: MacWall: community catalog, 9 categories, search, likes. Wallspace: smaller built-in set",
           "**Lock Screen**: both target macOS 26+; MacWall adds explicit macOS 27 beta fixes",
           "**Extras MacWall has**: playlists, music sync (Apple Music/Spotify gradients), per-display controls, synced multi-monitor playback, menu bar Now Playing preview",
@@ -294,7 +294,7 @@ export const comparisonArticles: BlogArticle[] = [
       { type: "h2", text: "Who should pick Wallspace?" },
       {
         type: "p",
-        text: "If you literally only want to drag one video onto your desktop and never open the app again, Wallspace is fine. For everyone else, discovery, fresh drops, community uploads, Lock Screen that survives Apple betas. MacWall is the stronger daily driver.",
+        text: "If you literally only want to drag one video onto your desktop and never open the app again, Wallspace is fine. For everyone else, discovery, fresh drops, community uploads and Lock Screen support on macOS 26. MacWall is the stronger daily driver.",
       },
     ],
   },

@@ -8,6 +8,7 @@ import {
 import { HeroWalkthroughVideo } from "@/components/macwall-marketing/hero-walkthrough-video"
 import { LandingReveal } from "@/components/macwall-marketing/landing-reveal"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
+import { PurchaseTermsNote } from "@/components/legal/purchase-terms-note"
 import { macwall, macwallInstallerLatestPath } from "@/lib/macwall-site"
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
@@ -74,6 +75,7 @@ export default function TikTokLandingHero() {
               Download for macOS
             </TrackedDownloadButton>
           </div>
+          <PurchaseTermsNote className="mt-3 max-w-md text-left" />
         </LandingReveal>
 
         <div className="overflow-hidden border border-dashed border-border">
