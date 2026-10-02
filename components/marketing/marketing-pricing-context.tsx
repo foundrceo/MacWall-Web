@@ -70,7 +70,37 @@ function readCachedPricing(): MarketingPricing | null {
   }
 }
 
+/** Coupon from a ?promo= link, kept for the rest of the visit (tab session). */
+const PROMO_SESSION_KEY = "mw_checkout_promo"
+
+type VisitPromo = { promo: string; until: string | null }
+
+function readVisitPromo(): VisitPromo | null {
+  if (typeof window === "undefined") return null
+  try {
+    const params = new URLSearchParams(window.location.search)
+    const fromUrl = params.get("promo")?.trim()
+    if (fromUrl) {
+      const promo: VisitPromo = {
+        promo: fromUrl.slice(0, 40),
+        until: params.get("until")?.trim().slice(0, 40) || null,
+      }
+      window.sessionStorage.setItem(PROMO_SESSION_KEY, JSON.stringify(promo))
+      return promo
+    }
+    const raw = window.sessionStorage.getItem(PROMO_SESSION_KEY)
+    const saved = raw ? (JSON.parse(raw) as Partial<VisitPromo>) : null
+    return typeof saved?.promo === "string"
+      ? { promo: saved.promo, until: typeof saved.until === "string" ? saved.until : null }
+      : null
+  } catch {
+    return null
+  }
+}
+
 function writeCachedPricing(pricing: MarketingPricing) {
+  // Coupon prices belong to one visit; never show them on a later one.
+  if (pricing.promoCode) return
   const entry: CachedPricing = { at: Date.now(), pricing }
   memoryCache = entry
   try {
@@ -90,7 +120,17 @@ async function fetchPricing(): Promise<MarketingPricing | null> {
         // Pass cookie country when present; otherwise the API resolves geo itself
         // (cookie / Vercel / IP / localhost egress) so INR hints still hydrate.
         const country = getVisitorCountry()
-        const qs = country ? `?c=${encodeURIComponent(country)}` : ""
+        const params = new URLSearchParams()
+        if (country) params.set("c", country)
+        // ?promo= links: the API validates the code, discounts the shown
+        // price where the gateway charges it (India) and adds it to every
+        // checkout link.
+        const visitPromo = readVisitPromo()
+        if (visitPromo) {
+          params.set("promo", visitPromo.promo)
+          if (visitPromo.until) params.set("until", visitPromo.until)
+        }
+        const qs = params.size ? `?${params.toString()}` : ""
         const res = await fetch(`/api/pricing${qs}`, {
           credentials: "same-origin",
           headers: { Accept: "application/json" },
