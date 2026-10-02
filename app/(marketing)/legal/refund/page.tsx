@@ -115,12 +115,13 @@ export default function LegalRefundPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="chargebacks" title="Chargebacks">
+        <LegalSection id="chargebacks" title="Disputed Charges">
           <p>
-            Please contact us before filing a chargeback; most problems are
-            solved by email within a few business days. A charged-back payment
-            deactivates the license key, and abuse of chargebacks may result in
-            refusal of future sales.
+            If you don&apos;t recognize a charge or something went wrong, email
+            us; we usually fix it within 1 to 2 business days and can refund
+            directly. You can always dispute a charge with your bank or card
+            issuer. A charged-back payment deactivates the license key it paid
+            for.
           </p>
         </LegalSection>
 
