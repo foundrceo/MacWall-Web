@@ -2,8 +2,10 @@
 
 import { AFFONSO_REFERRAL_COOKIE } from "@/lib/macwall-affiliate"
 import {
+  cashfreeEmailStepFromUrl,
   cashfreeSessionFromUrl,
   openCashfreeCheckout,
+  openCashfreeEmailStep,
   preloadCashfreeSdk,
 } from "@/lib/cashfree/client"
 import {
@@ -107,19 +109,28 @@ export function isFollowableCheckoutUrl(url: string): boolean {
 }
 
 /**
- * Sends a buy click to its checkout. India's Cashfree sessions open from the
- * current page, so no in-between page ever shows.
+ * Sends a buy click to its checkout. India (Cashfree) first asks for the
+ * buyer's email in a dialog on the current page, then opens Cashfree from
+ * here, so no in-between page shows. Returns "dialog" when the page stays
+ * put waiting for the buyer, so the caller can clear its busy state.
  */
-export function followCheckoutUrl(url: string): void {
+export function followCheckoutUrl(url: string): "navigating" | "dialog" {
+  const emailStep = cashfreeEmailStepFromUrl(url)
+  if (emailStep) {
+    if (openCashfreeEmailStep(emailStep)) return "dialog"
+    window.location.assign(url) // no dialog on this page: full-page step
+    return "navigating"
+  }
   const cashfree = cashfreeSessionFromUrl(url)
   if (!cashfree) {
     window.location.assign(url)
-    return
+    return "navigating"
   }
   void openCashfreeCheckout(cashfree.session, cashfree.mode).then((opened) => {
     // Hand-off page retries once, then returns to /pricing with an error.
     if (!opened) window.location.assign(url)
   })
+  return "navigating"
 }
 
 export function parseCheckoutHrefParams(href: string): CheckoutHrefParams | null {
@@ -274,7 +285,9 @@ export function prefetchCheckoutSession(
 
       failureCooldownUntil.delete(key)
       // Warm cashfree.js so the click opens Cashfree instantly.
-      if (cashfreeSessionFromUrl(url)) void preloadCashfreeSdk().catch(() => {})
+      if (cashfreeEmailStepFromUrl(url) || cashfreeSessionFromUrl(url)) {
+        void preloadCashfreeSdk().catch(() => {})
+      }
       cache.set(key, {
         url,
         expiresAt: Date.now() + CACHE_TTL_MS,

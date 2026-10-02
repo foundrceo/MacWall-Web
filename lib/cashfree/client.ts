@@ -83,3 +83,80 @@ export async function openCashfreeCheckout(
     return false
   }
 }
+
+export type CashfreeEmailStep = {
+  offer: string
+  promo: string | null
+  until: string | null
+}
+
+/** Event the email dialog listens for; it calls preventDefault() to claim it. */
+export const CASHFREE_EMAIL_STEP_EVENT = "macwall:cashfree-email-step"
+
+/** The email step in a buy-button checkout URL (India, before an order exists). */
+export function cashfreeEmailStepFromUrl(url: string): CashfreeEmailStep | null {
+  try {
+    const parsed = new URL(url, window.location.href)
+    if (parsed.origin !== window.location.origin) return null
+    if (parsed.pathname !== "/checkout/india") return null
+    if (parsed.searchParams.has("session")) return null
+    return {
+      offer: parsed.searchParams.get("offer") || "permanent",
+      promo: parsed.searchParams.get("promo"),
+      until: parsed.searchParams.get("until"),
+    }
+  } catch {
+    return null
+  }
+}
+
+/** Asks the mounted email dialog to open; false when none is on the page. */
+export function openCashfreeEmailStep(step: CashfreeEmailStep): boolean {
+  const event = new CustomEvent<CashfreeEmailStep>(CASHFREE_EMAIL_STEP_EVENT, {
+    detail: step,
+    cancelable: true,
+  })
+  window.dispatchEvent(event)
+  return event.defaultPrevented
+}
+
+export type StartCashfreeCheckoutResult =
+  | { ok: true }
+  | { ok: false; error: string }
+
+/**
+ * Creates the Cashfree order for the email the buyer typed and opens
+ * Cashfree's payment page.
+ */
+export async function startCashfreeCheckout(
+  step: CashfreeEmailStep,
+  buyerEmail: string
+): Promise<StartCashfreeCheckoutResult> {
+  const fallback = "Couldn't start checkout. Please try again."
+  try {
+    void preloadCashfreeSdk().catch(() => {})
+    const res = await fetch("/api/checkout/create-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        offer: step.offer,
+        promo: step.promo ?? undefined,
+        until: step.until ?? undefined,
+        buyer_email: buyerEmail,
+        intent: "click",
+      }),
+    })
+    const data = (await res.json().catch(() => ({}))) as {
+      url?: string
+      error?: string
+    }
+    if (!res.ok || !data.url) return { ok: false, error: data.error || fallback }
+    const cashfree = cashfreeSessionFromUrl(data.url)
+    if (!cashfree) return { ok: false, error: fallback }
+    const opened = await openCashfreeCheckout(cashfree.session, cashfree.mode)
+    return opened ? { ok: true } : { ok: false, error: fallback }
+  } catch {
+    return { ok: false, error: fallback }
+  }
+}
