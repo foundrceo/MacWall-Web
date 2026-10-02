@@ -195,6 +195,8 @@ export const macwall = {
   proDiscountPromoCode: "MAC10",
   /** Personal base-license device limit. The 5-Mac bundle raises it to 5. */
   maxLicensedMacs: 3,
+  /** Money-back window for license purchases, in calendar days. */
+  refundWindowDays: 14,
   /** Everything included with a Pro license. */
   proIncludedFeatures: [
     "Cloud catalog: featured, newest, and most popular",

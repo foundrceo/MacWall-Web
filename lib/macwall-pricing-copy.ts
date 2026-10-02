@@ -161,7 +161,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "Can I get a refund without posting a Reel?",
-      a: `License keys are non-refundable once delivered. If something's genuinely wrong, like a double charge or the app not running on a supported macOS version, email ${macwall.supportEmail}.`,
+      a: `Yes. Every license has a ${macwall.refundWindowDays}-day money-back guarantee, no reason needed. Email ${macwall.supportEmail} within ${macwall.refundWindowDays} days of purchase and we'll refund you in full.`,
     },
     {
       q: "Where do I get help?",
