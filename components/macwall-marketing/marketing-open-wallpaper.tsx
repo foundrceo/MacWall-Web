@@ -55,17 +55,10 @@ function OpenWallpaperRedirect() {
     document.addEventListener("visibilitychange", onVisibilityChange)
     window.addEventListener("blur", onWindowBlur)
 
-    // Hidden iframe handoff (not location.replace): if no app handles the
-    // scheme, the page stays intact and shows the install card instead of
-    // landing on a dead macwall:// URL. Still never auto-downloads.
-    const frame = document.createElement("iframe")
-    frame.setAttribute("aria-hidden", "true")
-    frame.setAttribute("tabindex", "-1")
-    frame.style.cssText =
-      "position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none;"
-    frame.src = deepLink
-    document.body.appendChild(frame)
-    window.setTimeout(() => frame.remove(), 5000)
+    // Top-level navigation: browsers don't launch apps from a hidden iframe
+    // (Safari ignores it, Chrome blocks it). A custom scheme never unloads
+    // this page, so the install card still shows if no app handles it.
+    window.location.href = deepLink
 
     timerRef.current = window.setTimeout(() => {
       document.removeEventListener("visibilitychange", onVisibilityChange)
