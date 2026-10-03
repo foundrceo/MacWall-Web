@@ -106,8 +106,9 @@ export default function LegalSubprocessorsPage() {
               <strong>Resend</strong>: delivery of license and support emails.
             </li>
             <li>
-              <strong>Mixpanel</strong>: product analytics in the App, linked to
-              a pseudonymous install ID (and your trial email if you give one).
+              <strong>PostHog</strong>: product analytics and crash reports in
+              the App, linked to a pseudonymous install ID (and your trial email
+              if you give one).
             </li>
             <li>
               <strong>OpenAI</strong>: suggests a title and category for a
