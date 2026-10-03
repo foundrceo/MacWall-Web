@@ -10,6 +10,7 @@ import {
   sendTikTokPurchase,
   sendXPurchase,
 } from "../_shared/license-email.ts"
+import { sendPostHogPurchase } from "../_shared/posthog.ts"
 
 /**
  * Whop webhook → activate the MacWall license and email the key.
@@ -323,6 +324,14 @@ async function handlePaid(args: {
     currency,
   })
   await sendXPurchase({ email, eventIdSeed: `whop_${paymentId}` })
+  await sendPostHogPurchase({
+    email,
+    eventIdSeed: `whop_${paymentId}`,
+    provider: "whop",
+    amount,
+    currency,
+    country: visitorCountry,
+  })
 
   const sent = await deliverLicenseEmail({
     resendKey: args.resendKey,

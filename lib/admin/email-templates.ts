@@ -319,6 +319,8 @@ function lifecyclePreview(id: LifecycleEmailId) {
     unsubscribeHref: `${EMAIL_SITE_URL}/unsubscribe/trial`,
     planLabel: recovery ? planLabelForOffer(EMAIL_APP_NAME, "permanent") : null,
     priceLabel: recovery ? "$12.99" : null,
+    updateVersion: id.startsWith("app_update") ? "4.0.7" : null,
+    downloadHref: id.startsWith("app_update") ? `${EMAIL_SITE_URL}/download` : null,
   })
 }
 
@@ -367,6 +369,27 @@ const LIFECYCLE_META: Record<
     trigger: "process-checkout-recovery cron, +3 days",
     edgeFunction: "process-checkout-recovery",
     tone: "amber",
+  },
+  app_update_customer: {
+    label: "App update: customers",
+    description: "One-off per release: please update. Download button, no discount.",
+    trigger: "send-app-update-emails, run by hand per release",
+    edgeFunction: "send-app-update-emails",
+    tone: "blue",
+  },
+  app_update_trial: {
+    label: "App update: trial users",
+    description: "One-off per release for trial users who never bought. No discount.",
+    trigger: "send-app-update-emails, run by hand per release",
+    edgeFunction: "send-app-update-emails",
+    tone: "blue",
+  },
+  app_update_trial_offer: {
+    label: "App update: trial users, 30% for 24h",
+    description: "Release email with B3H9KF5Q, valid 24 hours from each send.",
+    trigger: "send-app-update-emails with offer thirty_24h",
+    edgeFunction: "send-app-update-emails",
+    tone: "blue",
   },
 }
 
