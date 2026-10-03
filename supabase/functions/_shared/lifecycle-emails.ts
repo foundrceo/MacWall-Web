@@ -19,6 +19,8 @@ export const LIFECYCLE_PROMO = {
   ten: { code: "WALL10", percent: "10%" },
   /** 20% off, enforced for 48h via the checkout `until` param. */
   twenty: { code: "R7N2WP8J", percent: "20%", validHours: 48 },
+  /** 30% off, enforced for 24h via the checkout `until` param (app update offer). */
+  thirty: { code: "B3H9KF5Q", percent: "30%", validHours: 24 },
 } as const
 
 export type LifecycleEmailId =
@@ -30,6 +32,7 @@ export type LifecycleEmailId =
   | "recovery_last_call"
   | "app_update_customer"
   | "app_update_trial"
+  | "app_update_trial_offer"
 
 export type LifecycleEmailContext = {
   appName: string
@@ -49,6 +52,8 @@ export type LifecycleEmailContext = {
   priceLabel?: string | null
   /** `app_update_*` only: the version to update to, e.g. "4.0.7". */
   updateVersion?: string | null
+  /** `app_update_trial_offer` only: the download page (the button is checkout). */
+  downloadHref?: string | null
 }
 
 export type LifecycleEmail = {
@@ -108,6 +113,29 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
         ps: "Something still not right after updating? Reply to this email and a real person will help.",
         reason: trialReason,
       }
+    case "app_update_trial_offer": {
+      const thirty = LIFECYCLE_PROMO.thirty
+      return {
+        subject: `${app} ${version} is here, with ${thirty.percent} off Pro for 24 hours`,
+        preheader: `The all-new ${app} 2.0 and fixes for the problems you reported. ${thirty.percent} off Pro until tomorrow.`,
+        headline: `${app} ${version} is here`,
+        paragraphs: [
+          updateParagraphs[0],
+          `To celebrate, ${app} Pro is ${thirty.percent} off for the next 24 hours. It's a single payment, not a subscription, and every future update is included.`,
+          `If ${app} is open on your Mac, it updates by itself. Otherwise, download ${version} with the link below.`,
+        ],
+        code: {
+          code: thirty.code,
+          hint: `${thirty.percent} off, applied automatically with the button below. Ends 24 hours after this email was sent.`,
+        },
+        button: `Get ${app} Pro, ${thirty.percent} off`,
+        secondaryLink: ctx.downloadHref
+          ? { label: `Download ${app} ${version}`, href: ctx.downloadHref }
+          : null,
+        ps: "Questions before you buy? Reply to this email and a real person will answer.",
+        reason: trialReason,
+      }
+    }
     case "trial_ended":
       return {
         subject: `Your ${app} trial has ended`,

@@ -31,6 +31,8 @@ const CONTENT_SECURITY_POLICY_REPORT_ONLY = [
 
 const nextConfig = {
   poweredByHeader: false,
+  /** PostHog's `/ingest/*` API paths end in a slash; don't redirect them. */
+  skipTrailingSlashRedirect: true,
   compress: true,
   productionBrowserSourceMaps: false,
   /** Only used by `npm run dev:webpack`; Turbopack (default `next dev`) ignores this. */
@@ -86,6 +88,12 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      /** `skipTrailingSlashRedirect` is on for PostHog; keep pages slash-free. */
+      {
+        source: "/:path((?!ingest(?:/|$)).+)/",
+        destination: "/:path",
+        permanent: true,
+      },
       {
         source: "/affilate",
         destination: "/affiliate",
@@ -181,6 +189,19 @@ const nextConfig = {
    */
   async rewrites() {
     return [
+      /** PostHog through our own domain (ad blockers drop us.i.posthog.com). */
+      {
+        source: "/ingest/static/:path*",
+        destination: "https://us-assets.i.posthog.com/static/:path*",
+      },
+      {
+        source: "/ingest/array/:path*",
+        destination: "https://us-assets.i.posthog.com/array/:path*",
+      },
+      {
+        source: "/ingest/:path*",
+        destination: "https://us.i.posthog.com/:path*",
+      },
       {
         source: "/r/pixel.js",
         destination: "https://cdn.affonso.io/js/pixel.min.js",

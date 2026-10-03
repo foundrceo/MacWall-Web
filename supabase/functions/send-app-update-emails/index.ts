@@ -1,8 +1,15 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from "npm:@supabase/supabase-js@2.105.4"
 
-import { buildLifecycleEmail, emailLooksDeliverable } from "../_shared/lifecycle-emails.ts"
 import {
+  LIFECYCLE_PROMO,
+  buildLifecycleEmail,
+  emailLooksDeliverable,
+  type LifecycleEmailContext,
+  type LifecycleEmailId,
+} from "../_shared/lifecycle-emails.ts"
+import {
+  lifecycleCheckoutHref,
   logoUrl,
   marketingBlockReason,
   postalAddress,
@@ -15,7 +22,7 @@ import {
 /**
  * One-off "please update" email for an app release, run in batches until
  * `remaining` is 0. POST { campaign, version, audience: "customer" | "trial",
- * limit?, dryRun? }.
+ * offer?: "thirty_24h", limit?, dryRun? }.
  *
  *   customer   active license emails (service notice; skips suppressed and
  *              undeliverable addresses)
@@ -23,11 +30,48 @@ import {
  *              and undeliverable addresses
  *
  * Every address is logged in macwall_app_update_emails, so re-running never
- * emails anyone twice. No discount, no checkout link: the button goes to the
- * download page.
+ * emails anyone twice (the 20-hour cap then counts it). Without `offer` the
+ * button goes to the download page. With `offer: "thirty_24h"` (trial only)
+ * the button is checkout with the 30% code, valid 24 hours from each send.
  */
 
 const MAX_BATCH = 200
+
+/** Mail content for one address. `untilUnix` limits the 30% code to 24 hours from this send. */
+function mailFor(args: {
+  audience: Audience
+  offer: boolean
+  email: string
+  campaign: string
+  version: string
+  appName: string
+  unsubscribeHref: string | null
+}) {
+  const download = `${siteBaseUrl()}/download?utm_source=email&utm_medium=update&utm_campaign=${encodeURIComponent(args.campaign)}`
+  const id: LifecycleEmailId = args.audience === "customer"
+    ? "app_update_customer"
+    : args.offer ? "app_update_trial_offer" : "app_update_trial"
+  const ctx: LifecycleEmailContext = {
+    appName: args.appName,
+    siteUrl: siteBaseUrl(),
+    logoUrl: logoUrl(),
+    supportEmail: supportEmail(),
+    postalAddress: postalAddress(),
+    unsubscribeHref: args.unsubscribeHref,
+    checkoutHref: args.offer
+      ? lifecycleCheckoutHref({
+          promoCode: LIFECYCLE_PROMO.thirty.code,
+          untilUnix: Math.floor(Date.now() / 1000) + LIFECYCLE_PROMO.thirty.validHours * 3600,
+          email: args.email,
+          medium: "trial",
+          campaign: args.campaign,
+        })
+      : download,
+    downloadHref: download,
+    updateVersion: args.version,
+  }
+  return buildLifecycleEmail(id, ctx)
+}
 const SEND_GAP_MS = 150
 
 type Supabase = ReturnType<typeof createClient>
@@ -73,6 +117,10 @@ Deno.serve(async (req: Request) => {
   const audience = body.audience === "customer" || body.audience === "trial" ? body.audience : null
   const limit = Math.min(Math.max(Number(body.limit) || 50, 1), MAX_BATCH)
   const dryRun = body.dryRun === true
+  const offer = body.offer === "thirty_24h"
+  if (offer && audience !== "trial") {
+    return Response.json({ ok: false, error: "the offer is for the trial audience only" }, { status: 400 })
+  }
   if (!campaign || !version || !audience) {
     return Response.json({ ok: false, error: "campaign, version and audience are required" }, { status: 400 })
   }
@@ -94,10 +142,9 @@ Deno.serve(async (req: Request) => {
       p_campaign: campaign, p_audience: audience, p_limit: 100000,
     })
     if (error) return Response.json({ ok: false, error: error.message }, { status: 500 })
-    const sample = buildLifecycleEmail(audience === "customer" ? "app_update_customer" : "app_update_trial", {
-      appName, siteUrl: siteBaseUrl(), logoUrl: logoUrl(), supportEmail: supportEmail(),
-      postalAddress: postalAddress(), unsubscribeHref: `${siteBaseUrl()}/unsubscribe/trial?t=…`,
-      checkoutHref: `${siteBaseUrl()}/download`, updateVersion: version,
+    const sample = mailFor({
+      audience, offer, email: "someone@example.com", campaign, version, appName,
+      unsubscribeHref: `${siteBaseUrl()}/unsubscribe/trial?t=…`,
     })
     return Response.json({ ok: true, dryRun: true, candidates: (data ?? []).length, from, subject: sample.subject, text: sample.text })
   }
@@ -118,15 +165,9 @@ Deno.serve(async (req: Request) => {
       continue
     }
     const unsub = await unsubscribeUrlsFor(email)
-    const mail = buildLifecycleEmail(audience === "customer" ? "app_update_customer" : "app_update_trial", {
-      appName,
-      siteUrl: siteBaseUrl(),
-      logoUrl: logoUrl(),
-      supportEmail: supportEmail(),
-      postalAddress: postalAddress(),
+    const mail = mailFor({
+      audience, offer, email, campaign, version, appName,
       unsubscribeHref: unsub?.page ?? null,
-      checkoutHref: `${siteBaseUrl()}/download?utm_source=email&utm_medium=update&utm_campaign=${encodeURIComponent(campaign)}`,
-      updateVersion: version,
     })
     const result = await sendMarketingEmail({
       resendKey,
@@ -136,7 +177,7 @@ Deno.serve(async (req: Request) => {
       unsubscribeOneClick: unsub?.oneClick ?? null,
       idempotencyKey: `update/${campaign}/${email}`,
       tags: [
-        { name: "category", value: "app_update" },
+        { name: "category", value: offer ? "app_update_offer" : "app_update" },
         { name: "campaign", value: campaign.replace(/[^A-Za-z0-9_-]/g, "_") },
       ],
     })

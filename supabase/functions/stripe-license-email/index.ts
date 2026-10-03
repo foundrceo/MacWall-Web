@@ -2,6 +2,8 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import Stripe from "npm:stripe@14.25.0"
 import { createClient } from "npm:@supabase/supabase-js@2.105.4"
 
+import { sendPostHogPurchase } from "../_shared/posthog.ts"
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -1019,6 +1021,15 @@ async function handleCheckoutCompleted(args: {
   await sendXPurchase({
     email: customerEmail,
     eventIdSeed: `stripe_${args.event.id}`,
+  })
+  await sendPostHogPurchase({
+    email: customerEmail,
+    eventIdSeed: `stripe_${args.event.id}`,
+    provider: "stripe",
+    amount,
+    currency: session.currency,
+    promoCode: session.metadata?.promo_code || null,
+    plan: session.metadata?.offer_slug || null,
   })
 
   const appName = Deno.env.get("APP_NAME")?.trim() || "MacWall"

@@ -10,6 +10,7 @@ import {
   sendTikTokPurchase,
   sendXPurchase,
 } from "../_shared/license-email.ts"
+import { sendPostHogPurchase } from "../_shared/posthog.ts"
 
 /**
  * Cashfree webhook (India checkout) → activate the MacWall license and email
@@ -241,6 +242,14 @@ async function handlePaid(args: {
     currency: str(order.order_currency) ?? "INR",
   })
   await sendXPurchase({ email: buyerEmail, eventIdSeed: `cashfree_${orderId}` })
+  await sendPostHogPurchase({
+    email: buyerEmail,
+    eventIdSeed: `cashfree_${orderId}`,
+    provider: "cashfree",
+    amount: num(order.order_amount),
+    currency: str(order.order_currency) ?? "INR",
+    country: "IN",
+  })
 
   const sent = await deliverLicenseEmail({
     resendKey: args.resendKey,
