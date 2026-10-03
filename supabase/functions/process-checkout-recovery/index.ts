@@ -31,6 +31,12 @@ import {
  *   r3  +3 days             20% for 48 hours, final email
  *
  * Queue keys: `<session>` (r1), `<session>::r2`, `<session>::r3`.
+ *
+ * Whop and Cashfree orders (checkout since Stripe was paused) have no expiry
+ * webhook: every run calls `enqueue_macwall_provider_recovery`, which queues
+ * unpaid orders with a known email under `whop:<license_key>` /
+ * `cashfree:<license_key>`. Those rows are checked against the license row
+ * instead of a Stripe session, so this function also runs without Stripe.
  */
 
 const SEND_LIMIT = 8
@@ -123,9 +129,27 @@ async function enqueueFollowUps(supabase: Supabase, row: QueueRow, email: string
   }
 }
 
+/** Offer slug for the recovery link from a Whop/Cashfree license row. */
+function offerSlugForLicense(planSlug: string | null, maxDevices: number | null): string {
+  if (planSlug !== "pro_plus") return "permanent"
+  return (maxDevices ?? 5) >= 10 ? "permanent_10" : "permanent_5"
+}
+
+function isProviderSessionId(sessionId: string): boolean {
+  return sessionId.startsWith("whop:") || sessionId.startsWith("cashfree:")
+}
+
+type CheckoutDetails = {
+  offerSlug: string
+  maxDevices: number | null
+  amountMinor: number | null
+  currency: string | null
+  visitorId: string | null
+}
+
 async function processQueueRow(args: {
   row: QueueRow
-  stripe: Stripe
+  stripe: Stripe | null
   supabase: Supabase
   resendKey: string
   from: string
@@ -139,39 +163,84 @@ async function processQueueRow(args: {
     return "skipped"
   }
 
-  let session: Stripe.Checkout.Session
-  try {
-    session = await stripe.checkout.sessions.retrieve(sessionId)
-  } catch (error) {
-    const missing = (error as { code?: string }).code === "resource_missing"
-    console.error(
-      "[process-checkout-recovery] session_retrieve_failed",
-      error instanceof Error ? error.message : "error"
-    )
-    if (missing) {
-      await markQueueRow(supabase, row.id, { status: "skipped", skip_reason: "session_not_found" })
-      return "skipped"
-    }
-    // Transient Stripe error: retry in 30 minutes instead of blocking the queue.
-    await markQueueRow(supabase, row.id, {
-      scheduled_send_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-    })
-    return "deferred"
-  }
-  if (session.payment_status === "paid" || session.status === "complete") {
-    await cancelSequence(supabase, sessionId, "payment_completed")
-    return "skipped"
-  }
-
-  if (row.license_key) {
+  let details: CheckoutDetails
+  if (isProviderSessionId(sessionId)) {
+    // Whop / Cashfree: the license row is the order. Paid = active.
     const { data: license } = await supabase
       .from("macwall_licenses")
-      .select("status")
-      .eq("license_key", row.license_key)
+      .select("status, plan_slug, max_devices")
+      .eq("license_key", row.license_key ?? "")
       .maybeSingle()
-    if (license?.status === "active") {
+    if (!license) {
+      await markQueueRow(supabase, row.id, { status: "skipped", skip_reason: "license_not_found" })
+      return "skipped"
+    }
+    if (license.status === "active") {
       await cancelSequence(supabase, sessionId, "license_active")
       return "skipped"
+    }
+    if (license.status === "revoked") {
+      await cancelSequence(supabase, sessionId, "license_revoked")
+      return "skipped"
+    }
+    const maxDevices = typeof license.max_devices === "number" ? license.max_devices : null
+    details = {
+      offerSlug: offerSlugForLicense(license.plan_slug as string | null, maxDevices),
+      maxDevices,
+      amountMinor: null,
+      currency: null,
+      visitorId: null,
+    }
+  } else {
+    if (!stripe) {
+      // Stripe isn't configured: keep the row for when it is.
+      await markQueueRow(supabase, row.id, {
+        scheduled_send_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+      })
+      return "deferred"
+    }
+    let session: Stripe.Checkout.Session
+    try {
+      session = await stripe.checkout.sessions.retrieve(sessionId)
+    } catch (error) {
+      const missing = (error as { code?: string }).code === "resource_missing"
+      console.error(
+        "[process-checkout-recovery] session_retrieve_failed",
+        error instanceof Error ? error.message : "error"
+      )
+      if (missing) {
+        await markQueueRow(supabase, row.id, { status: "skipped", skip_reason: "session_not_found" })
+        return "skipped"
+      }
+      // Transient Stripe error: retry in 30 minutes instead of blocking the queue.
+      await markQueueRow(supabase, row.id, {
+        scheduled_send_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      })
+      return "deferred"
+    }
+    if (session.payment_status === "paid" || session.status === "complete") {
+      await cancelSequence(supabase, sessionId, "payment_completed")
+      return "skipped"
+    }
+
+    if (row.license_key) {
+      const { data: license } = await supabase
+        .from("macwall_licenses")
+        .select("status")
+        .eq("license_key", row.license_key)
+        .maybeSingle()
+      if (license?.status === "active") {
+        await cancelSequence(supabase, sessionId, "license_active")
+        return "skipped"
+      }
+    }
+    const stripeMaxDevices = Number.parseInt(session.metadata?.max_devices ?? "", 10)
+    details = {
+      offerSlug: session.metadata?.offer_slug ?? "permanent",
+      maxDevices: Number.isFinite(stripeMaxDevices) ? stripeMaxDevices : null,
+      amountMinor: session.amount_total,
+      currency: session.currency,
+      visitorId: session.metadata?.visitor_id ?? null,
     }
   }
 
@@ -199,8 +268,6 @@ async function processQueueRow(args: {
     step === "r3"
       ? Math.floor(Date.now() / 1000) + LIFECYCLE_PROMO.twenty.validHours * 3600
       : null
-  const offerSlug = session.metadata?.offer_slug ?? "permanent"
-  const maxDevices = Number.parseInt(session.metadata?.max_devices ?? "", 10)
   const unsub = await unsubscribeUrlsFor(email)
   const mail = buildLifecycleEmail(STEP_EMAIL[step], {
     appName,
@@ -209,14 +276,14 @@ async function processQueueRow(args: {
     supportEmail: supportEmail(),
     postalAddress: postalAddress(),
     unsubscribeHref: unsub?.page ?? null,
-    planLabel: planLabelForOffer(appName, offerSlug, Number.isFinite(maxDevices) ? maxDevices : null),
-    priceLabel: formatPrice(session.amount_total, session.currency),
+    planLabel: planLabelForOffer(appName, details.offerSlug, details.maxDevices),
+    priceLabel: formatPrice(details.amountMinor, details.currency),
     checkoutHref: lifecycleCheckoutHref({
-      offerSlug,
+      offerSlug: details.offerSlug,
       promoCode: promo?.code ?? null,
       untilUnix,
       email,
-      visitorId: session.metadata?.visitor_id ?? null,
+      visitorId: details.visitorId,
       medium: "recovery",
       campaign: `recovery_${step}`,
     }),
@@ -286,14 +353,23 @@ Deno.serve(async (req: Request) => {
   const resendKey = Deno.env.get("RESEND_API_KEY")?.trim()
   const from = Deno.env.get("LICENSE_EMAIL_FROM")?.trim()
   const appName = Deno.env.get("APP_NAME")?.trim() || "MacWall"
-  if (!stripeSecret || !supabaseUrl || !supabaseServiceKey || !resendKey || !from) {
+  if (!supabaseUrl || !supabaseServiceKey || !resendKey || !from) {
     return Response.json({ ok: false, error: "missing_config" }, { status: 500 })
   }
 
-  const stripe = new Stripe(stripeSecret)
+  // Stripe is optional: Whop and Cashfree recovery runs without it.
+  const stripe = stripeSecret ? new Stripe(stripeSecret) : null
   const supabase = createClient(supabaseUrl, supabaseServiceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   })
+
+  const { data: providerQueued, error: providerError } = await supabase.rpc(
+    "enqueue_macwall_provider_recovery",
+    { p_limit: 40 }
+  )
+  if (providerError) {
+    console.error("[process-checkout-recovery] provider_enqueue_failed", providerError.message)
+  }
 
   const { data: rows, error } = await supabase
     .from("macwall_checkout_recovery_queue")
@@ -319,6 +395,7 @@ Deno.serve(async (req: Request) => {
 
   return Response.json({
     ok: true,
+    provider_queued: typeof providerQueued === "number" ? providerQueued : 0,
     processed: (rows ?? []).length,
     ...counts,
     rate_limited: rateLimited,
