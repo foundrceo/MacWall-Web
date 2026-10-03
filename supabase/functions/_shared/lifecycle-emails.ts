@@ -28,13 +28,16 @@ export type LifecycleEmailId =
   | "recovery_saved"
   | "recovery_10"
   | "recovery_last_call"
+  | "app_update_customer"
+  | "app_update_trial"
 
 export type LifecycleEmailContext = {
   appName: string
   siteUrl: string
   logoUrl: string
   supportEmail: string
-  /** Primary button target (checkout link with promo already applied). */
+  /** Primary button target (checkout link with promo already applied; the
+   *  download page for `app_update_*`). */
   checkoutHref: string
   /** Signed unsubscribe page, when available. */
   unsubscribeHref: string | null
@@ -44,6 +47,8 @@ export type LifecycleEmailContext = {
   planLabel?: string | null
   /** Recovery only: e.g. "₹441.50" or "$12.99". */
   priceLabel?: string | null
+  /** `app_update_*` only: the version to update to, e.g. "4.0.7". */
+  updateVersion?: string | null
 }
 
 export type LifecycleEmail = {
@@ -76,7 +81,33 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
   const trialReason = `You're getting this because you tried ${app} on your Mac.`
   const checkoutReason = `You're getting this because you started a checkout on ${hostOf(ctx.siteUrl)}.`
 
+  const version = ctx.updateVersion?.trim() || "the latest version"
+  const updateParagraphs = [
+    `${app} ${version} is a major update: the all-new ${app} 2.0 design, with a new Home, Wallpaper page and Spotlight-style search, and fixes for the problems people reported.`,
+    `Please update now. Open ${app} and it installs the update by itself. If it doesn't, download it with the button below and drag it to Applications.`,
+  ]
+
   switch (id) {
+    case "app_update_customer":
+      return {
+        subject: `${app} ${version} is here: please update`,
+        preheader: `The all-new ${app} 2.0 design and fixes for the problems you reported.`,
+        headline: `${app} ${version} is here`,
+        paragraphs: [...updateParagraphs, "Your Pro license carries over. There's nothing to enter again."],
+        button: `Download ${app} ${version}`,
+        ps: "Something still not right after updating? Reply to this email and a real person will help.",
+        reason: `You're getting this because you bought ${app} Pro.`,
+      }
+    case "app_update_trial":
+      return {
+        subject: `${app} ${version} is here: please update`,
+        preheader: `The all-new ${app} 2.0 design and fixes for the problems you reported.`,
+        headline: `${app} ${version} is here`,
+        paragraphs: [...updateParagraphs, "Everything you set up is still in the app."],
+        button: `Download ${app} ${version}`,
+        ps: "Something still not right after updating? Reply to this email and a real person will help.",
+        reason: trialReason,
+      }
     case "trial_ended":
       return {
         subject: `Your ${app} trial has ended`,

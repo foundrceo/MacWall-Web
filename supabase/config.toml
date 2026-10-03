@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.cashfree-license-email]
 verify_jwt = false
+
+[functions.send-app-update-emails]
+verify_jwt = false
