@@ -40,8 +40,10 @@ export function WallpaperSetOnMacButton({
 
   const handleClick = useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
-      // Stay on this page — fire the scheme from a hidden iframe so a
-      // missing app never navigates away or triggers a download.
+      // Open the scheme ourselves, inside the click: browsers only launch an
+      // app from a top-level navigation with a user gesture (a hidden iframe
+      // is ignored by Safari and blocked by Chrome). A custom scheme never
+      // unloads the page, and a missing app never downloads anything.
       event.preventDefault()
       setShowInstallHint(false)
       settledRef.current = false
@@ -72,15 +74,7 @@ export function WallpaperSetOnMacButton({
       document.addEventListener("visibilitychange", onVisibilityChange)
       window.addEventListener("blur", onWindowBlur)
 
-      // Hidden iframe: hands the link to the OS without top-level navigation.
-      const frame = document.createElement("iframe")
-      frame.setAttribute("aria-hidden", "true")
-      frame.setAttribute("tabindex", "-1")
-      frame.style.cssText =
-        "position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none;"
-      frame.src = deepLink
-      document.body.appendChild(frame)
-      window.setTimeout(() => frame.remove(), 5000)
+      window.location.href = deepLink
 
       // Still here after the wait → app didn't open. Show an inline hint
       // with a manual download link instead of redirecting anywhere.
