@@ -101,10 +101,14 @@ export default function LegalPrivacyPage() {
             </li>
             <li>
               <strong>App usage analytics:</strong> The App sends usage events
-              (for example app launches, onboarding steps, wallpapers applied
-              and errors) to our analytics provider, Mixpanel, linked to a
-              pseudonymous install ID. If you enter your email to start a free
-              trial, that email is attached to the same analytics profile.
+              (for example app launches, screens viewed, onboarding steps,
+              wallpapers opened and applied, searches, settings changed, and
+              errors or crash reports) to our analytics provider, PostHog,
+              linked to a pseudonymous install ID, along with basic device
+              details (Mac model, chip, memory, macOS version). If you enter
+              your email to start a free trial, that email is attached to the
+              same analytics profile. Names of videos you import yourself are
+              never sent.
             </li>
             <li>
               <strong>Community submissions:</strong> If you submit a wallpaper
