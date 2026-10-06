@@ -2,7 +2,7 @@ import { JsonLd } from "@/components/seo/json-ld"
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
 import { MarketingSeparator } from "@/components/macwall-marketing/marketing-separator"
 import { macwall } from "@/lib/macwall-site"
-import { macwallPricingCopy as pricingCopy } from "@/lib/macwall-pricing-copy"
+import { macwallHomeFaq } from "@/lib/macwall-pricing-copy"
 import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import {
   canonicalSitePath,
@@ -13,15 +13,19 @@ import {
 import type { Metadata } from "next"
 
 import { Collections } from "./_components/collections"
+import { Everything } from "./_components/everything"
 import { Features } from "./_components/features"
 import { Hero } from "./_components/hero"
+import { HowItWorks } from "./_components/how-it-works"
 import { Pillars } from "./_components/pillars"
+import { Playback } from "./_components/playback"
 import { ProductPreview } from "./_components/product-preview"
 import { Proof } from "./_components/proof"
 import { Reviews } from "./_components/reviews"
+import { Signature } from "./_components/signature"
 
 const PAGE_DESCRIPTION =
-  "Live wallpapers for Mac: 4K animated video on your desktop and Lock Screen (macOS 26). Native app, pauses on battery, 800+ loops, one payment."
+  "Live wallpapers for Mac: 800+ 4K animated wallpapers on your desktop, Lock Screen and screen saver (macOS 26). Native app, free 24-hour trial, one payment."
 
 /** Brand first, then the head term people search ("live wallpaper mac"). */
 const PAGE_TITLE = `${macwall.name}: Live Wallpapers for Mac – 4K Desktop & Lock Screen`
@@ -78,7 +82,7 @@ export const metadata: Metadata = {
   },
 }
 
-const HOME_FAQ = pricingCopy.faq.map((item) => ({
+const HOME_FAQ = macwallHomeFaq.map((item) => ({
   question: item.q,
   answer: item.a,
 }))
@@ -92,15 +96,23 @@ export default async function Page() {
       <MarketingSeparator />
       <ProductPreview />
       <MarketingSeparator />
-      <Pillars />
+      <HowItWorks />
       <MarketingSeparator />
       <Features />
       <MarketingSeparator />
+      <Everything />
+      <MarketingSeparator />
+      <Signature />
+      <MarketingSeparator />
+      <Pillars />
+      <MarketingSeparator />
       <Reviews />
+      <MarketingSeparator />
+      <Playback />
       <MarketingSeparator />
       <Collections />
       <MarketingSeparator />
-      <MarketingFaqSection />
+      <MarketingFaqSection items={macwallHomeFaq} />
     </>
   )
 }

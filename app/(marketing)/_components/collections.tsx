@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { LandingSectionHeader } from "@/components/macwall-marketing/landing-section-header"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import {
   WALLPAPER_COLLECTIONS_HUB_PATH,
@@ -36,19 +37,13 @@ export function Collections() {
   ).filter((entry): entry is WallpaperCollection => Boolean(entry))
 
   return (
-    <MarketingSection className="relative w-full py-10">
-      <div className="flex flex-col gap-8 px-6">
-        <div className="flex flex-col gap-2">
-          <h2 className="font-display max-w-xl text-left text-3xl font-normal tracking-tighter md:text-5xl">
-            Live backgrounds for every Mac desktop
-          </h2>
-          <p className="max-w-2xl text-left text-lg leading-relaxed tracking-tight text-muted-foreground">
-            Moving wallpapers for anime fans, car people, and anyone who wants
-            rain on the window while they work. Every collection is a set of 4K
-            live desktop backgrounds you can preview on the web and set on your
-            Mac in one click.
-          </p>
-        </div>
+    <MarketingSection className="relative w-full" aria-labelledby="collections-heading">
+      <LandingSectionHeader
+        id="collections-heading"
+        title="Live backgrounds for every Mac desktop"
+        lead="Moving wallpapers for anime fans, car people, and anyone who wants rain on the window while they work. Preview any collection here, then set it on your Mac in one click."
+      />
+      <div className="px-6 pb-12 md:pb-16 lg:px-8">
         <ul className="flex flex-wrap gap-2.5">
           {collections.map((entry) => (
             <li key={entry.slug}>

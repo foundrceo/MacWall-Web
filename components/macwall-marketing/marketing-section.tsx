@@ -3,7 +3,8 @@ import type { HTMLAttributes } from "react"
 
 import { cn } from "@/lib/utils"
 
-function Cross() {
+/** Plus mark drawn where a dashed rail meets a dashed row line. */
+export function MarketingCross() {
   return (
     <div className="relative size-6" aria-hidden>
       <div className="absolute left-3 h-6 w-px bg-background" />
@@ -45,10 +46,10 @@ export function MarketingSection({
         {showCrosses ? (
           <>
             <div className="pointer-events-none absolute -bottom-3 -left-3 z-10 hidden size-6 sm:block">
-              <Cross />
+              <MarketingCross />
             </div>
             <div className="pointer-events-none absolute -right-3 -bottom-3 z-10 hidden size-6 -translate-x-px sm:block">
-              <Cross />
+              <MarketingCross />
             </div>
           </>
         ) : null}
