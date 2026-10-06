@@ -116,9 +116,7 @@ export default function LegalRefundPage() {
         <LegalSection id="how-refunds-work" title="How Approved Refunds Are Paid">
           <p>
             Approved refunds go back to the original payment method through
-            our payment processor, {macwall.paymentProcessor} (or{" "}
-            {macwall.indiaPaymentProcessor} for purchases made in India). Banks
-            usually
+            our payment processor, {macwall.paymentProcessor}. Banks usually
             show them within 5 to 10 business days. The refunded license key
             is deactivated when the refund is issued.
           </p>

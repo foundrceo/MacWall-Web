@@ -16,7 +16,7 @@ export default function AnnouncementBanner() {
         className="flex h-full w-full items-center justify-center gap-1.5 px-4 text-black outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-black/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#67EDEC] sm:px-6"
       >
         <span className="line-clamp-2 min-w-0 text-center text-[12px] leading-4 font-medium tracking-normal sm:line-clamp-1 sm:text-[13px] sm:leading-5">
-          Checkout is handled by Whop. Your license and support work exactly
+          Checkout is back on Stripe. Your license and support work exactly
           the same.
         </span>
         <ArrowUpRight

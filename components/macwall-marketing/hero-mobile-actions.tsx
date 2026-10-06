@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { preloadProModal } from "@/components/macwall-marketing/pro-modal-lazy"
 import { trackSiteEventClient } from "@/lib/analytics/client"
-import { trackWhopEvent } from "@/lib/analytics/whop-client"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 import { HeroPriceCaption } from "@/components/macwall-marketing/hero-price-caption"
@@ -39,7 +38,6 @@ export function HeroMobileActions({
       location: "hero_mobile",
       action: "send_link",
     })
-    trackWhopEvent("lead")
     const url = `${macwall.website}/download`
     const shareData: ShareData = {
       title: `${macwall.name} — ${macwall.tagline}`,

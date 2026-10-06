@@ -135,11 +135,8 @@ export const macwall = {
   legalMailingAddress:
     "2261 Market Street STE 73057, San Francisco, CA 94114, USA",
   /** Checkout and card processing for Pro purchases. */
-  paymentProcessor: "Whop",
-  paymentProcessorUrl: "https://whop.com",
-  /** Checkout and payments for purchases made in India. */
-  indiaPaymentProcessor: "Cashfree Payments",
-  indiaPaymentProcessorUrl: "https://www.cashfree.com",
+  paymentProcessor: "Stripe",
+  paymentProcessorUrl: "https://stripe.com",
   /** Short brand tagline — one line, no breaks. */
   tagline: MACWALL_TAGLINE,
   /** Full brand title for document titles, OG alt text, and JSON-LD. */

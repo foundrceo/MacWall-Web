@@ -1,8 +1,6 @@
 import { cn } from "@/lib/utils"
 
-/** Stripe wordmark in `currentColor`, for checkout trust lines. Unused while
- * Whop is the only checkout; restore it in `pricing-page-plans.tsx` when
- * CHECKOUT_PROVIDER=stripe turns Stripe back on. */
+/** Stripe wordmark in `currentColor`, for checkout trust lines. */
 export function StripeWordmark({
   className,
 }: Readonly<{ className?: string }>) {

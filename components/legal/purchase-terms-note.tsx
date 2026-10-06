@@ -1,8 +1,5 @@
-"use client"
-
 import Link from "next/link"
 
-import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
@@ -14,9 +11,6 @@ import { cn } from "@/lib/utils"
 export function PurchaseTermsNote({
   className,
 }: Readonly<{ className?: string }>) {
-  // India on Cashfree is charged in rupees; everyone else in USD.
-  // (Prices cached by older builds lack the field: treat them as USD.)
-  const chargeCurrency = useMarketingPricing().chargeCurrency ?? "usd"
   return (
     <p
       className={cn(
@@ -24,8 +18,7 @@ export function PurchaseTermsNote({
         className
       )}
     >
-      One-time payment, charged in {chargeCurrency.toUpperCase()}, no
-      subscription.{" "}
+      One-time payment, charged in USD, no subscription.{" "}
       {macwall.refundWindowDays}-day
       money-back guarantee. Taxes, if any, are calculated at checkout. By
       purchasing you agree to our{" "}
