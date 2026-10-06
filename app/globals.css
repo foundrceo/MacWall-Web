@@ -557,6 +557,252 @@
   }
 }
 
+/* CTA candidates (/cta-lab).
+   Drift: a background row sliding forever (two identical halves, so -50%
+   lands where it began). Unlike the category marquee it never pauses: it
+   sits behind content, not under the pointer's intent.
+   Beam: a short light falling down a grid line, then resting. */
+.mw-drift {
+  display: flex;
+  width: max-content;
+  animation: mw-drift var(--drift-duration, 80s) linear infinite;
+}
+
+.mw-drift-reverse {
+  animation-direction: reverse;
+}
+
+@keyframes mw-drift {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.mw-beam-fall {
+  animation: mw-beam-fall var(--beam-duration, 6s) cubic-bezier(0.4, 0, 0.2, 1)
+    var(--beam-delay, 0s) infinite;
+}
+
+@keyframes mw-beam-fall {
+  0% {
+    transform: translateY(-120%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  60%,
+  100% {
+    transform: translateY(520%);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-drift,
+  .mw-beam-fall {
+    animation: none;
+  }
+
+  .mw-beam-fall {
+    opacity: 0;
+  }
+}
+
+/* Install guide, step 2: the pointer picks up the app icon, carries it
+   across to the Applications folder, which lights up as it drops in, then
+   the pointer returns and the loop repeats. The 108px is the distance
+   between the icon's and the folder's centres in that scene. */
+.mw-drag-pointer {
+  animation: mw-drag-pointer 3.2s ease-in-out infinite;
+}
+
+.mw-drag-ghost {
+  opacity: 0;
+  animation: mw-drag-ghost 3.2s ease-in-out infinite;
+}
+
+.mw-drag-folder {
+  animation: mw-drag-folder 3.2s ease-in-out infinite;
+}
+
+/* The icon left behind: gone while it is being carried, back for the next
+   loop, so there is only ever one icon on screen. */
+.mw-drag-origin {
+  animation: mw-drag-origin 3.2s ease-in-out infinite;
+}
+
+@keyframes mw-drag-origin {
+  0%,
+  12% {
+    opacity: 1;
+  }
+  14%,
+  88% {
+    opacity: 0;
+  }
+  96%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes mw-drag-pointer {
+  0%,
+  12% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  52%,
+  64% {
+    transform: translate(108px, 0);
+    opacity: 1;
+  }
+  72% {
+    transform: translate(108px, 0);
+    opacity: 0;
+  }
+  88% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes mw-drag-ghost {
+  0%,
+  12% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  14% {
+    transform: translate(4px, -4px) scale(0.95);
+    opacity: 1;
+  }
+  52% {
+    transform: translate(108px, -4px) scale(0.95);
+    opacity: 1;
+  }
+  62%,
+  100% {
+    transform: translate(108px, 2px) scale(0.35);
+    opacity: 0;
+  }
+}
+
+@keyframes mw-drag-folder {
+  0%,
+  48% {
+    transform: scale(1);
+    filter: none;
+  }
+  54%,
+  62% {
+    transform: scale(1.08);
+    filter: brightness(1.18);
+  }
+  70%,
+  100% {
+    transform: scale(1);
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-drag-pointer,
+  .mw-drag-ghost,
+  .mw-drag-folder,
+  .mw-drag-origin {
+    animation: none;
+  }
+}
+
+/* Install guide, step 3: macOS's launch bounce. The pointer clicks, the
+   icon hops three times while the app opens, then the running dot appears
+   and it rests before the loop repeats. */
+.mw-dock-click {
+  animation: mw-dock-click 3.6s ease-out infinite;
+}
+
+.mw-dock-bounce {
+  animation: mw-dock-bounce 3.6s infinite;
+}
+
+.mw-dock-dot {
+  animation: mw-dock-dot 3.6s linear infinite;
+}
+
+@keyframes mw-dock-click {
+  0%,
+  4%,
+  100% {
+    transform: scale(1);
+  }
+  6% {
+    transform: scale(0.85);
+  }
+  9% {
+    transform: scale(1);
+  }
+}
+
+@keyframes mw-dock-bounce {
+  0%,
+  8% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  17% {
+    transform: translateY(-16px);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.3);
+  }
+  26% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  35% {
+    transform: translateY(-16px);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.3);
+  }
+  44% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  53% {
+    transform: translateY(-16px);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.3);
+  }
+  62%,
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes mw-dock-dot {
+  0%,
+  60% {
+    opacity: 0;
+  }
+  64%,
+  96% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-dock-click,
+  .mw-dock-bounce,
+  .mw-dock-dot {
+    animation: none;
+  }
+}
+
 /* How-it-works step visuals: the search caret blinks, and the Set button
    loops Set → Downloading (filling) → Wallpaper set over 7s. */
 .mw-caret {

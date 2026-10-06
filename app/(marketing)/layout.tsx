@@ -3,6 +3,7 @@ import { FLAGS } from "@/lib/flags"
 import { CommandPaletteMount } from "@/components/command-palette/command-palette-mount"
 import { MarketingPricingProvider } from "@/components/marketing/marketing-pricing-context"
 import { MarketingShellEnd } from "@/components/marketing/shell-end"
+import { InstallGuide } from "@/components/macwall-marketing/install-guide"
 import { MarketingPageFrame } from "@/components/macwall-marketing/marketing-page-frame"
 import MarketingSiteChrome from "@/components/macwall-marketing/MarketingSiteChrome"
 import { SocialProofMount } from "@/components/macwall-marketing/social-proof-mount"
@@ -46,6 +47,7 @@ export default async function MarketingLayout({
               <MarketingShellEnd />
             </main>
           </MarketingPageFrame>
+          <InstallGuide />
           {FLAGS.socialProof ? <SocialProofMount /> : null}
           <WallpaperPurchaseBannerMount />
         </div>
