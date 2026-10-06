@@ -1,4 +1,17 @@
-import { Check, Minus, X } from "lucide-react"
+"use client"
+
+import {
+  Check,
+  Cpu,
+  Lock,
+  Power,
+  Volume2,
+  Wallpaper,
+  X,
+  type LucideIcon,
+} from "lucide-react"
+import { motion } from "motion/react"
+import { useState } from "react"
 
 import {
   landingBlockPad,
@@ -8,151 +21,200 @@ import { MarketingSection } from "@/components/macwall-marketing/marketing-secti
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { cn } from "@/lib/utils"
 
+type Mode = "system" | "app"
+
+const MODES: readonly Mode[] = ["system", "app"]
+
+const ROW_ICONS: Record<string, LucideIcon> = {
+  power: Power,
+  lock: Lock,
+  sound: Volume2,
+  wallpaper: Wallpaper,
+  macos: Cpu,
+}
+
 function Mark({ ok }: Readonly<{ ok: boolean }>) {
   return ok ? (
-    <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
+    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
       <Check className="size-3" strokeWidth={3} aria-hidden />
       <span className="sr-only">Yes</span>
     </span>
   ) : (
-    <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground">
+    <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground">
       <X className="size-3" strokeWidth={2.5} aria-hidden />
       <span className="sr-only">No</span>
     </span>
   )
 }
 
-function MatrixValue({ value }: Readonly<{ value: boolean | string }>) {
-  if (value === true) return <Mark ok />
-  if (value === false) {
-    return (
-      <span className="flex size-5 items-center justify-center text-muted-foreground/60">
-        <Minus className="size-4" aria-hidden />
-        <span className="sr-only">No</span>
-      </span>
-    )
-  }
-  return <span className="text-sm whitespace-nowrap text-muted-foreground">{value}</span>
+function Tag({ mode, children }: Readonly<{ mode: Mode; children: string }>) {
+  return (
+    <span
+      className={cn(
+        "inline-flex h-6 w-fit items-center rounded-full px-2.5 text-xs",
+        mode === "system"
+          ? "bg-primary font-medium text-primary-foreground"
+          : "border border-border text-muted-foreground"
+      )}
+    >
+      {children}
+    </span>
+  )
 }
 
-/** The two playback modes as comparison cards, then what each macOS gets. */
+/** Phone-only switch between the two columns, with a gliding thumb. */
+function ModeSwitch({
+  value,
+  onChange,
+}: Readonly<{ value: Mode; onChange: (mode: Mode) => void }>) {
+  const { playback } = macwallMarketingCopy.home
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label={playback.switchLabel}
+      className="mt-4 flex max-w-sm rounded-full border border-border bg-muted/60 p-1 md:hidden"
+      onKeyDown={(event) => {
+        if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return
+        event.preventDefault()
+        const next = value === "system" ? "app" : "system"
+        onChange(next)
+        event.currentTarget
+          .querySelectorAll<HTMLButtonElement>("button")
+          [MODES.indexOf(next)]?.focus()
+      }}
+    >
+      {MODES.map((mode) => {
+        const selected = mode === value
+        return (
+          <button
+            key={mode}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            tabIndex={selected ? 0 : -1}
+            onClick={() => onChange(mode)}
+            className={cn(
+              "relative flex h-9 flex-1 items-center justify-center rounded-full px-3 text-sm whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              selected ? "text-background" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {selected ? (
+              <motion.span
+                layoutId="playback-mode-thumb"
+                className="absolute inset-0 rounded-full bg-foreground"
+                transition={{ type: "spring", stiffness: 420, damping: 34 }}
+              />
+            ) : null}
+            <span className="relative">{playback.modes[mode].name}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/**
+ * The two playback modes as a ledger: rows are things you do, columns are what
+ * each mode does. Phones show one column at a time.
+ */
 export function Playback() {
-  const { playback, compat } = macwallMarketingCopy.home
+  const { playback } = macwallMarketingCopy.home
+  const [phoneMode, setPhoneMode] = useState<Mode>("system")
+
+  const columnVisibility = (mode: Mode) =>
+    mode === phoneMode ? "max-md:block" : "max-md:hidden"
 
   return (
     <MarketingSection id="playback" aria-labelledby="playback-heading">
-      <LandingSectionHeader
-        id="playback-heading"
-        title={playback.title}
-        lead={playback.lead}
-      />
+      <LandingSectionHeader id="playback-heading" title={playback.title} lead={playback.lead}>
+        <ModeSwitch value={phoneMode} onChange={setPhoneMode} />
+      </LandingSectionHeader>
 
-      {/* Modes */}
-      <div className="grid grid-cols-1 border-t border-dashed border-border md:grid-cols-2 md:divide-x md:divide-dashed md:divide-border">
-        {playback.modes.map((mode, index) => (
-          <div
-            key={mode.name}
-            className={cn(
-              landingBlockPad,
-              "flex min-w-0 flex-col gap-6 py-10",
-              index > 0 && "border-t border-dashed border-border md:border-t-0",
-              index === 0 && "bg-card/60"
-            )}
-          >
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <h3 className="font-display text-2xl font-normal tracking-tighter md:text-3xl">
-                  {mode.name}
-                </h3>
-                <span
+      <div className="border-t border-dashed border-border">
+        <table className="w-full text-left max-md:block md:table-fixed">
+          <caption className="sr-only">{playback.caption}</caption>
+          <colgroup className="max-md:hidden">
+            <col className="w-[34%]" />
+            <col />
+            <col />
+          </colgroup>
+          <thead className="max-md:block">
+            <tr className="border-b border-dashed border-border max-md:block">
+              <th scope="col" className="max-md:hidden">
+                <span className="sr-only">{playback.momentLabel}</span>
+              </th>
+              {MODES.map((mode) => (
+                <th
+                  key={mode}
+                  scope="col"
                   className={cn(
-                    "inline-flex h-6 items-center rounded-full px-2.5 text-xs",
-                    index === 0
-                      ? "bg-primary font-medium text-primary-foreground"
-                      : "border border-border text-muted-foreground"
+                    landingBlockPad,
+                    "py-8 align-top font-normal md:border-l md:border-dashed md:border-border",
+                    mode === "system" && "bg-card/70",
+                    columnVisibility(mode)
                   )}
                 >
-                  {mode.tag}
-                </span>
-              </div>
-              <p className="text-[15px] leading-relaxed text-muted-foreground">
-                {mode.body}
-              </p>
-            </div>
-            <ul className="flex flex-col gap-3.5 border-t border-dashed border-border pt-6">
-              {mode.points.map((point) => (
-                <li key={point.text} className="flex items-start gap-3">
-                  <Mark ok={point.ok} />
-                  <span
-                    className={cn(
-                      "text-[15px] leading-5",
-                      point.ok ? "text-foreground" : "text-muted-foreground"
-                    )}
-                  >
-                    {point.text}
+                  <span className="flex flex-col gap-2">
+                    <Tag mode={mode}>{playback.modes[mode].tag}</Tag>
+                    <span className="font-display text-2xl tracking-tighter text-foreground md:text-4xl">
+                      {playback.modes[mode].name}
+                    </span>
+                    <span className="max-w-xs text-[15px] leading-relaxed text-muted-foreground">
+                      {playback.modes[mode].body}
+                    </span>
                   </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-
-      {/* Requirements */}
-      <div className="grid grid-cols-1 border-t border-dashed border-border md:grid-cols-2 md:divide-x md:divide-dashed md:divide-border">
-        <div className={cn(landingBlockPad, "flex flex-col gap-2 py-10")}>
-          <h3 className="font-display text-2xl font-normal tracking-tighter md:text-3xl">
-            {compat.title}
-          </h3>
-          <p className="text-[15px] leading-relaxed text-muted-foreground">
-            {compat.lead} {compat.note}
-          </p>
-        </div>
-        <div className="min-w-0 border-t border-dashed border-border md:border-t-0">
-          <table className="w-full table-fixed text-left">
-            <colgroup>
-              <col />
-              <col className="w-24 lg:w-32" />
-              <col className="w-24 lg:w-32" />
-            </colgroup>
-            <thead>
-              <tr className="border-b border-dashed border-border">
-                <th scope="col" className={cn(landingBlockPad, "py-4 font-normal")}>
-                  <span className="sr-only">Feature</span>
                 </th>
-                {compat.columns.map((column) => (
-                  <th
-                    key={column}
-                    scope="col"
-                    className="px-3 py-4 text-sm font-normal whitespace-nowrap text-muted-foreground"
-                  >
-                    {column}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-dashed divide-border">
-              {compat.rows.map((row) => (
-                <tr key={row.feature}>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-dashed divide-border max-md:block">
+            {playback.rows.map((row) => {
+              const Icon = ROW_ICONS[row.icon] ?? Cpu
+              return (
+                <tr key={row.moment} className="group max-md:block">
                   <th
                     scope="row"
-                    className={cn(
-                      landingBlockPad,
-                      "py-4 text-[15px] font-normal text-foreground"
-                    )}
+                    className={cn(landingBlockPad, "py-5 align-top font-normal max-md:block max-md:pb-0")}
                   >
-                    {row.feature}
+                    <span className="flex items-center gap-3 text-[15px] text-muted-foreground transition-colors group-hover:text-foreground">
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border">
+                        <Icon className="size-4" aria-hidden />
+                      </span>
+                      {row.moment}
+                    </span>
                   </th>
-                  {row.values.map((value, index) => (
-                    <td key={`${row.feature}-${index}`} className="px-3 py-4">
-                      <MatrixValue value={value} />
-                    </td>
-                  ))}
+                  {MODES.map((mode) => {
+                    const cell = row[mode]
+                    return (
+                      <td
+                        key={mode}
+                        className={cn(
+                          landingBlockPad,
+                          "py-5 align-middle max-md:pt-3 md:border-l md:border-dashed md:border-border",
+                          mode === "system" && "md:bg-card/70",
+                          columnVisibility(mode)
+                        )}
+                      >
+                        <span className="flex items-start gap-3">
+                          {cell.ok === null ? null : <Mark ok={cell.ok} />}
+                          <span
+                            className={cn(
+                              "text-[15px] leading-5",
+                              cell.ok === false ? "text-muted-foreground" : "text-foreground"
+                            )}
+                          >
+                            {cell.text}
+                          </span>
+                        </span>
+                      </td>
+                    )
+                  })}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              )
+            })}
+          </tbody>
+        </table>
       </div>
     </MarketingSection>
   )

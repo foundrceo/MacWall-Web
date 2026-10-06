@@ -12,7 +12,6 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-import { Collections } from "./_components/collections"
 import { Everything } from "./_components/everything"
 import { Features } from "./_components/features"
 import { Hero } from "./_components/hero"
@@ -109,8 +108,6 @@ export default async function Page() {
       <Reviews />
       <MarketingSeparator />
       <Playback />
-      <MarketingSeparator />
-      <Collections />
       <MarketingSeparator />
       <MarketingFaqSection items={macwallHomeFaq} />
     </>
