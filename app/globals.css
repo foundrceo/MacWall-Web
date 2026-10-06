@@ -166,6 +166,10 @@
   .marketing-page {
     @apply min-h-svh w-full min-w-0 max-w-full bg-background text-white;
     overflow-wrap: break-word;
+    /* Section corner crosses sit 12px outside the column; where the column
+       is as wide as the viewport (1024, 1280) they would scroll the page
+       sideways. clip, not hidden, so position: sticky keeps working. */
+    overflow-x: clip;
     font-feature-settings: "ss07", "ss08", "liga" 0;
   }
 
@@ -550,6 +554,108 @@
 
   .mw-marquee-track > [aria-hidden] {
     display: none;
+  }
+}
+
+/* How-it-works step visuals: the search caret blinks, and the Set button
+   loops Set → Downloading (filling) → Wallpaper set over 7s. */
+.mw-caret {
+  animation: mw-caret 1.1s steps(1) infinite;
+}
+
+@keyframes mw-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.mw-set-state {
+  animation-duration: 7s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-out;
+}
+
+.mw-set-state-1 {
+  animation-name: mw-set-state-1;
+}
+
+.mw-set-state-2 {
+  animation-name: mw-set-state-2;
+}
+
+.mw-set-state-3 {
+  animation-name: mw-set-state-3;
+}
+
+.mw-set-fill {
+  animation: mw-set-fill 7s linear infinite;
+}
+
+@keyframes mw-set-state-1 {
+  0%,
+  30% {
+    opacity: 1;
+  }
+  34%,
+  96% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes mw-set-state-2 {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  34%,
+  64% {
+    opacity: 1;
+  }
+  68%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes mw-set-state-3 {
+  0%,
+  64% {
+    opacity: 0;
+  }
+  68%,
+  94% {
+    opacity: 1;
+  }
+  98%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes mw-set-fill {
+  0%,
+  32% {
+    width: 0%;
+  }
+  64%,
+  100% {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-caret,
+  .mw-set-state,
+  .mw-set-fill {
+    animation: none;
+  }
+
+  .mw-set-state-2,
+  .mw-set-state-3 {
+    opacity: 0;
   }
 }
 

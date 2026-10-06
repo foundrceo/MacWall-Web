@@ -2,7 +2,7 @@ import { macwall } from "@/lib/macwall-site"
 import { marketingAiSummaryLinks } from "@/lib/marketing-ai-summary"
 import { cn } from "@/lib/utils"
 
-function ChatGptIcon({ className }: Readonly<{ className?: string }>) {
+export function ChatGptIcon({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
       className={className}
@@ -21,7 +21,7 @@ function ChatGptIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
-function GeminiIcon({ className }: Readonly<{ className?: string }>) {
+export function GeminiIcon({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
       className={className}
@@ -40,7 +40,7 @@ function GeminiIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
-function PerplexityIcon({ className }: Readonly<{ className?: string }>) {
+export function PerplexityIcon({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
       className={className}
@@ -59,67 +59,56 @@ function PerplexityIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
+/** 28px round targets around 14px icons; the row's -7px edge keeps the
+    last icon flush with the content edge. */
 const aiSummaryLinkClass =
-  "inline-flex items-center justify-center text-marketing-muted transition-colors hover:text-foreground"
+  "inline-flex size-7 items-center justify-center rounded-full text-marketing-muted transition-colors outline-none hover:bg-white/[0.06] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+
+const providers = [
+  { key: "chatgpt", name: "ChatGPT", Icon: ChatGptIcon },
+  { key: "gemini", name: "Gemini", Icon: GeminiIcon },
+  { key: "perplexity", name: "Perplexity", Icon: PerplexityIcon },
+] as const
+
+/** The assistants that can summarize MacWall, with their deep links. */
+export const aiSummaryProviders = providers.map((provider) => ({
+  ...provider,
+  href: marketingAiSummaryLinks[provider.key].href,
+  label: marketingAiSummaryLinks[provider.key].label,
+}))
 
 type MarketingFooterAiSummaryProps = Readonly<{
   className?: string
+  /** Overrides the label's type, to match the row it sits in. */
+  labelClassName?: string
 }>
 
+/** Deep links that ask an AI assistant to summarize MacWall: label, icons. */
 export default function MarketingFooterAiSummary({
   className,
+  labelClassName,
 }: MarketingFooterAiSummaryProps) {
   const links = marketingAiSummaryLinks
 
   return (
-    <div
-      className={cn(
-        "flex items-center justify-center gap-4 pb-8 md:pb-10",
-        className
-      )}
-    >
-      <span
-        aria-hidden
-        className="hidden h-px min-w-0 flex-1 border-t border-dashed border-border sm:block"
-      />
-      <div className="flex min-w-0 shrink-0 flex-col items-center gap-3 sm:flex-row sm:gap-4">
-        <span className="text-center text-[13px] leading-snug text-marketing-muted sm:text-[14px]">
-          Get an AI summary of {macwall.name}
-        </span>
-        <div className="flex items-center gap-3">
+    <div className={cn("flex items-center gap-1.5", className)}>
+      <span className={cn("text-[13px] leading-snug text-white/45", labelClassName)}>
+        Get an AI summary of {macwall.name}
+      </span>
+      <div className="-my-1.5 -mr-[7px] flex items-center">
+        {providers.map(({ key, Icon }) => (
           <a
-            href={links.chatgpt.href}
+            key={key}
+            href={links[key].href}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={links.chatgpt.label}
+            aria-label={links[key].label}
             className={aiSummaryLinkClass}
           >
-            <ChatGptIcon />
+            <Icon />
           </a>
-          <a
-            href={links.gemini.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={links.gemini.label}
-            className={aiSummaryLinkClass}
-          >
-            <GeminiIcon />
-          </a>
-          <a
-            href={links.perplexity.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={links.perplexity.label}
-            className={aiSummaryLinkClass}
-          >
-            <PerplexityIcon />
-          </a>
-        </div>
+        ))}
       </div>
-      <span
-        aria-hidden
-        className="hidden h-px min-w-0 flex-1 border-t border-dashed border-border sm:block"
-      />
     </div>
   )
 }

@@ -15,11 +15,9 @@ import { Categories } from "./_components/categories"
 import { Everything } from "./_components/everything"
 import { Features } from "./_components/features"
 import { Hero } from "./_components/hero"
-import { HowItWorks } from "./_components/how-it-works"
 import { Pillars } from "./_components/pillars"
 import { Playback } from "./_components/playback"
 import { Reviews } from "./_components/reviews"
-import { Signature } from "./_components/signature"
 
 const PAGE_DESCRIPTION =
   "Live wallpapers for Mac: 1,000+ 4K animated wallpapers on your desktop, Lock Screen and screen saver (macOS 26). Native app, free 24-hour trial, one payment."
@@ -90,10 +88,8 @@ export default async function Page() {
       <JsonLd payload={faqPageJsonLd([...HOME_FAQ])} />
       <Hero />
       <Categories />
-      <HowItWorks />
-      <Features />
+      <Features variant="rows" />
       <Everything />
-      <Signature />
       <Pillars />
       <Reviews />
       <Playback />

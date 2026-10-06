@@ -40,7 +40,7 @@ export default async function MarketingLayout({
             <MarketingSiteChrome />
             <main
               id="main-content"
-              className="marketing-main-offset flex flex-1 flex-col divide-y divide-dashed divide-border border-dashed sm:border-b"
+              className="marketing-main-offset flex flex-1 flex-col divide-y divide-dashed divide-border"
             >
               {children}
               <MarketingShellEnd />
