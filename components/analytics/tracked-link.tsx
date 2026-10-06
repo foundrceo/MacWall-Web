@@ -17,6 +17,7 @@ import type {
   SiteAnalyticsMetadata,
 } from "@/lib/analytics/events"
 import { withMarketingAttribution } from "@/lib/analytics/marketing-attribution"
+import { announceDownloadStarted } from "@/lib/install-guide-event"
 import { trackMetaInitiateCheckout } from "@/lib/analytics/meta-client"
 import { markCheckoutStartedInSession } from "@/lib/analytics/retargeting"
 import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
@@ -154,17 +155,16 @@ export function TrackedLink({
     const nextHref = withAnalyticsSessionHref(href)
     event.currentTarget.href = nextHref
 
-    if (
-      isExternalHref ||
-      nextHref === href ||
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey
-    ) {
-      return
-    }
+    const plainClick =
+      event.button === 0 &&
+      !event.metaKey &&
+      !event.ctrlKey &&
+      !event.shiftKey &&
+      !event.altKey
+    // The DMG downloads without leaving the page; show how to install it.
+    if (plainClick && !isExternalHref) announceDownloadStarted()
+
+    if (isExternalHref || nextHref === href || !plainClick) return
 
     event.preventDefault()
     window.location.assign(nextHref)
