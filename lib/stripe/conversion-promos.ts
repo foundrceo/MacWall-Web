@@ -14,28 +14,6 @@ export type ConversionPromoCode = (typeof CONVERSION_PROMO_CODES)[number]
 
 const ALLOWLIST = new Set<string>(CONVERSION_PROMO_CODES)
 
-/**
- * Percent off per code, matching the live Stripe coupons and Whop promo codes
- * (checked 2026-10-02). Stripe and Whop apply codes themselves; Cashfree has
- * no coupon field, so India's order amount is discounted with this table.
- * WALL50 exists on neither gateway, so it gives nothing anywhere.
- */
-export const CONVERSION_PROMO_PERCENT_OFF: Partial<
-  Record<ConversionPromoCode, number>
-> = {
-  MAC10: 10,
-  WALL10: 10,
-  X9K4Q2MH: 20,
-  R7N2WP8J: 20,
-  T4V8CL6Y: 30,
-  B3H9KF5Q: 30,
-}
-
-export function conversionPromoPercentOff(code: string | null): number {
-  if (!code) return 0
-  return CONVERSION_PROMO_PERCENT_OFF[code as ConversionPromoCode] ?? 0
-}
-
 const TIMED_PROMOS = new Set(["X9K4Q2MH", "R7N2WP8J", "T4V8CL6Y", "B3H9KF5Q"])
 
 const FLOOR_PROMO = "MAC10"

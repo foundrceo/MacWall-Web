@@ -1,6 +1,6 @@
 # macwall-web
 
-this repo is the **website** for [macwall.app](https://macwall.app) — marketing pages, download, pricing, whop checkout, and license activation.
+this repo is the **website** for [macwall.app](https://macwall.app) — marketing pages, download, pricing, stripe checkout, and license activation.
 
 it is **not** the native mac app. the desktop app lives in a separate private repo. this open source project is web only.
 
@@ -51,7 +51,7 @@ npm run build
 
 ## stack
 
-next.js, typescript, tailwind, whop, supabase, vercel, cloudflare r2 for media/installers.
+next.js, typescript, tailwind, stripe, supabase, vercel, cloudflare r2 for media/installers.
 
 ## credits
 

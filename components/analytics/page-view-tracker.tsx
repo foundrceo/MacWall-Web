@@ -12,7 +12,6 @@ import {
   captureTikTokClickIdFromUrl,
   trackTikTokViewContent,
 } from "@/lib/analytics/tiktok-client"
-import { trackWhopEvent } from "@/lib/analytics/whop-client"
 import { captureMarketingAttributionFromUrl } from "@/lib/analytics/marketing-attribution"
 
 const VIEW_CONTENT_PATHS = new Set(["/", "/pricing", "/tiktok"])
@@ -30,7 +29,6 @@ export function PageViewTracker() {
     if (VIEW_CONTENT_PATHS.has(pathname)) {
       trackMetaViewContent()
       trackTikTokViewContent()
-      trackWhopEvent("view_content")
     }
   }, [pathname])
 

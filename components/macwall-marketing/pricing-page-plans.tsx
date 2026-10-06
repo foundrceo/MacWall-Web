@@ -25,6 +25,7 @@ import { useMarketingPricing } from "@/components/marketing/marketing-pricing-co
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import { PricingPlans } from "@/components/macwall-marketing/pricing-plans"
+import { StripeWordmark } from "@/components/macwall-marketing/stripe-wordmark"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
@@ -175,7 +176,12 @@ const TRUST_TILES: readonly Tile[] = [
   {
     icon: SecurityLockIcon,
     title: "Secure checkout",
-    body: "Powered by Whop. SSL encrypted.",
+    body: (
+      <span className="inline-flex items-center gap-1.5">
+        Powered by
+        <StripeWordmark className="h-[14px] text-zinc-400" />
+      </span>
+    ),
   },
   {
     icon: Mail01Icon,

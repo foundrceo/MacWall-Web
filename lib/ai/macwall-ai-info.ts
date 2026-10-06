@@ -122,7 +122,7 @@ export const macwallAiInfoPage: SeoContentPage = {
     },
     {
       type: "p",
-      text: "The annual plan is retired for new purchases. Regional pricing, launch discounts, taxes, currencies, multi-Mac packs, and promotions can change. Treat [the live pricing page](/pricing) and Whop checkout as authoritative for the amount a buyer will actually pay.",
+      text: "The annual plan is retired for new purchases. Regional pricing, launch discounts, taxes, currencies, multi-Mac packs, and promotions can change. Treat [the live pricing page](/pricing) and Stripe checkout as authoritative for the amount a buyer will actually pay.",
     },
     { type: "h2", text: "Strengths and boundaries" },
     {

@@ -530,7 +530,7 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
             { type: "h2", text: "Investing and activating" },
             {
               type: "p",
-              text: "Checkout runs through Whop; MacWall never handles card details. Secure payment is verified server-side before your license key is released, then one click activates it in the app. Full flow: [license and activation](/docs/license-and-activation).",
+              text: "Checkout runs through Stripe; MacWall never handles card details. Secure payment is verified server-side before your license key is released, then one click activates it in the app. Full flow: [license and activation](/docs/license-and-activation).",
             },
             { type: "h2", text: "Getting your money back" },
             {

@@ -18,7 +18,6 @@ import {
   macwallInstallerLatestPath,
   macwallLicenseActivationDeepLink,
 } from "@/lib/macwall-site"
-import { trackWhopEvent } from "@/lib/analytics/whop-client"
 import { prosePrimaryBtn } from "@/lib/marketing-prose-classes"
 import { cn } from "@/lib/utils"
 
@@ -47,40 +46,21 @@ function ActivateRedirectBody() {
     return trimmed && trimmed.length > 0 ? trimmed : null
   }, [searchParams])
 
-  // Whop and Cashfree return here with ?key=…&provider=…; the key only works
-  // once payment is confirmed, so it is verified like a Stripe session.
-  const provider = searchParams.get("provider")
-  const whopKey = useMemo(
-    () => (provider === "whop" || provider === "cashfree" ? urlKey : null),
-    [provider, urlKey]
-  )
-  const needsVerify = Boolean(sessionId || whopKey)
-
   const [verify, setVerify] = useState<VerifyState>(() =>
-    needsVerify ? { status: "loading" } : { status: "idle" }
+    sessionId ? { status: "loading" } : { status: "idle" }
   )
 
   useEffect(() => {
-    if (!sessionId && !whopKey) return
+    if (!sessionId) return
 
     let cancelled = false
-    const verifyUrl = sessionId
-      ? `/api/checkout/verify-session?session_id=${encodeURIComponent(sessionId)}`
-      : `/api/checkout/verify-session?provider=${provider}&key=${encodeURIComponent(whopKey ?? "")}`
-    const run = async (attempt = 1): Promise<void> => {
+    const run = async () => {
       try {
-        const res = await fetch(verifyUrl, { credentials: "same-origin" })
+        const res = await fetch(
+          `/api/checkout/verify-session?session_id=${encodeURIComponent(sessionId)}`,
+          { credentials: "same-origin" }
+        )
         if (cancelled) return
-        if (res.status === 202) {
-          // Paid at Whop but the webhook hasn't landed yet: poll ~90s.
-          if (attempt >= 45) {
-            setVerify({ status: "error" })
-            return
-          }
-          await new Promise((resolve) => setTimeout(resolve, 2000))
-          if (!cancelled) await run(attempt + 1)
-          return
-        }
         if (res.status === 402) {
           setVerify({ status: "unpaid" })
           return
@@ -121,12 +101,12 @@ function ActivateRedirectBody() {
     return () => {
       cancelled = true
     }
-  }, [provider, sessionId, urlKey, whopKey])
+  }, [sessionId, urlKey])
 
   const licenseKey =
     verify.status === "paid"
       ? verify.licenseKey
-      : !needsVerify
+      : !sessionId
         ? urlKey
         : null
 
@@ -135,7 +115,7 @@ function ActivateRedirectBody() {
     : macwallLicenseActivationDeepLink()
 
   const shouldTrackPurchase =
-    verify.status === "paid" || (!needsVerify && Boolean(urlKey))
+    verify.status === "paid" || (!sessionId && Boolean(urlKey))
 
   const conversionAmount =
     verify.status === "paid" && verify.amountMajor != null
@@ -146,10 +126,9 @@ function ActivateRedirectBody() {
 
   useEffect(() => {
     if (!licenseKey) return
-    if (needsVerify && verify.status !== "paid") return
-    trackWhopActivatedOnce(licenseKey)
+    if (sessionId && verify.status !== "paid") return
     window.location.replace(deepLink)
-  }, [deepLink, licenseKey, needsVerify, verify.status])
+  }, [deepLink, licenseKey, sessionId, verify.status])
 
   if (verify.status === "loading") {
     return (
@@ -157,8 +136,7 @@ function ActivateRedirectBody() {
         <div className="mx-auto max-w-[640px] py-16 text-center md:py-24">
           <SectionTitle as="h1">Confirming your purchase…</SectionTitle>
           <SectionLead className="mx-auto mt-4 max-w-[480px]">
-            Hang tight, we&apos;re confirming your payment. This can take a
-            few seconds.
+            Hang tight, we&apos;re verifying payment with Stripe.
           </SectionLead>
         </div>
       </MarketingContainer>
@@ -193,7 +171,7 @@ function ActivateRedirectBody() {
         <PurchaseConversionTracker
           amount={conversionAmount}
           currency={conversionCurrency}
-          verified={needsVerify}
+          verified={Boolean(sessionId)}
         />
       ) : null}
       <div className="mx-auto max-w-[640px] py-16 text-center md:py-24">
@@ -255,16 +233,4 @@ export default function MarketingActivateRedirect() {
       </Suspense>
     </MarketingRail>
   )
-}
-
-/** One `activated` per key per tab, so reloading /activate does not recount. */
-function trackWhopActivatedOnce(licenseKey: string) {
-  const storageKey = `mw_whop_activated_${licenseKey}`
-  try {
-    if (window.sessionStorage.getItem(storageKey)) return
-    window.sessionStorage.setItem(storageKey, "1")
-  } catch {
-    // Storage blocked: still report the activation.
-  }
-  trackWhopEvent("activated")
 }

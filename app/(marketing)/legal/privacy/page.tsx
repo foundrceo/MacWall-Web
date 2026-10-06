@@ -162,7 +162,7 @@ export default function LegalPrivacyPage() {
           </ul>
           <p>
             Our marketing website does use ad-measurement pixels (Meta, TikTok,
-            X, Google and Whop) to see which ads lead to downloads and
+            X and Google) to see which ads lead to downloads and
             purchases. Visitors in the EEA, UK and Switzerland are asked first,
             and browsers sending Global Privacy Control never load them. See the{" "}
             <Link href="/legal/cookies">Cookie Policy</Link>.

@@ -2,7 +2,6 @@ import { cookies } from "next/headers"
 import { unstable_cache } from "next/cache"
 import { NextResponse } from "next/server"
 
-import { isCashfreeIndiaEnabled } from "@/lib/cashfree/server"
 import { COUNTRY_COOKIE, isIndiaCountry } from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 import {
@@ -12,14 +11,8 @@ import {
   PRO_USD_CENTS,
   buildDefaultMarketingPricing,
   buildMarketingPricingFromLocalized,
-  type MarketingPriceBundle,
   type MarketingPricing,
 } from "@/lib/pricing/marketing-pricing"
-import {
-  conversionPromoPercentOff,
-  normalizeConversionPromo,
-  parseOfferUntil,
-} from "@/lib/stripe/conversion-promos"
 import {
   convertUsdCentsWithRate,
   formatMoney,
@@ -51,30 +44,15 @@ function normalizeCountryParam(value: string | null): string | null {
   return code
 }
 
-type PricingPromo = MarketingPriceBundle["promo"]
-
 async function resolvePricingForCountry(
-  country: string | null,
-  promo: PricingPromo = null
+  country: string | null
 ): Promise<MarketingPricing> {
   try {
-    // India on Cashfree: fixed rupee prices, no live conversion.
-    if (isIndiaCountry(country) && isCashfreeIndiaEnabled()) {
-      return buildMarketingPricingFromLocalized({
-        country,
-        permanentLocal: null,
-        proPlusLocal: null,
-        fixedIndiaInr: true,
-        promo,
-      })
-    }
-
     if (!country || country === "US") {
       return buildMarketingPricingFromLocalized({
         country: country ?? "US",
         permanentLocal: null,
         proPlusLocal: null,
-        promo,
       })
     }
 
@@ -84,7 +62,6 @@ async function resolvePricingForCountry(
         country,
         permanentLocal: null,
         proPlusLocal: null,
-        promo,
       })
     }
 
@@ -108,7 +85,6 @@ async function resolvePricingForCountry(
         locale: fx.locale,
         usdPerUnit: fx.usdPerUnit,
       },
-      promo,
     })
   } catch {
     return buildDefaultMarketingPricing()
@@ -116,11 +92,9 @@ async function resolvePricingForCountry(
 }
 
 const cachedPricingForCountry = unstable_cache(
-  async (countryKey: string) => {
-    const country = countryKey.split(":")[0]!
-    return resolvePricingForCountry(country === "_" ? null : country)
-  },
-  ["marketing-pricing-by-country-v11"],
+  async (countryKey: string) =>
+    resolvePricingForCountry(countryKey === "_" ? null : countryKey),
+  ["marketing-pricing-by-country-v10"],
   { revalidate: 300 }
 )
 
@@ -143,29 +117,8 @@ export async function GET(request: Request) {
       cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
     }))
 
-  // ?promo= links: the same validation as checkout (allowlist + expiry for
-  // timed codes), so shown prices always match what is charged.
-  const promoCode = normalizeConversionPromo(
-    url.searchParams.get("promo"),
-    parseOfferUntil(url.searchParams.get("until"))
-  )
-  const promo: PricingPromo = promoCode
-    ? {
-        code: promoCode,
-        percentOff: conversionPromoPercentOff(promoCode),
-        until: url.searchParams.get("until")?.trim().slice(0, 40) || null,
-      }
-    : null
-
-  // The India price depends on the gateway, so it is part of the key.
-  // Coupon responses are per-link and skip the shared cache.
-  const cacheKey =
-    isIndiaCountry(country) && isCashfreeIndiaEnabled()
-      ? `${country}:cashfree`
-      : (country ?? "_")
-  const pricing = promo
-    ? await resolvePricingForCountry(country, promo)
-    : await cachedPricingForCountry(cacheKey)
+  const cacheKey = country ?? "_"
+  const pricing = await cachedPricingForCountry(cacheKey)
 
   return NextResponse.json(pricing, {
     headers: {

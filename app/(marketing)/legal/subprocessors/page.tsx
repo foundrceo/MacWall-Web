@@ -44,8 +44,7 @@ export default function LegalSubprocessorsPage() {
             <li>
               <strong>Payments:</strong> {macwall.paymentProcessor} handles
               checkout, card processing, billing metadata, sales tax, and
-              related fraud checks. For purchases made in India,{" "}
-              {macwall.indiaPaymentProcessor} handles checkout and payments.
+              related fraud checks.
             </li>
             <li>
               <strong>Infrastructure:</strong> cloud hosting, databases, APIs,
@@ -83,12 +82,10 @@ export default function LegalSubprocessorsPage() {
               sales tax and fraud checks for new purchases.
             </li>
             <li>
-              <strong>{macwall.indiaPaymentProcessor}</strong>: checkout and
-              payments (UPI, cards, netbanking) for purchases made in India.
-            </li>
-            <li>
-              <strong>Stripe</strong>: payment records and refunds for purchases
-              made before {macwall.paymentProcessor} checkout.
+              <strong>Whop and Cashfree Payments</strong>: payment records and
+              refunds only, for purchases made while {macwall.paymentProcessor}{" "}
+              checkout was paused in October 2026. No new purchases go through
+              them.
             </li>
             <li>
               <strong>Vercel</strong>: website hosting and privacy-friendly web

@@ -1,6 +1,6 @@
 /**
  * Server-side purchase event to PostHog (US cloud), sent by the license
- * webhooks (Stripe, Whop, Cashfree) next to the TikTok/X pixels. Powers
+ * webhook (Stripe) next to the TikTok/X pixels. Powers
  * PostHog revenue analytics: `revenue` + `currency` on `purchase_completed`.
  *
  * The person is keyed by the buyer's email, with `email` set on it, so it
@@ -25,9 +25,9 @@ async function uuidFromSeed(seed: string): Promise<string> {
 
 export async function sendPostHogPurchase(args: {
   email: string
-  /** Payment id seed, e.g. `whop_<paymentId>`; same seed = same event. */
+  /** Payment id seed, e.g. `stripe_<eventId>`; same seed = same event. */
   eventIdSeed: string
-  provider: "stripe" | "whop" | "cashfree"
+  provider: "stripe"
   /** Major units in `currency` (e.g. 441.5 for ₹441.50, 12.99 for $12.99). */
   amount?: number | null
   currency?: string | null
