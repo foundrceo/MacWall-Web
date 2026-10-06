@@ -33,18 +33,31 @@ const heroSecondaryCapsule =
 const heroFilledCapsule =
   "inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-black no-underline shadow-none transition-colors outline-none hover:bg-white/90 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 
-export function HeroActions() {
+export function HeroActions({
+  location = "hero",
+  align = "center",
+}: Readonly<{
+  /** Analytics location for the download and license clicks. */
+  location?: string
+  /** start: buttons and caption hug the left, for split layouts. */
+  align?: "center" | "start"
+}> = {}) {
   const [proOpen, setProOpen] = useState(false)
 
   return (
     <>
       <div className="mw-when-desktop">
-        <div className="flex flex-col items-center">
+        <div
+          className={cn(
+            "flex flex-col",
+            align === "start" ? "items-start" : "items-center"
+          )}
+        >
           <div className="flex flex-row items-center gap-3">
             <TrackedDownloadButton
               href={macwallInstallerLatestPath}
               size="pill"
-              location="hero"
+              location={location}
               className={heroFilledCapsule}
             >
               <AppleIcon className="size-4" />
@@ -53,7 +66,7 @@ export function HeroActions() {
             <button
               type="button"
               onClick={() => {
-                trackSiteEventClient("pricing_click", { location: "hero" })
+                trackSiteEventClient("pricing_click", { location })
                 setProOpen(true)
               }}
               className={heroSecondaryCapsule}
