@@ -1,5 +1,3 @@
-"use client"
-
 import {
   Compass,
   FolderHeart,
@@ -15,8 +13,6 @@ import {
   Volume2,
   type LucideIcon,
 } from "lucide-react"
-import { motion, useReducedMotion } from "motion/react"
-import type { ReactNode } from "react"
 
 import { LandingSectionHeader } from "@/components/macwall-marketing/landing-section-header"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
@@ -38,28 +34,6 @@ const ICONS: Record<string, LucideIcon> = {
   help: LifeBuoy,
 }
 
-/** Blur-up reveal from the efferd demo; static for reduced motion. */
-function AnimatedContainer({
-  className,
-  delay = 0.1,
-  children,
-}: Readonly<{ className?: string; delay?: number; children: ReactNode }>) {
-  const reduce = useReducedMotion()
-  if (reduce) return <div className={className}>{children}</div>
-
-  return (
-    <motion.div
-      initial={{ filter: "blur(4px)", translateY: -8, opacity: 0 }}
-      whileInView={{ filter: "blur(0px)", translateY: 0, opacity: 1 }}
-      viewport={{ once: true }}
-      transition={{ delay, duration: 0.8 }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
 /** Every feature at a glance: efferd's grid with Aceternity's hover. */
 export function Everything() {
   const everything = macwallMarketingCopy.home.everything
@@ -71,8 +45,7 @@ export function Everything() {
         title={everything.title}
         lead={everything.lead}
       />
-      <AnimatedContainer
-        delay={0.2}
+      <div
         className="grid grid-cols-1 divide-x divide-y divide-dashed divide-border border-t border-dashed border-border sm:grid-cols-2 lg:grid-cols-4"
       >
         {everything.items.map((item, index) => (
@@ -92,7 +65,7 @@ export function Everything() {
             ) : null}
           </FeatureCard>
         ))}
-      </AnimatedContainer>
+      </div>
     </MarketingSection>
   )
 }
