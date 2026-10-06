@@ -88,7 +88,7 @@ export const macwallPricingCopy = {
 
   pro: {
     features: [
-      "800+ live wallpapers, most in 4K",
+      "1,000+ live wallpapers, most in 4K",
       "Bend: close the lid, desktop folds",
       "Live Lock Screen & Screen Saver (macOS 26+)",
       "Import your own videos",
@@ -237,7 +237,7 @@ export const macwallPricingCopy = {
     checkoutDetail: "Powered by Stripe · SSL encrypted",
     deliveryLabel: "License emailed instantly",
     deliveryDetail: "Your license key arrives in seconds",
-    guaranteeLabel: "800+ wallpapers",
+    guaranteeLabel: "1,000+ wallpapers",
     guaranteeDetail: "Full catalog unlocked with Pro",
     guaranteeHref: "/wallpapers",
     noSubLabel: "One payment, no subscription",

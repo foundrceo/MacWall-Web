@@ -251,7 +251,7 @@ export function WallpaperPurchaseBanner() {
                   Want this one on your desktop?
                 </p>
                 <p className="mt-1 font-sans text-[13px] leading-snug text-white/65">
-                  Pro unlocks all 800+ wallpapers on up to 3 Macs.{" "}
+                  Pro unlocks all 1,000+ wallpapers on up to 3 Macs.{" "}
                   {pricing.permanentPrice} once, no subscription.
                 </p>
                 <div className="mt-3">

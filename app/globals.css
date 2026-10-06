@@ -256,6 +256,8 @@
   html {
     @apply bg-background font-sans text-foreground;
     color-scheme: dark;
+    /* Anchor jumps (/#features) land below the sticky header, not under it. */
+    scroll-padding-top: var(--marketing-nav-height);
   }
 
   body {
@@ -413,6 +415,141 @@
   }
   to {
     transform: translateX(0);
+  }
+}
+
+/* Hero badge (`HeroBadge`): a shine around the border plus a shimmer
+   across the words, on the same 4s rhythm. The ring is the badge's own
+   1px border: the element covers the border box with 1px padding, and the
+   mask cuts the content box out, leaving only the ring. */
+
+/* Shine: a light rotates around the border, with a soft glow. */
+@property --mw-shine-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.mw-badge-shine {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  /* On the wrapper, so the glow survives the ring mask below. */
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.35));
+}
+
+.mw-badge-shine::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--mw-shine-angle),
+    transparent 0turn,
+    transparent 0.6turn,
+    rgba(255, 255, 255, 0.15) 0.76turn,
+    rgba(255, 255, 255, 0.95) 0.9turn,
+    transparent 1turn
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: mw-shine-spin 4s linear infinite;
+}
+
+@keyframes mw-shine-spin {
+  to {
+    --mw-shine-angle: 1turn;
+  }
+}
+
+/* Shimmer: a light glides across the words, then rests. */
+.mw-badge-shimmer {
+  color: transparent;
+  background: linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0.6) 40%,
+      #fff 50%,
+      rgba(255, 255, 255, 0.6) 60%
+    )
+    0 0 / 250% 100% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: mw-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes mw-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  55%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-badge-shine {
+    display: none;
+  }
+
+  .mw-badge-shimmer {
+    animation: none;
+    color: #fff;
+    background: none;
+  }
+}
+
+/* Category marquee: a row drifts endlessly with faded edges and pauses
+   under the pointer or keyboard focus. The track holds two identical halves, so
+   sliding it by -50% lands exactly where it started. */
+.mw-marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+}
+
+.mw-marquee-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  animation: mw-marquee var(--marquee-duration) linear infinite;
+}
+
+.mw-marquee:hover .mw-marquee-track,
+.mw-marquee:focus-within .mw-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes mw-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Still for reduced motion: one centered, wrapping set of links. */
+@media (prefers-reduced-motion: reduce) {
+  .mw-marquee {
+    mask-image: none;
+  }
+
+  .mw-marquee-track {
+    width: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: none;
+  }
+
+  .mw-marquee-track > [aria-hidden] {
+    display: none;
   }
 }
 

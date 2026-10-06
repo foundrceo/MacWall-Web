@@ -132,7 +132,7 @@ export const comparisonArticles: BlogArticle[] = [
       {
         question: "What is the best Wallpaper Engine alternative for Mac?",
         answer:
-          "MacWall: a native Swift app with hardware video decoding, 800+ curated 4K loops, MP4 and MOV imports, multi-display support, and live Lock Screen on macOS 26, for a one-time $12.99.",
+          "MacWall: a native Swift app with hardware video decoding, 1,000+ curated 4K loops, MP4 and MOV imports, multi-display support, and live Lock Screen on macOS 26, for a one-time $12.99.",
       },
     ],
   },

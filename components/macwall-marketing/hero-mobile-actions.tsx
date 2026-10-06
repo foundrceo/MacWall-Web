@@ -20,11 +20,12 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
-const heroOutlineCapsule =
-  "inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border-0 bg-muted/70 px-5 text-sm font-medium text-foreground no-underline shadow-none transition-colors hover:bg-muted"
+/** Full-width and 48px on phones: easy thumb targets when stacked. */
+const heroSecondaryCapsule =
+  "inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white/10 px-5 text-[15px] font-medium text-foreground no-underline transition-colors hover:bg-white/15"
 
 const heroFilledCapsule =
-  "inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-black no-underline shadow-none transition-opacity hover:opacity-90"
+  "inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-5 text-[15px] font-medium text-black no-underline shadow-none transition-colors hover:bg-white/90"
 
 export function HeroMobileActions({
   onGetLicense,
@@ -69,7 +70,7 @@ export function HeroMobileActions({
   }
 
   return (
-    <div className="flex w-full max-w-sm flex-col items-center">
+    <div className="mx-auto flex w-full max-w-sm flex-col items-center">
       <div className="flex w-full flex-col gap-2">
         <button
           type="button"
@@ -86,7 +87,7 @@ export function HeroMobileActions({
             trackSiteEventClient("pricing_click", { location: "hero_mobile" })
             onGetLicense()
           }}
-          className={heroOutlineCapsule}
+          className={heroSecondaryCapsule}
           aria-haspopup="dialog"
           onPointerEnter={preloadProModal}
           onFocus={preloadProModal}

@@ -41,7 +41,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 
-const SITE_DESCRIPTION_FALLBACK = `${macwall.tagline} Native Mac app with 800+ live loops (most in 4K), your own videos, every display, and Lock Screen on macOS 26. Free to try, then one payment. macOS 15+.`
+const SITE_DESCRIPTION_FALLBACK = `${macwall.tagline} Native Mac app with 1,000+ live loops (most in 4K), your own videos, every display, and Lock Screen on macOS 26. Free to try, then one payment. macOS 15+.`
 
 const SITE_TITLE_DEFAULT = macwall.fullTagline
 

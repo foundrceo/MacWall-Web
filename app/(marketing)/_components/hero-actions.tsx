@@ -26,11 +26,12 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
-const heroOutlineCapsule =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-full border-0 bg-muted/70 px-5 text-sm font-medium text-foreground no-underline shadow-none transition-colors hover:bg-muted"
+/** 44px tall: Apple's minimum tap height, in proportion with the 72px h1. */
+const heroSecondaryCapsule =
+  "inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white/10 px-5 text-sm font-medium text-foreground no-underline transition-colors outline-none hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-white/40"
 
 const heroFilledCapsule =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-black no-underline shadow-none transition-opacity hover:opacity-90"
+  "inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-black no-underline shadow-none transition-colors outline-none hover:bg-white/90 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 
 export function HeroActions() {
   const [proOpen, setProOpen] = useState(false)
@@ -39,14 +40,14 @@ export function HeroActions() {
     <>
       <div className="mw-when-desktop">
         <div className="flex flex-col items-center">
-          <div className="flex flex-row items-center gap-2">
+          <div className="flex flex-row items-center gap-3">
             <TrackedDownloadButton
               href={macwallInstallerLatestPath}
               size="pill"
               location="hero"
               className={heroFilledCapsule}
             >
-              <AppleIcon />
+              <AppleIcon className="size-4" />
               Download for Mac
             </TrackedDownloadButton>
             <button
@@ -55,7 +56,7 @@ export function HeroActions() {
                 trackSiteEventClient("pricing_click", { location: "hero" })
                 setProOpen(true)
               }}
-              className={heroOutlineCapsule}
+              className={heroSecondaryCapsule}
               aria-haspopup="dialog"
               onPointerEnter={preloadProModal}
               onFocus={preloadProModal}

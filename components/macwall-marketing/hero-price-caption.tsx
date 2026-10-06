@@ -11,8 +11,9 @@ export function HeroPriceCaption() {
   const pricing = useMarketingPricing()
 
   return (
-    <p className="mt-2 text-center text-[11px] leading-snug text-muted-foreground sm:text-[12px]">
-      Only from {pricing.permanentPrice} · 24-hour free trial
+    <p className="mt-4 text-center text-[13px] whitespace-nowrap text-muted-foreground">
+      Free for 24 hours, then{" "}
+      <span className="text-foreground">{pricing.permanentPrice}</span> once.
     </p>
   )
 }

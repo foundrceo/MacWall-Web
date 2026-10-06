@@ -1,7 +1,6 @@
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowUpRight } from "lucide-react"
 import { HeroActions } from "./hero-actions"
+import { HeroBadge } from "./hero-badge"
+import { HeroStage } from "./hero-stage"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 
@@ -9,34 +8,26 @@ export function Hero() {
   const ix = macwallMarketingCopy.interact
 
   return (
-    <MarketingSection className="relative flex min-h-[calc(100svh-var(--marketing-chrome-height))] w-full items-center overflow-hidden bg-background px-4 py-20 sm:px-16 sm:py-24">
-      <Image
-        alt=""
-        src="/images/shape-3.png"
-        width={314}
-        height={265}
-        priority
-        className="pointer-events-none absolute right-0 bottom-0 z-0 h-auto w-[min(90vw,28rem)] select-none sm:w-[min(72vw,36rem)]"
-      />
-      <div className="relative z-10 mx-auto flex flex-col items-center justify-center gap-8">
-        <Link
-          href={ix.chipHref}
-          className="group inline-flex h-8 items-center gap-2 rounded-full border border-border bg-muted/70 px-3.5 text-[13px] font-medium text-foreground transition-colors hover:bg-muted"
-        >
-          {ix.chip}
-          <ArrowUpRight className="size-3.5 transition-transform group-hover:-rotate-12" />
-        </Link>
-        <div className="flex flex-col items-center gap-4">
-          <h1 className="max-w-4xl text-center text-5xl font-normal tracking-tighter md:text-7xl">
-            Cinematic 4K live wallpapers
-            <br />
-            Built for Mac
-          </h1>
-          <p className="mx-auto max-w-xl text-center text-lg leading-relaxed tracking-tight text-muted-foreground md:text-xl">
-            {ix.heroLead}
-          </p>
+    <MarketingSection className="relative isolate overflow-hidden px-4 pt-14 pb-12 sm:px-8 sm:pt-20 sm:pb-16 lg:pt-24">
+      <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
+        <HeroBadge />
+
+        <h1 className="mt-6 text-[2.75rem] leading-[1.02] font-normal tracking-tighter text-balance sm:text-6xl md:text-7xl">
+          {ix.title}{" "}
+          <span className="text-muted-foreground md:block">{ix.titleMuted}</span>
+        </h1>
+
+        <p className="mt-5 max-w-2xl text-base leading-relaxed tracking-tight text-pretty text-muted-foreground sm:text-lg">
+          {ix.heroLead}
+        </p>
+
+        <div className="mt-8 w-full">
+          <HeroActions />
         </div>
-        <HeroActions />
+      </div>
+
+      <div className="mt-14 sm:mt-16">
+        <HeroStage />
       </div>
     </MarketingSection>
   )

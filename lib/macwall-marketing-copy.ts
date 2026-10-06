@@ -15,6 +15,8 @@ export const macwallMarketingCopy = {
     navSocials: "Community",
     navSupport: "Help",
     navPricing: "Pricing",
+    navFeatures: "Features",
+    navChangelog: "What's new",
     navAffiliate: "Affiliate",
     downloadCta: "Download free",
     logoAlt: `${macwall.name} logo`,
@@ -34,12 +36,13 @@ export const macwallMarketingCopy = {
     },
   },
   interact: {
-    chip: "Check: What's new",
-    chipHref: "/changelog",
-    title: "Cinematic 4K wallpapers. Built for Mac",
-    titleMuted: "4K video on the desktop, Lock Screen, and Screen Saver.",
+    chipTag: "New",
+    chip: "Music Sync is here",
+    chipHref: "#music-sync",
+    title: "Cinematic 4K live wallpapers,",
+    titleMuted: "built for Mac.",
     heroLead:
-      "MacWall is a native Mac app for 4K live wallpapers. One tap sets your desktop, Lock Screen and screen saver the way macOS does. It pauses behind full-screen apps and stays out of your way. Free for 24 hours, no card.",
+      "1,000+ wallpapers that move, on your desktop, Lock Screen and screen saver. A native app that pauses behind full-screen apps and barely touches your CPU.",
   },
   pricing: {
     buyCta: "Get Pro",
@@ -68,9 +71,10 @@ export const macwallMarketingCopy = {
   },
   landing: {
     catalogEyebrow: "Browse by genre",
-    browseTitle: "800+ live wallpapers",
+    browseTitle: "1,000+ live wallpapers",
     browseLead: "Anime, nature, cars, gaming, space. Preview here. Set in the app.",
     browseLink: "Open the gallery",
+    categoriesLabel: "Browse 1,000+ wallpapers by category",
     howEyebrow: "No account. No setup. About a minute.",
     howTitle: "Install, pick, and set",
     bend: {
@@ -149,8 +153,8 @@ export const macwallMarketingCopy = {
       {
         id: "browse",
         title: "Pick a wallpaper",
-        body: "800+ in 9 categories. Preview here or in the app, or press ⌘K.",
-        mark: "800+",
+        body: "1,000+ in 9 categories. Preview here or in the app, or press ⌘K.",
+        mark: "1,000+",
       },
       {
         id: "set",
