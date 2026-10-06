@@ -265,42 +265,53 @@ export const macwallMarketingCopy = {
     playback: {
       title: "Two ways to play",
       lead: "Pick one in Settings → Wallpaper → Playback. Switch any time.",
-      modes: [
-        {
+      switchLabel: "Show playback mode",
+      momentLabel: "Moment",
+      caption: "What each playback mode does",
+      modes: {
+        system: {
           name: "System Wallpaper",
           tag: "Recommended",
           body: "macOS plays your wallpaper itself, like one of its own.",
-          points: [
-            { ok: true, text: "Keeps playing after you quit or restart" },
-            { ok: true, text: "Desktop, Lock Screen and screen saver in sync" },
-            { ok: true, text: "Sound on the Lock Screen" },
-            { ok: false, text: "Lock Screen shows the same wallpaper" },
-          ],
         },
-        {
+        app: {
           name: "MacWall App",
           tag: "More control",
           body: "MacWall plays the desktop, behind your icons.",
-          points: [
-            { ok: true, text: "A different wallpaper on the Lock Screen" },
-            { ok: true, text: `Works on ${macwallMinimumMacOSVersion} too` },
-            { ok: false, text: "Desktop waits while MacWall is closed" },
-            { ok: false, text: "Lock Screen plays without sound" },
-          ],
+        },
+      },
+      rows: [
+        {
+          icon: "power",
+          moment: "You quit MacWall or restart",
+          system: { ok: true, text: "Keeps playing" },
+          app: { ok: false, text: "Desktop waits for MacWall" },
+        },
+        {
+          icon: "lock",
+          moment: "You lock your Mac",
+          system: { ok: true, text: "Lock Screen and screen saver match the desktop" },
+          app: { ok: true, text: "A different wallpaper on the Lock Screen" },
+        },
+        {
+          icon: "sound",
+          moment: "Sound on the Lock Screen",
+          system: { ok: true, text: "Plays" },
+          app: { ok: false, text: "Muted" },
+        },
+        {
+          icon: "wallpaper",
+          moment: "Separate Lock Screen wallpaper",
+          system: { ok: false, text: "Same as the desktop" },
+          app: { ok: true, text: "Yes" },
+        },
+        {
+          icon: "macos",
+          moment: "Your macOS",
+          system: { ok: null, text: "macOS 26" },
+          app: { ok: null, text: `${macwallMinimumMacOSVersion} and later` },
         },
       ],
-    },
-    compat: {
-      title: "What your Mac gets",
-      lead: "Apple silicon and Intel Macs.",
-      columns: [macwallMinimumMacOSVersion, "macOS 26+"] as const,
-      rows: [
-        { feature: "Live desktop", values: [true, true] },
-        { feature: "Live Lock Screen", values: ["Still", true] },
-        { feature: "Lock Screen music", values: [false, true] },
-        { feature: "Wallpaper per display", values: [true, true] },
-      ],
-      note: "Lock Screen includes the screen saver. Bend needs an Apple silicon MacBook.",
     },
   },
   footer: {

@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Compass,
   FolderHeart,
@@ -13,14 +15,13 @@ import {
   Volume2,
   type LucideIcon,
 } from "lucide-react"
+import { motion, useReducedMotion } from "motion/react"
+import type { ReactNode } from "react"
 
-import {
-  landingBlockPad,
-  LandingSectionHeader,
-} from "@/components/macwall-marketing/landing-section-header"
+import { LandingSectionHeader } from "@/components/macwall-marketing/landing-section-header"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
+import { FeatureCard } from "@/components/ui/grid-feature-cards"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
-import { cn } from "@/lib/utils"
 
 const ICONS: Record<string, LucideIcon> = {
   explore: Compass,
@@ -37,7 +38,29 @@ const ICONS: Record<string, LucideIcon> = {
   help: LifeBuoy,
 }
 
-/** Every feature at a glance: icon, name, one line. No media on purpose. */
+/** Blur-up reveal from the efferd demo; static for reduced motion. */
+function AnimatedContainer({
+  className,
+  delay = 0.1,
+  children,
+}: Readonly<{ className?: string; delay?: number; children: ReactNode }>) {
+  const reduce = useReducedMotion()
+  if (reduce) return <div className={className}>{children}</div>
+
+  return (
+    <motion.div
+      initial={{ filter: "blur(4px)", translateY: -8, opacity: 0 }}
+      whileInView={{ filter: "blur(0px)", translateY: 0, opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ delay, duration: 0.8 }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+/** Every feature at a glance: efferd's grid with Aceternity's hover. */
 export function Everything() {
   const everything = macwallMarketingCopy.home.everything
 
@@ -48,37 +71,28 @@ export function Everything() {
         title={everything.title}
         lead={everything.lead}
       />
-      <ul className="grid grid-cols-1 divide-x divide-y divide-dashed divide-border border-t border-dashed border-border sm:grid-cols-2 lg:grid-cols-4">
-        {everything.items.map((item) => {
-          const Icon = ICONS[item.icon] ?? Compass
-          return (
-            <li
-              key={item.title}
-              className={cn(
-                landingBlockPad,
-                "flex min-w-0 flex-col gap-5 py-8 transition-colors hover:bg-card/80"
-              )}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <span className="flex size-10 items-center justify-center rounded-full border border-border text-muted-foreground">
-                  <Icon className="size-4" strokeWidth={1.75} aria-hidden />
-                </span>
-                {"shortcut" in item ? (
-                  <kbd className="rounded-md border border-border px-2 py-0.5 font-sans text-xs text-muted-foreground">
-                    {item.shortcut}
-                  </kbd>
-                ) : null}
-              </div>
-              <div>
-                <h3 className="text-lg tracking-tight text-foreground">{item.title}</h3>
-                <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">
-                  {item.body}
-                </p>
-              </div>
-            </li>
-          )
-        })}
-      </ul>
+      <AnimatedContainer
+        delay={0.2}
+        className="grid grid-cols-1 divide-x divide-y divide-dashed divide-border border-t border-dashed border-border sm:grid-cols-2 lg:grid-cols-4"
+      >
+        {everything.items.map((item, index) => (
+          <FeatureCard
+            key={item.title}
+            glow={index >= everything.items.length - 4 ? "down" : "up"}
+            feature={{
+              title: item.title,
+              icon: ICONS[item.icon] ?? Compass,
+              description: item.body,
+            }}
+          >
+            {"shortcut" in item ? (
+              <kbd className="absolute top-6 right-6 rounded-md border border-dashed border-border px-1.5 py-0.5 font-sans text-[11px] text-muted-foreground">
+                {item.shortcut}
+              </kbd>
+            ) : null}
+          </FeatureCard>
+        ))}
+      </AnimatedContainer>
     </MarketingSection>
   )
 }
