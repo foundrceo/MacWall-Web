@@ -1,4 +1,7 @@
-import { getMarketingNavItems } from "@/lib/marketing-nav"
+import {
+  getMarketingNavItems,
+  getMarketingSecondaryNavItems,
+} from "@/lib/marketing-nav"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import {
   macwall,
@@ -59,6 +62,8 @@ export function getCommandPaletteStaticItems(): {
 
   const navKeywords: Record<string, string[]> = {
     "/wallpapers": ["gallery", "catalog", "live wallpaper", "browse"],
+    "/#features": ["lock screen", "screen saver", "music sync", "battery"],
+    "/docs": ["help", "support", "install", "license", "troubleshooting"],
     "/pricing": ["pro", "license", "buy", "upgrade"],
     "/learn": ["docs", "guides", "how it works", "explainers"],
     "/creator": [
@@ -75,8 +80,14 @@ export function getCommandPaletteStaticItems(): {
     "/affiliate": ["earn", "referral", "partner"],
   }
 
-  const navPages = getMarketingNavItems().map((item) =>
-    page(`page-${item.href.slice(1).replace(/\//g, "-")}`, item.label, item.href, {
+  // The changelog has its own entry below.
+  const navPages = [
+    ...getMarketingNavItems(),
+    ...getMarketingSecondaryNavItems().filter(
+      (item) => item.href !== "/changelog"
+    ),
+  ].map((item) =>
+    page(`page-${item.href.slice(1).replace(/[/#]/g, "-")}`, item.label, item.href, {
       keywords: navKeywords[item.href],
     })
   )

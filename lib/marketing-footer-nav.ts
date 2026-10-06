@@ -53,7 +53,7 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
         { label: foot.shop.pricing, href: "/pricing" },
         { label: foot.shop.download, href: "/download" },
         { label: "Bend", href: "/bend" },
-        { label: "Creator Program", href: "/creator" },
+        { label: "Reel Refund", href: "/creator" },
       ],
     },
     {

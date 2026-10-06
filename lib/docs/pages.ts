@@ -254,7 +254,7 @@ export const docsPages: DocsPage[] = [
       {
         question: "How many wallpapers are in the catalog?",
         answer:
-          "Over 800 curated loops, with new sets published regularly. Every download starts with a free 24-hour trial of the full catalog; after that, Pro keeps it unlocked.",
+          "Over 1,000 curated loops, with new sets published regularly. Every download starts with a free 24-hour trial of the full catalog; after that, Pro keeps it unlocked.",
       },
     ],
   }),
