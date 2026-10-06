@@ -6,6 +6,48 @@ import { MarketingSection } from "@/components/macwall-marketing/marketing-secti
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { cn } from "@/lib/utils"
 
+import { STEP_VISUALS, type HowStep } from "./how-it-works-visuals"
+
+function StepText({
+  step,
+  index,
+}: Readonly<{ step: HowStep; index: number }>) {
+  return (
+    <>
+      <span className="text-sm text-muted-foreground tabular-nums">
+        Step {index + 1}
+      </span>
+      <h3 className="mt-2 text-lg tracking-tight text-foreground">
+        {step.title}
+      </h3>
+    </>
+  )
+}
+
+function CardSteps({ steps }: Readonly<{ steps: readonly HowStep[] }>) {
+  return (
+    <ol
+      className={cn(
+        landingBlockPad,
+        "grid grid-cols-1 gap-10 pb-12 md:grid-cols-3 md:gap-10 md:pb-16 xl:gap-16"
+      )}
+    >
+      {steps.map((step, index) => {
+        const Visual = STEP_VISUALS[step.id]
+        return (
+          <li key={step.id} className="flex flex-col">
+            {/* A Mac window's shape; a floor keeps narrow tablet columns usable. */}
+            <div className="mb-6 aspect-[16/10] min-h-48">
+              <Visual />
+            </div>
+            <StepText step={step} index={index} />
+          </li>
+        )
+      })}
+    </ol>
+  )
+}
+
 export function HowItWorks() {
   const landing = macwallMarketingCopy.landing
 
@@ -16,39 +58,7 @@ export function HowItWorks() {
         title={landing.howTitle}
         lead={landing.howEyebrow}
       />
-      <ol className="grid grid-cols-1 divide-x divide-y divide-dashed divide-border border-t border-dashed border-border sm:grid-cols-2 xl:grid-cols-4">
-        {landing.steps.map((step, index) => (
-          <li
-            key={step.id}
-            className={cn(
-              landingBlockPad,
-              "flex min-w-0 flex-col gap-6 py-8 transition-colors hover:bg-card/80"
-            )}
-          >
-            <div className="flex items-center justify-between gap-3">
-              <span className="font-display text-3xl leading-none text-muted-foreground/60">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <span
-                className={cn(
-                  "inline-flex h-7 items-center rounded-md px-2.5 text-xs",
-                  step.id === "set"
-                    ? "bg-primary font-medium text-primary-foreground"
-                    : "border border-border text-foreground"
-                )}
-              >
-                {step.mark}
-              </span>
-            </div>
-            <div>
-              <h3 className="text-lg tracking-tight text-foreground">{step.title}</h3>
-              <p className="mt-1.5 text-[15px] leading-relaxed text-muted-foreground">
-                {step.body}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ol>
+      <CardSteps steps={landing.steps} />
     </MarketingSection>
   )
 }
