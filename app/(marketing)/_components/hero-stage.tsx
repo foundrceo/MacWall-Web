@@ -24,7 +24,7 @@ const HERO_VIDEO = {
 } as const
 
 /** Plays a touch slower than recorded, so the demo reads calmly. */
-const PLAYBACK_RATE = 0.75
+const PLAYBACK_RATE = 0.6
 
 /** Wide enough for the frame to outgrow 720p. */
 const WIDE_SCREEN_QUERY = "(min-width: 1024px)"
