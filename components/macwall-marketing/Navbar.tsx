@@ -1,5 +1,6 @@
 "use client"
 
+import { ArrowUpRight, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useId, useState } from "react"
@@ -18,6 +19,7 @@ import {
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import {
   getMarketingNavItems,
+  getMarketingSecondaryNavItems,
   isMarketingNavActive,
 } from "@/lib/marketing-nav"
 import { cn } from "@/lib/utils"
@@ -48,12 +50,28 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
-const navDownloadClass =
-  "inline-flex h-8 items-center gap-1.5 rounded-full bg-white px-3 text-[13px] font-medium text-black no-underline transition-opacity outline-none hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+const focusRing =
+  "outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+
+const navDownloadClass = cn(
+  "inline-flex h-8 items-center gap-1.5 rounded-full bg-white px-3.5 text-[13px] font-medium text-black no-underline transition-colors hover:bg-white/90",
+  focusRing
+)
+
+const iconButtonClass = cn(
+  "inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/[0.08] hover:text-foreground",
+  focusRing
+)
+
+/** Large full-width CTA used inside the mobile sheet. */
+const sheetCtaClass = cn(
+  "inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-5 text-[15px] font-medium text-black no-underline transition-colors hover:bg-white/90",
+  focusRing
+)
 
 function EarnBadge() {
   return (
-    <span className="rounded bg-white/10 px-1.5 py-0.5 text-[11px] leading-none font-normal text-white">
+    <span className="rounded-full bg-emerald-400/15 px-1.5 py-0.5 text-[10px] leading-none font-medium text-emerald-300">
       Earn 40%
     </span>
   )
@@ -63,24 +81,38 @@ export default function Navbar() {
   const pathname = usePathname()
   const menuId = useId()
   const ho = macwallMarketingCopy.hover
-  const [menuOpen, setMenuOpen] = useState(false)
+  /** The path the menu was opened on; navigating anywhere closes it. */
+  const [menuPath, setMenuPath] = useState<string | null>(null)
+  const menuOpen = menuPath === pathname
+  const closeMenu = () => setMenuPath(null)
 
-  const navItems = getMarketingNavItems().map((item) => ({
-    ...item,
-    active: isMarketingNavActive(pathname, item.href),
-  }))
-
-  useEffect(() => {
-    setMenuOpen(false)
-  }, [pathname])
+  const withActive = (items: ReturnType<typeof getMarketingNavItems>) =>
+    items.map((item) => ({
+      ...item,
+      active: isMarketingNavActive(pathname, item.href),
+    }))
+  const navItems = withActive(getMarketingNavItems())
+  const secondaryItems = withActive(getMarketingSecondaryNavItems())
 
   useEffect(() => {
     if (!menuOpen) return
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false)
+      if (event.key === "Escape") setMenuPath(null)
     }
+    const onResize = () => {
+      if (window.matchMedia("(min-width: 1024px)").matches) setMenuPath(null)
+    }
+    // The sheet covers the page, so the page underneath must not scroll.
+    const root = document.documentElement
+    const previousOverflow = root.style.overflow
+    root.style.overflow = "hidden"
     window.addEventListener("keydown", onKeyDown)
-    return () => window.removeEventListener("keydown", onKeyDown)
+    window.addEventListener("resize", onResize)
+    return () => {
+      root.style.overflow = previousOverflow
+      window.removeEventListener("keydown", onKeyDown)
+      window.removeEventListener("resize", onResize)
+    }
   }, [menuOpen])
 
   return (
@@ -90,130 +122,197 @@ export default function Navbar() {
           className={cn(
             landingShellRules,
             landingShellPad,
-            "flex h-14 items-center justify-between"
+            "flex h-14 items-center justify-between gap-4"
           )}
           aria-label="Main"
         >
-        <div className="flex min-w-0 items-center gap-8">
-          <MacWallBrandLink variant="nav" priority />
-          <ul className="hidden items-center gap-1 text-sm text-muted-foreground lg:flex">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "inline-flex items-center gap-1 p-2 transition-colors hover:text-foreground",
-                    item.active && "text-foreground"
-                  )}
-                >
-                  {item.label}
-                  {item.earnBadge ? <EarnBadge /> : null}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+          <div className="flex min-w-0 items-center gap-6">
+            <MacWallBrandLink variant="nav" priority />
+            <ul className="hidden items-center gap-0.5 lg:flex">
+              {navItems.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    aria-current={item.active ? "page" : undefined}
+                    className={cn(
+                      "inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-sm transition-colors",
+                      focusRing,
+                      item.active
+                        ? "bg-white/[0.08] text-foreground"
+                        : "text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
+                    )}
+                  >
+                    {item.label}
+                    {item.earnBadge ? <EarnBadge /> : null}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <a
-            href={macwall.discordInvite}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Join Discord"
-            className="inline-flex size-8 items-center justify-center rounded-full text-white/80 transition outline-none hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
-          >
-            <DiscordIcon className="size-[15px]" />
-          </a>
-          <TrackedDownloadButton
-            href={macwallInstallerLatestPath}
-            size="pill"
-            location="header_desktop"
-            className={navDownloadClass}
-          >
-            <AppleIcon />
-            Download
-          </TrackedDownloadButton>
-          <button
-            type="button"
-            className="flex size-8 items-center justify-center text-zinc-300 hover:text-white lg:hidden"
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={menuOpen}
-            aria-controls={menuId}
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            <svg viewBox="0 0 16 16" className="size-4" fill="none" aria-hidden>
-              {menuOpen ? (
-                <path
-                  d="M3.5 3.5 12.5 12.5M12.5 3.5 3.5 12.5"
-                  stroke="currentColor"
-                  strokeWidth="1.4"
-                  strokeLinecap="round"
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <a
+              href={macwall.discordInvite}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Join the MacWall Discord"
+              className={cn(iconButtonClass, "hidden sm:inline-flex")}
+            >
+              <DiscordIcon className="size-[15px]" />
+            </a>
+            {/* A .dmg is no use on a phone; phones get the menu's CTA instead. */}
+            <div className="mw-when-desktop ms-1">
+              <TrackedDownloadButton
+                href={macwallInstallerLatestPath}
+                size="pill"
+                location="header_desktop"
+                className={navDownloadClass}
+              >
+                <AppleIcon />
+                Download
+              </TrackedDownloadButton>
+            </div>
+            <button
+              type="button"
+              className={cn(iconButtonClass, "ms-0.5 text-foreground lg:hidden")}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
+              aria-controls={menuId}
+              onClick={() => setMenuPath(menuOpen ? null : pathname)}
+            >
+              <span className="relative block h-3 w-4" aria-hidden>
+                <span
+                  className={cn(
+                    "absolute inset-x-0 top-0.5 h-[1.5px] rounded-full bg-current transition-transform duration-200",
+                    menuOpen && "translate-y-[4px] rotate-45"
+                  )}
                 />
-              ) : (
-                <path
-                  d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"
-                  stroke="currentColor"
-                  strokeWidth="1.4"
-                  strokeLinecap="round"
+                <span
+                  className={cn(
+                    "absolute inset-x-0 bottom-0.5 h-[1.5px] rounded-full bg-current transition-transform duration-200",
+                    menuOpen && "-translate-y-[4px] -rotate-45"
+                  )}
                 />
-              )}
-            </svg>
-          </button>
-        </div>
+              </span>
+            </button>
+          </div>
         </nav>
       </div>
 
       {menuOpen ? (
         <div
           id={menuId}
-          className="absolute top-full left-0 w-full bg-card lg:hidden"
+          className="absolute inset-x-0 top-full h-[calc(100dvh-var(--marketing-chrome-height))] overflow-y-auto overscroll-contain bg-background animate-in fade-in-0 slide-in-from-top-2 duration-200 lg:hidden"
         >
-          <div className={LANDING_SHELL_CLASS}>
+          <div className={cn(LANDING_SHELL_CLASS, "flex min-h-full flex-col")}>
             <div
               className={cn(
                 landingShellRules,
                 landingShellPad,
-                "flex flex-col gap-1 py-3"
+                "flex flex-1 flex-col pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
               )}
             >
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMenuOpen(false)}
-                className="inline-flex items-center gap-2 py-2 text-[13px] text-zinc-300 hover:text-white"
-              >
-                {item.label}
-                {item.earnBadge ? <EarnBadge /> : null}
-              </Link>
-            ))}
-            <a
-              href={macwall.discordInvite}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setMenuOpen(false)}
-              className="inline-flex items-center gap-2 py-2 text-[13px] text-[#5865F2] hover:opacity-80"
-            >
-              <DiscordIcon />
-              Join Discord
-            </a>
-            <a
-              href={mailtoSupport}
-              onClick={() => setMenuOpen(false)}
-              className="py-2 text-[13px] text-zinc-300 hover:text-white"
-            >
-              {ho.links.supportMail.label}
-            </a>
-            <TrackedDownloadButton
-              href={macwallInstallerLatestPath}
-              size="pill"
-              location="header_mobile"
-              className={cn(navDownloadClass, "mt-2 w-fit")}
-              onClick={() => setMenuOpen(false)}
-            >
-              <AppleIcon />
-              Download
-            </TrackedDownloadButton>
+              <ul className="flex flex-col">
+                {navItems.map((item) => (
+                  <li
+                    key={item.href}
+                    className="border-b border-dashed border-border"
+                  >
+                    <Link
+                      href={item.href}
+                      onClick={closeMenu}
+                      aria-current={item.active ? "page" : undefined}
+                      className={cn(
+                        "flex items-center justify-between gap-3 py-4 text-lg tracking-tight transition-colors",
+                        item.active
+                          ? "text-foreground"
+                          : "text-foreground/80 hover:text-foreground"
+                      )}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        {item.label}
+                        {item.earnBadge ? <EarnBadge /> : null}
+                      </span>
+                      <ChevronRight
+                        className="size-4 text-muted-foreground"
+                        aria-hidden
+                      />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-6 grid grid-cols-2 gap-6 text-[15px] text-muted-foreground">
+                <div className="flex flex-col">
+                  <p className="pb-1 text-xs text-muted-foreground/70">
+                    Read
+                  </p>
+                  {secondaryItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={closeMenu}
+                      aria-current={item.active ? "page" : undefined}
+                      className={cn(
+                        "py-2 transition-colors hover:text-foreground",
+                        item.active && "text-foreground"
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+                <div className="flex min-w-0 flex-col">
+                  <p className="pb-1 text-xs text-muted-foreground/70">
+                    Talk to us
+                  </p>
+                  <a
+                    href={macwall.discordInvite}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={closeMenu}
+                    className="inline-flex items-center gap-2 py-2 transition-colors hover:text-foreground"
+                  >
+                    <DiscordIcon className="size-4" />
+                    Discord
+                    <ArrowUpRight className="size-3.5" aria-hidden />
+                  </a>
+                  <a
+                    href={mailtoSupport}
+                    onClick={closeMenu}
+                    className="truncate py-2 transition-colors hover:text-foreground"
+                  >
+                    {ho.links.supportMail.label}
+                  </a>
+                </div>
+              </div>
+
+              <div className="mt-auto pt-8">
+                <div className="mw-when-desktop">
+                  <TrackedDownloadButton
+                    href={macwallInstallerLatestPath}
+                    size="pill"
+                    location="header_mobile"
+                    className={sheetCtaClass}
+                    onClick={closeMenu}
+                  >
+                    <AppleIcon className="size-4" />
+                    Download for Mac
+                  </TrackedDownloadButton>
+                </div>
+                <div className="mw-when-mobile">
+                  <Link
+                    href="/pricing"
+                    onClick={closeMenu}
+                    className={sheetCtaClass}
+                  >
+                    See pricing
+                  </Link>
+                </div>
+                <p className="mt-3 text-center text-xs text-muted-foreground">
+                  Free for 24 hours. No card needed.
+                </p>
+              </div>
             </div>
           </div>
         </div>

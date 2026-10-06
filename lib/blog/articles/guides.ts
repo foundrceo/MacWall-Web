@@ -485,7 +485,7 @@ export const guideArticles: BlogArticle[] = [
       { type: "h2", text: "Make your Mac wallpaper move" },
       {
         type: "p",
-        text: "macOS cannot use a video as a desktop wallpaper on its own. A live wallpaper app fills that gap. [MacWall](/download) plays 4K video loops behind your windows with hardware decoding, pauses on battery and in full-screen apps, and has a catalog of 800+ curated loops, from [anime](/wallpapers/anime) and [cars](/wallpapers/cars) to [rain](/wallpapers/collections/rain) and [space](/wallpapers/space). Full steps: [how to set a live wallpaper on Mac](/blog/how-to-set-live-wallpaper-mac).",
+        text: "macOS cannot use a video as a desktop wallpaper on its own. A live wallpaper app fills that gap. [MacWall](/download) plays 4K video loops behind your windows with hardware decoding, pauses on battery and in full-screen apps, and has a catalog of 1,000+ curated loops, from [anime](/wallpapers/anime) and [cars](/wallpapers/cars) to [rain](/wallpapers/collections/rain) and [space](/wallpapers/space). Full steps: [how to set a live wallpaper on Mac](/blog/how-to-set-live-wallpaper-mac).",
       },
       { type: "h2", text: "Pick the right image size" },
       {

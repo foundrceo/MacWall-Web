@@ -97,7 +97,7 @@ export const bestLiveWallpaperMacPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "**The best live wallpaper app for Mac in 2026 is a native Swift app that decodes video in hardware, pauses on battery, and supports the Lock Screen on macOS 26.** MacWall, Backdrop, and Wallspace all qualify; MacWall adds an 800+ wallpaper catalog, your own video imports, and a one-time $12.99 price with no subscription.",
+      text: "**The best live wallpaper app for Mac in 2026 is a native Swift app that decodes video in hardware, pauses on battery, and supports the Lock Screen on macOS 26.** MacWall, Backdrop, and Wallspace all qualify; MacWall adds a 1,000+ wallpaper catalog, your own video imports, and a one-time $12.99 price with no subscription.",
     },
     {
       type: "h2",
@@ -139,7 +139,7 @@ export const bestLiveWallpaperMacPage: SeoContentPage = {
     {
       question: "What is the best live wallpaper app for Mac?",
       answer:
-        "MacWall is the best all-round live wallpaper app for Mac in 2026: native Swift, hardware video decode, auto-pause on battery, live Lock Screen on macOS 26, 800+ curated 4K loops, and a one-time $12.99 price. Backdrop and Wallspace are good native alternatives.",
+        "MacWall is the best all-round live wallpaper app for Mac in 2026: native Swift, hardware video decode, auto-pause on battery, live Lock Screen on macOS 26, 1,000+ curated 4K loops, and a one-time $12.99 price. Backdrop and Wallspace are good native alternatives.",
     },
     {
       question: "Is there a free live wallpaper app for Mac?",
@@ -172,7 +172,7 @@ export const wallpaperEngineAlternativePage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: "**No, Wallpaper Engine does not work on Mac.** It is a Windows app sold on Steam, and there is no macOS version. **MacWall** is the native Mac alternative for live video wallpapers: built in Swift for macOS, hardware-decoded, with a community catalog of 800+ curated 4K loops. $12.99 once, with free updates forever.",
+      text: "**No, Wallpaper Engine does not work on Mac.** It is a Windows app sold on Steam, and there is no macOS version. **MacWall** is the native Mac alternative for live video wallpapers: built in Swift for macOS, hardware-decoded, with a community catalog of 1,000+ curated 4K loops. $12.99 once, with free updates forever.",
     },
     {
       type: "h2",
