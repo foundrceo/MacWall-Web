@@ -5,17 +5,29 @@ import { useEffect, useRef, useState } from "react"
 import { HERO_VIDEO_ASPECT_CLASS } from "@/lib/marketing/hero-walkthrough-video.shared"
 import {
   MARKETING_HERO_VIDEO_MP4_720_PATH,
+  MARKETING_HERO_VIDEO_MP4_PATH,
   MARKETING_HERO_VIDEO_POSTER_PATH,
 } from "@/lib/marketing-assets-urls"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
-/** The app video in the hero frame. Swap these to change what plays. */
+/**
+ * The app video in the hero frame. Swap these to change what plays. The
+ * frame is up to 1024px wide, so wide screens get the 1080p encode (720p
+ * looks soft there on Retina) and everything else the 720p one.
+ */
 const HERO_VIDEO = {
-  src: MARKETING_HERO_VIDEO_MP4_720_PATH,
+  src: MARKETING_HERO_VIDEO_MP4_PATH,
+  smallSrc: MARKETING_HERO_VIDEO_MP4_720_PATH,
   poster: MARKETING_HERO_VIDEO_POSTER_PATH,
   aspectClass: HERO_VIDEO_ASPECT_CLASS,
 } as const
+
+/** Plays a touch slower than recorded, so the demo reads calmly. */
+const PLAYBACK_RATE = 0.75
+
+/** Wide enough for the frame to outgrow 720p. */
+const WIDE_SCREEN_QUERY = "(min-width: 1024px)"
 
 type NetworkInformation = { saveData?: boolean; effectiveType?: string }
 
@@ -38,6 +50,7 @@ export function HeroStage() {
   const [reduceMotion, setReduceMotion] = useState(false)
   const [inView, setInView] = useState(false)
   const [playing, setPlaying] = useState(false)
+  const [videoSrc, setVideoSrc] = useState<string>(HERO_VIDEO.smallSrc)
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -47,7 +60,13 @@ export function HeroStage() {
 
     let idleId: number | null = null
     const onLoad = () => {
-      const run = () => setAllowVideo(!prefersLightweightMedia())
+      const run = () => {
+        // Chosen once, before the video mounts, so it never swaps mid-play.
+        if (window.matchMedia(WIDE_SCREEN_QUERY).matches) {
+          setVideoSrc(HERO_VIDEO.src)
+        }
+        setAllowVideo(!prefersLightweightMedia())
+      }
       if (typeof window.requestIdleCallback === "function") {
         idleId = window.requestIdleCallback(run, { timeout: 1500 })
       } else {
@@ -110,12 +129,16 @@ export function HeroStage() {
           />
           {showVideo ? (
             <video
-              src={HERO_VIDEO.src}
+              src={videoSrc}
               autoPlay
               muted
               loop
               playsInline
               preload="auto"
+              onLoadedMetadata={(event) => {
+                event.currentTarget.defaultPlaybackRate = PLAYBACK_RATE
+                event.currentTarget.playbackRate = PLAYBACK_RATE
+              }}
               onPlaying={() => setPlaying(true)}
               className={cn(
                 "absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-700",
