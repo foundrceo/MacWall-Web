@@ -2,13 +2,13 @@
 
 import NumberFlow from "@number-flow/react"
 import {
-  Battery,
+  BatteryLow,
   Cpu,
   Image as ImageIcon,
   Lock,
   Maximize2,
   Monitor,
-  Plug,
+  Moon,
   type LucideIcon,
 } from "lucide-react"
 import { motion, useReducedMotion } from "motion/react"
@@ -77,10 +77,10 @@ function IdleVisual() {
 }
 
 const PAUSE_ICONS: { icon: LucideIcon; label: string; startAt: number }[] = [
-  { icon: Battery, label: "Battery", startAt: 0 },
-  { icon: Plug, label: "Unplug", startAt: 0.25 },
-  { icon: Maximize2, label: "Fullscreen", startAt: 0.5 },
-  { icon: Cpu, label: "High CPU", startAt: 0.75 },
+  { icon: Maximize2, label: "Full-screen app", startAt: 0 },
+  { icon: BatteryLow, label: "Low Power Mode", startAt: 0.25 },
+  { icon: Cpu, label: "Busy Mac", startAt: 0.5 },
+  { icon: Moon, label: "Display asleep", startAt: 0.75 },
 ]
 
 function OrbitIcon({

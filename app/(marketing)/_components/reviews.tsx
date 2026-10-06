@@ -4,6 +4,7 @@ import { AppleIcon, LaptopIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import type { IconSvgElement } from "@hugeicons/react"
 
+import { LandingSectionHeader } from "@/components/macwall-marketing/landing-section-header"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import { InfiniteSlider } from "@/components/ui/infinite-slider"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
@@ -18,18 +19,8 @@ export function Reviews({ className }: Readonly<{ className?: string }>) {
 
   return (
     <MarketingSection className={className} aria-labelledby="reviews-heading">
-      <div className="flex flex-col gap-10 pt-10">
-        <div className="flex flex-col gap-2 px-6">
-          <h2
-            id="reviews-heading"
-            className="font-display text-left text-3xl font-normal tracking-tighter whitespace-nowrap md:text-5xl"
-          >
-            {title}
-          </h2>
-          <p className="text-left text-lg leading-relaxed tracking-tight text-muted-foreground whitespace-nowrap">
-            {subtitle}
-          </p>
-        </div>
+      <div className="flex flex-col">
+        <LandingSectionHeader id="reviews-heading" title={title} lead={subtitle} />
 
         <div className="border-t border-dashed border-border bg-muted">
           <InfiniteSlider

@@ -1,12 +1,13 @@
 import { cva } from "class-variance-authority"
 
+import { LandingSectionHeader } from "@/components/macwall-marketing/landing-section-header"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 
 import { PillarVisual, type PillarVisualId } from "./pillar-visuals"
 
 const featureItemVariants = cva(
-  "flex flex-col justify-between gap-8 overflow-hidden p-6",
+  "flex flex-col justify-between gap-8 overflow-hidden px-6 py-8 lg:px-8",
   {
     variants: {
       size: {
@@ -29,16 +30,13 @@ export function Pillars() {
   }))
 
   return (
-    <MarketingSection className="relative w-full pt-10">
-      <div className="flex flex-col gap-10">
-        <div className="flex flex-col gap-2 px-6">
-          <h2 className="font-display max-w-xl text-left text-3xl font-normal tracking-tighter md:text-5xl">
-            {landing.pillarsTitle}
-          </h2>
-          <p className="max-w-xl text-left text-lg leading-relaxed tracking-tight text-muted-foreground lg:max-w-lg">
-            {landing.pillarsLead}
-          </p>
-        </div>
+    <MarketingSection className="relative w-full" aria-labelledby="pillars-heading">
+      <div className="flex flex-col">
+        <LandingSectionHeader
+          id="pillars-heading"
+          title={landing.pillarsTitle}
+          lead={landing.pillarsLead}
+        />
 
         <div className="w-full border-t border-dashed border-border">
           <div className="grid grid-cols-1 divide-x divide-y divide-dashed divide-border text-left sm:grid-cols-2 lg:grid-cols-3">
@@ -48,9 +46,9 @@ export function Pillars() {
                 key={item.id}
               >
                 <PillarVisual id={item.id as PillarVisualId} />
-                <div className="flex flex-col">
-                  <h3 className="text-xl tracking-tight">{item.title}</h3>
-                  <p className="max-w-xs text-base text-muted-foreground">
+                <div className="flex flex-col gap-1.5">
+                  <h3 className="text-lg tracking-tight">{item.title}</h3>
+                  <p className="max-w-xs text-[15px] leading-relaxed text-muted-foreground">
                     {item.body}
                   </p>
                 </div>

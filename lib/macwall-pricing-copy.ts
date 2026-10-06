@@ -94,7 +94,7 @@ export const macwallPricingCopy = {
       "Import your own videos",
       "Music Sync",
       "Multi-display, hardware decoded",
-      "Pauses on battery and full screen",
+      "Pauses behind full-screen apps",
       "One payment, lifetime updates",
     ],
   },
@@ -140,7 +140,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "How do I move my license to a new Mac?",
-      a: "Unlink the old Mac in Settings → Devices, then activate on the new one with the same key.",
+      a: "On the old Mac, open Settings → MacWall Pro and click Unlink. Then activate the new Mac with the same key.",
     },
     {
       q: "I'm on my phone. Can I still buy it?",
@@ -165,6 +165,58 @@ export const macwallPricingCopy = {
     {
       q: "Where do I get help?",
       a: `Email ${macwall.supportEmail} with your macOS version, Mac model, and a short screen recording if something looks off.`,
+    },
+  ] as const,
+
+  /** Questions support gets most (Jun–Oct 2026), answered as the app works today. */
+  supportFaq: [
+    {
+      q: "Will I be charged when the free trial ends?",
+      a: "No. The trial never asks for a card, so nothing is charged. It lasts 24 hours, once per Mac. After it ends you can still browse; live wallpapers need Pro.",
+    },
+    {
+      q: "Do I need an account to use my license?",
+      a: "No. There's no account or login. Click Activate in the license email on your Mac, or paste the key into Settings → MacWall Pro.",
+    },
+    {
+      q: "Can the desktop and Lock Screen have different wallpapers?",
+      a: "Yes, with MacWall App playback (Settings → Wallpaper → Playback): set your desktop wallpaper, then set another with Lock Screen Only. With System Wallpaper playback both show the same wallpaper.",
+    },
+    {
+      q: "Does the wallpaper keep playing if I quit MacWall or restart?",
+      a: "Yes, with System Wallpaper playback on macOS 26: macOS plays it itself, even after a restart. With MacWall App playback the desktop waits until MacWall opens again.",
+    },
+    {
+      q: "Do wallpapers have sound?",
+      a: "Some do; most are silent. Turn sound on from the player bar or the MacWall menu bar icon, and set the level in Settings → Sound.",
+    },
+    {
+      q: "Why did my wallpaper stop moving?",
+      a: "MacWall pauses behind full-screen apps, and, if you turn them on, in Low Power Mode or when your Mac is busy. Change these in Settings → Battery & Performance.",
+    },
+    {
+      q: "Can I use a different wallpaper on each display?",
+      a: "Yes. On a wallpaper's page, click the arrow next to Set Wallpaper and pick a display.",
+    },
+    {
+      q: "I clicked Set Wallpaper and nothing changed. What now?",
+      a: `Update to the latest ${macwall.name}, make sure it's in your Applications folder and opened from there, then set it again. If the message mentions System Wallpaper, one click switches to MacWall App playback. Still stuck? Use Help inside the app.`,
+    },
+    {
+      q: "Will it slow down my Mac or drain the battery?",
+      a: "Wallpapers are hardware-decoded and pause behind full-screen apps. You can also pause in Low Power Mode or when your Mac is busy, or lower quality on battery.",
+    },
+    {
+      q: "Can I download the video files?",
+      a: `No. Wallpapers stay inside ${macwall.name}. Each one downloads once, then plays offline.`,
+    },
+    {
+      q: "Is there a Windows or iPad version?",
+      a: `No. ${macwall.name} is made only for the Mac.`,
+    },
+    {
+      q: "How do I remove MacWall?",
+      a: "In the menu bar choose Stop Wallpaper, then Quit MacWall, then drag MacWall from Applications to the Trash. Your previous wallpaper comes back.",
     },
   ] as const,
 
@@ -231,3 +283,60 @@ export const macwallPricingCopy = {
     ] satisfies readonly PricingReview[],
   },
 } as const
+
+const pricingFaqByQuestion = new Map<string, { q: string; a: string }>(
+  macwallPricingCopy.faq.map((item) => [item.q, item])
+)
+const supportFaqByQuestion = new Map<string, { q: string; a: string }>(
+  macwallPricingCopy.supportFaq.map((item) => [item.q, item])
+)
+
+function faqItems(
+  source: Map<string, { q: string; a: string }>,
+  questions: readonly string[]
+) {
+  return questions.map((q) => {
+    const item = source.get(q)
+    if (!item) throw new Error(`Missing FAQ: ${q}`)
+    return item
+  })
+}
+
+/** Home page FAQ: what people ask support most, then buying questions. */
+export const macwallHomeFaq: readonly { q: string; a: string }[] = [
+  ...faqItems(pricingFaqByQuestion, [
+    "What can I do for free?",
+    "Is it really a one-time payment?",
+  ]),
+  ...faqItems(supportFaqByQuestion, [
+    "Will I be charged when the free trial ends?",
+  ]),
+  ...faqItems(pricingFaqByQuestion, [
+    "Where is my license key?",
+  ]),
+  ...faqItems(supportFaqByQuestion, [
+    "Do I need an account to use my license?",
+  ]),
+  ...faqItems(pricingFaqByQuestion, [
+    "What's the difference between Pro and Pro+?",
+    "Does Lock Screen video work on every macOS version?",
+  ]),
+  ...faqItems(supportFaqByQuestion, [
+    "Can the desktop and Lock Screen have different wallpapers?",
+    "Does the wallpaper keep playing if I quit MacWall or restart?",
+    "Do wallpapers have sound?",
+    "Why did my wallpaper stop moving?",
+    "Can I use a different wallpaper on each display?",
+    "I clicked Set Wallpaper and nothing changed. What now?",
+    "Will it slow down my Mac or drain the battery?",
+    "Can I download the video files?",
+    "Is there a Windows or iPad version?",
+  ]),
+  ...faqItems(pricingFaqByQuestion, [
+    "How do I move my license to a new Mac?",
+    "Can I get a refund without posting a Reel?",
+    "How do I get my money back for posting a Reel?",
+  ]),
+  ...faqItems(supportFaqByQuestion, ["How do I remove MacWall?"]),
+]
+

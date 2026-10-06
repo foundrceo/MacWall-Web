@@ -30,18 +30,23 @@ function FaqAnswer({
   )
 }
 
+type MarketingFaqItem = Readonly<{ q: string; a: string }>
+
 type MarketingFaqSectionProps = Readonly<{
   className?: string
   defaultOpenQuestion?: string | null
+  /** Questions to show; the pricing FAQ when omitted. */
+  items?: readonly MarketingFaqItem[]
 }>
 
 export default function MarketingFaqSection({
   className,
   defaultOpenQuestion = null,
+  items = pricingCopy.faq,
 }: MarketingFaqSectionProps) {
   const landing = macwallMarketingCopy.landing
   const defaultValue = defaultOpenQuestion
-    ? pricingCopy.faq.find((item) => item.q === defaultOpenQuestion)?.q
+    ? items.find((item) => item.q === defaultOpenQuestion)?.q
     : undefined
 
   return (
@@ -50,7 +55,7 @@ export default function MarketingFaqSection({
       className={className}
       innerClassName="grid lg:grid-cols-2 lg:divide-x lg:divide-y-0 lg:divide-dashed lg:divide-border"
     >
-      <div className="flex flex-col gap-2 px-6 py-10 md:py-14">
+      <div className="flex flex-col gap-3 px-6 py-12 md:py-16 lg:px-8">
         <h2 className="font-display max-w-xl text-left text-3xl font-normal tracking-tighter md:text-5xl">
           {pricingCopy.faqTitle}
         </h2>
@@ -70,7 +75,7 @@ export default function MarketingFaqSection({
         defaultValue={defaultValue}
         className="w-full divide-dashed divide-border border-t border-dashed border-border lg:border-t-0"
       >
-        {pricingCopy.faq.map((item) => (
+        {items.map((item) => (
           <AccordionItem key={item.q} value={item.q}>
             <AccordionTrigger className="rounded-none px-4 hover:bg-card hover:no-underline data-[state=open]:bg-card">
               {item.q}

@@ -1,6 +1,7 @@
 import Image from "next/image"
 
 import LockScreenFeatureVideo from "@/components/macwall-marketing/LockScreenFeatureVideo"
+import { LandingSectionHeader } from "@/components/macwall-marketing/landing-section-header"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import { ImageStreamHero } from "@/components/ui/image-stream-hero"
 import { fetchMarketingPopularStreamWallpapers } from "@/lib/fetch-marketing-feature-carousel-wallpapers"
@@ -28,17 +29,14 @@ export async function Features() {
   }))
 
   return (
-    <MarketingSection id="features">
-      <div className="flex flex-col items-start gap-2 px-6 pt-10 text-left">
-        <h2 className="font-display max-w-xl text-3xl font-normal tracking-tighter md:text-5xl">
-          {landing.featuresTitle}
-        </h2>
-        <p className="max-w-xl text-lg leading-relaxed tracking-tight text-muted-foreground">
-          {landing.featuresLead}
-        </p>
-      </div>
+    <MarketingSection id="features" aria-labelledby="features-heading">
+      <LandingSectionHeader
+        id="features-heading"
+        title={landing.featuresTitle}
+        lead={landing.featuresLead}
+      />
 
-      <div className="mt-10 grid border-t border-dashed border-border lg:grid-cols-2 lg:items-stretch lg:divide-x lg:divide-dashed lg:divide-border">
+      <div className="grid grid-cols-1 border-t border-dashed border-border lg:grid-cols-2 lg:items-stretch lg:divide-x lg:divide-dashed lg:divide-border">
         <div className="flex h-full flex-col">
           <div className={FEATURE_MEDIA_FRAME}>
             <Image
@@ -50,9 +48,9 @@ export async function Features() {
             />
           </div>
           <div className="flex flex-1 flex-col px-6 py-10 lg:px-8">
-            <h2 className="font-display text-3xl font-normal tracking-tighter md:text-4xl">
+            <h3 className="font-display text-3xl font-normal tracking-tighter md:text-4xl">
               {native.title}
-            </h2>
+            </h3>
             <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground md:text-lg">
               {native.lead} {native.bullets.join(". ")}.
             </p>
@@ -67,9 +65,9 @@ export async function Features() {
             />
           </div>
           <div className="flex flex-1 flex-col px-6 py-10 lg:px-8">
-            <h2 className="font-display text-3xl font-normal tracking-tighter md:text-4xl">
+            <h3 className="font-display text-3xl font-normal tracking-tighter md:text-4xl">
               {ls.title}
-            </h2>
+            </h3>
             <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground md:text-lg">
               {ls.strong}
               {ls.rest ? ` ${ls.rest}` : null}
@@ -79,14 +77,11 @@ export async function Features() {
       </div>
 
       <div className="border-t border-dashed border-border">
-        <div className="flex flex-col items-center gap-2 px-6 py-8 text-center">
-          <h2 className="font-display max-w-xl text-3xl font-normal tracking-tighter md:text-5xl">
-            {landing.browseTitle}
-          </h2>
-          <p className="max-w-xl text-lg leading-relaxed tracking-tight text-muted-foreground">
-            {landing.browseLead}
-          </p>
-        </div>
+        <LandingSectionHeader
+          align="center"
+          title={landing.browseTitle}
+          lead={landing.browseLead}
+        />
         <ImageStreamHero
           leftImages={leftImages}
           rightImages={rightImages}
