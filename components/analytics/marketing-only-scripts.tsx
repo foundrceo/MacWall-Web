@@ -14,6 +14,8 @@ function isMarketingPath(pathname: string | null): boolean {
   if (pathname.startsWith("/docs")) return false
   if (pathname.startsWith("/learn")) return false
   if (pathname.startsWith("/api")) return false
+  // The share-image source page is captured by a headless browser.
+  if (pathname.startsWith("/og-render")) return false
   return true
 }
 

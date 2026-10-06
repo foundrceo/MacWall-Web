@@ -5,6 +5,7 @@ import {
   macwallMinimumMacOSVersion,
   macwallMinimumMacOSRequirementOrLater,
 } from "@/lib/macwall-site"
+import { openGraphImagePath } from "@/lib/site-url"
 
 /**
  * Alternate names help Google resolve the "MacWall" entity to this software app
@@ -77,7 +78,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         description: `${macwall.name} is a native macOS app that brings live video wallpapers and a curated cloud catalog to Apple Silicon and Intel Macs running ${macwallMinimumMacOSVersion} or later, including live Lock Screen and Screen Saver wallpapers on ${macwallLockScreenMacOSVersion}+.`,
         url: origin,
         image: logoUrl,
-        screenshot: `${origin}/og.jpg`,
+        screenshot: `${origin}${openGraphImagePath}`,
         downloadUrl: `${origin}/download`,
         installUrl: `${origin}/download`,
         softwareVersion: macwall.currentVersion,
