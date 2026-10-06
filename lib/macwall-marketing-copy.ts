@@ -49,23 +49,6 @@ export const macwallMarketingCopy = {
     secondaryCta: "Get money back with a Reel",
     priceLine: `${macwall.pro.price} once, no subscription. Post a Reel and you can get all of it back.`,
   },
-  lockScreen: {
-    kicker: "PRO",
-    title: "Lock Screen ready",
-    strong: `Native Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion}. MacWall uses Apple's wallpaper system, so the Lock Screen plays the same video from the same moment, with sound.`,
-    rest: "Turn it off in Settings and your old wallpaper comes back.",
-    linkText: "Lock Screen requirements",
-  },
-  nativeMac: {
-    title: "Smooth on every Mac",
-    lead: "Written in Swift and Metal. Intel through M5. Near-idle CPU and a small memory footprint.",
-    bullets: [
-      "Pause behind full-screen apps",
-      "Pause in Low Power Mode",
-      "Pause when your Mac is busy",
-      "Lower quality on battery",
-    ] as const,
-  },
   underFooter: {
     title: "Try MacWall Now",
   },
@@ -110,8 +93,6 @@ export const macwallMarketingCopy = {
     closingMuted: "Free download. Pay once for Pro.",
     pillarsTitle: "Quiet on the Mac",
     pillarsLead: "Near idle. Pauses when a full-screen app covers it.",
-    featuresTitle: "One Mac app",
-    featuresLead: "Desktop, Lock Screen and screen saver from one app. Built in Swift, made for macOS.",
     featureLockTitle: "Lock Screen",
     featureLockBody: `Live video on ${macwallLockScreenMacOSVersion}. Apple's wallpaper APIs. No extra installers.`,
     featureNativeTitle: "Native settings",
@@ -143,30 +124,19 @@ export const macwallMarketingCopy = {
         body: "The file runs on the desktop, then gets out of the way.",
       },
     ] as const,
+    /** Three steps, to match the title. */
     steps: [
       {
         id: "download",
         title: "Install the app",
-        body: `Drag MacWall into Applications and open it from there. ${macwallMinimumMacOSVersion} or later.`,
-        mark: "Free 24h",
       },
       {
         id: "browse",
         title: "Pick a wallpaper",
-        body: "1,000+ in 9 categories. Preview here or in the app, or press ⌘K.",
-        mark: "1,000+",
       },
       {
         id: "set",
         title: "Click Set",
-        body: "It downloads once, then plays from your Mac. No internet needed.",
-        mark: "Set",
-      },
-      {
-        id: "menu",
-        title: "Use the menu bar",
-        body: "Play, pause, skip or stop without opening a window. ⌥⌘P.",
-        mark: "Menu bar",
       },
     ] as const,
     genres: [
@@ -252,18 +222,38 @@ export const macwallMarketingCopy = {
         },
       ] as const,
     },
-    signature: {
-      title: "Only on MacWall",
-      lead: "Two things you won't find in another wallpaper app.",
+    /** One section for the app's headline features; two only MacWall has. */
+    showcase: {
+      title: "One app. Every screen.",
+      lead: "Desktop, Lock Screen and screen saver from one native Mac app, plus two things no other wallpaper app does.",
+      exclusive: "Only on MacWall",
       music: {
         eyebrow: "Music Sync",
         title: "Your music, on your wallpaper",
-        body: `Apple Music or Spotify turns the desktop into a visual made from the song's cover, moving on the beat. Lock your Mac and a glass player or synced lyrics stay on screen (${macwallLockScreenMacOSVersion}).`,
+        body: "Apple Music or Spotify turns your desktop into a visual made from the song's cover, moving on the beat.",
+      },
+      lockScreen: {
+        eyebrow: "Lock Screen",
+        title: "Lock Screen ready",
+        body: `Lock Screen and screen saver play the same video from the same moment. ${macwallLockScreenMacOSVersion}.`,
+      },
+      native: {
+        eyebrow: "Native",
+        title: "Smooth on every Mac",
+        body: "Swift and Metal, Intel through M5.",
+        stat: "<1%",
+        statLabel: "CPU while 4K plays",
+        toggles: [
+          "Pause behind full-screen apps",
+          "Pause in Low Power Mode",
+          "Pause when your Mac is busy",
+          "Lower quality on battery",
+        ],
       },
       bend: {
         eyebrow: "Bend",
         title: "Close the lid. Watch it fold.",
-        body: "Bend reads your MacBook's lid angle and folds the desktop with it. Open it and everything snaps back. Apple silicon MacBooks; turn it on in Settings → General.",
+        body: "Bend follows your MacBook's lid angle and folds the desktop with it. Apple silicon MacBooks.",
       },
     },
     playback: {
@@ -319,6 +309,8 @@ export const macwallMarketingCopy = {
     },
   },
   footer: {
+    /** Under the brand in the footer. */
+    blurb: "Live wallpapers for your Mac's desktop and Lock Screen.",
     shopTitle: "Store",
     exploreTitle: "Explore",
     compareTitle: "Compare",

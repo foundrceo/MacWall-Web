@@ -40,7 +40,10 @@ export type MarketingFooterSocialLink = {
   href: string
 }
 
-/** Visible footer columns — Product → Resources → Company → Legal (funnel order). */
+/**
+ * Visible footer columns: Product → Resources → Legal, five links each.
+ * Download and Discord are left out: the footer shows them beside the brand.
+ */
 export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
   const foot = macwallMarketingCopy.footer
 
@@ -50,36 +53,22 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
       links: [
         { label: "Wallpapers", href: "/wallpapers" },
         { label: "Collections", href: "/wallpapers/collections" },
-        { label: foot.shop.pricing, href: "/pricing" },
-        { label: foot.shop.download, href: "/download" },
         { label: "Bend", href: "/bend" },
+        { label: foot.shop.pricing, href: "/pricing" },
         { label: "Reel Refund", href: "/creator" },
+        ...(AFFILIATE_UI_VISIBLE
+          ? [{ label: foot.connect.affiliate, href: "/affiliate" }]
+          : []),
       ],
     },
     {
       title: "Resources",
       links: [
-        { label: "Docs", href: "/docs" },
-        { label: "Learn", href: "/learn" },
+        { label: macwallMarketingCopy.header.navSupport, href: "/docs" },
+        { label: "Contact", href: "/contact" },
         { label: foot.explore.blog, href: "/blog" },
+        { label: "Learn", href: "/learn" },
         { label: "Changelog", href: "/changelog" },
-      ],
-    },
-    {
-      title: "Company",
-      links: [
-        {
-          label: "Contact",
-          href: "/contact",
-        },
-        {
-          label: "Discord",
-          href: macwall.discordInvite,
-          external: true,
-        },
-        ...(AFFILIATE_UI_VISIBLE
-          ? [{ label: foot.connect.affiliate, href: "/affiliate" }]
-          : []),
       ],
     },
     {
