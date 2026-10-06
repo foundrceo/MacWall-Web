@@ -102,8 +102,3 @@ supabase/.branches/
 
 # Local-only exports with customer data (never commit)
 /private/
-
-# Cashfree agent skills (installed locally)
-.claude/skills/
-.cursor/cashfree-skills/
-.gemini/skills/cashfree-skills/

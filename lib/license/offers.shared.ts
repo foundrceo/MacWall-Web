@@ -94,17 +94,6 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
 
 export const DEFAULT_LICENSE_OFFER_SLUG: LicenseOfferSlug = "permanent"
 
-/**
- * India on Cashfree is charged fixed rupee prices that mirror the India
- * catalog digit for digit: $4.99 → ₹499, $7.99 → ₹799, $12.99 → ₹1,299.
- * Not an exchange rate — a fixed ₹100 per catalog dollar.
- */
-export const INDIA_FIXED_INR_PER_USD = 100
-
-export function indiaFixedInr(indiaUsdCents: number): number {
-  return (indiaUsdCents * INDIA_FIXED_INR_PER_USD) / 100
-}
-
 /** Checkout cross-sell add-ons in USD cents, per region. */
 export const CHECKOUT_ADDONS = {
   /** Pro → Pro+ (+2 Macs). */

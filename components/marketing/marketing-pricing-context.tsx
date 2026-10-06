@@ -1,10 +1,7 @@
 "use client"
 
-import { useSearchParams } from "next/navigation"
 import {
   createContext,
-  Suspense,
-  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -30,7 +27,7 @@ const useIsomorphicLayoutEffect =
 const PRICING_FETCH_TIMEOUT_MS = 3000
 
 /** Last-known regional pricing — instant first paint for return visitors. */
-const PRICING_CACHE_KEY = "macwall-marketing-pricing-v1"
+const PRICING_CACHE_KEY = "macwall-marketing-pricing-v2"
 /** Local cache freshness — background revalidate still runs on every mount. */
 const PRICING_CACHE_TTL_MS = 24 * 60 * 60 * 1000
 /** Same-session refetch guard — provider remounts reuse memory first. */
@@ -43,7 +40,6 @@ type CachedPricing = {
 
 let memoryCache: CachedPricing | null = null
 let inflightFetch: Promise<MarketingPricing | null> | null = null
-let inflightQuery: string | null = null
 
 function isFresh(entry: CachedPricing | null, ttlMs: number): boolean {
   return (
@@ -74,45 +70,7 @@ function readCachedPricing(): MarketingPricing | null {
   }
 }
 
-/**
- * Coupon from a ?promo= link. The URL is the source of truth: a new code in
- * the URL replaces it, and a fresh page load without one clears it. It only
- * carries over while the buyer clicks around inside the site (the module
- * lives for one page load), so the discount and the buy links stay together.
- */
-type VisitPromo = { promo: string; until: string | null }
-
-let visitPromo: VisitPromo | null | undefined
-
-function promoFromSearch(search: string): VisitPromo | null {
-  const params = new URLSearchParams(search)
-  const promo = params.get("promo")?.trim()
-  if (!promo) return null
-  return {
-    promo: promo.slice(0, 40),
-    until: params.get("until")?.trim().slice(0, 40) || null,
-  }
-}
-
-/**
- * Current coupon. `search` is the URL query when the caller has it;
- * otherwise the live location is used on first read.
- */
-function readVisitPromo(search?: string): VisitPromo | null {
-  if (typeof window === "undefined") return null
-  const fromUrl = promoFromSearch(search ?? window.location.search)
-  if (fromUrl) visitPromo = fromUrl
-  else if (visitPromo === undefined) visitPromo = null
-  return visitPromo
-}
-
-function promoKey(promo: VisitPromo | null): string {
-  return promo ? `${promo.promo}|${promo.until ?? ""}` : ""
-}
-
 function writeCachedPricing(pricing: MarketingPricing) {
-  // Coupon prices belong to one visit; never show them on a later one.
-  if (pricing.promoCode) return
   const entry: CachedPricing = { at: Date.now(), pricing }
   memoryCache = entry
   try {
@@ -122,35 +80,20 @@ function writeCachedPricing(pricing: MarketingPricing) {
   }
 }
 
-async function fetchPricing(
-  promo: VisitPromo | null
-): Promise<MarketingPricing | null> {
-  // Pass cookie country when present; otherwise the API resolves geo itself
-  // (cookie / Vercel / IP / localhost egress) so INR hints still hydrate.
-  const country = getVisitorCountry()
-  const params = new URLSearchParams()
-  if (country) params.set("c", country)
-  // ?promo= links: the API validates the code, discounts the shown price
-  // where the gateway charges it (India) and adds it to every checkout link.
-  if (promo) {
-    params.set("promo", promo.promo)
-    if (promo.until) params.set("until", promo.until)
-  }
-  const qs = params.size ? `?${params.toString()}` : ""
-
-  // Dedupe concurrent mounts (StrictMode, fast remounts) into one request
-  // per query, so a changed code never reuses the old code's request. The
-  // request owns its timeout: a mount that unmounts must not abort the
-  // fetch another mount is waiting on.
-  if (!inflightFetch || inflightQuery !== qs) {
-    inflightQuery = qs
+async function fetchPricing(signal: AbortSignal): Promise<MarketingPricing | null> {
+  // Dedupe concurrent mounts (StrictMode, fast remounts) into one request.
+  if (!inflightFetch) {
     inflightFetch = (async () => {
       try {
+        // Pass cookie country when present; otherwise the API resolves geo itself
+        // (cookie / Vercel / IP / localhost egress) so INR hints still hydrate.
+        const country = getVisitorCountry()
+        const qs = country ? `?c=${encodeURIComponent(country)}` : ""
         const res = await fetch(`/api/pricing${qs}`, {
           credentials: "same-origin",
           headers: { Accept: "application/json" },
           cache: "no-store",
-          signal: AbortSignal.timeout(PRICING_FETCH_TIMEOUT_MS),
+          signal,
         })
         if (!res.ok) return null
         const data = (await res.json()) as MarketingPricing
@@ -159,29 +102,11 @@ async function fetchPricing(
         // Timeout / offline — caller keeps SSR/default pricing.
         return null
       } finally {
-        if (inflightQuery === qs) {
-          inflightFetch = null
-          inflightQuery = null
-        }
+        inflightFetch = null
       }
     })()
   }
   return inflightFetch
-}
-
-/**
- * Re-reads ?promo= whenever the URL changes (client navigations, back /
- * forward) so the cards follow the code in the address bar. Isolated in its
- * own Suspense boundary so pages still prerender (useSearchParams).
- */
-function PromoUrlWatcher({
-  onChange,
-}: Readonly<{ onChange: (promo: VisitPromo | null) => void }>) {
-  const search = useSearchParams().toString()
-  useEffect(() => {
-    onChange(readVisitPromo(search ? `?${search}` : ""))
-  }, [search, onChange])
-  return null
 }
 
 export function MarketingPricingProvider({
@@ -207,19 +132,18 @@ export function MarketingPricingProvider({
     if (cached) setPricing(cached)
   }, [initialPricing])
 
-  // Coupon in the URL; changing it refetches the prices.
-  const [promo, setPromo] = useState<VisitPromo | null>(() => readVisitPromo())
-  const onPromoChange = useCallback((next: VisitPromo | null) => {
-    setPromo((prev) => (promoKey(prev) === promoKey(next) ? prev : next))
-  }, [])
-  const currentPromoKey = promoKey(promo)
-
   // Background revalidate — keeps cache honest without blocking paint.
   useEffect(() => {
     if (initialPricing) return
     let cancelled = false
+    const controller = new AbortController()
+    const timeout = window.setTimeout(
+      () => controller.abort(),
+      PRICING_FETCH_TIMEOUT_MS
+    )
     const load = async () => {
-      const data = await fetchPricing(promo)
+      const data = await fetchPricing(controller.signal)
+      window.clearTimeout(timeout)
       if (cancelled) return
       if (data) {
         setPricing(data)
@@ -229,16 +153,13 @@ export function MarketingPricingProvider({
     void load()
     return () => {
       cancelled = true
+      window.clearTimeout(timeout)
+      controller.abort()
     }
-    // `promo` is captured through its key so equal codes don't refetch.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialPricing, currentPromoKey])
+  }, [initialPricing])
 
   return (
     <MarketingPricingContext.Provider value={pricing}>
-      <Suspense fallback={null}>
-        <PromoUrlWatcher onChange={onPromoChange} />
-      </Suspense>
       {children}
     </MarketingPricingContext.Provider>
   )

@@ -20,10 +20,7 @@ import { withMarketingAttribution } from "@/lib/analytics/marketing-attribution"
 import { trackMetaInitiateCheckout } from "@/lib/analytics/meta-client"
 import { markCheckoutStartedInSession } from "@/lib/analytics/retargeting"
 import { trackTikTokInitiateCheckoutWithIdentify } from "@/lib/analytics/tiktok-client"
-import { trackWhopEvent } from "@/lib/analytics/whop-client"
 import {
-  followCheckoutUrl,
-  isFollowableCheckoutUrl,
   parseCheckoutHrefParams,
   preconnectStripeCheckout,
   prefetchCheckoutSession,
@@ -71,7 +68,6 @@ export function TrackedLink({
 
   const trackNavigation = () => {
     trackSiteEventClient(eventName, metadata)
-    if (isDownloadClick) trackWhopEvent("lead")
 
     if (
       eventName === "pricing_click" &&
@@ -81,7 +77,6 @@ export function TrackedLink({
       trackSiteEventClient("checkout_started", metadata)
       trackMetaInitiateCheckout()
       void trackTikTokInitiateCheckoutWithIdentify()
-      trackWhopEvent("add_to_cart")
     }
   }
 
@@ -135,17 +130,13 @@ export function TrackedLink({
         until: checkoutParams.until,
       })
         .then((result) => {
-          if (result.ok && isFollowableCheckoutUrl(result.url)) {
-            // India asks for the buyer's email in a dialog first; the
-            // button stops spinning while it is open.
-            if (followCheckoutUrl(result.url) === "dialog") {
-              anchor.removeAttribute("aria-busy")
-            }
+          if (result.ok && result.url.startsWith("https://")) {
+            window.location.assign(result.url)
             return
           }
           anchor.removeAttribute("aria-busy")
           const error = result.ok
-            ? "Checkout did not return a URL."
+            ? "Stripe did not return a checkout URL."
             : result.error
           window.location.assign(pricingPathWithCheckoutError(error))
         })

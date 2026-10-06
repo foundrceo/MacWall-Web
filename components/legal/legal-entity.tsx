@@ -11,9 +11,7 @@ export const LEGAL_COMPANY_HREF = "/legal#company" as const
  * One-paragraph notice shown on every legal page: names the company behind
  * MacWall and defines "we" so each policy binds OG APPS, LLC.
  */
-export function LegalOperatorNotice({
-  className,
-}: Readonly<{ className?: string }>) {
+export function LegalOperatorNotice({ className }: Readonly<{ className?: string }>) {
   return (
     <p
       className={cn(
@@ -43,14 +41,8 @@ export function LegalEntityDetails() {
       `${macwall.legalRegisteredAgent}, ${macwall.legalRegisteredOffice}`,
     ],
     ["Mailing address", macwall.legalMailingAddress],
-    [
-      "Products",
-      `${macwall.name} (macOS app and ${macwall.website.replace(/^https?:\/\//, "")})`,
-    ],
-    [
-      "Payment processor",
-      `${macwall.paymentProcessor} (whop.com); ${macwall.indiaPaymentProcessor} (cashfree.com) for purchases in India`,
-    ],
+    ["Products", `${macwall.name} (macOS app and ${macwall.website.replace(/^https?:\/\//, "")})`],
+    ["Payment processor", `${macwall.paymentProcessor} (stripe.com)`],
     ["Contact", macwall.supportEmail],
   ]
 

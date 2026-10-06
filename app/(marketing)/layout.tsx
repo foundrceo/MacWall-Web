@@ -1,6 +1,5 @@
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 import { FLAGS } from "@/lib/flags"
-import { CashfreeEmailDialog } from "@/components/checkout/cashfree-email-dialog"
 import { CommandPaletteMount } from "@/components/command-palette/command-palette-mount"
 import { MarketingPricingProvider } from "@/components/marketing/marketing-pricing-context"
 import { MarketingShellEnd } from "@/components/marketing/shell-end"
@@ -49,7 +48,6 @@ export default async function MarketingLayout({
           </MarketingPageFrame>
           {FLAGS.socialProof ? <SocialProofMount /> : null}
           <WallpaperPurchaseBannerMount />
-          <CashfreeEmailDialog />
         </div>
       </CommandPaletteMount>
     </MarketingPricingProvider>

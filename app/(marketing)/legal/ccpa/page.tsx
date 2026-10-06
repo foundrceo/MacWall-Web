@@ -54,8 +54,8 @@ export default function LegalCcpaPage() {
         <LegalSection id="sale" title="Sale and Sharing">
           <p>
             We do not sell personal information for money. Our marketing
-            website uses ad-measurement pixels (Meta, TikTok, X, Google and
-            Whop), which California law may treat as &ldquo;sharing&rdquo; for
+            website uses ad-measurement pixels (Meta, TikTok, X and
+            Google), which California law may treat as &ldquo;sharing&rdquo; for
             cross-context behavioral advertising.
           </p>
           <p>

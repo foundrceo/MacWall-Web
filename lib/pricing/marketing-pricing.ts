@@ -1,5 +1,4 @@
 import {
-  INDIA_FIXED_INR_PER_USD,
   LICENSE_OFFERS,
   MULTI_MAC_OFFER_SLUGS,
   checkoutAddonAmount,
@@ -25,8 +24,6 @@ export type MarketingMultiMacOffer = {
   perMacPrice: string
   /** When primary is local: "Charged in USD: $19.99". When primary is USD: null. */
   localPriceHint: string | null
-  /** Price before a coupon (India on Cashfree only); null when none applies. */
-  fullPrice: string | null
   checkoutUrl: string
   currency: string
 }
@@ -46,14 +43,6 @@ export type MarketingPricing = {
   permanentPerMacPrice: string
   /** When primary is local: "Charged in USD: $12.99". Otherwise null. */
   permanentLocalHint: string | null
-  /** Pro price before a coupon (India on Cashfree only); null when none applies. */
-  permanentFullPrice: string | null
-  /** Coupon from a ?promo= link, carried on every checkout URL. */
-  promoCode: string | null
-  /** Percent taken off the shown prices (0 unless India on Cashfree). */
-  promoPercentOff: number
-  /** Currency the card is actually charged in: INR for India on Cashfree. */
-  chargeCurrency: "usd" | "inr"
   /** Pro → Pro+ add-on offered at Checkout (Pro+ price minus Pro price). */
   proPlusUpgradePrice: string
   /** Top announcement strip copy. */
@@ -124,15 +113,6 @@ export type MarketingPriceBundle = {
   proPlusLocal: LocalizedMoney | null
   /** When set, every multi-Mac pack uses this rate for local primary prices. */
   fx?: MarketingFxRate | null
-  /** India on Cashfree: fixed ₹499 / ₹799 / ₹1,299, no USD hint. */
-  fixedIndiaInr?: boolean
-  /**
-   * Coupon from a ?promo= link (already validated). Every checkout URL
-   * carries it. Shown prices drop by `percentOff` only for India on
-   * Cashfree, where the order is charged that amount; Whop applies codes on
-   * its own checkout page.
-   */
-  promo?: { code: string; percentOff: number; until?: string | null } | null
 }
 
 function localMoneyFromFx(
@@ -156,33 +136,9 @@ function perMac(money: LocalizedMoney, macs: number): string {
 export function buildMarketingPricingFromLocalized(
   bundle: MarketingPriceBundle
 ): MarketingPricing {
-  const { country, fixedIndiaInr } = bundle
+  const { country, permanentLocal, proPlusLocal, fx } = bundle
   const india = isIndiaCountry(country)
   const region: PricingRegion = india ? "india" : "default"
-  const fixedInr = india && Boolean(fixedIndiaInr)
-  // Fixed rupee prices are a constant ₹100 per catalog dollar, so the rate
-  // path below renders them exactly. Live FX inputs are ignored.
-  const fx: MarketingFxRate | null | undefined = fixedInr
-    ? { currency: "inr", locale: "en-IN", usdPerUnit: 1 / INDIA_FIXED_INR_PER_USD }
-    : bundle.fx
-  const permanentLocal = fixedInr ? null : bundle.permanentLocal
-  const proPlusLocal = fixedInr ? null : bundle.proPlusLocal
-  const promo = bundle.promo?.code ? bundle.promo : null
-  const promoPercentOff = fixedInr ? Math.max(0, promo?.percentOff ?? 0) : 0
-
-  /** Same rounding as the Cashfree order: whole rupees (₹499 → ₹449). */
-  const discounted = (full: LocalizedMoney): LocalizedMoney => {
-    if (promoPercentOff <= 0) return full
-    const major = Math.max(1, Math.round((full.major * (100 - promoPercentOff)) / 100))
-    return { ...full, major, formatted: formatMoney(major, full.currency, full.locale) }
-  }
-  const checkoutPath = (slug: LicenseOfferSlug): string => {
-    const path = licenseOfferCheckoutPath(slug)
-    if (!promo) return path
-    const params = new URLSearchParams({ promo: promo.code })
-    if (promo.until) params.set("until", promo.until)
-    return `${path}&${params.toString()}`
-  }
 
   // Everyone is charged in USD (India at the India catalog price). Show the
   // local currency at the live FX rate when it is known.
@@ -209,16 +165,15 @@ export function buildMarketingPricingFromLocalized(
   const money = (usdCents: number): LocalizedMoney =>
     activeFx ? localMoneyFromFx(usdCents, activeFx) : usdMoney(usdCents)
   const hint = (usdCents: number): string | null =>
-    activeFx && !fixedInr ? usdCatalogHint(usdCents) : null
+    activeFx ? usdCatalogHint(usdCents) : null
   const amount = (slug: LicenseOfferSlug): number =>
     licenseOfferPriceCents(LICENSE_OFFERS[slug], region)
 
   const permanentAmount = amount("permanent")
-  const permanentList =
+  const permanent =
     activeFx && permanentLocal?.isLocalized
       ? permanentLocal
       : money(permanentAmount)
-  const permanent = discounted(permanentList)
   const annual = money(amount("annual"))
 
   const permanentPrice = permanent.formatted
@@ -232,11 +187,10 @@ export function buildMarketingPricingFromLocalized(
     (slug) => {
       const offer = LICENSE_OFFERS[slug]
       const saleAmount = amount(slug)
-      const list =
+      const sale =
         activeFx && slug === "permanent_5" && proPlusLocal?.isLocalized
           ? proPlusLocal
           : money(saleAmount)
-      const sale = discounted(list)
       return {
         slug: offer.slug,
         macs: offer.maxDevices,
@@ -244,8 +198,7 @@ export function buildMarketingPricingFromLocalized(
         priceMajor: sale.major,
         perMacPrice: perMac(sale, offer.maxDevices),
         localPriceHint: hint(saleAmount),
-        fullPrice: promoPercentOff > 0 ? list.formatted : null,
-        checkoutUrl: checkoutPath(slug),
+        checkoutUrl: licenseOfferCheckoutPath(slug),
         currency: sale.currency,
       }
     }
@@ -262,16 +215,12 @@ export function buildMarketingPricingFromLocalized(
     permanentPriceMajor: permanent.major,
     permanentPerMacPrice: perMac(permanent, permanentMacs),
     permanentLocalHint,
-    permanentFullPrice: promoPercentOff > 0 ? permanentList.formatted : null,
-    promoCode: promo?.code ?? null,
-    promoPercentOff,
-    chargeCurrency: fixedInr ? "inr" : "usd",
     proPlusUpgradePrice,
     bannerText: `${macwall.name} Pro is ${permanentPrice}, paid once. No subscription, free updates forever`,
     annualPrice: annual.formatted,
     annualPriceMajor: annual.major,
     salePrice: permanentPrice,
-    fullPrice: permanentList.formatted,
+    fullPrice: permanentPrice,
     suffix: "permanent",
     getProCta: MARKETING_GET_PRO_CTA,
     getProPlusCta: MARKETING_GET_PRO_PLUS_CTA,
@@ -283,8 +232,8 @@ export function buildMarketingPricingFromLocalized(
     pricingPermanentDescription: `Pay ${permanentPrice} once and keep Pro forever, updates included.`,
     pricingAnnualDescription: `The annual plan is retired for new purchases. Get the ${permanentPrice} lifetime license instead.`,
     bottomCtaLabel: MARKETING_GET_PRO_CTA,
-    checkoutUrl: checkoutPath("permanent"),
-    annualCheckoutUrl: checkoutPath("permanent"),
+    checkoutUrl: licenseOfferCheckoutPath("permanent"),
+    annualCheckoutUrl: licenseOfferCheckoutPath("permanent"),
     multiMacOffers,
   }
 }

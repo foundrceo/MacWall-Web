@@ -14,7 +14,6 @@ import {
   resolveXAdsPixelId,
   XAdsPixel,
 } from "@/components/analytics/x-ads-pixel"
-import { WhopFunnelEvents, WhopPixel } from "@/components/analytics/whop-pixel"
 import {
   AdPixelsGate,
   CookieConsentBanner,
@@ -256,7 +255,6 @@ export default function RootLayout({
           Skip to content
         </a>
         <JsonLd payload={jsonLd} />
-        <WhopFunnelEvents />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -269,7 +267,6 @@ export default function RootLayout({
                 and stay off for Global Privacy Control browsers. */}
             <AdPixelsGate>
               <AffonsoPixel />
-              <WhopPixel />
               {metaPixelId ? <MetaPixel pixelId={metaPixelId} /> : null}
               {tiktokPixelId ? <TikTokPixel pixelId={tiktokPixelId} /> : null}
               {xAdsPixelId ? <XAdsPixel pixelId={xAdsPixelId} /> : null}

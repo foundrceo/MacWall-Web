@@ -5,7 +5,6 @@ import { useEffect, useRef } from "react"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import { trackMetaPurchase } from "@/lib/analytics/meta-client"
 import { markPurchaseCompleteInSession } from "@/lib/analytics/retargeting"
-import { trackWhopPurchase } from "@/lib/analytics/whop-client"
 import { macwall } from "@/lib/macwall-site"
 
 declare global {
@@ -51,8 +50,8 @@ function fireGa4Purchase(value: number, currency: string) {
   })
 }
 
-/** Fires once per verified purchase success visit — GA4 / Google Ads / Whop.
- * Mounted on `/activate` (after payment verify) and `/thank-you`.
+/** Fires once per verified purchase success visit — GA4 / Google Ads / Meta.
+ * Mounted on `/activate` (after Stripe verify) and `/thank-you`.
  */
 export function PurchaseConversionTracker({
   amount,
@@ -75,8 +74,6 @@ export function PurchaseConversionTracker({
     const licenseKey =
       params.get("key")?.trim() || params.get("license")?.trim() || undefined
     const hasKey = Boolean(licenseKey)
-    // Whop records its own checkout sales; a pixel purchase would double-count.
-    const paidOnWhop = params.get("provider") === "whop"
 
     // Refuse to fire ads conversions for unverified session_id visits.
     if (sessionId && !verified) return
@@ -88,7 +85,6 @@ export function PurchaseConversionTracker({
           ? fallbackPurchaseValue
           : 12.99
     const curr = (currency || "USD").toUpperCase()
-    const whopEventId = sessionId || (licenseKey ? `lic_${licenseKey}` : undefined)
 
     trackSiteEventClient("purchase_complete", {
       product: "macwall_pro",
@@ -101,22 +97,15 @@ export function PurchaseConversionTracker({
     })
     markPurchaseCompleteInSession()
 
-    // TikTok Purchase fires server-side from the license webhooks — don't double-count.
-    // Meta fires here; the Whop pixel only for off-Whop (Stripe) sales.
+    // TikTok Purchase fires server-side from the Stripe webhook — don't double-count.
+    // Meta Purchase fires here (browser pixel) for Stripe checkout.
     const run = () => {
       trackMetaPurchase({ value, currency: curr })
-      if (!paidOnWhop) {
-        trackWhopPurchase({
-          value,
-          currency: curr,
-          eventId: whopEventId,
-        })
-      }
       fireGoogleAdsConversion(value, curr)
       fireGa4Purchase(value, curr)
     }
 
-    if (typeof window.gtag === "function" || typeof window.whop?.track === "function") {
+    if (typeof window.gtag === "function") {
       run()
       return
     }
