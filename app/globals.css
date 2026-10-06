@@ -609,6 +609,92 @@
   }
 }
 
+/* Install guide, step 1: the pointer moves onto MacWall.dmg and
+   double-clicks it; the name turns Finder-blue as it is selected and the
+   icon pulses as it opens. */
+.mw-open-pointer {
+  animation: mw-open-pointer 3.4s ease-out infinite;
+}
+
+.mw-open-label {
+  animation: mw-open-label 3.4s linear infinite;
+}
+
+.mw-open-icon {
+  animation: mw-open-icon 3.4s ease-out infinite;
+}
+
+@keyframes mw-open-pointer {
+  0% {
+    transform: translate(22px, 26px) scale(1);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  24% {
+    transform: translate(0, 0) scale(1);
+  }
+  28% {
+    transform: translate(0, 0) scale(0.85);
+  }
+  31% {
+    transform: translate(0, 0) scale(1);
+  }
+  35% {
+    transform: translate(0, 0) scale(0.85);
+  }
+  38%,
+  84% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  94%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes mw-open-label {
+  0%,
+  27% {
+    background-color: transparent;
+    color: rgb(255 255 255 / 0.85);
+  }
+  28%,
+  90% {
+    background-color: #0a64d8;
+    color: #fff;
+  }
+  100% {
+    background-color: transparent;
+    color: rgb(255 255 255 / 0.85);
+  }
+}
+
+@keyframes mw-open-icon {
+  0%,
+  35% {
+    transform: scale(1);
+  }
+  44% {
+    transform: scale(1.08);
+  }
+  54%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-open-pointer,
+  .mw-open-label,
+  .mw-open-icon {
+    animation: none;
+  }
+}
+
 /* Install guide, step 2: the pointer picks up the app icon, carries it
    across to the Applications folder, which lights up as it drops in, then
    the pointer returns and the loop repeats. The 108px is the distance

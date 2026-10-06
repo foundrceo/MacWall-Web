@@ -194,10 +194,13 @@ export function InstallGuide() {
               title="Open"
               scene={
                 <Scene>
+                  {/* Double-click (styles: .mw-open-* in globals.css). */}
                   <div className="relative flex flex-col items-center">
-                    <AppIcon size={56} />
-                    <Pointer className="top-9 left-11" />
-                    <span className="mt-3 rounded-[5px] bg-[#0a64d8] px-2 py-0.5 text-[13px] font-medium text-white">
+                    <div className="mw-open-icon">
+                      <AppIcon size={56} />
+                    </div>
+                    <Pointer className="mw-open-pointer top-9 left-11 z-10 origin-top-left" />
+                    <span className="mw-open-label mt-3 rounded-[5px] bg-[#0a64d8] px-2 py-0.5 text-[13px] font-medium text-white">
                       {macwall.name}.dmg
                     </span>
                   </div>
