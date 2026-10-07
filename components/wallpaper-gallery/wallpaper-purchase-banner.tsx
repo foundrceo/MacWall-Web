@@ -6,11 +6,17 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
-import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
+import {
+  TrackedDownloadButton,
+  TrackedPricingButton,
+} from "@/components/analytics/tracked-marketing-buttons"
 import { PurchaseTermsNote } from "@/components/legal/purchase-terms-note"
 import { MacWallAppIcon } from "@/components/macwall-app-icon"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
+import { SendToMacButton } from "@/components/macwall-marketing/send-to-mac-dialog"
 import { trackSiteEventClient } from "@/lib/analytics/client"
+import { hasDownloadedInstaller } from "@/lib/installer-seen"
+import { macwallInstallerLatestPath } from "@/lib/macwall-site"
 
 const DWELL_MS = 15_000
 const PURCHASE_COMPLETE_KEY = "macwall_purchase_complete"
@@ -19,6 +25,9 @@ const THRESHOLD_KEY = "macwall_wp_view_threshold_v1"
 const TICK_MS = 1_000
 const MIN_VIEWS = 3
 const MAX_VIEWS = 5
+
+const BANNER_PILL =
+  "inline-flex h-9 items-center justify-center rounded-full bg-white px-4 text-[13px] font-medium text-black no-underline transition-opacity hover:opacity-90"
 
 function isWallpaperPath(pathname: string | null): boolean {
   if (!pathname) return false
@@ -96,8 +105,13 @@ function resetViewCycle(): void {
 }
 
 /**
- * Wallpaper engagement banner → Stripe.
- * Shows after 15s dwell, or after 3–5 wallpaper detail visits (repeats each cycle).
+ * Wallpaper engagement banner. Shows after 15s dwell, or after 3–5 wallpaper
+ * detail visits (repeats each cycle).
+ *
+ * - `try`: this browser never downloaded MacWall, so most likely the app isn't
+ *   installed. Asking them to buy first got ~75% dismissals; offer the free
+ *   trial (download on Macs, send to Mac on phones).
+ * - `buy`: they downloaded already; offer Pro → Stripe.
  */
 export function WallpaperPurchaseBanner() {
   const pathname = usePathname()
@@ -177,6 +191,8 @@ export function WallpaperPurchaseBanner() {
   }, [onWallpaper, purchased, ready, hidden])
 
   const open = onWallpaper && ready && !hidden && !purchased
+  // Only read while open, which is never true on the server.
+  const variant: "try" | "buy" = open && !hasDownloadedInstaller() ? "try" : "buy"
 
   useEffect(() => {
     if (!open) {
@@ -186,13 +202,14 @@ export function WallpaperPurchaseBanner() {
     document.documentElement.dataset.macwallPurchaseBannerOpen = "true"
     trackSiteEventClient("cta_click", {
       source: "wallpaper_purchase_banner_shown",
+      variant,
       view_count: viewCount,
       view_threshold: viewThreshold,
     })
     return () => {
       delete document.documentElement.dataset.macwallPurchaseBannerOpen
     }
-  }, [open, viewCount, viewThreshold])
+  }, [open, variant, viewCount, viewThreshold])
 
   const dismissForNow = () => {
     setHidden(true)
@@ -208,6 +225,7 @@ export function WallpaperPurchaseBanner() {
     dismissForNow()
     trackSiteEventClient("cta_click", {
       source: "wallpaper_purchase_banner_dismiss",
+      variant,
     })
   }
 
@@ -250,23 +268,53 @@ export function WallpaperPurchaseBanner() {
                 <p className="font-sans text-[15px] leading-snug font-medium tracking-tight text-white">
                   Want this one on your desktop?
                 </p>
-                <p className="mt-1 font-sans text-[13px] leading-snug text-white/65">
-                  Pro unlocks all 1,000+ wallpapers on up to 3 Macs.{" "}
-                  {pricing.permanentPrice} once, no subscription.
-                </p>
-                <div className="mt-3">
-                  <TrackedPricingButton
-                    href={checkoutHref}
-                    location="wallpaper_purchase_banner"
-                    size="pill"
-                    ariaLabel={pricing.buyProAria}
-                    className="inline-flex h-9 items-center justify-center rounded-full bg-white px-4 text-[13px] font-medium text-black no-underline transition-opacity hover:opacity-90"
-                    onClick={onCheckoutClick}
-                  >
-                    {ctaLabel}
-                  </TrackedPricingButton>
-                </div>
-                <PurchaseTermsNote className="mt-2 text-left text-[11px] leading-4 text-white/50" />
+                {variant === "try" ? (
+                  <>
+                    <p className="mt-1 font-sans text-[13px] leading-snug text-white/65">
+                      Try all 1,000+ wallpapers free for 24 hours. Then{" "}
+                      {pricing.permanentPrice} once, no subscription.
+                    </p>
+                    <div className="mt-3">
+                      <span className="mw-when-desktop">
+                        <TrackedDownloadButton
+                          href={macwallInstallerLatestPath}
+                          location="wallpaper_purchase_banner_try"
+                          size="pill"
+                          className={BANNER_PILL}
+                          onClick={onCheckoutClick}
+                        >
+                          Download free for Mac
+                        </TrackedDownloadButton>
+                      </span>
+                      <span className="mw-when-mobile">
+                        <SendToMacButton
+                          location="wallpaper_purchase_banner_try"
+                          className={`${BANNER_PILL} gap-1.5`}
+                        />
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="mt-1 font-sans text-[13px] leading-snug text-white/65">
+                      Pro unlocks all 1,000+ wallpapers on up to 3 Macs.{" "}
+                      {pricing.permanentPrice} once, no subscription.
+                    </p>
+                    <div className="mt-3">
+                      <TrackedPricingButton
+                        href={checkoutHref}
+                        location="wallpaper_purchase_banner"
+                        size="pill"
+                        ariaLabel={pricing.buyProAria}
+                        className={BANNER_PILL}
+                        onClick={onCheckoutClick}
+                      >
+                        {ctaLabel}
+                      </TrackedPricingButton>
+                    </div>
+                    <PurchaseTermsNote className="mt-2 text-left text-[11px] leading-4 text-white/50" />
+                  </>
+                )}
               </div>
               <button
                 type="button"
