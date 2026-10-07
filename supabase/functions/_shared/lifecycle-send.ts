@@ -155,6 +155,8 @@ export async function sendMarketingEmail(args: {
   unsubscribeOneClick: string | null
   idempotencyKey: string
   tags: { name: string; value: string }[]
+  /** Resend delivers it later (ISO 8601); omit to send now. */
+  scheduledAt?: string
 }): Promise<SendResult> {
   const headers: Record<string, string> = {}
   if (args.unsubscribeOneClick) {
@@ -179,6 +181,7 @@ export async function sendMarketingEmail(args: {
         text: args.mail.text,
         headers,
         tags: args.tags,
+        ...(args.scheduledAt ? { scheduled_at: args.scheduledAt } : {}),
       }),
     })
     if (!res.ok) {

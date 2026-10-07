@@ -8,6 +8,7 @@ import type {
 } from "@/lib/analytics/events"
 import { capturePostHogEvent } from "@/components/analytics/posthog-analytics"
 import { getVisitorCountry, isVisitorFromIndia } from "@/lib/geo/country-client"
+import { markInstallerDownloaded } from "@/lib/installer-seen"
 
 const SESSION_KEY = "macwall_analytics_session"
 
@@ -96,6 +97,14 @@ export function trackSiteEventClient(
   metadata?: SiteAnalyticsMetadata
 ) {
   if (typeof window === "undefined") return
+
+  // "Set on Mac" opens the app, every other download_click fetches the DMG.
+  if (
+    eventName === "download_click" &&
+    metadata?.location !== "wallpaper_detail_set_on_mac"
+  ) {
+    markInstallerDownloaded()
+  }
 
   // PostHog records page views itself; every other site event is mirrored
   // there unsampled (download, pricing, checkout, purchase, CTA clicks).
