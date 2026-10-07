@@ -2,6 +2,7 @@ import {
   getMarketingNavItems,
   getMarketingSecondaryNavItems,
 } from "@/lib/marketing-nav"
+import { HELP_TOPICS } from "@/lib/docs/help-topics"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import {
   macwall,
@@ -52,6 +53,21 @@ function action(
   }
 }
 
+/** Everyday words people type that the help card titles don't contain. */
+const HELP_KEYWORDS: Record<string, string[]> = {
+  "/docs/install-macwall": ["install", "download", "setup", "dmg", "permission"],
+  "/docs/set-a-live-wallpaper": ["apply", "change wallpaper", "display", "monitor"],
+  "/docs/live-lock-screen-and-screen-saver": ["screensaver", "tahoe", "lock"],
+  "/docs/import-your-own-videos": ["mp4", "mov", "gif", "upload", "custom"],
+  "/docs/license-and-activation": ["key", "activate", "license", "new mac", "transfer"],
+  "/docs/performance-and-battery": ["cpu", "slow", "battery", "pause", "fan"],
+  "/docs/troubleshooting": ["not working", "broken", "black screen", "stuck", "error", "help"],
+  "/docs/menu-bar-controls": ["pause", "shuffle", "skip"],
+  "/legal/refund": ["refund", "money back", "cancel"],
+  "/#faq": ["faq", "questions"],
+  "/docs/uninstall-macwall": ["remove", "delete", "uninstall"],
+}
+
 /** Static pages and actions surfaced in the command palette. */
 export function getCommandPaletteStaticItems(): {
   pages: CommandPaletteStaticItem[]
@@ -97,6 +113,13 @@ export function getCommandPaletteStaticItems(): {
       keywords: ["home", "macwall", "overview"],
     }),
     ...navPages,
+    // Help center topics (the changelog has its own entry).
+    ...HELP_TOPICS.filter((topic) => topic.href !== "/changelog").map((topic) =>
+      page(`help-${topic.href.replace(/[^a-z0-9]+/gi, "-")}`, topic.title, topic.href, {
+        description: topic.description,
+        keywords: ["help", topic.linkLabel.toLowerCase(), ...(HELP_KEYWORDS[topic.href] ?? [])],
+      })
+    ),
     page("page-changelog", "Changelog", "/changelog", {
       keywords: ["release notes", "updates", "history", "github"],
     }),
