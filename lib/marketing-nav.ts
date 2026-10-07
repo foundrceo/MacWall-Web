@@ -9,7 +9,7 @@ export type MarketingNavItem = {
 
 /**
  * Primary header nav, in the order a visitor decides:
- * what's in it → what it does → what it costs → how to pay less → help.
+ * what's in it → what it does → what it costs → help.
  * Blog and Learn are search landing pages, not places people navigate to,
  * so they live in the secondary list (mobile menu, footer, ⌘K).
  */
@@ -20,7 +20,6 @@ export function getMarketingNavItems(): readonly MarketingNavItem[] {
     { href: "/wallpapers", label: h.navGallery },
     { href: "/#features", label: h.navFeatures },
     { href: "/pricing", label: h.navPricing },
-    { href: "/creator", label: h.navCreator },
     { href: "/docs", label: h.navSupport },
     ...(AFFILIATE_UI_VISIBLE
       ? [{ href: "/affiliate", label: h.navAffiliate, earnBadge: true as const }]

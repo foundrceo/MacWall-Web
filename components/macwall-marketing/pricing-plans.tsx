@@ -202,7 +202,11 @@ function PlanCard({
               </span>
             ) : null}
           </div>
-          <p className="mt-3 text-[13px] leading-5 text-zinc-400">{subtitle}</p>
+          {/* Every plan is paid once; say so at the price so nobody reads it as monthly. */}
+          <p className="mt-3 text-[13px] leading-5 font-medium text-zinc-200">
+            One-time payment · No subscription
+          </p>
+          <p className="mt-1 text-[13px] leading-5 text-zinc-400">{subtitle}</p>
 
           <div className="mt-5">{action}</div>
         </div>
