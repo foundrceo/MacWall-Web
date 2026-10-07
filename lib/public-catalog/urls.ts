@@ -115,7 +115,7 @@ export function wallpapersGalleryHref(
 
   if (q) params.set("q", q)
   if (tag) params.set("tag", tag)
-  if (sort && sort !== "newest") params.set("sort", sort)
+  if (sort && sort !== "popular") params.set("sort", sort)
 
   const qs = params.toString()
   return qs ? `${base}?${qs}` : base

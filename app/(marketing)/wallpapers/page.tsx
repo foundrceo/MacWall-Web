@@ -24,7 +24,7 @@ export default async function WallpapersGalleryPage() {
   let loadError = false
   try {
     initial = await listPublicWallpapers({
-      sort: "newest",
+      sort: "popular",
       page: 1,
       limit: 24,
     })
