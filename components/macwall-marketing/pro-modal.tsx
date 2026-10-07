@@ -2,24 +2,18 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowUpRight, Check, Loader2, X } from "lucide-react"
+import { Check, Loader2, X } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
-import { trackSiteEventClient } from "@/lib/analytics/client"
-import {
-  applyDiscordMemberDiscountMajor,
-  DISCORD_MEMBER_PERCENT_OFF,
-} from "@/lib/discord/discount-public"
 import {
   macwall,
   macwallAppIconPath,
   macwallAppIconRadiusClass,
 } from "@/lib/macwall-site"
 import { macwallPricingCopy } from "@/lib/macwall-pricing-copy"
-import { formatMoney } from "@/lib/pricing/money"
 import { cn } from "@/lib/utils"
 
 /** What Pro adds, one fact per line; price terms live next to the price. */
@@ -29,19 +23,6 @@ const PRO_MODAL_FEATURES = [
   "Music Sync with Apple Music & Spotify",
   `Up to ${macwall.maxLicensedMacs} Macs, free updates forever`,
 ] as const
-
-function DiscordMark({ className }: Readonly<{ className?: string }>) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden
-    >
-      <path d="M20.317 4.37a19.79 19.79 0 00-4.885-1.515.074.074 0 00-.079.037c-.211.375-.445.865-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.028C.533 9.046-.319 13.58.099 18.058a.082.082 0 00.031.056 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.873-1.295 1.226-1.994a.076.076 0 00-.042-.106 12.3 12.3 0 01-1.872-.892.077.077 0 01-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 01.078-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 01.079.01c.12.099.246.198.373.292a.077.077 0 01-.007.128 12.3 12.3 0 01-1.873.891.076.076 0 00-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 00.084.029 19.84 19.84 0 006.002-3.03.077.077 0 00.032-.055c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.331c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.211 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.211 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
-    </svg>
-  )
-}
 
 /** Real customers who left a review with a photo. */
 const REVIEWER_AVATARS = macwallPricingCopy.reviews.items
@@ -59,11 +40,6 @@ export function ProModal({
   onOpenChange: (open: boolean) => void
 }>) {
   const pricing = useMarketingPricing()
-  const discordPrice = formatMoney(
-    applyDiscordMemberDiscountMajor(pricing.permanentPriceMajor),
-    pricing.currency,
-    pricing.locale
-  )
   /** Checkout is a server redirect to Stripe; show that the click landed. */
   const [redirecting, setRedirecting] = useState(false)
 
@@ -196,30 +172,6 @@ export function ProModal({
               pricing.getProCta
             )}
           </TrackedPricingButton>
-
-          <a
-            href={macwall.discordInvite}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() =>
-              trackSiteEventClient("cta_click", {
-                location: "hero_pro_modal_discord",
-              })
-            }
-            className="mt-3 flex w-full items-center gap-3 rounded-xl bg-white/[0.04] px-3.5 py-2.5 text-[13px] text-foreground no-underline transition-colors hover:bg-white/[0.07]"
-          >
-            <DiscordMark className="size-4 shrink-0 text-[#5865F2]" />
-            <span className="min-w-0 flex-1 truncate">
-              Join our Discord for {DISCORD_MEMBER_PERCENT_OFF}% off
-            </span>
-            <span className="inline-flex shrink-0 items-center gap-1 font-medium tabular-nums">
-              {discordPrice}
-              <ArrowUpRight
-                className="size-3.5 text-marketing-muted"
-                aria-hidden
-              />
-            </span>
-          </a>
 
           {/* Point-of-sale disclosure: terms and refund policy before payment.
               One idea per line: what you're charged, then what you agree to. */}
