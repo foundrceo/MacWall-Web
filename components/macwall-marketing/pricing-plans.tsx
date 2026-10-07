@@ -21,6 +21,7 @@ import { useId, useMemo, useState, type ReactNode } from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
+import { BuyReassurance } from "@/components/macwall-marketing/buy-reassurance"
 import { PricingPriceDisplay } from "@/components/macwall-marketing/pricing-price-display"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
 import { macwall } from "@/lib/macwall-site"
@@ -209,6 +210,7 @@ function PlanCard({
           <p className="mt-1 text-[13px] leading-5 text-zinc-400">{subtitle}</p>
 
           <div className="mt-5">{action}</div>
+          <BuyReassurance className="mt-4" />
         </div>
       </div>
 
