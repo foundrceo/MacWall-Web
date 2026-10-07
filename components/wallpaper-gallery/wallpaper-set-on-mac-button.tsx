@@ -1,7 +1,16 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { trackSiteEventClient } from "@/lib/analytics/client"
+import {
+  trackSiteEventClient,
+  withAnalyticsSessionHref,
+} from "@/lib/analytics/client"
+import { SendToMacForm } from "@/components/macwall-marketing/send-to-mac-form"
+import {
+  cannotOpenInstaller,
+  installerPlatformFromUserAgent,
+} from "@/lib/installer-platform"
+import { hasDownloadedInstaller } from "@/lib/installer-seen"
 import { GALLERY_PRIMARY_CTA_CLASS } from "@/lib/public-catalog/chrome"
 import {
   macwallInstallerLatestPath,
@@ -16,6 +25,22 @@ import { cn } from "@/lib/utils"
  */
 const APP_OPEN_WAIT_MS = 2000
 
+/**
+ * - `send`: phones and Windows can't run MacWall, so share this page to a Mac.
+ * - `download`: a Mac that never downloaded MacWall here; most wallpaper-page
+ *   visitors come from search and don't have the app yet.
+ * - `open`: the app is probably installed; open the wallpaper in it.
+ */
+type Mode = "open" | "download" | "send"
+
+function detectMode(): Mode {
+  const platform = installerPlatformFromUserAgent(navigator.userAgent)
+  // The platform script also tags iPads, which report a Mac user agent.
+  const isMobile = document.documentElement.dataset.platform === "mobile"
+  if (isMobile || cannotOpenInstaller(platform)) return "send"
+  return hasDownloadedInstaller() ? "open" : "download"
+}
+
 export function WallpaperSetOnMacButton({
   wallpaperId,
   wallpaperName,
@@ -25,6 +50,7 @@ export function WallpaperSetOnMacButton({
   wallpaperName: string
   className?: string
 }>) {
+  const [mode, setMode] = useState<Mode>("open")
   const [showInstallHint, setShowInstallHint] = useState(false)
   const waitTimerRef = useRef<number | null>(null)
   const settledRef = useRef(false)
@@ -37,6 +63,13 @@ export function WallpaperSetOnMacButton({
   }, [])
 
   useEffect(() => clearWaitTimer, [clearWaitTimer])
+
+  useEffect(() => {
+    // Client-only: the server can't know the visitor's device.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMode(detectMode())
+  }, [])
+
 
   const handleClick = useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -89,6 +122,48 @@ export function WallpaperSetOnMacButton({
     },
     [wallpaperId, clearWaitTimer]
   )
+
+  if (mode === "send") {
+    return (
+      <SendToMacForm
+        location="wallpaper_detail_send_to_mac"
+        shareUrl={window.location.href}
+        wallpaperName={wallpaperName}
+        wallpaperPath={window.location.pathname}
+        className={cn("max-w-sm basis-full", className)}
+      />
+    )
+  }
+
+  if (mode === "download") {
+    return (
+      <span className={cn("inline-flex items-center gap-3", className)}>
+        <a
+          href={macwallInstallerLatestPath}
+          className={GALLERY_PRIMARY_CTA_CLASS}
+          onClick={(event) => {
+            event.currentTarget.href = withAnalyticsSessionHref(
+              macwallInstallerLatestPath
+            )
+            trackSiteEventClient("download_click", {
+              location: "wallpaper_detail_download",
+              wallpaper_id: wallpaperId,
+            })
+          }}
+        >
+          Download free
+        </a>
+        <a
+          href={macwallWallpaperDeepLink(wallpaperId)}
+          title={`Open “${wallpaperName}” in MacWall`}
+          className="text-[13px] text-white/60 underline-offset-4 transition hover:text-white hover:underline"
+          onClick={handleClick}
+        >
+          Have MacWall? Open it
+        </a>
+      </span>
+    )
+  }
 
   return (
     <span className={cn("relative inline-flex flex-col", className)}>
