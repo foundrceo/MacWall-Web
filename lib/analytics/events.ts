@@ -2,6 +2,7 @@ export const SITE_ANALYTICS_EVENTS = [
   "download_click",
   "download_redirect",
   "download_send_to_mac",
+  "send_to_mac_email",
   "pricing_click",
   "checkout_started",
   "checkout_abandoned",

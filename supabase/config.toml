@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.send-app-update-emails]
 verify_jwt = false
+
+[functions.send-to-mac]
+verify_jwt = false

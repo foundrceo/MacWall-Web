@@ -33,6 +33,8 @@ export type LifecycleEmailId =
   | "app_update_customer"
   | "app_update_trial"
   | "app_update_trial_offer"
+  | "send_to_mac"
+  | "send_to_mac_reminder"
 
 export type LifecycleEmailContext = {
   appName: string
@@ -54,6 +56,8 @@ export type LifecycleEmailContext = {
   updateVersion?: string | null
   /** `app_update_trial_offer` only: the download page (the button is checkout). */
   downloadHref?: string | null
+  /** `send_to_mac*` only: the wallpaper page they were looking at. */
+  wallpaper?: { name: string; href: string } | null
 }
 
 export type LifecycleEmail = {
@@ -92,7 +96,39 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
     `Please update now. Open ${app} and it installs the update by itself. If it doesn't, download it with the button below and drag it to Applications.`,
   ]
 
+  const sendToMacReason = `You're getting this because you asked for the ${app} download link on ${hostOf(ctx.siteUrl)}.`
+  const wallpaperLink = ctx.wallpaper
+    ? { label: `See “${ctx.wallpaper.name}”`, href: ctx.wallpaper.href }
+    : null
+
   switch (id) {
+    case "send_to_mac":
+      return {
+        subject: `Your ${app} download link`,
+        preheader: "Open this on your Mac to install it. Free for 24 hours.",
+        headline: `Here's ${app} for your Mac`,
+        paragraphs: [
+          "Open this email on your Mac and tap the button to download. Drag MacWall to Applications, open it, and pick a wallpaper.",
+          "Every feature is free for 24 hours, no card needed. 1,000+ live 4K wallpapers for your desktop, Lock Screen and screen saver.",
+        ],
+        button: `Download ${app} for Mac`,
+        secondaryLink: wallpaperLink,
+        ps: "Stuck installing? Reply to this email and a real person will help.",
+        reason: sendToMacReason,
+      }
+    case "send_to_mac_reminder":
+      return {
+        subject: `Did ${app} make it to your Mac?`,
+        preheader: "Your download link is still here. Free for 24 hours.",
+        headline: `Still want ${app} on your Mac?`,
+        paragraphs: [
+          "Yesterday you asked for the download link. If you haven't installed it yet, here it is again. It takes about a minute.",
+          "Already using it? Ignore this. This is the only reminder.",
+        ],
+        button: `Download ${app} for Mac`,
+        secondaryLink: wallpaperLink,
+        reason: sendToMacReason,
+      }
     case "app_update_customer":
       return {
         subject: `${app} ${version} is here: please update`,

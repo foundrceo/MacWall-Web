@@ -391,6 +391,20 @@ const LIFECYCLE_META: Record<
     edgeFunction: "send-app-update-emails",
     tone: "blue",
   },
+  send_to_mac: {
+    label: "Send to Mac: download link",
+    description: "Phone or Windows visitor typed their email to get the link on their Mac.",
+    trigger: "Email form on the phone hero and wallpaper pages",
+    edgeFunction: "send-to-mac",
+    tone: "green",
+  },
+  send_to_mac_reminder: {
+    label: "Send to Mac: next-day reminder",
+    description: "One reminder 24 hours after the link, skipped for buyers.",
+    trigger: "Scheduled in Resend by send-to-mac",
+    edgeFunction: "send-to-mac",
+    tone: "green",
+  },
 }
 
 export const ADMIN_EMAIL_TEMPLATES: readonly AdminEmailTemplate[] = [
