@@ -114,6 +114,7 @@ export function SendToMacForm({
           id={`send-to-mac-${location}`}
           type="email"
           required
+          autoFocus
           autoComplete="email"
           inputMode="email"
           placeholder="Your email"
@@ -129,7 +130,7 @@ export function SendToMacForm({
           disabled={status === "sending"}
           className="inline-flex h-12 w-full items-center justify-center rounded-full bg-white px-5 text-[15px] font-medium text-black transition-colors hover:bg-white/90 disabled:opacity-70"
         >
-          {status === "sending" ? "Sending…" : "Email me the link for my Mac"}
+          {status === "sending" ? "Sending…" : "Email me the link"}
         </button>
       </form>
       {status === "error" ? (
