@@ -5,7 +5,7 @@ import {
   trackSiteEventClient,
   withAnalyticsSessionHref,
 } from "@/lib/analytics/client"
-import { SendToMacForm } from "@/components/macwall-marketing/send-to-mac-form"
+import { SendToMacButton } from "@/components/macwall-marketing/send-to-mac-dialog"
 import {
   cannotOpenInstaller,
   installerPlatformFromUserAgent,
@@ -125,12 +125,12 @@ export function WallpaperSetOnMacButton({
 
   if (mode === "send") {
     return (
-      <SendToMacForm
+      <SendToMacButton
         location="wallpaper_detail_send_to_mac"
         shareUrl={window.location.href}
         wallpaperName={wallpaperName}
         wallpaperPath={window.location.pathname}
-        className={cn("max-w-sm basis-full", className)}
+        className={cn(GALLERY_PRIMARY_CTA_CLASS, className)}
       />
     )
   }
