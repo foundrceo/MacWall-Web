@@ -102,7 +102,7 @@ function parseSort(value: string | null): PublicCatalogSort {
     case "newest":
       return value
     default:
-      return "newest"
+      return "popular"
   }
 }
 
@@ -171,11 +171,11 @@ type GalleryFilters = {
   sort: PublicCatalogSort
 }
 
-/** What the prerendered page (and `initial`) shows: no search, no tag, newest. */
+/** What the prerendered page (and `initial`) shows: no search, no tag, most liked first. */
 const DEFAULT_GALLERY_FILTERS: GalleryFilters = {
   q: "",
   tag: "",
-  sort: "newest",
+  sort: "popular",
 }
 
 function galleryFilterKey(
@@ -758,12 +758,12 @@ export function WallpaperGallery({
             onCloseAutoFocus={(event) => event.preventDefault()}
             className={GALLERY_SORT_MENU_CLASS}
           >
-            {(["newest", "popular", "older"] as const).map((value) => (
+            {(["popular", "newest", "older"] as const).map((value) => (
               <DropdownMenuItem
                 key={value}
                 onClick={() =>
                   updateParams({
-                    sort: value === "newest" ? null : value,
+                    sort: value === "popular" ? null : value,
                   })
                 }
                 className={cn(
