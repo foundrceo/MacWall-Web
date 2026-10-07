@@ -75,7 +75,6 @@ const DOCK_APPS = {
   finder: "/install/finder.png",
   safari: "/install/safari.png",
   photos: "/install/photos.png",
-  music: "/install/music.png",
 } as const
 
 function DockApp({
@@ -121,6 +120,35 @@ function Step({
       </p>
       <p className="mt-2 text-[14px] leading-relaxed text-marketing-muted">{children}</p>
     </li>
+  )
+}
+
+/**
+ * The app's first-run paywall ("Pay Once. Yours Forever.") with the small
+ * Try Free pill it shows at the top right after a few seconds.
+ */
+function PaywallScene() {
+  return (
+    <div className="relative w-[78%] max-w-[200px] rounded-xl bg-[#1c1c1e] px-3 pt-3 pb-4 ring-1 ring-white/10 shadow-[0_10px_30px_rgb(0_0_0/0.45)]">
+      <div className="flex items-center justify-between">
+        <span className="flex gap-1" aria-hidden>
+          <span className="size-1.5 rounded-full bg-[#ff5f57]" />
+          <span className="size-1.5 rounded-full bg-[#febc2e]" />
+          <span className="size-1.5 rounded-full bg-[#28c840]" />
+        </span>
+        <span className="relative rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-black ring-2 ring-[#0a84ff] ring-offset-1 ring-offset-[#1c1c1e] motion-safe:animate-pulse">
+          Try Free
+        </span>
+      </div>
+      <p className="mt-3 font-display text-[15px] leading-tight text-white">
+        Pay Once.
+        <br />
+        Yours Forever.
+      </p>
+      <span className="mt-2 block h-1.5 w-3/4 rounded-full bg-white/10" />
+      <span className="mt-1.5 block h-1.5 w-1/2 rounded-full bg-white/10" />
+      <Pointer className="top-6 right-2 z-10" />
+    </div>
   )
 }
 
@@ -188,7 +216,7 @@ export function InstallGuide() {
             </div>
           </div>
 
-          <ol className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-6">
+          <ol className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
             <Step
               number={1}
               title="Open"
@@ -239,8 +267,7 @@ export function InstallGuide() {
               title="Launch"
               scene={
                 <Scene>
-                  {/* None may shrink; the fifth app joins once the cards are
-                      wide enough (lg) to hold it. */}
+                  {/* None may shrink: four apps fit the narrowest card. */}
                   <div className="relative flex items-end gap-1.5 rounded-2xl bg-white/[0.08] px-2 py-1.5 ring-1 ring-white/10 backdrop-blur">
                     <DockApp app="finder" />
                     <DockApp app="safari" />
@@ -253,13 +280,25 @@ export function InstallGuide() {
                       <Pointer className="mw-dock-click top-4 left-5 z-10 origin-top-left" />
                     </div>
                     <DockApp app="photos" />
-                    <DockApp app="music" className="hidden lg:block" />
                   </div>
                 </Scene>
               }
             >
-              Open {macwall.name} and your 24 hours free, with everything
-              included, begin.
+              Open {macwall.name} from Applications and take the short tour.
+            </Step>
+            <Step
+              number={4}
+              title="Start free"
+              scene={
+                <Scene>
+                  <PaywallScene />
+                </Scene>
+              }
+            >
+              On the &ldquo;Pay Once&rdquo; screen, tap{" "}
+              <span className="font-medium text-foreground">Try Free</span> at
+              the top right (it shows after a few seconds), then Start Free
+              Trial. 24 hours of everything, no card needed.
             </Step>
           </ol>
         </div>
