@@ -1,7 +1,8 @@
 import Link from "next/link"
-import type { ReactNode } from "react"
+import { Fragment, type ReactNode } from "react"
 import { ContentBody } from "@/components/content/content-body"
 import { MarketingRail } from "@/components/macwall-marketing/marketing-rail"
+import { GalleryDownloadCta } from "@/components/wallpaper-gallery/gallery-download-cta"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,7 +13,6 @@ import {
 } from "@/components/ui/breadcrumb"
 import { WallpaperCard } from "@/components/wallpaper-gallery/wallpaper-card"
 import type { ContentBlock, ContentFaq } from "@/lib/content/types"
-import { macwall, macwallInstallerLatestPath } from "@/lib/macwall-site"
 import {
   proseBody,
   proseFaq,
@@ -85,24 +85,28 @@ export function WallpaperCollectionPage({
           >
             {breadcrumbs.map((crumb, index) => {
               const isLast = index === breadcrumbs.length - 1
+              // The separator is its own <li>, so it sits beside the item, not
+              // inside it (nested <li> broke hydration on these pages).
               return (
-                <BreadcrumbItem key={crumb.href} className="min-w-0">
-                  {isLast ? (
-                    <BreadcrumbPage className={GALLERY_TEXT_PRIMARY_CLASS}>
-                      {crumb.label}
-                    </BreadcrumbPage>
-                  ) : (
-                    <>
+                <Fragment key={crumb.href}>
+                  <BreadcrumbItem className="min-w-0">
+                    {isLast ? (
+                      <BreadcrumbPage className={GALLERY_TEXT_PRIMARY_CLASS}>
+                        {crumb.label}
+                      </BreadcrumbPage>
+                    ) : (
                       <BreadcrumbLink
                         asChild
                         className="transition hover:text-white"
                       >
                         <Link href={crumb.href}>{crumb.label}</Link>
                       </BreadcrumbLink>
-                      <BreadcrumbSeparator className="text-white/35" />
-                    </>
+                    )}
+                  </BreadcrumbItem>
+                  {isLast ? null : (
+                    <BreadcrumbSeparator className="text-white/35" />
                   )}
-                </BreadcrumbItem>
+                </Fragment>
               )
             })}
           </BreadcrumbList>
@@ -131,19 +135,12 @@ export function WallpaperCollectionPage({
           >
             {intro}
           </p>
-          <div className="mt-5 flex flex-wrap items-center gap-2.5">
-            <Link
-              href={macwallInstallerLatestPath}
-              className="inline-flex h-10 items-center rounded-full bg-white px-5 text-[14px] font-medium text-black transition hover:bg-white/90"
-            >
-              Download {macwall.name}
-            </Link>
-            {meta ? (
-              <span className={cn("text-[13px]", GALLERY_TEXT_TERTIARY_CLASS)}>
-                {meta}
-              </span>
-            ) : null}
-          </div>
+          <GalleryDownloadCta location="collection" />
+          {meta ? (
+            <p className={cn("mt-2 text-[13px]", GALLERY_TEXT_TERTIARY_CLASS)}>
+              {meta}
+            </p>
+          ) : null}
         </header>
 
         {wallpapers.length > 0 ? (

@@ -24,6 +24,7 @@ import { useCommandPalette } from "@/components/command-palette/command-palette-
 import { preloadCommandPaletteDialog } from "@/components/command-palette/command-palette-mount"
 import { ChevronDown, Search, X } from "lucide-react"
 import { CategoryIcon } from "@/components/wallpaper-gallery/category-icons"
+import { GalleryDownloadCta } from "@/components/wallpaper-gallery/gallery-download-cta"
 import { WallpaperCard } from "@/components/wallpaper-gallery/wallpaper-card"
 import {
   Breadcrumb,
@@ -642,6 +643,7 @@ export function WallpaperGallery({
         >
           {resolvedSubtitle}
         </p>
+        <GalleryDownloadCta location={activeCategory ? "gallery_category" : "gallery"} />
 
         <form
           onSubmit={onSearchSubmit}

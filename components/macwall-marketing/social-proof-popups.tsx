@@ -50,7 +50,12 @@ function readSessionFlag(key: string): boolean {
 
 function isPurchaseBannerOpen(): boolean {
   if (typeof document === "undefined") return false
-  return document.documentElement.dataset.macwallPurchaseBannerOpen === "true"
+  const { dataset } = document.documentElement
+  // The gallery "Download free" bar uses the same bottom spot.
+  return (
+    dataset.macwallPurchaseBannerOpen === "true" ||
+    dataset.macwallDownloadBarOpen === "true"
+  )
 }
 
 export function SocialProofPopups() {
@@ -86,7 +91,10 @@ export function SocialProofPopups() {
     const observer = new MutationObserver(sync)
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ["data-macwall-purchase-banner-open"],
+      attributeFilter: [
+        "data-macwall-purchase-banner-open",
+        "data-macwall-download-bar-open",
+      ],
     })
     return () => observer.disconnect()
   }, [])
