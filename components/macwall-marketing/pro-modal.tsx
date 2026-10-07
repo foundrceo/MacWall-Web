@@ -6,6 +6,7 @@ import { Check, Loader2, X } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
+import { BuyReassurance } from "@/components/macwall-marketing/buy-reassurance"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import {
@@ -172,6 +173,8 @@ export function ProModal({
               pricing.getProCta
             )}
           </TrackedPricingButton>
+
+          <BuyReassurance className="mt-4 px-1" />
 
           {/* Point-of-sale disclosure: terms and refund policy before payment.
               One idea per line: what you're charged, then what you agree to. */}
