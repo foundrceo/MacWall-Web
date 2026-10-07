@@ -69,7 +69,7 @@ export default async function WallpaperCategoryGalleryPage({
   try {
     initial = await listPublicWallpapers({
       category: name,
-      sort: "newest",
+      sort: "popular",
       page: 1,
       limit: 24,
     })
