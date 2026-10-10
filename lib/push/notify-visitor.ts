@@ -24,6 +24,7 @@ export async function notifyVisitorPush(input: {
 
   try {
     const res = await fetch(`${origin}/functions/v1/macwall-apns`, {
+      signal: AbortSignal.timeout(10000),
       method: "POST",
       headers: {
         "Content-Type": "application/json",

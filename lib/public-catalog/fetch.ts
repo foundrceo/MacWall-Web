@@ -1,5 +1,6 @@
 import "server-only"
 
+import { normalizeCatalogQuery } from "@/lib/public-catalog/query"
 import { unstable_cache } from "next/cache"
 import { cache } from "react"
 import {
@@ -163,14 +164,7 @@ function requireOrigin(): string {
 }
 
 function listQueryCacheKey(options: PublicWallpaperListQuery): string {
-  return JSON.stringify({
-    q: options.q?.trim() ?? "",
-    category: options.category?.trim() ?? "",
-    tag: options.tag?.trim() ?? "",
-    sort: options.sort ?? "newest",
-    page: options.page ?? 1,
-    limit: options.limit ?? 24,
-  })
+  return JSON.stringify(normalizeCatalogQuery(options))
 }
 
 async function fetchListPublicWallpapersUncached(
@@ -188,6 +182,8 @@ async function fetchListPublicWallpapersUncached(
     limit: String(limit),
     offset: String(offset),
   })
+
+  params.set("id", `not.in.(${[...REMOVED_PUBLIC_WALLPAPER_IDS].join(",")})`)
 
   const q = options.q?.trim()
   if (q) {
@@ -216,10 +212,8 @@ async function fetchListPublicWallpapersUncached(
 
   const res = await fetch(`${origin}/rest/v1/wallpapers?${params}`, {
     headers: catalogHeaders(true),
-    next: {
-      revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
-      tags: [PUBLIC_CATALOG_CACHE_TAG],
-    },
+    cache: "no-store",
+    signal: AbortSignal.timeout(8000),
   })
 
   if (!res.ok) {
@@ -256,7 +250,10 @@ const getCachedListPublicWallpapers = unstable_cache(
 export async function listPublicWallpapers(
   options: PublicWallpaperListQuery = {}
 ): Promise<PublicWallpaperListResult> {
-  return getCachedListPublicWallpapers(listQueryCacheKey(options))
+  const normalized = normalizeCatalogQuery(options)
+  // Free-form searches must not create a persisted cache entry for every input.
+  if (normalized.q || normalized.tag || normalized.page > 20) return fetchListPublicWallpapersUncached(normalized)
+  return getCachedListPublicWallpapers(listQueryCacheKey(normalized))
 }
 
 async function fetchPublicWallpaperByIdUncached(
@@ -274,10 +271,8 @@ async function fetchPublicWallpaperByIdUncached(
 
   const res = await fetch(`${origin}/rest/v1/wallpapers?${params}`, {
     headers: catalogHeaders(),
-    next: {
-      revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
-      tags: [PUBLIC_CATALOG_CACHE_TAG, `wallpaper-${id}`],
-    },
+    cache: "no-store",
+    signal: AbortSignal.timeout(8000),
   })
 
   if (!res.ok) {
@@ -323,17 +318,15 @@ async function fetchSimilarPublicWallpapersUncached(
   const params = new URLSearchParams({
     select: LIST_SELECT_COLUMNS,
     category: `eq.${wallpaper.category}`,
-    id: `neq.${wallpaper.id}`,
+    id: `not.in.(${[wallpaper.id, ...REMOVED_PUBLIC_WALLPAPER_IDS].join(",")})`,
     order: "like_count.desc,created_at.desc",
     limit: String(Math.min(24, Math.max(1, limit))),
   })
 
   const res = await fetch(`${origin}/rest/v1/wallpapers?${params}`, {
     headers: catalogHeaders(),
-    next: {
-      revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
-      tags: [PUBLIC_CATALOG_CACHE_TAG],
-    },
+    cache: "no-store",
+    signal: AbortSignal.timeout(8000),
   })
 
   if (!res.ok) {
@@ -365,7 +358,7 @@ export async function listSimilarPublicWallpapers(
   wallpaper: PublicWallpaper,
   limit = 6
 ): Promise<PublicWallpaper[]> {
-  const safeLimit = Math.min(24, Math.max(1, limit))
+  const safeLimit = Number.isFinite(limit) ? Math.min(24, Math.max(1, Math.floor(limit))) : 6
   return getCachedSimilarPublicWallpapers(
     wallpaper.id,
     wallpaper.category,
@@ -413,6 +406,7 @@ async function fetchPublicWallpaperSitemapEntriesUncached(): Promise<
     const offset = (page - 1) * SITEMAP_PAGE_SIZE
     const params = new URLSearchParams({
       select: SITEMAP_SELECT_COLUMNS,
+      id: `not.in.(${[...REMOVED_PUBLIC_WALLPAPER_IDS].join(",")})`,
       order: "created_at.desc",
       limit: String(SITEMAP_PAGE_SIZE),
       offset: String(offset),
@@ -420,10 +414,8 @@ async function fetchPublicWallpaperSitemapEntriesUncached(): Promise<
 
     const res = await fetch(`${origin}/rest/v1/wallpapers?${params}`, {
       headers: catalogHeaders(),
-      next: {
-        revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
-        tags: [PUBLIC_CATALOG_CACHE_TAG],
-      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
     })
 
     if (!res.ok) {
@@ -487,6 +479,7 @@ async function fetchCollectionIndexRowsUncached(): Promise<
   for (let page = 1; page <= SITEMAP_MAX_PAGES; page += 1) {
     const params = new URLSearchParams({
       select: COLLECTION_INDEX_SELECT_COLUMNS,
+      id: `not.in.(${[...REMOVED_PUBLIC_WALLPAPER_IDS].join(",")})`,
       order: "like_count.desc,created_at.desc",
       limit: String(SITEMAP_PAGE_SIZE),
       offset: String((page - 1) * SITEMAP_PAGE_SIZE),
@@ -494,10 +487,8 @@ async function fetchCollectionIndexRowsUncached(): Promise<
 
     const res = await fetch(`${origin}/rest/v1/wallpapers?${params}`, {
       headers: catalogHeaders(),
-      next: {
-        revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
-        tags: [PUBLIC_CATALOG_CACHE_TAG],
-      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
     })
 
     if (!res.ok) {

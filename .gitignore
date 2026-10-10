@@ -58,6 +58,7 @@ service-account*.json
 
 # local databases / dumps
 *.sql
+!supabase/migrations/*.sql
 *.sqlite
 *.sqlite3
 *.db

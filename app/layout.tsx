@@ -33,9 +33,7 @@ import {
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
 import { averiaSerif, geistPixelSquare, geistSans } from "@/app/fonts"
-import { VercelAnalytics } from "@/components/analytics/vercel-analytics"
 import { PostHogAnalytics } from "@/components/analytics/posthog-analytics"
-import { SiteFlagValues } from "@/components/analytics/site-flag-values"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
@@ -246,7 +244,6 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {/* Feature flag values for Vercel Web Analytics + Flags Explorer. */}
-        <SiteFlagValues />
         <VisitorPlatformScript />
         <a
           href="#main-content"
@@ -284,7 +281,6 @@ export default function RootLayout({
             ) : null}
           </MarketingOnlyScripts>
         </ThemeProvider>
-        <VercelAnalytics />
         <PostHogAnalytics />
         {/* Sample vitals — full capture is rarely worth the Speed Insights bill. */}
         <SpeedInsights sampleRate={0.1} />

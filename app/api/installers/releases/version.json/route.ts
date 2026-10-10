@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache"
 import { NextResponse, type NextRequest } from "next/server"
 
 import { macwallInstallerDmgApiUrl } from "@/lib/macwall-installer-url"
@@ -42,51 +43,38 @@ function parseMetadata(raw: string): ReleaseMetadata | null {
   }
 }
 
-/**
- * Staged rollout: while `rollout.json` names the latest version with
- * percent < 100, devices whose bucket falls outside it keep getting the
- * previous stable metadata. Missing token (older apps), missing rollout
- * state, or a version mismatch all fall through to the latest release.
- */
-async function resolveServedMetadata(
-  latest: ReleaseMetadata,
+/** Share the release documents across every device instead of repeating R2 reads. */
+const getReleaseDocuments = unstable_cache(async () => {
+  const [latestRaw, rolloutRaw, stableRaw] = await Promise.all([
+    r2InstallersGetText(VERSION_KEY),
+    r2InstallersGetText(ROLLOUT_KEY).catch(() => null),
+    r2InstallersGetText(STABLE_VERSION_KEY).catch(() => null),
+  ])
+  const latest = parseMetadata(latestRaw)
+  if (!latest) throw new Error("version.json is missing a valid version")
+  return {
+    latest,
+    rollout: rolloutRaw ? parseRolloutState(rolloutRaw) : null,
+    stable: stableRaw ? parseMetadata(stableRaw) : null,
+  }
+}, ["installer-release-documents-v1"], { revalidate: 120 })
+
+function resolveServedMetadata(
+  documents: Awaited<ReturnType<typeof getReleaseDocuments>>,
   request: NextRequest
-): Promise<ReleaseMetadata> {
-  const device = sanitizeDeviceToken(
-    request.nextUrl.searchParams.get("did")
-  )
-  if (!device) return latest
-
-  let rolloutRaw: string
-  try {
-    rolloutRaw = await r2InstallersGetText(ROLLOUT_KEY)
-  } catch {
-    return latest
-  }
-  const rollout = parseRolloutState(rolloutRaw)
-  if (!rollout || rollout.version !== latest.version) return latest
-  if (rollout.percent >= 100 || rolloutBucket(device) < rollout.percent) {
-    return latest
-  }
-
-  try {
-    const stable = parseMetadata(await r2InstallersGetText(STABLE_VERSION_KEY))
-    if (stable) return stable
-  } catch {
-    // Fall through to latest below.
-  }
-  return latest
+): ReleaseMetadata {
+  const { latest, rollout, stable } = documents
+  const device = sanitizeDeviceToken(request.nextUrl.searchParams.get("did"))
+  if (!device || !rollout || rollout.version !== latest.version ||
+      rollout.percent >= 100 || rolloutBucket(device) < rollout.percent) return latest
+  return stable ?? latest
 }
 
 /** Serves update metadata from R2; rewrites the `.dmg` URL to our trusted API route. */
 export async function GET(request: NextRequest) {
   try {
-    const latest = parseMetadata(await r2InstallersGetText(VERSION_KEY))
-    if (!latest) {
-      throw new Error("version.json is missing a valid version")
-    }
-
-    const served = await resolveServedMetadata(latest, request)
+    const documents = await getReleaseDocuments()
+    const served = resolveServedMetadata(documents, request)
 
     return NextResponse.json(
       {

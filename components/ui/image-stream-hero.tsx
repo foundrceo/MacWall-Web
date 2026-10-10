@@ -114,15 +114,19 @@ function StreamCardMedia({
   const triedFallback = React.useRef(false)
 
   React.useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (!active || reduce || prefersPosterOnly() || (!item.video && !item.videoKey)) {
-      setSrc(null)
-      setShowVideo(false)
-      return
+    const update = () => {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      if (!active || reduce || prefersPosterOnly() || (!item.video && !item.videoKey)) {
+        setSrc(null)
+        setShowVideo(false)
+        return
+      }
+      triedFallback.current = false
+      setSrc(resolveVideoSrc(item))
+      setShowVideo(true)
     }
-    triedFallback.current = false
-    setSrc(resolveVideoSrc(item))
-    setShowVideo(true)
+    const frame = window.requestAnimationFrame(update)
+    return () => window.cancelAnimationFrame(frame)
   }, [active, item])
 
   React.useEffect(() => {
@@ -146,7 +150,7 @@ function StreamCardMedia({
     />
   )
 
-  if (!showVideo || !src) return poster
+  if (!active || !showVideo || !src) return poster
 
   return (
     <>

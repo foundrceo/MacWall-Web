@@ -31,12 +31,12 @@ the native mac app is a separate private product. this repo is the website only.
 
 ## run this website locally
 
-needs **node** 18+.
+needs **Node.js 24** and **npm 11** (the versions used by deployment and CI).
 
 ```sh
 git clone https://github.com/foundrceo/MacWall-Web.git
 cd MacWall-Web
-npm install
+npm ci
 cp .env.example .env
 npm run dev
 ```
@@ -46,6 +46,7 @@ open http://localhost:3000. most of the marketing site runs with empty env; chec
 ```sh
 npm run lint
 npm run typecheck
+npm test
 npm run build
 ```
 

@@ -17,6 +17,7 @@ async function proxyToEdge(cronSecret: string): Promise<NextResponse> {
   const endpoint = `${supabaseUrl.replace(/\/+$/, "")}/functions/v1/process-trial-ended-emails`
   try {
     const res = await fetch(endpoint, {
+      signal: AbortSignal.timeout(45000),
       method: "POST",
       headers: {
         "Content-Type": "application/json",

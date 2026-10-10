@@ -40,7 +40,7 @@ function PhotoGlyph({ className }: { className?: string }) {
   )
 }
 
-export function ChatAttachmentMedia({
+function ChatAttachmentMediaContent({
   src,
   alt = "Photo attachment",
   tone = "dark",
@@ -49,10 +49,6 @@ export function ChatAttachmentMedia({
 }: ChatAttachmentMediaProps) {
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading")
   const [lightboxOpen, setLightboxOpen] = useState(false)
-
-  useEffect(() => {
-    setStatus("loading")
-  }, [src])
 
   const closeLightbox = useCallback(() => setLightboxOpen(false), [])
 
@@ -161,4 +157,9 @@ export function ChatAttachmentMedia({
       ) : null}
     </>
   )
+}
+
+/** Source changes reset loading and lightbox state together. */
+export function ChatAttachmentMedia(props: ChatAttachmentMediaProps) {
+  return <ChatAttachmentMediaContent key={props.src} {...props} />
 }

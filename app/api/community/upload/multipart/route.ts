@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server"
+import { readBoundedJson, RequestBodyError } from "@/lib/http/bounded-json"
+import { consumePublicQuota } from "@/lib/http/public-quota"
 
 import {
   abortCommunityMultipartUpload,
@@ -54,11 +56,19 @@ export async function POST(request: Request) {
     )
   }
 
+  try {
+    if (!await consumePublicQuota(request, "community-multipart", 180)) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429, headers: { "Retry-After": "3600" } })
+    }
+  } catch {
+    return NextResponse.json({ error: "quota_unavailable" }, { status: 503 })
+  }
+
   let body: MultipartBody
   try {
-    body = (await request.json()) as MultipartBody
-  } catch {
-    return bad(400, "invalid_json")
+    body = (await readBoundedJson(request, 65536)) as MultipartBody
+  } catch (error) {
+    return bad(error instanceof RequestBodyError ? error.status : 400, error instanceof RequestBodyError ? error.message : "invalid_json")
   }
 
   const action = typeof body.action === "string" ? body.action.trim() : ""

@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic"
 /** Cap Fluid Compute duration — admin UI reconnects after this. */
 export const maxDuration = 300
 
-const SSE_MAX_MS = 5 * 60 * 1000
+const SSE_MAX_MS = 4 * 60 * 1000
 
 export async function GET(request: Request) {
   const denied = await requireAdminApi()

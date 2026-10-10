@@ -136,6 +136,7 @@ export async function r2CreateMultipartUpload(
   }
 
   const response = await client.fetch(url.toString(), {
+    signal: AbortSignal.timeout(15000),
     method: "POST",
     headers,
   })
@@ -194,7 +195,7 @@ export async function r2ListMultipartParts(
       url.searchParams.set("part-number-marker", String(partNumberMarker))
     }
 
-    const response = await client.fetch(url.toString(), { method: "GET" })
+    const response = await client.fetch(url.toString(), { method: "GET", signal: AbortSignal.timeout(15000) })
     if (!response.ok) {
       const body = await response.text().catch(() => "")
       throw new Error(
@@ -256,6 +257,7 @@ export async function r2CompleteMultipartUpload(
   const url = new URL(objectEndpoint(config, key))
   url.searchParams.set("uploadId", uploadId)
   const response = await client.fetch(url.toString(), {
+    signal: AbortSignal.timeout(15000),
     method: "POST",
     headers: { "Content-Type": "application/xml" },
     body,
@@ -276,7 +278,7 @@ export async function r2AbortMultipartUpload(
   const { client, config } = requireR2()
   const url = new URL(objectEndpoint(config, key))
   url.searchParams.set("uploadId", uploadId)
-  const response = await client.fetch(url.toString(), { method: "DELETE" })
+  const response = await client.fetch(url.toString(), { method: "DELETE", signal: AbortSignal.timeout(15000) })
   if (!response.ok && response.status !== 404) {
     const text = await response.text().catch(() => "")
     throw new Error(
@@ -289,6 +291,7 @@ export async function r2AbortMultipartUpload(
 export async function r2DeleteObject(key: string): Promise<void> {
   const { client, config } = requireR2()
   const response = await client.fetch(objectEndpoint(config, key), {
+    signal: AbortSignal.timeout(15000),
     method: "DELETE",
   })
   if (!response.ok && response.status !== 404) {
@@ -300,6 +303,7 @@ export async function r2DeleteObject(key: string): Promise<void> {
 export async function r2ObjectExists(key: string): Promise<boolean> {
   const { client, config } = requireR2()
   const response = await client.fetch(objectEndpoint(config, key), {
+    signal: AbortSignal.timeout(15000),
     method: "HEAD",
   })
   return response.ok
@@ -319,6 +323,7 @@ export async function r2CopyObject(
   if (await r2ObjectExists(destKey)) return
 
   const response = await client.fetch(objectEndpoint(config, destKey), {
+    signal: AbortSignal.timeout(15000),
     method: "PUT",
     headers: {
       "x-amz-copy-source": `/${config.bucket}/${encodeObjectKey(sourceKey)}`,
@@ -356,7 +361,7 @@ export async function r2ListObjects(
   url.searchParams.set("prefix", normalizedPrefix)
   url.searchParams.set("max-keys", String(limit))
 
-  const response = await client.fetch(url.toString(), { method: "GET" })
+  const response = await client.fetch(url.toString(), { method: "GET", signal: AbortSignal.timeout(15000) })
   if (!response.ok) {
     const body = await response.text().catch(() => "")
     throw new Error(
@@ -389,7 +394,7 @@ export async function r2HeadPublicObject(key: string): Promise<R2ObjectInfo> {
   const base = getR2PublicBaseUrl()
   const url = `${base}/${encodeObjectKey(key)}`
   try {
-    const response = await fetch(url, { method: "HEAD", cache: "no-store" })
+    const response = await fetch(url, { method: "HEAD", cache: "no-store", signal: AbortSignal.timeout(8000) })
     if (!response.ok) return { exists: false, sizeBytes: null }
     const size = Number(response.headers.get("content-length"))
     return {

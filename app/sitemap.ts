@@ -61,14 +61,8 @@ function editorialLastModifiedByPath(): Map<string, Date> {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = canonicalSiteOrigin()
 
-  let detailEntries: Awaited<
-    ReturnType<typeof listPublicWallpaperSitemapEntries>
-  > = []
-  try {
-    detailEntries = await listPublicWallpaperSitemapEntries()
-  } catch {
-    detailEntries = []
-  }
+  // Throw on transient failures so ISR retains its last successful sitemap.
+  const detailEntries = await listPublicWallpaperSitemapEntries()
 
   const collectionSummaries = await listCollectionSummaries()
   // Newest wallpaper in the catalog stands in for "collection last changed".
