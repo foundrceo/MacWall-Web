@@ -64,4 +64,10 @@ see [SECURITY.md](./SECURITY.md). Report issues to support@macwall.app.
 
 ## license
 
-mit — see [LICENSE](./LICENSE).
+website code is available under the MIT license — see [LICENSE](./LICENSE).
+
+third-party libraries and fonts retain their own licenses and copyright notices;
+see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md). wallpapers, videos,
+screenshots, review photos, product icons, and trademarks are not covered by the
+code license. this repository does not grant permission to redistribute those
+assets. see [CREDITS.md](./CREDITS.md) for the media policy.

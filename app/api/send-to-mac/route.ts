@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic"
 
 // Each request sends real email: keep it tight per IP and per address.
 const checkIpLimit = createInMemoryRateLimiter({ max: 5, windowMs: 60 * 60_000 })
-const checkEmailLimit = createInMemoryRateLimiter({ max: 2, windowMs: 24 * 60 * 60_000 })
+const checkEmailLimit = createInMemoryRateLimiter({ max: 3, windowMs: 24 * 60 * 60_000 })
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[a-z]{2,24}$/i
 
@@ -37,8 +37,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "invalid_email" }, { status: 400 })
   }
   if (checkEmailLimit(email).limited) {
-    // Already sent today: answer as if it worked so the form isn't a probe.
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: false, error: "too_many" }, { status: 429 })
   }
 
   const origin = getCatalogSupabaseOrigin()
@@ -59,6 +58,14 @@ export async function POST(request: Request) {
 
   if (!res?.ok) {
     return NextResponse.json({ ok: false, error: "send_failed" }, { status: 502 })
+  }
+  // The function answers 200 with `sent: false` when the address can't get mail.
+  const result = (await res.json().catch(() => null)) as { sent?: boolean; reason?: string } | null
+  if (result?.sent !== true) {
+    return NextResponse.json(
+      { ok: false, error: result?.reason ?? "send_failed" },
+      { status: 422 }
+    )
   }
 
   const sessionId =

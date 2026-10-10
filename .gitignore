@@ -96,7 +96,7 @@ tmp/
 
 supabase/.temp/
 supabase/.branches/
-.env*
+.claude/
 
 # Local MCP config (contains an API key)
 .mcp.json

@@ -1,5 +1,5 @@
 /**
- * Shared typography and link styles for /privacy and /terms (Cursor dark theme).
+ * Shared typography and link styles for the privacy and terms pages.
  */
 export const legalTextPrimary = "text-foreground"
 
