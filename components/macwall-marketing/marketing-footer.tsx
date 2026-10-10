@@ -90,7 +90,7 @@ function Socials({ className }: Readonly<{ className?: string }>) {
 
 function Copyright({ className }: Readonly<{ className?: string }>) {
   return (
-    <p className={cn("text-[13px] leading-[1.45] text-white/45", className)}>
+    <p className={cn("text-[13px] leading-[1.45] text-white/55", className)}>
       © {new Date().getFullYear()} {macwallMarketingCopy.footer.copyrightName}
     </p>
   )
@@ -239,7 +239,7 @@ function DesktopFooter() {
       ) : null}
       <div className="mt-6 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
         <Copyright />
-        <p className="text-[13px] text-white/45">
+        <p className="text-[13px] text-white/55">
           Requires {macwallMinimumMacOSVersion} or later
         </p>
       </div>
@@ -333,7 +333,7 @@ function DirectoryFooter() {
     },
     ...(legal ? [legal] : []),
   ]
-  const fine = "text-[12px] leading-[1.5] text-white/45"
+  const fine = "text-[12px] leading-[1.5] text-white/55"
   // py-1 / -my-1 grow every hit area to 24px+ without moving the text.
   const dirLink =
     "-my-1 flex w-fit items-center gap-1 rounded-sm py-1 text-[13px] leading-[1.4] text-white/55 transition-colors outline-none hover:text-foreground focus-visible:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"

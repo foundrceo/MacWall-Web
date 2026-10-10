@@ -92,7 +92,7 @@ export default function MarketingFooterAiSummary({
 
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
-      <span className={cn("text-[13px] leading-snug text-white/45", labelClassName)}>
+      <span className={cn("text-[13px] leading-snug text-white/55", labelClassName)}>
         Get an AI summary of {macwall.name}
       </span>
       <div className="-my-1.5 -mr-[7px] flex items-center">

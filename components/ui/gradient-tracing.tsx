@@ -1,7 +1,7 @@
 "use client"
 
 import { useId } from "react"
-import { motion } from "motion/react"
+import { useReducedMotion } from "motion/react"
 
 type GradientTracingProps = {
   width: number
@@ -25,6 +25,7 @@ export function GradientTracing({
   className,
 }: GradientTracingProps) {
   const gradientId = useId().replace(/:/g, "")
+  const reduceMotion = useReducedMotion()
 
   return (
     <div className={className} style={{ width, height }}>
@@ -48,23 +49,22 @@ export function GradientTracing({
           strokeWidth={strokeWidth}
         />
         <defs>
-          <motion.linearGradient
-            animate={{
-              x1: [0, width * 2],
-              x2: [0, width],
-            }}
-            transition={{
-              duration: animationDuration,
-              repeat: Infinity,
-              ease: "linear",
-            }}
+          <linearGradient
             id={gradientId}
             gradientUnits="userSpaceOnUse"
+            x1="0"
+            x2={width}
+            y1="0"
+            y2="0"
           >
+            {!reduceMotion ? <>
+              <animate attributeName="x1" values={`0;${width * 2}`} dur={`${animationDuration}s`} repeatCount="indefinite" />
+              <animate attributeName="x2" values={`0;${width}`} dur={`${animationDuration}s`} repeatCount="indefinite" />
+            </> : null}
             <stop stopColor={gradientColors[0]} stopOpacity="0" />
             <stop stopColor={gradientColors[1]} />
             <stop offset="1" stopColor={gradientColors[2]} stopOpacity="0" />
-          </motion.linearGradient>
+          </linearGradient>
         </defs>
       </svg>
     </div>
