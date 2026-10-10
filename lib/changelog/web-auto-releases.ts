@@ -6,6 +6,220 @@ import type { ChangelogRelease } from "@/lib/changelog/types"
 
 export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
   {
+    id: "web-2026-10-10",
+    version: "2026.10.10",
+    date: "2026-10-10T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Clarify public asset licenses and improve download email feedback.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-07",
+    version: "2026.10.7",
+    date: "2026-10-07T12:00:00.000Z",
+    sections: [
+      {
+        kind: "features",
+        items: [
+          "Gallery, category and collection pages: Download free button and sticky bar.",
+          "Public wallpaper gallery with search, SEO, and app deep links.",
+          "New share image: headline beside a Mac screen with a live wallpaper.",
+          "Hero: new app video, 1080p on wide screens, played at 0.75x.",
+        ],
+      },
+      {
+        kind: "improvements",
+        items: [
+          "Get Pro: money-back guarantee and key-by-email lines under every button.",
+          "Wallpaper banner: free trial first for browsers that never downloaded.",
+          "Install guide: step 4 shows where Try Free is on the first-run paywall.",
+          "Send to my Mac: one button, the email field opens in a pop-up.",
+          "Help center: topic cards, search, still-stuck contact; help in ⌘K.",
+          "Clearer pricing cards, benefits, and upgrade prompts.",
+          "Discord members get 10% off on the pricing page.",
+          "Phones and Windows: email me the download link; Set on Mac per device.",
+          "Hero video: play at 0.6x.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-06",
+    version: "2026.10.6",
+    date: "2026-10-06T12:00:00.000Z",
+    sections: [
+      {
+        kind: "features",
+        items: [
+          "Homepage: new hero, navbar, category strip and License pop-up.",
+          "Homepage: every feature, one rhythm; support FAQ; new 404 and error pages.",
+        ],
+      },
+      {
+        kind: "improvements",
+        items: [
+          "Install guide: double-click animation on the DMG in step 1.",
+          "Install guide after download, CTA lab.",
+          "Homepage: features as rows, Apple-style footer, design labs.",
+          "Everything in the app: no scroll-in animation.",
+          "Homepage: Playback as a moments table, cleaner feature grid, fewer sections.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-05",
+    version: "2026.10.5",
+    date: "2026-10-05T12:00:00.000Z",
+    sections: [
+      {
+        kind: "features",
+        items: [
+          "New MacWall icon on the site: favicons, touch icons, email logo.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-03",
+    version: "2026.10.3",
+    date: "2026-10-03T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Set on Mac opens the app: top-level macwall:// link, not a hidden iframe.",
+          "App update email: send-app-update-emails function.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-02",
+    version: "2026.10.2",
+    date: "2026-10-02T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "License email: restore the original footnote.",
+          "Cashfree: email the key only for orders whose email the buyer typed.",
+          "Rights declaration, moderation log and honest attribution on the website.",
+          "Wallpaper pages: credit real uploaders only, drop the MacWall catalog label.",
+          "Offer a 14-day money-back guarantee on every license.",
+          "Stop asking customers to wait before disputing a charge.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-01",
+    version: "2026.10.1",
+    date: "2026-10-01T12:00:00.000Z",
+    sections: [
+      {
+        kind: "features",
+        items: [
+          "Add cookie consent for EEA/UK/CH and honor Global Privacy Control.",
+          "Add a Contact page with support, billing and company details.",
+        ],
+      },
+      {
+        kind: "improvements",
+        items: [
+          "Fill remaining legal gaps: trial, submissions, cookies, vendors, DMCA agent.",
+          "Complete the legal pages and show terms at the point of sale.",
+          "Show only real social proof and true catalog numbers.",
+          "Show OG APPS, LLC as the legal owner of MacWall (#3).",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-09-28",
+    version: "2026.9.28",
+    date: "2026-09-28T12:00:00.000Z",
+    sections: [
+      {
+        kind: "features",
+        items: [
+          "Performance: static gallery, lazy palette/modal, leaner preloads.",
+        ],
+      },
+      {
+        kind: "improvements",
+        items: [
+          "Pricing: never show a bare $ for non-US currencies.",
+          "Send phones and Windows to the send-to-Mac hero instead of the DMG.",
+          "Set on Mac opens the app in place, never redirects or auto-downloads.",
+          "Player: LCP poster fetchpriority + stuck-timer master fallback.",
+          "Checkout hygiene: keep bots out, prune dead pending licenses.",
+          "Faster checkout when upgrading to Pro.",
+          "Stop serving full-res wallpaper masters; show ≈ USD beside local price (#2).",
+          "Pricing page redesign, prerendered with full content.",
+          "Limited-time sale banner with responsive layout.",
+          "SEO/AEO/GEO: 45 wallpaper collections, richer wallpaper pages, answer-first guides (#1).",
+          "Checkout: stop prefilling customer_email so every buyer gets the local-currency option.",
+          "Checkout: look up the visitor's country by IP when geo headers are missing.",
+          "Stop queueing legacy checkout_started recovery rows.",
+          "Use discount@macwall.app for reel refund email.",
+          "Reply-To support on license emails.",
+        ],
+      },
+      {
+        kind: "fixes",
+        items: [
+          "Fix wallpaper previews, Set on Mac deep link, dev preview headers.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-09-26",
+    version: "2026.9.26",
+    date: "2026-09-26T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Tighten conversion email CTAs and attribute checkout clicks.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-09-20",
+    version: "2026.9.20",
+    date: "2026-09-20T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Allowlist WALL50 so the 50% email offer auto-applies at checkout.",
+          "Capture known emails on checkout so abandoned sessions can be recovered.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-09-19",
+    version: "2026.9.19",
+    date: "2026-09-19T12:00:00.000Z",
+    sections: [
+      {
+        kind: "fixes",
+        items: [
+          "Creators tracker, skeleton reveal system, grouped nav, portal popup fix.",
+        ],
+      },
+    ],
+  },
+  {
     id: "web-2026-09-18",
     version: "2026.9.18",
     date: "2026-09-18T12:00:00.000Z",
@@ -13,6 +227,7 @@ export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
       {
         kind: "improvements",
         items: [
+          "Creator rebuild, instant pricing, capsule buttons, docs polish.",
           "Instant regional pricing via cache, blank until resolved.",
         ],
       },

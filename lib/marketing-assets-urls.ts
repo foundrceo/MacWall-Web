@@ -15,8 +15,12 @@ export const MARKETING_ASSETS_R2_PREFIX = "assets" as const
 export const MARKETING_HERO_VIDEO_MP4_PATH = "/hero/hero-video.mp4" as const
 export const MARKETING_HERO_VIDEO_MP4_720_PATH =
   "/hero/hero-video-720.mp4" as const
+export const MARKETING_HERO_VIDEO_MP4_MOBILE_PATH =
+  "/hero/hero-video-mobile.mp4" as const
 export const MARKETING_HERO_VIDEO_POSTER_PATH =
-  "/hero/hero-video-poster.jpg" as const
+  "/hero/hero-video-poster.avif" as const
+export const MARKETING_HERO_VIDEO_POSTER_SMALL_PATH =
+  "/hero/hero-video-poster-640.avif" as const
 
 function encodeObjectPath(path: string): string {
   return path
@@ -80,7 +84,7 @@ export function marketingWalkthroughVideoSources(): readonly MarketingVideoSourc
 /** Lighter encode for small viewports and metered connections. */
 export function marketingWalkthroughVideoMobileSource(): MarketingVideoSource {
   return {
-    src: MARKETING_HERO_VIDEO_MP4_720_PATH,
+    src: MARKETING_HERO_VIDEO_MP4_MOBILE_PATH,
     type: "video/mp4",
   }
 }

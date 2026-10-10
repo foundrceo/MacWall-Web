@@ -99,7 +99,8 @@ function WallpaperCardMedia({
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover [-webkit-user-drag:none]"
-          priority={priority}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : undefined}
           draggable={false}
           // Sized by Cloudflare on the R2 CDN, not Vercel Image Optimization.
           loader={catalogImageLoader}

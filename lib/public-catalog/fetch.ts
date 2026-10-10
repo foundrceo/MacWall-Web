@@ -380,8 +380,10 @@ export type PublicWallpaperSitemapEntry = {
   lastModified: Date
 }
 
-const SITEMAP_PAGE_SIZE = 100
-const SITEMAP_MAX_PAGES = 50
+// Larger batches reduce serial reads during builds and cache refreshes.
+// Keep the same 5,000-item ceiling, within Supabase's default row cap.
+const SITEMAP_PAGE_SIZE = 500
+const SITEMAP_MAX_PAGES = 10
 
 function mapSitemapRow(row: SitemapWallpaperRow): PublicWallpaperSitemapEntry {
   const parsed = Date.parse(row.created_at)

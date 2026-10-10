@@ -63,7 +63,7 @@ export default function MarketingFaqSection({
           {landing.faqLead}{" "}
           <a
             href={mailtoSupport}
-            className="text-foreground underline-offset-4 hover:underline"
+            className="text-foreground underline underline-offset-4"
           >
             {landing.contactUs}
           </a>

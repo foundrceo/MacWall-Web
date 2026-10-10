@@ -815,7 +815,7 @@ export function WallpaperGallery({
             <WallpaperCard
               key={wallpaper.id}
               wallpaper={wallpaper}
-              priority={index < 6}
+              priority={index < 3}
               index={index}
               entranceIndex={entranceIndices[wallpaper.id] ?? index}
               animateEntrance={!suppressEntrance}

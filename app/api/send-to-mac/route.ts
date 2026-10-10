@@ -2,6 +2,8 @@ import { after, NextResponse } from "next/server"
 
 import { trackSiteEvent } from "@/lib/analytics/track-server"
 import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
+import { readBoundedJson, RequestBodyError } from "@/lib/http/bounded-json"
+import { consumePublicQuota, consumePublicSubjectQuota } from "@/lib/http/public-quota"
 import {
   clientIpFromRequest,
   createInMemoryRateLimiter,
@@ -12,7 +14,6 @@ export const dynamic = "force-dynamic"
 
 // Each request sends real email: keep it tight per IP and per address.
 const checkIpLimit = createInMemoryRateLimiter({ max: 5, windowMs: 60 * 60_000 })
-const checkEmailLimit = createInMemoryRateLimiter({ max: 3, windowMs: 24 * 60 * 60_000 })
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[a-z]{2,24}$/i
 
@@ -28,16 +29,16 @@ export async function POST(request: Request) {
 
   let body: { email?: unknown; wallpaperName?: unknown; wallpaperPath?: unknown; sessionId?: unknown }
   try {
-    body = await request.json()
-  } catch {
-    body = {}
+    body = await readBoundedJson(request, 4096)
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof RequestBodyError ? error.message : "invalid_json" },
+      { status: error instanceof RequestBodyError ? error.status : 400 }
+    )
   }
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : ""
   if (!EMAIL.test(email) || email.length > 254) {
     return NextResponse.json({ ok: false, error: "invalid_email" }, { status: 400 })
-  }
-  if (checkEmailLimit(email).limited) {
-    return NextResponse.json({ ok: false, error: "too_many" }, { status: 429 })
   }
 
   const origin = getCatalogSupabaseOrigin()
@@ -46,9 +47,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "not_configured" }, { status: 503 })
   }
 
+  // Shared counters survive cold starts and concurrent Vercel instances.
+  try {
+    if (!(await consumePublicQuota(request, "send_to_mac_ip", 5, 3600))) {
+      return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 })
+    }
+    if (!(await consumePublicSubjectQuota(`email:${email}`, "send_to_mac_email", 3, 86400))) {
+      return NextResponse.json({ ok: false, error: "too_many" }, { status: 429 })
+    }
+  } catch {
+    return NextResponse.json({ ok: false, error: "temporarily_unavailable" }, { status: 503 })
+  }
+
   const res = await fetch(`${origin}/functions/v1/send-to-mac`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-cron-secret": secret },
+    signal: AbortSignal.timeout(15_000),
     body: JSON.stringify({
       email,
       wallpaperName: body.wallpaperName,
@@ -63,7 +77,7 @@ export async function POST(request: Request) {
   const result = (await res.json().catch(() => null)) as { sent?: boolean; reason?: string } | null
   if (result?.sent !== true) {
     return NextResponse.json(
-      { ok: false, error: result?.reason ?? "send_failed" },
+      { ok: false, error: result?.reason === "undeliverable" ? "undeliverable" : "send_failed" },
       { status: 422 }
     )
   }

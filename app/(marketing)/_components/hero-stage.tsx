@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react"
 import { HERO_VIDEO_ASPECT_CLASS } from "@/lib/marketing/hero-walkthrough-video.shared"
 import {
   MARKETING_HERO_VIDEO_MP4_720_PATH,
+  MARKETING_HERO_VIDEO_MP4_MOBILE_PATH,
   MARKETING_HERO_VIDEO_MP4_PATH,
   MARKETING_HERO_VIDEO_POSTER_PATH,
+  MARKETING_HERO_VIDEO_POSTER_SMALL_PATH,
 } from "@/lib/marketing-assets-urls"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
@@ -19,7 +21,9 @@ import { cn } from "@/lib/utils"
 const HERO_VIDEO = {
   src: MARKETING_HERO_VIDEO_MP4_PATH,
   smallSrc: MARKETING_HERO_VIDEO_MP4_720_PATH,
+  mobileSrc: MARKETING_HERO_VIDEO_MP4_MOBILE_PATH,
   poster: MARKETING_HERO_VIDEO_POSTER_PATH,
+  smallPoster: MARKETING_HERO_VIDEO_POSTER_SMALL_PATH,
   aspectClass: HERO_VIDEO_ASPECT_CLASS,
 } as const
 
@@ -50,7 +54,7 @@ export function HeroStage() {
   const [reduceMotion, setReduceMotion] = useState(false)
   const [inView, setInView] = useState(false)
   const [playing, setPlaying] = useState(false)
-  const [videoSrc, setVideoSrc] = useState<string>(HERO_VIDEO.smallSrc)
+  const [videoSrc, setVideoSrc] = useState<string>(HERO_VIDEO.mobileSrc)
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -64,6 +68,8 @@ export function HeroStage() {
         // Chosen once, before the video mounts, so it never swaps mid-play.
         if (window.matchMedia(WIDE_SCREEN_QUERY).matches) {
           setVideoSrc(HERO_VIDEO.src)
+        } else if (window.matchMedia("(min-width: 768px)").matches) {
+          setVideoSrc(HERO_VIDEO.smallSrc)
         }
         setAllowVideo(!prefersLightweightMedia())
       }
@@ -108,7 +114,10 @@ export function HeroStage() {
       {/* eslint-disable-next-line @next/next/no-img-element -- blurred glow source */}
       <img
         src={HERO_VIDEO.poster}
+        srcSet={`${HERO_VIDEO.smallPoster} 640w, ${HERO_VIDEO.poster} 1108w`}
+        sizes="(min-width: 1024px) 1024px, calc(100vw - 48px)"
         alt=""
+        fetchPriority="high"
         aria-hidden
         className="pointer-events-none absolute inset-x-[6%] top-[8%] -z-10 h-[84%] w-[88%] scale-110 object-cover opacity-45 blur-[72px] saturate-150"
       />
@@ -123,6 +132,10 @@ export function HeroStage() {
           {/* eslint-disable-next-line @next/next/no-img-element -- poster, already sized */}
           <img
             src={HERO_VIDEO.poster}
+            srcSet={`${HERO_VIDEO.smallPoster} 640w, ${HERO_VIDEO.poster} 1108w`}
+            sizes="(min-width: 1024px) 1024px, calc(100vw - 48px)"
+            width={1108}
+            height={720}
             alt=""
             fetchPriority="high"
             className="absolute inset-0 size-full object-cover"

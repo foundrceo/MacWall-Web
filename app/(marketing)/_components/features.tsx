@@ -120,7 +120,7 @@ function buildItems(withAnchors: boolean): FeatureItem[] {
       media: () => (
         <DeferredVideo
           src="/hero/bend-demo.mp4"
-          poster="/hero/bend-poster.jpg"
+          poster="/hero/bend-poster.avif"
           label={s.bend.title}
         />
       ),
