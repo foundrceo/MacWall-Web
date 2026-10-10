@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 
 /** H.264 rather than VP9 — Safari's WebM support is too patchy for the Mac audience. */
 const LOCK_SCREEN_VIDEO_SRC = "/hero/lockscreen.mp4"
-const LOCK_SCREEN_POSTER_SRC = "/hero/lockscreen-poster.jpg"
+const LOCK_SCREEN_POSTER_SRC = "/hero/lockscreen-poster.avif"
 
 /**
  * Lock Screen feature demo — defers loading the clip until it is near the

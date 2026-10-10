@@ -20,7 +20,7 @@ export const marketingMediaSlots = {
     label: "Music Sync: synced lyrics on the Lock Screen",
     note: "A song playing in Apple Music or Spotify: the desktop visual moving on the beat, then the Lock Screen player or lyrics.",
     src: "/hero/music-sync.mp4",
-    poster: "/hero/music-sync-poster.jpg",
+    poster: "/hero/music-sync-poster.avif",
   },
 } satisfies Record<string, MarketingMediaSlot>
 

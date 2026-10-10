@@ -15,7 +15,7 @@ import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { cn } from "@/lib/utils"
 
 const BEND_VIDEO_SRC = "/hero/bend-demo.mp4"
-const BEND_POSTER_SRC = "/hero/bend-poster.jpg"
+const BEND_POSTER_SRC = "/hero/bend-poster.avif"
 
 export function Bend() {
   const bend = macwallMarketingCopy.landing.bend

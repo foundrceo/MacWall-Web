@@ -72,7 +72,7 @@ export function Categories() {
                 <Link
                   href={wallpapersGalleryPath(categorySlugFromName(item.name))}
                   tabIndex={repeat ? -1 : undefined}
-                  className="flex items-center gap-2.5 px-7 py-1 text-xl font-semibold tracking-tight whitespace-nowrap text-white/45 transition-colors outline-none hover:text-white focus-visible:text-white sm:px-9 sm:text-2xl"
+                  className="flex items-center gap-2.5 px-7 py-1 text-xl font-semibold tracking-tight whitespace-nowrap text-white/55 transition-colors outline-none hover:text-white focus-visible:text-white sm:px-9 sm:text-2xl"
                 >
                   <HugeiconsIcon
                     icon={item.icon}

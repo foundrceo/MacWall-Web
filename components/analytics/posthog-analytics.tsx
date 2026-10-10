@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import posthog from "posthog-js"
+import type { PostHog } from "posthog-js"
 import { useEffect } from "react"
 
 import { isPrivateAnalyticsPath, redactAnalyticsProperties } from "@/lib/analytics/privacy"
@@ -18,17 +18,18 @@ const POSTHOG_TOKEN =
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 let initialized = false
+let posthog: PostHog | null = null
 
 function consentAllowed(): boolean {
   return adPixelState() === "allowed"
 }
 
 /** The Mac app identifies with its install UUID in upper case; match it. */
-function linkVisitorFromUrl() {
+function linkVisitorFromUrl(client: PostHog) {
   const params = new URLSearchParams(window.location.search)
   const visitorId = params.get("visitor_id")?.trim() ?? ""
   if (UUID_PATTERN.test(visitorId)) {
-    posthog.identify(visitorId.toUpperCase())
+    client.identify(visitorId.toUpperCase())
   }
 
 }
@@ -37,18 +38,25 @@ export function PostHogAnalytics() {
   const pathname = usePathname()
 
   useEffect(() => {
-    const sync = () => {
+    let disposed = false
+    let revision = 0
+    const sync = async () => {
+      const currentRevision = ++revision
       const allowed = consentAllowed() && !isPrivateAnalyticsPath(window.location.pathname)
       if (!allowed) {
-        if (initialized) {
+        if (initialized && posthog) {
           posthog.stopSessionRecording()
           posthog.opt_out_capturing()
         }
         return
       }
+      const client = posthog ?? (await import("posthog-js")).default
+      // Consent or the route can change while the SDK is downloading.
+      if (disposed || revision !== currentRevision || !consentAllowed() || isPrivateAnalyticsPath(window.location.pathname)) return
+      posthog = client
       if (!initialized) {
         initialized = true
-        posthog.init(POSTHOG_TOKEN, {
+        client.init(POSTHOG_TOKEN, {
           api_host: "https://us.i.posthog.com",
           ui_host: "https://us.posthog.com",
           defaults: "2025-05-24",
@@ -68,12 +76,30 @@ export function PostHogAnalytics() {
           loaded: (client) => client.register({ site: "macwall.app" }),
         })
       }
-      posthog.opt_in_capturing({ captureEventName: false })
-      linkVisitorFromUrl()
-      posthog.capture("$pageview")
+      client.opt_in_capturing({ captureEventName: false })
+      linkVisitorFromUrl(client)
+      client.capture("$pageview")
     }
-    sync()
-    return subscribeConsent(sync)
+    // Optional analytics follows the page's images and fonts.
+    let idleId: number | undefined
+    let timerId: number | undefined
+    const schedule = () => {
+      if (window.requestIdleCallback) {
+        idleId = window.requestIdleCallback(() => { void sync().catch(() => undefined) }, { timeout: 2000 })
+      } else {
+        timerId = window.setTimeout(() => { void sync().catch(() => undefined) }, 200)
+      }
+    }
+    if (document.readyState === "complete") schedule()
+    else window.addEventListener("load", schedule, { once: true })
+    const unsubscribe = subscribeConsent(() => { void sync().catch(() => undefined) })
+    return () => {
+      disposed = true
+      unsubscribe()
+      window.removeEventListener("load", schedule)
+      if (idleId !== undefined) window.cancelIdleCallback(idleId)
+      if (timerId !== undefined) window.clearTimeout(timerId)
+    }
   }, [pathname])
 
   return null
@@ -84,7 +110,7 @@ export function capturePostHogEvent(
   name: string,
   properties: Record<string, string | number | boolean | null>
 ) {
-  if (!initialized || !consentAllowed() || isPrivateAnalyticsPath(window.location.pathname)) return
+  if (!posthog || !initialized || !consentAllowed() || isPrivateAnalyticsPath(window.location.pathname)) return
   try {
     posthog.capture(name, redactAnalyticsProperties(properties))
   } catch {

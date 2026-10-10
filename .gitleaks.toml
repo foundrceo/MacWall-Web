@@ -1,0 +1,17 @@
+title = "MacWall public source"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Public write-only analytics ingestion token"
+regexTarget = "secret"
+regexes = ['''^phc_rFwFsuj8gyhuhf9kKMGyqmxZ2YxUNifBe65j99o7JrtH$''']
+
+[[allowlists]]
+description = "License generator alphabet and the explicit email preview fixture"
+regexTarget = "secret"
+regexes = [
+  '''^ABCDEFGHJKLMNPQRSTUVWXYZ23456789$''',
+  '''^MW-PRO3-K7X2-9M4Q-B1NW$''',
+]

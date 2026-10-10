@@ -1,7 +1,7 @@
 "use client"
 
 import { type RefObject, useEffect, useId, useState } from "react"
-import { motion } from "motion/react"
+import { useReducedMotion } from "motion/react"
 
 import { cn } from "@/lib/utils"
 
@@ -45,6 +45,7 @@ export function AnimatedBeam({
   endYOffset = 0,
 }: AnimatedBeamProps) {
   const id = useId()
+  const reducedMotion = useReducedMotion()
   const [pathD, setPathD] = useState("")
   const [svgDimensions, setSvgDimensions] = useState({ width: 0, height: 0 })
 
@@ -106,6 +107,7 @@ export function AnimatedBeam({
 
   return (
     <svg
+      aria-hidden="true"
       fill="none"
       width={svgDimensions.width}
       height={svgDimensions.height}
@@ -131,30 +133,32 @@ export function AnimatedBeam({
         strokeLinecap="round"
       />
       <defs>
-        <motion.linearGradient
-          className="transform-gpu"
+        <linearGradient
           id={id}
           gradientUnits="userSpaceOnUse"
-          initial={{ x1: "0%", x2: "0%", y1: "0%", y2: "0%" }}
-          animate={{
-            x1: gradientCoordinates.x1,
-            x2: gradientCoordinates.x2,
-            y1: gradientCoordinates.y1,
-            y2: gradientCoordinates.y2,
-          }}
-          transition={{
-            delay,
-            duration,
-            ease: [0.16, 1, 0.3, 1],
-            repeat: Infinity,
-            repeatDelay: 0,
-          }}
+          x1={gradientCoordinates.x1[0]}
+          x2={gradientCoordinates.x2[0]}
+          y1="0%"
+          y2="0%"
         >
+          {!reducedMotion && ["x1", "x2"].map((coordinate) => (
+            <animate
+              key={coordinate}
+              attributeName={coordinate}
+              values={gradientCoordinates[coordinate as "x1" | "x2"].join(";")}
+              dur={`${duration}s`}
+              begin={`${delay}s`}
+              repeatCount="indefinite"
+              calcMode="spline"
+              keyTimes="0;1"
+              keySplines="0.16 1 0.3 1"
+            />
+          ))}
           <stop stopColor={gradientStartColor} stopOpacity="0" />
           <stop stopColor={gradientStartColor} />
           <stop offset="32.5%" stopColor={gradientStopColor} />
           <stop offset="100%" stopColor={gradientStopColor} stopOpacity="0" />
-        </motion.linearGradient>
+        </linearGradient>
       </defs>
     </svg>
   )
