@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server"
+import { readBoundedJson, RequestBodyError } from "@/lib/http/bounded-json"
+import { consumePublicQuota } from "@/lib/http/public-quota"
 
 import { analyzeWallpaperMetadataBatch } from "@/lib/admin/wallpaper-ai-metadata"
 import {
@@ -54,11 +56,19 @@ export async function POST(request: Request) {
     )
   }
 
+  try {
+    if (!await consumePublicQuota(request, "community-ai", 60)) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429, headers: { "Retry-After": "3600" } })
+    }
+  } catch {
+    return NextResponse.json({ error: "quota_unavailable" }, { status: 503 })
+  }
+
   let body: AnalyzeRequest
   try {
-    body = (await request.json()) as AnalyzeRequest
-  } catch {
-    return NextResponse.json({ error: "invalid_json" }, { status: 400 })
+    body = (await readBoundedJson(request, 420000)) as AnalyzeRequest
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof RequestBodyError ? error.message : "invalid_json" }, { status: error instanceof RequestBodyError ? error.status : 400 })
   }
 
   const thumbDataUrl =

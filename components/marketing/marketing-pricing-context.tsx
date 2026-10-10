@@ -28,7 +28,7 @@ const PRICING_FETCH_TIMEOUT_MS = 3000
 
 /** Last-known regional pricing — instant first paint for return visitors. */
 const PRICING_CACHE_KEY = "macwall-marketing-pricing-v2"
-/** Local cache freshness — background revalidate still runs on every mount. */
+/** Local cache freshness — fetch again only after expiry or country change. */
 const PRICING_CACHE_TTL_MS = 24 * 60 * 60 * 1000
 /** Same-session refetch guard — provider remounts reuse memory first. */
 const PRICING_MEMORY_TTL_MS = 5 * 60 * 1000
@@ -45,7 +45,9 @@ function isFresh(entry: CachedPricing | null, ttlMs: number): boolean {
   return (
     entry !== null &&
     typeof entry.at === "number" &&
+    Date.now() - entry.at >= 0 &&
     Date.now() - entry.at < ttlMs &&
+    !!getVisitorCountry() && entry.pricing?.country === getVisitorCountry() &&
     !!entry.pricing &&
     typeof entry.pricing.permanentPrice === "string"
   )
@@ -80,7 +82,7 @@ function writeCachedPricing(pricing: MarketingPricing) {
   }
 }
 
-async function fetchPricing(signal: AbortSignal): Promise<MarketingPricing | null> {
+async function fetchPricing(): Promise<MarketingPricing | null> {
   // Dedupe concurrent mounts (StrictMode, fast remounts) into one request.
   if (!inflightFetch) {
     inflightFetch = (async () => {
@@ -93,7 +95,7 @@ async function fetchPricing(signal: AbortSignal): Promise<MarketingPricing | nul
           credentials: "same-origin",
           headers: { Accept: "application/json" },
           cache: "no-store",
-          signal,
+          signal: AbortSignal.timeout(PRICING_FETCH_TIMEOUT_MS),
         })
         if (!res.ok) return null
         const data = (await res.json()) as MarketingPricing
@@ -136,14 +138,9 @@ export function MarketingPricingProvider({
   useEffect(() => {
     if (initialPricing) return
     let cancelled = false
-    const controller = new AbortController()
-    const timeout = window.setTimeout(
-      () => controller.abort(),
-      PRICING_FETCH_TIMEOUT_MS
-    )
+    if (readCachedPricing()) return
     const load = async () => {
-      const data = await fetchPricing(controller.signal)
-      window.clearTimeout(timeout)
+      const data = await fetchPricing()
       if (cancelled) return
       if (data) {
         setPricing(data)
@@ -153,8 +150,6 @@ export function MarketingPricingProvider({
     void load()
     return () => {
       cancelled = true
-      window.clearTimeout(timeout)
-      controller.abort()
     }
   }, [initialPricing])
 

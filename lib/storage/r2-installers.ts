@@ -71,6 +71,7 @@ export async function r2InstallersGetText(key: string): Promise<string> {
   const client = clientFor(config)
   const response = await client.fetch(objectEndpoint(config, key), {
     method: "GET",
+    signal: AbortSignal.timeout(8000),
   })
   if (!response.ok) {
     throw new Error(`R2 installers GET ${key}: HTTP ${response.status}`)
@@ -85,6 +86,7 @@ export async function r2InstallersExists(key: string): Promise<boolean> {
   try {
     const response = await client.fetch(objectEndpoint(config, key), {
       method: "HEAD",
+      signal: AbortSignal.timeout(8000),
     })
     return response.ok
   } catch {

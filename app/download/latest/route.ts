@@ -1,7 +1,5 @@
 import { after, NextResponse } from "next/server"
 
-import { track as trackVercelServerEvent } from "@vercel/analytics/server"
-
 import { trackSiteEvent } from "@/lib/analytics/track-server"
 import {
   cannotOpenInstaller,
@@ -90,13 +88,6 @@ export async function GET(request: Request) {
           metadata: { os },
         })
       )
-      after(async () => {
-        try {
-          await trackVercelServerEvent("download_send_to_mac", { os })
-        } catch {
-          // Analytics must never break the redirect.
-        }
-      })
       return NextResponse.redirect(new URL("/?send=1", request.url), {
         status: 303,
         headers: { "Cache-Control": "private, no-store" },
@@ -115,19 +106,6 @@ export async function GET(request: Request) {
         metadata: { destination: destinationHost, os },
       })
     )
-    // Vercel Web Analytics custom event (server-side: no client equivalent,
-    // so no double-count with the `download_click` client event).
-    after(async () => {
-      try {
-        await trackVercelServerEvent("download_redirect", {
-          destination: destinationHost.slice(0, 255),
-          os,
-        })
-      } catch {
-        // Analytics must never break the redirect.
-      }
-    })
-
     return NextResponse.redirect(target, 302)
   } catch {
     return new NextResponse("Invalid installer URL.", { status: 500 })

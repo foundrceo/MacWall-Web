@@ -440,8 +440,7 @@ function buildLicenseEmailPlainText(args: {
 
 
 export async function cancelTrialEndedEmails(
-  // deno-lint-ignore no-explicit-any
-  supabase: SupabaseClient<any, "public", "public", any, any>,
+  supabase: SupabaseClient,
   email: string
 ): Promise<void> {
   const normalized = email.trim().toLowerCase()
