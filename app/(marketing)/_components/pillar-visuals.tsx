@@ -274,27 +274,22 @@ function LoopTraceVisual() {
           className={paused ? "opacity-40" : "opacity-100"}
         />
         <defs>
-          <motion.linearGradient
+          <linearGradient
             id={gradientId}
             gradientUnits="userSpaceOnUse"
-            animate={
-              reduce || paused
-                ? undefined
-                : {
-                    x1: [0, 1440],
-                    x2: [0, 720],
-                  }
-            }
-            transition={{
-              duration: 2.4,
-              repeat: Infinity,
-              ease: "linear",
-            }}
+            x1="0"
+            x2="120"
+            y1="0"
+            y2="0"
           >
+            {!reduce && !paused ? <>
+              <animate attributeName="x1" values="0;1440" dur="2.4s" repeatCount="indefinite" />
+              <animate attributeName="x2" values="0;720" dur="2.4s" repeatCount="indefinite" />
+            </> : null}
             <stop stopColor="#67edec" stopOpacity="0" />
             <stop stopColor="#67edec" />
             <stop offset="1" stopColor="#2979ff" stopOpacity="0" />
-          </motion.linearGradient>
+          </linearGradient>
         </defs>
       </svg>
       <div className="relative z-10 flex items-center gap-2">
