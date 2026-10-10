@@ -24,14 +24,9 @@ export async function listCollectionWallpapers(
   return all.filter((wallpaper) => wallpaperMatchesCollection(wallpaper, entry))
 }
 
-/** Count + cover for every collection. Empty on catalog failure. */
+/** Count + cover for every collection. Propagates catalog failures so ISR preserves prior content. */
 export async function listCollectionSummaries(): Promise<CollectionSummary[]> {
-  let all: PublicWallpaper[]
-  try {
-    all = await listPublicWallpapersForCollections()
-  } catch {
-    return []
-  }
+  const all = await listPublicWallpapersForCollections()
 
   return wallpaperCollections.map((collection) => {
     const matches = all.filter((wallpaper) =>

@@ -4,23 +4,11 @@ import { usePathname } from "next/navigation"
 import posthog from "posthog-js"
 import { useEffect } from "react"
 
+import { isPrivateAnalyticsPath, redactAnalyticsProperties } from "@/lib/analytics/privacy"
+
 import { adPixelState, subscribeConsent } from "@/lib/consent/consent-client"
 
-/**
- * PostHog product analytics for macwall.app (same project as the Mac app).
- *
- * - Loads through `/ingest` (rewritten to PostHog in next.config.mjs) so ad
- *   blockers don't drop it.
- * - Page views on every client navigation, page leaves, autocapture, heatmaps,
- *   dead clicks, web vitals and JavaScript errors.
- * - Consent: where the cookie banner applies and no choice was made (or the
- *   visitor declined / sends Global Privacy Control), nothing is stored on the
- *   device (memory persistence) and session replay stays off. Accepting
- *   switches both on without a reload.
- * - Links the visitor to the Mac app's person when a link carries the app's
- *   `visitor_id` (email links do), and stores the email from email links.
- * - Admin pages are never tracked.
- */
+/** Consented product analytics goes directly to PostHog, without Vercel proxy traffic. */
 
 const POSTHOG_TOKEN =
   process.env.NEXT_PUBLIC_POSTHOG_TOKEN?.trim() ||
@@ -35,13 +23,6 @@ function consentAllowed(): boolean {
   return adPixelState() === "allowed"
 }
 
-function applyConsent() {
-  const allowed = consentAllowed()
-  posthog.set_config({ persistence: allowed ? "localStorage+cookie" : "memory" })
-  if (allowed) posthog.startSessionRecording()
-  else posthog.stopSessionRecording()
-}
-
 /** The Mac app identifies with its install UUID in upper case; match it. */
 function linkVisitorFromUrl() {
   const params = new URLSearchParams(window.location.search)
@@ -49,39 +30,51 @@ function linkVisitorFromUrl() {
   if (UUID_PATTERN.test(visitorId)) {
     posthog.identify(visitorId.toUpperCase())
   }
-  const email = params.get("email")?.trim().toLowerCase() ?? ""
-  if (email.includes("@") && consentAllowed()) {
-    posthog.setPersonProperties({ email })
-  }
+
 }
 
 export function PostHogAnalytics() {
   const pathname = usePathname()
-  const isAdmin = pathname?.startsWith("/admin") ?? false
 
   useEffect(() => {
-    if (isAdmin || initialized || !POSTHOG_TOKEN) return
-    initialized = true
-    const allowed = consentAllowed()
-    posthog.init(POSTHOG_TOKEN, {
-      api_host: "/ingest",
-      ui_host: "https://us.posthog.com",
-      defaults: "2025-05-24",
-      capture_pageview: "history_change",
-      capture_pageleave: true,
-      capture_exceptions: true,
-      capture_dead_clicks: true,
-      person_profiles: "identified_only",
-      persistence: allowed ? "localStorage+cookie" : "memory",
-      disable_session_recording: !allowed,
-      session_recording: { maskAllInputs: true },
-      loaded: (client) => {
-        client.register({ site: "macwall.app" })
-        linkVisitorFromUrl()
-      },
-    })
-    return subscribeConsent(applyConsent)
-  }, [isAdmin])
+    const sync = () => {
+      const allowed = consentAllowed() && !isPrivateAnalyticsPath(window.location.pathname)
+      if (!allowed) {
+        if (initialized) {
+          posthog.stopSessionRecording()
+          posthog.opt_out_capturing()
+        }
+        return
+      }
+      if (!initialized) {
+        initialized = true
+        posthog.init(POSTHOG_TOKEN, {
+          api_host: "https://us.i.posthog.com",
+          ui_host: "https://us.posthog.com",
+          defaults: "2025-05-24",
+          capture_pageview: false,
+          capture_pageleave: true,
+          capture_exceptions: false,
+          autocapture: false,
+          capture_dead_clicks: false,
+          person_profiles: "identified_only",
+          persistence: "localStorage+cookie",
+          disable_session_recording: false,
+          session_recording: { maskAllInputs: true, maskTextSelector: "*", sampleRate: 0.1 },
+          before_send: (event) => {
+            if (!event || !consentAllowed() || isPrivateAnalyticsPath(window.location.pathname)) return null
+            return { ...event, properties: redactAnalyticsProperties(event.properties) }
+          },
+          loaded: (client) => client.register({ site: "macwall.app" }),
+        })
+      }
+      posthog.opt_in_capturing({ captureEventName: false })
+      linkVisitorFromUrl()
+      posthog.capture("$pageview")
+    }
+    sync()
+    return subscribeConsent(sync)
+  }, [pathname])
 
   return null
 }
@@ -91,9 +84,9 @@ export function capturePostHogEvent(
   name: string,
   properties: Record<string, string | number | boolean | null>
 ) {
-  if (!initialized) return
+  if (!initialized || !consentAllowed() || isPrivateAnalyticsPath(window.location.pathname)) return
   try {
-    posthog.capture(name, properties)
+    posthog.capture(name, redactAnalyticsProperties(properties))
   } catch {
     // Analytics must never break the product path.
   }

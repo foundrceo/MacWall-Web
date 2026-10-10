@@ -19,7 +19,11 @@ import {
  *   +24 h   one reminder (Resend scheduled send), skipped for buyers
  *
  * Called by the website's /api/send-to-mac route (rate limited there) with
- * the x-cron-secret header. Suppressed or undeliverable addresses get nothing.
+ * the x-cron-secret header.
+ *
+ * The visitor just asked for this link, so an earlier unsubscribe only skips
+ * the reminder. Addresses that can't receive mail get `sent: false` with the
+ * reason, so the form can say so instead of claiming it was sent.
  */
 
 const REMINDER_DELAY_MS = 24 * 60 * 60 * 1000
@@ -59,9 +63,22 @@ Deno.serve(async (req: Request) => {
   })
 
   const block = await marketingBlockReason(supabase, email)
-  // A buyer asking for the link still gets it, just not the reminder.
-  if (block && block !== "converted") {
-    return Response.json({ ok: true, sent: false, reason: block })
+  let skipReminder = block === "converted"
+  if (block === "invalid_address" || block === "no_mail_domain") {
+    return Response.json({ ok: true, sent: false, reason: "undeliverable" })
+  }
+  if (block === "suppressed") {
+    const { data: row } = await supabase
+      .from("macwall_email_suppressions")
+      .select("reason")
+      .eq("email", email)
+      .maybeSingle()
+    const reason = (row as { reason?: string } | null)?.reason
+    if (reason === "invalid_address" || reason === "no_mail_domain") {
+      return Response.json({ ok: true, sent: false, reason: "undeliverable" })
+    }
+    // Unsubscribed earlier: send the link they just asked for, nothing more.
+    skipReminder = true
   }
 
   const site = siteBaseUrl()
@@ -70,7 +87,7 @@ Deno.serve(async (req: Request) => {
     typeof body.wallpaperName === "string" ? body.wallpaperName.trim().slice(0, 80) : ""
   const unsubscribe = await unsubscribeUrlsFor(email)
 
-  const send = (id: LifecycleEmailId, scheduledAt?: string) => {
+  const send = (id: LifecycleEmailId, idempotencyKey: string, scheduledAt?: string) => {
     const mail = buildLifecycleEmail(id, {
       appName,
       siteUrl: site,
@@ -90,22 +107,24 @@ Deno.serve(async (req: Request) => {
       to: email,
       mail,
       unsubscribeOneClick: unsubscribe?.oneClick ?? null,
-      // One of each per address per day, even if the form is resubmitted.
-      idempotencyKey: `${id}:${email}:${new Date().toISOString().slice(0, 10)}`,
+      idempotencyKey,
       tags: [{ name: "campaign", value: id }],
       scheduledAt,
     })
   }
 
-  const first = await send("send_to_mac")
+  // Every request sends the link (the website rate limits per address).
+  const first = await send("send_to_mac", `send_to_mac:${email}:${crypto.randomUUID()}`)
   if (!first.ok) {
     return Response.json({ ok: false, error: "send_failed" }, { status: 502 })
   }
 
   let reminderScheduled = false
-  if (block !== "converted") {
+  if (!skipReminder) {
     const at = new Date(Date.now() + REMINDER_DELAY_MS).toISOString()
-    reminderScheduled = (await send("send_to_mac_reminder", at)).ok
+    // At most one reminder per address per day, however often they ask.
+    const day = new Date().toISOString().slice(0, 10)
+    reminderScheduled = (await send("send_to_mac_reminder", `send_to_mac_reminder:${email}:${day}`, at)).ok
   }
 
   return Response.json({ ok: true, sent: true, reminderScheduled })

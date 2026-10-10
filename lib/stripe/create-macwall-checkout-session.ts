@@ -202,7 +202,8 @@ export async function createMacWallCheckoutSession(
         .insert(licenseRow)
 
       if (insertError?.message?.includes("visitor_country")) {
-        const { visitor_country: _drop, ...withoutCountry } = licenseRow
+        const withoutCountry = { ...licenseRow }
+        delete withoutCountry.visitor_country
         ;({ error: insertError } = await supabase
           .from("macwall_licenses")
           .insert(withoutCountry))

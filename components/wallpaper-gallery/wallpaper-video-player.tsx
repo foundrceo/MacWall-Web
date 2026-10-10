@@ -156,7 +156,8 @@ function WallpaperVideoPlayerInner({
   const errorHandledRef = useRef(false)
   const reduceMotion = useReducedMotion()
 
-  const [failed, setFailed] = useState(false)
+  const [playbackFailed, setFailed] = useState(false)
+  const failed = playbackFailed || (!src?.trim() && !bootstrapping)
   const [playing, setPlaying] = useState(true)
   const [muted, setMuted] = useState(true)
   const [progress, setProgress] = useState(0)
@@ -230,13 +231,6 @@ function WallpaperVideoPlayerInner({
     }, STUCK_BUFFERING_MS)
     return () => window.clearTimeout(timer)
   }, [ready, failed, src, bootstrapping, onStuckBuffering])
-
-  useEffect(() => {
-    if (!src?.trim() && !bootstrapping) {
-      setFailed(true)
-      setBuffering(false)
-    }
-  }, [src, bootstrapping])
 
   const togglePlay = useCallback(async () => {
     const video = videoRef.current

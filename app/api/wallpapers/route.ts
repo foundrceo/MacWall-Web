@@ -1,3 +1,4 @@
+import { InvalidCatalogQuery } from "@/lib/public-catalog/query"
 import { MARKETING_CATALOG_REVALIDATE_SECONDS } from "@/lib/marketing-cache"
 import { listPublicWallpapers } from "@/lib/public-catalog/fetch"
 import type { PublicCatalogSort } from "@/lib/public-catalog/types"
@@ -33,10 +34,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result, {
       headers: {
-        "Cache-Control": `public, s-maxage=${MARKETING_CATALOG_REVALIDATE_SECONDS}, stale-while-revalidate=86400`,
+        "Cache-Control": searchParams.get("q") || searchParams.get("tag") || page > 20 ? "no-store" : `public, s-maxage=${MARKETING_CATALOG_REVALIDATE_SECONDS}, stale-while-revalidate=86400`,
       },
     })
-  } catch {
+  } catch (error) {
+    if (error instanceof InvalidCatalogQuery) return NextResponse.json({ error: "Invalid filters" }, { status: 400, headers: { "Cache-Control": "no-store" } })
     return NextResponse.json(
       { error: "Failed to load wallpapers" },
       { status: 500 }

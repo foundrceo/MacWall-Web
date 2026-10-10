@@ -1,4 +1,4 @@
-/** Tailwind prose layout shared across SEO, blog, and legal pages (Cursor dark theme). */
+/** Shared prose layout for SEO, blog, and legal pages in the site's dark theme. */
 
 export const proseHero = "mb-10 text-center md:mb-14"
 
