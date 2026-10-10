@@ -33,6 +33,7 @@ export async function GET(request: Request) {
 
   try {
     const res = await fetch(endpoint, {
+      signal: AbortSignal.timeout(45000),
       method: "POST",
       headers: {
         "Content-Type": "application/json",

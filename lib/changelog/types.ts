@@ -40,6 +40,7 @@ export function formatChangelogVersion(
   version: string,
   _build?: number
 ): string {
+  void _build // Kept for callers that supply the app build number.
   // CalVer day releases from the website git feed (e.g. 2026.8.1).
   if (/^\d{4}\.\d{1,2}\.\d{1,2}$/.test(version)) return "Web"
   return `v${version}`

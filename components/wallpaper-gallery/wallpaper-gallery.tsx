@@ -13,7 +13,6 @@ import {
   useTransition,
   type FormEvent,
 } from "react"
-import { flushSync } from "react-dom"
 import { Loading03Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -233,16 +232,6 @@ export function WallpaperGallery({
     tag: tagParam,
     sort,
   } = filters ?? DEFAULT_GALLERY_FILTERS
-  const onFiltersChange = useCallback((next: GalleryFilters) => {
-    setFilters((current) =>
-      current &&
-      current.q === next.q &&
-      current.tag === next.tag &&
-      current.sort === next.sort
-        ? current
-        : next
-    )
-  }, [])
 
   /**
    * Cache key MUST be the gallery route — never `usePathname()`.
@@ -328,12 +317,27 @@ export function WallpaperGallery({
     [returnFilters]
   )
 
-  useEffect(() => {
-    setQuery(qParam)
-  }, [qParam])
+  // URL synchronization is an external notification from the child boundary.
+  // Restore session state in that notification, before paint, rather than
+  // cascading from a second effect or calling flushSync inside a lifecycle.
+  const onFiltersChange = useCallback((next: GalleryFilters) => {
+    setFilters((current) => current && current.q === next.q &&
+      current.tag === next.tag && current.sort === next.sort ? current : next)
+    setQuery(next.q)
+    const saved = getGalleryReturnForFilters({
+      pathname: galleryPathname, category: activeCategory, ...next,
+    })
+    if (!saved || !shouldRestoreGallerySnapshot(saved, initial.wallpapers.length)) return
+    setSuppressEntrance(true)
+    setWallpapers(saved.wallpapers)
+    setListFilterKey(galleryFilterKey(activeCategory, next, initial.limit))
+    setPage(saved.page)
+    setHasMore(saved.hasMore)
+    setEntranceIndices(buildEntranceIndices(saved.wallpapers))
+  }, [galleryPathname, activeCategory, initial.wallpapers.length, initial.limit])
 
   const persistSnapshotRef = useRef(persistSnapshot)
-  persistSnapshotRef.current = persistSnapshot
+  useLayoutEffect(() => { persistSnapshotRef.current = persistSnapshot }, [persistSnapshot])
 
   // Only refetch when the list doesn't match the filters — NOT when callback
   // identity churns. (Including `persistSnapshot` in deps re-fired this on Back
@@ -451,25 +455,7 @@ export function WallpaperGallery({
       return
     }
 
-    // Re-apply whenever React remounted behind the cache (Strict Mode / Back).
-    // The prerendered list is for the default filters; a filtered view's
-    // snapshot always beats it.
-    const behindCache =
-      !listMatchesFilters || wallpapers.length < saved.wallpapers.length
     const needsFocusScroll = Boolean(saved.focusWallpaperId)
-    if (!behindCache && !needsFocusScroll) return
-
-    setSuppressEntrance(true)
-    if (behindCache) {
-      flushSync(() => {
-        setWallpapers(saved.wallpapers)
-        setListFilterKey(filterKey)
-        setPage(saved.page)
-        setHasMore(saved.hasMore)
-        setEntranceIndices(buildEntranceIndices(saved.wallpapers))
-      })
-    }
-
     if (needsFocusScroll) {
       return scrollGalleryToWallpaper(saved.focusWallpaperId)
     }

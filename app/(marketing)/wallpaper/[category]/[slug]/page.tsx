@@ -35,24 +35,15 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  try {
-    const wallpaper = await getPublicWallpaperByDetailSlug(slug)
-    if (!wallpaper) return {}
-    return wallpaperDetailMetadata(wallpaper)
-  } catch {
-    return {}
-  }
+  const wallpaper = await getPublicWallpaperByDetailSlug(slug)
+  if (!wallpaper) return {}
+  return wallpaperDetailMetadata(wallpaper)
 }
 
 export default async function WallpaperDetailPage({ params }: PageProps) {
   const { category, slug } = await params
 
-  let wallpaper
-  try {
-    wallpaper = await getPublicWallpaperByDetailSlug(slug)
-  } catch {
-    notFound()
-  }
+  const wallpaper = await getPublicWallpaperByDetailSlug(slug)
   if (!wallpaper) notFound()
 
   const canonicalPath = wallpaperDetailPath(wallpaper)
