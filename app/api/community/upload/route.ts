@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server"
+import { readBoundedJson, RequestBodyError } from "@/lib/http/bounded-json"
+import { consumePublicQuota } from "@/lib/http/public-quota"
 
 import {
   COMMUNITY_VIDEO_CONTENT_TYPES,
@@ -52,11 +54,19 @@ export async function POST(request: Request) {
     )
   }
 
+  try {
+    if (!await consumePublicQuota(request, "community-upload", 60)) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429, headers: { "Retry-After": "3600" } })
+    }
+  } catch {
+    return NextResponse.json({ error: "quota_unavailable" }, { status: 503 })
+  }
+
   let body: PresignRequest
   try {
-    body = (await request.json()) as PresignRequest
-  } catch {
-    return bad(400, "invalid_json")
+    body = (await readBoundedJson(request, 4096)) as PresignRequest
+  } catch (error) {
+    return bad(error instanceof RequestBodyError ? error.status : 400, error instanceof RequestBodyError ? error.message : "invalid_json")
   }
 
   const uploadId =

@@ -58,6 +58,7 @@ service-account*.json
 
 # local databases / dumps
 *.sql
+!supabase/migrations/*.sql
 *.sqlite
 *.sqlite3
 *.db
@@ -95,7 +96,7 @@ tmp/
 
 supabase/.temp/
 supabase/.branches/
-.env*
+.claude/
 
 # Local MCP config (contains an API key)
 .mcp.json

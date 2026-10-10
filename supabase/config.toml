@@ -14,3 +14,15 @@ verify_jwt = false
 
 [functions.send-to-mac]
 verify_jwt = false
+
+[functions.macwall-apns]
+verify_jwt = false
+
+[functions.macwall-license-verify]
+verify_jwt = false
+
+[functions.approve-community-upload]
+verify_jwt = true
+
+[functions.admin-resend-license]
+verify_jwt = false

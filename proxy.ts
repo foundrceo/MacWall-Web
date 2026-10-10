@@ -11,16 +11,17 @@ import {
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 
 /**
- * Edge proxy — keep this matcher tiny. Every match burns Edge Middleware
- * invocations. Geo/pricing cookies only need to land on checkout + pricing
+ * Next.js Node proxy — keep this matcher tiny to limit routing work. Geo/pricing cookies only need to land on checkout + pricing
  * surfaces; admin auth is the other required path. Gallery/blog HTML no longer
- * runs Edge (saves the bulk of document hits).
+ * runs the proxy (saves the bulk of document hits).
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const isAdminSurface =
+    pathname.startsWith("/admin") || pathname.startsWith("/api/admin")
 
   // Never block HTML / API on IP whois — Vercel edge geo + cookie only.
-  const country = await resolveVisitorCountry({
+  const country = isAdminSurface ? null : await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: request.cookies.get("mw_country")?.value,
     geoCountry: request.headers.get("x-vercel-ip-country"),
@@ -33,7 +34,9 @@ export async function proxy(request: NextRequest) {
   }
 
   const withGeoCookies = (response: NextResponse) => {
-    applyCountryCookie(response, country)
+    if (country !== request.cookies.get("mw_country")?.value) {
+      applyCountryCookie(response, country)
+    }
     return response
   }
 
@@ -51,9 +54,6 @@ export async function proxy(request: NextRequest) {
     }
     return withGeoCookies(NextResponse.redirect(redirect, 308))
   }
-
-  const isAdminSurface =
-    pathname.startsWith("/admin") || pathname.startsWith("/api/admin")
 
   if (!isAdminSurface) {
     const ttclid = request.nextUrl.searchParams.get("ttclid")

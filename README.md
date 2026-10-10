@@ -31,12 +31,12 @@ the native mac app is a separate private product. this repo is the website only.
 
 ## run this website locally
 
-needs **node** 18+.
+needs **Node.js 24** and **npm 11** (the versions used by deployment and CI).
 
 ```sh
 git clone https://github.com/foundrceo/MacWall-Web.git
 cd MacWall-Web
-npm install
+npm ci
 cp .env.example .env
 npm run dev
 ```
@@ -46,6 +46,7 @@ open http://localhost:3000. most of the marketing site runs with empty env; chec
 ```sh
 npm run lint
 npm run typecheck
+npm test
 npm run build
 ```
 
@@ -63,4 +64,10 @@ see [SECURITY.md](./SECURITY.md). Report issues to support@macwall.app.
 
 ## license
 
-mit — see [LICENSE](./LICENSE).
+website code is available under the MIT license — see [LICENSE](./LICENSE).
+
+third-party libraries and fonts retain their own licenses and copyright notices;
+see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md). wallpapers, videos,
+screenshots, review photos, product icons, and trademarks are not covered by the
+code license. this repository does not grant permission to redistribute those
+assets. see [CREDITS.md](./CREDITS.md) for the media policy.

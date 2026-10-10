@@ -83,6 +83,7 @@ export async function analyzeWallpaperMetadataBatch(
 
   const response = await fetch(OPENAI_RESPONSES_URL, {
     method: "POST",
+    signal: AbortSignal.timeout(40_000),
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",

@@ -33,6 +33,7 @@ export function SendToMacForm({
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState<Status>("idle")
   const [copied, setCopied] = useState(false)
+  const [errorCode, setErrorCode] = useState("")
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -50,8 +51,15 @@ export function SendToMacForm({
           sessionId: getAnalyticsSessionId(),
         }),
       })
-      setStatus(res.ok ? "sent" : "error")
+      if (res.ok) {
+        setStatus("sent")
+      } else {
+        const body = (await res.json().catch(() => null)) as { error?: string } | null
+        setErrorCode(body?.error ?? "")
+        setStatus("error")
+      }
     } catch {
+      setErrorCode("")
       setStatus("error")
     }
   }
@@ -98,7 +106,7 @@ export function SendToMacForm({
           Sent. Open it on your Mac.
         </p>
         <p className="mt-1 text-[13px] text-marketing-muted">
-          Check {email} for the download link.
+          Check {email}. Not there in a minute? Look in spam or promotions.
         </p>
       </div>
     )
@@ -135,7 +143,11 @@ export function SendToMacForm({
       </form>
       {status === "error" ? (
         <p role="alert" className="mt-2 text-center text-[13px] text-red-300">
-          Couldn&rsquo;t send it. Check the address or try again.
+          {errorCode === "undeliverable"
+            ? "That address can\u2019t receive email. Check it for typos."
+            : errorCode === "too_many"
+              ? "We\u2019ve already sent it a few times today. Check your inbox and spam."
+              : "Couldn\u2019t send it. Check the address or try again."}
         </p>
       ) : null}
       <button
