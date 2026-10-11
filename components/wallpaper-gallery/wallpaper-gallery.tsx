@@ -678,7 +678,7 @@ export function WallpaperGallery({
                 onClick={() => openCommandPalette(true)}
                 onPointerEnter={preloadCommandPaletteDialog}
                 onFocus={preloadCommandPaletteDialog}
-                className="pointer-events-auto flex h-[22px] shrink-0 appearance-none items-center justify-center border-0 bg-transparent p-0 leading-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:outline-none"
+                className="pointer-events-auto flex h-7 shrink-0 appearance-none items-center justify-center border-0 bg-transparent p-0 leading-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:outline-none"
                 aria-label={`Open command palette (${paletteShortcut})`}
               >
                 <KbdShortcut size="md" />
