@@ -315,6 +315,7 @@ function StickyMobileCta({ checkoutUrl }: Readonly<{ checkoutUrl: string }>) {
           : "pointer-events-none translate-y-4 opacity-0"
       )}
       aria-hidden={!visible}
+      inert={!visible}
     >
       <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#111318]/95 p-2 pl-4 ring-1 ring-white/10 backdrop-blur-md ring-inset">
         <span className="min-w-0">
