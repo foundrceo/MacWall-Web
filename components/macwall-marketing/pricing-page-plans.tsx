@@ -235,7 +235,7 @@ function BenefitsGrid() {
             <h3 className="relative mt-4 text-[15px] leading-6 font-medium text-white">
               {tile.title}
             </h3>
-            <p className="relative mt-1 text-[14px] leading-6 text-zinc-500">
+            <p className="relative mt-1 text-[14px] leading-6 text-zinc-400">
               {tile.body}
             </p>
           </li>

@@ -91,7 +91,7 @@ function LabelledRule({
     tone === "featured" ? "bg-blue-400/20" : "bg-white/[0.08]"
   )
   return (
-    <div className="flex items-center gap-3 text-[12px] text-zinc-500">
+    <div className="flex items-center gap-3 text-[12px] text-zinc-400">
       <span aria-hidden className={line} />
       <span className="shrink-0">{children}</span>
       <span aria-hidden className={line} />
@@ -293,7 +293,7 @@ function MacCountSwitch({
             <span
               className={cn(
                 "transition-colors",
-                active ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+                active ? "text-white" : "text-zinc-400 hover:text-zinc-300"
               )}
             >
               {offer.macs} Macs
