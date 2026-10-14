@@ -320,7 +320,10 @@ function lifecyclePreview(id: LifecycleEmailId) {
     planLabel: recovery ? planLabelForOffer(EMAIL_APP_NAME, "permanent") : null,
     priceLabel: recovery ? "$12.99" : null,
     updateVersion: id.startsWith("app_update") ? "4.0.7" : null,
-    downloadHref: id.startsWith("app_update") ? `${EMAIL_SITE_URL}/download` : null,
+    downloadHref:
+      id.startsWith("app_update") || id === "trial_winback_50"
+        ? `${EMAIL_SITE_URL}/download`
+        : null,
   })
 }
 
@@ -347,6 +350,13 @@ const LIFECYCLE_META: Record<
     description: "6 days after trial 1. 20% for 48 hours, final email.",
     trigger: "process-trial-ended-emails cron, +6 days",
     edgeFunction: "process-trial-ended-emails",
+    tone: "violet",
+  },
+  trial_winback_50: {
+    label: "Win-back: 50% for 24h",
+    description: "One-off to trial users and checkouts that never bought. SFM6TCBY, valid 24 hours from each send.",
+    trigger: "send-app-update-emails with audience winback",
+    edgeFunction: "send-app-update-emails",
     tone: "violet",
   },
   recovery_saved: {

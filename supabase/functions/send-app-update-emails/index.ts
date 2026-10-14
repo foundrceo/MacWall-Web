@@ -28,6 +28,9 @@ import {
  *              undeliverable addresses)
  *   trial      trial leads who never bought, minus unsubscribed, suppressed
  *              and undeliverable addresses
+ *   winback    trial leads (trial over) and unpaid checkouts first seen
+ *              before `before` (ISO date) who never bought. Always the 50%
+ *              code, valid 24 hours from each send; `version` is optional.
  *
  * Every address is logged in macwall_app_update_emails, so re-running never
  * emails anyone twice (the 20-hour cap then counts it). Without `offer` the
@@ -37,7 +40,7 @@ import {
 
 const MAX_BATCH = 200
 
-/** Mail content for one address. `untilUnix` limits the 30% code to 24 hours from this send. */
+/** Mail content for one address. `untilUnix` limits the code to 24 hours from this send. */
 function mailFor(args: {
   audience: Audience
   offer: boolean
@@ -47,10 +50,14 @@ function mailFor(args: {
   appName: string
   unsubscribeHref: string | null
 }) {
-  const download = `${siteBaseUrl()}/download?utm_source=email&utm_medium=update&utm_campaign=${encodeURIComponent(args.campaign)}`
-  const id: LifecycleEmailId = args.audience === "customer"
-    ? "app_update_customer"
-    : args.offer ? "app_update_trial_offer" : "app_update_trial"
+  const winback = args.audience === "winback"
+  const download = `${siteBaseUrl()}/download?utm_source=email&utm_medium=${winback ? "trial" : "update"}&utm_campaign=${encodeURIComponent(args.campaign)}`
+  const id: LifecycleEmailId = winback
+    ? "trial_winback_50"
+    : args.audience === "customer"
+      ? "app_update_customer"
+      : args.offer ? "app_update_trial_offer" : "app_update_trial"
+  const promo = winback ? LIFECYCLE_PROMO.fifty : LIFECYCLE_PROMO.thirty
   const ctx: LifecycleEmailContext = {
     appName: args.appName,
     siteUrl: siteBaseUrl(),
@@ -58,10 +65,10 @@ function mailFor(args: {
     supportEmail: supportEmail(),
     postalAddress: postalAddress(),
     unsubscribeHref: args.unsubscribeHref,
-    checkoutHref: args.offer
+    checkoutHref: args.offer || winback
       ? lifecycleCheckoutHref({
-          promoCode: LIFECYCLE_PROMO.thirty.code,
-          untilUnix: Math.floor(Date.now() / 1000) + LIFECYCLE_PROMO.thirty.validHours * 3600,
+          promoCode: promo.code,
+          untilUnix: Math.floor(Date.now() / 1000) + promo.validHours * 3600,
           email: args.email,
           medium: "trial",
           campaign: args.campaign,
@@ -75,14 +82,14 @@ function mailFor(args: {
 const SEND_GAP_MS = 150
 
 type Supabase = ReturnType<typeof createClient>
-type Audience = "customer" | "trial"
+type Audience = "customer" | "trial" | "winback"
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function blockReason(supabase: Supabase, audience: Audience, email: string) {
-  if (audience === "trial") return await marketingBlockReason(supabase, email)
+  if (audience !== "customer") return await marketingBlockReason(supabase, email)
   if (!emailLooksDeliverable(email)) return "invalid_address"
   const { data: suppressed } = await supabase.rpc("macwall_email_suppressed", { p_email: email })
   return suppressed === true ? "suppressed" : null
@@ -114,14 +121,21 @@ Deno.serve(async (req: Request) => {
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>
   const campaign = typeof body.campaign === "string" ? body.campaign.trim() : ""
   const version = typeof body.version === "string" ? body.version.trim() : ""
-  const audience = body.audience === "customer" || body.audience === "trial" ? body.audience : null
+  const audience =
+    body.audience === "customer" || body.audience === "trial" || body.audience === "winback"
+      ? body.audience
+      : null
   const limit = Math.min(Math.max(Number(body.limit) || 50, 1), MAX_BATCH)
   const dryRun = body.dryRun === true
   const offer = body.offer === "thirty_24h"
   if (offer && audience !== "trial") {
     return Response.json({ ok: false, error: "the offer is for the trial audience only" }, { status: 400 })
   }
-  if (!campaign || !version || !audience) {
+  const before = typeof body.before === "string" ? new Date(body.before) : null
+  if (audience === "winback" && (!before || Number.isNaN(before.getTime()))) {
+    return Response.json({ ok: false, error: "winback needs `before`, an ISO date" }, { status: 400 })
+  }
+  if (!campaign || !audience || (!version && audience !== "winback")) {
     return Response.json({ ok: false, error: "campaign, version and audience are required" }, { status: 400 })
   }
 
@@ -136,11 +150,17 @@ Deno.serve(async (req: Request) => {
   const supabase = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   })
+  const candidates = (pLimit: number) =>
+    audience === "winback"
+      ? supabase.rpc("macwall_winback_candidates", {
+          p_campaign: campaign, p_before: before!.toISOString(), p_limit: pLimit,
+        })
+      : supabase.rpc("macwall_app_update_candidates", {
+          p_campaign: campaign, p_audience: audience, p_limit: pLimit,
+        })
 
   if (dryRun) {
-    const { data, error } = await supabase.rpc("macwall_app_update_candidates", {
-      p_campaign: campaign, p_audience: audience, p_limit: 100000,
-    })
+    const { data, error } = await candidates(100000)
     if (error) return Response.json({ ok: false, error: error.message }, { status: 500 })
     const sample = mailFor({
       audience, offer, email: "someone@example.com", campaign, version, appName,
@@ -149,9 +169,7 @@ Deno.serve(async (req: Request) => {
     return Response.json({ ok: true, dryRun: true, candidates: (data ?? []).length, from, subject: sample.subject, text: sample.text })
   }
 
-  const { data: rows, error } = await supabase.rpc("macwall_app_update_candidates", {
-    p_campaign: campaign, p_audience: audience, p_limit: limit,
-  })
+  const { data: rows, error } = await candidates(limit)
   if (error) return Response.json({ ok: false, error: error.message }, { status: 500 })
 
   const counts = { sent: 0, skipped: 0, failed: 0 }
@@ -177,7 +195,7 @@ Deno.serve(async (req: Request) => {
       unsubscribeOneClick: unsub?.oneClick ?? null,
       idempotencyKey: `update/${campaign}/${email}`,
       tags: [
-        { name: "category", value: offer ? "app_update_offer" : "app_update" },
+        { name: "category", value: audience === "winback" ? "winback" : offer ? "app_update_offer" : "app_update" },
         { name: "campaign", value: campaign.replace(/[^A-Za-z0-9_-]/g, "_") },
       ],
     })
@@ -199,8 +217,6 @@ Deno.serve(async (req: Request) => {
     )
   }
 
-  const { data: left } = await supabase.rpc("macwall_app_update_candidates", {
-    p_campaign: campaign, p_audience: audience, p_limit: 100000,
-  })
+  const { data: left } = await candidates(100000)
   return Response.json({ ok: true, ...counts, rate_limited: rateLimited, remaining: (left ?? []).length })
 })
