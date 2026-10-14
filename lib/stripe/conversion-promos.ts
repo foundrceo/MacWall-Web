@@ -8,13 +8,14 @@ export const CONVERSION_PROMO_CODES = [
   "R7N2WP8J",
   "T4V8CL6Y",
   "B3H9KF5Q",
+  "SFM6TCBY",
 ] as const
 
 export type ConversionPromoCode = (typeof CONVERSION_PROMO_CODES)[number]
 
 const ALLOWLIST = new Set<string>(CONVERSION_PROMO_CODES)
 
-const TIMED_PROMOS = new Set(["X9K4Q2MH", "R7N2WP8J", "T4V8CL6Y", "B3H9KF5Q"])
+const TIMED_PROMOS = new Set(["X9K4Q2MH", "R7N2WP8J", "T4V8CL6Y", "B3H9KF5Q", "SFM6TCBY"])
 
 const FLOOR_PROMO = "MAC10"
 

@@ -10,6 +10,8 @@
  *             → trial_last_call (day 6, 20% for 48h)
  *   Checkout: recovery_saved (~1h after abandoning, no discount)
  *             → recovery_10 (day 1, 10%) → recovery_last_call (day 3, 20% for 48h)
+ *   One-off:  trial_winback_50 (50% for 24h, sent by hand to trial users
+ *             and checkouts that never bought)
  *
  * Copy rules: plain words, no em dashes, one primary button, no fake urgency.
  */
@@ -21,12 +23,15 @@ export const LIFECYCLE_PROMO = {
   twenty: { code: "R7N2WP8J", percent: "20%", validHours: 48 },
   /** 30% off, enforced for 24h via the checkout `until` param (app update offer). */
   thirty: { code: "B3H9KF5Q", percent: "30%", validHours: 24 },
+  /** 50% off, enforced for 24h via the checkout `until` param (one-off win-back). */
+  fifty: { code: "SFM6TCBY", percent: "50%", validHours: 24 },
 } as const
 
 export type LifecycleEmailId =
   | "trial_ended"
   | "trial_reminder"
   | "trial_last_call"
+  | "trial_winback_50"
   | "recovery_saved"
   | "recovery_10"
   | "recovery_last_call"
@@ -167,6 +172,30 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
         button: `Get ${app} Pro, ${thirty.percent} off`,
         secondaryLink: ctx.downloadHref
           ? { label: `Download ${app} ${version}`, href: ctx.downloadHref }
+          : null,
+        ps: "Questions before you buy? Reply to this email and a real person will answer.",
+        reason: trialReason,
+      }
+    }
+    case "trial_winback_50": {
+      const fifty = LIFECYCLE_PROMO.fifty
+      return {
+        subject: `We just cut ${app} Pro in half`,
+        preheader: `Your desktop has been standing still. ${fifty.percent} off Pro for the next 24 hours.`,
+        headline: `We cut ${app} Pro in half. For 24 hours.`,
+        paragraphs: [
+          `You tried ${app} but didn't pick up Pro. We'd like to make it easier: for the next 24 hours, Pro is ${fifty.percent} off.`,
+          `${app} has had a big update since you tried it: an all-new design, Spotlight-style search, and fixes for the problems people reported.`,
+          "Pro turns your live wallpapers back on and unlocks the full catalog: 1,000+ live 4K wallpapers, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
+          "It's a single payment, not a subscription. Every future update is included, one license covers up to 3 Macs, and there's a 14-day money-back guarantee.",
+        ],
+        code: {
+          code: fifty.code,
+          hint: `${fifty.percent} off, applied automatically with the button below. Ends 24 hours after this email was sent.`,
+        },
+        button: `Get ${app} Pro, ${fifty.percent} off`,
+        secondaryLink: ctx.downloadHref
+          ? { label: `Download the latest ${app}`, href: ctx.downloadHref }
           : null,
         ps: "Questions before you buy? Reply to this email and a real person will answer.",
         reason: trialReason,
