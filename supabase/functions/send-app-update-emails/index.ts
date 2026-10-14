@@ -150,23 +150,30 @@ Deno.serve(async (req: Request) => {
   const supabase = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   })
-  const candidates = (pLimit: number) =>
-    audience === "winback"
+  const candidates = (pLimit: number, countOnly = false) => {
+    const opts = countOnly ? { count: "exact" as const, head: true } : undefined
+    return audience === "winback"
       ? supabase.rpc("macwall_winback_candidates", {
           p_campaign: campaign, p_before: before!.toISOString(), p_limit: pLimit,
-        })
+        }, opts)
       : supabase.rpc("macwall_app_update_candidates", {
           p_campaign: campaign, p_audience: audience, p_limit: pLimit,
-        })
+        }, opts)
+  }
+  // An exact count: the API caps returned rows at 1,000.
+  const countLeft = async () => {
+    const { count, error } = await candidates(100000, true)
+    return { count: count ?? 0, error }
+  }
 
   if (dryRun) {
-    const { data, error } = await candidates(100000)
+    const { count, error } = await countLeft()
     if (error) return Response.json({ ok: false, error: error.message }, { status: 500 })
     const sample = mailFor({
       audience, offer, email: "someone@example.com", campaign, version, appName,
       unsubscribeHref: `${siteBaseUrl()}/unsubscribe/trial?t=…`,
     })
-    return Response.json({ ok: true, dryRun: true, candidates: (data ?? []).length, from, subject: sample.subject, text: sample.text })
+    return Response.json({ ok: true, dryRun: true, candidates: count, from, subject: sample.subject, text: sample.text })
   }
 
   const { data: rows, error } = await candidates(limit)
@@ -217,6 +224,6 @@ Deno.serve(async (req: Request) => {
     )
   }
 
-  const { data: left } = await candidates(100000)
-  return Response.json({ ok: true, ...counts, rate_limited: rateLimited, remaining: (left ?? []).length })
+  const { count: remaining } = await countLeft()
+  return Response.json({ ok: true, ...counts, rate_limited: rateLimited, remaining })
 })

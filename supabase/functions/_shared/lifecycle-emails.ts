@@ -180,8 +180,8 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
     case "trial_winback_50": {
       const fifty = LIFECYCLE_PROMO.fifty
       return {
-        subject: `We just cut ${app} Pro in half`,
-        preheader: `Your desktop has been standing still. ${fifty.percent} off Pro for the next 24 hours.`,
+        subject: `Your ${fifty.percent} off ${app} Pro code expires in 24 hours`,
+        preheader: `We cut ${app} Pro in half, just for you. Use it before this time tomorrow.`,
         headline: `We cut ${app} Pro in half. For 24 hours.`,
         paragraphs: [
           `You tried ${app} but didn't pick up Pro. We'd like to make it easier: for the next 24 hours, Pro is ${fifty.percent} off.`,
