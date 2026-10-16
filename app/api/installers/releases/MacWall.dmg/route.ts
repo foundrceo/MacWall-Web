@@ -26,7 +26,12 @@ export async function GET(request: NextRequest) {
       : DMG_KEY
   try {
     const target = await r2InstallersPresignGetUrl(key, PRESIGN_SECONDS)
-    return NextResponse.redirect(target, 302)
+    const response = NextResponse.redirect(target, 302)
+    // The presigned URL lives an hour, so the CDN can hand the same redirect
+    // to every download for 5 minutes (per `?version=`) instead of presigning
+    // per click. Browsers never keep it.
+    response.headers.set("Cache-Control", "public, max-age=0, s-maxage=300")
+    return response
   } catch {
     return new NextResponse("Installer unavailable", {
       status: 502,

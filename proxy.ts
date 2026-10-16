@@ -18,6 +18,19 @@ import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // Crawlers read catalog keys (`"videoKey":"videos/<id>.mp4"`) in page
+  // payloads and `/api/wallpapers` as relative links, then request
+  // `<page>/videos/<id>.mp4` thousands of times a day. Each got the full HTML
+  // not-found page (~115 KB, usually uncompressed). Answer with an empty 404
+  // the browser and bots may cache instead.
+  if (pathname.endsWith(".mp4")) {
+    return new NextResponse(null, {
+      status: 404,
+      headers: { "Cache-Control": "public, max-age=86400" },
+    })
+  }
+
   const isAdminSurface =
     pathname.startsWith("/admin") || pathname.startsWith("/api/admin")
 
@@ -121,5 +134,8 @@ export const config = {
     // `?c=` responses never wake the proxy.
     "/api/checkout",
     "/api/checkout/:path*",
+    // Crawler-resolved relative catalog keys (see the `.mp4` early return).
+    "/videos/:path*",
+    "/:prefix+/videos/:path*",
   ],
 }

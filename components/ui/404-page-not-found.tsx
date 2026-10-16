@@ -1,3 +1,5 @@
+"use client"
+
 import type { SVGProps } from "react"
 
 import { cn } from "@/lib/utils"
@@ -6,6 +8,11 @@ import { cn } from "@/lib/utils"
  * "Page not found" scene (unDraw, free to use), recolored for the dark site:
  * hills and clouds are faint white, the figures are light grey, and the sun
  * and plants take `currentColor` so the accent comes from the caller.
+ *
+ * A Client Component on purpose: the root `not-found` element ships in every
+ * page's RSC payload (twice), so as a Server Component these ~20 KB of path
+ * data were inlined into every HTML response and ISR entry. As a client
+ * reference they live in one immutable, browser-cached JS chunk.
  */
 const SOFT = "rgba(255,255,255,0.05)"
 const HILL = "rgba(255,255,255,0.1)"

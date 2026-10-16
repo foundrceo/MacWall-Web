@@ -14,6 +14,7 @@ import {
 import {
   MARKETING_CATALOG_REVALIDATE_SECONDS,
   PUBLIC_CATALOG_CACHE_TAG,
+  PUBLIC_WALLPAPER_DETAIL_REVALIDATE_SECONDS,
 } from "@/lib/marketing-cache"
 import type {
   PublicCatalogSort,
@@ -288,7 +289,7 @@ const getCachedPublicWallpaperById = unstable_cache(
   async (id: string) => fetchPublicWallpaperByIdUncached(id),
   ["public-wallpaper-by-id-v4"],
   {
-    revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
+    revalidate: PUBLIC_WALLPAPER_DETAIL_REVALIDATE_SECONDS,
     tags: [PUBLIC_CATALOG_CACHE_TAG],
   }
 )
@@ -349,7 +350,7 @@ const getCachedSimilarPublicWallpapers = unstable_cache(
   },
   ["public-wallpaper-similar-v2"],
   {
-    revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
+    revalidate: PUBLIC_WALLPAPER_DETAIL_REVALIDATE_SECONDS,
     tags: [PUBLIC_CATALOG_CACHE_TAG],
   }
 )
