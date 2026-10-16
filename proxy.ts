@@ -11,7 +11,8 @@ import {
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 
 /**
- * Next.js Node proxy — keep this matcher tiny to limit routing work. Geo/pricing cookies only need to land on checkout + pricing
+ * Next.js Node proxy — every matched request is a billed invocation, so keep
+ * this matcher tiny. Geo cookies only need to land on ad landing + checkout
  * surfaces; admin auth is the other required path. Gallery/blog HTML no longer
  * runs the proxy (saves the bulk of document hits).
  */
@@ -78,7 +79,7 @@ export async function proxy(request: NextRequest) {
       return next()
     }
 
-    // /api/pricing + /api/checkout — set country cookie, no TikTok rewrite.
+    // /api/checkout — set country cookie, no TikTok rewrite.
     return next()
   }
 
@@ -116,7 +117,8 @@ export const config = {
     "/admin/:path*",
     "/api/admin",
     "/api/admin/:path*",
-    "/api/pricing",
+    // `/api/pricing` resolves geo and sets the cookie itself, so its CDN-cached
+    // `?c=` responses never wake the proxy.
     "/api/checkout",
     "/api/checkout/:path*",
   ],

@@ -35,7 +35,6 @@ import Script from "next/script"
 import { averiaSerif, geistPixelSquare, geistSans } from "@/app/fonts"
 import { PostHogAnalytics } from "@/components/analytics/posthog-analytics"
 import { GoogleAnalytics } from "@next/third-parties/google"
-import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 
@@ -281,9 +280,8 @@ export default function RootLayout({
             ) : null}
           </MarketingOnlyScripts>
         </ThemeProvider>
+        {/* Also records Core Web Vitals, replacing paid Vercel Speed Insights. */}
         <PostHogAnalytics />
-        {/* Sample vitals — full capture is rarely worth the Speed Insights bill. */}
-        <SpeedInsights sampleRate={0.1} />
       </body>
     </html>
   )

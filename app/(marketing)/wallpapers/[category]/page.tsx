@@ -48,7 +48,7 @@ export async function generateMetadata({
 }
 
 /**
- * Prerendered per category (ISR via the catalog fetch's 1h revalidate + tag).
+ * Prerendered per category (ISR via the catalog fetch's 6h revalidate + tag).
  * `?q=&tag=&sort=` are applied client-side by the gallery, and next.config
  * marks those URLs `noindex` with an `X-Robots-Tag` header.
  */

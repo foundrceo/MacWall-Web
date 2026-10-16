@@ -19,9 +19,9 @@ const CONTENT_SECURITY_POLICY_REPORT_ONLY = [
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://analytics.tiktok.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.googletagmanager.com https://us-assets.i.posthog.com https://cdn.affonso.io https://connect.facebook.net",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
-  `img-src 'self' data: blob: https://${R2_CDN_HOST} https://*.r2.cloudflarestorage.com https://*.supabase.co https://images.unsplash.com https://www.apple.com https://analytics.tiktok.com https://t.co https://analytics.twitter.com https://www.google-analytics.com https://www.facebook.com`,
+  `img-src 'self' data: blob: https://${R2_CDN_HOST} https://*.r2.cloudflarestorage.com https://*.supabase.co https://analytics.tiktok.com https://t.co https://analytics.twitter.com https://www.google-analytics.com https://www.facebook.com`,
   `media-src 'self' blob: https://${R2_CDN_HOST} https://*.r2.cloudflarestorage.com https://*.supabase.co`,
-  "connect-src 'self' https://*.supabase.co https://*.r2.cloudflarestorage.com https://business-api.tiktok.com https://analytics.tiktok.com https://ads-api.x.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://vitals.vercel-insights.com https://va.vercel-scripts.com https://us.i.posthog.com https://us-assets.i.posthog.com https://api.affonso.io https://cdn.affonso.io https://www.facebook.com https://connect.facebook.net",
+  "connect-src 'self' https://*.supabase.co https://*.r2.cloudflarestorage.com https://business-api.tiktok.com https://analytics.tiktok.com https://ads-api.x.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://us.i.posthog.com https://us-assets.i.posthog.com https://api.affonso.io https://cdn.affonso.io https://www.facebook.com https://connect.facebook.net",
   "frame-src 'self' https://www.facebook.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
@@ -58,27 +58,20 @@ const nextConfig = {
     // Fewer width variants → fewer Image Optimization transforms + cache entries.
     deviceSizes: [640, 750, 1080, 1280],
     imageSizes: [32, 64, 128, 256],
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "www.apple.com",
-        pathname: "/v/iphone-air/**",
-      },
-      {
-        protocol: "https",
-        hostname: "www.apple.com",
-        pathname: "/in/iphone-air/**",
-      },
-      {
-        protocol: "https",
-        hostname: R2_CDN_HOST,
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-        pathname: "/**",
-      },
+    qualities: [75],
+    /**
+     * The Vercel optimizer only ever sees our own `/public` art. Catalog thumbs
+     * go through `catalogImageLoader` (Cloudflare resizing on the R2 CDN), so
+     * no remote host is allowed — an open pattern lets anyone bill transforms
+     * to this project. `search: ""` blocks `?v=1`, `?v=2`… cache-busting.
+     */
+    remotePatterns: [],
+    localPatterns: [
+      { pathname: "/Img.png", search: "" },
+      { pathname: "/MacWall.png", search: "" },
+      { pathname: "/how/**", search: "" },
+      { pathname: "/install/**", search: "" },
+      { pathname: "/reviews/**", search: "" },
     ],
   },
   turbopack: {

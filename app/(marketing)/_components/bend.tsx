@@ -11,10 +11,10 @@ import {
   landingLead,
   landingPad,
 } from "@/components/macwall-marketing/landing-type"
+import { MARKETING_BEND_VIDEO_MP4_URL } from "@/lib/marketing-assets-urls"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { cn } from "@/lib/utils"
 
-const BEND_VIDEO_SRC = "/hero/bend-demo.mp4"
 const BEND_POSTER_SRC = "/hero/bend-poster.avif"
 
 export function Bend() {
@@ -35,8 +35,8 @@ export function Bend() {
     if (!video) return
 
     const load = () => {
-      if (video.getAttribute("src") === BEND_VIDEO_SRC) return
-      video.src = BEND_VIDEO_SRC
+      if (video.getAttribute("src") === MARKETING_BEND_VIDEO_MP4_URL) return
+      video.src = MARKETING_BEND_VIDEO_MP4_URL
       video.load()
       if (!reduceMotion) {
         void video.play().catch(() => undefined)

@@ -7,16 +7,6 @@ import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 /** R2 key prefix inside `wallpaper-catalog` (public via cdn.macwall.app/assets/...). */
 export const MARKETING_ASSETS_R2_PREFIX = "assets" as const
 
-/**
- * Web-optimized hero walkthrough encodes, served from `/public` so Vercel's CDN
- * caches them immutably. The 82 MB `.mov` master on R2 is reachable only
- * through the env overrides below.
- */
-export const MARKETING_HERO_VIDEO_MP4_PATH = "/hero/hero-video.mp4" as const
-export const MARKETING_HERO_VIDEO_MP4_720_PATH =
-  "/hero/hero-video-720.mp4" as const
-export const MARKETING_HERO_VIDEO_MP4_MOBILE_PATH =
-  "/hero/hero-video-mobile.mp4" as const
 export const MARKETING_HERO_VIDEO_POSTER_PATH =
   "/hero/hero-video-poster.avif" as const
 export const MARKETING_HERO_VIDEO_POSTER_SMALL_PATH =
@@ -54,6 +44,28 @@ export function marketingAssetPublicUrl(objectKey: string): string {
   const path = encodeObjectPath(`${MARKETING_ASSETS_R2_PREFIX}/${objectKey}`)
   return `${getR2PublicBaseUrl()}/${path}`
 }
+
+/**
+ * Marketing videos (~19 MB together) stream from R2, which has no egress fee,
+ * instead of `/public`, where every byte is billed as Vercel Fast Data
+ * Transfer. Objects carry `max-age=31536000, immutable`: upload a re-encode
+ * under a new name rather than overwriting. Small posters stay in `/public`.
+ * The 82 MB `.mov` master on R2 is reachable only through the env overrides.
+ */
+export const MARKETING_HERO_VIDEO_MP4_PATH =
+  marketingAssetPublicUrl("hero/hero-video.mp4")
+export const MARKETING_HERO_VIDEO_MP4_720_PATH = marketingAssetPublicUrl(
+  "hero/hero-video-720.mp4"
+)
+export const MARKETING_HERO_VIDEO_MP4_MOBILE_PATH = marketingAssetPublicUrl(
+  "hero/hero-video-mobile.mp4"
+)
+export const MARKETING_BEND_VIDEO_MP4_URL =
+  marketingAssetPublicUrl("hero/bend-demo.mp4")
+export const MARKETING_LOCK_SCREEN_VIDEO_MP4_URL =
+  marketingAssetPublicUrl("hero/lockscreen.mp4")
+export const MARKETING_MUSIC_SYNC_VIDEO_MP4_URL =
+  marketingAssetPublicUrl("hero/music-sync.mp4")
 
 export type MarketingVideoSource = {
   src: string

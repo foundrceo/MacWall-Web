@@ -1,9 +1,16 @@
 import "server-only"
 
+import { revalidateTag } from "next/cache"
+
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 import { notifyCommunityUploadReviewed } from "@/lib/push/notify-visitor"
 import { r2CopyObject, r2PresignGetUrl } from "@/lib/storage/r2"
 import { ipKeywordFlags } from "@/lib/admin/ip-flags"
+import {
+  MARKETING_GALLERY_CACHE_TAG,
+  MARKETING_HOME_PICK_CACHE_TAG,
+  PUBLIC_CATALOG_CACHE_TAG,
+} from "@/lib/marketing-cache"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 import { randomUUID } from "crypto"
 
@@ -337,18 +344,22 @@ export async function createPendingUploadSignedUrls(
   return { videoUrl, thumbUrl, origin, expiresAt }
 }
 
-export async function revalidateMarketingCatalog() {
-  const secret = process.env.REVALIDATE_SECRET?.trim()
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()
-  if (!secret || !siteUrl) return
+export const MARKETING_CATALOG_CACHE_TAGS = [
+  MARKETING_GALLERY_CACHE_TAG,
+  MARKETING_HOME_PICK_CACHE_TAG,
+  PUBLIC_CATALOG_CACHE_TAG,
+] as const
 
-  try {
-    await fetch(new URL("/api/revalidate/catalog", siteUrl), {
-      method: "POST",
-      headers: { "x-revalidate-secret": secret },
-      cache: "no-store",
-    })
-  } catch (error) {
-    console.error("[admin] catalog revalidate failed:", error)
+/**
+ * Purges the homepage + public gallery caches in-process. Admin routes call
+ * this directly instead of POSTing to `/api/revalidate/catalog`, which cost a
+ * second invocation and silently no-op'd without the secret + site URL env.
+ *
+ * Soft expire ("default") — avoids a global stampede that rebuilds every
+ * wallpaper/list page at once after bulk catalog edits.
+ */
+export async function revalidateMarketingCatalog() {
+  for (const tag of MARKETING_CATALOG_CACHE_TAGS) {
+    revalidateTag(tag, "default")
   }
 }

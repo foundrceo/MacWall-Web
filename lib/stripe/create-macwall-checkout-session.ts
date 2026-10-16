@@ -82,25 +82,22 @@ export async function createMacWallCheckoutSession(
         : "default"
     const unitAmount = licenseOfferPriceCents(offer, region)
     const planSlug = offer.maxDevices >= 5 ? "pro_plus" : "pro"
-    const checkoutPrices = await checkoutPricesForOffer(
-      stripe,
-      offer.slug,
-      region
-    )
-
     const licenseKey = generateMacWallLicenseKey()
     const encodedKey = encodeURIComponent(licenseKey)
     const promoCode = normalizeConversionPromo(
       input.promoCode,
       parseOfferUntil(input.offerUntil)
     )
-    const promotionCodeId = promoCode
-      ? await resolvePromotionCodeId(stripe, promoCode)
-      : null
-    const customerEmail = await resolveCheckoutCustomerEmail({
-      email: input.customerEmail,
-      visitorId: input.visitorId,
-    })
+    // Independent lookups (two Stripe, one Supabase) — run together so the
+    // Function waits on the slowest, not the sum, before creating the session.
+    const [checkoutPrices, promotionCodeId, customerEmail] = await Promise.all([
+      checkoutPricesForOffer(stripe, offer.slug, region),
+      promoCode ? resolvePromotionCodeId(stripe, promoCode) : null,
+      resolveCheckoutCustomerEmail({
+        email: input.customerEmail,
+        visitorId: input.visitorId,
+      }),
+    ])
     const visitorId = normalizeCheckoutVisitorId(input.visitorId)
     const metadata = {
       license_key: licenseKey,

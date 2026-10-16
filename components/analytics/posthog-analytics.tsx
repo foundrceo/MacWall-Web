@@ -65,6 +65,8 @@ export function PostHogAnalytics() {
           capture_exceptions: false,
           autocapture: false,
           capture_dead_clicks: false,
+          // Core Web Vitals land here instead of paid Vercel Speed Insights.
+          capture_performance: { web_vitals: true, network_timing: false },
           person_profiles: "identified_only",
           persistence: "localStorage+cookie",
           disable_session_recording: false,
