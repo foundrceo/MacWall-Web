@@ -54,6 +54,19 @@ export function contentBlocksToMarkdown(
             .join("\n")
         )
         break
+      case "table": {
+        const cell = (text: string) =>
+          absolutizeMarkdownLinks(text).replace(/\|/g, "\\|")
+        const lines = [
+          `| ${block.columns.map(cell).join(" | ")} |`,
+          `| ${block.columns.map(() => "---").join(" | ")} |`,
+          ...block.rows.map((row) => `| ${row.map(cell).join(" | ")} |`),
+        ]
+        if (block.caption)
+          lines.push("", absolutizeMarkdownLinks(block.caption))
+        parts.push(lines.join("\n"))
+        break
+      }
       default: {
         const exhaustive: never = block
         void exhaustive

@@ -2,199 +2,6 @@ import type { BlogArticle } from "@/lib/content/types"
 
 export const comparisonArticles: BlogArticle[] = [
   {
-    slug: "best-live-wallpaper-app-mac-2026",
-    pathname: "/blog/best-live-wallpaper-app-mac-2026",
-    title: "Best Live Wallpaper App for Mac in 2026",
-    headline: "Best Live Wallpaper App for Mac in 2026",
-    description:
-      "We compared native Mac live wallpaper apps on performance, Lock Screen support, price, and catalog depth. Why MacWall leads for daily use.",
-    excerpt:
-      "An honest 2026 roundup of animated wallpaper apps for macOS, and why MacWall is the top native pick.",
-    category: "comparisons",
-    readMinutes: 8,
-    publishedAt: "2026-03-07",
-    keywords: [
-      "best live wallpaper app mac",
-      "best wallpaper app macos 2026",
-      "top animated wallpaper mac",
-    ],
-    sections: [
-      {
-        type: "p",
-        text: "The Mac live wallpaper market matured fast. You are no longer stuck choosing between Apple's static dynamic wallpapers and heavy cross-platform ports. In 2026, the best apps are **native**, **hardware-accelerated**, and **respect battery life**. After testing the field, **MacWall** stands out for smooth playback, menu bar control, community catalog, and fair one-time pricing.",
-      },
-      {
-        type: "h2",
-        text: "What makes a great Mac wallpaper app?",
-      },
-      {
-        type: "ul",
-        items: [
-          "Native macOS integration (menu bar, Dock, Spaces)",
-          "Hardware video decode on Apple Silicon",
-          "Pause on battery and full screen",
-          "Multi-monitor with per-display wallpapers",
-          "Import your own clips",
-          "Lock Screen support (where macOS allows)",
-          "One-time pricing, not another subscription",
-        ],
-      },
-      {
-        type: "h2",
-        text: "Why MacWall wins for most Mac users",
-      },
-      {
-        type: "p",
-        text: "MacWall checks every box above. It feels like Apple software: quiet background operation, crisp UI, and intelligent pause rules. The catalog spans Anime, Nature, Cars, Gaming, and more, plus you can import anything. Pro adds Lock Screen motion on macOS 26 (Tahoe) and later for a single $12.99 payment.",
-      },
-      {
-        type: "h2",
-        text: "Honest notes on competitors",
-      },
-      {
-        type: "p",
-        text: "Backdrop has a strong editor and large library. Wallspace is a solid native option. None combine MacWall's native feel, community uploads, Reel refund program, and one-time price quite the same way.",
-      },
-      {
-        type: "h2",
-        text: "Our recommendation",
-      },
-      {
-        type: "p",
-        text: "Get MacWall for a one-time $12.99, everything included, Lock Screen and all, with lifetime updates. For Wallpaper Engine migrants, read our dedicated alternative guide first.",
-      },
-    ],
-  },
-  {
-    slug: "wallpaper-engine-alternative-mac",
-    pathname: "/blog/wallpaper-engine-alternative-mac",
-    title: "Does Wallpaper Engine Work on Mac?",
-    headline: "Does Wallpaper Engine Work on Mac?",
-    description:
-      "Wallpaper Engine has no native macOS version. Here is why, what breaks if you force it, and how Mac users get animated desktops natively with MacWall.",
-    excerpt:
-      "The Mac-native path to animated desktops when you leave Wallpaper Engine behind.",
-    category: "comparisons",
-    readMinutes: 7,
-    publishedAt: "2026-03-08",
-    keywords: [
-      "does wallpaper engine work on mac",
-      "wallpaper engine macos",
-      "wallpaper engine for macbook",
-    ],
-    sections: [
-      {
-        type: "p",
-        text: "**No. Wallpaper Engine does not work on Mac: it is a Windows-only app on Steam, with no macOS version.** Wallpaper Engine dominates Windows with interactive scenes and a massive Workshop library. On Mac, you need a **native** alternative, not a Wine wrapper. **MacWall** is built for macOS from the ground up with SwiftUI, Metal decode, and menu bar controls.",
-      },
-      {
-        type: "h2",
-        text: "Can Wallpaper Engine run on Mac?",
-      },
-      {
-        type: "p",
-        text: "There is no official Mac version. Some tools parse .pkg scene files via compatibility layers, but that adds complexity and CPU overhead. MacWall focuses on what 95% of users actually want: beautiful **video loops** that play smoothly behind desktop windows.",
-      },
-      {
-        type: "h2",
-        text: "MacWall vs Wallpaper Engine philosophy",
-      },
-      {
-        type: "ul",
-        items: [
-          "Wallpaper Engine: interactive scenes, Workshop, Windows-first",
-          "MacWall: native video wallpapers, community catalog, macOS-first",
-          "MacWall: pause on battery/full screen, built for laptop life",
-          "MacWall Pro: Lock Screen video where Apple allows it",
-        ],
-      },
-      {
-        type: "h2",
-        text: "Migrating your library",
-      },
-      {
-        type: "p",
-        text: "Import MP4 or MOV loops you made yourself or have the rights to use. Then browse the catalog for 4K loops, or jump straight into popular [collections](/wallpapers/collections) like [anime](/wallpapers/anime), [Gojo](/wallpapers/collections/gojo), and [cyberpunk](/wallpapers/collections/cyberpunk). MacWall is the better daily driver for native performance.",
-      },
-    ],
-    faq: [
-      {
-        question: "Does Wallpaper Engine work on Mac?",
-        answer:
-          "No. Wallpaper Engine is only available for Windows on Steam and has no macOS version. Mac users use a native live wallpaper app such as MacWall instead.",
-      },
-      {
-        question:
-          "Can I run Wallpaper Engine on Mac with Wine, CrossOver, or Parallels?",
-        answer:
-          "Not usefully. Compatibility layers and virtual machines run Wallpaper Engine inside their own window, not on the real macOS desktop, and cost far more CPU and battery than a native app.",
-      },
-      {
-        question: "What is the best Wallpaper Engine alternative for Mac?",
-        answer:
-          "MacWall: a native Swift app with hardware video decoding, 1,000+ curated 4K loops, MP4 and MOV imports, multi-display support, and live Lock Screen on macOS 26, for a one-time $12.99.",
-      },
-    ],
-  },
-  {
-    slug: "macwall-vs-backdrop",
-    pathname: "/blog/macwall-vs-backdrop",
-    title: "MacWall vs Backdrop: Which Mac Wallpaper App Wins?",
-    headline: "MacWall vs Backdrop",
-    description:
-      "Compare MacWall and Backdrop on price, Lock Screen support, catalog, CPU usage, and native macOS integration to pick the right Mac wallpaper app.",
-    excerpt:
-      "Two native champions, here's how MacWall and Backdrop stack up in 2026.",
-    category: "comparisons",
-    readMinutes: 6,
-    publishedAt: "2026-03-09",
-    keywords: [
-      "macwall vs backdrop",
-      "backdrop alternative",
-      "backdrop vs macwall",
-    ],
-    sections: [
-      {
-        type: "p",
-        text: "**Backdrop** (by Cindori) and **MacWall** are both serious native macOS live wallpaper apps. Both support 4K video, multi-monitor, and Lock Screen on supported systems. The right pick depends on pricing, catalog style, and which workflow fits your desk.",
-      },
-      {
-        type: "h2",
-        text: "Where MacWall shines",
-      },
-      {
-        type: "ul",
-        items: [
-          "Pro at $12.99 one-time (less than half of Backdrop's $29.99 lifetime, listed price September 2026), with a Reel refund path",
-          "Community uploads and personal imports",
-          "Reel refund program, earn up to 100% back",
-          "Menu bar-first controls that mirror real Mac utilities",
-          "One license per Mac",
-        ],
-      },
-      {
-        type: "h2",
-        text: "Where Backdrop shines",
-      },
-      {
-        type: "ul",
-        items: [
-          "Built-in editor for creating backdrops",
-          "Very large established community library",
-          "Strong editorial presence in roundup articles",
-        ],
-      },
-      {
-        type: "h2",
-        text: "Verdict",
-      },
-      {
-        type: "p",
-        text: "Both are one-time purchases at similar prices. MacWall covers up to 3 Macs per license (Pro Plus: 5), and can refund itself through a Reel. If you want the best value, community-driven catalog, and a native app that feels built for your Mac, **MacWall** is the pick. If you need an in-app editor above all else, Backdrop remains excellent.",
-      },
-    ],
-  },
-  {
     slug: "dynamic-wallpaper-vs-live-wallpaper-mac",
     pathname: "/blog/dynamic-wallpaper-vs-live-wallpaper-mac",
     title: "Dynamic Wallpaper vs Live Wallpaper on Mac",
@@ -205,7 +12,7 @@ export const comparisonArticles: BlogArticle[] = [
       "Understand macOS dynamic wallpapers vs true motion video backgrounds.",
     category: "comparisons",
     readMinutes: 5,
-    publishedAt: "2026-03-10",
+    publishedAt: "2026-07-13",
     keywords: [
       "dynamic wallpaper vs live wallpaper mac",
       "macos dynamic wallpaper",
@@ -252,110 +59,17 @@ export const comparisonArticles: BlogArticle[] = [
     ],
   },
   {
-    slug: "macwall-vs-wallspace",
-    pathname: "/blog/macwall-vs-wallspace",
-    title: "MacWall vs Wallspace (2026): Full Comparison for Mac",
-    headline: "MacWall vs Wallspace: Which Should You Install?",
-    description:
-      "MacWall vs Wallspace compared on catalog depth, Lock Screen support, CPU usage, pricing, and macOS 27 beta compatibility, see which to install.",
-    excerpt:
-      "Wallspace is minimal. MacWall is minimal AND deep, catalog, imports, Lock Screen on macOS 26/27. Full comparison.",
-    category: "comparisons",
-    readMinutes: 6,
-    publishedAt: "2026-06-12",
-    keywords: [
-      "macwall vs wallspace",
-      "wallspace alternative",
-      "wallspace mac review",
-      "wallspace vs macwall",
-      "best wallspace alternative",
-    ],
-    sections: [
-      {
-        type: "p",
-        text: "**Wallspace** pitches itself on simplicity: a small Swift app, low CPU, one-time Pro. **MacWall** matches the native-Swift efficiency and adds a larger built-in catalog, community uploads, music sync, playlists, and broader Lock Screen support.",
-      },
-      { type: "h2", text: "Quick verdict" },
-      {
-        type: "p",
-        text: "**MacWall wins on depth and compatibility.** Both are lightweight native apps. MacWall and Wallspace both cost $12.99, but MacWall includes far more in that one payment, and its Lock Screen integration ships dedicated macOS 26 (Tahoe) support.",
-      },
-      { type: "h2", text: "Side by side" },
-      {
-        type: "ul",
-        items: [
-          "**Price**: MacWall Pro $12.99 one-time (3 Macs) vs Wallspace Pro $12.99 one-time (listed price, September 2026)",
-          "**Catalog**: MacWall: community catalog, 9 categories, search, likes. Wallspace: smaller built-in set",
-          "**Lock Screen**: both target macOS 26+; MacWall adds explicit macOS 27 beta fixes",
-          "**Extras MacWall has**: playlists, music sync (Apple Music/Spotify gradients), per-display controls, synced multi-monitor playback, menu bar Now Playing preview",
-          "**CPU**: both very light; MacWall auto-pauses on high CPU, full screen, lock, and battery",
-        ],
-      },
-      { type: "h2", text: "Who should pick Wallspace?" },
-      {
-        type: "p",
-        text: "If you literally only want to drag one video onto your desktop and never open the app again, Wallspace is fine. For everyone else, discovery, fresh drops, community uploads and Lock Screen support on macOS 26. MacWall is the stronger daily driver.",
-      },
-    ],
-  },
-  {
-    slug: "macwall-vs-lively-wallpaper",
-    pathname: "/blog/macwall-vs-lively-wallpaper",
-    title: "MacWall vs Lively Wallpaper: The Mac Answer to Lively",
-    headline: "MacWall vs Lively Wallpaper",
-    description:
-      "Lively Wallpaper is Windows-only. MacWall is the native Mac equivalent, compare features, performance, and how to switch.",
-    excerpt:
-      "Loved Lively on Windows? Here's how MacWall replaces it on your Mac.",
-    category: "comparisons",
-    readMinutes: 5,
-    publishedAt: "2026-06-12",
-    keywords: [
-      "macwall vs lively wallpaper",
-      "lively wallpaper mac",
-      "lively wallpaper for macos",
-      "lively wallpaper alternative mac",
-    ],
-    sections: [
-      {
-        type: "p",
-        text: "**Lively Wallpaper** is the go-to free live wallpaper app on Windows, but it has no Mac version and never will. **MacWall** is its natural macOS counterpart: desktop video wallpapers, your own imports, and a community catalog, all in a native Swift app for a one-time $12.99.",
-      },
-      { type: "h2", text: "Feature mapping for switchers" },
-      {
-        type: "ul",
-        items: [
-          "Lively video wallpapers → MacWall MP4/MOV/GIF imports",
-          "Lively library → MacWall community catalog: Anime, Nature, Cars, Gaming, Space, Heroes, Dark, Abstract, Others",
-          "Lively pause rules → MacWall auto-pause on battery, full screen, lock, and high CPU",
-          "Lively multi-monitor → MacWall per-display wallpapers or synced playback with drift correction",
-          "Windows lock screen tools → MacWall Pro Lock Screen video on macOS 26+ and the macOS 27 beta",
-        ],
-      },
-      { type: "h2", text: "Switching takes five minutes" },
-      {
-        type: "ol",
-        items: [
-          "Copy your favorite loops from your PC.",
-          "Download MacWall at macwall.app/download.",
-          "Drag the videos into MacWall's Library.",
-          "Browse the catalog for Mac-optimized 4K drops.",
-        ],
-      },
-    ],
-  },
-  {
     slug: "live-wallpaper-cpu-usage-mac",
     pathname: "/blog/live-wallpaper-cpu-usage-mac",
-    title: "Live Wallpaper CPU Usage on Mac, Tested",
-    headline: "Live Wallpaper CPU Usage on Mac, Compared",
+    title: "Live Wallpaper CPU Usage on Mac: What Drives It",
+    headline: "Live Wallpaper CPU Usage on Mac: What Drives It",
     description:
       "What affects live-wallpaper CPU use on a Mac, including hardware decode, source media, display count, auto-pause behavior, and battery quality settings.",
     excerpt:
       "Hardware decode can keep CPU work low, while source media, displays, and pause settings determine real-world resource use.",
     category: "comparisons",
     readMinutes: 6,
-    publishedAt: "2026-06-12",
+    publishedAt: "2026-07-15",
     keywords: [
       "live wallpaper cpu usage mac",
       "do live wallpapers drain battery mac",
@@ -368,28 +82,29 @@ export const comparisonArticles: BlogArticle[] = [
         type: "p",
         text: "The number one fear about live wallpapers is whether they will slow down a Mac. Apple Silicon can decode H.264 and HEVC in dedicated media hardware, which reduces CPU work when the source video and codec are supported. Real resource use still depends on everything **around** the decoder: source resolution and frame rate, display count, compositing, and pause behavior.",
       },
-      { type: "h2", text: "What makes MacWall the lightest option" },
+      { type: "h2", text: "What MacWall does to keep CPU low" },
       {
         type: "ul",
         items: [
-          "**Hardware decode** via AVFoundation/VideoToolbox, the video never hits the CPU",
-          "**Auto-pause on high CPU**: playback pauses when system load passes 80% and resumes at 55%",
-          "**Pause on full screen**: covered wallpaper means zero decode work, per display",
+          "**Quit the app, keep the wallpaper**: on macOS 26 and later (System Wallpaper mode), macOS itself plays the wallpaper, so you can quit MacWall and it keeps moving with 0% MacWall CPU",
+          "**Hardware decode** via AVFoundation/VideoToolbox, so decoding runs on the media engine rather than the CPU",
+          "**Pause when busy** (optional, off by default): playback pauses when system load passes 80% and resumes at 55%",
+          "**Pause behind full-screen apps** (on by default): a covered wallpaper does no decode work, per display",
           "**Pause on screen lock and display sleep**: nothing renders when you're away",
-          "**Reduce Quality on Battery**: caps playback to 1080p/30fps on battery or Low Power Mode",
-          "**One decoder per display**: no duplicated work on multi-monitor setups",
-          "**Quality presets**: Performance Mode caps resolution and frame rate (down to 720p/24fps) if you want extra headroom",
+          "**Lower quality on battery** (optional): caps playback at 1080p/30fps on battery",
+          "**Shared players**: displays showing the same loop share one player instead of decoding it twice",
+          "**Quality presets**: the Performance preset caps playback at 1280 pixels and 30fps if you want extra headroom",
         ],
       },
-      { type: "h2", text: "How competitors compare" },
+      { type: "h2", text: "How other approaches differ" },
       {
         type: "p",
-        text: "Electron and web-wrapper wallpaper tools keep a Chromium instance alive just to draw your desktop, tens of times MacWall's footprint. Scene-engine tools run translation layers that cost real GPU and CPU. Other native video apps are reasonable, but none combine MacWall's full pause policy stack: battery, full screen, lock, display sleep, AND live CPU monitoring.",
+        text: "Website-as-wallpaper tools keep a full web rendering engine running to draw the desktop, which costs more than handing a video file to the media engine. Scene-based wallpapers are rendered frame by frame on the GPU. Other native video apps such as Backdrop and Wallspace use the same hardware decode path, so differences between them come down to pause rules and settings. We have not run a controlled head-to-head test, so treat any app's CPU claim, including ours, as something to check on your own Mac.",
       },
       { type: "h2", text: "Check it yourself" },
       {
         type: "p",
-        text: "MacWall shows live CPU, RAM, and cache stats right in its menu bar popover. Open Activity Monitor next to it, during normal work with a full-screen app in front, MacWall's playback cost is zero, because it isn't playing at all.",
+        text: "MacWall shows live CPU, RAM, and cache stats right in its menu bar popover. Open Activity Monitor next to it, with a full-screen app in front, MacWall is not decoding the wallpaper at all.",
       },
     ],
   },

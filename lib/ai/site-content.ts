@@ -7,6 +7,7 @@ import {
   macwall,
   macwallLockScreenMacOSVersion,
   macwallMinimumMacOSVersionLabel,
+  macwallCatalog,
 } from "@/lib/macwall-site"
 import { seoPageToMarkdown } from "@/lib/ai/markdown"
 import { macwallAiInfoPage } from "@/lib/ai/macwall-ai-info"
@@ -44,13 +45,7 @@ import {
  */
 
 export type MarkdownGroup =
-  | "product"
-  | "docs"
-  | "learn"
-  | "blog"
-  | "wallpapers"
-  | "comparisons"
-  | "legal"
+  "product" | "docs" | "learn" | "blog" | "wallpapers" | "comparisons" | "legal"
 
 export const MARKDOWN_GROUP_LABELS: Record<MarkdownGroup, string> = {
   product: "Product",
@@ -115,7 +110,7 @@ const homePage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "**Free trial**: download with no account required and get full access to everything for 24 hours.",
+        "**Free trial**: download with no account required and get 24 hours with the full catalog and live Lock Screen.",
         `**Pro (permanent license)**: ${macwall.pro.price} one time in default USD pricing, activates on up to ${macwall.maxLicensedMacs} personal Macs, and unlocks the full catalog, private imports, and current Pro benefits.`,
         "**Pro+ packs**: permanent multi-Mac licenses for families, studios, and labs. Available device counts and regional prices are on [pricing](/pricing).",
       ],
@@ -123,7 +118,7 @@ const homePage: SeoContentPage = {
     { type: "h2", text: "Catalog" },
     {
       type: "p",
-      text: `Over 1,000 curated loops across ${macwall.categories.length} categories (${macwall.categories.join(", ")}), browsable in the app or on the web at [macwall.app/wallpapers](/wallpapers). Community members publish new wallpapers from inside the MacWall app (Add Wallpaper → Share with the community).`,
+      text: `${macwallCatalog.liveCountLabel} curated loops across ${macwall.categories.length} categories (${macwall.categories.join(", ")}), browsable in the app or on the web at [macwall.app/wallpapers](/wallpapers). Community members publish new wallpapers from inside the MacWall app (Add Wallpaper → Share with the community).`,
     },
     { type: "h2", text: "Performance model" },
     {
@@ -135,7 +130,7 @@ const homePage: SeoContentPage = {
       type: "ul",
       items: [
         "[Install MacWall](/docs/install-macwall): download, install, first wallpaper.",
-        "[Set a live wallpaper](/docs/set-a-live-wallpaper): catalog, per-display setups, playlists.",
+        "[Set a live wallpaper](/docs/set-a-live-wallpaper): catalog, per-display setups, Shuffle.",
         "[Performance and battery](/docs/performance-and-battery): every pause rule, and how to verify CPU use.",
         "[What is a live wallpaper?](/learn/what-is-a-live-wallpaper): concepts and terminology.",
         "[Complete guide](/blog/what-is-macwall-complete-guide), the long-form overview.",
@@ -169,7 +164,7 @@ const wallpapersIndexPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: `The web gallery at [macwall.app/wallpapers](/wallpapers) mirrors the in-app catalog: over 1,000 curated loops (most in 4K), searchable and filterable by category, tag, and popularity. Each wallpaper has its own page with a preview, resolution, duration, file size, and a **Set on Mac** deep link that hands it to the installed app.`,
+      text: `The web gallery at [macwall.app/wallpapers](/wallpapers) mirrors the in-app catalog: ${macwallCatalog.liveCountLabel} curated loops (most in 4K), searchable and filterable by category, tag, and popularity. Each wallpaper has its own page with a preview, resolution, duration, file size, and a **Set on Mac** deep link that hands it to the installed app.`,
     },
     { type: "h2", text: "Categories" },
     {
@@ -493,7 +488,7 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
     {
       path: "/pricing",
       title: `${macwall.name} Pricing`,
-      summary: `Free 24-hour full-access trial, one-time ${macwall.pro.price} default-USD Pro license, and permanent Pro+ multi-Mac packs. No recurring subscription.`,
+      summary: `Free 24-hour trial of the full catalog, one-time ${macwall.pro.price} default-USD Pro license, and permanent Pro+ multi-Mac packs. No recurring subscription.`,
       group: "product",
       updatedAt: macwall.productInfoLastReviewedIso,
       includeInFullText: true,
@@ -503,7 +498,7 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
           pathname: "/pricing",
           title: `${macwall.name} Pricing`,
           headline: `${macwall.name} pricing`,
-          description: `Free 24-hour full-access trial, one-time ${macwall.pro.price} default-USD Pro license, and permanent Pro+ multi-Mac packs. No recurring subscription.`,
+          description: `Free 24-hour trial of the full catalog, one-time ${macwall.pro.price} default-USD Pro license, and permanent Pro+ multi-Mac packs. No recurring subscription.`,
           keywords: [
             "macwall pricing",
             "macwall pro price",
@@ -513,13 +508,13 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
           sections: [
             {
               type: "p",
-              text: `${macwall.name} is free to download, and every download starts with a 24-hour trial with full access to everything. After the trial you can keep browsing the catalog; Pro keeps the full cloud catalog, private imports, and Pro-only features unlocked for a **one-time ${macwall.pro.price}** in default USD pricing, not a recurring subscription. Regional pricing may differ, and checkout is handled by ${macwall.paymentProcessor}.`,
+              text: `${macwall.name} is free to download, and every download starts with a 24-hour trial of the full catalog and live Lock Screen. After the trial you can keep browsing the catalog; Pro keeps the full cloud catalog, private imports, and Pro-only features unlocked for a **one-time ${macwall.pro.price}** in default USD pricing, not a recurring subscription. Regional pricing may differ, and checkout is handled by ${macwall.paymentProcessor}.`,
             },
             { type: "h2", text: "Programs" },
             {
               type: "ul",
               items: [
-                "**Free trial**: install with no account and get full access to everything for 24 hours.",
+                "**Free trial**: install with no account and get 24 hours with the full catalog and live Lock Screen.",
                 `**Permanent Pro license**: ${macwall.pro.price} once in default USD pricing. Activates on up to ${macwall.maxLicensedMacs} personal Macs and unlocks the full catalog, private imports, and current Pro benefits.`,
                 "**Pro+ packs**: permanent multi-Mac options for studios, labs, and families.",
                 "**Annual plan**: retired for new purchases.",
@@ -678,16 +673,14 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
       includeInFullText: false,
       render: collectionsHubMarkdown,
     },
-    ...wallpaperCollections.map(
-      (entry): MarkdownDocument => ({
-        path: wallpaperCollectionPath(entry.slug),
-        title: entry.title,
-        summary: entry.description,
-        group: "wallpapers",
-        includeInFullText: false,
-        render: () => collectionMarkdown(entry),
-      })
-    ),
+    ...wallpaperCollections.map((entry): MarkdownDocument => ({
+      path: wallpaperCollectionPath(entry.slug),
+      title: entry.title,
+      summary: entry.description,
+      group: "wallpapers",
+      includeInFullText: false,
+      render: () => collectionMarkdown(entry),
+    })),
     ...macwall.categories.map((name) =>
       seoDoc(wallpaperCategoryPage(name), "wallpapers", {
         includeInFullText: false,

@@ -7,8 +7,17 @@ import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-
 import { TextLink } from "@/components/macwall-marketing/marketing-primitives"
 import { JsonLd } from "@/components/seo/json-ld"
 import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
-import { macwallInstallerLatestPath } from "@/lib/macwall-site"
+import { macwall, macwallInstallerLatestPath } from "@/lib/macwall-site"
 import type { SeoContentPage } from "@/lib/content/types"
+
+function formatCheckedDate(iso: string): string {
+  return new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  })
+}
 
 export function SeoLandingPage({
   page,
@@ -30,6 +39,17 @@ export function SeoLandingPage({
         sections={page.sections}
         faq={page.faq}
         breadcrumbs={breadcrumbs}
+        meta={
+          page.updatedAt ? (
+            <>
+              Last checked{" "}
+              <time dateTime={page.updatedAt}>
+                {formatCheckedDate(page.updatedAt)}
+              </time>{" "}
+              by the {macwall.name} team
+            </>
+          ) : undefined
+        }
       >
         {showDownloadCta ? (
           <ProseActionRow>

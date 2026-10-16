@@ -1,3 +1,4 @@
+import { macwallCatalog } from "@/lib/macwall-site"
 import { SeoPageShell } from "@/components/content/seo-page-shell"
 import { HubLinkList } from "@/components/content/hub-link-list"
 import { JsonLd } from "@/components/seo/json-ld"
@@ -76,8 +77,7 @@ export default function LearnHubPage() {
             {
               href: "/wallpapers",
               label: "Browse the wallpaper gallery",
-              description:
-                "Over 1,000 curated loops, most in 4K, filterable by category, tag, and popularity.",
+              description: `${macwallCatalog.liveCountLabel} curated loops, most in 4K, filterable by category, tag, and popularity.`,
             },
           ]}
         />

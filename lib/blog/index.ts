@@ -16,10 +16,7 @@ const featuredSlugs = [
   "macwall-performance-zero-overhead-guide",
   "macos-27-beta-live-wallpaper-not-working",
   "macos-27-lock-screen-live-wallpaper",
-  "macwall-vs-wallspace",
   "live-wallpaper-cpu-usage-mac",
-  "best-live-wallpaper-app-mac-2026",
-  "macwall-vs-lively-wallpaper",
   "upload-wallpaper-macwall-community",
 ] as const
 

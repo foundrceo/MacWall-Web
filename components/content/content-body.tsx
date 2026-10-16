@@ -4,6 +4,7 @@ import {
   legalTextPrimary,
   legalTextSecondary,
 } from "@/components/legal/legal-classes"
+import { ContentTable } from "@/components/content/content-table"
 import type { ContentBlock } from "@/lib/content/types"
 import {
   proseBody,
@@ -79,19 +80,13 @@ export function ContentBody({
           }
           case "h3":
             return (
-              <h3
-                key={`h3-${index}`}
-                className={cn(proseH3, legalTextPrimary)}
-              >
+              <h3 key={`h3-${index}`} className={cn(proseH3, legalTextPrimary)}>
                 {block.text}
               </h3>
             )
           case "p":
             return (
-              <p
-                key={`p-${index}`}
-                className={cn(proseP, legalTextSecondary)}
-              >
+              <p key={`p-${index}`} className={cn(proseP, legalTextSecondary)}>
                 {renderInlineText(block.text)}
               </p>
             )
@@ -115,6 +110,14 @@ export function ContentBody({
                   <li key={item}>{renderInlineText(item)}</li>
                 ))}
               </ol>
+            )
+          case "table":
+            return (
+              <ContentTable
+                key={`table-${index}`}
+                block={block}
+                renderInline={renderInlineText}
+              />
             )
           default:
             return null

@@ -126,7 +126,43 @@ const nextConfig = {
       },
       {
         source: "/blog/macwall-vs-wallper",
-        destination: "/blog/best-live-wallpaper-app-mac-2026",
+        destination: "/best-live-wallpaper-mac",
+        permanent: true,
+      },
+      {
+        // One page per intent: the blog duplicate merged into its owner page.
+        source: "/blog/best-live-wallpaper-app-mac-2026",
+        destination: "/best-live-wallpaper-mac",
+        permanent: true,
+      },
+      {
+        // One page per intent: the blog duplicate merged into its owner page.
+        source: "/blog/why-macwall-best-native-wallpaper-app",
+        destination: "/best-live-wallpaper-mac",
+        permanent: true,
+      },
+      {
+        // One page per intent: the blog duplicate merged into its owner page.
+        source: "/blog/wallpaper-engine-alternative-mac",
+        destination: "/alternatives/wallpaper-engine",
+        permanent: true,
+      },
+      {
+        // One page per intent: the blog duplicate merged into its owner page.
+        source: "/blog/macwall-vs-backdrop",
+        destination: "/alternatives/macwall-vs-backdrop",
+        permanent: true,
+      },
+      {
+        // One page per intent: the blog duplicate merged into its owner page.
+        source: "/blog/macwall-vs-wallspace",
+        destination: "/alternatives/macwall-vs-wallspace",
+        permanent: true,
+      },
+      {
+        // One page per intent: the blog duplicate merged into its owner page.
+        source: "/blog/macwall-vs-lively-wallpaper",
+        destination: "/alternatives/lively-wallpaper-mac",
         permanent: true,
       },
       {

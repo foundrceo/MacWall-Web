@@ -5,6 +5,7 @@ import {
   macwallMacOSRequirementsHint,
   macwallMinimumMacOSVersion,
   macwallMinimumMacOSRequirement,
+  macwallCatalog,
 } from "@/lib/macwall-site"
 
 export type ReelRefundStepIcon = "video" | "tag" | "views" | "email"
@@ -88,7 +89,7 @@ export const macwallPricingCopy = {
 
   pro: {
     features: [
-      "1,000+ live wallpapers, most in 4K",
+      `${macwallCatalog.liveCountLabel} live wallpapers, most in 4K`,
       "Bend: close the lid, desktop folds",
       "Live Lock Screen & Screen Saver (macOS 26+)",
       "Import your own videos",
@@ -132,7 +133,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "What can I do for free?",
-      a: "Every download starts with a free 24-hour trial of everything. After the trial you can keep browsing the catalog. Setting live wallpapers, Lock Screen, and imports need Pro.",
+      a: "Every download starts with a free 24-hour trial of the full catalog and Lock Screen. After the trial you can keep browsing the catalog. Setting live wallpapers, Lock Screen, and imports need Pro.",
     },
     {
       q: "I have 4 or 5 Macs. Which plan do I need?",
@@ -225,7 +226,6 @@ export const macwallPricingCopy = {
   bottomCtaPro: "Get Pro",
   bottomCtaReel: "Get money back with a Reel",
 
-
   cardFooter: {
     tryFreeLabel: "Free to try",
     macOSLabel: macwallMinimumMacOSRequirement.replace(/^Minimum /, ""),
@@ -237,7 +237,7 @@ export const macwallPricingCopy = {
     checkoutDetail: "Powered by Stripe · SSL encrypted",
     deliveryLabel: "License emailed instantly",
     deliveryDetail: "Your license key arrives in seconds",
-    guaranteeLabel: "1,000+ wallpapers",
+    guaranteeLabel: `${macwallCatalog.liveCountLabel} wallpapers`,
     guaranteeDetail: "Full catalog unlocked with Pro",
     guaranteeHref: "/wallpapers",
     noSubLabel: "One payment, no subscription",
@@ -311,9 +311,7 @@ export const macwallHomeFaq: readonly { q: string; a: string }[] = [
   ...faqItems(supportFaqByQuestion, [
     "Will I be charged when the free trial ends?",
   ]),
-  ...faqItems(pricingFaqByQuestion, [
-    "Where is my license key?",
-  ]),
+  ...faqItems(pricingFaqByQuestion, ["Where is my license key?"]),
   ...faqItems(supportFaqByQuestion, [
     "Do I need an account to use my license?",
   ]),
@@ -339,4 +337,3 @@ export const macwallHomeFaq: readonly { q: string; a: string }[] = [
   ]),
   ...faqItems(supportFaqByQuestion, ["How do I remove MacWall?"]),
 ]
-

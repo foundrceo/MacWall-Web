@@ -20,13 +20,7 @@ export const COLLECTION_MIN_WALLPAPERS = 6
 export const COLLECTION_GRID_LIMIT = 48
 
 export type WallpaperCollectionGroup =
-  | "anime"
-  | "heroes"
-  | "sports"
-  | "cars"
-  | "moods"
-  | "space"
-  | "colors"
+  "anime" | "heroes" | "sports" | "cars" | "moods" | "space" | "colors"
 
 export const COLLECTION_GROUP_LABELS: Record<WallpaperCollectionGroup, string> =
   {
@@ -205,7 +199,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     faq: {
       question: "Will an animated Goku wallpaper drain my MacBook battery?",
       answer:
-        "MacWall pauses playback on battery power and whenever a full-screen app covers the desktop, so an animated Goku wallpaper costs very little in everyday use.",
+        "MacWall decodes video in hardware and pauses whenever a full-screen app covers the desktop, so an animated Goku wallpaper costs very little in everyday use.",
     },
     related: ["naruto", "one-piece", "jujutsu-kaisen", "demon-slayer"],
   }),
@@ -441,7 +435,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     category: "Others",
     faq: {
       question: "Are Ronaldo wallpapers free on MacWall?",
-      answer: `MacWall starts with a free 24-hour trial with full access. After that, the full catalog, including every Ronaldo loop, stays unlocked with a one-time ${macwall.pro.price} Pro license with no subscription.`,
+      answer: `MacWall starts with a free 24-hour trial of the full catalog. After that, the full catalog, including every Ronaldo loop, stays unlocked with a one-time ${macwall.pro.price} Pro license with no subscription.`,
     },
     related: ["football", "f1", "supercars", "bmw"],
   }),
@@ -712,7 +706,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     faq: {
       question: "Do neon cyberpunk wallpapers use more power than calm ones?",
       answer:
-        "Not meaningfully. Decode cost depends on resolution and frame rate, not on color, and MacWall pauses playback on battery or when a full-screen app covers the desktop.",
+        "Not meaningfully. Decode cost depends on resolution and frame rate, not on color, and MacWall pauses playback when a full-screen app covers the desktop.",
     },
     related: ["city", "hacker", "rain", "space"],
   }),
@@ -875,7 +869,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     faq: {
       question: "What is the best nature live wallpaper for a MacBook Air?",
       answer:
-        "Any forest loop in this collection runs well on a MacBook Air. MacWall decodes video in hardware and pauses on battery by default, so fanless Macs stay cool.",
+        "Any forest loop in this collection runs well on a MacBook Air. MacWall decodes video in hardware, and you can cap playback at 1080p on battery, so fanless Macs stay cool.",
     },
     related: ["rain", "snow", "sunset", "japanese"],
   }),
@@ -1450,7 +1444,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     faq: {
       question: "Do black live wallpapers save battery on a MacBook?",
       answer:
-        "MacBook panels are LCD or mini-LED, so black pixels save a little on mini-LED MacBook Pro and little on LCD. The bigger saving is MacWall pausing playback on battery.",
+        "MacBook panels are LCD or mini-LED, so black pixels save a little on mini-LED MacBook Pro and little on LCD. The bigger saving comes from MacWall's Low Power Mode pause and its 1080p cap on battery.",
     },
     related: ["red", "moon", "black-hole", "hacker"],
   }),
@@ -1567,7 +1561,7 @@ export function collectionFaq(
     },
     {
       question: `Do ${topic} live wallpapers work on MacBook Air and MacBook Pro?`,
-      answer: `Yes. ${macwall.name} runs on Apple Silicon and Intel Macs with macOS 15 or later, decodes video in hardware, and pauses automatically on battery and in full-screen apps.`,
+      answer: `Yes. ${macwall.name} runs on Apple Silicon and Intel Macs with macOS 15 or later, decodes video in hardware, and pauses automatically behind full-screen apps.`,
     },
   ]
 }

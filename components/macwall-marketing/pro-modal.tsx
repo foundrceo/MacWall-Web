@@ -13,13 +13,14 @@ import {
   macwall,
   macwallAppIconPath,
   macwallAppIconRadiusClass,
+  macwallCatalog,
 } from "@/lib/macwall-site"
 import { macwallPricingCopy } from "@/lib/macwall-pricing-copy"
 import { cn } from "@/lib/utils"
 
 /** What Pro adds, one fact per line; price terms live next to the price. */
 const PRO_MODAL_FEATURES = [
-  "1,000+ live wallpapers, most in 4K",
+  `${macwallCatalog.liveCountLabel} live wallpapers, most in 4K`,
   "Live Lock Screen & Screen Saver",
   "Music Sync with Apple Music & Spotify",
   `Up to ${macwall.maxLicensedMacs} Macs, free updates forever`,
@@ -89,7 +90,7 @@ export function ProModal({
             />
             <DialogTitle
               id="pro-modal-title"
-              className="font-display mt-3 text-2xl leading-tight font-normal tracking-tight text-foreground"
+              className="mt-3 font-display text-2xl leading-tight font-normal tracking-tight text-foreground"
             >
               {macwall.name} Pro
             </DialogTitle>
@@ -113,11 +114,11 @@ export function ProModal({
                 ))}
               </span>
               <p className="text-[12px] text-marketing-muted">
-                Bought by{" "}
+                Trusted by{" "}
                 <span className="font-medium text-foreground">
                   {macwall.pro.socialProofMembers}
                 </span>{" "}
-                Mac users
+                users
               </p>
             </div>
           </div>

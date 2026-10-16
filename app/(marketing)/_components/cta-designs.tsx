@@ -7,7 +7,11 @@ import {
   MARKETING_GALLERY_WALLPAPERS_FALLBACK,
   type MarketingGalleryWallpaper,
 } from "@/lib/marketing-gallery-wallpapers"
-import { macwall, macwallMinimumMacOSVersion } from "@/lib/macwall-site"
+import {
+  macwall,
+  macwallMinimumMacOSVersion,
+  macwallCatalog,
+} from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 import { HeroActions } from "./hero-actions"
@@ -19,19 +23,17 @@ import { HeroBadge } from "./hero-badge"
  * flow on a phone, and the live regional price underneath).
  */
 export type CtaVariant =
-  | "wall"
-  | "split"
-  | "card"
-  | "beams"
-  | "icon"
-  | "marquee"
+  "wall" | "split" | "card" | "beams" | "icon" | "marquee"
 
 const headline =
   "font-display font-normal tracking-tight text-balance text-foreground"
 
 function wallpapers(count: number, offset = 0): MarketingGalleryWallpaper[] {
   const all = MARKETING_GALLERY_WALLPAPERS_FALLBACK
-  return Array.from({ length: count }, (_, i) => all[(i + offset) % all.length]!)
+  return Array.from(
+    { length: count },
+    (_, i) => all[(i + offset) % all.length]!
+  )
 }
 
 /** A still poster tile; decorative wherever it is used. */
@@ -76,7 +78,9 @@ function WallCta() {
             <div
               key={index}
               className={cn("mw-drift gap-3", index % 2 && "mw-drift-reverse")}
-              style={{ "--drift-duration": `${90 + index * 20}s` } as CSSProperties}
+              style={
+                { "--drift-duration": `${90 + index * 20}s` } as CSSProperties
+              }
             >
               {[...row, ...row].map((w, i) => (
                 <Poster
@@ -95,7 +99,7 @@ function WallCta() {
       </div>
       <div className="flex flex-col items-center px-6 py-24 text-center md:py-32">
         <h2 className={cn(headline, "max-w-2xl text-4xl md:text-6xl")}>
-          1,000+ wallpapers. One click to set.
+          {macwallCatalog.liveCountLabel} wallpapers. One click to set.
         </h2>
         <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground md:text-base">
           Anime, nature, cars, gaming, space. They move, and your Mac barely
@@ -125,14 +129,14 @@ function SplitCta() {
       <div className="grid grid-cols-1 items-center gap-12 px-6 py-16 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16 lg:px-8 lg:py-0">
         <div className="lg:py-24">
           <p className="text-[13px] font-medium text-muted-foreground">
-            1,000+ live wallpapers
+            {macwallCatalog.liveCountLabel} live wallpapers
           </p>
           <h2 className={cn(headline, "mt-3 text-4xl md:text-6xl")}>
             Make your Mac feel alive.
           </h2>
           <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground md:text-base">
             Pick a wallpaper, click Set, done. It pauses itself behind
-            full-screen apps and on battery.
+            full-screen apps.
           </p>
           <div className="mt-8">
             <HeroActions location="bottom_cta" align="start" />
@@ -205,7 +209,9 @@ function CardCta() {
         <span className="inline-flex h-7 items-center rounded-full bg-white/10 px-3 text-[12px] font-medium text-white/80 ring-1 ring-white/10">
           Made for macOS
         </span>
-        <h2 className={cn(headline, "mt-6 text-5xl leading-[1.02] md:text-7xl")}>
+        <h2
+          className={cn(headline, "mt-6 text-5xl leading-[1.02] md:text-7xl")}
+        >
           <span className="block">Your desktop,</span>
           <span className="block text-white/40">finally alive.</span>
         </h2>
@@ -292,12 +298,17 @@ function IconCta() {
     <MarketingSection>
       <div className="flex flex-col items-center px-6 py-20 text-center md:py-28">
         <div className="relative">
-          <div aria-hidden className="absolute inset-0 scale-110 opacity-70 blur-2xl">
+          <div
+            aria-hidden
+            className="absolute inset-0 scale-110 opacity-70 blur-2xl"
+          >
             <MacWallAppIcon size={112} aria-hidden />
           </div>
           <MacWallAppIcon size={112} aria-hidden className="relative" />
         </div>
-        <h2 className={cn(headline, "mt-8 text-5xl md:text-6xl")}>{macwall.name}</h2>
+        <h2 className={cn(headline, "mt-8 text-5xl md:text-6xl")}>
+          {macwall.name}
+        </h2>
         <p className="mt-3 text-[17px] text-muted-foreground">
           Live wallpapers for your Mac.
         </p>
@@ -326,14 +337,22 @@ function IconCta() {
  * the eyebrow. (After 21st.dev "Worth Keeping CTA", ziegfiroyt.)
  */
 function MarqueeCta() {
-  const words = ["Live wallpapers", "Your desktop, alive", "Lock Screen too", macwall.name]
+  const words = [
+    "Live wallpapers",
+    "Your desktop, alive",
+    "Lock Screen too",
+    macwall.name,
+  ]
   return (
     <MarketingSection className="relative isolate overflow-hidden">
       <div
         aria-hidden
         className="absolute inset-x-0 top-1/2 -z-10 -translate-y-1/2 [mask-image:linear-gradient(to_right,transparent,#000_15%,#000_85%,transparent)]"
       >
-        <div className="mw-drift" style={{ "--drift-duration": "90s" } as CSSProperties}>
+        <div
+          className="mw-drift"
+          style={{ "--drift-duration": "90s" } as CSSProperties}
+        >
           {[...words, ...words].map((word, index) => (
             <span
               key={index}

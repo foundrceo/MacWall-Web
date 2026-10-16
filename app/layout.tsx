@@ -22,7 +22,7 @@ import { VisitorPlatformScript } from "@/components/platform/visitor-platform-sc
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { JsonLd } from "@/components/seo/json-ld"
 import { macwallSchemaGraph } from "@/lib/macwall-json-ld"
-import { macwall, macwallFavicons } from "@/lib/macwall-site"
+import { macwall, macwallFavicons, macwallCatalog } from "@/lib/macwall-site"
 import {
   canonicalSiteOrigin,
   feedAlternateTypes,
@@ -38,7 +38,7 @@ import { GoogleAnalytics } from "@next/third-parties/google"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 
-const SITE_DESCRIPTION_FALLBACK = `${macwall.tagline} Native Mac app with 1,000+ live loops (most in 4K), your own videos, every display, and Lock Screen on macOS 26. Free to try, then one payment. macOS 15+.`
+const SITE_DESCRIPTION_FALLBACK = `${macwall.tagline} Native Mac app with ${macwallCatalog.liveCountLabel} live loops (most in 4K), your own videos, every display, and Lock Screen on macOS 26. Free to try, then one payment. macOS 15+.`
 
 const SITE_TITLE_DEFAULT = macwall.fullTagline
 

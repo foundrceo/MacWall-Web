@@ -3,6 +3,7 @@ import {
   macwallLockScreenMacOSVersion,
   macwallMinimumMacOSVersion,
   macwallMinimumMacOSVersionLabel,
+  macwallCatalog,
 } from "@/lib/macwall-site"
 import type { BlogArticle } from "@/lib/content/types"
 
@@ -45,10 +46,10 @@ export const overviewArticles: BlogArticle[] = [
         items: [
           `Download free at macwall.app/download, ${macwallMinimumMacOSVersionLabel}.`,
           "Install from the DMG, launch once, MacWall lives in the menu bar (not the Dock clutter).",
-          "Browse 1,000+ curated loops at macwall.app/wallpapers: Anime, Nature, Cars, Gaming, Space, Heroes, Dark, Abstract, Others.",
+          `Browse ${macwallCatalog.liveCountLabel} curated loops at macwall.app/wallpapers: Anime, Nature, Cars, Gaming, Space, Heroes, Dark, Abstract, Others.`,
           "Click any wallpaper to preview and set. One click. Hardware-decoded loop behind your windows.",
           "Import your own MP4, MOV, M4V, or GIF. Drag into Library, set instantly.",
-          `Upgrade to Pro (${proPrice} one-time) for the full catalog, Lock Screen on ${macwallLockScreenMacOSVersion}+, playlists, and lifetime updates on up to ${maxMacs} Macs.`,
+          `Upgrade to Pro (${proPrice} one-time) for the full catalog, Lock Screen on ${macwallLockScreenMacOSVersion}+, Shuffle and Day Schedule, and lifetime updates on up to ${maxMacs} Macs.`,
         ],
       },
       {
@@ -63,7 +64,7 @@ export const overviewArticles: BlogArticle[] = [
         type: "ul",
         items: [
           "**Hardware decode**: H.264 and HEVC on GPU/media engine, not software rendering",
-          "**Pause on battery**: motion stops unplugged; resumes on power",
+          "**Pause on battery** (optional): motion stops on battery once Low Power Mode is on or the battery is low; resumes on power",
           "**Pause on full screen**: per display; Zoom, games, Keynote = no wasted decode",
           "**Pause on high CPU**: auto-pause above ~80% system load, resume near ~55%",
           "**Pause on lock & sleep**: nothing renders when you walk away",
@@ -87,9 +88,9 @@ export const overviewArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          "**vs Backdrop**: Both native; MacWall adds community submit flow, Reel refund program, and menu-bar-first workflow. See [MacWall vs Backdrop](/blog/macwall-vs-backdrop).",
+          "**vs Backdrop**: Both native; MacWall adds community submit flow, Reel refund program, and menu-bar-first workflow. See [MacWall vs Backdrop](/alternatives/macwall-vs-backdrop).",
           "**vs Wallspace**: MacWall offers community uploads and macwall.app integration. See [MacWall vs Wallspace](/alternatives/macwall-vs-wallspace).",
-          "**vs Wallpaper Engine**: No official Mac port; wrappers add overhead. MacWall is Mac-native video loops. See [Wallpaper Engine on Mac](/blog/wallpaper-engine-alternative-mac).",
+          "**vs Wallpaper Engine**: No official Mac port; wrappers add overhead. MacWall is Mac-native video loops. See [Wallpaper Engine on Mac](/alternatives/wallpaper-engine).",
           "**vs free Electron tools**: Chromium-based players keep a browser engine alive for wallpaper duty. MacWall has no Electron layer.",
         ],
       },
@@ -108,8 +109,8 @@ export const overviewArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          `**Free download**: a 24-hour trial with full access to everything, then keep browsing the catalog`,
-          `**Pro ${proPrice} one-time**: full catalog, Lock Screen (${macwallLockScreenMacOSVersion}+), playlists, lifetime updates, ${maxMacs} Macs per license`,
+          `**Free download**: a 24-hour trial of the full catalog and live Lock Screen, then keep browsing the catalog`,
+          `**Pro ${proPrice} one-time**: full catalog, Lock Screen (${macwallLockScreenMacOSVersion}+), Shuffle and Day Schedule, lifetime updates, ${maxMacs} Macs per license`,
           "**Pro+**: the same features on 5 or 10 Macs (families, teams, studios)",
           "**No subscription, no ads**: ever",
           "**Creator refund**: post a video with #macwall; 2,000 views = 50% back, 20,000 = full refund ([details](/creator))",
@@ -130,7 +131,7 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Assign **different wallpapers per monitor** or mirror the same loop. Ultrawide, dual 4K, MacBook plus external: one hardware decoder per screen. Import unlimited personal clips; favorites and playlists (Pro) keep large libraries organized.",
+        text: "Assign **different wallpapers per monitor** or mirror the same loop. Ultrawide, dual 4K, MacBook plus external: screens showing the same loop share one player. Import your own clips with Pro; favorites and Shuffle keep large libraries organized.",
       },
       {
         type: "h2",
@@ -190,7 +191,7 @@ export const overviewArticles: BlogArticle[] = [
     title: "MacWall Performance: Hardware Decode and Pause Rules",
     headline: "How MacWall Keeps Live Wallpapers Lightweight",
     description:
-      "Technical and practical guide to MacWall's resource usage: hardware decode, pause policies, Activity Monitor benchmarks, and why native beats Electron wallpaper apps on Mac.",
+      "Technical guide to MacWall's resource usage: hardware decode, every pause rule and its default, how to check CPU use yourself, and why native playback costs less than a browser-based wallpaper.",
     excerpt:
       "How MacWall uses native hardware decoding and visibility-aware pause rules to reduce playback overhead.",
     category: "comparisons",
@@ -223,7 +224,7 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Software-decoded wallpaper apps can sit at 5–15% CPU before you open Chrome. MacWall's decode path avoids that entirely on modern Macs.",
+        text: "Software decoding keeps CPU cores busy for as long as the video plays. Handing decode to the media engine is what keeps a native wallpaper light; we have not published a measured comparison, so the check at the end of this guide is the honest test.",
       },
       {
         type: "h2",
@@ -232,13 +233,12 @@ export const overviewArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          "**Battery unplugged**: optional full pause (recommended for MacBook Air)",
-          "**Full-screen app**: per-display; wallpaper behind a full-screen window does not render",
+          "**Low Power Mode or low battery**: optional full pause (recommended for MacBook Air)",
+          "**Full-screen app** (on by default): per display; a wallpaper behind a full-screen window does not render",
           "**Screen locked**: Lock Screen has its own wallpaper path; desktop player stops",
           "**Display asleep**: zero work until wake",
-          "**High CPU load**: pause above ~80%, resume near ~55% to protect focus work",
+          "**High CPU load** (optional, off by default): pause above 80% system CPU, resume at 55%",
           "**Manual pause**: one click from menu bar before a render or compile job",
-          "**Reduced Motion**: respects macOS accessibility setting",
         ],
       },
       {
@@ -251,7 +251,7 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Two 4K loops, two decoders, typically sub-1% CPU each on M-series chips. Fans stay silent during email and coding.",
+        text: "Two different 4K loops mean two decoders, so roughly twice the decode work of one; the same loop on both displays shares one player. Open the menu bar popover to see what MacWall itself is using.",
       },
       {
         type: "h3",
@@ -259,7 +259,7 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Pause-on-battery enabled: **0% wallpaper CPU** entire session. Wallpaper resumes when you plug in at home.",
+        text: "Turn on Low Power Mode with pause-on-battery enabled and the wallpaper stops decoding for the rest of the session. It resumes when you plug in at home.",
       },
       {
         type: "h3",
@@ -275,7 +275,7 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "High-CPU pause kicks in automatically. Wallpaper yields resources to your actual job.",
+        text: "Turn on Pause when busy in Settings → Power and the wallpaper yields to your build or render once system CPU passes 80%.",
       },
       {
         type: "h2",
@@ -291,7 +291,7 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Scene-file parsers and compatibility shims add GPU/CPU tax for features Mac users rarely need (interactive physics, Workshop DLLs). MacWall targets **video loops**: the format 95% of users actually want, with native decode.",
+        text: "Scene-file parsers and compatibility shims add GPU/CPU tax for features Mac users rarely need (interactive physics, Workshop DLLs). MacWall targets **video loops** with native decode, and skips interactive scenes entirely.",
       },
       {
         type: "h2",
@@ -300,9 +300,9 @@ export const overviewArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          "**Retina Rendering**: full native resolution (default; best look)",
-          "**Reduce Quality on Battery**: 1080p/30fps cap on battery",
-          "**Performance Mode**: 720p/24fps cap for older Intel Macs or max headroom",
+          "**Retina Rendering**: full native resolution (best look)",
+          "**Lower quality on battery** (optional): 1080p/30fps cap on battery",
+          "**Performance preset**: 1280-pixel, 30fps cap for older Intel Macs or maximum headroom",
         ],
       },
       {
@@ -314,9 +314,9 @@ export const overviewArticles: BlogArticle[] = [
         items: [
           "Install MacWall, set a 4K catalog wallpaper.",
           "Open Activity Monitor → CPU tab → search MacWall.",
-          "Note usage idle at desktop (~0–1% on M-series).",
-          "Open any app full screen → MacWall drops to 0%.",
-          "Unplug MacBook with pause-on-battery → 0%.",
+          "Note MacWall's CPU use while the wallpaper plays at the desktop.",
+          "Open any app full screen: playback pauses and MacWall's CPU use drops.",
+          "Turn on Low Power Mode with pause-on-battery enabled: playback stops.",
           "Check MacWall menu bar popover for live CPU/RAM stats.",
         ],
       },
@@ -326,7 +326,7 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Live wallpapers are not inherently heavy. **Native hardware decode + aggressive pause policy** makes them a background luxury, not a performance tax. That is the engineering bet MacWall is built on, and why it outperforms cross-platform alternatives on Mac in 2026.",
+        text: "Live wallpapers are not inherently heavy. **Native hardware decode + aggressive pause policy** makes them a background luxury, not a performance tax. That is the engineering bet MacWall is built on.",
       },
     ],
   },

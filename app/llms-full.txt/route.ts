@@ -30,7 +30,7 @@ export async function GET(): Promise<Response> {
 
   const header = `# ${macwall.name}: full site text
 
-> ${macwall.name} is a native macOS app for cinematic 4K live video wallpapers, with hardware-decoded playback, automatic pause policies, and live Lock Screen motion on ${macwallLockScreenMacOSVersion}+. ${macwallMinimumMacOSVersionLabel}. Every download starts with a free 24-hour trial with full access; Pro is a permanent license currently ${macwall.pro.price} in default USD pricing.
+> ${macwall.name} is a native macOS app for cinematic 4K live video wallpapers, with hardware-decoded playback, automatic pause policies, and live Lock Screen motion on ${macwallLockScreenMacOSVersion}+. ${macwallMinimumMacOSVersionLabel}. Every download starts with a free 24-hour trial of the full catalog; Pro is a permanent license currently ${macwall.pro.price} in default USD pricing.
 
 Canonical site: ${origin}
 Publisher: ${macwall.legalCompanyName}
