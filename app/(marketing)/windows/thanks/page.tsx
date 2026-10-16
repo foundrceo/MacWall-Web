@@ -64,8 +64,9 @@ export default async function WindowsWaitlistThanksPage({
             ) : (
               "your email"
             )}
-            . Your {macwall.name} for Windows license key will arrive at the
-            same address on launch day. Nothing else to do for now.
+            . Your {macwall.name} Pro key will arrive at the same address on the
+            day the Windows app launches. It works on Mac and Windows. Nothing
+            else to do for now.
           </p>
         </>
       ) : (

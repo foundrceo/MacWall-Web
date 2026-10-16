@@ -19,7 +19,7 @@ import {
   windowsWaitlistPath,
 } from "@/lib/windows/preorder.shared"
 
-const PAGE_DESCRIPTION = `${macwall.name} is coming to Windows. Reserve early access now: pay once, get your license key by email the day the Windows app launches.`
+const PAGE_DESCRIPTION = `${macwall.name} is coming to Windows. One ${macwall.name} Pro license works on Mac and Windows. Reserve early access now and get your key by email the day the Windows app launches.`
 
 export const metadata: Metadata = {
   title: "MacWall for Windows",
@@ -38,7 +38,7 @@ const STEPS = [
   },
   {
     title: "Get your key at launch",
-    body: `On launch day we email your license key. It works on up to ${WINDOWS_PREORDER_MAX_DEVICES} PCs.`,
+    body: `On launch day we email your ${macwall.name} Pro key. It works on up to ${WINDOWS_PREORDER_MAX_DEVICES} devices, Mac or PC.`,
   },
 ] as const
 
@@ -55,7 +55,8 @@ export default function WindowsWaitlistPage() {
           </h1>
           <p className={landingPageLead}>
             Live wallpapers for your PC, from the team behind {macwall.name}.
-            Reserve your spot now and lock in the early-access price.
+            One {macwall.name} Pro license works on both Mac and Windows.
+            Reserve your spot now.
           </p>
           <WindowsWaitlistForm className="mt-8 max-w-lg" />
         </div>
@@ -85,6 +86,13 @@ export default function WindowsWaitlistPage() {
               legalLinkProse
             )}
           >
+            <p>
+              <span className="text-foreground">
+                Already have {macwall.name} Pro?
+              </span>{" "}
+              You don&apos;t need to reserve. Your license will work on Windows
+              too, at no extra cost.
+            </p>
             <p>
               Changed your mind? Email{" "}
               <a href={`mailto:${macwall.supportEmail}`}>

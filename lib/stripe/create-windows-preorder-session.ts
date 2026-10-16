@@ -60,8 +60,8 @@ export async function createWindowsPreorderSession(input: {
             currency: "usd",
             unit_amount: unitAmount,
             product_data: {
-              name: "MacWall for Windows: Early Access",
-              description: `Lifetime license for up to ${WINDOWS_PREORDER_MAX_DEVICES} PCs. Your key is emailed when the Windows app launches.`,
+              name: "MacWall Pro: Windows Early Access",
+              description: `One lifetime MacWall Pro license for Mac and Windows, up to ${WINDOWS_PREORDER_MAX_DEVICES} devices. Your key is emailed when the Windows app launches.`,
             },
           },
         },
@@ -77,7 +77,7 @@ export async function createWindowsPreorderSession(input: {
       custom_text: {
         submit: {
           message:
-            "This is a preorder. You'll get a confirmation email now and your license key when MacWall for Windows launches. Full refund any time before launch.",
+            "This is a preorder. You'll get a confirmation email now and your MacWall Pro key (works on Mac and Windows) when the Windows app launches. Full refund any time before launch.",
         },
       },
       metadata,
