@@ -6,7 +6,6 @@ import {
   installerPlatformFromUserAgent,
 } from "@/lib/installer-platform"
 import { MACWALL_DEFAULT_INSTALLER_REDIRECT_URL } from "@/lib/macwall-installer-url"
-import { windowsWaitlistPath } from "@/lib/windows/preorder.shared"
 
 export const runtime = "nodejs"
 
@@ -76,9 +75,8 @@ export async function GET(request: Request) {
     const userAgent = request.headers.get("user-agent")
     const os = installerPlatformFromUserAgent(userAgent)
 
-    // Phones and Windows can't open a DMG. Windows goes to the Windows
-    // early-access waitlist; phones go to the home page's "send the link to
-    // your Mac" hero instead of a file they can't use.
+    // Phones and Windows can't open a DMG. Send them to the home page's
+    // "send the link to your Mac" hero instead of a file they can't use.
     if (cannotOpenInstaller(os)) {
       after(() =>
         trackSiteEvent({
@@ -90,8 +88,7 @@ export async function GET(request: Request) {
           metadata: { os },
         })
       )
-      const destination = os === "windows" ? windowsWaitlistPath : "/?send=1"
-      return NextResponse.redirect(new URL(destination, request.url), {
+      return NextResponse.redirect(new URL("/?send=1", request.url), {
         status: 303,
         headers: { "Cache-Control": "private, no-store" },
       })
