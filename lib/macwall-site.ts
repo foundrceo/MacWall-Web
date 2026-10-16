@@ -221,9 +221,6 @@ export const macwall = {
   maxLicensedMacs: 3,
   /** Money-back window for license purchases, in calendar days. */
   refundWindowDays: 7,
-  /** Licenses bought before `refundWindowChangedOn` keep this window. */
-  previousRefundWindowDays: 14,
-  refundWindowChangedOn: "October 16, 2026",
   /** Everything included with a Pro license. */
   proIncludedFeatures: [
     "Cloud catalog: featured, newest, and most popular",
