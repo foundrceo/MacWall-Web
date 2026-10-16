@@ -11,7 +11,7 @@ function fixture(options={}) {
  const supabase={from:query,rpc:async()=>{calls.push(['activation']);return {data:options.ineligible?'ineligible':'active',error:options.activationFailure?{message:'offline'}:null}}}
  const noop=async()=>{}
  const globals={cancelCheckoutRecovery:noop,cancelTrialEndedEmails:noop,parseDeviceCount:()=>3,purchasedDeviceCount:async()=>3,inferDeviceCountFromAmounts:()=>3,sendTikTokPurchase:noop,sendXPurchase:noop,sendPostHogPurchase:noop,Deno:{env:{get:()=>undefined}},deliverLicenseEmail:async()=>{calls.push(['email']);return options.emailFailure?{ok:false,status:429,error:'retry',retryable:true}:{ok:true}}}
- const {handleCheckoutCompleted}=loadFunctions('supabase/functions/stripe-license-email/index.ts',['handleCheckoutCompleted'],globals)
+ const {handleCheckoutCompleted}=loadFunctions('supabase/functions/stripe-license-email/index.ts',['handleCheckoutCompleted','isWindowsPreorder'],{...globals,WINDOWS_PREORDER_PRODUCT:'windows_preorder'})
  const args={event:{id:'evt_test'},stripe:{subscriptions:{retrieve:async()=>({status:options.subscriptionInactive?'canceled':'active'})},invoices:{retrieve:async()=>({status:'paid',payment_intent:'pi_invoice'})},paymentIntents:{retrieve:async()=>({status:'succeeded',latest_charge:{refunded:!!options.refunded,amount_refunded:options.refunded?100:0,amount:100}})}},session:{id:'cs_test',mode:options.annual?'subscription':'payment',invoice:options.annual?'in_invoice':null,subscription:options.annual?'sub_test':null,payment_status:options.unpaid?'unpaid':'paid',metadata:{license_key:'synthetic'},customer_email:'test@example.test',payment_intent:options.annual?null:'pi_test'},supabase,resendKey:'synthetic',from:'test@example.test'}
  return {run:()=>handleCheckoutCompleted(args),calls}
 }

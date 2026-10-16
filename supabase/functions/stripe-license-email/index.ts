@@ -725,6 +725,199 @@ async function deliverLicenseEmail(args: {
   })
 }
 
+/** Must match WINDOWS_PREORDER_PRODUCT in lib/windows/preorder.shared.ts. */
+const WINDOWS_PREORDER_PRODUCT = "windows_preorder"
+
+function isWindowsPreorder(session: Stripe.Checkout.Session): boolean {
+  return session.metadata?.product === WINDOWS_PREORDER_PRODUCT
+}
+
+const ZERO_DECIMAL_CURRENCIES = new Set([
+  "bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf",
+  "ugx", "vnd", "vuv", "xaf", "xof", "xpf",
+])
+
+/** What the buyer actually paid (Adaptive Pricing presentment first). */
+function formatSessionAmount(session: Stripe.Checkout.Session): string | null {
+  const presentment = (session as unknown as {
+    presentment_details?: { presentment_amount?: number; presentment_currency?: string }
+  }).presentment_details
+  const minor = presentment?.presentment_amount ?? session.amount_total
+  const currency = (presentment?.presentment_currency || session.currency || "").toLowerCase()
+  if (typeof minor !== "number" || !currency) return null
+  const major = ZERO_DECIMAL_CURRENCIES.has(currency) ? minor : minor / 100
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency.toUpperCase(),
+    }).format(major)
+  } catch {
+    return null
+  }
+}
+
+function buildWindowsPreorderEmailHtml(args: {
+  appName: string
+  spot: number | null
+  amount: string | null
+}): string {
+  const { appName, spot, amount } = args
+  const name = escapeHtml(appName)
+  const cardInner = `
+    ${brandMark(appName)}
+    ${headline(`You’re on the list for ${name}&nbsp;for&nbsp;Windows`)}
+    ${bodyCopy(
+      `Thanks for reserving early access. We’ve noted your order${amount ? ` and received your payment of ${escapeHtml(amount)}` : ""}. There’s no license key yet: we’ll email it to this address the day ${name}&nbsp;for&nbsp;Windows launches.`
+    )}
+    ${highlightBlock({
+      label: spot ? "Your spot" : "Status",
+      value: spot ? `#${spot}` : "Reserved",
+      hint: "Windows early access · one-time payment",
+    })}
+    ${bodyCopy(
+      `Nothing to do for now. Changed your mind? Reply to this email for a full refund any time before launch.`
+    )}
+  `
+  return emailShell({
+    title: windowsPreorderEmailSubject(appName),
+    preheader: "Your early-access spot is reserved. Your key arrives at launch.",
+    cardInner,
+    footnote: `If you didn’t reserve ${name}&nbsp;for&nbsp;Windows, reply and we’ll sort it out.`,
+    appName,
+  })
+}
+
+function buildWindowsPreorderEmailPlainText(args: {
+  appName: string
+  spot: number | null
+  amount: string | null
+}): string {
+  const { appName, spot, amount } = args
+  return (
+    `You're on the list for ${appName} for Windows\n\n` +
+    `Thanks for reserving early access. We've noted your order` +
+    (amount ? ` and received your payment of ${amount}` : "") +
+    `. There's no license key yet: we'll email it to this address the day ${appName} for Windows launches.\n\n` +
+    (spot ? `Your spot: #${spot}\n\n` : "") +
+    `Nothing to do for now. Changed your mind? Reply to this email for a full refund any time before launch.\n\n` +
+    `Help: ${supportEmail()}`
+  )
+}
+
+function windowsPreorderEmailSubject(appName = "MacWall"): string {
+  return `You're on the ${appName} for Windows list`
+}
+
+/**
+ * Paid Windows preorder: record it and send the "you're on the list" email.
+ * Deliberately issues no license key and touches no Mac license tables.
+ */
+async function handleWindowsPreorderCompleted(args: {
+  event: Stripe.Event
+  stripe: Stripe
+  session: Stripe.Checkout.Session
+  supabase: ReturnType<typeof createClient>
+  resendKey: string
+  from: string
+}): Promise<Response> {
+  const { stripe, session, supabase, resendKey, from } = args
+
+  const customerEmail =
+    session.customer_details?.email?.trim() ||
+    session.customer_email?.trim() ||
+    session.metadata?.customer_email?.trim() ||
+    null
+  if (!customerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+    return Response.json({ ok: false, error: "no_customer_email" }, { status: 422 })
+  }
+
+  const paymentIntentId =
+    typeof session.payment_intent === "string"
+      ? session.payment_intent
+      : (session.payment_intent?.id ?? null)
+
+  // A refund can be delivered before completion; never confirm a refunded order.
+  let refunded = false
+  if (paymentIntentId) {
+    const payment = await stripe.paymentIntents.retrieve(paymentIntentId, {
+      expand: ["latest_charge"],
+    })
+    const charge = payment.latest_charge
+    refunded = !!charge && typeof charge !== "string" &&
+      (charge.refunded || charge.amount_refunded >= charge.amount)
+    if (!refunded && payment.status !== "succeeded") {
+      return Response.json({ ok: false, error: "payment_not_succeeded" }, { status: 503 })
+    }
+  }
+
+  const rawCountry = session.metadata?.visitor_country?.trim().toUpperCase() ||
+    session.customer_details?.address?.country?.trim().toUpperCase() || ""
+  const { data: row, error: upsertError } = await supabase
+    .from("macwall_windows_waitlist")
+    .upsert({
+      email: customerEmail.toLowerCase(),
+      stripe_checkout_session_id: session.id,
+      stripe_payment_intent_id: paymentIntentId,
+      amount_total: session.amount_total,
+      currency: session.currency,
+      pricing_region: session.metadata?.pricing_region || null,
+      visitor_country: /^[A-Z]{2}$/.test(rawCountry) && rawCountry !== "XX" ? rawCountry : null,
+      ...(refunded ? { status: "refunded" } : {}),
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "stripe_checkout_session_id" })
+    .select("id,status,paid_at,confirmation_email_status")
+    .single()
+  if (upsertError || !row) {
+    console.error("[stripe-license-email] windows_waitlist_upsert_failed", upsertError?.message)
+    return Response.json({ ok: false, error: "waitlist_record_failed" }, { status: 500 })
+  }
+  if (row.status === "refunded") {
+    return Response.json({ ok: true, skipped: "refunded" })
+  }
+  if (row.confirmation_email_status === "sent") {
+    return Response.json({ ok: true, skipped: "already_emailed" })
+  }
+
+  // Place in line among paid preorders. Cosmetic: the email still goes out without it.
+  const { count } = await supabase
+    .from("macwall_windows_waitlist")
+    .select("id", { count: "exact", head: true })
+    .in("status", ["paid", "fulfilled"])
+    .lte("paid_at", row.paid_at)
+  const spot = typeof count === "number" && count > 0 ? count : null
+
+  // No sendPostHogPurchase here: it tags the person as a Mac Pro owner.
+  const amount = formatSessionAmount(session)
+  const appName = Deno.env.get("APP_NAME")?.trim() || "MacWall"
+  const sent = await sendResendEmail({
+    resendKey,
+    from,
+    to: customerEmail,
+    subject: windowsPreorderEmailSubject(appName),
+    html: buildWindowsPreorderEmailHtml({ appName, spot, amount }),
+    text: buildWindowsPreorderEmailPlainText({ appName, spot, amount }),
+    idempotencyKey: `windows-preorder/${session.id}`,
+  })
+
+  const { error: updateError } = await supabase
+    .from("macwall_windows_waitlist")
+    .update({
+      confirmation_email_status: sent.ok ? "sent" : "failed",
+      confirmation_email_sent_at: sent.ok ? new Date().toISOString() : null,
+      last_error: sent.ok ? null : sent.error,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", row.id)
+  if (updateError) {
+    return Response.json({ ok: false, error: "waitlist_update_failed" }, { status: 500 })
+  }
+  if (!sent.ok) {
+    console.error("[stripe-license-email] windows_email_failed", sent.status, sent.error)
+    return Response.json({ ok: false, error: sent.error }, { status: sent.retryable ? 503 : 502 })
+  }
+  return Response.json({ ok: true, windows_preorder: true, emailed_to: customerEmail, spot })
+}
+
 const MAX_LICENSE_DEVICES = 100
 
 function parseDeviceCount(value: string | null | undefined): number | null {
@@ -822,6 +1015,11 @@ async function handleCheckoutCompleted(args: {
 
   if (session.payment_status !== "paid") {
     return Response.json({ ok: true, skipped: "not_paid" })
+  }
+
+  // Windows preorders get a waitlist confirmation, never a Mac license key.
+  if (isWindowsPreorder(session)) {
+    return handleWindowsPreorderCompleted(args)
   }
 
   await cancelCheckoutRecovery(
@@ -1228,6 +1426,10 @@ async function handleCheckoutSessionExpired(args: {
   if (session.payment_status === "paid") {
     return Response.json({ ok: true, skipped: "paid" })
   }
+  // Mac recovery emails would pitch the wrong product to a Windows buyer.
+  if (isWindowsPreorder(session)) {
+    return Response.json({ ok: true, skipped: "windows_preorder" })
+  }
   const result = await enqueueRecoveryForExpiredSession({ supabase, session })
   return Response.json({
     ok: true,
@@ -1313,6 +1515,22 @@ async function handleChargeRefunded(args: {
 
   if (!isFullyRefunded) {
     return Response.json({ ok: true, skipped: "partial_refund" })
+  }
+
+  // Windows preorders have no license; mark the waitlist row instead.
+  if (paymentIntentId) {
+    const { data: preorders, error: preorderError } = await args.supabase
+      .from("macwall_windows_waitlist")
+      .update({ status: "refunded", updated_at: new Date().toISOString() })
+      .eq("stripe_payment_intent_id", paymentIntentId)
+      .select("id")
+    if (preorderError) {
+      console.error("[stripe-license-email] windows_refund_failed", preorderError.message)
+      return Response.json({ ok: false, error: "refund_record_failed" }, { status: 500 })
+    }
+    if (preorders?.length) {
+      return Response.json({ ok: true, windows_preorder_refunded: preorders.length })
+    }
   }
 
   const licenseKeyFromMetadata = charge.metadata?.license_key?.trim() || null
