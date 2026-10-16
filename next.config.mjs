@@ -79,6 +79,15 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // The marketing videos moved to R2 (see lib/marketing-assets-urls.ts).
+      // Old links, crawlers and video indexes follow this instead of pulling
+      // megabytes through Vercel.
+      {
+        source:
+          "/hero/:file(hero-video|hero-video-720|hero-video-mobile|bend-demo|lockscreen|music-sync).mp4",
+        destination: `https://${R2_CDN_HOST}/assets/hero/:file.mp4`,
+        permanent: true,
+      },
       {
         source: "/affilate",
         destination: "/affiliate",
@@ -208,6 +217,24 @@ const nextConfig = {
     )
 
     /**
+     * `/public` files default to `max-age=0`, so every page view re-checks
+     * each icon, poster and thumb: one billed CDN request apiece. Their names
+     * aren't content-hashed, so cache for a day (not `immutable`) and serve
+     * stale for a week while revalidating. Rules list asset folders only,
+     * never page routes like `/blog/[slug]`.
+     */
+    const PUBLIC_ASSET_CACHE_CONTROL =
+      "public, max-age=86400, stale-while-revalidate=604800"
+    const publicAssetCaching = [
+      "/:dir(favicon_io|hero|how|install|reviews|og|screenshots|images|email)/:path+",
+      "/blog/:dir(thumbs|vs)/:path+",
+      "/:file(MacWall.png|Img.png|og-share.jpg|Settings.jpg)",
+    ].map((source) => ({
+      source,
+      headers: [{ key: "Cache-Control", value: PUBLIC_ASSET_CACHE_CONTROL }],
+    }))
+
+    /**
      * Dev preview fix: `next dev` is typically embedded in an IDE iframe
      * (different origin) over plain http://localhost. Sending production
      * headers in dev breaks that in two ways:
@@ -227,6 +254,7 @@ const nextConfig = {
 
     return [
       ...filteredGalleryNoindex,
+      ...publicAssetCaching,
       {
         source: "/:path*",
         headers: [

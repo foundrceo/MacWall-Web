@@ -11,8 +11,12 @@ import type { Metadata } from "next"
 
 const PAGE_PATH = "/changelog"
 
-/** ISR — short TTL so R2 `releases/changelog.json` / `version.json` ships show up quickly. */
-export const revalidate = 300
+/**
+ * ISR — hourly. A 5-minute TTL rebuilt this page ~288×/day (the site's top ISR
+ * writer) for releases that ship a few times a month; a new R2
+ * `releases/changelog.json` now shows up within the hour.
+ */
+export const revalidate = 3600
 
 const seoPage = {
   slug: "changelog",
