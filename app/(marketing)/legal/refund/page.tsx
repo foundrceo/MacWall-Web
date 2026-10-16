@@ -54,6 +54,11 @@ export default function LegalRefundPage() {
               The {macwall.refundWindowDays} days are counted from the date of
               purchase.
             </li>
+            <li>
+              Licenses bought before {macwall.refundWindowChangedOn} keep the{" "}
+              {macwall.previousRefundWindowDays}-day window they were sold
+              with.
+            </li>
           </ul>
         </LegalSection>
 

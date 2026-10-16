@@ -51,8 +51,7 @@ export const LEGAL_DOCUMENTS: readonly LegalDocument[] = [
     href: "/legal/refund",
     title: "Refund Policy",
     shortTitle: "Refund Policy",
-    description:
-      "Every MacWall license has a 14-day money-back guarantee. How to request a refund and how it is paid.",
+    description: `Every MacWall license has a ${macwall.refundWindowDays}-day money-back guarantee. How to request a refund and how it is paid.`,
   },
   {
     slug: "subprocessors",

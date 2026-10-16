@@ -159,9 +159,9 @@ export const macwall = {
   legalTerms: "https://macwall.app/legal/terms",
   legalPrivacy: "https://macwall.app/legal/privacy",
   /** Shown at top of Terms / Privacy (update when policies change). */
-  legalEffectiveDate: "October 3, 2026",
+  legalEffectiveDate: "October 16, 2026",
   /** ISO form for JSON-LD `dateModified` (keep in sync with `legalEffectiveDate`). */
-  legalEffectiveDateIso: "2026-10-03",
+  legalEffectiveDateIso: "2026-10-16",
   /** Same buckets as Home → Categories in the Mac app */
   categories: [
     "Anime",
@@ -196,7 +196,10 @@ export const macwall = {
   /** Personal base-license device limit. The 5-Mac bundle raises it to 5. */
   maxLicensedMacs: 3,
   /** Money-back window for license purchases, in calendar days. */
-  refundWindowDays: 14,
+  refundWindowDays: 7,
+  /** Licenses bought before `refundWindowChangedOn` keep this window. */
+  previousRefundWindowDays: 14,
+  refundWindowChangedOn: "October 16, 2026",
   /** Everything included with a Pro license. */
   proIncludedFeatures: [
     "Cloud catalog: featured, newest, and most popular",
