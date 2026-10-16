@@ -61,7 +61,6 @@ export default async function WallpaperCategoryGalleryPage({
   const name = categoryNameFromSlug(category)
   if (!name) notFound()
 
-  const page = wallpaperCategoryPage(name)
   const origin = canonicalSiteOrigin()
 
   let initial
@@ -85,6 +84,7 @@ export default async function WallpaperCategoryGalleryPage({
   }
 
   const showSeoContent = !loadError
+  const page = wallpaperCategoryPage(name, { total: initial.total })
 
   return (
     <>

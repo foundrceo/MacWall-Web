@@ -4,15 +4,16 @@ export const macosArticles: BlogArticle[] = [
   {
     slug: "macos-sonoma-live-wallpaper",
     pathname: "/blog/macos-sonoma-live-wallpaper",
-    title: "Live Wallpapers on macOS Sonoma",
-    headline: "Live Wallpapers on macOS Sonoma",
+    title: "Live Wallpapers on macOS Sonoma: What Works",
+    headline: "Live Wallpapers on macOS Sonoma: What Works",
     description:
-      "Everything macOS Sonoma users need to know about animated desktop and Lock Screen wallpapers with MacWall: native 4K motion with smart battery pause.",
+      "Can you get live wallpapers on macOS Sonoma? Apple's built-in Aerial wallpapers move; MacWall needs macOS 15 Sequoia or later. Check your version and upgrade first.",
     excerpt:
-      "Sonoma-compatible live wallpapers for desktop, plus Lock Screen on supported macOS versions.",
+      "MacWall does not run on Sonoma. Here is what Sonoma can do on its own, and how to check whether your Mac can upgrade.",
     category: "macos",
-    readMinutes: 5,
-    publishedAt: "2026-03-18",
+    readMinutes: 4,
+    publishedAt: "2026-07-13",
+    updatedAt: "2026-10-16",
     keywords: [
       "macos sonoma live wallpaper",
       "sonoma animated wallpaper",
@@ -21,28 +22,43 @@ export const macosArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "macOS Sonoma refined desktop personalization with updated dynamic wallpapers and improved multi-display support. **MacWall** extends Sonoma with true video loops, cinematic motion behind your windows, not just time-of-day gradients.",
+        text: "**Short answer: MacWall does not run on macOS Sonoma (macOS 14).** It needs **macOS 15 Sequoia or later** for desktop live wallpapers, and **macOS 26 Tahoe or later** for a live Lock Screen and Screen Saver. If your Mac is on Sonoma, update macOS first, or use Apple's built-in Aerial wallpapers, which Sonoma already animates.",
       },
-      {
-        type: "h2",
-        text: "Sonoma + MacWall features",
-      },
+      { type: "h2", text: "What Sonoma can do without any app" },
       {
         type: "ul",
         items: [
-          "4K video wallpapers on Sonoma desktop",
-          "Menu bar controls native to Sonoma UI",
-          "Multi-monitor independent wallpapers",
-          "MacWall Pro: Lock Screen live wallpaper on supported Sonoma builds",
+          "**Aerial wallpapers**: Sonoma added slow-motion aerial videos (landscapes, cities, underwater) that play as your screen saver and then settle into the desktop wallpaper when you log in. Pick one in System Settings → Wallpaper.",
+          "**Dynamic wallpapers**: the HEIC wallpapers that shift with the time of day are still there. They change a few times a day; they are not continuous video. See [dynamic vs live wallpaper](/blog/dynamic-wallpaper-vs-live-wallpaper-mac).",
+          "**No custom video**: Sonoma cannot use your own MP4 or MOV as a wallpaper. That needs a third-party app.",
         ],
       },
+      { type: "h2", text: "Check whether your Mac can move past Sonoma" },
       {
-        type: "h2",
-        text: "Getting started on Sonoma",
+        type: "ol",
+        items: [
+          "Open Apple menu → About This Mac to see your macOS version.",
+          "Open System Settings → General → Software Update. If macOS Sequoia (15) or a later version is offered, your Mac supports it.",
+          "Back up with Time Machine, then update.",
+          "After updating, [download MacWall](/download): every download starts with a free 24-hour trial.",
+        ],
       },
+      { type: "h2", text: "If your Mac cannot update" },
       {
         type: "p",
-        text: "Download MacWall, grant necessary permissions when prompted, and pick a catalog wallpaper. Sonoma's window server handles compositing. MacWall feeds decoded frames efficiently underneath.",
+        text: "Some older Macs stop at Sonoma. On those, stay with Apple's Aerial and dynamic wallpapers. Third-party live wallpaper apps also set their own minimum macOS version, so check each app's requirements before you buy; MacWall's are listed on the [download page](/download).",
+      },
+    ],
+    faq: [
+      {
+        question: "Does MacWall work on macOS Sonoma?",
+        answer:
+          "No. MacWall needs macOS 15 Sequoia or later for desktop live wallpapers, and macOS 26 Tahoe or later for the live Lock Screen and Screen Saver.",
+      },
+      {
+        question: "Can I set a video as my wallpaper on Sonoma?",
+        answer:
+          "Not with built-in settings. Sonoma animates Apple's own Aerial wallpapers, but a custom MP4 or MOV needs a third-party app that supports Sonoma.",
       },
     ],
   },
@@ -57,7 +73,7 @@ export const macosArticles: BlogArticle[] = [
       "Sequoia-ready motion wallpapers with native performance and Pro Lock Screen support.",
     category: "macos",
     readMinutes: 5,
-    publishedAt: "2026-03-19",
+    publishedAt: "2026-07-13",
     keywords: [
       "macos sequoia wallpaper",
       "sequoia live wallpaper",
@@ -87,7 +103,7 @@ export const macosArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "If you used live wallpapers on Ventura or Sonoma, your MacWall library imports forward. Pro licenses include lifetime updates for new Sequoia capabilities.",
+        text: "Pro licenses include lifetime updates for new Sequoia capabilities.",
       },
     ],
   },
@@ -102,7 +118,7 @@ export const macosArticles: BlogArticle[] = [
       "Maximize your MacBook Pro desktop with hardware-accelerated live wallpapers.",
     category: "macos",
     readMinutes: 4,
-    publishedAt: "2026-03-20",
+    publishedAt: "2026-07-13",
     keywords: [
       "live wallpaper macbook pro",
       "macbook pro animated desktop",
@@ -120,7 +136,7 @@ export const macosArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          "Enable pause-on-battery for mobile use",
+          "Turn on pause-on-battery and lower-quality-on-battery for mobile use",
           "Use 4K catalog loops on the built-in display",
           "Assign a separate wallpaper to each external monitor",
           "Turn on Lock Screen motion on supported macOS versions",
@@ -139,7 +155,7 @@ export const macosArticles: BlogArticle[] = [
       "Beautiful desktops on MacBook Air without compromising portability.",
     category: "macos",
     readMinutes: 4,
-    publishedAt: "2026-03-21",
+    publishedAt: "2026-07-13",
     keywords: [
       "live wallpaper macbook air",
       "macbook air animated wallpaper",
@@ -148,7 +164,7 @@ export const macosArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "MacBook Air owners care about weight, silence, and battery. **MacWall** respects all three: hardware decode on M1/M2/M3 Air chips, automatic battery pause, and calm catalog loops that look great on 13-inch and 15-inch panels.",
+        text: "MacBook Air owners care about weight, silence, and battery. **MacWall** respects all three: hardware decode on M1/M2/M3 Air chips, an optional Low Power Mode pause, and calm catalog loops that look great on 13-inch and 15-inch panels.",
       },
       {
         type: "h2",
@@ -157,7 +173,7 @@ export const macosArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          "Keep pause-on-battery enabled (default recommended)",
+          "Turn on pause-on-battery and lower-quality-on-battery (both off by default)",
           "Prefer 2560×1440 loops on 13-inch Air for best efficiency",
           "Use menu bar pause before long unplugged work sessions",
           "Free download, no subscription weighing down your wallet",
@@ -176,7 +192,7 @@ export const macosArticles: BlogArticle[] = [
       "The macOS 27 beta broke Lock Screen video in most live wallpaper apps. MacWall already works.",
     category: "macos",
     readMinutes: 6,
-    publishedAt: "2026-06-12",
+    publishedAt: "2026-07-15",
     keywords: [
       "live wallpaper not working macos 27",
       "macos 27 beta wallpaper broken",
@@ -231,7 +247,7 @@ export const macosArticles: BlogArticle[] = [
       "Step-by-step: native video Lock Screen and Screen Saver on the newest macOS, with the only app that supports it.",
     category: "macos",
     readMinutes: 5,
-    publishedAt: "2026-06-12",
+    publishedAt: "2026-07-15",
     keywords: [
       "macos 27 lock screen live wallpaper",
       "macos 27 live wallpaper",

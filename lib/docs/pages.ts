@@ -3,6 +3,7 @@ import {
   macwall,
   macwallLockScreenMacOSVersion,
   macwallMinimumMacOSVersionLabel,
+  macwallCatalog,
 } from "@/lib/macwall-site"
 
 /**
@@ -14,11 +15,7 @@ import {
  */
 
 export type DocsSectionId =
-  | "getting-started"
-  | "wallpapers"
-  | "pro"
-  | "troubleshooting"
-  | "developers"
+  "getting-started" | "wallpapers" | "pro" | "troubleshooting" | "developers"
 
 export type DocsPage = SeoContentPage & {
   section: DocsSectionId
@@ -157,7 +154,7 @@ export const docsPages: DocsPage[] = [
         items: [
           "**Pause / Resume**: freezes the current frame. A paused wallpaper decodes nothing and costs no measurable CPU or GPU.",
           "**Stop**: ends playback and restores your previous static desktop picture.",
-          "**Next wallpaper**: advances through the active playlist or your favourites.",
+          "**Next wallpaper**: advances through your Shuffle source, such as favourites or downloads.",
           "**Open MacWall**: opens the full browsing window for the catalog, library, and settings.",
           "**Settings**: pause rules, per-display behaviour, Music Sync, launch at login, and license status.",
         ],
@@ -237,7 +234,7 @@ export const docsPages: DocsPage[] = [
       { type: "h2", text: "Playlists and shuffle" },
       {
         type: "p",
-        text: "Pro adds playlists: group favourites and let MacWall rotate them on an interval you choose. Rotation happens at the video layer, so switching loops does not touch your desktop layout or reset window positions.",
+        text: "Shuffle rotates wallpapers from your favourites, your downloads or the whole catalog every 15 minutes, 1, 4 or 12 hours, or once a day, and Day Schedule picks a wallpaper by time of day. Rotation happens at the video layer, so switching loops does not touch your desktop layout or reset window positions.",
       },
     ],
     faq: [
@@ -253,8 +250,7 @@ export const docsPages: DocsPage[] = [
       },
       {
         question: "How many wallpapers are in the catalog?",
-        answer:
-          "Over 1,000 curated loops, with new sets published regularly. Every download starts with a free 24-hour trial of the full catalog; after that, Pro keeps it unlocked.",
+        answer: `${macwallCatalog.liveCountLabel} curated loops, with new sets published regularly. Every download starts with a free 24-hour trial of the full catalog; after that, Pro keeps it unlocked.`,
       },
     ],
   }),
@@ -319,8 +315,7 @@ export const docsPages: DocsPage[] = [
     faq: [
       {
         question: "Are imported videos uploaded anywhere?",
-        answer:
-          `No. Imports are read from disk and stay local. If you want a wallpaper published to the public catalog, share it with the [Discord community](${macwall.discordInvite}) for review.`,
+        answer: `No. Imports are read from disk and stay local. If you want a wallpaper published to the public catalog, share it with the [Discord community](${macwall.discordInvite}) for review.`,
       },
       {
         question: "Is there a file size limit for imports?",
@@ -330,7 +325,7 @@ export const docsPages: DocsPage[] = [
       {
         question: "Can I import videos without Pro?",
         answer:
-          "During the free 24-hour trial, yes: everything works, including imports. After the trial, importing your own MP4 and MOV clips, setting catalog wallpapers, and Lock Screen motion need Pro.",
+          "Importing your own MP4 and MOV clips needs a Pro license; it is not part of the free 24-hour trial. The trial covers the full catalog, Set Wallpaper and Lock Screen motion; after it ends, those need Pro too.",
       },
     ],
   }),
@@ -508,7 +503,7 @@ export const docsPages: DocsPage[] = [
       {
         type: "ul",
         items: [
-          "**Pause on battery**: stops playback whenever the Mac is unplugged. The single highest-impact setting on a laptop.",
+          "**Pause on battery** (off by default): on battery, stops playback once Low Power Mode is on or macOS shows the low-battery warning, and resumes on power. Pair it with **Lower quality on battery**, which caps playback at 1080p and 30 fps whenever you are unplugged.",
           "**Pause in full screen**: a full screen app covers the wallpaper, so decoding it is pure waste.",
           "**Pause on display sleep / lock**: always on. Nothing decodes while the screen is off.",
           "**Pause on high CPU**: yields automatically during exports, compiles, and other heavy work, then resumes when load drops.",
@@ -544,7 +539,7 @@ export const docsPages: DocsPage[] = [
       {
         question: "Will a live wallpaper drain my MacBook battery?",
         answer:
-          "With pause-on-battery enabled the answer is effectively no, because playback stops the moment you unplug. With it disabled, expect a modest cost similar to a small video playing in a window.",
+          "Expect a modest cost similar to a small video playing in a window. Lower quality on battery reduces it, and pause-on-battery stops it entirely in Low Power Mode or at the low-battery warning. We have not published a measured battery test yet.",
       },
       {
         question: "Does MacWall run when the lid is closed?",
@@ -586,7 +581,7 @@ export const docsPages: DocsPage[] = [
         type: "ol",
         items: [
           "Check the MacWall menu bar item. If it shows **Paused**, resume.",
-          "Confirm no pause rule is active: unplugged with pause-on-battery on, or a full screen app in front.",
+          "Confirm no pause rule is active: Low Power Mode with pause-on-battery on, high CPU with pause-when-busy on, or a full-screen app in front.",
           "Re-apply the wallpaper from MacWall. This overwrites a stale macOS wallpaper asset.",
           "Quit and relaunch MacWall.",
           "Log out and back in, which forces macOS to reload wallpaper assets.",

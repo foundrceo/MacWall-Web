@@ -1,6 +1,6 @@
 import { JsonLd } from "@/components/seo/json-ld"
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
-import { macwall } from "@/lib/macwall-site"
+import { macwall, macwallCatalog, macwallSocialProof } from "@/lib/macwall-site"
 import { macwallHomeFaq } from "@/lib/macwall-pricing-copy"
 import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import {
@@ -19,8 +19,7 @@ import { Pillars } from "./_components/pillars"
 import { Playback } from "./_components/playback"
 import { Reviews } from "./_components/reviews"
 
-const PAGE_DESCRIPTION =
-  "Live wallpapers for Mac: 1,000+ 4K animated wallpapers on your desktop, Lock Screen and screen saver (macOS 26). Native app, free 24-hour trial, one payment."
+const PAGE_DESCRIPTION = `Live wallpapers for Mac: ${macwallCatalog.liveCountLabel} 4K animated wallpapers for your desktop and Lock Screen. Trusted by ${macwallSocialProof.usersLabel} users. Free 24-hour trial, one payment.`
 
 /** Brand first, then the head term people search ("live wallpaper mac"). */
 const PAGE_TITLE = `${macwall.name}: Live Wallpapers for Mac – 4K Desktop & Lock Screen`

@@ -16,7 +16,11 @@ import { useMarketingPricing } from "@/components/marketing/marketing-pricing-co
 import { SendToMacButton } from "@/components/macwall-marketing/send-to-mac-dialog"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import { hasDownloadedInstaller } from "@/lib/installer-seen"
-import { macwallInstallerLatestPath } from "@/lib/macwall-site"
+import {
+  macwallInstallerLatestPath,
+  macwallCatalog,
+  macwallSocialProof,
+} from "@/lib/macwall-site"
 
 const DWELL_MS = 15_000
 const PURCHASE_COMPLETE_KEY = "macwall_purchase_complete"
@@ -192,7 +196,8 @@ export function WallpaperPurchaseBanner() {
 
   const open = onWallpaper && ready && !hidden && !purchased
   // Only read while open, which is never true on the server.
-  const variant: "try" | "buy" = open && !hasDownloadedInstaller() ? "try" : "buy"
+  const variant: "try" | "buy" =
+    open && !hasDownloadedInstaller() ? "try" : "buy"
 
   useEffect(() => {
     if (!open) {
@@ -249,15 +254,11 @@ export function WallpaperPurchaseBanner() {
             role="dialog"
             aria-label="Unlock MacWall Pro"
             initial={
-              reduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, y: 28, scale: 0.98 }
+              reduceMotion ? { opacity: 0 } : { opacity: 0, y: 28, scale: 0.98 }
             }
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={
-              reduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, y: 16, scale: 0.98 }
+              reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.98 }
             }
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className="pointer-events-auto w-full max-w-[28rem] rounded-2xl border border-white/12 bg-[#141414]/95 p-3.5 shadow-[0_20px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:p-4"
@@ -271,8 +272,9 @@ export function WallpaperPurchaseBanner() {
                 {variant === "try" ? (
                   <>
                     <p className="mt-1 font-sans text-[13px] leading-snug text-white/65">
-                      Try all 1,000+ wallpapers free for 24 hours. Then{" "}
-                      {pricing.permanentPrice} once, no subscription.
+                      Try all {macwallCatalog.liveCountLabel} wallpapers free
+                      for 24 hours. Then {pricing.permanentPrice} once, no
+                      subscription. {macwallSocialProof.trustedLine}.
                     </p>
                     <div className="mt-3">
                       <span className="mw-when-desktop">
@@ -297,8 +299,9 @@ export function WallpaperPurchaseBanner() {
                 ) : (
                   <>
                     <p className="mt-1 font-sans text-[13px] leading-snug text-white/65">
-                      Pro unlocks all 1,000+ wallpapers on up to 3 Macs.{" "}
-                      {pricing.permanentPrice} once, no subscription.
+                      Pro unlocks all {macwallCatalog.liveCountLabel} wallpapers
+                      on up to 3 Macs. {pricing.permanentPrice} once, no
+                      subscription. {macwallSocialProof.trustedLine}.
                     </p>
                     <div className="mt-3">
                       <TrackedPricingButton

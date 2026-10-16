@@ -238,7 +238,7 @@ export const learnPages: LearnPage[] = [
       { type: "h2", text: "Beyond decoding: not decoding at all" },
       {
         type: "p",
-        text: "The cheapest frame is the one never decoded. A well-behaved wallpaper app stops when nothing is visible: display asleep, screen locked, full-screen app in front, or running on battery. Hardware decode plus aggressive pausing is what makes a live wallpaper genuinely free in practice; the rules are listed in [performance and battery](/docs/performance-and-battery).",
+        text: "The cheapest frame is the one never decoded. A well-behaved wallpaper app stops when nothing is visible: display asleep, screen locked, full-screen app in front, or the battery running low. Hardware decode plus aggressive pausing is what makes a live wallpaper genuinely free in practice; the rules are listed in [performance and battery](/docs/performance-and-battery).",
       },
       { type: "h2", text: "Check it on your own Mac" },
       {
@@ -495,7 +495,7 @@ export const learnPages: LearnPage[] = [
       { type: "h2", text: "Why pause rules dominate" },
       {
         type: "p",
-        text: "Suppose an efficiently decoded 4K loop costs a small fraction of a percent of CPU. Over eight unplugged hours that is still eight hours of *something*. Now add pause-on-battery: the wallpaper stops the moment you unplug and the cost goes to zero. Pause-in-full-screen removes the hours you spend in a full screen editor or a call. Display sleep removes the rest. Real-world battery impact is decided by these rules, not by shaving a megabit off the bitrate.",
+        text: "Suppose an efficiently decoded 4K loop costs a small fraction of a percent of CPU. Over eight unplugged hours that is still eight hours of *something*. Now add a pause rule for Low Power Mode or low battery: the wallpaper stops when you most need the runtime and the cost goes to zero. Pause-in-full-screen removes the hours you spend in a full screen editor or a call. Display sleep removes the rest. Real-world battery impact is decided by these rules, not by shaving a megabit off the bitrate.",
       },
       { type: "h2", text: "Measure it on your own Mac" },
       {
@@ -512,7 +512,7 @@ export const learnPages: LearnPage[] = [
       {
         type: "ul",
         items: [
-          "Turn on **pause on battery**: the single most effective setting.",
+          "Turn on **pause on battery** (it pauses in Low Power Mode or at the low-battery warning) and **lower quality on battery** (1080p, 30 fps).",
           "Mirror one loop across displays instead of decoding several.",
           "Prefer 24–30 fps loops encoded in a hardware-decoded codec.",
           "Let **Low Power Mode** pause playback along with everything else.",
@@ -528,7 +528,7 @@ export const learnPages: LearnPage[] = [
       {
         question: "How much battery does a live wallpaper use?",
         answer:
-          "With hardware decode and pause-on-battery enabled, effectively none, because it stops when you unplug. Left running unplugged, expect roughly the cost of a small video playing in a window.",
+          "With hardware decode it is roughly the cost of a small video playing in a window, less with lower quality on battery turned on, and none once Low Power Mode triggers the battery pause. We have not published a measured battery test yet.",
       },
       {
         question: "Is Energy Impact measured in watts?",

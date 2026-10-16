@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ContentTable } from "@/components/content/content-table"
 import type { ContentBlock } from "@/lib/content/types"
 import {
   blogBody,
@@ -87,7 +88,9 @@ export function BlogContentBody({
                 {block.items.map((item) => (
                   <li key={item} className={blogUlItem}>
                     <span aria-hidden className={blogUlBullet} />
-                    <span className="min-w-0 flex-1">{renderInlineText(item)}</span>
+                    <span className="min-w-0 flex-1">
+                      {renderInlineText(item)}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -101,6 +104,14 @@ export function BlogContentBody({
                   </li>
                 ))}
               </ol>
+            )
+          case "table":
+            return (
+              <ContentTable
+                key={`table-${index}`}
+                block={block}
+                renderInline={renderInlineText}
+              />
             )
           default:
             return null

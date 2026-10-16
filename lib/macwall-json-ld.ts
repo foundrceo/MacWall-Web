@@ -32,7 +32,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
   const siteId = `${origin}/#website`
   const appId = `${origin}/#softwareapplication`
 
-  const proPriceUsd = macwall.pro.price.replace(/[^\d.]/g, "") || "9.99"
+  const proPriceUsd = macwall.pro.price.replace(/[^\d.]/g, "") || "12.99"
 
   return {
     "@context": "https://schema.org",
@@ -90,10 +90,10 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         },
         featureList: [
           "Live video wallpapers for the Mac desktop, up to 4K",
-          "Curated cloud catalog with a free 24-hour full-access trial and full Pro access",
+          "Curated cloud catalog with a free 24-hour trial of the full catalog and full Pro access",
           "Import and play your own MP4 and MOV clips with Pro",
           "Multi-display playback, synced or solo, with hardware decoding",
-          "Menu bar control and auto-pause on battery, full screen, and high CPU",
+          "Menu bar control; auto-pause behind full-screen apps, with optional Low Power Mode, low-battery and busy-CPU pauses",
           "Music Sync: album-art gradients from Apple Music and Spotify",
           `MacWall Pro: live Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion}`,
         ],
@@ -102,7 +102,7 @@ export function macwallSchemaGraph(canonicalOrigin: string) {
         offers: [
           {
             "@type": "Offer",
-            name: `${macwall.name} Free`,
+            name: `${macwall.name} 24-hour free trial`,
             price: "0",
             priceCurrency: "USD",
             url: `${origin}/download`,

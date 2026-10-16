@@ -2,6 +2,7 @@ import {
   macwall,
   macwallLockScreenMacOSVersion,
   macwallMinimumMacOSVersion,
+  macwallCatalog,
 } from "@/lib/macwall-site"
 
 /** User-visible strings for marketing pages (`macwall-marketing/*`). */
@@ -41,8 +42,7 @@ export const macwallMarketingCopy = {
     chipHref: "#music-sync",
     title: "Cinematic 4K live wallpapers,",
     titleMuted: "built for Mac.",
-    heroLead:
-      "1,000+ wallpapers that move, on your desktop, Lock Screen and screen saver. A native app that pauses behind full-screen apps and barely touches your CPU.",
+    heroLead: `${macwallCatalog.liveCountLabel} wallpapers that move, on your desktop, Lock Screen and screen saver. A native app that decodes video in hardware and pauses behind full-screen apps.`,
   },
   pricing: {
     buyCta: "Get Pro",
@@ -54,10 +54,11 @@ export const macwallMarketingCopy = {
   },
   landing: {
     catalogEyebrow: "Browse by genre",
-    browseTitle: "1,000+ live wallpapers",
-    browseLead: "Anime, nature, cars, gaming, space. Preview here. Set in the app.",
+    browseTitle: `${macwallCatalog.liveCountLabel} live wallpapers`,
+    browseLead:
+      "Anime, nature, cars, gaming, space. Preview here. Set in the app.",
     browseLink: "Open the gallery",
-    categoriesLabel: "Browse 1,000+ wallpapers by category",
+    categoriesLabel: `Browse ${macwallCatalog.liveCountLabel} wallpapers by category`,
     howEyebrow: "No account. No setup. About a minute.",
     howTitle: "Install, pick, and set",
     bend: {
@@ -86,8 +87,7 @@ export const macwallMarketingCopy = {
     communityEyebrow: "Community",
     communityTitle: "See real Mac setups",
     communityMuted: "Discord and TikTok",
-    communityLead:
-      "New clips land on TikTok. Setups and help live in Discord.",
+    communityLead: "New clips land on TikTok. Setups and help live in Discord.",
     faqLead: "Licenses, macOS versions, and the Reel refund.",
     contactUs: "Contact us",
     closingMuted: "Free download. Pay once for Pro.",
@@ -96,17 +96,18 @@ export const macwallMarketingCopy = {
     featureLockTitle: "Lock Screen",
     featureLockBody: `Live video on ${macwallLockScreenMacOSVersion}. Apple's wallpaper APIs. No extra installers.`,
     featureNativeTitle: "Native settings",
-    featureNativeBody: "Swift and Metal. Intel through M5. These toggles live in the app.",
+    featureNativeBody:
+      "Swift and Metal. Intel through M5. These toggles live in the app.",
     featureNativeChips: [
       "Launch at login",
       "Pause on fullscreen",
-      "Pause on battery",
+      "Pause in Low Power Mode",
     ] as const,
     pillars: [
       {
         id: "idle",
         title: "Near idle",
-        body: "CPU stays under one percent while 4K plays. No extra daemons.",
+        body: "Quit MacWall and your wallpaper keeps playing. macOS plays it, so the app uses no CPU at all (macOS 26+).",
       },
       {
         id: "pause",
@@ -241,8 +242,8 @@ export const macwallMarketingCopy = {
         eyebrow: "Native",
         title: "Smooth on every Mac",
         body: "Swift and Metal, Intel through M5.",
-        stat: "<1%",
-        statLabel: "CPU while 4K plays",
+        stat: "0%",
+        statLabel: "MacWall CPU once you quit the app",
         toggles: [
           "Pause behind full-screen apps",
           "Pause in Low Power Mode",
@@ -284,7 +285,10 @@ export const macwallMarketingCopy = {
         {
           icon: "lock",
           moment: "You lock your Mac",
-          system: { ok: true, text: "Lock Screen and screen saver match the desktop" },
+          system: {
+            ok: true,
+            text: "Lock Screen and screen saver match the desktop",
+          },
           app: { ok: true, text: "A different wallpaper on the Lock Screen" },
         },
         {

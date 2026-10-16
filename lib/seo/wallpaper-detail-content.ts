@@ -157,7 +157,7 @@ export function buildWallpaperDetailContent(
     },
     {
       question: `Will the ${name} live wallpaper drain my MacBook battery?`,
-      answer: `${macwall.name} pauses playback on battery power, in full-screen apps, and when the display sleeps, so ${name} costs very little in everyday use.`,
+      answer: `${macwall.name} pauses playback behind full-screen apps and when the display sleeps, so ${name} costs very little in everyday use.`,
     },
     {
       question: `Can I use ${name} on the Mac Lock Screen?`,

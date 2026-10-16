@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import type { ReactNode } from "react"
 
 import { MARKETING_GALLERY_WALLPAPERS_FALLBACK } from "@/lib/marketing-gallery-wallpapers"
-import { macwall, macwallAppIconPath } from "@/lib/macwall-site"
+import { macwall, macwallAppIconPath, macwallCatalog } from "@/lib/macwall-site"
 
 /**
  * Source for the site's share image (`/public/og-share.jpg`). It is drawn with
@@ -83,7 +83,7 @@ function Split() {
           <span className="text-white/45">built for Mac.</span>
         </p>
         <p className="mt-7 text-[21px] leading-snug text-white/60">
-          1,000+ wallpapers for your desktop,
+          {macwallCatalog.liveCountLabel} wallpapers for your desktop,
           <br />
           Lock Screen and screen saver.
         </p>
@@ -121,7 +121,9 @@ function Poster() {
 
       <div className="flex flex-col items-center pt-[46px] text-center">
         <Brand size={40} />
-        <p className={`${HEADLINE_SERIF} mt-5 text-[60px] leading-[1.04] [text-shadow:0_2px_30px_rgb(0_0_0/0.6)]`}>
+        <p
+          className={`${HEADLINE_SERIF} mt-5 text-[60px] leading-[1.04] [text-shadow:0_2px_30px_rgb(0_0_0/0.6)]`}
+        >
           Cinematic 4K live wallpapers,
           <br />
           <span className="text-white/55">built for Mac.</span>
@@ -129,7 +131,10 @@ function Poster() {
       </div>
 
       <div className="absolute inset-x-[56px] bottom-[40px] flex items-end justify-between text-[20px] text-white/80 [text-shadow:0_1px_12px_rgb(0_0_0/0.7)]">
-        <span>1,000+ live wallpapers · Desktop & Lock Screen</span>
+        <span>
+          {macwallCatalog.liveCountLabel} live wallpapers · Desktop & Lock
+          Screen
+        </span>
         <span className="font-medium text-white">macwall.app</span>
       </div>
     </Frame>

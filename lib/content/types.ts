@@ -1,9 +1,18 @@
+/** A comparison table. Cells accept the same inline markdown as paragraphs. */
+export type ContentTableBlock = {
+  type: "table"
+  columns: string[]
+  rows: string[][]
+  caption?: string
+}
+
 export type ContentBlock =
   | { type: "p"; text: string }
   | { type: "h2"; text: string }
   | { type: "h3"; text: string }
   | { type: "ul"; items: string[] }
   | { type: "ol"; items: string[] }
+  | ContentTableBlock
 
 export type ContentFaq = {
   question: string
@@ -30,11 +39,7 @@ export type BlogArticle = SeoContentPage & {
 }
 
 export type BlogCategory =
-  | "guides"
-  | "comparisons"
-  | "features"
-  | "wallpapers"
-  | "macos"
+  "guides" | "comparisons" | "features" | "wallpapers" | "macos"
 
 export const BLOG_CATEGORY_LABELS: Record<BlogCategory, string> = {
   guides: "Guides",

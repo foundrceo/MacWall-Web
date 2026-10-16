@@ -106,6 +106,30 @@ export const macwallMacOSRequirementsHint =
 export const macwallMinimumMacOSRequirementOrLater =
   `${macwallMinimumMacOSRequirement} or later` as const
 
+/**
+ * Public catalog label: the one place the catalog count comes from. Every
+ * page, meta description, FAQ and llms.txt line reads it. It is a fixed,
+ * founder-set label; change it only when the founder asks.
+ */
+export const macwallCatalog = {
+  liveCountLabel: "1,000+",
+  stillCount: 22,
+} as const
+
+/**
+ * Public social proof, shown as "Trusted by 25,000+ users" everywhere.
+ * Founder-approved wording. The number is based on installer downloads from
+ * macwall.app (once per browser session, Mac browsers, bots excluded) since
+ * 2026-06-06, rounded down. Never publish purchase or customer counts.
+ */
+const MACWALL_USERS_LABEL = "25,000+" as const
+
+export const macwallSocialProof = {
+  usersLabel: MACWALL_USERS_LABEL,
+  trustedLine: `Trusted by ${MACWALL_USERS_LABEL} users`,
+  verifiedOnIso: "2026-10-16",
+} as const
+
 const MACWALL_NAME = "MacWall" as const
 /** Also the <title> suffix and OG alt text — keep it short and keyword-led. */
 const MACWALL_TAGLINE = "Live wallpapers for Mac." as const
@@ -116,12 +140,12 @@ export const macwall = {
   /** Public app identity — verified against the shipping macOS target. */
   bundleIdentifier: "com.macwall.ogapps",
   /** Keep in sync with the updater feed; `/changelog` remains the live source of truth. */
-  currentVersion: "3.7",
-  currentVersionReleasedIso: "2026-08-19",
-  currentVersionReleasedLabel: "August 19, 2026",
+  currentVersion: "4.0.9",
+  currentVersionReleasedIso: "2026-10-05",
+  currentVersionReleasedLabel: "October 5, 2026",
   /** Review stamp for the canonical `/ai-info` product reference. */
-  productInfoLastReviewedIso: "2026-08-27",
-  productInfoLastReviewedLabel: "August 27, 2026",
+  productInfoLastReviewedIso: "2026-10-16",
+  productInfoLastReviewedLabel: "October 16, 2026",
   /**
    * Legal entity that owns and operates MacWall, exactly as on its Delaware
    * Certificate of Formation. Must match the payment account's legal entity.
@@ -179,11 +203,11 @@ export const macwall = {
     strikePrice: null,
     price: "$12.99",
     suffix: "permanent",
-    socialProofMembers: "1,000+",
+    socialProofMembers: macwallSocialProof.usersLabel,
     features: [
-      "Complete cloud catalog (1,000+ live wallpapers)",
+      `Complete cloud catalog (${macwallCatalog.liveCountLabel} live wallpapers)`,
       `Live Lock Screen & Screen Saver (${macwallLockScreenMacOSVersion}+)`,
-      "Unlimited favorites and playlists",
+      "Unlimited favorites, Shuffle and Day Schedule",
       "Lifetime updates and future Pro benefits",
     ],
   },
@@ -209,7 +233,7 @@ export const macwall = {
     "Multi-display playback, synced or solo (hardware decode)",
     "Music Sync: album-art gradients from Apple Music and Spotify",
     "Menu bar control: pause, resume, stop, switch wallpapers",
-    "Auto-pause on battery, full screen, and high CPU",
+    "Auto-pause behind full-screen apps; optional pause in Low Power Mode or when the Mac is busy",
   ],
 } as const
 

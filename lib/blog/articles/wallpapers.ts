@@ -12,7 +12,7 @@ export const wallpaperArticles: BlogArticle[] = [
       "The best anime motion desktops for Mac, curated catalog plus custom imports.",
     category: "wallpapers",
     readMinutes: 4,
-    publishedAt: "2026-03-22",
+    publishedAt: "2026-07-13",
     keywords: [
       "anime wallpaper mac",
       "anime live wallpaper macos",
@@ -52,7 +52,7 @@ export const wallpaperArticles: BlogArticle[] = [
       "Bring the outdoors to your Mac desktop with curated nature video loops.",
     category: "wallpapers",
     readMinutes: 3,
-    publishedAt: "2026-03-23",
+    publishedAt: "2026-07-13",
     keywords: [
       "nature wallpaper mac",
       "nature live wallpaper macos",
@@ -80,7 +80,7 @@ export const wallpaperArticles: BlogArticle[] = [
       "Explore the cosmos on your Mac desktop with 4K space motion wallpapers.",
     category: "wallpapers",
     readMinutes: 3,
-    publishedAt: "2026-03-24",
+    publishedAt: "2026-07-13",
     keywords: [
       "space wallpaper mac",
       "sci fi wallpaper macos",
@@ -108,7 +108,7 @@ export const wallpaperArticles: BlogArticle[] = [
       "Game-inspired loops and gameplay captures as live Mac wallpapers.",
     category: "wallpapers",
     readMinutes: 3,
-    publishedAt: "2026-03-25",
+    publishedAt: "2026-07-13",
     keywords: [
       "gaming wallpaper mac",
       "video game wallpaper macos",

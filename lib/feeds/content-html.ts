@@ -63,6 +63,22 @@ export function contentBlocksToHtml(blocks: readonly ContentBlock[]): string {
             .join("")}</ol>`
         )
         break
+      case "table":
+        parts.push(
+          `<table><thead><tr>${block.columns
+            .map((column) => `<th>${inlineMarkdownToHtml(column)}</th>`)
+            .join("")}</tr></thead><tbody>${block.rows
+            .map(
+              (row) =>
+                `<tr>${row
+                  .map((value) => `<td>${inlineMarkdownToHtml(value)}</td>`)
+                  .join("")}</tr>`
+            )
+            .join("")}</tbody></table>${
+            block.caption ? `<p>${inlineMarkdownToHtml(block.caption)}</p>` : ""
+          }`
+        )
+        break
       default: {
         const exhaustive: never = block
         void exhaustive

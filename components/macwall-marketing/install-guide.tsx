@@ -25,7 +25,10 @@ function Pointer({ className }: Readonly<{ className?: string }>) {
     <svg
       viewBox="0 0 16 22"
       aria-hidden
-      className={cn("absolute h-[22px] w-4 drop-shadow-[0_1px_2px_rgb(0_0_0/0.5)]", className)}
+      className={cn(
+        "absolute h-[22px] w-4 drop-shadow-[0_1px_2px_rgb(0_0_0/0.5)]",
+        className
+      )}
     >
       <path
         d="M1 1v17.5l4.2-4.1 2.9 6.6 2.6-1.1-2.9-6.5H14L1 1Z"
@@ -38,7 +41,10 @@ function Pointer({ className }: Readonly<{ className?: string }>) {
   )
 }
 
-function AppIcon({ size, className }: Readonly<{ size: number; className?: string }>) {
+function AppIcon({
+  size,
+  className,
+}: Readonly<{ size: number; className?: string }>) {
   return (
     <Image
       src={macwallAppIconPath}
@@ -46,7 +52,11 @@ function AppIcon({ size, className }: Readonly<{ size: number; className?: strin
       width={size}
       height={size}
       loading="eager"
-      className={cn(macwallAppIconRadiusClass, "shadow-[0_8px_24px_rgb(0_0_0/0.45)]", className)}
+      className={cn(
+        macwallAppIconRadiusClass,
+        "shadow-[0_8px_24px_rgb(0_0_0/0.45)]",
+        className
+      )}
       style={{ width: size, height: size }}
     />
   )
@@ -110,7 +120,12 @@ function Step({
   title,
   scene,
   children,
-}: Readonly<{ number: number; title: string; scene: ReactNode; children: ReactNode }>) {
+}: Readonly<{
+  number: number
+  title: string
+  scene: ReactNode
+  children: ReactNode
+}>) {
   return (
     <li className="flex flex-col">
       {scene}
@@ -118,7 +133,9 @@ function Step({
       <p className="mt-1 font-display text-2xl leading-tight tracking-tight text-foreground">
         {title}
       </p>
-      <p className="mt-2 text-[14px] leading-relaxed text-marketing-muted">{children}</p>
+      <p className="mt-2 text-[14px] leading-relaxed text-marketing-muted">
+        {children}
+      </p>
     </li>
   )
 }
@@ -129,7 +146,7 @@ function Step({
  */
 function PaywallScene() {
   return (
-    <div className="relative w-[78%] max-w-[200px] rounded-xl bg-[#1c1c1e] px-3 pt-3 pb-4 ring-1 ring-white/10 shadow-[0_10px_30px_rgb(0_0_0/0.45)]">
+    <div className="relative w-[78%] max-w-[200px] rounded-xl bg-[#1c1c1e] px-3 pt-3 pb-4 shadow-[0_10px_30px_rgb(0_0_0/0.45)] ring-1 ring-white/10">
       <div className="flex items-center justify-between">
         <span className="flex gap-1" aria-hidden>
           <span className="size-1.5 rounded-full bg-[#ff5f57]" />
@@ -298,7 +315,7 @@ export function InstallGuide() {
               On the &ldquo;Pay Once&rdquo; screen, tap{" "}
               <span className="font-medium text-foreground">Try Free</span> at
               the top right (it shows after a few seconds), then Start Free
-              Trial. 24 hours of everything, no card needed.
+              Trial. 24 hours of the full catalog, no card needed.
             </Step>
           </ol>
         </div>

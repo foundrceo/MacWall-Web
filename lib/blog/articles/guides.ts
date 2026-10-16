@@ -1,3 +1,4 @@
+import { macwallCatalog } from "@/lib/macwall-site"
 import type { BlogArticle } from "@/lib/content/types"
 
 export const guideArticles: BlogArticle[] = [
@@ -12,7 +13,7 @@ export const guideArticles: BlogArticle[] = [
       "The complete walkthrough for motion wallpapers on Intel and Apple Silicon Macs running Sequoia and later.",
     category: "guides",
     readMinutes: 6,
-    publishedAt: "2026-03-01",
+    publishedAt: "2026-07-13",
     keywords: [
       "how to set live wallpaper on mac",
       "animated wallpaper mac",
@@ -53,7 +54,7 @@ export const guideArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Pause, resume, or stop from the menu bar without opening the main window. MacWall automatically pauses on battery power and when another app goes full screen, so your Mac stays fast during work and gaming.",
+        text: "Pause, resume, or stop from the menu bar without opening the main window. MacWall automatically pauses when another app goes full screen, and can pause in Low Power Mode, so your Mac stays fast during work and gaming.",
       },
       {
         type: "h2",
@@ -86,7 +87,7 @@ export const guideArticles: BlogArticle[] = [
       {
         question: "Do live wallpapers drain the battery on a Mac?",
         answer:
-          "Very little with a native app. MacWall decodes video in hardware and pauses automatically on battery, in full-screen apps, and when the display sleeps.",
+          "Very little with a native app. MacWall decodes video in hardware and pauses automatically behind full-screen apps and when the display sleeps.",
       },
       {
         question: "How do I remove a live wallpaper on Mac?",
@@ -106,7 +107,7 @@ export const guideArticles: BlogArticle[] = [
       "Import personal clips, cinematic loops, or gameplay captures as live Mac desktop wallpapers.",
     category: "guides",
     readMinutes: 5,
-    publishedAt: "2026-03-02",
+    publishedAt: "2026-07-13",
     keywords: [
       "video as wallpaper mac",
       "mp4 wallpaper mac",
@@ -152,7 +153,7 @@ export const guideArticles: BlogArticle[] = [
         items: [
           "Prefer H.264 or HEVC encodes. MacWall decodes on the GPU.",
           "Shorter loops (30–120 seconds) feel more natural than hour-long files.",
-          "Enable pause-on-battery if you work unplugged often.",
+          "Turn on pause-on-battery and lower-quality-on-battery if you work unplugged often.",
           "Use one wallpaper per display on multi-monitor setups.",
         ],
       },
@@ -169,7 +170,7 @@ export const guideArticles: BlogArticle[] = [
       "The definitive guide to MP4 live wallpapers on MacBook and iMac with native performance.",
     category: "guides",
     readMinutes: 4,
-    publishedAt: "2026-03-03",
+    publishedAt: "2026-07-13",
     keywords: [
       "mp4 wallpaper mac",
       "mp4 live wallpaper macos",
@@ -214,7 +215,7 @@ export const guideArticles: BlogArticle[] = [
       "How to get cinematic desktop motion on a laptop Mac without sacrificing unplugged runtime.",
     category: "guides",
     readMinutes: 5,
-    publishedAt: "2026-03-04",
+    publishedAt: "2026-07-13",
     keywords: [
       "macbook animated wallpaper",
       "live wallpaper macbook pro",
@@ -223,7 +224,7 @@ export const guideArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "MacBook users want beautiful desktops but fear battery drain. **MacWall** was built for exactly this: native Metal-backed decode, automatic pause on battery, and pause when you go full screen in any app.",
+        text: "MacBook users want beautiful desktops but fear battery drain. **MacWall** was built for exactly this: native Metal-backed decode, an optional Low Power Mode pause, and pause when you go full screen in any app.",
       },
       {
         type: "h2",
@@ -259,7 +260,7 @@ export const guideArticles: BlogArticle[] = [
       "Your library, your rules: custom imports with native macOS playback.",
     category: "guides",
     readMinutes: 4,
-    publishedAt: "2026-03-05",
+    publishedAt: "2026-07-13",
     keywords: [
       "custom wallpaper mac",
       "import wallpaper macos",
@@ -289,7 +290,7 @@ export const guideArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Favorites, playlists (Pro), and per-display assignments keep large libraries manageable. Switch wallpapers from Home or the menu bar without re-importing.",
+        text: "Favorites, Shuffle, and per-display assignments keep large libraries manageable. Switch wallpapers from Home or the menu bar without re-importing.",
       },
     ],
   },
@@ -304,7 +305,7 @@ export const guideArticles: BlogArticle[] = [
       "Why pay-once beats free wallpaper tools on Mac, and how to earn the whole price back with a Reel.",
     category: "guides",
     readMinutes: 4,
-    publishedAt: "2026-03-06",
+    publishedAt: "2026-07-13",
     keywords: [
       "free animated wallpaper mac",
       "free live wallpaper macos",
@@ -325,7 +326,7 @@ export const guideArticles: BlogArticle[] = [
           "Full curated catalog across 9 categories, with new community drops",
           "Desktop live wallpapers plus Lock Screen on supported macOS versions",
           "Import your own MP4/MOV/GIF loops",
-          "Unlimited playlists and menu bar controls",
+          "Shuffle, Day Schedule and menu bar controls",
           "Lifetime updates on up to 3 Macs per license (Pro Plus: 5)",
           "No monthly fee, ever",
         ],
@@ -351,7 +352,7 @@ export const guideArticles: BlogArticle[] = [
       "Made a beautiful loop? Get it into MacWall's public catalog, drag, drop, and pass review.",
     category: "guides",
     readMinutes: 5,
-    publishedAt: "2026-06-12",
+    publishedAt: "2026-07-15",
     keywords: [
       "upload wallpaper macwall",
       "community wallpaper mac",
@@ -485,7 +486,7 @@ export const guideArticles: BlogArticle[] = [
       { type: "h2", text: "Make your Mac wallpaper move" },
       {
         type: "p",
-        text: "macOS cannot use a video as a desktop wallpaper on its own. A live wallpaper app fills that gap. [MacWall](/download) plays 4K video loops behind your windows with hardware decoding, pauses on battery and in full-screen apps, and has a catalog of 1,000+ curated loops, from [anime](/wallpapers/anime) and [cars](/wallpapers/cars) to [rain](/wallpapers/collections/rain) and [space](/wallpapers/space). Full steps: [how to set a live wallpaper on Mac](/blog/how-to-set-live-wallpaper-mac).",
+        text: `macOS cannot use a video as a desktop wallpaper on its own. A live wallpaper app fills that gap. [MacWall](/download) plays 4K video loops behind your windows with hardware decoding, pauses on battery and in full-screen apps, and has a catalog of ${macwallCatalog.liveCountLabel} curated loops, from [anime](/wallpapers/anime) and [cars](/wallpapers/cars) to [rain](/wallpapers/collections/rain) and [space](/wallpapers/space). Full steps: [how to set a live wallpaper on Mac](/blog/how-to-set-live-wallpaper-mac).`,
       },
       { type: "h2", text: "Pick the right image size" },
       {
@@ -801,7 +802,7 @@ export const guideArticles: BlogArticle[] = [
       { type: "h2", text: "10. Keep it fast" },
       {
         type: "p",
-        text: "Aesthetic should not cost battery. Native apps decode video in hardware and pause when you are on battery or in full screen; browser-based wallpaper tools do not. More in [live wallpaper battery drain on Mac](/blog/live-wallpaper-battery-drain-mac).",
+        text: "Aesthetic should not cost battery. Native apps decode video in hardware and pause behind full-screen apps; browser-based wallpaper tools do not. More in [live wallpaper battery drain on Mac](/blog/live-wallpaper-battery-drain-mac).",
       },
     ],
     faq: [

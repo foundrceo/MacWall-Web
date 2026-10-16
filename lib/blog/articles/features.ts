@@ -2,75 +2,6 @@ import type { BlogArticle } from "@/lib/content/types"
 
 export const featureArticles: BlogArticle[] = [
   {
-    slug: "why-macwall-best-native-wallpaper-app",
-    pathname: "/blog/why-macwall-best-native-wallpaper-app",
-    title: "The Best Native Wallpaper App for macOS",
-    headline: "Why MacWall Is the Best Native Wallpaper App",
-    description:
-      "Native SwiftUI, Metal hardware decode, menu bar controls, and intelligent pause: why MacWall runs smoother than cross-platform wallpaper apps.",
-    excerpt:
-      "Built for Mac. Runs like Mac software. Here's the engineering behind the smoothest wallpaper experience.",
-    category: "features",
-    readMinutes: 7,
-    publishedAt: "2026-03-11",
-    keywords: [
-      "best native wallpaper app mac",
-      "macwall review",
-      "smoothest live wallpaper mac",
-    ],
-    sections: [
-      {
-        type: "p",
-        text: "Most wallpaper apps on Mac are ports. Electron shells, web views, or Windows code in compatibility layers. **MacWall** is native macOS software. That is not marketing fluff; it is why playback stays smooth when you have twenty Safari tabs open.",
-      },
-      {
-        type: "h2",
-        text: "Hardware-accelerated video decode",
-      },
-      {
-        type: "p",
-        text: "MacWall decodes video on the GPU using Apple's media stack. On M1, M2, M3, and M4 Macs, this means fractions of a CPU core instead of software rendering that competes with your actual work.",
-      },
-      {
-        type: "h2",
-        text: "Menu bar-first design",
-      },
-      {
-        type: "p",
-        text: "Real Mac utilities live in the menu bar. MacWall follows that pattern: pause, resume, and switch wallpapers without a floating window cluttering your desktop.",
-      },
-      {
-        type: "h2",
-        text: "Intelligent pause rules",
-      },
-      {
-        type: "ul",
-        items: [
-          "Pause when on battery power",
-          "Pause when any app goes full screen",
-          "Per-display players, one decoder per monitor",
-          "Respects reduced motion accessibility settings",
-        ],
-      },
-      {
-        type: "h2",
-        text: "Community + imports",
-      },
-      {
-        type: "p",
-        text: "Curated catalog lanes plus unlimited personal imports. You are not locked into a closed library. Upload, share, and discover, the catalog grows daily.",
-      },
-      {
-        type: "h2",
-        text: "Fair pricing",
-      },
-      {
-        type: "p",
-        text: "One-time $12.99, not a monthly subscription. Lifetime updates on up to 3 Macs (Pro Plus: 5). Make a Reel with #macwall and earn your money back.",
-      },
-    ],
-  },
-  {
     slug: "lock-screen-live-wallpaper-macos",
     pathname: "/blog/lock-screen-live-wallpaper-macos",
     title: "Lock Screen Live Wallpaper on macOS (MacWall Pro)",
@@ -81,7 +12,7 @@ export const featureArticles: BlogArticle[] = [
       "Motion on your Lock Screen, the Pro feature that makes MacWall stand out.",
     category: "features",
     readMinutes: 5,
-    publishedAt: "2026-03-12",
+    publishedAt: "2026-07-13",
     keywords: [
       "lock screen live wallpaper mac",
       "animated lock screen macos",
@@ -121,12 +52,12 @@ export const featureArticles: BlogArticle[] = [
     title: "Do Live Wallpapers Drain Mac Battery? (Honest Answer)",
     headline: "Live Wallpaper Battery Drain on Mac",
     description:
-      "How MacWall keeps live wallpaper battery impact low on MacBooks: automatic pause on battery, GPU hardware decode, and full-screen detection.",
+      "How MacWall keeps live wallpaper battery impact low on MacBooks: hardware decode, full-screen detection, and an optional Low Power Mode pause.",
     excerpt:
       "The truth about live wallpapers and MacBook battery life, and how MacWall fixes it.",
     category: "features",
     readMinutes: 5,
-    publishedAt: "2026-03-13",
+    publishedAt: "2026-07-13",
     keywords: [
       "live wallpaper battery drain mac",
       "wallpaper app battery macbook",
@@ -135,7 +66,7 @@ export const featureArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Yes, playing video continuously uses energy. But **how** the app plays video matters enormously. Software-rendered wallpapers can burn 5–15% CPU. MacWall's hardware decode on Apple Silicon typically stays under 1% when plugged in, and **zero** when pause-on-battery kicks in.",
+        text: "Yes, playing video continuously uses energy. But **how** the app plays video matters enormously. Software decoding keeps several CPU cores busy for as long as the video plays. MacWall hands decoding to Apple's media engine instead, and it stops decoding entirely when a full-screen app covers the desktop or when Low Power Mode triggers the optional battery pause. We have not published a measured battery test, so check MacWall's own CPU reading in its menu bar on your Mac.",
       },
       {
         type: "h2",
@@ -144,7 +75,7 @@ export const featureArticles: BlogArticle[] = [
       {
         type: "ul",
         items: [
-          "Automatic pause on battery",
+          "Optional pause in Low Power Mode or on low battery",
           "Pause during full-screen apps (video calls, games, Keynote)",
           "One hardware decoder per display, no duplicate work",
           "Preload off until wallpaper is visible",
@@ -156,7 +87,7 @@ export const featureArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "On a MacBook Air, keep pause-on-battery enabled. On a desk setup, enjoy 4K loops freely. Use the menu bar to pause manually during long unplugged sessions.",
+        text: "On a MacBook Air, turn on pause-on-battery and lower-quality-on-battery in Settings → Power. On a desk setup, enjoy 4K loops freely. Use the menu bar to pause manually during long unplugged sessions.",
       },
     ],
   },
@@ -170,7 +101,7 @@ export const featureArticles: BlogArticle[] = [
     excerpt: "4K loops on Retina displays with native hardware acceleration.",
     category: "features",
     readMinutes: 4,
-    publishedAt: "2026-03-14",
+    publishedAt: "2026-07-13",
     keywords: [
       "4k wallpaper mac",
       "4k live wallpaper macos",
@@ -214,7 +145,7 @@ export const featureArticles: BlogArticle[] = [
       "Different wallpapers per display, spanning one image, and live wallpapers across every screen.",
     category: "features",
     readMinutes: 5,
-    publishedAt: "2026-03-15",
+    publishedAt: "2026-07-13",
     updatedAt: "2026-09-28",
     keywords: [
       "dual monitor wallpaper",
@@ -307,7 +238,7 @@ export const featureArticles: BlogArticle[] = [
       "Why Apple Silicon Macs are the best machines for live wallpapers, with the right app.",
     category: "features",
     readMinutes: 5,
-    publishedAt: "2026-03-16",
+    publishedAt: "2026-07-13",
     keywords: [
       "apple silicon wallpaper",
       "m1 live wallpaper mac",
@@ -351,7 +282,7 @@ export const featureArticles: BlogArticle[] = [
       "Control your desktop motion like a real Mac utility, from the menu bar.",
     category: "features",
     readMinutes: 3,
-    publishedAt: "2026-03-17",
+    publishedAt: "2026-07-13",
     keywords: [
       "menu bar wallpaper mac",
       "macwall menu bar",

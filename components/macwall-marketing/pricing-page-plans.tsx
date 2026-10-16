@@ -27,7 +27,7 @@ import { MarketingSection } from "@/components/macwall-marketing/marketing-secti
 import { PricingPlans } from "@/components/macwall-marketing/pricing-plans"
 import { StripeWordmark } from "@/components/macwall-marketing/stripe-wordmark"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
-import { macwall } from "@/lib/macwall-site"
+import { macwall, macwallCatalog } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 const PLANS_ANCHOR_ID = "plans"
@@ -91,11 +91,11 @@ function SocialProof() {
     <div className="group inline-flex items-center gap-2 rounded-full border border-white/[0.09] bg-white/[0.03] py-1 pr-3 pl-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
       <AvatarStack />
       <p className="text-[13px] text-zinc-400">
-        Bought by{" "}
+        Trusted by{" "}
         <span className="font-medium text-white">
           {macwall.pro.socialProofMembers}
         </span>{" "}
-        Mac users
+        users
       </p>
     </div>
   )
@@ -116,9 +116,10 @@ function PricingHero({
         Bring your Mac to life.
       </h1>
       <p className="mx-auto mt-4 max-w-2xl text-base text-balance text-zinc-400 sm:text-lg">
-        1,000+ cinematic live wallpapers for your desktop and Lock Screen, running
-        native and near idle so your Mac stays fast. Pay once, keep every future
-        update, and try it all free for 24 hours first.
+        {macwallCatalog.liveCountLabel} cinematic live wallpapers for your
+        desktop and Lock Screen, running native and near idle so your Mac stays
+        fast. Pay once, keep every future update, and try it all free for 24
+        hours first.
       </p>
 
       {checkoutError ? (
@@ -142,7 +143,7 @@ type Tile = { icon: IconSvgElement; title: string; body: ReactNode }
 const FEATURE_TILES: readonly Tile[] = [
   {
     icon: Video01Icon,
-    title: "1,000+ wallpapers",
+    title: `${macwallCatalog.liveCountLabel} wallpapers`,
     body: "Every cinematic loop, set in one tap.",
   },
   {
@@ -158,7 +159,7 @@ const FEATURE_TILES: readonly Tile[] = [
   {
     icon: BatteryCharging01Icon,
     title: "Near idle",
-    body: "Under 1% CPU, and pauses on battery.",
+    body: "Quit the app and the wallpaper keeps playing. 0% MacWall CPU.",
   },
   {
     icon: MusicNote01Icon,
