@@ -1,12 +1,10 @@
-import { revalidateTag } from "next/cache"
-import { secretsEqual } from "@/lib/http/secrets"
 import {
-  MARKETING_GALLERY_CACHE_TAG,
-  MARKETING_HOME_PICK_CACHE_TAG,
-  PUBLIC_CATALOG_CACHE_TAG,
-} from "@/lib/marketing-cache"
+  MARKETING_CATALOG_CACHE_TAGS,
+  revalidateMarketingCatalog,
+} from "@/lib/admin/uploads"
+import { secretsEqual } from "@/lib/http/secrets"
 
-/** On-demand ISR for homepage + public gallery after catalog updates. */
+/** On-demand ISR for homepage + public gallery after external catalog updates. */
 export async function POST(request: Request) {
   const secret = process.env.REVALIDATE_SECRET?.trim()
   if (!secret) {
@@ -21,19 +19,11 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized." }, { status: 401 })
   }
 
-  // Soft expire — avoids a global "max" stampede that rebuilds every
-  // wallpaper/list page at once after bulk catalog edits.
-  revalidateTag(MARKETING_GALLERY_CACHE_TAG, "default")
-  revalidateTag(MARKETING_HOME_PICK_CACHE_TAG, "default")
-  revalidateTag(PUBLIC_CATALOG_CACHE_TAG, "default")
+  await revalidateMarketingCatalog()
 
   return Response.json({
     revalidated: true,
-    tags: [
-      MARKETING_GALLERY_CACHE_TAG,
-      MARKETING_HOME_PICK_CACHE_TAG,
-      PUBLIC_CATALOG_CACHE_TAG,
-    ],
+    tags: MARKETING_CATALOG_CACHE_TAGS,
     at: new Date().toISOString(),
   })
 }

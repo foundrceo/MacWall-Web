@@ -15,7 +15,7 @@ const PAGE_DESCRIPTION = `Browse cinematic live wallpapers for Mac on ${macwall.
 export const metadata: Metadata = wallpaperGalleryIndexMetadata()
 
 /**
- * Prerendered (ISR via the catalog fetch's 1h revalidate + tag) with the
+ * Prerendered (ISR via the catalog fetch's 6h revalidate + tag) with the
  * unfiltered list. `?q=&tag=&sort=` are applied client-side by the gallery,
  * and next.config marks those URLs `noindex` with an `X-Robots-Tag` header.
  */

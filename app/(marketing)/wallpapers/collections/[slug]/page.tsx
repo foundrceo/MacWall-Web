@@ -37,8 +37,8 @@ type PageProps = {
   params: Promise<{ slug: string }>
 }
 
-/** Collections re-sort as likes and uploads change; hourly ISR matches the catalog cache. */
-export const revalidate = 3600
+/** Collections re-sort as likes change; 6h ISR matches the catalog cache. */
+export const revalidate = 21600
 
 export function generateStaticParams() {
   return wallpaperCollections.map((entry) => ({ slug: entry.slug }))

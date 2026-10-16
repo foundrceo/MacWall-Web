@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react"
 
+import { MARKETING_LOCK_SCREEN_VIDEO_MP4_URL } from "@/lib/marketing-assets-urls"
 import { cn } from "@/lib/utils"
 
 /** H.264 rather than VP9 — Safari's WebM support is too patchy for the Mac audience. */
-const LOCK_SCREEN_VIDEO_SRC = "/hero/lockscreen.mp4"
+const LOCK_SCREEN_VIDEO_SRC = MARKETING_LOCK_SCREEN_VIDEO_MP4_URL
 const LOCK_SCREEN_POSTER_SRC = "/hero/lockscreen-poster.avif"
 
 /**

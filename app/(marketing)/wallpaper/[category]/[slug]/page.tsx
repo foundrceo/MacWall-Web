@@ -18,8 +18,8 @@ type PageProps = {
   params: Promise<{ category: string; slug: string }>
 }
 
-/** ISR — wallpaper detail pages are crawl-heavy; avoid per-request SSR. */
-export const revalidate = 3600
+/** ISR — crawl-heavy; matches MARKETING_CATALOG_REVALIDATE_SECONDS (6h). */
+export const revalidate = 21600
 
 /**
  * Required for the `revalidate` above to take effect: without

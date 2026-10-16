@@ -11,6 +11,7 @@ import {
 import { MarketingMediaSlot } from "@/components/macwall-marketing/marketing-media-slot"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
+import { MARKETING_BEND_VIDEO_MP4_URL } from "@/lib/marketing-assets-urls"
 import { cn } from "@/lib/utils"
 
 /**
@@ -119,7 +120,7 @@ function buildItems(withAnchors: boolean): FeatureItem[] {
       exclusive: true,
       media: () => (
         <DeferredVideo
-          src="/hero/bend-demo.mp4"
+          src={MARKETING_BEND_VIDEO_MP4_URL}
           poster="/hero/bend-poster.avif"
           label={s.bend.title}
         />

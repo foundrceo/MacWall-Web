@@ -46,7 +46,8 @@ import {
 import { cn } from "@/lib/utils"
 import type { Metadata } from "next"
 
-export const revalidate = 3600
+/** Matches MARKETING_CATALOG_REVALIDATE_SECONDS (6h); catalog writes purge sooner. */
+export const revalidate = 21600
 
 const TITLE = "Live Wallpaper Collections for Mac: Anime, Cars, Rain & More"
 const DESCRIPTION = `Browse ${wallpaperCollections.length} curated live wallpaper collections for Mac: Gojo, Naruto, Spider-Man, BMW, F1, rain, lofi, galaxy, and more. 4K loops for your desktop.`

@@ -2,7 +2,11 @@ import { cookies } from "next/headers"
 import { unstable_cache } from "next/cache"
 import { NextResponse } from "next/server"
 
-import { COUNTRY_COOKIE, isIndiaCountry } from "@/lib/geo/country"
+import {
+  applyCountryCookie,
+  COUNTRY_COOKIE,
+  isIndiaCountry,
+} from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 import {
   PRO_INDIA_USD_CENTS,
@@ -100,30 +104,38 @@ const cachedPricingForCountry = unstable_cache(
 
 /**
  * Localized marketing prices for client hydration (keeps HTML pages static/ISR).
- * Cache key = resolved country so Vercel CDN can share responses per bucket.
+ *
+ * `?c=XX` (the client sends its country cookie) depends on nothing but the
+ * URL, so the Vercel CDN answers it without invoking this function. The bare
+ * call resolves geo per visitor, stays private, and sets the country cookie so
+ * every later call takes the cached `?c=` path. The proxy skips this route.
  */
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const fromQuery = normalizeCountryParam(url.searchParams.get("c"))
+
+  if (fromQuery) {
+    return NextResponse.json(await cachedPricingForCountry(fromQuery), {
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+      },
+    })
+  }
+
   const cookieStore = await cookies()
-
-  // Prefer explicit `?c=`, else resolve from cookie / Vercel geo / IP / egress.
-  // Previously we only read the query + Vercel header, so localhost + missing
-  // cookie always returned USD with no local hint — even for India visitors.
-  const country =
-    fromQuery ??
-    (await resolveVisitorCountry({
-      headers: request.headers,
-      cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
-    }))
-
-  const cacheKey = country ?? "_"
-  const pricing = await cachedPricingForCountry(cacheKey)
-
-  return NextResponse.json(pricing, {
-    headers: {
-      "Cache-Control": "private, no-store",
-      Vary: "cookie, x-vercel-ip-country, accept-language",
-    },
+  const cookieCountry = cookieStore.get(COUNTRY_COOKIE)?.value
+  // Cookie / Vercel geo / IP / egress — localhost has no Vercel header, so
+  // the IP fallback is what still gives India visitors an INR hint there.
+  const country = await resolveVisitorCountry({
+    headers: request.headers,
+    cookieCountry,
   })
+
+  const response = NextResponse.json(
+    await cachedPricingForCountry(country ?? "_"),
+    { headers: { "Cache-Control": "private, no-store" } }
+  )
+  return country === cookieCountry
+    ? response
+    : applyCountryCookie(response, country)
 }
