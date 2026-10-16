@@ -6,6 +6,15 @@
  */
 export const MARKETING_CATALOG_REVALIDATE_SECONDS = 6 * 60 * 60
 
+/**
+ * `/wallpaper/[category]/[slug]` reads (the wallpaper + "similar"). Thousands
+ * of crawled detail pages at ~15 ISR write units each made 6h the project's
+ * top ISR-write line; the page only drifts on like counts, and catalog writes
+ * still purge `PUBLIC_CATALOG_CACHE_TAG` at once. Must stay the page's literal
+ * `revalidate` (604800): `unstable_cache` lowers a page's ISR window to its own.
+ */
+export const PUBLIC_WALLPAPER_DETAIL_REVALIDATE_SECONDS = 7 * 24 * 60 * 60
+
 /** CDN window for `/api/wallpapers` lists; tag purges don't reach the CDN. */
 export const MARKETING_CATALOG_API_CDN_SECONDS = 3600
 

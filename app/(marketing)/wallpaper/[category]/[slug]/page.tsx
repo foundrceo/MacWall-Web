@@ -18,8 +18,8 @@ type PageProps = {
   params: Promise<{ category: string; slug: string }>
 }
 
-/** ISR — crawl-heavy; matches MARKETING_CATALOG_REVALIDATE_SECONDS (6h). */
-export const revalidate = 21600
+/** ISR — crawl-heavy; matches PUBLIC_WALLPAPER_DETAIL_REVALIDATE_SECONDS (1 week). */
+export const revalidate = 604800
 
 /**
  * Required for the `revalidate` above to take effect: without
