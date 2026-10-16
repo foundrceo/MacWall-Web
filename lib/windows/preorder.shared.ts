@@ -21,5 +21,8 @@ export const WINDOWS_PREORDER_USD_CENTS = LICENSE_OFFERS.permanent.usdCents
 export const WINDOWS_PREORDER_INDIA_USD_CENTS =
   LICENSE_OFFERS.permanent.indiaUsdCents
 
-/** PCs covered by the key emailed at launch. */
+/**
+ * Devices (Mac or PC) covered by the key emailed at launch. One MacWall Pro
+ * license works on both platforms, counted by devices.
+ */
 export const WINDOWS_PREORDER_MAX_DEVICES = LICENSE_OFFERS.permanent.maxDevices
