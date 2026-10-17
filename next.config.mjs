@@ -16,12 +16,12 @@ const projectRoot = path.dirname(fileURLToPath(import.meta.url))
  */
 const CONTENT_SECURITY_POLICY_REPORT_ONLY = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://analytics.tiktok.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.googletagmanager.com https://us-assets.i.posthog.com https://cdn.affonso.io https://connect.facebook.net",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://analytics.tiktok.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.googletagmanager.com https://us-assets.i.posthog.com https://cdn.affonso.io https://connect.facebook.net https://static.cloudflareinsights.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   `img-src 'self' data: blob: https://${R2_CDN_HOST} https://*.r2.cloudflarestorage.com https://*.supabase.co https://analytics.tiktok.com https://t.co https://analytics.twitter.com https://www.google-analytics.com https://www.facebook.com`,
   `media-src 'self' blob: https://${R2_CDN_HOST} https://*.r2.cloudflarestorage.com https://*.supabase.co`,
-  "connect-src 'self' https://*.supabase.co https://*.r2.cloudflarestorage.com https://business-api.tiktok.com https://analytics.tiktok.com https://ads-api.x.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://us.i.posthog.com https://us-assets.i.posthog.com https://api.affonso.io https://cdn.affonso.io https://www.facebook.com https://connect.facebook.net",
+  "connect-src 'self' https://*.supabase.co https://*.r2.cloudflarestorage.com https://business-api.tiktok.com https://analytics.tiktok.com https://ads-api.x.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://us.i.posthog.com https://us-assets.i.posthog.com https://api.affonso.io https://cdn.affonso.io https://www.facebook.com https://connect.facebook.net https://cloudflareinsights.com",
   "frame-src 'self' https://www.facebook.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",

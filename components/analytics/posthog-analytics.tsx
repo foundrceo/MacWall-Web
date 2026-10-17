@@ -40,6 +40,8 @@ export function PostHogAnalytics() {
   useEffect(() => {
     let disposed = false
     let revision = 0
+    // One `$pageview` per route; consent re-syncs must not send another.
+    let pageviewSent = false
     const sync = async () => {
       const currentRevision = ++revision
       const allowed = consentAllowed() && !isPrivateAnalyticsPath(window.location.pathname)
@@ -79,6 +81,8 @@ export function PostHogAnalytics() {
         })
       }
       client.opt_in_capturing({ captureEventName: false })
+      if (pageviewSent) return
+      pageviewSent = true
       linkVisitorFromUrl(client)
       client.capture("$pageview")
     }

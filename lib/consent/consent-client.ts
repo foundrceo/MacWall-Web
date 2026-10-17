@@ -70,11 +70,17 @@ export function writeConsent(choice: ConsentChoice | null): void {
 }
 
 export function subscribeConsent(onChange: () => void): () => void {
+  // `storage` fires for every key another tab writes (PostHog persists on each
+  // capture), so listen only for the consent key, or two open tabs wake each
+  // other forever.
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === STORAGE_KEY || event.key === null) onChange()
+  }
   window.addEventListener(CHANGE_EVENT, onChange)
-  window.addEventListener("storage", onChange)
+  window.addEventListener("storage", onStorage)
   return () => {
     window.removeEventListener(CHANGE_EVENT, onChange)
-    window.removeEventListener("storage", onChange)
+    window.removeEventListener("storage", onStorage)
   }
 }
 
