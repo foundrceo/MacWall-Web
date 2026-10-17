@@ -10,10 +10,14 @@
   "placement": { "mode": "smart" },
   "observability": { "enabled": true },
   // macwall.app serves from this Worker; www redirects to the apex in
-  // next.config. preview.macwall.app stays as a test hostname.
+  // next.config. Zone routes (not custom domains) on the proxied apex/www
+  // records: Cloudflare won't replace the apex record in place, and routes
+  // switched over with no DNS gap. The records still name the old Vercel
+  // origin, which routed traffic never reaches; un-proxying them is the
+  // rollback. preview.macwall.app stays as a test hostname.
   "routes": [
-    { "pattern": "macwall.app", "custom_domain": true },
-    { "pattern": "www.macwall.app", "custom_domain": true },
+    { "pattern": "macwall.app/*", "zone_name": "macwall.app" },
+    { "pattern": "www.macwall.app/*", "zone_name": "macwall.app" },
     { "pattern": "preview.macwall.app", "custom_domain": true }
   ],
   // Replaces the `crons` that were in vercel.json (worker/crons.ts dispatches).
