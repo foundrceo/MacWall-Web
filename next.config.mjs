@@ -88,6 +88,14 @@ const nextConfig = {
         destination: `https://${R2_CDN_HOST}/assets/hero/:file.mp4`,
         permanent: true,
       },
+      // Community short link (same invite as `macwall.discordInvite` and the
+      // Mac app). A config redirect answers at the edge on Vercel and Cloudflare
+      // alike, with no route handler to run or cache.
+      {
+        source: "/discord",
+        destination: "https://discord.gg/4tq2Axvg2h",
+        permanent: true,
+      },
       {
         source: "/affilate",
         destination: "/affiliate",
