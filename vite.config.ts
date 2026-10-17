@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url"
 import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from "vite"
 import vinext from "vinext"
@@ -21,7 +22,14 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     vinext({
-      cache: { data: kvDataAdapter(), cdn: workersCacheCdnAdapter() },
+      cache: {
+        // Same KV adapter, wrapped so a failed KV write never fails a request.
+        data: {
+          ...kvDataAdapter(),
+          adapter: fileURLToPath(new URL("./worker/kv-data-cache.ts", import.meta.url)),
+        },
+        cdn: workersCacheCdnAdapter(),
+      },
       images: { optimizer: imagesOptimizer() },
     }),
     cloudflare({

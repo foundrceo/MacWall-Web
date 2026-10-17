@@ -99,7 +99,9 @@ const cachedPricingForCountry = unstable_cache(
   async (countryKey: string) =>
     resolvePricingForCountry(countryKey === "_" ? null : countryKey),
   ["marketing-pricing-by-country-v10"],
-  { revalidate: 300 }
+  // Display-only local prices (Stripe converts at checkout), so a 6h FX
+  // refresh is plenty; each refresh is a KV write per active country.
+  { revalidate: 6 * 60 * 60 }
 )
 
 /**
