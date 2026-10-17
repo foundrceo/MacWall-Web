@@ -54,6 +54,22 @@ export type CreateMacWallCheckoutInput = {
    * trigger recovery email.
    */
   intent?: "click" | "prefetch"
+  /**
+   * TikTok match signals from the buyer's browser (ad consent only). The
+   * Stripe webhook adds them to its Events API Purchase so TikTok can tie
+   * the sale to the ad click.
+   */
+  tiktok?: {
+    ttclid: string
+    ttp: string
+    ip: string
+    userAgent: string
+  } | null
+}
+
+/** Stripe metadata values cap at 500 characters. */
+function metadataValue(value: string | undefined): string {
+  return (value ?? "").trim().slice(0, 500)
 }
 
 export type CreateMacWallCheckoutResult = CreateCheckoutResult
@@ -120,6 +136,15 @@ export async function createMacWallCheckoutSession(
       ...(customerEmail ? { customer_email: customerEmail } : {}),
       ...(visitorId ? { visitor_id: visitorId } : {}),
       checkout_intent: input.intent ?? "click",
+      ...(input.tiktok
+        ? {
+            tt_ttclid: metadataValue(input.tiktok.ttclid),
+            tt_ttp: metadataValue(input.tiktok.ttp),
+            tt_ip:
+              input.tiktok.ip === "unknown" ? "" : metadataValue(input.tiktok.ip),
+            tt_ua: metadataValue(input.tiktok.userAgent),
+          }
+        : {}),
     }
 
     // Critical path: Stripe only. Localhost measured ~1.1–1.2s for this hop.

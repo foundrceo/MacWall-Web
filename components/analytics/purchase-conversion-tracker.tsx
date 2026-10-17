@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import { trackMetaPurchase } from "@/lib/analytics/meta-client"
 import { markPurchaseCompleteInSession } from "@/lib/analytics/retargeting"
+import { trackTikTokPurchase } from "@/lib/analytics/tiktok-client"
 import { macwall } from "@/lib/macwall-site"
 
 declare global {
@@ -50,7 +51,7 @@ function fireGa4Purchase(value: number, currency: string) {
   })
 }
 
-/** Fires once per verified purchase success visit — GA4 / Google Ads / Meta.
+/** Fires once per verified purchase success visit — GA4 / Google Ads / Meta / TikTok.
  * Mounted on `/activate` (after Stripe verify) and `/thank-you`.
  */
 export function PurchaseConversionTracker({
@@ -97,7 +98,16 @@ export function PurchaseConversionTracker({
     })
     markPurchaseCompleteInSession()
 
-    // TikTok Purchase fires server-side from the Stripe webhook — don't double-count.
+    // TikTok: the Stripe webhook sends the same Purchase with the same
+    // event_id, so TikTok keeps one. Only verified Stripe sessions qualify.
+    if (sessionId && verified) {
+      trackTikTokPurchase({
+        checkoutSessionId: sessionId,
+        value,
+        currency: curr,
+      })
+    }
+
     // Meta Purchase fires here (browser pixel) for Stripe checkout.
     const run = () => {
       trackMetaPurchase({ value, currency: curr })

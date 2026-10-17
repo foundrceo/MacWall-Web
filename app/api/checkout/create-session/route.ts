@@ -13,6 +13,7 @@ import {
   isAutomationUserAgent,
   isLikelyBotUserAgent,
 } from "@/lib/http/bot-user-agent"
+import { TIKTOK_CLICK_ID_COOKIE } from "@/lib/analytics/tiktok-shared"
 import { AFFONSO_REFERRAL_COOKIE } from "@/lib/macwall-affiliate"
 import {
   CHECKOUT_LEAD_EMAIL_COOKIE,
@@ -113,6 +114,20 @@ async function startCheckout(
     cookieStore.get(CHECKOUT_VISITOR_ID_COOKIE)?.value ||
     null
 
+  // Both cookies exist only when ad consent allowed the pixel, so a
+  // non-consenting visitor sends no TikTok match data.
+  const ttclid = cookieStore.get(TIKTOK_CLICK_ID_COOKIE)?.value?.trim() || ""
+  const ttp = cookieStore.get("_ttp")?.value?.trim() || ""
+  const tiktok =
+    ttclid || ttp
+      ? {
+          ttclid,
+          ttp,
+          ip: clientIpFromRequest(request),
+          userAgent: request.headers.get("user-agent") || "",
+        }
+      : null
+
   return createMacWallCheckoutSession({
     country,
     offerSlug,
@@ -124,6 +139,7 @@ async function startCheckout(
     customerEmail: email,
     visitorId,
     intent,
+    tiktok,
   })
 }
 
