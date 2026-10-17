@@ -7,7 +7,6 @@ import {
   useState,
   type SyntheticEvent,
 } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { PlayIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -20,7 +19,7 @@ import {
   GALLERY_TEXT_PRIMARY_CLASS,
   GALLERY_TEXT_TERTIARY_CLASS,
 } from "@/lib/public-catalog/chrome"
-import { catalogImageLoader } from "@/lib/macwall-catalog-urls"
+import { CatalogImage } from "@/components/wallpaper-gallery/catalog-image"
 import { cn } from "@/lib/utils"
 
 const PLAY_ICON_SIZE = 20
@@ -93,17 +92,14 @@ function WallpaperCardMedia({
           GALLERY_MEDIA_RADIUS_CLASS
         )}
       >
-        <Image
+        <CatalogImage
           src={wallpaper.thumbUrl}
           alt={`${wallpaper.name}, a ${wallpaper.category} live wallpaper for Mac`}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover [-webkit-user-drag:none]"
-          loading={priority ? "eager" : "lazy"}
-          fetchPriority={priority ? "high" : undefined}
+          priority={priority}
           draggable={false}
-          // Sized by Cloudflare on the R2 CDN, not Vercel Image Optimization.
-          loader={catalogImageLoader}
         />
 
         {videoSrc && !reduceMotion ? (

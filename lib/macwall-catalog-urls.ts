@@ -104,19 +104,6 @@ export function catalogImageUrlAtWidth(
   return `${base}/cdn-cgi/image/width=${w},quality=${q},format=auto,fit=scale-down,onerror=redirect${path}`
 }
 
-/** `next/image` loader for catalog thumbs — responsive srcset from the CDN. */
-export function catalogImageLoader({
-  src,
-  width,
-  quality,
-}: {
-  src: string
-  width: number
-  quality?: number
-}): string {
-  return catalogImageUrlAtWidth(src, width, quality)
-}
-
 /**
  * Marketing gallery poster — full thumb URL on Cloudflare R2 CDN.
  * Call sites must use `unoptimized` (or plain `<img>`) so Vercel Image
