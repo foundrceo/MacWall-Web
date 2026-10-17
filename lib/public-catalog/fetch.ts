@@ -14,7 +14,6 @@ import {
 import {
   MARKETING_CATALOG_REVALIDATE_SECONDS,
   PUBLIC_CATALOG_CACHE_TAG,
-  PUBLIC_WALLPAPER_DETAIL_REVALIDATE_SECONDS,
 } from "@/lib/marketing-cache"
 import type {
   PublicCatalogSort,
@@ -285,21 +284,19 @@ async function fetchPublicWallpaperByIdUncached(
   return row ? mapDetailRow(row) : null
 }
 
-const getCachedPublicWallpaperById = unstable_cache(
-  async (id: string) => fetchPublicWallpaperByIdUncached(id),
-  ["public-wallpaper-by-id-v4"],
-  {
-    revalidate: PUBLIC_WALLPAPER_DETAIL_REVALIDATE_SECONDS,
-    tags: [PUBLIC_CATALOG_CACHE_TAG],
-  }
-)
-
-/** Dedupes generateMetadata + page render within one request. */
+/**
+ * Detail pages read their wallpaper (and "similar") from the one cached
+ * catalog index instead of a data-cache entry per wallpaper: crawlers open
+ * every detail page, and per-id entries cost two KV writes per wallpaper.
+ */
 export const getPublicWallpaperById = cache(async (wallpaperId: string) => {
   const id = wallpaperId.trim()
   if (!id) return null
   if (REMOVED_PUBLIC_WALLPAPER_IDS.has(id)) return null
-  return getCachedPublicWallpaperById(id)
+  const indexed = (await listPublicCatalogIndex()).find((wallpaper) => wallpaper.id === id)
+  // Not in the index (unknown id, or published since it was cached): read the
+  // row directly, without creating a cache entry for arbitrary ids.
+  return indexed ?? fetchPublicWallpaperByIdUncached(id)
 })
 
 /** Resolve a detail-page slug (`name-uuid` or bare id) to a wallpaper. */
@@ -311,60 +308,16 @@ export const getPublicWallpaperByDetailSlug = cache(
   }
 )
 
-async function fetchSimilarPublicWallpapersUncached(
-  wallpaper: PublicWallpaper,
-  limit = 6
-): Promise<PublicWallpaper[]> {
-  const origin = requireOrigin()
-  const params = new URLSearchParams({
-    select: LIST_SELECT_COLUMNS,
-    category: `eq.${wallpaper.category}`,
-    id: `not.in.(${[wallpaper.id, ...REMOVED_PUBLIC_WALLPAPER_IDS].join(",")})`,
-    order: "like_count.desc,created_at.desc",
-    limit: String(Math.min(24, Math.max(1, limit))),
-  })
-
-  const res = await fetch(`${origin}/rest/v1/wallpapers?${params}`, {
-    headers: catalogHeaders(),
-    cache: "no-store",
-    signal: AbortSignal.timeout(8000),
-  })
-
-  if (!res.ok) {
-    throw new Error(`Similar wallpapers fetch failed: HTTP ${res.status}`)
-  }
-
-  const rows = (await res.json()) as WallpaperListRow[]
-  return rows.map(mapListRow)
-}
-
-const getCachedSimilarPublicWallpapers = unstable_cache(
-  async (wallpaperId: string, category: string, limit: number) => {
-    return fetchSimilarPublicWallpapersUncached(
-      {
-        id: wallpaperId,
-        category,
-      } as PublicWallpaper,
-      limit
-    )
-  },
-  ["public-wallpaper-similar-v2"],
-  {
-    revalidate: PUBLIC_WALLPAPER_DETAIL_REVALIDATE_SECONDS,
-    tags: [PUBLIC_CATALOG_CACHE_TAG],
-  }
-)
-
+/** Same category, most-liked first (the index's order). */
 export async function listSimilarPublicWallpapers(
   wallpaper: PublicWallpaper,
   limit = 6
 ): Promise<PublicWallpaper[]> {
   const safeLimit = Number.isFinite(limit) ? Math.min(24, Math.max(1, Math.floor(limit))) : 6
-  return getCachedSimilarPublicWallpapers(
-    wallpaper.id,
-    wallpaper.category,
-    safeLimit
-  )
+  const index = await listPublicCatalogIndex()
+  return index
+    .filter((candidate) => candidate.category === wallpaper.category && candidate.id !== wallpaper.id)
+    .slice(0, safeLimit)
 }
 
 type SitemapWallpaperRow = {
@@ -468,20 +421,14 @@ export async function countPublicWallpapers(
   return result.total
 }
 
-type CollectionIndexRow = WallpaperListRow & Pick<WallpaperRow, "tags">
-
-const COLLECTION_INDEX_SELECT_COLUMNS = `${LIST_SELECT_COLUMNS},tags`
-
-async function fetchCollectionIndexRowsUncached(): Promise<
-  CollectionIndexRow[]
-> {
+async function fetchCatalogIndexRowsUncached(): Promise<WallpaperDetailRow[]> {
   const origin = requireOrigin()
-  const rows: CollectionIndexRow[] = []
+  const rows: WallpaperDetailRow[] = []
   const seen = new Set<string>()
 
   for (let page = 1; page <= SITEMAP_MAX_PAGES; page += 1) {
     const params = new URLSearchParams({
-      select: COLLECTION_INDEX_SELECT_COLUMNS,
+      select: DETAIL_SELECT_COLUMNS,
       id: `not.in.(${[...REMOVED_PUBLIC_WALLPAPER_IDS].join(",")})`,
       order: "like_count.desc,created_at.desc",
       limit: String(SITEMAP_PAGE_SIZE),
@@ -498,7 +445,7 @@ async function fetchCollectionIndexRowsUncached(): Promise<
       throw new Error(`Collection catalog list failed: HTTP ${res.status}`)
     }
 
-    const batch = (await res.json()) as CollectionIndexRow[]
+    const batch = (await res.json()) as WallpaperDetailRow[]
     for (const row of batch) {
       if (seen.has(row.id) || REMOVED_PUBLIC_WALLPAPER_IDS.has(row.id)) continue
       seen.add(row.id)
@@ -511,9 +458,9 @@ async function fetchCollectionIndexRowsUncached(): Promise<
   return rows
 }
 
-const getCachedCollectionIndexRows = unstable_cache(
-  async () => fetchCollectionIndexRowsUncached(),
-  ["public-wallpaper-collection-index-v1"],
+const getCachedCatalogIndexRows = unstable_cache(
+  async () => fetchCatalogIndexRowsUncached(),
+  ["public-wallpaper-catalog-index-v1"],
   {
     revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
     tags: [PUBLIC_CATALOG_CACHE_TAG],
@@ -521,13 +468,14 @@ const getCachedCollectionIndexRows = unstable_cache(
 )
 
 /**
- * Every public wallpaper with its tags, most-liked first.
- * One cached read shared by collection pages, the hub, the sitemap, and
- * detail-page collection links.
+ * Every public wallpaper with full detail fields, most-liked first.
+ * One cached read shared by detail pages, "similar", collection pages, the
+ * hub, and detail-page collection links.
  */
-export const listPublicWallpapersForCollections = cache(
-  async (): Promise<PublicWallpaper[]> => {
-    const rows = await getCachedCollectionIndexRows()
-    return rows.map((row) => ({ ...mapListRow(row), tags: row.tags ?? [] }))
-  }
-)
+const listPublicCatalogIndex = cache(async (): Promise<PublicWallpaper[]> => {
+  const rows = await getCachedCatalogIndexRows()
+  return rows.map(mapDetailRow)
+})
+
+/** Every public wallpaper with its tags, most-liked first. */
+export const listPublicWallpapersForCollections = listPublicCatalogIndex

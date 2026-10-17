@@ -1,4 +1,3 @@
-import { unstable_cache } from "next/cache"
 import { NextResponse, type NextRequest } from "next/server"
 
 import { macwallInstallerDmgApiUrl } from "@/lib/macwall-installer-url"
@@ -43,8 +42,30 @@ function parseMetadata(raw: string): ReleaseMetadata | null {
   }
 }
 
-/** Share the release documents across every device instead of repeating R2 reads. */
-const getReleaseDocuments = unstable_cache(async () => {
+type ReleaseDocuments = {
+  latest: ReleaseMetadata
+  rollout: ReturnType<typeof parseRolloutState>
+  stable: ReleaseMetadata | null
+}
+
+const RELEASE_DOCUMENTS_TTL_MS = 120_000
+let releaseDocuments: { value: ReleaseDocuments; expiresAt: number } | null = null
+
+/**
+ * Share the release documents across requests in this isolate for 2 minutes.
+ * Kept out of the KV data cache: every Mac polls with its own `did`, so
+ * nothing is shared at the CDN, and a 2-minute KV refresh is ~720 writes/day.
+ * Caches the value, not the promise: Workers can't await I/O started by
+ * another request.
+ */
+async function getReleaseDocuments(): Promise<ReleaseDocuments> {
+  if (releaseDocuments && releaseDocuments.expiresAt > Date.now()) return releaseDocuments.value
+  const value = await readReleaseDocuments()
+  releaseDocuments = { value, expiresAt: Date.now() + RELEASE_DOCUMENTS_TTL_MS }
+  return value
+}
+
+async function readReleaseDocuments(): Promise<ReleaseDocuments> {
   const [latestRaw, rolloutRaw, stableRaw] = await Promise.all([
     r2InstallersGetText(VERSION_KEY),
     r2InstallersGetText(ROLLOUT_KEY).catch(() => null),
@@ -57,10 +78,10 @@ const getReleaseDocuments = unstable_cache(async () => {
     rollout: rolloutRaw ? parseRolloutState(rolloutRaw) : null,
     stable: stableRaw ? parseMetadata(stableRaw) : null,
   }
-}, ["installer-release-documents-v1"], { revalidate: 120 })
+}
 
 function resolveServedMetadata(
-  documents: Awaited<ReturnType<typeof getReleaseDocuments>>,
+  documents: ReleaseDocuments,
   request: NextRequest
 ): ReleaseMetadata {
   const { latest, rollout, stable } = documents
