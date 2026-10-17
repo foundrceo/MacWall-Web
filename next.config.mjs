@@ -88,6 +88,14 @@ const nextConfig = {
         destination: `https://${R2_CDN_HOST}/assets/hero/:file.mp4`,
         permanent: true,
       },
+      // www → apex (Vercel did this in its domain settings; on Cloudflare the
+      // Worker serves both hostnames, so the app redirects).
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.macwall.app" }],
+        destination: "https://macwall.app/:path*",
+        permanent: true,
+      },
       // Community short link (same invite as `macwall.discordInvite` and the
       // Mac app). A config redirect answers at the edge on Vercel and Cloudflare
       // alike, with no route handler to run or cache.
