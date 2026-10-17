@@ -8,6 +8,8 @@ import {
 import { MACWALL_DEFAULT_INSTALLER_REDIRECT_URL } from "@/lib/macwall-installer-url"
 
 export const runtime = "nodejs"
+/** Per-visitor redirect + download analytics; never cache (vinext's page cache would follow the redirect). */
+export const dynamic = "force-dynamic"
 
 async function visitorFingerprint(request: Request): Promise<string> {
   const ip =

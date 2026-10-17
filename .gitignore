@@ -103,3 +103,9 @@ supabase/.branches/
 
 # Local-only exports with customer data (never commit)
 /private/
+/dist/
+.vinext/
+.cloudflare/
+
+# Cloudflare local dev state (miniflare)
+.wrangler/

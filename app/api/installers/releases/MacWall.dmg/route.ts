@@ -6,6 +6,8 @@ import {
 } from "@/lib/storage/r2-installers"
 
 export const runtime = "nodejs"
+/** A redirect to a presigned URL: keep it out of the page cache, which would follow it. */
+export const dynamic = "force-dynamic"
 
 const DMG_KEY = "releases/MacWall.dmg"
 const PRESIGN_SECONDS = 60 * 60

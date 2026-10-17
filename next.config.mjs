@@ -231,10 +231,12 @@ const nextConfig = {
        * Markdown twin of every content page: `/blog/example.md` is served by
        * `app/md/[...path]/route.ts`. A dynamic App Router segment cannot carry
        * a file extension, so the public `.md` URL is a rewrite.
+       * `:path+` / `:path*` (not a `(.+)\\.md` regex) so Next.js and vinext
+       * (Cloudflare) both match it the same way.
        */
       {
-        source: "/:path(.+)\\.md",
-        destination: "/md/:path",
+        source: "/:path+.md",
+        destination: "/md/:path*",
       },
     ]
   },
@@ -292,7 +294,9 @@ const nextConfig = {
       ...filteredGalleryNoindex,
       ...publicAssetCaching,
       {
-        source: "/:path*",
+        // `/(.*)`, not `/:path*`: vinext (Cloudflare) doesn't match the bare
+        // `/` with `/:path*`, which left the homepage without these headers.
+        source: "/(.*)",
         headers: [
           { key: "X-DNS-Prefetch-Control", value: "on" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
