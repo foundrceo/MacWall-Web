@@ -34,7 +34,7 @@ import type { Metadata, Viewport } from "next"
 import Script from "next/script"
 import { averiaSerif, geistPixelSquare, geistSans } from "@/app/fonts"
 import { PostHogAnalytics } from "@/components/analytics/posthog-analytics"
-import { GoogleAnalytics } from "@next/third-parties/google"
+import { GoogleAnalytics } from "@/components/analytics/google-analytics"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 
