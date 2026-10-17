@@ -9,6 +9,9 @@
   // Run next to Supabase (the Vercel project was pinned to sin1 for this).
   "placement": { "mode": "smart" },
   "observability": { "enabled": true },
+  // Test hostname on the real zone: page caching (Workers Cache) does not run
+  // on workers.dev. macwall.app + www join here at cutover.
+  "routes": [{ "pattern": "preview.macwall.app", "custom_domain": true }],
   "assets": {
     "directory": "dist/client",
     "html_handling": "none",
