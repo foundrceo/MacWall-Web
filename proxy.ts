@@ -12,8 +12,8 @@ import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 
 /**
  * Next.js Node proxy — every matched request is a billed invocation, so keep
- * this matcher tiny: the TikTok rewrite on `/`, the country cookie on checkout,
- * and admin auth. Marketing pages never get a Set-Cookie here: a page response
+ * this matcher tiny: the country cookie on checkout and admin auth. TikTok ad
+ * clicks land on the full homepage like everyone else. Marketing pages never get a Set-Cookie here: a page response
  * that sets a cookie can't be cached (vinext on Cloudflare renders it on every
  * visit), and the country cookie is set by `/api/pricing` from the client.
  */
@@ -30,21 +30,6 @@ export async function proxy(request: NextRequest) {
       status: 404,
       headers: { "Cache-Control": "public, max-age=86400" },
     })
-  }
-
-  // TikTok ad clicks land on `/`; show them the TikTok landing page. Cookie-
-  // free, so the homepage stays a cached page for everyone else.
-  if (pathname === "/") {
-    const ttclid = request.nextUrl.searchParams.get("ttclid")
-    const utmSource = request.nextUrl.searchParams
-      .get("utm_source")
-      ?.toLowerCase()
-    if (ttclid || utmSource === "tiktok" || utmSource === "tt") {
-      const url = request.nextUrl.clone()
-      url.pathname = "/tiktok"
-      return NextResponse.rewrite(url)
-    }
-    return NextResponse.next()
   }
 
   const isAdminSurface =
@@ -114,7 +99,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/",
     "/checkout",
     "/admin",
     "/admin/:path*",
