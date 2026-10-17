@@ -9,9 +9,15 @@
   // Run next to Supabase (the Vercel project was pinned to sin1 for this).
   "placement": { "mode": "smart" },
   "observability": { "enabled": true },
-  // Test hostname on the real zone: page caching (Workers Cache) does not run
-  // on workers.dev. macwall.app + www join here at cutover.
-  "routes": [{ "pattern": "preview.macwall.app", "custom_domain": true }],
+  // macwall.app serves from this Worker; www redirects to the apex in
+  // next.config. preview.macwall.app stays as a test hostname.
+  "routes": [
+    { "pattern": "macwall.app", "custom_domain": true },
+    { "pattern": "www.macwall.app", "custom_domain": true },
+    { "pattern": "preview.macwall.app", "custom_domain": true }
+  ],
+  // Replaces the `crons` that were in vercel.json (worker/crons.ts dispatches).
+  "triggers": { "crons": ["*/5 * * * *", "*/10 * * * *", "7,22,37,52 * * * *"] },
   "assets": {
     "directory": "dist/client",
     "html_handling": "none",
@@ -24,7 +30,4 @@
   "images": { "binding": "IMAGES" },
   // unstable_cache / data cache (vinext kvDataAdapter); provisioned on deploy.
   "kv_namespaces": [{ "binding": "VINEXT_KV_CACHE" }]
-  // Cron Triggers (worker/crons.ts) are added in the same change that removes
-  // `crons` from vercel.json — running both would send duplicate emails:
-  // "triggers": { "crons": ["*/5 * * * *", "*/10 * * * *", "7,22,37,52 * * * *"] }
 }
