@@ -19,8 +19,8 @@
     "test": "node --test tests/*.test.mjs",
     "dev:cf": "vite dev --port 3001",
     "build:cf": "node scripts/generate-changelog.mjs && node scripts/generate-blog-thumbs.mjs && vite build",
-    "preview:cf": "npm run build:cf && vite preview",
-    "deploy:cf": "npm run build:cf && vinext-cloudflare deploy --skip-build"
+    "preview:cf": "npm run build:cf && wrangler dev --config dist/server/wrangler.json",
+    "deploy:cf": "node scripts/generate-changelog.mjs && node scripts/generate-blog-thumbs.mjs && vinext-cloudflare deploy --config dist/server/wrangler.json"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -65,7 +65,6 @@
     "@vinext/cloudflare": "^1.1.1",
     "@vitejs/plugin-react": "^6.1.2",
     "@vitejs/plugin-rsc": "^0.5.38",
-    "cf": "^1.0.0-beta.18",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.3.8",
     "png-to-ico": "^3.0.1",
@@ -79,7 +78,8 @@
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3",
     "vinext": "^1.2.1",
-    "vite": "^8.3.4"
+    "vite": "^8.3.4",
+    "wrangler": "^4.151.1"
   },
   "overrides": {
     "postcss": "$postcss",

@@ -7,8 +7,9 @@ import { workersCacheCdnAdapter } from "@vinext/cloudflare/cache/workers-cache-c
 import { imagesOptimizer } from "@vinext/cloudflare/images/images-optimizer"
 
 /**
- * Cloudflare Workers build (vinext). `next build` still works for Vercel while
- * both deployments exist.
+ * Cloudflare Workers build (vinext); the Worker itself is configured in
+ * wrangler.jsonc. `next build` still works for Vercel while both deployments
+ * exist.
  * - Data cache (`unstable_cache`) → Workers KV; page ISR → Workers Cache with
  *   tag purges, so `revalidateTag` still refreshes catalog pages.
  * - `next/image` → Cloudflare Images (the Vercel optimizer is gone).
@@ -24,9 +25,6 @@ export default defineConfig({
       images: { optimizer: imagesOptimizer() },
     }),
     cloudflare({
-      // Read cloudflare.config.ts (bindings, crons, Workers Cache) — the same
-      // file `vinext-cloudflare deploy` (the `cf` CLI) deploys from.
-      experimental: { newConfig: true },
       viteEnvironment: {
         name: "rsc",
         childEnvironments: ["ssr"],

@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Cloudflare Workers deployment of macwall.app (vinext). `next build` for
+  // Vercel is unchanged, so both can run until DNS moves.
+  "name": "macwall",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-10-17",
+  "compatibility_flags": ["nodejs_compat"],
+  // Run next to Supabase (the Vercel project was pinned to sin1 for this).
+  "placement": { "mode": "smart" },
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": "dist/client",
+    "html_handling": "none",
+    "not_found_handling": "none",
+    "binding": "ASSETS",
+    "run_worker_first": ["/*", "!/_next/static/*", "!/*/_next/static/*"]
+  },
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
+  // next/image → Cloudflare Images.
+  "images": { "binding": "IMAGES" },
+  // unstable_cache / data cache (vinext kvDataAdapter); provisioned on deploy.
+  "kv_namespaces": [{ "binding": "VINEXT_KV_CACHE" }]
+  // Cron Triggers (worker/crons.ts) are added in the same change that removes
+  // `crons` from vercel.json — running both would send duplicate emails:
+  // "triggers": { "crons": ["*/5 * * * *", "*/10 * * * *", "7,22,37,52 * * * *"] }
+}
