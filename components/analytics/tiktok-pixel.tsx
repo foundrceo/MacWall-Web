@@ -7,7 +7,7 @@ export function TikTokPixel({ pixelId }: Readonly<{ pixelId: string }>) {
   return (
     <Script
       id="tiktok-pixel"
-      strategy="lazyOnload"
+      strategy="afterInteractive"
       dangerouslySetInnerHTML={{
         __html: `
 !function (w, d, t) {

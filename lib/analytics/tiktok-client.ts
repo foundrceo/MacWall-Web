@@ -3,16 +3,28 @@
 import { getAnalyticsSessionId } from "@/lib/analytics/client"
 import {
   macwallProProperties,
+  TIKTOK_CLICK_ID_COOKIE,
+  TIKTOK_CLICK_ID_MAX_AGE_SEC,
+  tiktokPurchaseEventId,
   type TikTokContent,
   type TikTokTrackEvent,
 } from "@/lib/analytics/tiktok-shared"
+import { adPixelState } from "@/lib/consent/consent-client"
+
+/**
+ * The base snippet (`TikTokPixel`) turns `window.ttq` into an array with
+ * queueing methods. Until it runs we push the same `[method, ...args]`
+ * entries onto a plain array, which the snippet keeps and the SDK replays,
+ * so events fired on first render are not lost.
+ */
+type TikTokQueue = unknown[] & {
+  track?: (...args: unknown[]) => void
+  identify?: (...args: unknown[]) => void
+}
 
 declare global {
   interface Window {
-    ttq?: {
-      track: (...args: unknown[]) => void
-      identify: (...args: unknown[]) => void
-    }
+    ttq?: TikTokQueue
   }
 }
 
@@ -40,10 +52,16 @@ async function sha256Hex(value: string): Promise<string> {
     .join("")
 }
 
-function isTikTokAvailable(): boolean {
-  return (
-    typeof window !== "undefined" && typeof window.ttq?.track === "function"
-  )
+/** Same rule as `AdPixelsGate`: no pixel and no Events API relay without it. */
+function tiktokAllowed(): boolean {
+  return typeof window !== "undefined" && adPixelState() === "allowed"
+}
+
+function callTikTok(method: "track" | "identify", ...args: unknown[]): void {
+  const ttq = (window.ttq ??= [] as unknown as TikTokQueue)
+  const fn = ttq[method]
+  if (typeof fn === "function") fn.apply(ttq, args)
+  else ttq.push([method, ...args])
 }
 
 function createEventId(): string {
@@ -53,10 +71,33 @@ function createEventId(): string {
   return `evt_${Date.now()}_${Math.random().toString(36).slice(2)}`
 }
 
-function readTtpCookie(): string | undefined {
+function readCookie(name: string): string | undefined {
   if (typeof document === "undefined") return undefined
-  const match = document.cookie.match(/(?:^|;\s*)_ttp=([^;]+)/)
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`))
   return match?.[1] ? decodeURIComponent(match[1]) : undefined
+}
+
+function readStoredTtclid(): string | undefined {
+  try {
+    return (
+      window.sessionStorage.getItem(TTCLID_STORAGE_KEY)?.trim() ||
+      readCookie(TIKTOK_CLICK_ID_COOKIE)
+    )
+  } catch {
+    return readCookie(TIKTOK_CLICK_ID_COOKIE)
+  }
+}
+
+/**
+ * First-party cookie so checkout (server) can copy the click id into Stripe
+ * metadata for the webhook's Purchase event. Written only with ad consent.
+ */
+export function syncTikTokClickIdCookie(): void {
+  if (!tiktokAllowed()) return
+  const ttclid = readStoredTtclid()
+  if (!ttclid || readCookie(TIKTOK_CLICK_ID_COOKIE) === ttclid) return
+  const secure = window.location.protocol === "https:" ? "; Secure" : ""
+  document.cookie = `${TIKTOK_CLICK_ID_COOKIE}=${encodeURIComponent(ttclid)}; Path=/; Max-Age=${TIKTOK_CLICK_ID_MAX_AGE_SEC}; SameSite=Lax${secure}`
 }
 
 /** Persist TikTok click id from ad landing URLs for Events API matching. */
@@ -66,32 +107,21 @@ export function captureTikTokClickIdFromUrl(): void {
   const ttclid = new URLSearchParams(window.location.search)
     .get("ttclid")
     ?.trim()
-  if (!ttclid) return
-
-  try {
-    window.sessionStorage.setItem(TTCLID_STORAGE_KEY, ttclid)
-  } catch {
-    // ignore storage failures
+  if (ttclid) {
+    try {
+      window.sessionStorage.setItem(TTCLID_STORAGE_KEY, ttclid)
+    } catch {
+      // ignore storage failures
+    }
   }
-}
-
-function readStoredTtclid(): string | undefined {
-  if (typeof window === "undefined") return undefined
-
-  try {
-    return (
-      window.sessionStorage.getItem(TTCLID_STORAGE_KEY)?.trim() || undefined
-    )
-  } catch {
-    return undefined
-  }
+  syncTikTokClickIdCookie()
 }
 
 /** Hash PII client-side, then call `ttq.identify` before conversion events. */
 export async function identifyTikTokUser(
   input: TikTokIdentifyInput = {}
 ): Promise<void> {
-  if (typeof window.ttq?.identify !== "function") return
+  if (!tiktokAllowed()) return
 
   const payload: Record<string, string> = {}
 
@@ -107,7 +137,7 @@ export async function identifyTikTokUser(
 
   if (Object.keys(payload).length === 0) return
 
-  window.ttq.identify(payload)
+  callTikTok("identify", payload)
 }
 
 export async function identifyTikTokSessionUser(
@@ -120,15 +150,6 @@ export async function identifyTikTokSessionUser(
     ...extra,
     external_id: sessionId,
   })
-}
-
-function trackTikTokPixel(
-  event: TikTokTrackEvent,
-  params: Record<string, unknown>,
-  eventId: string
-): void {
-  if (!isTikTokAvailable()) return
-  window.ttq!.track(event, params, { event_id: eventId })
 }
 
 function relayTikTokServerEvent(
@@ -148,7 +169,7 @@ function relayTikTokServerEvent(
     email: options?.email,
     phone: options?.phone,
     ttclid: readStoredTtclid(),
-    ttp: readTtpCookie(),
+    ttp: readCookie("_ttp"),
     searchString: options?.searchString,
   })
 
@@ -166,7 +187,8 @@ function relayTikTokServerEvent(
   })
 }
 
-async function dispatchTikTokEvent(
+/** Pixel + Events API with one shared `event_id`, so TikTok keeps one copy. */
+function dispatchTikTokEvent(
   event: TikTokTrackEvent,
   options?: {
     overrides?: Partial<TikTokContent>
@@ -174,7 +196,10 @@ async function dispatchTikTokEvent(
     phone?: string
     searchString?: string
   }
-): Promise<void> {
+): void {
+  if (!tiktokAllowed()) return
+  syncTikTokClickIdCookie()
+
   const eventId = createEventId()
   const params: Record<string, unknown> = {
     ...macwallProProperties(options?.overrides),
@@ -184,7 +209,7 @@ async function dispatchTikTokEvent(
     params.query = options.searchString
   }
 
-  trackTikTokPixel(event, params, eventId)
+  callTikTok("track", event, params, { event_id: eventId })
   relayTikTokServerEvent(event, eventId, {
     email: options?.email,
     phone: options?.phone,
@@ -195,82 +220,58 @@ async function dispatchTikTokEvent(
 export function trackTikTokViewContent(
   overrides?: Partial<TikTokContent>
 ): void {
-  void dispatchTikTokEvent("ViewContent", { overrides })
-}
-
-export function trackTikTokAddToWishlist(
-  overrides?: Partial<TikTokContent>
-): void {
-  void dispatchTikTokEvent("AddToWishlist", { overrides })
+  dispatchTikTokEvent("ViewContent", { overrides })
 }
 
 export function trackTikTokSearch(
   searchString: string,
   overrides?: Partial<TikTokContent>
 ): void {
-  void dispatchTikTokEvent("Search", { overrides, searchString })
-}
-
-export function trackTikTokAddPaymentInfo(
-  overrides?: Partial<TikTokContent>
-): void {
-  void dispatchTikTokEvent("AddPaymentInfo", { overrides })
+  dispatchTikTokEvent("Search", { overrides, searchString })
 }
 
 export function trackTikTokAddToCart(overrides?: Partial<TikTokContent>): void {
-  void dispatchTikTokEvent("AddToCart", { overrides })
+  dispatchTikTokEvent("AddToCart", { overrides })
 }
 
 export function trackTikTokInitiateCheckout(
   overrides?: Partial<TikTokContent>
 ): void {
-  void dispatchTikTokEvent("InitiateCheckout", { overrides })
+  dispatchTikTokEvent("InitiateCheckout", { overrides })
 }
 
-export function trackTikTokPlaceAnOrder(
-  overrides?: Partial<TikTokContent>
-): void {
-  void dispatchTikTokEvent("PlaceAnOrder", { overrides })
-}
-
-export function trackTikTokCompleteRegistration(
-  overrides?: Partial<TikTokContent>
-): void {
-  void dispatchTikTokEvent("CompleteRegistration", { overrides })
-}
-
-export function trackTikTokPurchase(overrides?: Partial<TikTokContent>): void {
-  void dispatchTikTokEvent("Purchase", { overrides })
-}
-
-export function trackTikTokCompletePayment(
-  overrides?: Partial<TikTokContent>
-): void {
-  void dispatchTikTokEvent("CompletePayment", { overrides })
-}
-
+/**
+ * Fires synchronously: the click navigates to Stripe right away, so an
+ * awaited hash first would lose the event. Identify follows for later events.
+ */
 export async function trackTikTokInitiateCheckoutWithIdentify(
   identify?: TikTokIdentifyInput
 ): Promise<void> {
-  await identifyTikTokSessionUser(identify)
   trackTikTokInitiateCheckout()
-}
-
-export async function trackTikTokPurchaseWithIdentify(
-  identify?: TikTokIdentifyInput
-): Promise<void> {
   await identifyTikTokSessionUser(identify)
-  await dispatchTikTokEvent("Purchase", { email: identify?.email })
-  await dispatchTikTokEvent("CompletePayment", { email: identify?.email })
-  await dispatchTikTokEvent("PlaceAnOrder", { email: identify?.email })
 }
 
-export function readCheckoutEmailFromSearch(
-  searchParams: URLSearchParams
-): string | undefined {
-  for (const key of ["email", "customer_email", "user_email"]) {
-    const value = searchParams.get(key)?.trim()
-    if (value?.includes("@")) return value
-  }
-  return undefined
+/**
+ * Browser half of the Purchase. The Stripe webhook sends the same event with
+ * the same `event_id` (from the Checkout Session id) via the Events API, so
+ * TikTok dedupes them; this half carries the `_ttp` cookie and click context
+ * the webhook may not have. Pixel only, no relay.
+ */
+export function trackTikTokPurchase(input: {
+  checkoutSessionId: string
+  value: number
+  currency: string
+}): void {
+  if (!tiktokAllowed()) return
+  callTikTok(
+    "track",
+    "Purchase",
+    {
+      ...macwallProProperties({ price: input.value }),
+      value: input.value,
+      currency: input.currency,
+    },
+    { event_id: tiktokPurchaseEventId(input.checkoutSessionId) }
+  )
+  void identifyTikTokSessionUser()
 }

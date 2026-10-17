@@ -41,17 +41,30 @@ async function sha256Hex(value: string): Promise<string> {
     .join("")
 }
 
+/**
+ * One Events API `Purchase` per paid checkout. `event_id` is
+ * `<checkout session id>_Purchase`, the same id the browser pixel uses on
+ * /activate (lib/analytics/tiktok-shared.ts), so TikTok keeps one copy.
+ * The `tt_*` metadata (click id, `_ttp` cookie, IP, user agent) is what lets
+ * TikTok tie the sale to the ad click; email alone rarely matches.
+ * CompletePayment is TikTok's legacy name for Purchase; sending both (or
+ * PlaceAnOrder too) counted one sale up to three times.
+ */
 async function sendTikTokPurchase(args: {
   email: string
-  eventIdSeed: string
+  checkoutSessionId: string
   /** Major units in `currency` (e.g. 441.5 for ₹441.50, 12.99 for $12.99). */
   amount?: number | null
   currency?: string | null
+  metadata?: Record<string, string> | null
 }): Promise<void> {
   const accessToken = Deno.env.get("TIKTOK_EVENTS_API_ACCESS_TOKEN")?.trim()
   const pixelCode =
     Deno.env.get("TIKTOK_PIXEL_ID")?.trim() || TIKTOK_PIXEL_ID_FALLBACK
-  if (!accessToken || !pixelCode) return
+  if (!accessToken || !pixelCode) {
+    console.warn("[stripe-license-email] tiktok skipped: TIKTOK_EVENTS_API_ACCESS_TOKEN not set")
+    return
+  }
 
   const parsedValue = Number.parseFloat(
     Deno.env.get("TIKTOK_PURCHASE_VALUE")?.trim() || "12.99"
@@ -70,38 +83,45 @@ async function sendTikTokPurchase(args: {
     Deno.env.get("LICENSE_EMAIL_SITE_URL")?.trim() || "https://macwall.app"
   ).replace(/\/+$/, "")
 
+  const meta = args.metadata ?? {}
+  const ttclid = meta.tt_ttclid?.trim()
   const user: Record<string, string> = {
     email: await sha256Hex(args.email.trim().toLowerCase()),
   }
+  if (ttclid) user.ttclid = ttclid
+  if (meta.tt_ttp?.trim()) user.ttp = meta.tt_ttp.trim()
+  if (meta.tt_ip?.trim()) user.ip = meta.tt_ip.trim()
+  if (meta.tt_ua?.trim()) user.user_agent = meta.tt_ua.trim()
 
-  const properties = {
-    contents: [
-      {
-        content_id: "macwall-pro",
-        content_type: "product",
-        content_name: "MacWall Pro",
-        price: value,
-        quantity: 1,
-      },
-    ],
-    currency,
-    value,
-  }
-
-  const eventTime = Math.floor(Date.now() / 1000)
-  const data = ["CompletePayment", "Purchase", "PlaceAnOrder"].map((event) => ({
-    event,
-    event_time: eventTime,
-    event_id: `${args.eventIdSeed}_${event}`,
-    user,
-    properties,
-    page: { url: `${siteUrl}/thank-you` },
-  }))
+  const pageUrl = new URL(`${siteUrl}/activate`)
+  if (ttclid) pageUrl.searchParams.set("ttclid", ttclid)
 
   const body: Record<string, unknown> = {
     event_source: "web",
     event_source_id: pixelCode,
-    data,
+    data: [
+      {
+        event: "Purchase",
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: `${args.checkoutSessionId}_Purchase`,
+        user,
+        properties: {
+          contents: [
+            {
+              content_id: "macwall-pro",
+              content_type: "product",
+              content_name: "MacWall Pro",
+              price: value,
+              quantity: 1,
+            },
+          ],
+          content_type: "product",
+          currency,
+          value,
+        },
+        page: { url: pageUrl.toString() },
+      },
+    ],
   }
   if (testCode) body.test_event_code = testCode
 
@@ -116,9 +136,15 @@ async function sendTikTokPurchase(args: {
     })
     const payload = (await res.json().catch(() => ({}))) as {
       code?: number
+      message?: string
     }
     if (!res.ok || (payload.code != null && payload.code !== 0)) {
-      console.error("[stripe-license-email] tiktok purchase failed", res.status)
+      console.error(
+        "[stripe-license-email] tiktok purchase failed",
+        res.status,
+        payload.code,
+        payload.message
+      )
     }
   } catch (e) {
     console.error(
@@ -1013,9 +1039,10 @@ async function handleCheckoutCompleted(args: {
 
   await sendTikTokPurchase({
     email: customerEmail,
-    eventIdSeed: `stripe_${args.event.id}`,
+    checkoutSessionId: session.id,
     amount,
     currency: session.currency,
+    metadata: session.metadata,
   })
 
   await sendXPurchase({
