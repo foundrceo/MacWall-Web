@@ -21,6 +21,8 @@ export type RateLimitResult = {
 
 export function clientIpFromRequest(request: Request): string {
   return (
+    // Cloudflare Workers: the visitor's IP as seen by Cloudflare's edge.
+    request.headers.get("cf-connecting-ip")?.trim() ||
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-real-ip")?.trim() ||
     "unknown"
