@@ -217,11 +217,21 @@ export async function createMacWallCheckoutSession(
         ...(visitorCountry && /^[A-Z]{2}$/.test(visitorCountry)
           ? { visitor_country: visitorCountry }
           : {}),
+        // The Mac that opened checkout: the app claims the paid license with it
+        // when the browser's macwall://activate hand-off doesn't reach it.
+        ...(visitorId ? { checkout_visitor_id: visitorId } : {}),
       }
 
       let { error: insertError } = await supabase
         .from("macwall_licenses")
         .insert(licenseRow)
+
+      if (insertError?.message?.includes("checkout_visitor_id")) {
+        delete licenseRow.checkout_visitor_id
+        ;({ error: insertError } = await supabase
+          .from("macwall_licenses")
+          .insert(licenseRow))
+      }
 
       if (insertError?.message?.includes("visitor_country")) {
         const withoutCountry = { ...licenseRow }
