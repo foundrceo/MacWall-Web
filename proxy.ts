@@ -12,9 +12,10 @@ import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 
 /**
  * Next.js Node proxy — every matched request is a billed invocation, so keep
- * this matcher tiny. Geo cookies only need to land on ad landing + checkout
- * surfaces; admin auth is the other required path. Gallery/blog HTML no longer
- * runs the proxy (saves the bulk of document hits).
+ * this matcher tiny: the TikTok rewrite on `/`, the country cookie on checkout,
+ * and admin auth. Marketing pages never get a Set-Cookie here: a page response
+ * that sets a cookie can't be cached (vinext on Cloudflare renders it on every
+ * visit), and the country cookie is set by `/api/pricing` from the client.
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -29,6 +30,21 @@ export async function proxy(request: NextRequest) {
       status: 404,
       headers: { "Cache-Control": "public, max-age=86400" },
     })
+  }
+
+  // TikTok ad clicks land on `/`; show them the TikTok landing page. Cookie-
+  // free, so the homepage stays a cached page for everyone else.
+  if (pathname === "/") {
+    const ttclid = request.nextUrl.searchParams.get("ttclid")
+    const utmSource = request.nextUrl.searchParams
+      .get("utm_source")
+      ?.toLowerCase()
+    if (ttclid || utmSource === "tiktok" || utmSource === "tt") {
+      const url = request.nextUrl.clone()
+      url.pathname = "/tiktok"
+      return NextResponse.rewrite(url)
+    }
+    return NextResponse.next()
   }
 
   const isAdminSurface =
@@ -70,29 +86,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (!isAdminSurface) {
-    const ttclid = request.nextUrl.searchParams.get("ttclid")
-    const utmSource = request.nextUrl.searchParams
-      .get("utm_source")
-      ?.toLowerCase()
-    if (
-      pathname === "/" ||
-      pathname === "/pricing" ||
-      pathname === "/thank-you" ||
-      pathname === "/download" ||
-      pathname === "/tiktok"
-    ) {
-      if (
-        pathname === "/" &&
-        (ttclid || utmSource === "tiktok" || utmSource === "tt")
-      ) {
-        const url = request.nextUrl.clone()
-        url.pathname = "/tiktok"
-        return withGeoCookies(NextResponse.rewrite(url))
-      }
-      return next()
-    }
-
-    // /api/checkout — set country cookie, no TikTok rewrite.
+    // /api/checkout — set the country cookie before Stripe.
     return next()
   }
 
@@ -122,10 +116,6 @@ export const config = {
   matcher: [
     "/",
     "/checkout",
-    "/pricing",
-    "/thank-you",
-    "/download",
-    "/tiktok",
     "/admin",
     "/admin/:path*",
     "/api/admin",
