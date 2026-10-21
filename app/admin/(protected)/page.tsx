@@ -272,20 +272,6 @@ type AnalyticsResponse = {
       accountId: string
       buckets: Array<{ name: string; reachable: boolean }>
     }
-    vercel: {
-      available: boolean
-      error?: string
-      projectName: string
-      productionUrl: string | null
-      latest: Array<{
-        id: string
-        url: string
-        state: string
-        target: string | null
-        createdAt: string
-        commit: string | null
-      }>
-    }
   }
   feedbackTotals?: {
     total: number
@@ -1072,7 +1058,7 @@ export default function AdminAnalyticsPage() {
               {data.stripeLive || data.opsLive ? (
                 <Section
                   title="Live services"
-                  description="Stripe, Resend, Cloudflare R2, and Vercel. Missing keys stay empty."
+                  description="Stripe, Resend and Cloudflare R2. Missing keys stay empty."
                 >
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     <StatCard
@@ -1131,50 +1117,6 @@ export default function AdminAnalyticsPage() {
                   </div>
 
                   <div className="grid gap-4 lg:grid-cols-2">
-                    <Panel
-                      title="Vercel production"
-                      description={
-                        data.opsLive?.vercel.available
-                          ? (data.opsLive.vercel.productionUrl ?? "macwall.app")
-                          : (data.opsLive?.vercel.error ??
-                            "VERCEL_TOKEN not set")
-                      }
-                    >
-                      {data.opsLive?.vercel.available &&
-                      data.opsLive.vercel.latest.length > 0 ? (
-                        <ol className="space-y-2">
-                          {data.opsLive.vercel.latest
-                            .slice(0, 5)
-                            .map((deploy) => (
-                              <li
-                                key={deploy.id}
-                                className="flex items-start justify-between gap-3 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-canvas)] px-3 py-2 text-[12px]"
-                              >
-                                <div className="min-w-0">
-                                  <p className="font-medium text-[var(--admin-fg)]">
-                                    {deploy.target ?? "preview"} ·{" "}
-                                    {deploy.state}
-                                  </p>
-                                  <p className="truncate text-[var(--admin-muted)]">
-                                    {deploy.commit ?? deploy.url}
-                                  </p>
-                                </div>
-                                <span className="shrink-0 text-[11px] text-[var(--admin-muted)]">
-                                  {deploy.createdAt
-                                    ? formatRelativeTime(deploy.createdAt)
-                                    : ""}
-                                </span>
-                              </li>
-                            ))}
-                        </ol>
-                      ) : (
-                        <p className="py-6 text-center text-[13px] text-[var(--admin-muted)]">
-                          {data.opsLive?.vercel.error ??
-                            "No deployments loaded."}
-                        </p>
-                      )}
-                    </Panel>
-
                     <Panel
                       title="Stripe promotion codes"
                       description="Redemptions from the live Stripe account"

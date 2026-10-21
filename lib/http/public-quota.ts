@@ -7,10 +7,7 @@ import { clientIpFromRequest } from "./rate-limit"
 export async function consumePublicQuota(request: Request, operation: string, limit: number, seconds: 60 | 3600 | 86400 = 3600): Promise<boolean> {
   const secret = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!secret) throw new Error("quota_not_configured")
-  const ip = process.env.VERCEL
-    ? request.headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim() || clientIpFromRequest(request)
-    : clientIpFromRequest(request)
-  return consumePublicSubjectQuota(ip, operation, limit, seconds)
+  return consumePublicSubjectQuota(clientIpFromRequest(request), operation, limit, seconds)
 }
 
 /** Also bounds paid operations per recipient, without storing their address. */

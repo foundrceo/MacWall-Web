@@ -88,16 +88,12 @@ export default function LegalSubprocessorsPage() {
               them.
             </li>
             <li>
-              <strong>Vercel</strong>: website hosting and privacy-friendly web
-              analytics.
-            </li>
-            <li>
               <strong>Supabase</strong>: database, license verification and
               server functions.
             </li>
             <li>
-              <strong>Cloudflare</strong>: storage and delivery of wallpaper
-              media and app downloads.
+              <strong>Cloudflare</strong>: website hosting, plus storage and
+              delivery of wallpaper media and app downloads.
             </li>
             <li>
               <strong>Resend</strong>: delivery of license and support emails.

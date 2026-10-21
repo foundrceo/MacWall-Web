@@ -7,9 +7,6 @@ import { withTtlCache } from "@/lib/admin/ttl-cache"
 const OPS_CACHE_MS = 30_000
 const FETCH_MS = 8_000
 
-const VERCEL_PROJECT_ID = process.env.VERCEL_PROJECT_ID?.trim() || ""
-const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID?.trim() || ""
-
 export type SourceStatus = {
   available: boolean
   error?: string
@@ -37,23 +34,9 @@ export type CloudflareLive = SourceStatus & {
   buckets: Array<{ name: string; reachable: boolean }>
 }
 
-export type VercelLive = SourceStatus & {
-  projectName: string
-  productionUrl: string | null
-  latest: Array<{
-    id: string
-    url: string
-    state: string
-    target: string | null
-    createdAt: string
-    commit: string | null
-  }>
-}
-
 export type OpsLivePayload = {
   resend: ResendLive
   cloudflare: CloudflareLive
-  vercel: VercelLive
 }
 
 function unavailable<T extends SourceStatus>(
@@ -219,76 +202,13 @@ async function fetchCloudflareLive(): Promise<CloudflareLive> {
   return { available: true, accountId, buckets }
 }
 
-type VercelDeploymentsJson = {
-  deployments?: Array<{
-    uid?: string
-    id?: string
-    url?: string
-    state?: string
-    readyState?: string
-    target?: string | null
-    created?: number
-    createdAt?: number
-    meta?: { githubCommitMessage?: string }
-  }>
-}
-
-async function fetchVercelLive(): Promise<VercelLive> {
-  const empty = { projectName: "macwall", productionUrl: null, latest: [] }
-  const token =
-    process.env.VERCEL_TOKEN?.trim() ||
-    process.env.VERCEL_ACCESS_TOKEN?.trim()
-  if (!token) {
-    return unavailable<VercelLive>(empty, "VERCEL_TOKEN is not set")
-  }
-  if (!VERCEL_PROJECT_ID) {
-    return unavailable<VercelLive>(empty, "VERCEL_PROJECT_ID is not set")
-  }
-
-  const url = new URL("https://api.vercel.com/v6/deployments")
-  url.searchParams.set("projectId", VERCEL_PROJECT_ID)
-  if (VERCEL_TEAM_ID) {
-    url.searchParams.set("teamId", VERCEL_TEAM_ID)
-  }
-  url.searchParams.set("limit", "8")
-
-  const result = await fetchJson<VercelDeploymentsJson>(url.toString(), {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  if (!result.ok) {
-    return unavailable<VercelLive>(empty, result.error)
-  }
-
-  const latest = (result.data.deployments ?? []).map((row) => {
-    const created = row.created ?? row.createdAt ?? 0
-    return {
-      id: row.uid ?? row.id ?? "",
-      url: row.url ? `https://${row.url}` : "",
-      state: row.readyState ?? row.state ?? "",
-      target: row.target ?? null,
-      createdAt: created ? new Date(created).toISOString() : "",
-      commit: row.meta?.githubCommitMessage?.split("\n")[0] ?? null,
-    }
-  })
-
-  const production = latest.find((row) => row.target === "production") ?? latest[0]
-
-  return {
-    available: true,
-    projectName: "macwall",
-    productionUrl: production?.url ?? null,
-    latest,
-  }
-}
-
 export async function fetchOpsLive(sinceIso: string): Promise<OpsLivePayload> {
   return withTtlCache(`ops-live:${sinceIso.slice(0, 10)}`, OPS_CACHE_MS, async () => {
-    const [resend, cloudflare, vercel] = await Promise.all([
+    const [resend, cloudflare] = await Promise.all([
       fetchResendLive(sinceIso),
       fetchCloudflareLive(),
-      fetchVercelLive(),
     ])
-    return { resend, cloudflare, vercel }
+    return { resend, cloudflare }
   })
 }
 

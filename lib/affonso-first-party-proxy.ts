@@ -15,7 +15,6 @@ function clientIpFromHeaders(headers: Headers): string | null {
     headers.get("cf-connecting-ip"),
     headers.get("true-client-ip"),
     headers.get("x-real-ip"),
-    headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim(),
     headers.get("x-forwarded-for")?.split(",")[0]?.trim(),
   ]
   for (const value of candidates) {
@@ -30,10 +29,6 @@ function allowedCorsOrigin(request: Request): string {
     canonicalSiteOrigin().replace(/\/+$/, ""),
     deploymentSiteOrigin().replace(/\/+$/, ""),
   ])
-  const vercel = process.env.VERCEL_URL?.trim()
-  if (vercel) {
-    allowed.add(`https://${vercel.replace(/^https?:\/\//, "").replace(/\/$/, "")}`)
-  }
   if (process.env.NODE_ENV !== "production") {
     allowed.add("http://localhost:3000")
     allowed.add("http://127.0.0.1:3000")

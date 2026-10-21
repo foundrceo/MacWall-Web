@@ -11,26 +11,18 @@ function normalizeOrigin(originish: string): string {
 
 /**
  * Resolved host URL for HTML metadata (especially `metadataBase` and absolute Open Graph image URLs).
- * - Prefer `NEXT_PUBLIC_SITE_URL` when set (e.g. prod or custom preview domain).
- * - Else on Vercel use `VERCEL_URL` (`https://${VERCEL_URL}`) so OG/Twitter previews work on previews.
- * - Fallback: production (`macwall.website`).
+ * `NEXT_PUBLIC_SITE_URL` when set, otherwise production (`macwall.website`).
  */
 export function deploymentSiteOrigin(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()
   if (configured) return normalizeOrigin(configured)
-
-  const vercel = process.env.VERCEL_URL?.trim()
-  if (vercel) {
-    const host = vercel.replace(/^https?:\/\//, "").replace(/\/$/, "")
-    return `https://${host}`
-  }
 
   return PRODUCTION_ORIGIN
 }
 
 /**
  * Canonical site origin used in `<link rel="canonical">`, sitemap URLs, robots `host`, and JSON-LD `@id`s.
- * When `NEXT_PUBLIC_SITE_URL` is unset, defaults to production so previews do not nominate `*.vercel.app` duplicates.
+ * When `NEXT_PUBLIC_SITE_URL` is unset, defaults to production so other hostnames never become canonical.
  */
 export function canonicalSiteOrigin(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim()

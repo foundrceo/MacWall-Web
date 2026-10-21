@@ -38,7 +38,6 @@ export async function proxy(request: NextRequest) {
   const country = isAdminSurface ? null : await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: request.cookies.get("mw_country")?.value,
-    geoCountry: request.headers.get("x-vercel-ip-country"),
     skipIpLookup: true,
   })
 

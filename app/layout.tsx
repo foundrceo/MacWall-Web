@@ -242,7 +242,6 @@ export default function RootLayout({
         className="w-full bg-background font-sans text-foreground antialiased"
         suppressHydrationWarning
       >
-        {/* Feature flag values for Vercel Web Analytics + Flags Explorer. */}
         <VisitorPlatformScript />
         <a
           href="#main-content"

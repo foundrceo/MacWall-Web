@@ -102,11 +102,10 @@ export default function LegalCookiesPage() {
           <p>
             <strong>Third-party pixels and analytics</strong> (marketing pages
             only, where configured): Google Analytics, Meta Pixel, TikTok Pixel,
-            X (Twitter) Pixel, Vercel Web Analytics and Ahrefs Web
-            Analytics. They measure visits and which ads lead to downloads or
+            X (Twitter) Pixel and Ahrefs Web Analytics. They measure visits and which ads lead to downloads or
             purchases, and may set their own cookies under their own policies.
-            Our legal pages and docs do not load ad pixels. Vercel and Ahrefs
-            analytics are cookieless and always on.
+            Our legal pages and docs do not load ad pixels. Ahrefs analytics
+            is cookieless and always on.
           </p>
         </LegalSection>
 

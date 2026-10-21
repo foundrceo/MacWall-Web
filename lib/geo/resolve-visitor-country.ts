@@ -5,13 +5,10 @@ import {
   isIndiaCountry,
   resolveCountryFromHeaders,
 } from "./country"
-import { resolveCountryFromVercelGeolocation } from "./vercel-geolocation"
 
 export type ResolveVisitorCountryInput = {
   headers: Headers
   cookieCountry?: string | null
-  /** Vercel middleware `request.geo.country`: most reliable on production. */
-  geoCountry?: string | null
   /**
    * Skip outbound IP / egress lookups (can take up to ~2.5s).
    * Use on latency-sensitive paths like Stripe Checkout redirect.
@@ -155,12 +152,6 @@ async function resolveCountryFromDevServerEgress(): Promise<string | null> {
 export async function resolveVisitorCountry(
   input: ResolveVisitorCountryInput
 ): Promise<string | null> {
-  const fromGeo = normalizeCountry(input.geoCountry)
-  if (fromGeo) return fromGeo
-
-  const fromVercel = resolveCountryFromVercelGeolocation(input.headers)
-  if (fromVercel) return fromVercel
-
   const fromEdge = resolveCountryFromHeaders(input.headers)
   if (fromEdge) return fromEdge
 

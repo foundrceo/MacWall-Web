@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic"
 
 /**
  * Cron → Supabase `process-checkout-recovery` (abandoned / failed / incomplete
- * checkouts). Auth is CRON_SECRET only; an `x-vercel-cron` header proves nothing.
+ * checkouts). Auth is CRON_SECRET only.
  */
 export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET?.trim()

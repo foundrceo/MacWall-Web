@@ -19,12 +19,6 @@ export function resolveCheckoutSiteOrigin(requestUrl: string): string {
     deploymentSiteOrigin().replace(/\/+$/, ""),
   ])
 
-  const vercel = process.env.VERCEL_URL?.trim()
-  if (vercel) {
-    const host = vercel.replace(/^https?:\/\//, "").replace(/\/$/, "")
-    allowed.add(`https://${host}`)
-  }
-
   if (process.env.NODE_ENV !== "production") {
     allowed.add("http://localhost:3000")
     allowed.add("http://127.0.0.1:3000")

@@ -18,7 +18,6 @@
 /build
 /dist/
 .vinext/
-.vercel
 .turbo
 *.tsbuildinfo
 next-env.d.ts
