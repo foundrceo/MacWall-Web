@@ -38,7 +38,7 @@ function cacheRate(code: string, usdPerUnit: number): number {
 
 /**
  * Public mid-market fallback when Stripe FX Quotes is unavailable
- * (expired key, preview API disabled, etc.). Display-only — checkout still
+ * (expired key, preview API disabled, etc.). Display-only: checkout still
  * charges in the Stripe Price currency.
  */
 async function fetchUsdPerPresentmentUnitFallback(

@@ -26,11 +26,11 @@ const useIsomorphicLayoutEffect =
 /** How long to wait for `/api/pricing` before keeping default USD. */
 const PRICING_FETCH_TIMEOUT_MS = 3000
 
-/** Last-known regional pricing — instant first paint for return visitors. */
+/** Last-known regional pricing: instant first paint for return visitors. */
 const PRICING_CACHE_KEY = "macwall-marketing-pricing-v2"
-/** Local cache freshness — fetch again only after expiry or country change. */
+/** Local cache freshness: fetch again only after expiry or country change. */
 const PRICING_CACHE_TTL_MS = 24 * 60 * 60 * 1000
-/** Same-session refetch guard — provider remounts reuse memory first. */
+/** Same-session refetch guard: provider remounts reuse memory first. */
 const PRICING_MEMORY_TTL_MS = 5 * 60 * 1000
 
 type CachedPricing = {
@@ -56,7 +56,7 @@ function isFresh(entry: CachedPricing | null, ttlMs: number): boolean {
 function readCachedPricing(): MarketingPricing | null {
   // Prerender-safe: storage only exists in the browser.
   if (typeof window === "undefined") return null
-  // Same session first — no storage I/O, no serialization cost.
+  // Same session first: no storage I/O, no serialization cost.
   if (isFresh(memoryCache, PRICING_MEMORY_TTL_MS)) {
     return (memoryCache as CachedPricing).pricing
   }
@@ -78,7 +78,7 @@ function writeCachedPricing(pricing: MarketingPricing) {
   try {
     window.localStorage.setItem(PRICING_CACHE_KEY, JSON.stringify(entry))
   } catch {
-    // Private mode etc. — pricing still works, just not cached.
+    // Private mode etc.: pricing still works, just not cached.
   }
 }
 
@@ -87,8 +87,8 @@ async function fetchPricing(): Promise<MarketingPricing | null> {
   if (!inflightFetch) {
     inflightFetch = (async () => {
       try {
-        // Pass cookie country when present; otherwise the API resolves geo itself
-        // (cookie / Vercel / IP / localhost egress) so INR hints still hydrate.
+        // Pass the cookie country when present; otherwise the API resolves geo
+        // itself (headers / IP / localhost egress).
         const country = getVisitorCountry()
         const qs = country ? `?c=${encodeURIComponent(country)}` : ""
         const res = await fetch(`/api/pricing${qs}`, {
@@ -101,7 +101,7 @@ async function fetchPricing(): Promise<MarketingPricing | null> {
         const data = (await res.json()) as MarketingPricing
         return data?.permanentPrice ? data : null
       } catch {
-        // Timeout / offline — caller keeps SSR/default pricing.
+        // Timeout / offline: caller keeps SSR/default pricing.
         return null
       } finally {
         inflightFetch = null
@@ -118,23 +118,20 @@ export function MarketingPricingProvider({
   pricing?: MarketingPricing
   children: ReactNode
 }>) {
-  // First paint always shows a price instantly (default USD, matching SSR).
-  // Cached regional pricing swaps in pre-paint when available; the network
-  // revalidate then silently corrects any stale value. Never blank, never a
-  // loader — exactly one text swap at most, usually zero.
+  // First paint shows default USD to match SSR. A cached regional price swaps
+  // in before paint, then a background fetch corrects it if stale.
   const [pricing, setPricing] = useState<MarketingPricing>(
     () => initialPricing ?? buildDefaultMarketingPricing()
   )
 
-  // Cached price applies synchronously BEFORE first paint, so return
-  // visitors see their regional price immediately with no flash.
+  // Apply the cached price before paint so return visitors don't see a flash.
   useIsomorphicLayoutEffect(() => {
     if (initialPricing) return
     const cached = readCachedPricing()
     if (cached) setPricing(cached)
   }, [initialPricing])
 
-  // Background revalidate — keeps cache honest without blocking paint.
+  // Revalidate in the background without blocking paint.
   useEffect(() => {
     if (initialPricing) return
     let cancelled = false

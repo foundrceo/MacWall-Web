@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 /**
- * Fully automated changelog pipeline (no hand edits for new entries):
- *   1. Validate frozen Mac seed (leaks + monotonic dates)
- *   2. Pull website git commits since the seed → public day releases
- *   3. Write lib/changelog/web-auto-releases.ts
- *   4. Stamp lib/changelog/entries.ts
- *
- * Runs on every `npm run build` / CI. Leaky commit subjects are dropped or rewritten.
+ * Builds the public changelog on every build. Checks the frozen Mac seed for
+ * leaks and date order, turns website commits since the seed into one release
+ * per day (lib/changelog/web-auto-releases.ts), and stamps
+ * lib/changelog/entries.ts. Commit subjects that leak internals are dropped or
+ * rewritten.
  */
 import { execFileSync } from "node:child_process"
 import { readFileSync, writeFileSync } from "node:fs"
@@ -24,10 +22,7 @@ function isPublicSafe(text) {
   return !BLOCKED_PATTERN.test(text)
 }
 
-/**
- * Map raw commit subjects → public bullets.
- * First match wins. Unmatched + blocked subjects are dropped.
- */
+/** Commit subject → public bullet. First match wins; anything else is dropped. */
 const PUBLIC_REWRITES = [
   [/command palette/i, "Command palette to jump anywhere on macwall.app."],
   [/wallpaper gallery|public wallpapers/i, "Public wallpaper gallery with search, SEO, and app deep links."],
@@ -48,7 +43,7 @@ const PUBLIC_REWRITES = [
 const curatedPath = join(root, "lib/changelog/curated-releases.ts")
 const curatedSource = readFileSync(curatedPath, "utf8")
 
-// ── Seed leak filter ──────────────────────────────────────────────
+// Seed leak filter
 const itemMatches = curatedSource.matchAll(/items:\s*\[([\s\S]*?)\]/g)
 const blockedHits = []
 
@@ -115,7 +110,7 @@ for (let index = 1; index < oldestFirst.length; index += 1) {
 const latestSeed = [...seedReleases].sort((a, b) => b.time - a.time)[0]
 const sinceDate = latestSeed.date.slice(0, 10)
 
-// ── Publicify helpers ─────────────────────────────────────────────
+// Publicify helpers
 function publicifySubject(subject) {
   const cleaned = subject.replace(/\s+/g, " ").trim()
   if (!cleaned) return null
@@ -161,7 +156,7 @@ function sectionsFromItems(items) {
     .map((kind) => ({ kind, items: buckets[kind] }))
 }
 
-// ── Git → daily web releases ──────────────────────────────────────
+// Git → daily web releases
 let gitLog = ""
 try {
   gitLog = execFileSync(

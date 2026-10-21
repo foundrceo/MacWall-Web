@@ -52,9 +52,8 @@ function PlatformCta({ location, className }: Readonly<{ location: string; class
 }
 
 /**
- * Gallery, category and collection pages had ~25k views a fortnight and
- * almost no download button. This puts one under the title, and a slim bar
- * at the bottom once that one scrolls out of view.
+ * Download button under the gallery title, plus a slim bottom bar once that
+ * button scrolls out of view.
  */
 export function GalleryDownloadCta({ location }: Readonly<{ location: string }>) {
   const pricing = useMarketingPricing()

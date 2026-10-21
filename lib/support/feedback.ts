@@ -119,7 +119,7 @@ export async function listSupportTickets(
 }
 
 /**
- * Cheap ownership check for typing/SSE auth — one row, no messages tree.
+ * Cheap ownership check for typing/SSE auth: one row, no messages tree.
  * Prefer this over `listSupportTickets` on hot paths.
  */
 export async function sessionOwnsSupportTicket(
@@ -166,8 +166,8 @@ export async function createSupportTicket(input: {
     p_os_version: input.userAgent?.slice(0, 80) ?? null,
   }
 
-  // Prefer assist migration signature (chat_id / first_author / needs_admin_reply).
-  // If prod hasn't applied 20260803180000 yet, fall back to the image-era overload.
+  // Prefer the assist signature (chat_id / first_author / needs_admin_reply);
+  // fall back to the older overload if that migration isn't applied.
   const extended = await supabase.rpc("submit_app_feedback", {
     ...baseArgs,
     p_chat_id: input.chatId ?? null,
@@ -237,7 +237,7 @@ export async function appendSupportMessage(input: {
 
   let error = extended.error
   if (error && shouldFallbackLegacySubmit(error)) {
-    // Legacy append always stores author=user — fine for visitor replies.
+    // Legacy append always stores author=user: fine for visitor replies.
     console.warn(
       "[support] append_app_feedback_message p_author unavailable; falling back to legacy RPC",
       {

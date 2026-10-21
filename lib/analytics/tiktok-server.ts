@@ -21,7 +21,7 @@ function resolveTikTokTestEventCode(): string | undefined {
   return code && code.length > 0 ? code : undefined
 }
 
-/** Modern TikTok Events API 2.0 endpoint (replaces the legacy `pixel/track/`). */
+/** TikTok Events API 2.0 endpoint. */
 const TIKTOK_EVENTS_API_URL =
   "https://business-api.tiktok.com/open_api/v1.3/event/track/"
 

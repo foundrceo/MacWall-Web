@@ -2,12 +2,11 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
 import type { MetadataRoute } from "next"
 
 /**
- * IMPORTANT: Disallow values are prefix matches.
- * Never use bare `/wallpaper` — that also blocks `/wallpapers` and
- * `/wallpaper/{category}/{slug}` (the entire catalog).
+ * Disallow values are prefix matches: a bare `/wallpaper` would also block
+ * `/wallpapers` and every `/wallpaper/{category}/{slug}` page.
  *
- * AI/agent discovery surfaces (`/llms.txt`, `/ai.txt`, feeds, API catalog) are
- * explicitly allowed and documented for humans at `/crawlers`.
+ * `/llms.txt`, `/ai.txt`, feeds and the API catalog are allowed on purpose and
+ * documented at `/crawlers`.
  */
 export default function robots(): MetadataRoute.Robots {
   const origin = canonicalSiteOrigin()
@@ -38,7 +37,7 @@ export default function robots(): MetadataRoute.Robots {
         "/activate",
         "/tiktok",
         "/unsubscribe",
-        // Internal handler behind the `/{path}.md` rewrite — the HTML page is
+        // Internal handler behind the `/{path}.md` rewrite. The HTML page is
         // canonical, so the Markdown twin should never be indexed on its own.
         "/md/",
       ],

@@ -10,7 +10,7 @@ import { resolveCountryFromVercelGeolocation } from "./vercel-geolocation"
 export type ResolveVisitorCountryInput = {
   headers: Headers
   cookieCountry?: string | null
-  /** Vercel middleware `request.geo.country` — most reliable on production. */
+  /** Vercel middleware `request.geo.country`: most reliable on production. */
   geoCountry?: string | null
   /**
    * Skip outbound IP / egress lookups (can take up to ~2.5s).
@@ -111,7 +111,7 @@ async function resolveCountryFromIp(ip: string): Promise<string | null> {
   }
 }
 
-/** Localhost has no client IP — use the dev machine egress via Cloudflare trace. */
+/** Localhost has no client IP: use the dev machine egress via Cloudflare trace. */
 async function resolveCountryFromDevServerEgress(): Promise<string | null> {
   if (process.env.NODE_ENV === "production") return null
 
@@ -149,8 +149,8 @@ async function resolveCountryFromDevServerEgress(): Promise<string | null> {
 }
 
 /**
- * Single source of truth for visitor country — used in middleware and server layout
- * so the first request already resolves India (not only after a cookie round-trip).
+ * Visitor country for middleware and the server layout, so the first request
+ * already resolves it (not only after a cookie round-trip).
  */
 export async function resolveVisitorCountry(
   input: ResolveVisitorCountryInput

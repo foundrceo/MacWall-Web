@@ -3,7 +3,7 @@ import { type NextResponse } from "next/server"
 /** ISO 3166-1 alpha-2 country code stored in a first-party cookie. */
 export const COUNTRY_COOKIE = "mw_country" as const
 
-/** Set by middleware from `request.geo` — Node server components do not get Vercel geo headers directly. */
+/** Set by middleware from `request.geo`: Node server components do not get Vercel geo headers directly. */
 export const MW_RESOLVED_COUNTRY_HEADER = "x-mw-resolved-country" as const
 
 const COUNTRY_COOKIE_MAX_AGE = 60 * 60 * 24 * 30

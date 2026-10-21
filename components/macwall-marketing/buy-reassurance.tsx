@@ -5,9 +5,8 @@ import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 /**
- * Two lines under every Get Pro button: the money-back guarantee (it used to
- * live only in the fine print) and what happens after paying, which matters
- * most to people buying from a phone they can't install on.
+ * Two lines under every Get Pro button: the money-back guarantee and what
+ * happens after paying (matters most to people buying from a phone).
  */
 export function BuyReassurance({ className }: Readonly<{ className?: string }>) {
   return (

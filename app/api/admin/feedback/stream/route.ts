@@ -9,7 +9,7 @@ import { createSupabaseAdminRealtime } from "@/lib/supabase/admin"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
-/** Cap Fluid Compute duration — admin UI reconnects after this. */
+/** Close the stream after this; the admin UI reconnects. */
 export const maxDuration = 300
 
 const SSE_MAX_MS = 4 * 60 * 1000
@@ -97,7 +97,7 @@ export async function GET(request: Request) {
         try {
           controller.close()
         } catch {
-          // stream already closed
+          // already closed
         }
       }, SSE_MAX_MS)
 

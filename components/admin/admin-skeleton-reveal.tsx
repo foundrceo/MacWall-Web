@@ -4,11 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
 
-/**
- * AdminSkeleton — the only skeleton shape in the admin portal.
- * A cold, static bar. No shimmer, no pulse on its own; the pulse
- * comes from AdminSkeletonReveal wrapping it (once, then reveal).
- */
+/** Static placeholder bar. The pulse comes from AdminSkeletonReveal. */
 export function AdminSkeleton({ className }: Readonly<{ className?: string }>) {
   return (
     <div
@@ -20,12 +16,9 @@ export function AdminSkeleton({ className }: Readonly<{ className?: string }>) {
 }
 
 /**
- * AdminSkeletonReveal — one loading effect for the whole admin portal.
- *
- * Shows `skeleton` with a single cold pulse, then cross-fades (with a
- * whisper of blur) into `children` once `loading` flips to false.
- * Replays from scratch on every fresh loading cycle. Instantly swaps
- * under prefers-reduced-motion (see admin.css).
+ * Pulses `skeleton` once, then cross-fades to `children` when `loading` goes
+ * false. Replays on each new loading cycle; swaps instantly under
+ * prefers-reduced-motion (see admin.css).
  */
 export function AdminSkeletonReveal({
   loading,
@@ -51,8 +44,8 @@ export function AdminSkeletonReveal({
       timer.current = null
     }
     if (loading) {
-      // Fresh cycle: snap back to skeleton and replay the pulse.
-      // Deferred a task so no state updates run synchronously in the effect.
+      // New cycle: back to the skeleton. Deferred so the effect doesn't set
+      // state synchronously.
       timer.current = window.setTimeout(() => {
         setRevealed(false)
         setCycle((c) => c + 1)

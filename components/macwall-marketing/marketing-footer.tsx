@@ -27,12 +27,7 @@ import {
 } from "@/lib/marketing-footer-nav"
 import { cn } from "@/lib/utils"
 
-/**
- * - directory (live): Apple-style dense directory and one fine-print row,
- *   then the giant serif "MacWall".
- * - wordmark: the previous footer; desktop, wall, card: the other
- *   candidates. All kept on /footer-lab for now.
- */
+/** `directory` is the live footer; the others are only shown on /footer-lab. */
 export type FooterVariant = "wordmark" | "desktop" | "wall" | "directory" | "card"
 
 const footerColumnTitleClass =
@@ -202,10 +197,6 @@ function pickWallpapers(ids: readonly string[]) {
   })
 }
 
-/* ------------------------------------------------------------------ */
-/* Current                                                             */
-/* ------------------------------------------------------------------ */
-
 function WordmarkFooter() {
   return (
     <FooterShell>
@@ -214,10 +205,6 @@ function WordmarkFooter() {
     </FooterShell>
   )
 }
-
-/* ------------------------------------------------------------------ */
-/* 1 · Mac desktop                                                     */
-/* ------------------------------------------------------------------ */
 
 /** The footer as a Mac screen: menu bar links, live wallpaper, a Dock. */
 function DesktopFooter() {
@@ -246,10 +233,6 @@ function DesktopFooter() {
     </FooterShell>
   )
 }
-
-/* ------------------------------------------------------------------ */
-/* 2 · Wallpaper wall                                                  */
-/* ------------------------------------------------------------------ */
 
 /** Real wallpapers drift across the top; the links sit calmly below. */
 function WallFooter() {
@@ -295,15 +278,7 @@ function WallFooter() {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* 3 · Apple-style directory                                           */
-/* ------------------------------------------------------------------ */
-
-/**
- * Like apple.com: a dense directory of every useful page in small type
- * (categories and comparisons included), a "more ways" line, one fine-print
- * row; the faint wordmark is its only flourish.
- */
+/** Dense directory of every useful page in small type, then one fine-print row. */
 function DirectoryFooter() {
   const [product, resources, legal] = getMarketingFooterColumns()
   const foot = macwallMarketingCopy.footer
@@ -415,14 +390,7 @@ function DirectoryFooter() {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* 4 · Big final card                                                  */
-/* ------------------------------------------------------------------ */
-
-/**
- * The last slide of a keynote: one large card with a live wallpaper behind
- * the headline, the links laid over it on glass, and the fine print below.
- */
+/** One large card with a live wallpaper behind the headline and links. */
 function CardFooter() {
   const [wallpaper] = pickWallpapers(["orbital-station-above-earth"])
   return (

@@ -20,7 +20,7 @@ export type MarketingMultiMacOffer = {
   macs: number
   price: string
   priceMajor: number
-  /** e.g. "$4.00" — price divided by Macs, same currency as `price`. */
+  /** e.g. "$4.00": price divided by Macs, same currency as `price`. */
   perMacPrice: string
   /** When primary is local: "Charged in USD: $19.99". When primary is USD: null. */
   localPriceHint: string | null
@@ -39,7 +39,7 @@ export type MarketingPricing = {
   permanentMacs: number
   permanentPrice: string
   permanentPriceMajor: number
-  /** e.g. "$4.33" — Pro price divided by its Macs. */
+  /** e.g. "$4.33": Pro price divided by its Macs. */
   permanentPerMacPrice: string
   /** When primary is local: "Charged in USD: $12.99". Otherwise null. */
   permanentLocalHint: string | null
@@ -76,7 +76,7 @@ const ANNUAL_USD_CENTS = LICENSE_OFFERS.annual.usdCents
 const PRO_INDIA_USD_CENTS = LICENSE_OFFERS.permanent.indiaUsdCents
 const PRO_PLUS_INDIA_USD_CENTS = LICENSE_OFFERS.permanent_5.indiaUsdCents
 
-/** Shared buy-button labels — same on home, pricing, modal, and gallery. */
+/** Shared buy-button labels: same on home, pricing, modal, and gallery. */
 export const MARKETING_GET_PRO_CTA = "Get Pro"
 export const MARKETING_GET_PRO_PLUS_CTA = "Get Pro+"
 

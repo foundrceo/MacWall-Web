@@ -11,7 +11,7 @@ type MacWallWordmarkProps = Readonly<{
   labelClassName?: string
 }>
 
-/** App icon + MacWall — same artwork as the macOS app. */
+/** App icon + MacWall: same artwork as the macOS app. */
 export function MacWallWordmark({
   href = "/",
   className,

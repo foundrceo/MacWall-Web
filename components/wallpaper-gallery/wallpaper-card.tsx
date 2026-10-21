@@ -176,11 +176,11 @@ export function WallpaperCard({
   className,
 }: Readonly<{
   wallpaper: PublicWallpaper
-  /** Resolved preview URL (e.g. presigned) — falls back to `wallpaper.videoUrl`. */
+  /** Resolved preview URL (e.g. presigned): falls back to `wallpaper.videoUrl`. */
   previewVideoUrl?: string
   priority?: boolean
   index?: number
-  /** Stagger index for mount animation — use batch-relative values when paginating. */
+  /** Stagger index for mount animation: use batch-relative values when paginating. */
   entranceIndex?: number
   /** When false, skip mount fade/slide (already-visible cards). */
   animateEntrance?: boolean
@@ -204,7 +204,7 @@ export function WallpaperCard({
     >
       <Link
         href={wallpaperDetailPath(wallpaper)}
-        // pointerdown beats click — focus is saved before Next starts navigating.
+        // pointerdown beats click: focus is saved before Next starts navigating.
         onPointerDown={() => markGalleryReturnFocus(wallpaper.id)}
         onClick={() => markGalleryReturnFocus(wallpaper.id)}
         className={cn(

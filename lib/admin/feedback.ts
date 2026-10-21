@@ -250,7 +250,7 @@ export async function listAppFeedback(
     const mapped = mapFeedback(row, thread)
     const last = thread.at(-1)
     // Keep Reply inbox accurate even if the column lagged.
-    // Assist messages never imply admin attention — only user (post-handoff).
+    // Assist messages never imply admin attention, only user (post-handoff).
     if (!mapped.isResolved && last?.author === "user") {
       mapped.needsAdminReply = true
     } else if (

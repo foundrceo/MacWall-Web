@@ -98,7 +98,7 @@ export function WallpaperSetOnMacButton({
       }
 
       const onVisibilityChange = () => {
-        // OS switched to MacWall — it opened, nothing more to do.
+        // OS switched to MacWall: it opened, nothing more to do.
         if (document.visibilityState === "hidden") settleOpened()
       }
 

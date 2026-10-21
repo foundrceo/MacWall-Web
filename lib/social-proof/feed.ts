@@ -1,5 +1,5 @@
 /**
- * Social proof feed — only real recent purchases (with country when known)
+ * Social proof feed: only real recent purchases (with country when known)
  * and real license counts. Nothing is synthesized or inflated: invented
  * "someone just bought" lines are deceptive marketing under card-network
  * and payment-processor rules.
@@ -33,7 +33,7 @@ export const EMPTY_SOCIAL_PROOF_FEED: SocialProofFeed = {
 }
 
 export type SocialProofMessage = {
-  /** Stable per event — used to avoid showing the same purchase twice. */
+  /** Stable per event: used to avoid showing the same purchase twice. */
   key: string
   text: string
   /** Relative age for purchases ("just now", "3 min ago"); null for stats. */
@@ -146,7 +146,7 @@ function realPurchaseMessage(
 }
 
 /**
- * Aggregate lines from real license counts only — never multiplied, never
+ * Aggregate lines from real license counts only, never multiplied, never
  * padded with a floor, and hidden while the numbers are small.
  */
 function statMessages(stats: SocialProofStats | null): SocialProofMessage[] {

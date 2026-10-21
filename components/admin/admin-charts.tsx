@@ -31,8 +31,6 @@ import {
 } from "@/components/ui/chart"
 import { cn } from "@/lib/utils"
 
-/* Shared visual language ---------------------------------------------------- */
-
 const C = {
   blue: "#3b82f6",
   green: "#22c55e",
@@ -93,8 +91,6 @@ function lastNDays<T extends { day: string }>(rows: T[], days: number) {
   if (days <= 0 || days >= 3650) return sorted
   return sorted.slice(-days)
 }
-
-/* Daily activity ------------------------------------------------------------ */
 
 type EventCountKey =
   | "page_view"
@@ -223,8 +219,6 @@ export function DailyActivityChart({
   )
 }
 
-/* Download activity --------------------------------------------------------- */
-
 const downloadActivityConfig = {
   clicks: { label: "Download clicks", color: C.green },
   redirects: { label: "Installer redirects", color: C.blue },
@@ -306,9 +300,6 @@ export function DownloadActivityChart({
   )
 }
 
-/* Ranked list — replaces the old horizontal bar chart with a denser,
- * easier-to-scan progress list. */
-
 export function RankedBarList({
   rows,
   formatLabel,
@@ -384,8 +375,6 @@ export function EventsSummaryList({
     />
   )
 }
-
-/* Radial gauges -------------------------------------------------------------- */
 
 function Gauge({
   percent,
@@ -511,8 +500,6 @@ export function StatRing({
   )
 }
 
-/* Category donut ------------------------------------------------------------- */
-
 export function CategoryDonut({
   rows,
 }: Readonly<{ rows: Array<{ label: string; value: number }> }>) {
@@ -620,8 +607,6 @@ export function CategoryDonut({
     </div>
   )
 }
-
-/* Sales comparison ----------------------------------------------------------- */
 
 type DailySalesRow = { day: string; sales: number; revenue: number }
 
@@ -763,8 +748,6 @@ export function SalesComparisonChart({
   )
 }
 
-/* Conversion funnel ---------------------------------------------------------- */
-
 export function ConversionFunnelChart({
   steps,
 }: Readonly<{
@@ -810,8 +793,6 @@ export function ConversionFunnelChart({
     </ol>
   )
 }
-
-/* Daily sales bar chart ----------------------------------------------------- */
 
 const dailySalesBarConfig = {
   sales: { label: "Sales Count", color: C.blue },
@@ -885,8 +866,6 @@ export function DailySalesBarChart({
   )
 }
 
-/* Day of week radar chart --------------------------------------------------- */
-
 const radarConfig = {
   sales: { label: "Sales Volume", color: C.violet },
 } satisfies ChartConfig
@@ -932,8 +911,6 @@ export function DayOfWeekRadarChart({
     </ChartContainer>
   )
 }
-
-/* License plan distribution pie chart --------------------------------------- */
 
 const planConfig = {
   pro: { label: "Pro (3 Macs)", color: C.blue },
@@ -1016,8 +993,6 @@ export function LicensePlanPieChart({
   )
 }
 
-/* License status donut chart ------------------------------------------------ */
-
 export function LicenseStatusDonut({
   rows,
 }: Readonly<{
@@ -1098,8 +1073,6 @@ export function LicenseStatusDonut({
   )
 }
 
-/* Promo code usage bar chart ------------------------------------------------ */
-
 const promoConfig = {
   count: { label: "Redemptions", color: C.amber },
 } satisfies ChartConfig
@@ -1146,8 +1119,6 @@ export function PromoCodeBarChart({
   )
 }
 
-/* 7-Day x 24-Hour Activity Heatmap Grid ------------------------------------- */
-
 export function HourlyActivityHeatmapGrid({
   rows,
 }: Readonly<{
@@ -1166,7 +1137,7 @@ export function HourlyActivityHeatmapGrid({
     return <ChartEmpty message="No hourly activity data." />
   }
 
-  // Index once — the old per-cell `rows.find()` was O(168 × N) per render.
+  // Index once; a per-cell rows.find() is O(168 × N) per render.
   const cellByDayHour = new Map<string, (typeof rows)[number]>()
   for (const row of rows) {
     cellByDayHour.set(`${row.dayIndex}:${row.hour}`, row)
@@ -1181,7 +1152,6 @@ export function HourlyActivityHeatmapGrid({
       aria-label={`Weekly activity heatmap. Peak hour has ${peak} events. Darker cells mean more activity.`}
       className="space-y-2 overflow-x-auto py-2"
     >      <div className="min-w-[620px]">
-        {/* Hour Header */}
         <div className="flex items-center text-[10px] text-[var(--admin-muted)] mb-1 pl-10">
           {hours.filter((h) => h % 3 === 0).map((h) => (
             <span key={h} className="w-[12.5%] text-left">
@@ -1190,7 +1160,6 @@ export function HourlyActivityHeatmapGrid({
           ))}
         </div>
 
-        {/* Rows by Day */}
         <div className="space-y-1">
           {days.map((dayName, dIdx) => (
             <div key={dayName} className="flex items-center gap-1.5">
@@ -1228,7 +1197,6 @@ export function HourlyActivityHeatmapGrid({
           ))}
         </div>
 
-        {/* Legend */}
         <div className="mt-3 flex items-center justify-end gap-2 text-[11px] text-[var(--admin-muted)]">
           <span>Less active</span>
           <div className="flex gap-1" aria-hidden>
@@ -1244,8 +1212,6 @@ export function HourlyActivityHeatmapGrid({
     </div>
   )
 }
-
-/* Support Feedback Sentiment Pie Chart -------------------------------------- */
 
 const feedbackConfig = {
   like: { label: "Positive", color: C.green },

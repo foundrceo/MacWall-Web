@@ -2,7 +2,7 @@ import Script from "next/script"
 
 export { resolveTikTokPixelId } from "@/lib/analytics/tiktok-config"
 
-/** TikTok Events Manager base pixel — loads on every page and fires `ttq.page()`. */
+/** TikTok Events Manager base pixel: loads on every page and fires `ttq.page()`. */
 export function TikTokPixel({ pixelId }: Readonly<{ pixelId: string }>) {
   return (
     <Script

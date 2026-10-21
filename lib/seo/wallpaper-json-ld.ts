@@ -140,7 +140,7 @@ export function wallpaperCategoryGalleryJsonLd(input: {
 }
 
 /**
- * Detail page structured data — breadcrumbs, WebPage, ImageObject, VideoObject.
+ * Detail page structured data: breadcrumbs, WebPage, ImageObject, VideoObject.
  * Omits `contentUrl` on VideoObject (anti-theft); uses thumbnail + embed page URL only.
  */
 export function wallpaperDetailPageJsonLd(input: {

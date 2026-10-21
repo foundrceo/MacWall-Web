@@ -152,7 +152,7 @@ export const macwallMarketingCopy = {
       "Others",
     ] as const,
   },
-  /** Home page sections added for 4.0.9 (every claim matches the app). */
+  /** Home page feature sections (every claim matches the app). */
   home: {
     everything: {
       title: "Everything in the app",

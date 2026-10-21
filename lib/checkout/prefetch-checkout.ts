@@ -161,7 +161,7 @@ function isCoolingDown(key: string): boolean {
 }
 
 type PrefetchOptions = {
-  /** User-initiated click — bypass background failure cooldown. */
+  /** User-initiated click: bypass background failure cooldown. */
   force?: boolean
   email?: string | null
   visitorId?: string | null
@@ -231,7 +231,7 @@ export function prefetchCheckoutSession(
       }
 
       const referralNow = readAffonsoReferralCookie()
-      // Pixel set the cookie after this request left the browser — Stripe metadata
+      // Pixel set the cookie after this request left the browser: Stripe metadata
       // is empty. Do not cache under the new referral; callers must recreate.
       if (referralNow !== referralAtStart) {
         failureCooldownUntil.delete(key)
@@ -267,14 +267,14 @@ export function takePrefetchedCheckoutUrl(
   const key = cacheKey(offer, referral, leadEmail)
   const url = getPrefetchedCheckoutUrl(offer, leadEmail)
   if (!url) return null
-  // One-shot — avoid two tabs/clicks sharing the same session accidentally.
+  // One-shot: avoid two tabs/clicks sharing the same session accidentally.
   cache.delete(key)
   return url
 }
 
 /**
  * On affiliate landings (`?atp=` / `affonso_id=`), wait briefly for the pixel
- * to set `affonso_referral` before warming Stripe — otherwise metadata is empty.
+ * to set `affonso_referral` before warming Stripe: otherwise metadata is empty.
  */
 export async function waitForAffonsoReferralIfLanding(
   timeoutMs = 2500

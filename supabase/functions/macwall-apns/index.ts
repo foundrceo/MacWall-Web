@@ -9,7 +9,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
  * 2) App POSTs token here (action=register)
  * 3) We POST alerts to api.push.apple.com with a JWT signed by the .p8 key
  *
- * Secrets (Supabase Edge only — never in MacWall-Web / Vercel):
+ * Secrets live only in Supabase Edge, never in the website:
  *   APNS_KEY_ID, APNS_TEAM_ID, APNS_BUNDLE_ID, APNS_PRIVATE_KEY
  */
 
@@ -110,9 +110,8 @@ function pemToPkcs8(pem: string): ArrayBuffer {
   return buf.buffer;
 }
 
-// Apple: refresh no more than once every 20 minutes and at least hourly, and
-// the same token must be shared. Every edge instance minting its own token (50
-// parallel sends per cold start) got 429 TooManyProviderTokenUpdates.
+// Apple wants one shared token, refreshed at most every 20 minutes and at least
+// hourly. Minting one per edge instance gets 429 TooManyProviderTokenUpdates.
 const TOKEN_REUSE_SECONDS = 40 * 60;
 let jwtInFlight: Promise<string> | null = null;
 let sharedTokenStore:

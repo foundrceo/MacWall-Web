@@ -1,8 +1,8 @@
 "use client"
 
 /**
- * Wallpapers — catalog browser and metadata editor. Table on the left,
- * sticky editor rail on the right; everything lives in this page.
+ * Catalog browser and metadata editor: table on the left, sticky editor rail
+ * on the right.
  */
 
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react"

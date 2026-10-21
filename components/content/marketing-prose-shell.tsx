@@ -2,7 +2,7 @@ import type { ReactNode } from "react"
 
 export type ProseLayoutWidth = "article" | "wide" | "blog"
 
-/** Kept for call-site compatibility. Inner pages now stack MarketingTitleSection + MarketingBodySection. */
+/** Old wrapper; inner pages use MarketingTitleSection + MarketingBodySection. */
 export function MarketingProseShell({
   labelledBy,
   children,

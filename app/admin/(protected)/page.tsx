@@ -1,9 +1,6 @@
 "use client"
 
-/**
- * Analytics — Sales, Live Users, License Breakdown, Promos, Funnels,
- * Checkout Recovery, Catalog Health & Community Engagement.
- */
+/** Admin analytics dashboard. */
 
 import { useCallback, useEffect, useState, type ReactNode } from "react"
 import {
@@ -72,8 +69,6 @@ import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatRelativeTime, formatUsd } from "@/lib/admin/format"
 import { cn } from "@/lib/utils"
-
-/* -------------------------------------------------------------------------- */
 
 type AnalyticsResponse = {
   rangeDays: number
@@ -375,8 +370,6 @@ function Section({
   )
 }
 
-/* -------------------------------------------------------------------------- */
-
 export default function AdminAnalyticsPage() {
   const [days, setDays] = useState<number>(7)
   const [data, setData] = useState<AnalyticsResponse | null>(null)
@@ -580,7 +573,7 @@ export default function AdminAnalyticsPage() {
                 </Panel>
               ) : null}
 
-              {/* 1. Live Real-time Activity Center */}
+              {/* 1. Live activity */}
               {live ? (
                 <Section
                   title="Live & Real-time Activity"
@@ -1528,8 +1521,6 @@ export default function AdminAnalyticsPage() {
     </AdminShell>
   )
 }
-
-/* -------------------------------------------------------------------------- */
 
 function TrackingPill({ data }: Readonly<{ data: AnalyticsResponse }>) {
   const lastEventAt = data.lastEventAt

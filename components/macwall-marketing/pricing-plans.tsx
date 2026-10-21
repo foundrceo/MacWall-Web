@@ -146,7 +146,6 @@ function PlanCard({
           : "border-white/[0.08] bg-white/[0.012] shadow-xl"
       )}
     >
-      {/* Raised panel */}
       <div
         className={cn(
           "relative overflow-hidden rounded-2xl border p-5 sm:p-6",
@@ -155,7 +154,6 @@ function PlanCard({
             : "border-white/[0.07] bg-white/[0.03]"
         )}
       >
-        {/* Glass sheen */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 h-40"
@@ -214,7 +212,6 @@ function PlanCard({
         </div>
       </div>
 
-      {/* Features */}
       <div className="flex flex-1 flex-col gap-5 px-4 pt-5 pb-5 sm:px-5">
         <LabelledRule tone={tone}>{featuresLabel}</LabelledRule>
         <ul role="list" className="space-y-3">

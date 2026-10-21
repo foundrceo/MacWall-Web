@@ -12,9 +12,9 @@ import type { Metadata } from "next"
 const PAGE_PATH = "/changelog"
 
 /**
- * ISR — hourly. A 5-minute TTL rebuilt this page ~288×/day (the site's top ISR
- * writer) for releases that ship a few times a month; a new R2
- * `releases/changelog.json` now shows up within the hour.
+ * Hourly ISR. Releases ship a few times a month, so a new R2
+ * `releases/changelog.json` showing up within the hour is fine and keeps
+ * ISR writes low.
  */
 export const revalidate = 3600
 

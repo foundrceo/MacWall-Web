@@ -8,14 +8,12 @@ import { workersCacheCdnAdapter } from "@vinext/cloudflare/cache/workers-cache-c
 import { imagesOptimizer } from "@vinext/cloudflare/images/images-optimizer"
 
 /**
- * Cloudflare Workers build (vinext); the Worker itself is configured in
- * wrangler.jsonc. `next build` still works for Vercel while both deployments
- * exist.
- * - Data cache (`unstable_cache`) → Workers KV; page ISR → Workers Cache with
- *   tag purges, so `revalidateTag` still refreshes catalog pages.
- * - `next/image` → Cloudflare Images (the Vercel optimizer is gone).
- * - Tailwind runs as its Vite plugin; postcss.config.mjs stays for `next build`
- *   (Vite's CSS @import step can't resolve `@import "tailwindcss"` itself).
+ * Workers build via vinext. The Worker itself is configured in wrangler.jsonc.
+ * - `unstable_cache` goes to Workers KV, page ISR to the Workers Cache with tag
+ *   purges, so `revalidateTag` still refreshes catalog pages.
+ * - `next/image` goes through Cloudflare Images.
+ * - Tailwind runs as a Vite plugin because Vite's CSS @import step can't
+ *   resolve `@import "tailwindcss"`. postcss.config.mjs is only for `next build`.
  */
 export default defineConfig({
   css: { postcss: { plugins: [] } },

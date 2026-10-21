@@ -26,7 +26,7 @@ export async function broadcastSupportTyping(
     config: { broadcast: { self: false } },
   })
   try {
-    // httpSend uses REST — no need to subscribe first.
+    // httpSend uses REST: no need to subscribe first.
     await channel.httpSend(SUPPORT_TYPING_EVENT, {
       ticketId: input.ticketId,
       role: input.role,

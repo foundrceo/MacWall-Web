@@ -104,7 +104,7 @@ export async function fetchMarketingCatalogRows(): Promise<
   return (await res.json()) as MarketingCatalogWallpaperRow[]
 }
 
-/** Newest uploads first — used by the homepage browse carousel. */
+/** Newest uploads first: used by the homepage browse carousel. */
 export async function fetchLatestMarketingCatalogRows(): Promise<
   MarketingCatalogWallpaperRow[]
 > {
@@ -139,7 +139,7 @@ export async function fetchLatestMarketingCatalogRows(): Promise<
   return (await res.json()) as MarketingCatalogWallpaperRow[]
 }
 
-/** Homepage gallery — best 20, excluding hero carousel IDs only. */
+/** Homepage gallery: best 20, excluding hero carousel IDs only. */
 export function pickMarketingGalleryRows(
   rows: MarketingCatalogWallpaperRow[]
 ): MarketingCatalogWallpaperRow[] {
@@ -174,7 +174,7 @@ function createdAtMs(row: MarketingCatalogWallpaperRow): number {
   return Number.isFinite(ms) ? ms : 0
 }
 
-/** Homepage browse carousel — newest catalog uploads first (R2 thumbs). */
+/** Homepage browse carousel: newest catalog uploads first (R2 thumbs). */
 export function pickLatestMarketingCarouselRows(
   rows: MarketingCatalogWallpaperRow[],
   count = MARKETING_FEATURE_CAROUSEL_WALLPAPER_COUNT
@@ -186,7 +186,7 @@ export function pickLatestMarketingCarouselRows(
 }
 
 /**
- * MacWall's Pick demo row — top 6 by catalog score, excluding hero + gallery wallpapers
+ * MacWall's Pick demo row: top 6 by catalog score, excluding hero + gallery wallpapers
  * so these clips are reserved for the in-app demo only.
  */
 export function pickMarketingHomePickRows(

@@ -3,11 +3,9 @@ import { createFlagsDiscoveryEndpoint } from "flags/next"
 import { FLAG_DEFINITIONS } from "@/lib/flags"
 
 /**
- * Flags Discovery Endpoint — Flags Explorer fetches definitions here.
- * Authenticated via `FLAGS_SECRET` (`verifyAccess` inside the helper
- * returns 401 without a valid Toolbar Authorization header).
- * Request-scoped, so this route is dynamic by design (no caching impact
- * on marketing pages).
+ * Flags Explorer reads flag definitions here. The helper's `verifyAccess`
+ * returns 401 without a valid FLAGS_SECRET Authorization header. Dynamic per
+ * request; marketing page caching is unaffected.
  */
 export const GET = createFlagsDiscoveryEndpoint(async () => ({
   definitions: FLAG_DEFINITIONS,

@@ -8,7 +8,7 @@ import { isPrivateAnalyticsPath, redactAnalyticsProperties } from "@/lib/analyti
 
 import { adPixelState, subscribeConsent } from "@/lib/consent/consent-client"
 
-/** Consented product analytics goes directly to PostHog, without Vercel proxy traffic. */
+/** Product analytics (consented only), sent straight to PostHog. */
 
 const POSTHOG_TOKEN =
   process.env.NEXT_PUBLIC_POSTHOG_TOKEN?.trim() ||
@@ -67,7 +67,7 @@ export function PostHogAnalytics() {
           capture_exceptions: false,
           autocapture: false,
           capture_dead_clicks: false,
-          // Core Web Vitals land here instead of paid Vercel Speed Insights.
+          // Core Web Vitals go to PostHog too.
           capture_performance: { web_vitals: true, network_timing: false },
           person_profiles: "identified_only",
           persistence: "localStorage+cookie",

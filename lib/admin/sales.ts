@@ -5,7 +5,7 @@ import { netRevenueForAmount } from "@/lib/admin/sales-math"
 import { fetchStripeLive, type StripePaidCharge } from "@/lib/admin/stripe-live"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
-/** Default MacWall Pro permanent price (USD) — most common SKU. */
+/** Default MacWall Pro permanent price (USD): most common SKU. */
 export const PRO_PRICE_USD = 9.99
 /** 5-Mac permanent license. */
 export const PRO_PLUS_PRICE_USD = 12.99
@@ -685,7 +685,7 @@ export function buildDayOfWeekSales(salesRows: SaleRow[]): DayOfWeekSalesRow[] {
     }
   }
 
-  // Rotate starting Monday for better business presentation (Mon..Sun)
+  // Start the week on Monday.
   return [...counts.slice(1), counts[0]]
 }
 

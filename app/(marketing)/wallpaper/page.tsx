@@ -13,10 +13,7 @@ type PageProps = {
   searchParams: Promise<{ id?: string }>
 }
 
-/**
- * Legacy Mac app share links: `/wallpaper?id={id}`
- * Redirect to the canonical `/wallpaper/{category}/{slug}` detail URL.
- */
+/** Old Mac app share links (`/wallpaper?id={id}`) redirect to the detail page. */
 export default async function WallpaperIdRedirectPage({
   searchParams,
 }: PageProps) {

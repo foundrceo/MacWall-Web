@@ -33,7 +33,7 @@ const GAP_RANGE: readonly [number, number] = [20_000, 30_000]
 /** How long a toast stays after the user has actually seen it. */
 const VISIBLE_MS = 4_500
 const HIDDEN_RETRY_MS = 8_000
-/** Client refresh is intentionally slower than CDN TTL — CDN absorbs most hits. */
+/** Client refresh is intentionally slower than CDN TTL: CDN absorbs most hits. */
 const REFRESH_MS = 300_000
 
 function randomBetween([min, max]: readonly [number, number]): number {
@@ -78,7 +78,7 @@ export function SocialProofPopups() {
   const shownKeysRef = useRef<Set<string>>(new Set())
   const fallbackIndexRef = useRef(0)
   const queueIndexRef = useRef(0)
-  /** Active dismiss timer — cleared when the toast is replaced or hidden. */
+  /** Active dismiss timer: cleared when the toast is replaced or hidden. */
   const dismissTimerRef = useRef<number | null>(null)
 
   const pathHidden = HIDDEN_PATH_PREFIXES.some((prefix) =>
@@ -136,7 +136,7 @@ export function SocialProofPopups() {
           feedRef.current = data
         }
       } catch {
-        // Synthetic marketing still works from empty feed floors.
+        // No feed: the popups just stay quiet.
       }
     }
 
@@ -179,7 +179,7 @@ export function SocialProofPopups() {
     }
   }, [])
 
-  // Show one popup at a time — replace any existing toast instead of stacking.
+  // Show one popup at a time: replace any existing toast instead of stacking.
   useEffect(() => {
     if (!enabled) return
 

@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import type { ReactNode } from "react"
 
 /**
- * Skip ad/affiliate pixels on admin, legal, and docs — they burn third-party
+ * Skip ad/affiliate pixels on admin, legal, and docs: they burn third-party
  * requests and inflate analytics without conversion value.
  */
 function isMarketingPath(pathname: string | null): boolean {

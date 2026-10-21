@@ -1,7 +1,4 @@
-/**
- * Shared Tailwind chrome for the public wallpaper gallery.
- * Apple-inspired: capsules for controls, continuous media radii, crisp type.
- */
+/** Shared Tailwind classes for the public wallpaper gallery. */
 
 /** Space from breadcrumb row to page title (H1). */
 export const GALLERY_TITLE_AFTER_BREADCRUMB_CLASS = "mt-5"
@@ -15,7 +12,7 @@ export const GALLERY_SUBTITLE_AFTER_TITLE_CLASS = "mt-2"
 /** Search / filter controls below title + subtitle. */
 export const GALLERY_CONTROLS_AFTER_TITLE_BLOCK_CLASS = "mt-5"
 
-/** Capsule control — chips, pills, CTAs. */
+/** Capsule control: chips, pills, CTAs. */
 export const GALLERY_CAPSULE_CLASS = "rounded-full"
 
 /** Continuous media corner (Apple-like, ~22px). */
@@ -31,10 +28,10 @@ export const GALLERY_SURFACE_CLASS =
 export const GALLERY_SURFACE_HOVER_CLASS =
   "hover:bg-white/[0.12]"
 
-/** Primary body text — full white. */
+/** Primary body text: full white. */
 export const GALLERY_TEXT_PRIMARY_CLASS = "text-white"
 
-/** Secondary copy — readable, not washed out. */
+/** Secondary copy: readable, not washed out. */
 export const GALLERY_TEXT_SECONDARY_CLASS = "text-white/72"
 
 /** Tertiary / meta labels. */
@@ -43,23 +40,23 @@ export const GALLERY_TEXT_TERTIARY_CLASS = "text-white/55"
 /** Hairline divider. */
 export const GALLERY_DIVIDER_CLASS = "bg-white/[0.08]"
 
-/** Capsule search field — custom clear only (no native WebKit cancel). */
+/** Capsule search field: custom clear only (no native WebKit cancel). */
 export const GALLERY_SEARCH_INPUT_CLASS =
   "h-11 w-full rounded-full border-0 bg-white/[0.08] py-0 pl-11 text-[15px] text-white shadow-none ring-0 placeholder:text-white/45 focus-visible:border-0 focus-visible:bg-white/[0.11] focus-visible:ring-2 focus-visible:ring-white/25 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-webkit-search-results-button]:hidden"
 
-/** Inactive capsule chip — icon + label. */
+/** Inactive capsule chip: icon + label. */
 export const GALLERY_CHIP_CLASS =
   "inline-flex h-9 shrink-0 items-center gap-2 rounded-full border-0 bg-white/[0.08] px-3.5 text-[13px] font-normal text-white/70 shadow-none ring-0 transition duration-200 ease-out hover:bg-white/[0.12] hover:text-white focus-visible:ring-2 focus-visible:ring-white/25"
 
-/** Active capsule chip (inverted) — icon + label. */
+/** Active capsule chip (inverted): icon + label. */
 export const GALLERY_CHIP_ACTIVE_CLASS =
   "inline-flex h-9 shrink-0 items-center gap-2 rounded-full border-0 bg-white px-3.5 text-[13px] font-normal text-black shadow-none ring-0 transition duration-200 ease-out focus-visible:ring-2 focus-visible:ring-white/50"
 
-/** Sort dropdown panel — dark Apple-like menu (no Select checkmarks). */
+/** Sort dropdown panel: dark Apple-like menu (no Select checkmarks). */
 export const GALLERY_SORT_MENU_CLASS =
   "flex min-w-[var(--radix-dropdown-menu-trigger-width)] flex-col gap-0.5 rounded-xl border border-landing-rule bg-[#111] p-1 text-white shadow-none"
 
-/** Sort dropdown row — consistent height and inset from panel edge. */
+/** Sort dropdown row: consistent height and inset from panel edge. */
 export const GALLERY_SORT_MENU_ITEM_CLASS =
   "h-8 min-h-8 cursor-pointer gap-0 rounded-[10px] px-2.5 py-0 text-[13px] font-normal focus:bg-white/10 focus:text-white data-[highlighted]:bg-white/10"
 

@@ -1,25 +1,23 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  // Cloudflare Workers deployment of macwall.app (vinext). `next build` for
-  // Vercel is unchanged, so both can run until DNS moves.
+  // macwall.app on Workers, built by vinext (`npm run build:cf`).
   "name": "macwall",
   "main": "./worker/index.ts",
   "compatibility_date": "2026-10-17",
   "compatibility_flags": ["nodejs_compat"],
-  // Run next to Supabase (the Vercel project was pinned to sin1 for this).
+  // smart placement keeps the Worker close to Supabase
   "placement": { "mode": "smart" },
   "observability": { "enabled": true },
-  // Production: macwall.app serves from this Worker; www redirects to the
-  // apex in next.config. Zone routes on the proxied, originless apex/www
-  // records (AAAA 100::), so every request is answered by the Worker.
+  // apex and www both point at originless proxied records, so the Worker
+  // answers everything. www -> apex happens in next.config.mjs.
   "routes": [
     { "pattern": "macwall.app/*", "zone_name": "macwall.app" },
     { "pattern": "www.macwall.app/*", "zone_name": "macwall.app" }
   ],
-  // No workers.dev or preview URLs: production is the only hostname.
+  // production is the only hostname
   "workers_dev": false,
   "preview_urls": false,
-  // Replaces the `crons` that were in vercel.json (worker/crons.ts dispatches).
+  // worker/crons.ts maps each schedule to its job
   "triggers": { "crons": ["*/5 * * * *", "*/10 * * * *", "7,22,37,52 * * * *"] },
   "assets": {
     "directory": "dist/client",
@@ -29,8 +27,8 @@
     "run_worker_first": ["/*", "!/_next/static/*", "!/*/_next/static/*"]
   },
   "version_metadata": { "binding": "CF_VERSION_METADATA" },
-  // next/image → Cloudflare Images.
+  // next/image -> Cloudflare Images
   "images": { "binding": "IMAGES" },
-  // unstable_cache / data cache (vinext kvDataAdapter); provisioned on deploy.
+  // unstable_cache data cache (vinext kvDataAdapter), provisioned on deploy
   "kv_namespaces": [{ "binding": "VINEXT_KV_CACHE" }]
 }

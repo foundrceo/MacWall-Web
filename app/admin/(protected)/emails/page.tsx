@@ -1,9 +1,8 @@
 "use client"
 
 /**
- * Emails — preview the transactional HTML customers receive via Resend
- * (license delivery, checkout recovery, trial-ended). Sample data only;
- * nothing is sent from this page.
+ * Previews of the emails customers get via Resend (license delivery, checkout
+ * recovery, trial). Sample data only; nothing is sent from here.
  */
 
 import {

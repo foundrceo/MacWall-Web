@@ -9,7 +9,7 @@ type CreatorSectionHeadingProps = Readonly<{
   subtitleClassName?: string
 }>
 
-/** Wysera-style section heading — eyebrow, serif title, lead. */
+/** Eyebrow, serif title, lead. */
 export function CreatorSectionHeading({
   eyebrow,
   title,

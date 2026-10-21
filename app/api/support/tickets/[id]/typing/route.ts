@@ -24,9 +24,7 @@ function bad(status: number, error: string) {
   )
 }
 
-/**
- * Visitor typing ping (ephemeral). Auth: sessionId must own the ticket.
- */
+/** Visitor typing ping, not stored. The sessionId must own the ticket. */
 export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> }

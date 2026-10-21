@@ -1,13 +1,7 @@
 /**
- * In-memory fixed-window rate limiter.
- *
- * NOTE: state lives in a single process and is lost on cold start, so on
- * serverless/multi-instance hosting (e.g. Vercel) limits are enforced
- * per-instance, not globally. This is adequate as a cheap abuse brake for
- * analytics, admin login, and upload presign endpoints. For production-grade,
- * globally consistent limits, back this with a durable store such as Upstash
- * Redis (`@upstash/ratelimit`) or Vercel KV and swap `createInMemoryRateLimiter`
- * for that implementation behind the same `RateLimitResult` contract.
+ * In-memory fixed-window rate limiter. State is per instance and lost on cold
+ * start, so limits aren't global. Good enough as a cheap abuse brake; use
+ * public-quota.ts where limits must hold across instances.
  */
 type HitCounter = {
   count: number

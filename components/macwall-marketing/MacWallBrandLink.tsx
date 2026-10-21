@@ -3,7 +3,7 @@ import { MacWallAppIcon } from "@/components/macwall-app-icon"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
-/** Nav + footer brand row — icon and wordmark share one optical center line. */
+/** Nav + footer brand row: icon and wordmark share one optical center line. */
 export const MACWALL_BRAND_ICON_SIZE = 20 as const
 
 const brandTextBase =

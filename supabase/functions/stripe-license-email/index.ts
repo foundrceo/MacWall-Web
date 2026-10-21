@@ -47,8 +47,8 @@ async function sha256Hex(value: string): Promise<string> {
  * /activate (lib/analytics/tiktok-shared.ts), so TikTok keeps one copy.
  * The `tt_*` metadata (click id, `_ttp` cookie, IP, user agent) is what lets
  * TikTok tie the sale to the ad click; email alone rarely matches.
- * CompletePayment is TikTok's legacy name for Purchase; sending both (or
- * PlaceAnOrder too) counted one sale up to three times.
+ * CompletePayment is TikTok's legacy name for Purchase; sending it (or
+ * PlaceAnOrder) as well counts the same sale again.
  */
 async function sendTikTokPurchase(args: {
   email: string
@@ -407,7 +407,7 @@ function textLinkCta(href: string, label: string): string {
   </table>`
 }
 
-/** Production path — licenseKey is required (never SAMPLE_LICENSE_KEY). */
+/** Real sends: licenseKey is required, never SAMPLE_LICENSE_KEY. */
 function buildLicenseEmailHtml(args: {
   appName: string
   licenseKey: string
@@ -800,7 +800,7 @@ async function purchasedDeviceCount(
 const ADDON_DEVICES_BY_AMOUNT: Record<string, Record<number, number>> = {
   // Global $7 / $15, India $3 / $5.
   usd: { 700: 2, 1500: 5, 300: 2, 500: 5 },
-  // Archived INR India Prices (Sep 2026 sessions only).
+  // Archived INR India prices, still on older sessions.
   inr: { 29900: 2, 49900: 5 },
 }
 
@@ -1192,7 +1192,7 @@ async function handlePaymentFailed(args: {
 }): Promise<Response> {
   const paymentIntent = args.event.data.object as Stripe.PaymentIntent
 
-  // Checkout Sessions usually leave receipt_email null — email is on the session.
+  // Checkout Sessions usually leave receipt_email null; the email is on the session.
   let email = paymentIntent.receipt_email?.trim() || null
   const reason = paymentIntent.last_payment_error?.message ?? "payment_failed"
 
@@ -1268,7 +1268,7 @@ const SUBSCRIPTION_ACTIVE_STATUSES = new Set(["active", "trialing"])
 /**
  * Annual plans are only "working" while the Stripe subscription is active or
  * trialing. Any other status (past_due, unpaid, canceled, incomplete_expired,
- * paused) revokes access immediately — the license key stops verifying until
+ * paused) revokes access immediately: the license key stops verifying until
  * the customer renews and Stripe reports the subscription active again.
  */
 async function handleSubscriptionStatusChange(args: {

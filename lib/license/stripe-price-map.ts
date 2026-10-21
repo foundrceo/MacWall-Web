@@ -8,7 +8,7 @@ import type {
 } from "@/lib/license/offers.shared"
 
 /**
- * Stripe catalog (2026-10). Four Products, one Price per region each. Price
+ * Stripe catalog: four Products, one Price per region each. Price
  * metadata tells the license webhook how many Macs a line item is worth:
  * `max_devices` on licenses, `adds_devices` on add-ons.
  *
@@ -19,8 +19,7 @@ import type {
  *   macwall_addon_5_macs       Add 5 more Macs                 $15.00       $5.00  optional on Pro+,
  *                                                                               required for 10 Macs
  *
- * All Prices are USD. Adaptive Pricing converts at Checkout; the old INR
- * India Prices are archived.
+ * All Prices are USD; Adaptive Pricing converts at Checkout.
  *
  * Every ID can be overridden with an env var (see .env.example). Prices
  * without an ID are resolved by lookup key: `<product>_<global|india>`.

@@ -233,12 +233,9 @@ export function WallpaperGallery({
     sort,
   } = filters ?? DEFAULT_GALLERY_FILTERS
 
-  /**
-   * Cache key MUST be the gallery route — never `usePathname()`.
-   * On detail navigation Next updates pathname to `/wallpaper/...` before this
-   * component unmounts; persisting under that path made Back miss the snapshot
-   * and fall back to SSR page 1 (browser-verified: 48 → 24 wipe).
-   */
+  // Key the cache by the gallery route, not usePathname(): on detail
+  // navigation the pathname becomes /wallpaper/... before this unmounts, and
+  // Back would then miss the snapshot and fall back to page 1.
   const galleryPathname = useMemo(() => {
     if (!activeCategory) return wallpapersGalleryPath()
     const slug = categorySlugFromName(activeCategory)
@@ -339,10 +336,9 @@ export function WallpaperGallery({
   const persistSnapshotRef = useRef(persistSnapshot)
   useLayoutEffect(() => { persistSnapshotRef.current = persistSnapshot }, [persistSnapshot])
 
-  // Only refetch when the list doesn't match the filters — NOT when callback
-  // identity churns. (Including `persistSnapshot` in deps re-fired this on Back
-  // and wiped Show more via `{ replace: true }` → browser-verified 48→24
-  // regression.) A Back restore sets `listFilterKey`, so it never refetches.
+  // Refetch only when the list doesn't match the filters, not when callback
+  // identity changes (having persistSnapshot in deps re-fired this on Back
+  // and wiped Show more). A Back restore sets listFilterKey, so no refetch.
   const filterKey = galleryFilterKey(
     activeCategory,
     { q: qParam, tag: tagParam, sort },
@@ -409,7 +405,7 @@ export function WallpaperGallery({
     initial.limit,
   ])
 
-  // Own scroll — Next/browser restoration is what dumps you on the footer.
+  // Own scroll: Next/browser restoration is what dumps you on the footer.
   useEffect(() => {
     const previous = window.history.scrollRestoration
     try {
@@ -426,7 +422,7 @@ export function WallpaperGallery({
     }
   }, [])
 
-  // Keep cache warm for focus marking — only while still on a gallery route.
+  // Keep cache warm for focus marking, only while still on a gallery route.
   useEffect(() => {
     if (!onGalleryRoute || !filtersReady || !listMatchesFilters) return
     persistSnapshot({
@@ -503,7 +499,7 @@ export function WallpaperGallery({
 
   const loadMore = async () => {
     if (loadingMore || !hasMore) return
-    // Fresh user pagination — allow entrance animation on the new batch only.
+    // Fresh user pagination: allow entrance animation on the new batch only.
     setSuppressEntrance(false)
     setLoadingMore(true)
     setLoadMoreError(null)
@@ -533,7 +529,7 @@ export function WallpaperGallery({
       setEntranceIndices((prev) => mergeEntranceIndices(prev, data.wallpapers))
       setPage(data.page)
       setHasMore(data.hasMore)
-      // Persist the full expanded list — this is what Back restores (no re-fetch).
+      // Persist the full expanded list: this is what Back restores (no re-fetch).
       persistSnapshot({
         wallpapers: merged,
         page: data.page,

@@ -46,11 +46,10 @@ export function marketingAssetPublicUrl(objectKey: string): string {
 }
 
 /**
- * Marketing videos (~19 MB together) stream from R2, which has no egress fee,
- * instead of `/public`, where every byte is billed as Vercel Fast Data
- * Transfer. Objects carry `max-age=31536000, immutable`: upload a re-encode
- * under a new name rather than overwriting. Small posters stay in `/public`.
- * The 82 MB `.mov` master on R2 is reachable only through the env overrides.
+ * Marketing videos stream from R2 (no egress fee) rather than `/public`.
+ * Objects carry `max-age=31536000, immutable`, so upload a re-encode under a
+ * new name instead of overwriting. Small posters stay in `/public`. The `.mov`
+ * master on R2 is only reachable through the env overrides.
  */
 export const MARKETING_HERO_VIDEO_MP4_PATH =
   marketingAssetPublicUrl("hero/hero-video.mp4")

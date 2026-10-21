@@ -59,9 +59,7 @@ function Poster({
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* 1 · Wallpaper wall                                                  */
-/* ------------------------------------------------------------------ */
+/* 1 · Wallpaper wall */
 
 /**
  * Three tilted rows of real wallpapers drift behind the ask, dimmed toward
@@ -113,9 +111,7 @@ function WallCta() {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* 2 · Split with gallery                                              */
-/* ------------------------------------------------------------------ */
+/* 2 · Split with gallery */
 
 /**
  * The ask on the left; a staggered two-column gallery on the right, one tile
@@ -181,9 +177,7 @@ function SplitCta() {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* 3 · Serif card                                                      */
-/* ------------------------------------------------------------------ */
+/* 3 · Serif card */
 
 /** Film grain, as an SVG noise texture. */
 const grain =
@@ -223,9 +217,7 @@ function CardCta() {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* 4 · Light beams                                                     */
-/* ------------------------------------------------------------------ */
+/* 4 · Light beams */
 
 const beamColumns = [
   { left: "12%", delay: "0s", duration: "7s" },
@@ -280,9 +272,7 @@ function BeamsCta() {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* 5 · App icon                                                        */
-/* ------------------------------------------------------------------ */
+/* 5 · App icon */
 
 /**
  * Apple's product-page close: the app icon, glowing in its own colours, the
@@ -328,9 +318,7 @@ function IconCta() {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* 6 · Marquee type                                                    */
-/* ------------------------------------------------------------------ */
+/* 6 · Marquee type */
 
 /**
  * A giant serif line drifts behind the close; Apple's "one more thing" as

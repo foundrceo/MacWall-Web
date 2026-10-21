@@ -43,7 +43,7 @@ async function proxyToEdge(cronSecret: string): Promise<NextResponse> {
 }
 
 /**
- * Vercel Cron → Supabase `process-trial-ended-emails`, the only sender of
+ * Cron → Supabase `process-trial-ended-emails`, the only sender of
  * trial emails (templates in supabase/functions/_shared/lifecycle-emails.ts).
  */
 export async function GET(request: Request) {

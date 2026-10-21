@@ -66,7 +66,6 @@ const springPanel = {
   mass: 0.85,
 }
 
-/** Layout tokens — shared horizontal axis + compact density. */
 const PALETTE = {
   /** Shared left/right padding for search, tabs, section titles, footer. */
   px: "px-4",
@@ -564,7 +563,6 @@ function CommandPaletteDialogContent({
       )}
       style={{ WebkitBackdropFilter: "blur(32px) saturate(1.15)" }}
     >
-      {/* Search row */}
       <div className={cn(PALETTE.px, "pt-4 pb-2.5")}>
         <div className="flex items-center gap-3">
           <HugeiconsIcon
@@ -603,7 +601,6 @@ function CommandPaletteDialogContent({
         reduceMotion={reduceMotion}
       />
 
-      {/* Results body */}
       <div
         className={cn(
           "max-h-[min(48vh,26rem)] overflow-y-auto pb-3",
@@ -666,7 +663,6 @@ function CommandPaletteDialogContent({
         )}
       </div>
 
-      {/* Footer */}
       <div
         className={cn(
           "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-white/[0.06] py-3",

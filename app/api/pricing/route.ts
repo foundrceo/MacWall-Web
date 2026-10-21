@@ -108,7 +108,7 @@ const cachedPricingForCountry = unstable_cache(
  * Localized marketing prices for client hydration (keeps HTML pages static/ISR).
  *
  * `?c=XX` (the client sends its country cookie) depends on nothing but the
- * URL, so the Vercel CDN answers it without invoking this function. The bare
+ * URL, so the CDN answers it without invoking this function. The bare
  * call resolves geo per visitor, stays private, and sets the country cookie so
  * every later call takes the cached `?c=` path. The proxy skips this route.
  */
@@ -126,8 +126,8 @@ export async function GET(request: Request) {
 
   const cookieStore = await cookies()
   const cookieCountry = cookieStore.get(COUNTRY_COOKIE)?.value
-  // Cookie / Vercel geo / IP / egress — localhost has no Vercel header, so
-  // the IP fallback is what still gives India visitors an INR hint there.
+  // Cookie / geo header / IP / egress. Localhost has no geo header, so the IP
+  // fallback is what still gives India visitors an INR hint there.
   const country = await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry,

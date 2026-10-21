@@ -6,7 +6,7 @@ type CacheEntry<T> = {
 }
 
 const store = new Map<string, CacheEntry<unknown>>()
-/** Bound the per-instance map — admin polls fan out many keys while warm. */
+/** Bound the per-instance map: admin polls fan out many keys while warm. */
 const MAX_KEYS = 500
 
 function evictOldest(): void {

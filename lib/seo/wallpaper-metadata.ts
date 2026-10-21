@@ -70,7 +70,7 @@ function defaultGalleryTwitter(input: { title: string; description: string }) {
   }
 }
 
-/** Metadata for `/wallpapers` — canonical index; filtered views are noindex. */
+/** Metadata for `/wallpapers`: canonical index; filtered views are noindex. */
 export function wallpaperGalleryIndexMetadata(
   filters: GalleryFilterParams = {}
 ): Metadata {
@@ -119,7 +119,7 @@ export function wallpaperGalleryIndexMetadata(
   }
 }
 
-/** Metadata for `/wallpapers/{category}` — filtered query views are noindex. */
+/** Metadata for `/wallpapers/{category}`: filtered query views are noindex. */
 export function wallpaperCategoryGalleryMetadata(
   categoryName: string,
   filters: GalleryFilterParams = {}

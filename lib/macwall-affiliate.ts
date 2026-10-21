@@ -1,8 +1,8 @@
-/** Affonso affiliate program — pixel + Stripe attribution (env only). */
+/** Affonso affiliate program: pixel + Stripe attribution (env only). */
 
 /**
  * Temporary UI kill-switch for affiliate entry points (nav, footer, etc.).
- * Page + tracking code stay live — flip to `true` to show links again.
+ * Page + tracking code stay live: flip to `true` to show links again.
  */
 export const AFFILIATE_UI_VISIBLE = false
 

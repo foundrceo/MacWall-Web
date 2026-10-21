@@ -1,6 +1,11 @@
 {
   "name": "macwall-web",
   "version": "0.0.1",
+  "description": "Website for MacWall, a live wallpaper app for the Mac (macwall.app)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foundrceo/MacWall-Web.git"
+  },
   "type": "module",
   "private": true,
   "scripts": {

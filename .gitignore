@@ -10,102 +10,76 @@
 
 # testing
 /coverage
-
-# next.js
-/.next/
-/out/
-
-# production / deploy
-/build
-.vercel
-
-# turbo
-.turbo
-
-# misc
-.DS_Store
-*.pem
-Thumbs.db
-
-# browser / e2e tooling
 .playwright-cli/
 
-# debug
+# build output
+/.next/
+/out/
+/build
+/dist/
+.vinext/
+.vercel
+.turbo
+*.tsbuildinfo
+next-env.d.ts
+
+# cloudflare / wrangler local state
+.wrangler/
+.cloudflare/
+.dev.vars*
+
+# logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 *.log
 
-# env / secrets — never commit real values
+# env and secrets
 .env
 .env.*
 !.env.example
-.env.local
-.env.development
-.env.production
-.env*.local
 *.pem
 *.key
 *.p8
 *.p12
 *.pfx
-AuthKey_*.p8
 credentials.json
 *-credentials.json
 service-account*.json
 .secrets/
+.mcp.json
 
-# local databases / dumps
+# local databases and dumps
 *.sql
 !supabase/migrations/*.sql
 *.sqlite
 *.sqlite3
 *.db
 
-# local AI agent skills / lockfiles (never publish)
-.agents/
-skills/
-skills-lock.json
-
-# local backend source / private ops docs (deployed remotely)
-# supabase/  (track functions; ignore local state below)
+# supabase local state
 .supabase/
+supabase/.temp/
+supabase/.branches/
 
-# history rewrite helpers / local bundles (never publish)
+# local exports, scratch files, history rewrite scripts
+/private/
+tmp/
+_deploy_payload.json
 .git-scrub*.py
 .git-rewrite*.py
 *.bundle
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# IDE (local only)
+# editor and local tool config
+.DS_Store
+Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
-
-# Affonso/agent skill symlinks (local install via npx skills)
-.cursor/skills/
-.cursor/rules/
-_deploy_payload.json
-
-# one-off backfill / agent temp artifacts
-tmp/
-
-supabase/.temp/
-supabase/.branches/
+.cursor/
 .claude/
-
-# Local MCP config (contains an API key)
-.mcp.json
-
-# Local-only exports with customer data (never commit)
-/private/
-/dist/
-.vinext/
-.cloudflare/
-
-# Cloudflare local dev state (miniflare)
-.wrangler/
+.agents/
+skills/
+skills-lock.json
+AGENTS.md
+CLAUDE.md

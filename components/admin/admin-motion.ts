@@ -1,6 +1,6 @@
 import type { Transition, Variants } from "motion/react"
 
-/** Sidebar pill / active-bar spring — snappy, Apple-like. */
+/** Sidebar pill / active-bar spring. */
 export const adminSpring: Transition = {
   type: "spring",
   stiffness: 520,
@@ -8,19 +8,19 @@ export const adminSpring: Transition = {
   mass: 0.7,
 }
 
-/** Page fade — keep under 200ms so dense admin nav feels instant. */
+/** Page fade: keep under 200ms so dense admin nav feels instant. */
 export const adminPageTransition: Transition = {
   duration: 0.18,
   ease: [0.22, 1, 0.36, 1],
 }
 
-/** Card entrance — subtle rise, staggered by siblings via `custom`. */
+/** Card entrance: subtle rise, staggered by siblings via `custom`. */
 export const adminCardTransition: Transition = {
   duration: 0.28,
   ease: [0.22, 1, 0.36, 1],
 }
 
-/** Stagger container for metric grids (21st.dev-style cascade). */
+/** Stagger container for metric grids. */
 export const adminStaggerParent: Variants = {
   hidden: {},
   show: {

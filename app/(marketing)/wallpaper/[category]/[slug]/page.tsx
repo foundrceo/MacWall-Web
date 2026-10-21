@@ -18,7 +18,7 @@ type PageProps = {
   params: Promise<{ category: string; slug: string }>
 }
 
-/** ISR — crawl-heavy; matches PUBLIC_WALLPAPER_DETAIL_REVALIDATE_SECONDS (1 week). */
+/** Crawl-heavy, so a long ISR window. Matches PUBLIC_WALLPAPER_DETAIL_REVALIDATE_SECONDS (1 week). */
 export const revalidate = 604800
 
 /**
@@ -51,7 +51,7 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
     permanentRedirect(canonicalPath)
   }
 
-  // `wallpaper.videoUrl` is a downscaled web preview — never the master file.
+  // `wallpaper.videoUrl` is the downscaled web preview, never the master file.
   let similar: Awaited<ReturnType<typeof listSimilarPublicWallpapers>> = []
   try {
     similar = await listSimilarPublicWallpapers(wallpaper, 6)

@@ -1,4 +1,4 @@
-/** Public catalog wallpaper — wire shape for gallery + detail pages. */
+/** Public catalog wallpaper: wire shape for gallery + detail pages. */
 
 export type PublicCatalogSort = "newest" | "popular" | "older"
 

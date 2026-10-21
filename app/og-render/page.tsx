@@ -58,9 +58,7 @@ function Brand({ size = 44 }: Readonly<{ size?: number }>) {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Split: words left, the Mac screen running off the right edge        */
-/* ------------------------------------------------------------------ */
+/* Split: words left, the Mac screen running off the right edge */
 
 function Split() {
   return (
@@ -101,9 +99,7 @@ function Split() {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Poster: the desktop fills the card; the words sit in the night sky  */
-/* ------------------------------------------------------------------ */
+/* Poster: the desktop fills the card; the words sit in the night sky */
 
 function Poster() {
   return (
@@ -141,9 +137,7 @@ function Poster() {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Wall: a tilted mosaic of real wallpapers around the brand           */
-/* ------------------------------------------------------------------ */
+/* Wall: a tilted mosaic of real wallpapers around the brand */
 
 function Wall() {
   const all = MARKETING_GALLERY_WALLPAPERS_FALLBACK

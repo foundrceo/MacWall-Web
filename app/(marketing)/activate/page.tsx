@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: `Open ${macwall.name} and activate Pro instantly after checkout.`,
   alternates: { canonical: canonicalSitePath(macwallActivatePath) },
   robots: { index: false, follow: false },
-  // License keys may appear in the URL — never leak via Referer.
+  // License keys can be in the URL; don't leak them via Referer.
   referrer: "no-referrer",
 }
 

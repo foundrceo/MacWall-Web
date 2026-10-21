@@ -31,7 +31,7 @@ export function indiaDiscountPercentOff(
 }
 
 /**
- * 2026-10 catalog. Every pack is Pro — packs only differ by Mac count.
+ * Every pack is Pro; packs only differ by Mac count.
  *
  *   Global (USD): Pro 3 Macs $12.99 · Pro+ 5 Macs $19.99 · 10 Macs $34.99
  *   India  (USD): Pro 3 Macs  $4.99 · Pro+ 5 Macs  $7.99 · 10 Macs $12.99
@@ -73,7 +73,7 @@ export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
     usdCents: 3499,
     indiaUsdCents: 1299,
   },
-  // Retired — kept so old checkout links and analytics still resolve.
+  // Retired: kept so old checkout links and analytics still resolve.
   permanent_15: {
     slug: "permanent_15",
     name: "15-Mac license (retired)",
@@ -147,9 +147,9 @@ export function isLicenseOfferSlug(
 export function normalizeLicenseOfferSlug(
   value: string | null | undefined
 ): LicenseOfferSlug {
-  // Annual is retired — old ?offer=annual links become permanent one-time.
+  // Annual is retired: old ?offer=annual links become permanent one-time.
   if (value === "annual") return "permanent"
-  // 15/20-Mac packs are retired — the largest pack is 10 Macs.
+  // 15/20-Mac packs are retired: the largest pack is 10 Macs.
   if (value === "permanent_15" || value === "permanent_20") return "permanent_10"
 
   if (isLicenseOfferSlug(value)) return value

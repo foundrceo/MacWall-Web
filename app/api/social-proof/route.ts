@@ -17,7 +17,7 @@ const RECENT_LIMIT = 24
 const DAY_MS = 24 * 60 * 60 * 1000
 /**
  * Only licenses someone paid for; comped, creator and test keys never count.
- * Includes past orders paid on Whop / Cashfree while Stripe was paused.
+ * Includes older orders paid through Whop / Cashfree.
  */
 const PAID_LICENSE_FILTER =
   "stripe_payment_intent_id.not.is.null,whop_payment_id.not.is.null,cashfree_order_id.not.is.null"
@@ -122,9 +122,8 @@ async function buildFeed(): Promise<SocialProofFeed> {
 }
 
 /**
- * Volume reference + anonymized recent purchases for marketing social proof.
- * Never exposes emails, keys, or identifiable buyer data — only plan, time,
- * and optional ISO country code.
+ * Anonymized recent purchases for social proof: plan, time and an optional
+ * country code only. No emails, keys or anything identifying the buyer.
  */
 export async function GET() {
   let feed = EMPTY_SOCIAL_PROOF_FEED

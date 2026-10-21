@@ -77,7 +77,7 @@ function ApplicationsFolder() {
 }
 
 /**
- * Apple's own apps for the Dock, converted from this Mac's app bundles.
+ * Apple's own app icons for the Dock, taken from the macOS app bundles.
  * macOS icons carry ~10% transparent padding, so they are scaled up to
  * match the MacWall icon, which has none.
  */

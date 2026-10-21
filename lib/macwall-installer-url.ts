@@ -1,5 +1,5 @@
 /**
- * MacWall `.dmg` download — served from R2 via the web app's installer API
+ * MacWall `.dmg` download: served from R2 via the web app's installer API
  * (redirects to a presigned R2 GET; no Supabase Storage).
  */
 

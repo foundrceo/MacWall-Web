@@ -14,13 +14,13 @@ import {
 export const EMAIL_APP_NAME = "MacWall"
 export const EMAIL_SITE_URL = "https://macwall.app"
 export const EMAIL_SUPPORT = "support@macwall.app"
-/** Small optimized asset for mail — never the 1024×1024 marketing PNG. */
+/** Small optimized asset for mail, never the 1024×1024 marketing PNG. */
 export const EMAIL_LOGO_URL = `${EMAIL_SITE_URL}/email/macwall-icon.png`
 export const EMAIL_FROM_DISPLAY = "MacWall <licenses@macwall.app>"
 
 export const SAMPLE_LICENSE_KEY = "MW-PRO3-K7X2-9M4Q-B1NW"
 
-/** Inbox subject — calm, clear, matches the email headline. */
+/** Inbox subject: calm, clear, matches the email headline. */
 export function licenseEmailSubject(appName = EMAIL_APP_NAME): string {
   return `Your ${appName} Pro license`
 }

@@ -1,5 +1,5 @@
 /**
- * Public Supabase catalog env — URL is safe to expose (NEXT_PUBLIC_*).
+ * Public Supabase catalog env: URL is safe to expose (NEXT_PUBLIC_*).
  * No service keys; aligns with anon Storage reads on the macOS app / marketing clips.
  * Values come from env only (no baked-in project IDs for open-source safety).
  */
@@ -16,7 +16,7 @@ export function getCatalogSupabaseOrigin(): string | null {
 }
 
 /**
- * Public anon key for PostgREST catalog reads. Required via env — no key is
+ * Public anon key for PostgREST catalog reads. Required via env: no key is
  * baked into source. Callers (marketing catalog fetchers) wrap reads in
  * try/catch and fall back to static content when this throws.
  */

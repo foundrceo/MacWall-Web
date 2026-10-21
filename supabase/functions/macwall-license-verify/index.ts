@@ -90,7 +90,7 @@ async function sha256Hex(value: string): Promise<string> {
     .join("")
 }
 
-// --- Signed receipts -------------------------------------------------------
+// Signed receipts.
 // The app only trusts `ok: true` when it carries a receipt signed with this
 // Ed25519 key (public half: MacWallEntitlement.signingPublicKeyBase64). A proxy
 // that rewrites the JSON cannot sign it. Field names/types must match
@@ -324,9 +324,8 @@ async function verifyLicense(args: {
   })
 }
 
-// --- Per-Mac free trial -----------------------------------------------------
-// One 24 h trial per Mac (hash of IOPlatformUUID). Deleting the app's settings or
-// reinstalling no longer starts a new trial: the first start is kept here.
+// One 24 h trial per Mac (hash of IOPlatformUUID). The first start is kept here,
+// so deleting the app's settings or reinstalling doesn't start a new trial.
 
 const TRIAL_SECONDS = 24 * 60 * 60
 const MAX_CLIENT_BACKDATE_SECONDS = 30 * 24 * 60 * 60

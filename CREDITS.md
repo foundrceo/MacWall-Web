@@ -1,45 +1,25 @@
 # credits
 
-## product
-
-this repo is the **macwall website** (macwall.app). code here is built by **foundrceo** / macwall.
-
-the native macOS app is a separate project and is not included in this repository.
+this repo is the MacWall website (macwall.app), written by foundrceo. the native macOS app is a separate project and isn't included here.
 
 ## comparison pages
 
-blog and alternatives pages mention other live-wallpaper products (backdrop, wallspace, lively wallpaper, wallpaper engine, and similar) for honest comparison. any competitor logos or icons used on those pages are for identification only — they remain the property of their owners. we are not affiliated with those products.
+the blog and alternatives pages compare MacWall with other live wallpaper apps (Backdrop, Wallspace, Lively Wallpaper, Wallpaper Engine and others). any logos or icons of those products are used only to identify them and belong to their owners. MacWall isn't affiliated with any of them.
 
 ## catalog wallpapers
 
-- curated catalog items are distributed for use **inside macwall** under our terms — not for rehosting or resale outside the app.
-- community submissions are reviewed before publish; submitters must have the rights to upload what they send.
-- files you import on your own mac stay local unless you explicitly upload them.
+curated catalog wallpapers are distributed for use inside MacWall under its terms, not for rehosting or resale. community submissions are reviewed before they go live, and submitters need the rights to whatever they upload. files you import on your own Mac stay local unless you choose to upload them.
 
 ## open source libraries
 
-runtime dependencies are listed in `package.json` / `package-lock.json` under their own licenses (mit, apache-2.0, etc.).
+dependencies are listed in `package.json` and `package-lock.json` and keep their own licenses. notices for direct runtime dependencies and bundled fonts are in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md). transitive packages carry their own notices. keep them if you redistribute the code.
 
-copyright notices and license texts for direct runtime dependencies and bundled
-fonts are collected in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
-transitive packages retain the notices included in their distributions. preserve
-these notices when redistributing the software.
+## media
 
-## media reuse
+the MIT license covers the website code only. it does not cover catalog wallpapers, community uploads, marketing videos, screenshots, review photos, third-party product icons or trademarks. being able to download an asset doesn't mean you can reuse it, so ask the rights holder first.
 
-the MIT license covers the website code. it does not license catalog wallpapers,
-community uploads, marketing videos, screenshots, review photos, third-party
-product icons, or trademarks. public access to an asset is not permission to
-redistribute it. obtain permission from the relevant rights holder before reuse.
-
-asset ownership and permission records are not included in this repository.
-maintainers must retain those records separately and review them before adding
-or redistributing media. code publication does not establish that every media
-asset has been cleared for reuse.
+permission records for media aren't kept in this repo, and publishing the code doesn't mean every asset in it is cleared for reuse.
 
 ## copyright / dmca
 
-if you believe something on macwall.app or in this repo infringes your copyright, see:
-
-- https://macwall.app/legal/dmca  
-- email: support@macwall.app (subject: `DMCA Notice — MacWall`)
+if you think something on macwall.app or in this repo infringes your copyright, see https://macwall.app/legal/dmca or email support@macwall.app with the subject `DMCA Notice: MacWall`.

@@ -22,13 +22,13 @@ export {
 } from "@/lib/community/community-multipart-constants"
 
 /**
- * Community video multipart — mirrors admin catalog MPU settings.
+ * Community video multipart: mirrors admin catalog MPU settings.
  * @see https://developers.cloudflare.com/r2/objects/upload-objects/
  */
 
 const MAX_PARTS = 10_000
 const PART_URL_CONCURRENCY = 24
-/** Longer than single-PUT — parts upload in parallel and may retry. */
+/** Longer than single-PUT: parts upload in parallel and may retry. */
 const PART_PRESIGN_EXPIRES_SECONDS = 2 * 60 * 60
 const THUMB_PRESIGN_EXPIRES_SECONDS = 15 * 60
 
@@ -158,7 +158,7 @@ export async function createCommunityMultipartUpload(input: {
 
   const { uploadId } = await r2CreateMultipartUpload(videoKey, {
     contentType,
-    // No Cache-Control — pending community objects are not CDN catalog assets.
+    // No Cache-Control: pending community objects are not CDN catalog assets.
   })
 
   const partNumbers = Array.from({ length: partCount }, (_, index) => index + 1)

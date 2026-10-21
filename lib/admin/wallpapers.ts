@@ -143,7 +143,7 @@ export async function listAdminWallpapers(options: {
     if (escaped) {
       query = query.or(`name.ilike.%${escaped}%,id.ilike.%${escaped}%`)
     } else {
-      // Degenerate query (only separators) — match nothing, not everything.
+      // Degenerate query (only separators): match nothing, not everything.
       query = query.eq("id", "__no_match__")
     }
   }

@@ -1,9 +1,9 @@
 "use client"
 
 /**
- * Uploads — community submission review, live catalog bulk publish, and
- * static still-image uploads to R2 `static-wallpapers/`.
- * The review queue lives inline here; each uploader keeps its own file.
+ * Community submission review, catalog bulk publish, and still-image uploads
+ * to R2 `static-wallpapers/`. The review queue is inline; each uploader has
+ * its own file.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react"

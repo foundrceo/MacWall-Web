@@ -11,7 +11,7 @@ const SocialProofPopups = dynamic(
   { ssr: false }
 )
 
-/** Client boundary for marketing layout — loads social proof after hydration. */
+/** Client boundary for marketing layout: loads social proof after hydration. */
 export function SocialProofMount() {
   return (
     <Suspense fallback={null}>

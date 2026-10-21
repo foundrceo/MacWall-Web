@@ -35,13 +35,10 @@ function optionalString(value: unknown, max: number): string {
 }
 
 /**
- * Public, key-safe AI metadata suggestion for community submissions.
- *
- * Reuses the same OpenAI vision pipeline as the admin bulk uploader, but is
- * rate limited per IP, requires no admin auth, and only ever accepts a single
- * client-captured thumbnail (never the full video). The OpenAI key stays on
- * the server. Failures are intentionally opaque so clients can fall back to
- * manual entry without leaking provider details.
+ * Metadata suggestions for community submissions. Same OpenAI vision pipeline
+ * as the admin bulk uploader, but public: rate limited per IP, and it only
+ * takes one client-captured thumbnail, never the video. Errors are generic so
+ * the client falls back to manual entry without seeing provider details.
  */
 export async function POST(request: Request) {
   const ip = clientIpFromRequest(request)
@@ -83,9 +80,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_thumbnail" }, { status: 400 })
   }
 
-  // Default = generate a fresh catalog title from the thumbnail.
-  // Only pass a title draft through when the client opts out of generate
-  // (e.g. user already typed a name they want the model to respect).
+  // By default a fresh title comes from the thumbnail. A draft is only passed
+  // through when the client opts out, e.g. the user already typed a name.
   const generate =
     body.generate === undefined || body.generate === null
       ? true

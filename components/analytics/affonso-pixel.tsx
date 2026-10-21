@@ -8,7 +8,7 @@ import {
 } from "@/lib/macwall-affiliate"
 
 /**
- * Affonso affiliate pixel — first-party mode (`/r`) so ad blockers are less
+ * Affonso affiliate pixel: first-party mode (`/r`) so ad blockers are less
  * likely to drop tracking. Must load on every page via the root layout.
  *
  * @see https://affonso.io/help/installation-guides/proxy-setup/pixel-tracking-proxy

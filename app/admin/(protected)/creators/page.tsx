@@ -1,8 +1,8 @@
 "use client"
 
 /**
- * Creators — one line per creator.
- * Reels promised vs done, agreed vs paid vs left, content + payment status.
+ * Creator deals, one row each: reels promised vs done, amount agreed vs paid
+ * vs left, content and payment status.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -171,7 +171,7 @@ function profileUrl(handle: string) {
   return `https://instagram.com/${handle.replace(/^@+/, "").trim()}`
 }
 
-/** Payment status derived from numbers — cancelled stays manual. */
+/** Derived from the amounts; cancelled is only ever set by hand. */
 function derivePayment(
   paid: number,
   agreed: number,

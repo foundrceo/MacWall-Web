@@ -7,9 +7,7 @@ import { broadcastSupportTyping } from "@/lib/support/typing"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-/**
- * Admin typing ping (ephemeral) for a feedback ticket.
- */
+/** Admin typing ping for a feedback ticket. Not stored. */
 export async function POST(
   _request: Request,
   context: { params: Promise<{ id: string }> }

@@ -43,7 +43,7 @@ function isWallpaperPath(pathname: string | null): boolean {
   )
 }
 
-/** Detail pages only — `/wallpaper/{category}/{slug}`. */
+/** Detail pages only: `/wallpaper/{category}/{slug}`. */
 function isWallpaperDetailPath(pathname: string | null): boolean {
   if (!pathname) return false
   const parts = pathname.split("/").filter(Boolean)
@@ -109,13 +109,9 @@ function resetViewCycle(): void {
 }
 
 /**
- * Wallpaper engagement banner. Shows after 15s dwell, or after 3–5 wallpaper
- * detail visits (repeats each cycle).
- *
- * - `try`: this browser never downloaded MacWall, so most likely the app isn't
- *   installed. Asking them to buy first got ~75% dismissals; offer the free
- *   trial (download on Macs, send to Mac on phones).
- * - `buy`: they downloaded already; offer Pro → Stripe.
+ * Shows after 15s on a wallpaper page, or every 3–5 wallpaper detail visits.
+ * `try` (this browser never downloaded the app) offers the free download;
+ * `buy` (already downloaded) offers Pro.
  */
 export function WallpaperPurchaseBanner() {
   const pathname = usePathname()
@@ -128,7 +124,7 @@ export function WallpaperPurchaseBanner() {
   const [ready, setReady] = useState(false)
   const [viewCount, setViewCount] = useState(0)
   const [viewThreshold, setViewThreshold] = useState(MIN_VIEWS)
-  /** Accumulated visible dwell — a ref so ticking never re-renders the tree. */
+  /** Accumulated visible dwell: a ref so ticking never re-renders the tree. */
   const dwellMsRef = useRef(0)
 
   // sessionStorage is an external store: hydrate after mount, off the render path.
@@ -240,7 +236,7 @@ export function WallpaperPurchaseBanner() {
   }
 
   const ctaLabel = pricing.getProCta
-  // Must be the create-session API path — TrackedLink POSTs and opens Stripe URL.
+  // Must be the create-session API path: TrackedLink POSTs and opens Stripe URL.
   const checkoutHref = "/api/checkout/create-session?offer=permanent"
 
   return (

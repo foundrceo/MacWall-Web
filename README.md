@@ -1,73 +1,59 @@
 # macwall-web
 
-this repo is the **website** for [macwall.app](https://macwall.app) — marketing pages, download, pricing, stripe checkout, and license activation.
+source for [macwall.app](https://macwall.app), the website for MacWall, a live wallpaper app for the Mac. it covers the marketing pages, wallpaper gallery, blog and docs, pricing, Stripe checkout, and the license endpoints the Mac app talks to.
 
-it is **not** the native mac app. the desktop app lives in a separate private repo. this open source project is web only.
+the Mac app itself is not in here. it lives in a separate private repo.
 
 ![macwall homepage](public/screenshots/homepage.png)
 
-## what this repo is
+## running it locally
 
-- next.js site for https://macwall.app
-- download + pricing + checkout flows
-- license key activation helpers used by the mac app
-- blog, docs, changelog, community submission pages
-- legal center at [/legal](https://macwall.app/legal)
-
-## what this repo is not
-
-- not the macOS app source
-- not a browser wallpaper player
-- not windows / ios
-
-## try the live site
-
-- **site:** https://macwall.app
-- **download page:** https://macwall.app/download
-
-the marketing site works without paying. checkout and licensing need real env keys if you run those flows locally.
-
-the native mac app is a separate private product. this repo is the website only.
-
-## run this website locally
-
-needs **Node.js 24** and **npm 11** (the versions used by deployment and CI).
+you need Node 24 and npm 11.
 
 ```sh
 git clone https://github.com/foundrceo/MacWall-Web.git
 cd MacWall-Web
-npm ci
+npm install
 cp .env.example .env
 npm run dev
 ```
 
-open http://localhost:3000. most of the marketing site runs with empty env; checkout and licensing need real keys in `.env` (see `.env.example`).
+that serves the site on http://localhost:3000 with `next dev`. most pages work with an empty `.env`. checkout, licensing and the admin pages need real keys, see `.env.example` for the names.
+
+production runs on Cloudflare Workers through [vinext](https://github.com/cloudflare/vinext), and a few things only behave the same way there (caching, image resizing, cron triggers). to run that build locally:
+
+```sh
+npm run dev:cf      # vite dev server on :3001
+npm run preview:cf  # full worker build, served by wrangler dev
+```
+
+before pushing:
 
 ```sh
 npm run lint
 npm run typecheck
 npm test
-npm run build
 ```
 
-## stack
+## layout
 
-next.js, typescript, tailwind, stripe, supabase, vercel, cloudflare r2 for media/installers.
+- `app/` Next.js App Router pages and API routes
+- `components/`, `lib/` UI and shared code
+- `worker/` Cloudflare Worker entry, cron dispatch and cache adapter
+- `supabase/` migrations and edge functions (license emails, Stripe webhook, etc.)
+- `scripts/` build-time generators for the changelog and blog thumbnails
+- `tests/` node test runner tests
 
-## credits
+## deploys
 
-see [CREDITS.md](./CREDITS.md).
+pushing to `main` deploys. Cloudflare Workers Builds runs `npm run build:cf` and then `wrangler deploy`. Supabase edge functions are deployed separately.
 
-## security
-
-see [SECURITY.md](./SECURITY.md). Report issues to support@macwall.app.
+GitHub Actions runs a gitleaks scan over the full history plus lint, typecheck and tests on every push and pull request.
 
 ## license
 
-website code is available under the MIT license — see [LICENSE](./LICENSE).
+the website code is MIT, see [LICENSE](./LICENSE). third-party libraries and fonts keep their own licenses, collected in [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 
-third-party libraries and fonts retain their own licenses and copyright notices;
-see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md). wallpapers, videos,
-screenshots, review photos, product icons, and trademarks are not covered by the
-code license. this repository does not grant permission to redistribute those
-assets. see [CREDITS.md](./CREDITS.md) for the media policy.
+the MIT license does not cover wallpapers, videos, screenshots, review photos, product icons or trademarks. see [CREDITS.md](./CREDITS.md) for the media policy.
+
+security issues: see [SECURITY.md](./SECURITY.md).

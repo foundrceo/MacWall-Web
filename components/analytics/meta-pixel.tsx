@@ -2,7 +2,7 @@ import Script from "next/script"
 
 export { resolveMetaPixelId } from "@/lib/analytics/meta-config"
 
-/** Meta Pixel base code — loads on every page and fires `PageView`. */
+/** Meta Pixel base code: loads on every page and fires `PageView`. */
 export function MetaPixel({ pixelId }: Readonly<{ pixelId: string }>) {
   return (
     <Script

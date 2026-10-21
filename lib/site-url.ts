@@ -42,7 +42,7 @@ export function metadataBaseUrl(): URL {
   return new URL(`${deploymentSiteOrigin()}/`)
 }
 
-/** Default social preview — 1200×630 (1.91:1) per OG spec. Absolute URL fixes crawlers without relative-path probing. */
+/** Default social preview: 1200×630 (1.91:1) per OG spec. Absolute URL fixes crawlers without relative-path probing. */
 /** New file name on redesign, so platforms that cache by URL fetch it fresh. */
 export const openGraphImagePath = "/og-share.jpg" as const
 

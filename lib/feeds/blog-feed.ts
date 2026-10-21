@@ -11,11 +11,7 @@ import {
 import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 
-/**
- * Blog syndication in the three formats readers and agents actually consume:
- * RSS 2.0, Atom 1.0, and JSON Feed 1.1. All three are generated from the same
- * item list so they never drift apart.
- */
+/** RSS 2.0, Atom 1.0 and JSON Feed 1.1, all built from one item list. */
 
 export const FEED_TITLE = `${macwall.name} Blog`
 export const FEED_DESCRIPTION =

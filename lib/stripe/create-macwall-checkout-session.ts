@@ -34,9 +34,9 @@ export type CreateMacWallCheckoutInput = {
   planSlug?: string | null
   /** Affonso referral cookie propagated to Stripe metadata for attribution. */
   affonsoReferral?: string
-  /** Host that initiated checkout — used for Stripe success/cancel redirects. */
+  /** Host that initiated checkout: used for Stripe success/cancel redirects. */
   siteOrigin: string
-  /** Optional Stripe Promotion Code (e.g. MAC10) — allowlisted only. */
+  /** Optional Stripe Promotion Code (e.g. MAC10): allowlisted only. */
   promoCode?: string | null
   /** Unix seconds / ms / ISO. Timed 20/30 codes fall back to MAC10 after this. */
   offerUntil?: string | null
@@ -45,7 +45,7 @@ export type CreateMacWallCheckoutInput = {
    * abandoned-checkout recovery even if they never type on the form.
    */
   customerEmail?: string | null
-  /** Mac app / trial visitor id — used to look up macwall_trial_leads.email. */
+  /** Mac app / trial visitor id: used to look up macwall_trial_leads.email. */
   visitorId?: string | null
   /**
    * "click" when the buyer asked for Checkout (link, button, email, app).
@@ -104,7 +104,7 @@ export async function createMacWallCheckoutSession(
       input.promoCode,
       parseOfferUntil(input.offerUntil)
     )
-    // Independent lookups (two Stripe, one Supabase) — run together so the
+    // Independent lookups (two Stripe, one Supabase): run together so the
     // Function waits on the slowest, not the sum, before creating the session.
     const [checkoutPrices, promotionCodeId, customerEmail] = await Promise.all([
       checkoutPricesForOffer(stripe, offer.slug, region),
@@ -122,7 +122,7 @@ export async function createMacWallCheckoutSession(
       offer_slug: offer.slug,
       billing_model: offer.billingModel,
       plan_slug: planSlug,
-      // Base license only — the webhook adds any cross-sell Macs it finds
+      // Base license only: the webhook adds any cross-sell Macs it finds
       // in the paid line items.
       max_devices: String(offer.maxDevices),
       pricing_region: region,
@@ -147,11 +147,11 @@ export async function createMacWallCheckoutSession(
         : {}),
     }
 
-    // Critical path: Stripe only. Localhost measured ~1.1–1.2s for this hop.
-    // Idempotency key is unique per license key so retries of the same intent
-    // reuse the session; a new click mints a new key → new session (correct).
+    // Critical path: Stripe only.
+    // Idempotency key is per license key: retries of the same intent reuse the
+    // session, a new click mints a new key and a new session.
     // Stripe forbids pairing `discounts` with `allow_promotion_codes`.
-    // Annual is retired (normalized to permanent) — always one-time payment mode.
+    // Annual is retired (normalized to permanent), so always payment mode.
     // The known email is NOT passed as customer_email: Stripe uses it (and a
     // saved Link profile) to guess the buyer's country, which can hide the
     // local-currency option (e.g. an India buyer seeing USD only). It stays in

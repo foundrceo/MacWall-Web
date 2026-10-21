@@ -59,11 +59,11 @@ import { cn } from "@/lib/utils"
 const META_ICON_SIZE = 17
 const META_ICON_STROKE = 1.75
 
-/** Borderless chips on detail — gallery pills use GALLERY_CHIP_CLASS. */
+/** Borderless chips on detail: gallery pills use GALLERY_CHIP_CLASS. */
 const DETAIL_CHIP_CLASS =
   "inline-flex h-9 shrink-0 items-center rounded-full border-0 bg-white/[0.06] px-3.5 text-[13px] font-normal text-white/65 shadow-none ring-0 transition duration-200 ease-out outline-none hover:border-0 hover:bg-white/[0.1] hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
 
-/** Soft aside surface without outline — Apple-style fill only. */
+/** Soft aside surface without outline: Apple-style fill only. */
 const DETAIL_ASIDE_SURFACE_CLASS = "border-0 bg-white/[0.06] shadow-none ring-0"
 
 /** "a 31-second", "a 1-minute 5-second", or "a" when the length is unknown. */
@@ -94,7 +94,7 @@ export function WallpaperDetail({
   const categorySlug = wallpaperCategorySlugOrFallback(wallpaper.category)
   const categoryHref = wallpapersGalleryHref(categorySlug)
   const shareUrl = wallpaperShareUrl(wallpaper, origin)
-  // Reports go to the support inbox by email — the site no longer hosts live chat.
+  // Reports go to the support inbox by email.
   const reportChatHref = `mailto:${macwall.supportEmail}?subject=${encodeURIComponent(
     `Report wallpaper: ${wallpaper.name}`
   )}&body=${encodeURIComponent(buildWallpaperReportMessage(wallpaper, shareUrl))}`

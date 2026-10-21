@@ -1,6 +1,6 @@
 /** Mirrors public brand strings from MacWall macOS app (`AppBrand` in Theme.swift). */
 
-/** Server route — creates a Stripe session and redirects straight to Stripe Checkout. */
+/** Server route: creates a Stripe session and redirects straight to Stripe Checkout. */
 export const macwallCheckoutPath =
   "/api/checkout/create-session?offer=permanent" as const
 
@@ -20,7 +20,7 @@ export const macwallProCheckoutURL =
     ? proCheckoutFromEnv
     : macwallCheckoutPath
 
-/** Post-checkout landing page — Stripe success redirect + Google Ads purchase conversion URL. */
+/** Post-checkout landing page: Stripe success redirect + Google Ads purchase conversion URL. */
 export const macwallThankYouPath = "/thank-you" as const
 
 /**
@@ -71,13 +71,13 @@ export function macwallOpenWallpaperHref(
   return qs ? `${macwallOpenWallpaperPath}?${qs}` : macwallOpenWallpaperPath
 }
 
-/** UI/marketing app icon (`public/MacWall.png`, 1024×1024). Not for favicons — use `macwallFavicons`. */
+/** UI/marketing app icon (`public/MacWall.png`, 1024×1024). Not for favicons: use `macwallFavicons`. */
 export const macwallAppIconPath = "/MacWall.png" as const
 
-/** Matches macOS app icon corner ratio — outer silhouette only. */
+/** Matches macOS app icon corner ratio: outer silhouette only. */
 export const macwallAppIconRadiusClass = "rounded-[22.37%]" as const
 
-/** Browser tab / PWA favicons only — never use in page UI (footer, nav, admin, etc.). */
+/** Browser tab / PWA favicons only, never use in page UI (footer, nav, admin, etc.). */
 export const macwallFaviconBase = "/favicon_io" as const
 
 export const macwallFavicons = {
@@ -107,9 +107,8 @@ export const macwallMinimumMacOSRequirementOrLater =
   `${macwallMinimumMacOSRequirement} or later` as const
 
 /**
- * Public catalog label: the one place the catalog count comes from. Every
- * page, meta description, FAQ and llms.txt line reads it. It is a fixed,
- * founder-set label; change it only when the founder asks.
+ * Catalog count used by every page, meta description, FAQ and llms.txt line.
+ * A fixed label, not computed from the live catalog.
  */
 export const macwallCatalog = {
   liveCountLabel: "1,000+",
@@ -117,10 +116,9 @@ export const macwallCatalog = {
 } as const
 
 /**
- * Public social proof, shown as "Trusted by 25,000+ users" everywhere.
- * Founder-approved wording. The number is based on installer downloads from
- * macwall.app (once per browser session, Mac browsers, bots excluded) since
- * 2026-06-06, rounded down. Never publish purchase or customer counts.
+ * "Trusted by 25,000+ users": installer downloads from macwall.app (once per
+ * browser session, Mac browsers, bots excluded), rounded down. Never use
+ * purchase or customer counts here.
  */
 const MACWALL_USERS_LABEL = "25,000+" as const
 
@@ -131,13 +129,13 @@ export const macwallSocialProof = {
 } as const
 
 const MACWALL_NAME = "MacWall" as const
-/** Also the <title> suffix and OG alt text — keep it short and keyword-led. */
+/** Also the <title> suffix and OG alt text: keep it short and keyword-led. */
 const MACWALL_TAGLINE = "Live wallpapers for Mac." as const
 const MACWALL_FULL_TAGLINE = `${MACWALL_NAME} - ${MACWALL_TAGLINE}` as const
 
 export const macwall = {
   name: MACWALL_NAME,
-  /** Public app identity — verified against the shipping macOS target. */
+  /** Public app identity: verified against the shipping macOS target. */
   bundleIdentifier: "com.macwall.ogapps",
   /** Keep in sync with the updater feed; `/changelog` remains the live source of truth. */
   currentVersion: "4.0.9",
@@ -161,15 +159,15 @@ export const macwall = {
   /** Checkout and card processing for Pro purchases. */
   paymentProcessor: "Stripe",
   paymentProcessorUrl: "https://stripe.com",
-  /** Short brand tagline — one line, no breaks. */
+  /** Short brand tagline: one line, no breaks. */
   tagline: MACWALL_TAGLINE,
   /** Full brand title for document titles, OG alt text, and JSON-LD. */
   fullTagline: MACWALL_FULL_TAGLINE,
   website: "https://macwall.app",
-  /** Community invite — matches `discordInviteURLString` in the Mac app. */
+  /** Community invite: matches `discordInviteURLString` in the Mac app. */
   discordInvite: "https://discord.gg/4tq2Axvg2h",
   supportEmail: "support@macwall.app",
-  /** Reel refund program — 50% at 2k views, 100% at 20k views. */
+  /** Reel refund program: 50% at 2k views, 100% at 20k views. */
   reelRefundEmail: "discount@macwall.app",
   reelRefundInstagram: "@macwallapp_",
   reelRefundInstagramURL: "https://www.instagram.com/macwallapp_",
@@ -215,7 +213,7 @@ export const macwall = {
     price: "$4.99",
     suffix: "per year",
   },
-  /** Shown in Pro discount flows — keep in sync with AppBrand.proDiscountPromoCode + Stripe. */
+  /** Shown in Pro discount flows: keep in sync with AppBrand.proDiscountPromoCode + Stripe. */
   proDiscountPromoCode: "MAC10",
   /** Personal base-license device limit. The 5-Mac bundle raises it to 5. */
   maxLicensedMacs: 3,

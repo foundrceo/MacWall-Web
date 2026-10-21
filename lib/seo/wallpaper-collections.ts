@@ -16,7 +16,7 @@ import { macwall, macwallLockScreenMacOSVersion } from "@/lib/macwall-site"
 
 export const COLLECTION_MIN_WALLPAPERS = 6
 
-/** Cap for the server-rendered grid — keeps the HTML light on huge topics. */
+/** Cap for the server-rendered grid: keeps the HTML light on huge topics. */
 export const COLLECTION_GRID_LIMIT = 48
 
 export type WallpaperCollectionGroup =
@@ -1078,10 +1078,6 @@ export const wallpaperCollections: WallpaperCollection[] = [
     },
     related: ["samurai", "black-hole", "batman", "japanese"],
   }),
-  // Second wave, from the Semrush competitor gap (wallsflow/wallspace) and
-  // head terms with low difficulty: "purple wallpaper" 22.2k (KD 16), "red
-  // wallpaper" 12.1k (KD 13), "miles morales wallpaper" 8.1k, "lamborghini
-  // wallpaper" 6.6k, "sukuna wallpaper" 6.6k.
   collection({
     slug: "miles-morales",
     name: "Miles Morales",

@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useRef } from "react"
 
-/** Wider throttle — typing pings were burning auth RPCs at ~2.5/s. */
+/** Wider throttle: typing pings were burning auth RPCs at ~2.5/s. */
 const THROTTLE_MS = 1_200
 const IDLE_CLEAR_MS = 2_500
 
 type EmitArgs = {
   ticketId: string | null
   enabled: boolean
-  /** POST body builder — return null to skip. */
+  /** POST body builder: return null to skip. */
   buildBody: () => Record<string, unknown> | null
   endpointFor: (ticketId: string) => string
 }

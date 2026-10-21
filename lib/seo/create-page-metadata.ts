@@ -34,7 +34,7 @@ export function createSeoPageMetadata(
   options: CreateSeoPageMetadataOptions = {}
 ): Metadata {
   // Titles that already include the brand must be absolute so the root
-  // `%s — MacWall App` template does not double-append the name.
+  // `%s | MacWall` template does not double-append the name.
   const title = page.title.includes(macwall.name)
     ? { absolute: page.title }
     : page.title

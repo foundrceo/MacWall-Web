@@ -38,7 +38,7 @@ export const BLOG_ABSTRACT_WALLPAPER_THUMB_KEYS = [
 
 export type BlogTileImageVariant = "hero" | "tile" | "list" | "og" | "curated"
 
-/** Local Apple-style mockups — generated via `npm run blog-thumbs:generate`. */
+/** Local Apple-style mockups: generated via `npm run blog-thumbs:generate`. */
 function blogThumbPath(slug: string, variant: BlogTileImageVariant): string {
   if (variant === "og") return `/blog/thumbs/${slug}-og.jpg`
   if (variant === "list") return `/blog/thumbs/${slug}-list.jpg`

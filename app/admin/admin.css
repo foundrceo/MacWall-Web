@@ -1,18 +1,6 @@
-/* ---------------------------------------------------------------------------
- * MacWall Admin — dark ops design system (21st.dev-inspired)
- *
- * Everything inside `.admin-portal` runs on one dark token set so that every
- * shadcn primitive (Button, Card, Select, DropdownMenu, Table, Tabs…) renders
- * correctly without per-component overrides. Marketing is untouched.
- *
- * Layers:
- *  1. Tokens (palette + foreground-safe text variants + effects)
- *  2. Base + layout rhythm
- *  3. shadcn primitive tuning
- *  4. Signature effects (spotlight, grid, glow, gradient text)
- *  5. Motion (entrance, stagger, pulse — all reduced-motion safe)
- *  6. Focus + accessibility hardening
- * ------------------------------------------------------------------------- */
+/* Admin portal theme. One dark token set under `.admin-portal`, so the shadcn
+ * primitives render right without per-component overrides. Marketing pages
+ * never load these styles. */
 
 /* Admin tokens live on :root — NOT on .admin-portal. Radix portals
  * (dialog / dropdown / select / tooltip / sheet content) mount into
@@ -139,7 +127,7 @@
   text-wrap: balance;
 }
 
-/* --- Layout ------------------------------------------------------------- */
+/* Layout */
 
 .admin-portal .admin-page {
   width: 100%;
@@ -163,7 +151,7 @@
   }
 }
 
-/* --- shadcn primitive tuning -------------------------------------------- */
+/* shadcn primitive tuning */
 
 /* Cards: hairline border, almost no drop shadow */
 .admin-portal [data-slot="card"] {
@@ -188,10 +176,8 @@
   border-color: var(--admin-border);
 }
 
-/* --- Capsule controls (Apple-like) ---------------------------------------
- * Pills are only for single-line controls: buttons, text fields, selects,
- * tabs, switches, badges. Every container surface stays a rounded rectangle.
- * ------------------------------------------------------------------------ */
+/* Capsule controls. Pills are only for single-line controls (buttons, text
+ * fields, selects, tabs, switches, badges); containers stay rounded rects. */
 
 .admin-portal [data-slot="button"],
 .admin-portal [data-slot="input"],
@@ -275,11 +261,9 @@
   border-radius: 1rem;
 }
 
-/* --- Switch (macOS toggle) ----------------------------------------------
- * Apple's 51x31 track with a 27px knob, scaled down for this dense UI.
- * Radix reports state as data-state, which the primitive's own
- * data-checked utilities never match — appearance is driven from here.
- * ---------------------------------------------------------------------- */
+/* Switch: Apple's 51x31 track and 27px knob, scaled down. Radix reports
+ * data-state, which the primitive's data-checked utilities never match, so
+ * the look is driven from here. */
 
 .admin-portal [data-slot="switch"][data-size] {
   border-color: transparent;
@@ -399,7 +383,7 @@
   transform: translateY(1px) scale(0.99);
 }
 
-/* --- Menus & floating surfaces ------------------------------------------ */
+/* Menus & floating surfaces */
 
 .admin-portal [data-slot="select-content"],
 .admin-portal [data-slot="dropdown-menu-content"],
@@ -580,7 +564,7 @@
   outline-offset: 2px;
 }
 
-/* --- 21st.dev-style effects --------------------------------------------- */
+/* 21st.dev-style effects */
 
 /* Blueprint grid backdrop for hero zones (login, empty states, page tops) */
 .admin-grid-bg {
@@ -699,7 +683,7 @@
   );
 }
 
-/* --- Motion ---------------------------------------------------------------- */
+/* Motion */
 
 @keyframes admin-ping {
   75%,
@@ -780,12 +764,9 @@
   backdrop-filter: blur(14px) saturate(1.2);
 }
 
-/* --- Portals ---------------------------------------------------------------
- * Radix mounts dialog / dropdown / select / tooltip / sheet content into
- * document.body — outside .admin-portal. These rules repaint every floating
- * surface whenever the admin portal is mounted. Marketing never mounts
- * .admin-portal, so its light theme is untouched.
- * ------------------------------------------------------------------------- */
+/* Portals: Radix mounts dialog / dropdown / select / tooltip / sheet content
+ * on document.body, outside .admin-portal, so these repaint floating surfaces
+ * while the portal is mounted. Marketing never mounts it. */
 
 body:has(.admin-portal) {
   color-scheme: dark;
@@ -889,11 +870,9 @@ body:has(.admin-portal) [data-slot="tooltip-content"] svg {
   background: transparent;
 }
 
-/* --- Skeleton reveal (one loading effect portal-wide) ---------------------
- * Grid-stacked layers: the wrapper sizes to the content, the skeleton
- * lifts out of flow once revealed. Children of the skeleton play a
- * single cold pulse; the swap itself is an opacity + blur cross-fade.
- * ------------------------------------------------------------------------- */
+/* Skeleton reveal, the only loading effect in the portal. Grid-stacked: the
+ * wrapper sizes to the content and the skeleton leaves the flow once
+ * revealed. Skeleton children pulse once; the swap is an opacity + blur fade. */
 
 .admin-reveal {
   position: relative;
@@ -945,7 +924,7 @@ body:has(.admin-portal) [data-slot="tooltip-content"] svg {
   }
 }
 
-/* --- Reduced motion: kill ALL admin animation in one place --------------- */
+/* Reduced motion: all admin animation off, in one place */
 
 @media (prefers-reduced-motion: reduce) {
   .admin-portal *,

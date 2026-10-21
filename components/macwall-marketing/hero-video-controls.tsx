@@ -55,7 +55,7 @@ export function HeroVideoControls({
 }: Readonly<{
   fallbackSources: readonly string[]
   endCaption: string
-  /** False until a source is attached — avoids forcing an early download. */
+  /** False until a source is attached: avoids forcing an early download. */
   canPlay: boolean
 }>) {
   const fallbackIndexRef = useRef(0)

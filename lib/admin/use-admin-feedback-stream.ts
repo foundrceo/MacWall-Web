@@ -170,7 +170,7 @@ export function useAdminFeedbackStream(
         }
       })
 
-      // Rely on the server "connected" event only — onopen + connected was a double fire.
+      // Use only the server's "connected" event; handling onopen too fires twice.
 
       source.onerror = () => {
         source?.close()

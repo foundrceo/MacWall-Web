@@ -19,7 +19,7 @@ export const maxDuration = 30
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-/** Short-lived presign — the client uploads immediately after requesting it. */
+/** Short-lived: the client uploads right after asking for it. */
 const PRESIGN_EXPIRY_SECONDS = 15 * 60
 
 const RATE_LIMIT_WINDOW_MS = 60_000
@@ -96,8 +96,8 @@ export async function POST(request: Request) {
   const thumbKey = `community-pending/${uploadId}/thumb.jpg`
 
   try {
-    // Bind Content-Type into the signature (R2 best practice). Client PUTs must
-    // send the same Content-Type header — no other signed headers.
+    // Content-Type is signed, so the client PUT must send the same one. No other
+    // headers are signed.
     const [videoUploadUrl, thumbUploadUrl] = await Promise.all([
       r2PresignPutUrl(videoKey, PRESIGN_EXPIRY_SECONDS, {
         contentType: videoContentType,

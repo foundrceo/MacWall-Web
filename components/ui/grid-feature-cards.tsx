@@ -1,4 +1,4 @@
-// Grid Feature Cards by efferd — https://21st.dev/@efferd/components/grid-feature-cards
+// Grid Feature Cards by efferd: https://21st.dev/@efferd/components/grid-feature-cards
 // with the hover from Aceternity's Feature Section with hover effects —
 // https://21st.dev/@manuarora700/components/feature-section-with-hover-effects
 // Changes from efferd: no pixel-pattern background; Aceternity's hover glow

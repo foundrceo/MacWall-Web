@@ -39,9 +39,9 @@ import {
  *
  * Three surfaces read from this list, so adding a page here automatically
  * exposes it everywhere:
- * - `/llms.txt` — curated index for language models
- * - `/llms-full.txt` — full-text concatenation
- * - `/{path}.md` — Markdown twin of an individual page
+ * - `/llms.txt`: curated index for language models
+ * - `/llms-full.txt`: full-text concatenation
+ * - `/{path}.md`: Markdown twin of an individual page
  */
 
 export type MarkdownGroup =

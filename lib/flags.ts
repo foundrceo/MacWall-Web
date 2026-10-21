@@ -1,22 +1,11 @@
 /**
- * Site feature flags — code-as-config defaults.
- *
- * These flags are evaluated statically (no per-request dynamic APIs) so
- * marketing pages stay prerenderable / ISR-friendly. Their values are:
- *  1. used to gate UI below,
- *  2. emitted to the DOM via `<SiteFlagValues />` (`flags/react`),
- *     which makes Vercel Web Analytics annotate every page view and
- *     custom event with them, and makes them visible in Flags Explorer,
- *  3. described to Flags Explorer via `app/.well-known/vercel/flags/route.ts`.
- *
- * To flip a flag, change the default here and redeploy. To graduate to
- * live per-request overrides (Vercel Toolbar) or a provider (Vercel Flags,
- * Statsig, …), evaluate with `flag()` from `flags/next` inside a dynamic
- * server component instead — the emission + discovery wiring stays the same.
+ * Static feature flags, so marketing pages stay prerenderable. Values gate UI,
+ * are emitted to the DOM via `<SiteFlagValues />` and are described in
+ * `app/.well-known/vercel/flags/route.ts`. To flip one, change it and redeploy.
  */
 
 export const FLAGS = {
-  /** Floating purchase nudges (`SocialProofMount`). Kill-switch + A/B lever. */
+  /** Floating purchase nudges (`SocialProofMount`). */
   socialProof: true,
   /** Top launch strip above the navbar (`AnnouncementBanner`). */
   announcementBanner: false,

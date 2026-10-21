@@ -97,7 +97,7 @@ export async function GET(request: Request) {
     }
 
     const destinationHost = target.hostname
-    // Don't block the 302 on analytics — cuts TTFB + Function duration.
+    // Don't hold the 302 for analytics.
     after(() =>
       trackSiteEvent({
         eventName: "download_redirect",

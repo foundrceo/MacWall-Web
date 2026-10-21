@@ -19,7 +19,7 @@ import { createSupabaseAdminRealtime } from "@/lib/supabase/admin"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
-/** Cap Fluid Compute duration — client reconnects after this. */
+/** Close the stream after this; the client reconnects. */
 export const maxDuration = 300
 
 const checkRateLimit = createInMemoryRateLimiter({ max: 20, windowMs: 60_000 })
@@ -30,10 +30,7 @@ function bad(status: number, error: string) {
   return NextResponse.json({ error }, { status })
 }
 
-/**
- * Real-time SSE for a visitor’s support ticket.
- * Auth: sessionId must own the ticket (same as REST APIs).
- */
+/** SSE for a visitor's support ticket. The sessionId must own the ticket, as in the REST routes. */
 export async function GET(
   request: Request,
   context: { params: Promise<{ id: string }> }

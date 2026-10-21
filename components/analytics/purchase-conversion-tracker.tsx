@@ -51,8 +51,9 @@ function fireGa4Purchase(value: number, currency: string) {
   })
 }
 
-/** Fires once per verified purchase success visit — GA4 / Google Ads / Meta / TikTok.
- * Mounted on `/activate` (after Stripe verify) and `/thank-you`.
+/**
+ * Fires GA4 / Google Ads / Meta / TikTok purchase events once per verified
+ * success visit. Mounted on `/activate` and `/thank-you`.
  */
 export function PurchaseConversionTracker({
   amount,

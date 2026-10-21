@@ -10,7 +10,7 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
  * and the `.md` twin of every content page.
  *
  * Section copy already uses inline Markdown (`**bold**`, `[label](/path)`), so
- * blocks pass through mostly untouched — only relative links are absolutized so
+ * blocks pass through mostly untouched, only relative links are absolutized so
  * an LLM reading a single file can still resolve every reference.
  */
 
@@ -113,7 +113,7 @@ function serializeFrontmatter(data: MarkdownFrontmatter): string {
   return lines.join("\n")
 }
 
-/** Minimal YAML scalar quoting — content here is plain prose, never structural. */
+/** Minimal YAML scalar quoting: content here is plain prose, never structural. */
 function quoteYaml(value: string): string {
   const escaped = value.replace(/"/g, '\\"')
   return `"${escaped}"`

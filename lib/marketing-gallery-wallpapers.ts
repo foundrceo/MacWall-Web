@@ -8,7 +8,7 @@ export type MarketingGalleryWallpaper = {
   id: string
   name: string
   category: string
-  /** Full catalog MP4 — lazy-loaded only for visible tiles. */
+  /** Full catalog MP4: lazy-loaded only for visible tiles. */
   videoUrl: string
   /** Original thumb (fallback). */
   thumbUrl: string
@@ -187,6 +187,6 @@ export const FALLBACK_SEEDS = [
   },
 ] as const
 
-/** Fallback set (synced from Supabase) — used if REST fetch fails at build time. */
+/** Fallback set (synced from Supabase): used if REST fetch fails at build time. */
 export const MARKETING_GALLERY_WALLPAPERS_FALLBACK: MarketingGalleryWallpaper[] =
   FALLBACK_SEEDS.map(buildMarketingGalleryWallpaper)

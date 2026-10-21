@@ -280,7 +280,7 @@ export default function RootLayout({
             ) : null}
           </MarketingOnlyScripts>
         </ThemeProvider>
-        {/* Also records Core Web Vitals, replacing paid Vercel Speed Insights. */}
+        {/* Also records Core Web Vitals. */}
         <PostHogAnalytics />
       </body>
     </html>

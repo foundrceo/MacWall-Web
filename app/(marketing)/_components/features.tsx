@@ -181,9 +181,7 @@ function TileText({
 const TILE =
   "flex min-w-0 flex-col overflow-hidden rounded-2xl bg-white/[0.02] ring-1 ring-white/[0.07]"
 
-/* ------------------------------------------------------------------ */
-/* A · Bento                                                           */
-/* ------------------------------------------------------------------ */
+/* A · Bento */
 
 function Bento({
   items,
@@ -224,9 +222,7 @@ function Bento({
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* E · Rows                                                            */
-/* ------------------------------------------------------------------ */
+/* E · Rows */
 
 /**
  * One feature per row, media and text trading sides. Every frame is 16:10 so

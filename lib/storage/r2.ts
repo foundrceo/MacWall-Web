@@ -7,13 +7,8 @@ import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 /**
  * Server-side Cloudflare R2 (S3-compatible) access for the catalog bucket.
  *
- * Holds the R2 access keys (server-only). Used to mint presigned PUT/GET URLs
- * for uploads/reviews and to delete objects. Public reads are served directly
- * from the R2 public base URL (see `lib/env/catalog-storage.ts`).
- *
- * Ops (Cloudflare dashboard): enable Smart Tiered Cache on the zone that fronts
- * `cdn.macwall.app` to cut R2 egress — catalog uploads already set long immutable
- * Cache-Control.
+ * Holds the R2 keys. Mints presigned PUT/GET URLs and deletes objects; public
+ * reads go straight to the R2 public base URL (`lib/env/catalog-storage.ts`).
  */
 
 const DEFAULT_BUCKET = "wallpaper-catalog"
@@ -78,7 +73,7 @@ async function presign(
   url.searchParams.set("X-Amz-Expires", String(expiresSeconds))
 
   // Bind Content-Type (and any other required headers) into the signature so
-  // clients must upload with the declared type — Cloudflare R2 / S3 best practice.
+  // clients must upload with the declared type: Cloudflare R2 / S3 best practice.
   if (headers && Object.keys(headers).length > 0) {
     const request = new Request(url.toString(), { method, headers })
     const signed = await client.sign(request, {
@@ -287,7 +282,7 @@ export async function r2AbortMultipartUpload(
   }
 }
 
-/** Delete an object (idempotent — a missing object is treated as success). */
+/** Delete an object (idempotent: a missing object is treated as success). */
 export async function r2DeleteObject(key: string): Promise<void> {
   const { client, config } = requireR2()
   const response = await client.fetch(objectEndpoint(config, key), {

@@ -1,13 +1,11 @@
 /**
- * Survives App Router remounts when you open a wallpaper and hit Back.
+ * Gallery list state that survives App Router remounts, so Back from a
+ * wallpaper restores the expanded list. A remount must never write page 1
+ * over a longer Show-more snapshot.
  *
- * Root cause (verified in browser): a remount “seed” wrote SSR page-1 over the
- * expanded Show-more snapshot (48 → 24), so Back always looked like a fresh page.
- *
- * Rules:
  * - Never shrink an existing same-view snapshot unless `replace: true`
- * - Restore list from module cache + sessionStorage before paint
- * - Manually scroll to the opened card (Next scroll restoration → footer)
+ * - Restore from module cache + sessionStorage before paint
+ * - Scroll to the opened card ourselves (Next's restoration lands on the footer)
  */
 
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
@@ -87,7 +85,7 @@ function writeSessionSnapshot(snapshot: GalleryReturnSnapshot): void {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot))
   } catch {
-    // Quota — memory cache still covers SPA back.
+    // Quota: memory cache still covers SPA back.
   }
 }
 

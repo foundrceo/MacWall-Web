@@ -4,7 +4,7 @@ import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
 
 /**
  * Ask the Supabase `macwall-apns` edge function to deliver a remote alert.
- * APNs .p8 credentials live only in Supabase Edge secrets — never here.
+ * APNs .p8 credentials live only in Supabase Edge secrets, never here.
  */
 export async function notifyVisitorPush(input: {
   visitorId: string | null | undefined

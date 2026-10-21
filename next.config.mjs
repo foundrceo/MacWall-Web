@@ -5,14 +5,13 @@ import { fileURLToPath } from "node:url"
 
 const R2_CDN_HOST = "cdn.macwall.app"
 
-/** Pin Turbopack to this app — ignore parent lockfiles outside the repo. */
+/** Pin Turbopack to this app so it ignores lockfiles in parent folders. */
 const projectRoot = path.dirname(fileURLToPath(import.meta.url))
 
 /**
- * Report-only CSP. Inline analytics pixels (TikTok, X) plus Next.js runtime
- * injection require 'unsafe-inline'/'unsafe-eval'; we start in Report-Only so
- * violations surface in the console without breaking analytics. Promote to an
- * enforcing `Content-Security-Policy` header once violations are triaged.
+ * Report-only so violations show up without breaking analytics. The inline
+ * TikTok and X pixels and Next's runtime need 'unsafe-inline'/'unsafe-eval'.
+ * Switch to an enforcing `Content-Security-Policy` once the reports are clean.
  */
 const CONTENT_SECURITY_POLICY_REPORT_ONLY = [
   "default-src 'self'",
@@ -60,10 +59,10 @@ const nextConfig = {
     imageSizes: [32, 64, 128, 256],
     qualities: [75],
     /**
-     * The Vercel optimizer only ever sees our own `/public` art. Catalog thumbs
-     * go through `catalogImageLoader` (Cloudflare resizing on the R2 CDN), so
-     * no remote host is allowed — an open pattern lets anyone bill transforms
-     * to this project. `search: ""` blocks `?v=1`, `?v=2`… cache-busting.
+     * The optimizer only handles our own `/public` art. Catalog thumbs go
+     * through `catalogImageLoader` (Cloudflare resizing on the R2 CDN), so no
+     * remote hosts: an open pattern lets anyone bill transforms to this
+     * project. `search: ""` stops `?v=1`, `?v=2`... cache-busting.
      */
     remotePatterns: [],
     localPatterns: [
@@ -79,26 +78,22 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      // The marketing videos moved to R2 (see lib/marketing-assets-urls.ts).
-      // Old links, crawlers and video indexes follow this instead of pulling
-      // megabytes through Vercel.
+      // Marketing videos live on the R2 CDN (lib/marketing-assets-urls.ts).
+      // Old links and video indexes still point here.
       {
         source:
           "/hero/:file(hero-video|hero-video-720|hero-video-mobile|bend-demo|lockscreen|music-sync).mp4",
         destination: `https://${R2_CDN_HOST}/assets/hero/:file.mp4`,
         permanent: true,
       },
-      // www → apex (Vercel did this in its domain settings; on Cloudflare the
-      // Worker serves both hostnames, so the app redirects).
+      // www -> apex. The Worker answers both hostnames, so it happens here.
       {
         source: "/:path*",
         has: [{ type: "host", value: "www.macwall.app" }],
         destination: "https://macwall.app/:path*",
         permanent: true,
       },
-      // Community short link (same invite as `macwall.discordInvite` and the
-      // Mac app). A config redirect answers at the edge on Vercel and Cloudflare
-      // alike, with no route handler to run or cache.
+      // Same invite as `macwall.discordInvite` and the Mac app.
       {
         source: "/discord",
         destination: "https://discord.gg/4tq2Axvg2h",
@@ -109,7 +104,7 @@ const nextConfig = {
         destination: "/affiliate",
         permanent: true,
       },
-      // Uploads and support moved into the app; keep old links landing somewhere useful.
+      // Uploads and support live in the Mac app now.
       {
         source: "/submit",
         destination: "/download",
@@ -145,38 +140,33 @@ const nextConfig = {
         destination: "/best-live-wallpaper-mac",
         permanent: true,
       },
+      // Blog posts that duplicated a landing page. One page per search intent.
       {
-        // One page per intent: the blog duplicate merged into its owner page.
         source: "/blog/best-live-wallpaper-app-mac-2026",
         destination: "/best-live-wallpaper-mac",
         permanent: true,
       },
       {
-        // One page per intent: the blog duplicate merged into its owner page.
         source: "/blog/why-macwall-best-native-wallpaper-app",
         destination: "/best-live-wallpaper-mac",
         permanent: true,
       },
       {
-        // One page per intent: the blog duplicate merged into its owner page.
         source: "/blog/wallpaper-engine-alternative-mac",
         destination: "/alternatives/wallpaper-engine",
         permanent: true,
       },
       {
-        // One page per intent: the blog duplicate merged into its owner page.
         source: "/blog/macwall-vs-backdrop",
         destination: "/alternatives/macwall-vs-backdrop",
         permanent: true,
       },
       {
-        // One page per intent: the blog duplicate merged into its owner page.
         source: "/blog/macwall-vs-wallspace",
         destination: "/alternatives/macwall-vs-wallspace",
         permanent: true,
       },
       {
-        // One page per intent: the blog duplicate merged into its owner page.
         source: "/blog/macwall-vs-lively-wallpaper",
         destination: "/alternatives/lively-wallpaper-mac",
         permanent: true,
@@ -259,8 +249,7 @@ const nextConfig = {
   async headers() {
     /**
      * Gallery pages are prerendered and apply `?q=&tag=&sort=` client-side, so
-     * filtered views share the canonical HTML. Keep them out of the index here
-     * (they were `noindex, follow` when the pages rendered per request).
+     * filtered views share the canonical HTML. Keep them out of the index.
      */
     const filteredGalleryNoindex = ["q", "tag", "sort"].flatMap((key) =>
       ["/wallpapers", "/wallpapers/:category"].map((source) => ({
@@ -271,11 +260,10 @@ const nextConfig = {
     )
 
     /**
-     * `/public` files default to `max-age=0`, so every page view re-checks
-     * each icon, poster and thumb: one billed CDN request apiece. Their names
-     * aren't content-hashed, so cache for a day (not `immutable`) and serve
-     * stale for a week while revalidating. Rules list asset folders only,
-     * never page routes like `/blog/[slug]`.
+     * `/public` files default to `max-age=0`, so every page view re-checks each
+     * icon, poster and thumb. Names aren't content-hashed, so cache for a day
+     * (not `immutable`) with a week of stale-while-revalidate. Asset folders
+     * only, never page routes like `/blog/[slug]`.
      */
     const PUBLIC_ASSET_CACHE_CONTROL =
       "public, max-age=86400, stale-while-revalidate=604800"
@@ -289,14 +277,9 @@ const nextConfig = {
     }))
 
     /**
-     * Dev preview fix: `next dev` is typically embedded in an IDE iframe
-     * (different origin) over plain http://localhost. Sending production
-     * headers in dev breaks that in two ways:
-     * 1. `X-Frame-Options: SAMEORIGIN` / `frame-ancestors 'self'` blocks the
-     *    iframe → "Preview couldn't load".
-     * 2. `Strict-Transport-Security` (with preload) tells the browser to
-     *    upgrade http://localhost to https:// where no cert exists, and the
-     *    HSTS pin can stick around after dev. Only send them in production.
+     * Skip the framing and HSTS headers in dev. They stop `next dev` from
+     * loading inside an editor's preview iframe, and HSTS on localhost can
+     * pin the browser to https:// long after you stop the server.
      */
     const isDev = process.env.NODE_ENV !== "production"
     const csp = isDev
@@ -310,14 +293,13 @@ const nextConfig = {
       ...filteredGalleryNoindex,
       ...publicAssetCaching,
       {
-        // `/(.*)`, not `/:path*`: vinext (Cloudflare) doesn't match the bare
-        // `/` with `/:path*`, which left the homepage without these headers.
+        // `/(.*)`, not `/:path*`: vinext doesn't match the bare `/` with
+        // `/:path*`, so the homepage would miss these headers.
         source: "/(.*)",
         headers: [
           { key: "X-DNS-Prefetch-Control", value: "on" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "X-Content-Type-Options", value: "nosniff" },
-          // Production-only: breaks http://localhost previews + iframe embeds.
           ...(isDev
             ? []
             : [

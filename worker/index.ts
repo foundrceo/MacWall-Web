@@ -1,7 +1,7 @@
 /**
- * Cloudflare Workers entry: vinext serves every request; Cron Triggers replace
- * the `crons` in vercel.json by calling the same `/api/cron/*` routes
- * in-process, with the `Authorization: Bearer $CRON_SECRET` header Vercel sent.
+ * Cloudflare Workers entry. vinext serves every request; Cron Triggers call the
+ * `/api/cron/*` routes in-process with an `Authorization: Bearer $CRON_SECRET`
+ * header.
  */
 import type {
   ExecutionContext,
@@ -25,9 +25,8 @@ export default {
    * Hand the visitor's country and IP to the app in headers it already reads
    * first (`x-mw-resolved-country`, `x-forwarded-for`). vinext forwards the
    * request to an internal entrypoint, and `cf-*` headers don't survive that
-   * hop, so `cf-ipcountry` / `cf-connecting-ip` alone resolved every visitor
-   * to the Worker's own location. Both are always overwritten, so a client
-   * can't spoof them.
+   * hop; read there, `cf-ipcountry` / `cf-connecting-ip` give the Worker's own
+   * location. Both are always overwritten, so a client can't spoof them.
    */
   async fetch(request: WorkerRequest, env: CronEnv, ctx: ExecutionContext) {
     const headers = new Headers(request.headers as unknown as HeadersInit)

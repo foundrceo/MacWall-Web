@@ -1,7 +1,7 @@
 /**
- * Cron Triggers (replacing the `crons` in vercel.json): expression → the
- * `/api/cron/*` route it runs. Shared by cloudflare.config.ts (schedules) and
- * worker/index.ts (dispatch), so the two cannot drift.
+ * Cron Triggers: expression → the `/api/cron/*` route it runs. Shared by
+ * cloudflare.config.ts (schedules) and worker/index.ts (dispatch) so the two
+ * can't drift.
  */
 export const CRON_ROUTES: Record<string, string> = {
   "*/5 * * * *": "/api/cron/checkout-recovery",

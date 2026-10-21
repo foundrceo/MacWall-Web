@@ -1,5 +1,5 @@
 /**
- * Featured hero carousel IDs — videos and posters from R2 CDN (same as live catalog).
+ * Featured hero carousel IDs: videos and posters from R2 CDN (same as live catalog).
  */
 import {
   catalogPublicThumbUrlFromKey,
@@ -94,6 +94,6 @@ export const MARKETING_CATALOG_SLIDES: MarketingCatalogSlide[] = rows.map(
   })
 )
 
-/** Homepage “Wallpaper in motion” block — change when the final clip is chosen. */
+/** Homepage “Wallpaper in motion” block: change when the final clip is chosen. */
 export const MARKETING_LIVE_WALLPAPER_PREVIEW: MarketingCatalogSlide | null =
   MARKETING_CATALOG_SLIDES[0] ?? null

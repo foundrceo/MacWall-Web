@@ -1,5 +1,5 @@
 /**
- * Public catalog media URLs — Cloudflare R2 via `cdn.macwall.app`.
+ * Public catalog media URLs: Cloudflare R2 via `cdn.macwall.app`.
  *
  * `videos/*` objects are the full-resolution masters that Pro unlocks in the
  * app. The website must never hand those out: anything rendered on a public
@@ -56,7 +56,7 @@ export function catalogVideoObjectKey(videoKey: string): string {
 }
 
 /**
- * Full-resolution master file. Admin/server only — never render this on a
+ * Full-resolution master file. Admin/server only, never render this on a
  * public page or return it from a public API (it is the paid Pro asset).
  */
 export function catalogPublicVideoUrlFromKey(videoKey: string): string {
@@ -65,7 +65,7 @@ export function catalogPublicVideoUrlFromKey(videoKey: string): string {
 
 /**
  * Web preview: width-capped, silent Media Transformation of the master.
- * Never falls back to the master — callers show the poster if this fails.
+ * Never falls back to the master: callers show the poster if this fails.
  */
 export function catalogPreviewVideoUrlFromKey(
   videoKey: string,
@@ -88,8 +88,8 @@ export function catalogPublicThumbUrlFromKey(thumbKey: string): string {
 /**
  * Width-capped catalog image via Cloudflare Image Transformations on the CDN
  * zone: AVIF/WebP when the browser accepts it, never upscaled, and
- * `onerror=redirect` falls back to the original if a transform fails. Keeps
- * thumbs off Vercel Image Optimization. Non-CDN URLs pass through untouched.
+ * `onerror=redirect` falls back to the original if a transform fails.
+ * Non-CDN URLs pass through untouched.
  */
 export function catalogImageUrlAtWidth(
   url: string,
@@ -105,9 +105,9 @@ export function catalogImageUrlAtWidth(
 }
 
 /**
- * Marketing gallery poster — full thumb URL on Cloudflare R2 CDN.
- * Call sites must use `unoptimized` (or plain `<img>`) so Vercel Image
- * Optimization does not re-encode every catalog thumb.
+ * Marketing gallery poster: full thumb URL on Cloudflare R2 CDN.
+ * Call sites must use `unoptimized` (or a plain `<img>`) so the image
+ * optimizer doesn't re-encode every catalog thumb.
  */
 export function catalogMarketingGalleryPosterUrlFromKey(
   thumbKey: string

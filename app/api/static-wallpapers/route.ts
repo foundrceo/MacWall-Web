@@ -5,10 +5,7 @@ import { listPublicStaticWallpapers } from "@/lib/static-wallpapers/list"
 export const runtime = "nodejs"
 export const revalidate = 300
 
-/**
- * Public catalog of still images stored under R2 `static-wallpapers/`.
- * Used by the MacWall macOS app Static tab (no auth).
- */
+/** Still images under R2 `static-wallpapers/`, for the Mac app's Static tab. No auth. */
 export async function GET() {
   try {
     const images = await listPublicStaticWallpapers()

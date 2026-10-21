@@ -21,7 +21,7 @@ export async function POST(request: Request, context: RouteContext) {
       const body = (await request.json()) as { reviewNotes?: string }
       reviewNotes = body.reviewNotes
     } catch {
-      // Approve with empty body is fine — notes are optional.
+      // Empty body is fine; notes are optional.
     }
     const result = await approveCommunityUpload(id, null, reviewNotes)
     await revalidateMarketingCatalog()

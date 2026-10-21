@@ -5,10 +5,8 @@ import { useId, useRef, useState, type PointerEvent } from "react"
 import { cn } from "@/lib/utils"
 
 /**
- * A giant wordmark: soft letters fading downward, cropped by the bottom edge
- * like type running off the page. Its outline lights up around the pointer
- * (adapted from the 21st.dev "Hover Footer" idea). Decorative: hidden from
- * assistive tech; with no pointer it simply rests.
+ * Giant wordmark cropped by the bottom edge; its outline lights up around the
+ * pointer. Decorative, so hidden from assistive tech.
  */
 export function FooterHoverWordmark({
   text,

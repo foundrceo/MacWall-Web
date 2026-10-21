@@ -1,12 +1,10 @@
 /**
- * Server-side purchase event to PostHog (US cloud), sent by the license
- * webhook (Stripe) next to the TikTok/X pixels. Powers
- * PostHog revenue analytics: `revenue` + `currency` on `purchase_completed`.
+ * Server-side `purchase_completed` (with `revenue` and `currency`) to PostHog,
+ * sent by the Stripe license webhook next to the TikTok/X pixels.
  *
- * The person is keyed by the buyer's email, with `email` set on it, so it
- * lines up with the app's person (which carries the trial email). A stable
- * event uuid from the payment id means webhook retries count once.
- * Never throws: analytics must not break license delivery.
+ * Keyed by the buyer's email so it joins the app's person, which carries the
+ * trial email. The event uuid comes from the payment id, so webhook retries
+ * count once. Never throws: analytics must not break license delivery.
  */
 
 // Public project token (write-only ingestion key; also shipped in the app and site).

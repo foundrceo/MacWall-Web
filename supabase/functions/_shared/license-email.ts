@@ -1,9 +1,8 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.105.4"
 
 /**
- * License email (Resend) and server-side purchase pixels for license
- * webhooks. Copied from stripe-license-email so the live Stripe function
- * stays untouched.
+ * License email (Resend) and server-side purchase pixels for the license
+ * webhooks. stripe-license-email keeps its own copy of this code.
  */
 
 function escapeHtml(s: string): string {
@@ -383,7 +382,7 @@ function textLinkCta(href: string, label: string): string {
   </table>`
 }
 
-/** Production path — licenseKey is required (never SAMPLE_LICENSE_KEY). */
+/** Real sends: licenseKey is required, never SAMPLE_LICENSE_KEY. */
 function buildLicenseEmailHtml(args: {
   appName: string
   licenseKey: string

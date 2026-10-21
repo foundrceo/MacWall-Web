@@ -97,7 +97,7 @@ async function startCheckout(
   const cookieStore = await cookies()
   const affonsoReferral =
     cookieStore.get(AFFONSO_REFERRAL_COOKIE)?.value?.trim().slice(0, 255) || ""
-  // Vercel/edge headers, cookie, then language first; the IP lookup only
+  // Geo headers, cookie, then language first; the IP lookup only
   // runs when all of those are missing, so an unknown country never falls
   // back to the global price for an India visitor.
   const country = await resolveVisitorCountry({
@@ -165,7 +165,7 @@ export function HEAD(request: Request) {
   return pricingRedirect(request)
 }
 
-/** Instant redirect to Stripe Checkout — paid one-time licenses only. */
+/** Redirects straight to Stripe Checkout. Paid one-time licenses only. */
 export async function GET(request: Request) {
   if (isNonHumanCheckoutRequest(request)) return pricingRedirect(request)
 

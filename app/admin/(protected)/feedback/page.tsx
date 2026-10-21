@@ -1,9 +1,8 @@
 "use client"
 
 /**
- * Live Support — the entire support console lives in this file: inbox list,
- * conversation thread, composer and the customer detail rail. It is laid out
- * as one full-height three-pane app rather than a stack of floating cards.
+ * Live support console: inbox, thread, composer and customer rail in one
+ * full-height three-pane layout.
  */
 
 import {
@@ -75,9 +74,7 @@ const VISITOR_TYPING_TTL_MS = 2500
 /** Stick to latest when within this distance of the transcript bottom. */
 const NEAR_BOTTOM_PX = 100
 
-/* -------------------------------------------------------------------------- */
-/* Types                                                                      */
-/* -------------------------------------------------------------------------- */
+/* Types */
 
 type Sentiment = "like" | "dislike" | "neutral"
 type Filter = "unread" | "open" | "closed" | "all"
@@ -138,9 +135,7 @@ const SENTIMENT: Record<Sentiment, { label: string; tone: Tone }> = {
   neutral: { label: "Neutral", tone: "neutral" },
 }
 
-/* -------------------------------------------------------------------------- */
-/* Helpers                                                                    */
-/* -------------------------------------------------------------------------- */
+/* Helpers */
 
 /** Web tickets send a raw user-agent where the native app sends "14.4.1". */
 function readableOsVersion(raw: string): string {
@@ -195,7 +190,7 @@ function chatIdForItem(item: FeedbackItem): string | null {
   return extractChatId(firstUser?.body ?? null) ?? extractChatId(item.message)
 }
 
-/** Cleaner “original issue” without Chat ID header / transcript dump. */
+/** The original issue without the Chat ID header or transcript dump. */
 function originalIssuePreview(item: FeedbackItem): string {
   const source =
     item.messages.find((m) => m.author === "user")?.body ?? item.message
@@ -256,7 +251,7 @@ function ticketNeedsReply(item: FeedbackItem): boolean {
   if (item.isResolved) return false
   if (item.needsAdminReply) return true
   const last = item.messages.at(-1)
-  // Derive from thread — DB flag can lag after user follow-ups / new tickets.
+  // Derived from the thread: the DB flag can lag after follow-ups or new tickets.
   // Assist-only threads (pre-handoff FAQ) do not need admin reply.
   if (!last) return Boolean(item.message.trim())
   return last.author === "user"
@@ -274,7 +269,7 @@ function sortInbox(a: FeedbackItem, b: FeedbackItem): number {
   return new Date(bLast).getTime() - new Date(aLast).getTime()
 }
 
-/** Ensure thread UI always has something to render even if messages failed to load. */
+/** Fallback so the thread still renders when its messages failed to load. */
 function threadMessages(item: FeedbackItem): FeedbackMessage[] {
   if (item.messages.length > 0) return item.messages
   if (!item.message.trim()) return []
@@ -383,9 +378,7 @@ function bubbleShape(
     : "rounded-[1.125rem] rounded-l-md"
 }
 
-/* -------------------------------------------------------------------------- */
-/* Page                                                                       */
-/* -------------------------------------------------------------------------- */
+/* Page */
 
 export default function AdminFeedbackPage() {
   const reduceMotion = useReducedMotion()
@@ -427,7 +420,7 @@ export default function AdminFeedbackPage() {
     selectedId && selectedId in visitorTypingUntil
   )
 
-  /* --- data ------------------------------------------------------------- */
+  /* data */
 
   const loadSeqRef = useRef(0)
   const sendingRef = useRef(false)
@@ -523,7 +516,7 @@ export default function AdminFeedbackPage() {
       setLive(false)
       return
     }
-    // Tab return / window focus — catch up anything missed while backgrounded.
+    // Catch up on anything missed while the tab was in the background.
     if (event.type === "resumed") {
       void load(true)
       return
@@ -535,7 +528,7 @@ export default function AdminFeedbackPage() {
     }
     setLive(true)
 
-    // --- Surgical message append (no full reload) ---
+    // Append the message in place instead of reloading everything.
     if (event.type === "message") {
       if (event.feedbackId) clearVisitorTyping(event.feedbackId)
       if (event.author === "user") {
@@ -547,7 +540,7 @@ export default function AdminFeedbackPage() {
           const ticketIndex = current.findIndex(
             (row) => row.id === event.feedbackId
           )
-          // Brand-new ticket not in state yet — fall back to full reload.
+          // Ticket not loaded yet: full reload.
           if (ticketIndex === -1) {
             void load(true)
             return current
@@ -579,20 +572,20 @@ export default function AdminFeedbackPage() {
           return next
         })
       } else {
-        // SSE message without parseable data — fall back to full reload.
+        // Unparseable message event: full reload.
         void load(true)
       }
       return
     }
 
-    // --- Surgical ticket metadata update (resolve / reopen / flags) ---
+    // Patch ticket metadata (resolve / reopen / flags) in place.
     if (event.type === "feedback") {
       if (event.ticketPatch?.id) {
         const patch = event.ticketPatch
         setItems((current) => {
           const ticketIndex = current.findIndex((row) => row.id === patch.id)
           if (ticketIndex === -1) {
-            // New ticket appeared — full reload to pick it up.
+            // New ticket: full reload to pick it up.
             void load(true)
             return current
           }
@@ -614,7 +607,7 @@ export default function AdminFeedbackPage() {
           return next
         })
       } else {
-        // Unparseable feedback event — fall back to full reload.
+        // Unparseable feedback event: full reload.
         void load(true)
       }
       return
@@ -628,7 +621,7 @@ export default function AdminFeedbackPage() {
     endpointFor: (id) => `/api/admin/feedback/${encodeURIComponent(id)}/typing`,
   })
 
-  // Safety-net poll only when SSE is quiet — never dual-path with healthy live.
+  // Fallback poll only while SSE is down, never alongside a live stream.
   useEffect(() => {
     if (live) return
     const id = window.setInterval(() => {
@@ -638,7 +631,7 @@ export default function AdminFeedbackPage() {
     return () => window.clearInterval(id)
   }, [live, load])
 
-  /* --- selection + scrolling -------------------------------------------- */
+  /* selection + scrolling */
 
   useEffect(() => {
     if (selectedId && !items.some((item) => item.id === selectedId)) {
@@ -687,7 +680,7 @@ export default function AdminFeedbackPage() {
       scrollThreadToBottom()
       return
     }
-    // New content landed while scrolled up — flag it after layout, not mid-render.
+    // New content while scrolled up: flag it after layout, not mid-render.
     const id = window.requestAnimationFrame(() => setHasUnseenBelow(true))
     return () => window.cancelAnimationFrame(id)
   }, [messageCount, selectedVisitorTyping, scrollThreadToBottom])
@@ -714,7 +707,6 @@ export default function AdminFeedbackPage() {
     } else if (filter === "unread") {
       list = list.filter((item) => ticketNeedsReply(item))
     } else if (filter === "open") {
-      // Continue conversations — all open tickets
       list = list.filter((item) => !item.isResolved)
     } else if (filter === "closed") {
       list = list.filter((item) => item.isResolved)
@@ -738,7 +730,7 @@ export default function AdminFeedbackPage() {
     [selected]
   )
 
-  /* --- actions ----------------------------------------------------------- */
+  /* actions */
 
   async function toggleResolved(item: FeedbackItem) {
     if (pendingId === item.id) return
@@ -779,7 +771,7 @@ export default function AdminFeedbackPage() {
         const json = (await res.json()) as { error?: string }
         throw new Error(json.error ?? "Update failed")
       }
-      // SSE `feedback` event handles the authoritative state update surgically.
+      // The SSE `feedback` event applies the real state.
     } catch (err) {
       setItems((current) =>
         current.map((row) =>
@@ -989,8 +981,6 @@ export default function AdminFeedbackPage() {
 
   const filterCounts: Record<Filter, number | undefined> = inboxCounts
 
-  /* --- render ------------------------------------------------------------ */
-
   return (
     <AdminShell
       title="Live Support"
@@ -1028,9 +1018,7 @@ export default function AdminFeedbackPage() {
       }
     >
       <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] md:grid-cols-[19rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)_18rem]">
-        {/* ---------------------------------------------------------------- */}
-        {/* Inbox                                                            */}
-        {/* ---------------------------------------------------------------- */}
+        {/* Inbox */}
         <section
           aria-label="Inbox"
           className={cn(
@@ -1229,9 +1217,7 @@ export default function AdminFeedbackPage() {
           </div>
         </section>
 
-        {/* ---------------------------------------------------------------- */}
-        {/* Conversation                                                     */}
-        {/* ---------------------------------------------------------------- */}
+        {/* Conversation */}
         <section
           aria-label="Conversation"
           className={cn(
@@ -1660,9 +1646,7 @@ export default function AdminFeedbackPage() {
           )}
         </section>
 
-        {/* ---------------------------------------------------------------- */}
-        {/* Customer detail rail                                             */}
-        {/* ---------------------------------------------------------------- */}
+        {/* Customer detail rail */}
         <aside
           aria-label="Customer details"
           className="admin-scroll hidden min-h-0 overflow-y-auto border-l border-[var(--admin-border)] bg-[var(--admin-surface)] xl:block"

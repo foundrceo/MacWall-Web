@@ -46,7 +46,7 @@ function OpenWallpaperRedirect() {
 
     const onVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
-        // MacWall took focus — leave the timer dead, stay on this page.
+        // MacWall took focus: leave the timer dead, stay on this page.
         settle()
       }
     }

@@ -21,7 +21,7 @@ export type CreatorDeal = {
   reelsDelivered: number
   agreedAmount: number
   paidAmount: number
-  /** Agreed minus paid — what you still owe. */
+  /** Agreed minus paid: what you still owe. */
   balanceAmount: number
   currency: string
   email: string | null

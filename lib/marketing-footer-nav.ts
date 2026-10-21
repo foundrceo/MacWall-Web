@@ -84,7 +84,7 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
   ]
 }
 
-/** Footer shows only the binding essentials — the rest lives on the /legal hub. */
+/** Footer shows only the binding essentials: the rest lives on the /legal hub. */
 function legalFooterLink(slug: LegalDocumentSlug): MarketingFooterLink {
   const doc = LEGAL_DOCUMENTS.find((d) => d.slug === slug)
   if (!doc) throw new Error(`Unknown legal document: ${slug}`)
@@ -103,7 +103,7 @@ export function getMarketingFooterSocialLinks(): readonly MarketingFooterSocialL
   ]
 }
 
-/** SEO comparison pages — crawlable from expanded footer surfaces. */
+/** SEO comparison pages: crawlable from expanded footer surfaces. */
 export const footerCompareLinks = [
   { href: "/best-live-wallpaper-mac", label: "Best Live Wallpaper for Mac" },
   { href: "/alternatives/wallpaper-engine", label: "Wallpaper Engine for Mac" },
@@ -119,7 +119,7 @@ export const footerCompareLinks = [
 ] as const
 
 /**
- * Wallpaper category landing pages — linked site-wide so every category is
+ * Wallpaper category landing pages: linked site-wide so every category is
  * crawlable from any page (prevents orphan pages and single-inbound-link issues).
  */
 export const footerCategoryLinks: { href: string; label: string }[] =

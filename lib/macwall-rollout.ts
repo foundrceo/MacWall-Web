@@ -3,7 +3,7 @@ import { createHash } from "node:crypto"
 /**
  * Staged rollout for MacWall updates.
  *
- * The app sends `?did=` — the first 12 hex chars of SHA256 (hardware ID),
+ * The app sends `?did=`: the first 12 hex chars of SHA256 (hardware ID),
  * truncated client-side so it can bucket devices but never identify one.
  * The server hashes it again into a stable 0–99 bucket and compares it
  * against `releases/rollout.json` (`{"version":"4.0.5","percent":10}`).

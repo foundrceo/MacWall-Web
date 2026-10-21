@@ -20,10 +20,9 @@ import type {
 import { cn } from "@/lib/utils"
 
 /**
- * The footer as a Mac screen: a menu bar whose menus hold the footer links,
- * a live wallpaper behind, and a Dock with the app, the socials and the AI
- * assistants. Menus open on click (and follow the pointer once one is open,
- * like macOS); the links stay in the page while closed.
+ * Footer drawn as a Mac screen: menu bar menus hold the links, a Dock holds
+ * the app and socials. Menus open on click and follow the pointer once one
+ * is open, like macOS. Links stay in the DOM while closed.
  */
 export function MacDesktop({
   menus,
@@ -64,7 +63,6 @@ export function MacDesktop({
         <div className="absolute inset-0 bg-linear-to-b from-black/45 via-black/15 to-black/55" />
       </div>
 
-      {/* Menu bar */}
       <div
         ref={barRef}
         className="relative z-20 flex h-8 items-center bg-black/35 px-1.5 text-[13px] text-white backdrop-blur-xl sm:px-2.5"
@@ -125,7 +123,6 @@ export function MacDesktop({
         <MenuBarClock />
       </div>
 
-      {/* Desktop */}
       <div className="flex h-[calc(100%-2rem)] flex-col items-center px-6 pt-[12%] text-center">
         <p className="font-display text-4xl tracking-tight text-white [text-shadow:0_2px_24px_rgb(0_0_0/0.45)] md:text-6xl">
           {headline}
@@ -138,7 +135,6 @@ export function MacDesktop({
         </p>
       </div>
 
-      {/* Dock */}
       <nav
         aria-label="Dock"
         className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-end gap-1 rounded-[18px] bg-white/10 p-1.5 ring-1 ring-white/20 backdrop-blur-2xl sm:gap-1.5"

@@ -18,7 +18,7 @@ export async function parseCheckoutCreateError(
     const message = data.error?.trim()
     if (message) return message.slice(0, 120)
   } catch {
-    // Response body was not JSON — fall through to status defaults.
+    // Response body was not JSON: fall through to status defaults.
   }
 
   if (response.status === 429) {

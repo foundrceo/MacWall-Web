@@ -14,7 +14,7 @@ import {
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
-/** Large desktops still get 720p by default — saves ~4 MB on first paint. */
+/** Large desktops still get 720p by default: saves ~4 MB on first paint. */
 const LARGE_DESKTOP_QUERY = "(min-width: 1536px)"
 
 type NetworkInformation = {
@@ -39,8 +39,8 @@ function prefersLightweightMedia(): boolean {
 
 /**
  * Run after the page's own resources (JS, fonts, images) have loaded and the
- * main thread is idle, so the multi-MB video never competes with them — or
- * with a buyer's checkout request — on a slow connection.
+ * main thread is idle, so the multi-MB video never competes with them (or
+ * with a buyer's checkout request) on a slow connection.
  */
 function afterPageLoadIdle(callback: () => void): () => void {
   let cancelled = false

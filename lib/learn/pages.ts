@@ -15,7 +15,7 @@ import {
 export type LearnPage = SeoContentPage & {
   /** Short label for hub cards and breadcrumbs. */
   navLabel: string
-  /** One-line answer surfaced on the hub — also the definition an LLM can lift. */
+  /** One-line answer surfaced on the hub: also the definition an LLM can lift. */
   takeaway: string
 }
 

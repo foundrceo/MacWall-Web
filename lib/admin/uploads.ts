@@ -41,7 +41,7 @@ export type AdminCommunityUpload = {
   approvedWallpaperId: string | null
   createdAt: string
   updatedAt: string
-  /** Null for submissions made before the declaration existed (2026-10-02). */
+  /** Null for submissions made before the declaration existed. */
   rightsBasis: CommunityRightsBasis | null
   rightsHolder: string | null
   sourceUrl: string | null
@@ -355,7 +355,7 @@ export const MARKETING_CATALOG_CACHE_TAGS = [
  * this directly instead of POSTing to `/api/revalidate/catalog`, which cost a
  * second invocation and silently no-op'd without the secret + site URL env.
  *
- * Soft expire ("default") — avoids a global stampede that rebuilds every
+ * Soft expire ("default"): avoids a global stampede that rebuilds every
  * wallpaper/list page at once after bulk catalog edits.
  */
 export async function revalidateMarketingCatalog() {

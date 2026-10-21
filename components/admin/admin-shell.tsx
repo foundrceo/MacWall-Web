@@ -169,7 +169,7 @@ function useSupportReplyCount() {
     let cancelled = false
 
     async function load() {
-      // Don't poll hidden tabs — the inbox SSE owns liveness when visible.
+      // Don't poll hidden tabs: the inbox SSE owns liveness when visible.
       if (document.hidden) return
       try {
         const res = await fetch("/api/admin/feedback?totals=1", {

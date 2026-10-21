@@ -11,7 +11,7 @@ const WallpaperPurchaseBanner = dynamic(
   { ssr: false }
 )
 
-/** Client boundary — wallpaper dwell → Stripe banner after hydration. */
+/** Client boundary: wallpaper dwell → Stripe banner after hydration. */
 export function WallpaperPurchaseBannerMount() {
   return (
     <Suspense fallback={null}>

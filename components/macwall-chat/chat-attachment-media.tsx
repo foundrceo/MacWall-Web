@@ -1,9 +1,6 @@
 "use client"
 
-/**
- * Apple Messages–style chat attachment: hero media with hairline edge,
- * aspect-fit, shimmer while loading, graceful failure, and a dark lightbox.
- */
+/** Image/video attachment in a chat bubble; click opens a lightbox. */
 
 import { useCallback, useEffect, useState } from "react"
 
@@ -17,7 +14,7 @@ type ChatAttachmentMediaProps = {
   /** Visual context for hairline + shimmer. Chat widget = dark; admin transcript = light. */
   tone?: Tone
   className?: string
-  /** Max width in px — keeps media from dominating the panel. */
+  /** Max width in px: keeps media from dominating the panel. */
   maxWidth?: number
 }
 

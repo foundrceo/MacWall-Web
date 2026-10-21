@@ -1,4 +1,4 @@
-/* Apple Newsroom layout — bundled via blog-index-page import */
+/* Apple Newsroom layout: bundled via blog-index-page import */
 
 .MacWallNewsroomPage {
   background: #fff;
@@ -33,7 +33,7 @@
   padding: 0;
 }
 
-/* ── Page header inside dark takeover ── */
+/* Page header inside dark takeover */
 .takeover .MacWallNewsroomPageHead {
   box-sizing: border-box;
   width: 980px;
@@ -121,7 +121,7 @@
   }
 }
 
-/* ── Takeover (dark featured block) ── */
+/* Takeover (dark featured block) */
 .MacWallNewsroomSection.takeover {
   background-color: #161617;
   padding-bottom: 40px;
@@ -203,7 +203,7 @@
   }
 }
 
-/* ── Everyday feed (Latest) ── */
+/* Everyday feed (Latest) */
 .MacWallNewsroomSection.everydayfeed {
   overflow: hidden;
   background-color: #f5f5f7;
@@ -299,7 +299,7 @@
   }
 }
 
-/* Latest — 3 equal tile-3up fullbleed cards (one row, Apple Newsroom) */
+/* Latest: 3 equal tile-3up fullbleed cards (one row, Apple Newsroom) */
 .everydayfeed .feed-item-3up-1 {
   grid-column: 1 / span 4;
 }
@@ -342,7 +342,7 @@
   background-color: #0c0d0a;
 }
 
-/* ── More from MacWall Blog ── */
+/* More from MacWall Blog */
 .MacWallNewsroomSection.more-from-newsroom {
   padding: 52px 0 80px;
   background: #fff;
@@ -401,7 +401,7 @@
   }
 }
 
-/* ── Shared tile link ── */
+/* Shared tile link */
 .tile {
   display: block;
   width: 100%;
@@ -442,7 +442,7 @@
   border-radius: inherit;
 }
 
-/* Blank placeholder when image fails or is missing — box size never collapses */
+/* Blank placeholder when image fails or is missing: box size never collapses */
 .takeover .tile__media {
   background-color: #0c0d0a;
 }
@@ -526,7 +526,7 @@
   text-align: start;
 }
 
-/* ── tile-1up tile-hero — 643px media + copy, 362px tall ── */
+/* tile-1up tile-hero: 643px media + copy, 362px tall */
 .takeover .tile.tile-1up.tile-hero,
 .everydayfeed .tile.tile-1up.tile-hero {
   display: grid;
@@ -645,7 +645,7 @@
   }
 }
 
-/* ── tile-2up (stacked: 16:9 media + copy) ── */
+/* tile-2up (stacked: 16:9 media + copy) */
 .takeover .tile.tile-2up:not(.tile-fullbleed),
 .everydayfeed .tile.tile-2up:not(.tile-fullbleed) {
   display: flex;
@@ -699,7 +699,7 @@
   margin-top: 12px;
 }
 
-/* ── tile-2up tile-fullbleed has-gradient-secondary ── */
+/* tile-2up tile-fullbleed has-gradient-secondary */
 .takeover .tile.tile-2up.tile-fullbleed,
 .everydayfeed .tile.tile-2up.tile-fullbleed {
   position: relative;
@@ -793,7 +793,7 @@
   margin-top: 12px;
 }
 
-/* ── tile-3up (stacked cards in feed) ── */
+/* tile-3up (stacked cards in feed) */
 .everydayfeed .tile.tile-3up:not(.tile-fullbleed) {
   display: flex;
   flex-direction: column;
@@ -894,7 +894,7 @@
   display: block;
 }
 
-/* ── tile-list (More from…) ── */
+/* tile-list (More from…) */
 .section-tiles--list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

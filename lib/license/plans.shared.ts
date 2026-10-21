@@ -1,9 +1,9 @@
-/** License tiers — Pro (3 Macs) and Pro Plus (5 Macs). */
+/** License tiers: Pro (3 Macs) and Pro Plus (5 Macs). */
 
 export const LICENSE_PLAN_SLUGS = ["pro", "pro_plus"] as const
 export type LicensePlanSlug = (typeof LICENSE_PLAN_SLUGS)[number]
 
-/** Legacy slug from early tier naming — treated as Pro Plus at runtime. */
+/** Legacy slug from early tier naming: treated as Pro Plus at runtime. */
 export const LEGACY_PRO_PLUS_SLUG = "pro_max" as const
 
 export type LicensePlan = {

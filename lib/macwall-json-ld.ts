@@ -24,7 +24,7 @@ const MACWALL_SAME_AS = [
   macwall.discordInvite,
 ] as const
 
-/** Single shared JSON-LD graph — no fabricated ratings, review counts, or download stats. */
+/** Single shared JSON-LD graph: no fabricated ratings, review counts, or download stats. */
 export function macwallSchemaGraph(canonicalOrigin: string) {
   const origin = canonicalOrigin.replace(/\/$/, "")
   const logoUrl = `${origin}${macwallAppIconPath}`

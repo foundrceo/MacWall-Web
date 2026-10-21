@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "not_configured" }, { status: 503 })
   }
 
-  // Shared counters survive cold starts and concurrent Vercel instances.
+  // Shared counters survive cold starts and concurrent instances.
   try {
     if (!(await consumePublicQuota(request, "send_to_mac_ip", 5, 3600))) {
       return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 })

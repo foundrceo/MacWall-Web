@@ -381,7 +381,7 @@ function WallpaperVideoPlayerInner({
       onContextMenu={blockMediaContextMenu}
     >
       {/*
-        Custom controls only — no native download UI. `src` is a downscaled
+        Custom controls only: no native download UI. `src` is a downscaled
         preview; the full-resolution master is never sent to the browser.
       */}
       {src ? (
@@ -446,7 +446,7 @@ function WallpaperVideoPlayerInner({
         />
       ) : null}
 
-      {/* Poster stays up until first frame — never a blank black shell. */}
+      {/* Poster stays up until first frame, never a blank black shell. */}
       {showPoster ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img

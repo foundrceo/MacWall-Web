@@ -50,11 +50,8 @@ export function AdminAppMark({ subtitle }: Readonly<{ subtitle?: string }>) {
   )
 }
 
-/* --- Spotlight -----------------------------------------------------------
- * 21st.dev-style pointer-tracking glow. Sets --mx/--my so the
- * `.admin-spotlight::before` radial follows the cursor. Pointer-only
- * enhancement — content is identical without JS/mouse.
- * ---------------------------------------------------------------------- */
+// Pointer-tracking glow: --mx/--my drive the `.admin-spotlight::before`
+// radial. Purely decorative.
 
 export function AdminSpotlight({
   children,
@@ -74,10 +71,8 @@ export function AdminSpotlight({
   )
 }
 
-/* --- Badges --------------------------------------------------------------
- * A single tone scale so status colours never drift between pages.
- * Text uses the -fg variants (4.5:1+ on tinted surfaces).
- * ---------------------------------------------------------------------- */
+// One tone scale for every status badge. Text uses the -fg variants
+// (4.5:1+ on tinted surfaces).
 
 export type Tone = "neutral" | "blue" | "green" | "amber" | "red" | "violet"
 
@@ -113,7 +108,7 @@ export function AdminBadge({
   )
 }
 
-/** Small coloured dot — for inline live/idle status next to a label. */
+/** Small coloured dot: for inline live/idle status next to a label. */
 export function AdminStatusDot({
   tone = "neutral",
   pulse,
@@ -146,8 +141,6 @@ export function AdminStatusDot({
     </span>
   )
 }
-
-/* --- Structure ----------------------------------------------------------- */
 
 export function SectionHeading({
   title,
@@ -182,7 +175,7 @@ export function SectionHeading({
   )
 }
 
-/** Card header used by every panel — title left, optional action right. */
+/** Card header used by every panel: title left, optional action right. */
 export function PanelHeader({
   title,
   description,
@@ -219,8 +212,6 @@ export function PanelHeader({
     </div>
   )
 }
-
-/* --- Metrics -------------------------------------------------------------- */
 
 export function StatCard({
   label,
@@ -316,8 +307,6 @@ export function StatCardSkeleton() {
   )
 }
 
-/* --- Avatar --------------------------------------------------------------- */
-
 const avatarPalette = [
   "bg-[var(--admin-blue-soft)] text-[var(--admin-blue-fg)]",
   "bg-[var(--admin-green-soft)] text-[var(--admin-green-fg)]",
@@ -370,8 +359,6 @@ export function AdminAvatar({
     </span>
   )
 }
-
-/* --- Misc ----------------------------------------------------------------- */
 
 /** Key/value pair used in detail panels. */
 export function AdminInfoGrid({

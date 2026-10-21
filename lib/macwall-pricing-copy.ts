@@ -169,7 +169,7 @@ export const macwallPricingCopy = {
     },
   ] as const,
 
-  /** Questions support gets most (Jun–Oct 2026), answered as the app works today. */
+  /** Questions support gets most, answered as the app works today. */
   supportFaq: [
     {
       q: "Will I be charged when the free trial ends?",

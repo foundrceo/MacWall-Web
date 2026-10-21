@@ -32,10 +32,6 @@ import { cn } from "@/lib/utils"
 
 const PLANS_ANCHOR_ID = "plans"
 
-/* ------------------------------------------------------------------ */
-/* Shared bits                                                         */
-/* ------------------------------------------------------------------ */
-
 function SectionHeading({
   title,
   lead,
@@ -101,10 +97,6 @@ function SocialProof() {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Hero                                                                */
-/* ------------------------------------------------------------------ */
-
 function PricingHero({
   checkoutError,
 }: Readonly<{ checkoutError: string | null }>) {
@@ -133,10 +125,6 @@ function PricingHero({
     </div>
   )
 }
-
-/* ------------------------------------------------------------------ */
-/* Trust                                                               */
-/* ------------------------------------------------------------------ */
 
 type Tile = { icon: IconSvgElement; title: string; body: ReactNode }
 
@@ -246,10 +234,6 @@ function BenefitsGrid() {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Reel refund                                                         */
-/* ------------------------------------------------------------------ */
-
 function ReelRefundCallout() {
   return (
     <div className="relative mx-auto max-w-4xl overflow-hidden rounded-3xl bg-[#0d0d0e] bg-[radial-gradient(90%_120%_at_0%_0%,rgba(16,185,129,0.14),transparent_60%)] p-6 ring-1 ring-white/[0.08] ring-inset sm:p-8">
@@ -286,10 +270,6 @@ function ReelRefundCallout() {
     </div>
   )
 }
-
-/* ------------------------------------------------------------------ */
-/* Sticky mobile bar                                                   */
-/* ------------------------------------------------------------------ */
 
 /** Appears on phones once the plan cards have scrolled out of view. */
 function StickyMobileCta({ checkoutUrl }: Readonly<{ checkoutUrl: string }>) {
@@ -341,14 +321,7 @@ function StickyMobileCta({ checkoutUrl }: Readonly<{ checkoutUrl: string }>) {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Page                                                                */
-/* ------------------------------------------------------------------ */
-
-/**
- * Full conversion-focused pricing page (preview). Every claim comes from
- * existing copy; checkout URLs and card analytics match the live page.
- */
+/** Pricing page preview. Checkout URLs and card analytics match the live page. */
 export function PricingPagePlans({
   checkoutUrl,
   checkoutError,

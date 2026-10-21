@@ -50,7 +50,7 @@ export async function resolveMarketingPricing(): Promise<MarketingPricing> {
       cookieCountry: cookieStore.get(COUNTRY_COOKIE)?.value,
     })
 
-    // US (and unknown→USD) — no local hint.
+    // US (and unknown→USD): no local hint.
     if (!country || country.toUpperCase() === "US") {
       return buildMarketingPricingFromLocalized({
         country: country ?? "US",

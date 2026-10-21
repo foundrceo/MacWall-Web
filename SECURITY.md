@@ -1,13 +1,13 @@
 # security
 
-if you find a security issue in macwall.app or this repo, please email **support@macwall.app** with subject `Security report: MacWall`.
+if you find a security issue in macwall.app or in this repo, email **support@macwall.app** with the subject `Security report: MacWall`. please don't open a public issue for it.
 
-include enough detail to reproduce the issue, and give us a reasonable window to look at it before public disclosure.
+include the steps to reproduce and what you think the impact is. I'll reply as soon as I can, and I'd appreciate a reasonable window to fix it before you disclose anything publicly.
 
-more about how we approach security: https://macwall.app/legal/security
+more on how the site handles security: https://macwall.app/legal/security
 
-before committing, run `gitleaks git --redact` (install with `brew install gitleaks`).
-CI scans the complete Git history on pushes and pull requests. the allowlist is
-limited to the public analytics ingestion token, the key generator alphabet, and
-the email preview fixture. real environment files and local customer exports
-must remain ignored; use `.env.example` to document variable names.
+## secrets in this repo
+
+nothing secret should ever be committed. real values go in `.env` (ignored) and `.env.example` only lists the names. CI runs gitleaks over the full git history on every push and pull request. you can run the same check locally with `gitleaks git --redact` (`brew install gitleaks`).
+
+the allowlist in `.gitleaks.toml` covers the public analytics ingestion token, the license key alphabet, and one sample key used in the email preview.

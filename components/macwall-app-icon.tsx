@@ -6,7 +6,7 @@ import {
 import { cn } from "@/lib/utils"
 
 type MacWallAppIconProps = Readonly<{
-  /** Render width/height in px — full MacWall.png artwork, not favicon assets. */
+  /** Render width/height in px: full MacWall.png artwork, not favicon assets. */
   size?: number
   className?: string
   priority?: boolean
@@ -14,7 +14,7 @@ type MacWallAppIconProps = Readonly<{
   "aria-hidden"?: boolean
 }>
 
-/** Marketing/UI app icon — always `public/MacWall.png`. Never use favicon_io here. */
+/** Marketing/UI app icon: always `public/MacWall.png`. Never use favicon_io here. */
 export function MacWallAppIcon({
   size = 24,
   className,

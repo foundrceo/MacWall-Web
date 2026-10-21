@@ -6,9 +6,8 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 /**
- * Vercel Cron → Supabase `process-checkout-recovery`.
- * Sends WALL10 conversion mail for abandoned / failed / incomplete checkouts.
- * Auth is CRON_SECRET only. `x-vercel-cron` is not treated as proof of origin.
+ * Cron → Supabase `process-checkout-recovery` (abandoned / failed / incomplete
+ * checkouts). Auth is CRON_SECRET only; an `x-vercel-cron` header proves nothing.
  */
 export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET?.trim()

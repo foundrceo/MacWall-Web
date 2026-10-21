@@ -19,7 +19,7 @@ const CRON_INTERVAL_S = 15 * 60
 const DELETE_CHUNK = 100
 
 /**
- * Vercel Cron → delete `pending` license rows whose Stripe Checkout Session
+ * Cron → delete `pending` license rows whose Stripe Checkout Session
  * has expired. An expired session can never be paid (delayed payment methods
  * leave the session `complete`, not `expired`), so these rows are dead: they
  * come from sessions warmed on hover/view, crawlers, and abandoned checkouts.

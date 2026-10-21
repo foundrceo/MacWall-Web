@@ -9,7 +9,7 @@ import {
 import { r2InstallersGetText } from "@/lib/storage/r2-installers"
 
 export const runtime = "nodejs"
-/** Mac update checks are chatty — short CDN TTL cuts invocations without stalling ships. */
+/** Mac update checks are chatty; a short CDN TTL cuts invocations without delaying releases. */
 export const revalidate = 120
 
 const VERSION_KEY = "releases/version.json"

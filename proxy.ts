@@ -11,20 +11,19 @@ import {
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
 
 /**
- * Next.js Node proxy — every matched request is a billed invocation, so keep
- * this matcher tiny: the country cookie on checkout and admin auth. TikTok ad
- * clicks land on the full homepage like everyone else. Marketing pages never get a Set-Cookie here: a page response
- * that sets a cookie can't be cached (vinext on Cloudflare renders it on every
- * visit), and the country cookie is set by `/api/pricing` from the client.
+ * Every matched request is a billed invocation, so the matcher stays small:
+ * the country cookie on checkout, and admin auth. Marketing pages never get a
+ * Set-Cookie from here. A page response that sets a cookie can't be cached
+ * (vinext renders it on every visit), and `/api/pricing` sets the country
+ * cookie from the client instead.
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Crawlers read catalog keys (`"videoKey":"videos/<id>.mp4"`) in page
-  // payloads and `/api/wallpapers` as relative links, then request
-  // `<page>/videos/<id>.mp4` thousands of times a day. Each got the full HTML
-  // not-found page (~115 KB, usually uncompressed). Answer with an empty 404
-  // the browser and bots may cache instead.
+  // Crawlers treat catalog keys (`"videoKey":"videos/<id>.mp4"`) in page
+  // payloads and `/api/wallpapers` as relative links and request
+  // `<page>/videos/<id>.mp4`. Return an empty, cacheable 404 instead of the full
+  // not-found page.
   if (pathname.endsWith(".mp4")) {
     return new NextResponse(null, {
       status: 404,
@@ -35,7 +34,7 @@ export async function proxy(request: NextRequest) {
   const isAdminSurface =
     pathname.startsWith("/admin") || pathname.startsWith("/api/admin")
 
-  // Never block HTML / API on IP whois — Vercel edge geo + cookie only.
+  // Header geo and the cookie only, never an IP lookup on the request path.
   const country = isAdminSurface ? null : await resolveVisitorCountry({
     headers: request.headers,
     cookieCountry: request.cookies.get("mw_country")?.value,
@@ -71,7 +70,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (!isAdminSurface) {
-    // /api/checkout — set the country cookie before Stripe.
+    // /api/checkout: set the country cookie before Stripe
     return next()
   }
 

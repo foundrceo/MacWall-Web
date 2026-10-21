@@ -27,7 +27,7 @@ export type ShaderUniformConfig = {
   shade?: "warp" | "waves"
 }
 
-/** Shared step pattern — different wave from the hero; colors differ per step. */
+/** Shared step pattern: different wave from the hero; colors differ per step. */
 const STEP_PATTERN: Omit<ShaderUniformConfig, "colors" | "colorCount" | "hue"> =
   {
     scale: 0.72,
@@ -67,7 +67,7 @@ const STEP_01_COLORS = [
   CREAM,
 ] as const
 
-/** Hero panel — original soft wave (not the step pattern). */
+/** Hero panel: original soft wave (not the step pattern). */
 export const AFFILIATE_SHADER_HERO: ShaderUniformConfig = {
   scale: 1.32,
   intensity: 0.49,
@@ -116,7 +116,7 @@ export const AFFILIATE_SHADER_STEP_01: ShaderUniformConfig = {
   ],
 }
 
-/** Violet — link step. */
+/** Violet: link step. */
 export const AFFILIATE_SHADER_STEP_02: ShaderUniformConfig = {
   ...STEP_PATTERN,
   colorCount: 4,
@@ -133,7 +133,7 @@ export const AFFILIATE_SHADER_STEP_02: ShaderUniformConfig = {
   ],
 }
 
-/** Amber/gold — earn step. */
+/** Amber/gold: earn step. */
 export const AFFILIATE_SHADER_STEP_03: ShaderUniformConfig = {
   ...STEP_PATTERN,
   colorCount: 4,

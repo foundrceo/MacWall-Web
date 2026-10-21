@@ -6,7 +6,7 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
  * (`content:encoded`, Atom `<content>`, JSON Feed `content_html`).
  *
  * Escaping happens before inline Markdown conversion, so authored text can
- * never inject markup — only the small inline subset below produces tags.
+ * never inject markup, only the small inline subset below produces tags.
  */
 
 export function escapeHtml(value: string): string {
@@ -18,7 +18,7 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;")
 }
 
-/** `**bold**`, `` `code` ``, and `[label](href)` — nothing else is honoured. */
+/** `**bold**`, `` `code` ``, and `[label](href)`: nothing else is honoured. */
 function inlineMarkdownToHtml(text: string): string {
   const origin = canonicalSiteOrigin()
 

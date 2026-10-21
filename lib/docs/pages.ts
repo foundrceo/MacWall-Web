@@ -7,7 +7,7 @@ import {
 } from "@/lib/macwall-site"
 
 /**
- * Product documentation — task-oriented "how do I…" pages.
+ * Product documentation: task-oriented "how do I…" pages.
  *
  * Intent split that keeps these from cannibalising other surfaces:
  * `/docs` answers *how to use MacWall*, `/learn` explains *concepts*, and
