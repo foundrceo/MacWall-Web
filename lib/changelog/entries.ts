@@ -5,7 +5,7 @@ import {
 } from "@/lib/changelog/curated-releases"
 import { webAutoChangelogReleases } from "@/lib/changelog/web-auto-releases"
 
-export const CHANGELOG_GENERATED_AT = "2026-10-10T15:07:41.085Z"
+export const CHANGELOG_GENERATED_AT = "2026-10-17T14:39:03.185Z"
 
 export const CHANGELOG_TOTAL_ENTRIES =
   CHANGELOG_TOTAL_PUBLIC_ENTRIES +

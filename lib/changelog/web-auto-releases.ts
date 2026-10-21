@@ -6,6 +6,97 @@ import type { ChangelogRelease } from "@/lib/changelog/types"
 
 export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
   {
+    id: "web-2026-10-17",
+    version: "2026.10.17",
+    date: "2026-10-17T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Checkout stores the Mac install that opened it on the pending license.",
+          "Send TikTok ad clicks to the full homepage.",
+          "Cut Workers KV writes; a failed KV write no longer fails a request.",
+          "Production-only Cloudflare Worker; cache the landing pages.",
+          "Sharp catalog thumbs on Cloudflare: CatalogImage writes its own srcset.",
+          "Route macwall.app and www to the Worker with zone routes.",
+          "Serve macwall.app from Cloudflare: custom domains and Cron Triggers.",
+          "Redirect www.macwall.app to the apex in next.config.",
+          "Cloudflare: real visitor country and IP, preview hostname, /discord redirect.",
+          "Deploy the Cloudflare Worker with wrangler instead of the cf CLI.",
+        ],
+      },
+      {
+        kind: "fixes",
+        items: [
+          "Fix TikTok conversion tracking end to end.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-16",
+    version: "2026.10.16",
+    date: "2026-10-16T12:00:00.000Z",
+    sections: [
+      {
+        kind: "features",
+        items: [
+          "Add paid Windows early-access waitlist and banner.",
+        ],
+      },
+      {
+        kind: "improvements",
+        items: [
+          "Refund policy: one 7-day window for every license.",
+          "Accurate product claims, honest comparison pages, one page per intent.",
+          "Remove the Windows waitlist; MacWall is Mac-only for now.",
+          "Windows waitlist: one Pro license for Mac and Windows.",
+          "Set the money-back guarantee to 7 days.",
+          "Public changelog page synced with shipping updates.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-14",
+    version: "2026.10.14",
+    date: "2026-10-14T12:00:00.000Z",
+    sections: [
+      {
+        kind: "features",
+        items: [
+          "Add 50% win-back email for trial users who never bought.",
+        ],
+      },
+      {
+        kind: "improvements",
+        items: [
+          "Win-back subject leads with the 24-hour expiry; exact candidate counts.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-11",
+    version: "2026.10.11",
+    date: "2026-10-11T12:00:00.000Z",
+    sections: [
+      {
+        kind: "features",
+        items: [
+          "Increase gallery search shortcut touch target.",
+        ],
+      },
+      {
+        kind: "improvements",
+        items: [
+          "Remove hidden pricing action from keyboard navigation.",
+          "Clarify regional pricing and improve plan text contrast.",
+        ],
+      },
+    ],
+  },
+  {
     id: "web-2026-10-10",
     version: "2026.10.10",
     date: "2026-10-10T12:00:00.000Z",
@@ -13,7 +104,14 @@ export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
       {
         kind: "improvements",
         items: [
+          "Improve mobile previews and protect download email delivery.",
           "Clarify public asset licenses and improve download email feedback.",
+        ],
+      },
+      {
+        kind: "fixes",
+        items: [
+          "Fix SVG trace animation and footer text contrast.",
         ],
       },
     ],
