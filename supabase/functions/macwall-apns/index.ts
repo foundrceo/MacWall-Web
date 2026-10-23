@@ -246,26 +246,101 @@ function broadcastSecretExpected(): string {
   return Deno.env.get("MACWALL_BROADCAST_SECRET")?.trim() ?? "";
 }
 
-/** Broadcast/notify is server-only: service_role or MACWALL_BROADCAST_SECRET. */
-function isBroadcastAuthorized(
+/** Broadcast/notify is server-only: a verified server key or MACWALL_BROADCAST_SECRET. */
+async function isBroadcastAuthorized(
   req: Request,
   body: Record<string, unknown>,
   serviceRoleKey: string,
-): boolean {
-  if (isServiceRole(req, serviceRoleKey)) return true;
+  supabaseUrl: string,
+): Promise<boolean> {
+  if (await isServiceRole(req, serviceRoleKey, supabaseUrl)) return true;
   const expected = broadcastSecretExpected();
   if (expected.length < 32) return false;
   const secret =
     typeof body.broadcastSecret === "string" ? body.broadcastSecret.trim() : "";
-  return secret === expected;
+  return safeEqual(secret, expected);
 }
 
-/** Privileged sends require the exact server credential, never a decoded role claim. */
-function isServiceRole(req: Request, serviceRoleKey: string): boolean {
-  if (!serviceRoleKey) return false;
-  const token = bearerToken(req);
-  const apikey = req.headers.get("apikey")?.trim() ?? "";
-  return token === serviceRoleKey || apikey === serviceRoleKey;
+function safeEqual(a: string, b: string): boolean {
+  if (!a || !b) return false;
+  const x = new TextEncoder().encode(a);
+  const y = new TextEncoder().encode(b);
+  if (x.length !== y.length) return false;
+  let diff = 0;
+  for (let i = 0; i < x.length; i++) diff |= x[i]! ^ y[i]!;
+  return diff === 0;
+}
+
+/** Keys the platform injects: the legacy service_role JWT and every sb_secret_ key. */
+function runtimeServerKeys(serviceRoleKey: string): string[] {
+  const keys = serviceRoleKey ? [serviceRoleKey] : [];
+  try {
+    const named = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "{}") as Record<string, unknown>;
+    for (const value of Object.values(named)) {
+      if (typeof value === "string" && value.trim().startsWith("sb_secret_")) keys.push(value.trim());
+    }
+  } catch {
+    // Not set on this project.
+  }
+  return keys;
+}
+
+/** Shape check only: these claims are unsigned here, so this never grants access by itself. */
+function looksLikeLegacyServiceRole(jwt: string): boolean {
+  const parts = jwt.split(".");
+  if (parts.length !== 3) return false;
+  try {
+    const decode = (s: string) =>
+      JSON.parse(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (s.length % 4)) % 4)));
+    const header = decode(parts[0]!) as { alg?: string };
+    const claims = decode(parts[1]!) as { role?: string; iss?: string; exp?: number };
+    return header.alg === "HS256" && claims.role === "service_role" && claims.iss === "supabase" &&
+      (typeof claims.exp !== "number" || claims.exp > Date.now() / 1000);
+  } catch {
+    return false;
+  }
+}
+
+const legacyVerdicts = new Map<string, { ok: boolean; until: number }>();
+
+/**
+ * The dashboard's legacy service_role JWT (what MacWall-Web holds) is not
+ * byte-identical to the one injected here, so let Supabase Auth check its
+ * signature: the admin users endpoint answers 200 only to a validly signed
+ * service_role JWT for this project. Verdicts are cached per token hash.
+ */
+async function authVerifiesServiceRole(supabaseUrl: string, jwt: string): Promise<boolean> {
+  const digest = base64url(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(jwt)));
+  const cached = legacyVerdicts.get(digest);
+  if (cached && cached.until > Date.now()) return cached.ok;
+  let ok: boolean;
+  try {
+    const res = await fetch(`${supabaseUrl}/auth/v1/admin/users?page=1&per_page=1`, {
+      headers: { apikey: jwt, authorization: `Bearer ${jwt}` },
+      signal: AbortSignal.timeout(5000),
+    });
+    await res.body?.cancel();
+    ok = res.status === 200;
+  } catch {
+    return false; // fail closed; don't cache a network error
+  }
+  if (legacyVerdicts.size > 100) legacyVerdicts.clear();
+  legacyVerdicts.set(digest, { ok, until: Date.now() + (ok ? 10 : 1) * 60_000 });
+  return ok;
+}
+
+/** Privileged sends need a server credential the platform vouches for, never an unverified role claim. */
+async function isServiceRole(
+  req: Request,
+  serviceRoleKey: string,
+  supabaseUrl: string,
+): Promise<boolean> {
+  const presented = [bearerToken(req), req.headers.get("apikey")?.trim() ?? ""].filter(Boolean);
+  if (!presented.length) return false;
+  const keys = runtimeServerKeys(serviceRoleKey);
+  if (presented.some((p) => keys.some((k) => safeEqual(p, k)))) return true;
+  const jwt = presented.find(looksLikeLegacyServiceRole);
+  return jwt ? await authVerifiesServiceRole(supabaseUrl, jwt) : false;
 }
 
 Deno.serve(async (req: Request) => {
@@ -469,11 +544,12 @@ Deno.serve(async (req: Request) => {
 
   if (action === "notify") {
     if (
-      !isBroadcastAuthorized(
+      !(await isBroadcastAuthorized(
         req,
         body as Record<string, unknown>,
         serviceRoleKey,
-      )
+        supabaseUrl,
+      ))
     ) {
       return json(401, { ok: false, error: "unauthorized" });
     }
@@ -516,11 +592,12 @@ Deno.serve(async (req: Request) => {
 
   if (action === "broadcast") {
     if (
-      !isBroadcastAuthorized(
+      !(await isBroadcastAuthorized(
         req,
         body as Record<string, unknown>,
         serviceRoleKey,
-      )
+        supabaseUrl,
+      ))
     ) {
       return json(401, { ok: false, error: "unauthorized" });
     }

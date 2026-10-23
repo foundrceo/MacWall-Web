@@ -1,6 +1,7 @@
 import "server-only"
 
 import { revalidateTag } from "next/cache"
+import { after } from "next/server"
 
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
 import { notifyCommunityUploadReviewed } from "@/lib/push/notify-visitor"
@@ -210,15 +211,17 @@ export async function approveCommunityUpload(
     throw new Error(approveError.message)
   }
 
-  void notifyCommunityUploadReviewed({
-    visitorId: upload.submitterId,
-    uploadId,
-    title: upload.title,
-    approved: true,
-    reviewNotes: trimmedNotes,
-  }).catch((error) => {
-    console.error("[apns] approve notify failed:", error)
-  })
+  after(() =>
+    notifyCommunityUploadReviewed({
+      visitorId: upload.submitterId,
+      uploadId,
+      title: upload.title,
+      approved: true,
+      reviewNotes: trimmedNotes,
+    }).catch((error) => {
+      console.error("[apns] approve notify failed:", error)
+    })
+  )
 
   return {
     status: "approved",
@@ -259,15 +262,17 @@ export async function rejectCommunityUpload(
   if (error) throw new Error(error.message)
 
   if (upload) {
-    void notifyCommunityUploadReviewed({
-      visitorId: upload.submitterId,
-      uploadId,
-      title: upload.title,
-      approved: false,
-      reviewNotes: notes,
-    }).catch((err) => {
-      console.error("[apns] reject notify failed:", err)
-    })
+    after(() =>
+      notifyCommunityUploadReviewed({
+        visitorId: upload.submitterId,
+        uploadId,
+        title: upload.title,
+        approved: false,
+        reviewNotes: notes,
+      }).catch((err) => {
+        console.error("[apns] reject notify failed:", err)
+      })
+    )
   }
 
   return data

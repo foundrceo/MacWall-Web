@@ -1,5 +1,7 @@
 import "server-only"
 
+import { after } from "next/server"
+
 import { notifySupportReply } from "@/lib/push/notify-visitor"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
@@ -371,13 +373,17 @@ export async function replyToFeedback(
   const mapped = mapFeedback(data, messages.get(id) ?? [])
 
   // Quit-time APNs (best-effort; local notifications still cover in-process).
-  void notifySupportReply({
-    visitorId: mapped.deviceId,
-    feedbackId: id,
-    preview: trimmed || (trimmedImage ? "Sent an image" : body),
-  }).catch((error) => {
-    console.error("[apns] support reply notify failed:", error)
-  })
+  // after() keeps it alive past the response: on the Worker a bare `void`
+  // promise is cancelled before the request reaches macwall-apns.
+  after(() =>
+    notifySupportReply({
+      visitorId: mapped.deviceId,
+      feedbackId: id,
+      preview: trimmed || (trimmedImage ? "Sent an image" : body),
+    }).catch((error) => {
+      console.error("[apns] support reply notify failed:", error)
+    })
+  )
 
   return mapped
 }
