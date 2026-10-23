@@ -20,6 +20,8 @@ type ReleaseMetadata = {
   version: string
   build?: number
   notes?: string
+  /** Macs older than this update even if the user chose Skip / Remind Later. */
+  minimumVersion?: string
 }
 
 function parseMetadata(raw: string): ReleaseMetadata | null {
@@ -36,7 +38,16 @@ function parseMetadata(raw: string): ReleaseMetadata | null {
       typeof metadata.notes === "string" && metadata.notes.trim()
         ? metadata.notes.trim()
         : undefined
-    return { version, ...(build === undefined ? {} : { build }), ...(notes ? { notes } : {}) }
+    const minimumVersion =
+      typeof metadata.minimum_version === "string" && /^\d+\.\d+\.\d+$/.test(metadata.minimum_version.trim())
+        ? metadata.minimum_version.trim()
+        : undefined
+    return {
+      version,
+      ...(build === undefined ? {} : { build }),
+      ...(notes ? { notes } : {}),
+      ...(minimumVersion ? { minimumVersion } : {}),
+    }
   } catch {
     return null
   }
@@ -103,6 +114,8 @@ export async function GET(request: NextRequest) {
         ...(served.build === undefined ? {} : { build: served.build }),
         url: macwallInstallerDmgApiUrl(served.version),
         ...(served.notes ? { notes: served.notes } : {}),
+        // The app reads it (AppUpdater `requires`); it was dropped here before.
+        ...(served.minimumVersion ? { minimum_version: served.minimumVersion } : {}),
       },
       {
         headers: {
