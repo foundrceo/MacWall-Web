@@ -320,11 +320,18 @@ async function authVerifiesServiceRole(supabaseUrl: string, jwt: string): Promis
       signal: AbortSignal.timeout(5000),
     });
     await res.body?.cancel();
+    // Only Auth's own "no" is a verdict; a 429/5xx is Auth having a bad moment.
+    if (res.status !== 200 && res.status !== 401 && res.status !== 403) return false;
     ok = res.status === 200;
   } catch {
     return false; // fail closed; don't cache a network error
   }
-  if (legacyVerdicts.size > 100) legacyVerdicts.clear();
+  // Evict the oldest verdicts, never all of them: forged tokens can't flush a good one.
+  while (legacyVerdicts.size >= 100) {
+    const oldest = legacyVerdicts.keys().next().value;
+    if (oldest === undefined) break;
+    legacyVerdicts.delete(oldest);
+  }
   legacyVerdicts.set(digest, { ok, until: Date.now() + (ok ? 10 : 1) * 60_000 });
   return ok;
 }

@@ -49,8 +49,9 @@ async function latestVersion(): Promise<string> {
  */
 export async function GET(request: NextRequest) {
   const pinned = request.nextUrl.searchParams.get("version")?.trim() ?? ""
+  const latest = await latestVersion()
   try {
-    const cdn = await cdnInstallerUrl(VERSION_RE.test(pinned) ? pinned : await latestVersion())
+    const cdn = await cdnInstallerUrl(VERSION_RE.test(pinned) ? pinned : latest)
     if (cdn) {
       const response = NextResponse.redirect(cdn, 302)
       response.headers.set("Cache-Control", "public, max-age=0, s-maxage=300")
@@ -60,11 +61,18 @@ export async function GET(request: NextRequest) {
     // Fall through to R2.
   }
 
-  const key =
-    VERSION_RE.test(pinned) &&
-    (await r2InstallersExists(`releases/MacWall-${pinned}.dmg`))
-      ? `releases/MacWall-${pinned}.dmg`
-      : DMG_KEY
+  let key = DMG_KEY
+  if (VERSION_RE.test(pinned) && pinned !== latest) {
+    // An older or staged version: only its own file. The latest DMG would fail
+    // the app's version check and be downloaded again and again.
+    if (!(await r2InstallersExists(`releases/MacWall-${pinned}.dmg`))) {
+      return new NextResponse("Installer version not available", {
+        status: 404,
+        headers: { "Content-Type": "text/plain;charset=utf-8", "Cache-Control": "no-store" },
+      })
+    }
+    key = `releases/MacWall-${pinned}.dmg`
+  }
   try {
     const target = await r2InstallersPresignGetUrl(key, PRESIGN_SECONDS)
     const response = NextResponse.redirect(target, 302)
