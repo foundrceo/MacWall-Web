@@ -102,9 +102,12 @@ export const macwallMinimumMacOSVersionLabel =
 /** Split requirements line for hero / pricing footers. */
 export const macwallMacOSRequirementsHint =
   "Desktop: macOS 15+ · Lock Screen: macOS 26+" as const
-/** System requirements bullets and explicit requirement lines. */
+/**
+ * System requirements bullets and JSON-LD `operatingSystem`. Built from the
+ * version, not the "15+" hint (that read "Minimum macOS 15+ or later").
+ */
 export const macwallMinimumMacOSRequirementOrLater =
-  `${macwallMinimumMacOSRequirement} or later` as const
+  `${macwallMinimumMacOSVersion} or later` as const
 
 /**
  * Catalog count used by every page, meta description, FAQ and llms.txt line.

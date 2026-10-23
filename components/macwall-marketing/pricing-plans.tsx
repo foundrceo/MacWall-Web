@@ -390,7 +390,7 @@ export function PricingPlans({
             <TrackedPricingButton
               href={selected.checkoutUrl}
               location={`pricing_multi_mac_${selected.macs}`}
-              ariaLabel={`Get ${macwall.name} Pro+ for ${selected.macs} Macs at ${selected.price}`}
+              ariaLabel={`Get ${macwall.name} Pro+ for ${selected.macs} Macs at ${selected.price}, one-time purchase`}
               size="pill"
               className={cn(
                 ctaBase,
