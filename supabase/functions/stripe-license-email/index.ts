@@ -1049,14 +1049,19 @@ async function handleCheckoutCompleted(args: {
     email: customerEmail,
     eventIdSeed: `stripe_${args.event.id}`,
   })
+  // On the app install that opened checkout, so checkout → paid → activated
+  // is one PostHog person (falls back to the email for website-only buyers).
   await sendPostHogPurchase({
     email: customerEmail,
-    eventIdSeed: `stripe_${args.event.id}`,
+    visitorId: session.metadata?.visitor_id || null,
+    eventIdSeed: `stripe_checkout_${session.id}`,
+    occurredAt: new Date(args.event.created * 1000),
     provider: "stripe",
     amount,
     currency: session.currency,
     promoCode: session.metadata?.promo_code || null,
     plan: session.metadata?.offer_slug || null,
+    country: visitorCountry,
   })
 
   const appName = Deno.env.get("APP_NAME")?.trim() || "MacWall"
