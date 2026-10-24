@@ -1,4 +1,8 @@
 import { macwall } from "@/lib/macwall-site"
+import {
+  catalogOpenGraphImageSize,
+  catalogOpenGraphImageUrl,
+} from "@/lib/macwall-catalog-urls"
 import { wallpaperCategoryPage } from "@/lib/seo/landing-pages"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
 import {
@@ -176,6 +180,18 @@ export function wallpaperDetailMetadata(wallpaper: PublicWallpaper): Metadata {
   const description = content.metaDescription
   const canonical = canonicalSitePath(wallpaperDetailPath(wallpaper))
   const thumbUrl = absoluteMediaUrl(wallpaper.thumbUrl)
+  // The wallpaper's own poster (the one the app shows), sent at the standard
+  // share size; the original poster when it isn't on the CDN.
+  const shareUrl = catalogOpenGraphImageUrl(thumbUrl)
+  const shareImage = shareUrl
+    ? {
+        url: shareUrl,
+        width: catalogOpenGraphImageSize.width,
+        height: catalogOpenGraphImageSize.height,
+        type: "image/jpeg",
+      }
+    : { url: thumbUrl }
+  const shareAlt = `${wallpaper.name} – ${wallpaper.category} live wallpaper for Mac`
   const name = wallpaper.name.toLowerCase()
   const category = wallpaper.category.toLowerCase()
   const keywords = [
@@ -203,18 +219,13 @@ export function wallpaperDetailMetadata(wallpaper: PublicWallpaper): Metadata {
       url: canonical,
       siteName: macwall.name,
       type: "website",
-      images: [
-        {
-          url: thumbUrl,
-          alt: `${wallpaper.name} – ${wallpaper.category} live wallpaper for Mac`,
-        },
-      ],
+      images: [{ ...shareImage, alt: shareAlt }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${wallpaper.name} · ${macwall.name}`,
       description,
-      images: [thumbUrl],
+      images: [{ url: shareImage.url, alt: shareAlt }],
     },
   }
 }

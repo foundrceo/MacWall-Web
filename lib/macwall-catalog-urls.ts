@@ -104,6 +104,25 @@ export function catalogImageUrlAtWidth(
   return `${base}/cdn-cgi/image/width=${w},quality=${q},format=auto,fit=scale-down,onerror=redirect${path}`
 }
 
+/** Share-preview size every wallpaper page's poster is sent at (1.91:1). */
+export const catalogOpenGraphImageSize = { width: 1200, height: 630 } as const
+
+/**
+ * A wallpaper's poster for link previews (og:image / twitter:image): exactly
+ * 1200×630, cropped to fill, as JPEG (~80 KB). Posters on the CDN run from
+ * 960×540 to 4K (up to ~1.5 MB); the big ones were too heavy for some
+ * previews (WhatsApp), and a fixed size and type let Facebook / LinkedIn draw
+ * the large card on a link's first share. JPEG, not `format=auto`: preview
+ * bots don't all take WebP/AVIF. Returns null for a non-CDN URL (no transform).
+ */
+export function catalogOpenGraphImageUrl(url: string): string | null {
+  const base = getR2PublicBaseUrl()
+  if (!url.startsWith(`${base}/`) || url.includes("/cdn-cgi/")) return null
+  const path = url.slice(base.length)
+  const { width, height } = catalogOpenGraphImageSize
+  return `${base}/cdn-cgi/image/width=${width},height=${height},fit=cover,quality=82,format=jpeg,onerror=redirect${path}`
+}
+
 /**
  * Marketing gallery poster: full thumb URL on Cloudflare R2 CDN.
  * Call sites must use `unoptimized` (or a plain `<img>`) so the image
