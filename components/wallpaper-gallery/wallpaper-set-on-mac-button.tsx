@@ -19,11 +19,13 @@ import {
 import { cn } from "@/lib/utils"
 
 /**
- * How long to wait for the OS to switch to MacWall before concluding the
- * app isn't installed. Only then do we show the inline download hint —
- * never auto-navigate or auto-download.
+ * How long to wait for MacWall to take focus before concluding it isn't
+ * installed. Only then do we show the inline download hint — never
+ * auto-navigate or auto-download. 2 s was too short: a cold launch, or the
+ * browser's own "Open MacWall?" prompt waiting for a click, often takes
+ * longer, so the hint flashed even though the app opened.
  */
-const APP_OPEN_WAIT_MS = 2000
+const APP_OPEN_WAIT_MS = 3500
 
 /**
  * - `send`: phones and Windows can't run MacWall, so share this page to a Mac.
@@ -54,6 +56,8 @@ export function WallpaperSetOnMacButton({
   const [showInstallHint, setShowInstallHint] = useState(false)
   const waitTimerRef = useRef<number | null>(null)
   const settledRef = useRef(false)
+  /** Stops listening for MacWall taking focus (set while a click waits). */
+  const stopListeningRef = useRef<(() => void) | null>(null)
 
   const clearWaitTimer = useCallback(() => {
     if (waitTimerRef.current != null) {
@@ -62,7 +66,13 @@ export function WallpaperSetOnMacButton({
     }
   }, [])
 
-  useEffect(() => clearWaitTimer, [clearWaitTimer])
+  useEffect(
+    () => () => {
+      clearWaitTimer()
+      stopListeningRef.current?.()
+    },
+    [clearWaitTimer]
+  )
 
   useEffect(() => {
     // Client-only: the server can't know the visitor's device.
@@ -81,6 +91,7 @@ export function WallpaperSetOnMacButton({
       setShowInstallHint(false)
       settledRef.current = false
       clearWaitTimer()
+      stopListeningRef.current?.()
 
       trackSiteEventClient("download_click", {
         location: "wallpaper_detail_set_on_mac",
@@ -89,33 +100,39 @@ export function WallpaperSetOnMacButton({
 
       const deepLink = macwallWallpaperDeepLink(wallpaperId)
 
-      const settleOpened = () => {
-        if (settledRef.current) return
-        settledRef.current = true
-        clearWaitTimer()
+      // MacWall taking focus from this page (blur / hidden) means it opened.
+      // That can come after the hint is up (a slow cold launch), so it also
+      // takes the hint away again.
+      const stopListening = () => {
         document.removeEventListener("visibilitychange", onVisibilityChange)
-        window.removeEventListener("blur", onWindowBlur)
+        window.removeEventListener("blur", settleOpened)
+        stopListeningRef.current = null
       }
 
-      const onVisibilityChange = () => {
-        // OS switched to MacWall: it opened, nothing more to do.
+      function settleOpened() {
+        settledRef.current = true
+        clearWaitTimer()
+        setShowInstallHint(false)
+        stopListening()
+      }
+
+      function onVisibilityChange() {
         if (document.visibilityState === "hidden") settleOpened()
       }
 
-      const onWindowBlur = () => settleOpened()
-
       document.addEventListener("visibilitychange", onVisibilityChange)
-      window.addEventListener("blur", onWindowBlur)
+      window.addEventListener("blur", settleOpened)
+      stopListeningRef.current = stopListening
 
       window.location.href = deepLink
 
-      // Still here after the wait → app didn't open. Show an inline hint
-      // with a manual download link instead of redirecting anywhere.
+      // Still here, visible and focused after the wait → the app didn't open.
+      // Show an inline hint with a manual download link instead of
+      // redirecting anywhere; keep listening in case it opens late.
       waitTimerRef.current = window.setTimeout(() => {
-        document.removeEventListener("visibilitychange", onVisibilityChange)
-        window.removeEventListener("blur", onWindowBlur)
-        if (!settledRef.current && document.visibilityState === "visible") {
-          settledRef.current = true
+        waitTimerRef.current = null
+        if (settledRef.current) return
+        if (document.visibilityState === "visible" && document.hasFocus()) {
           setShowInstallHint(true)
         }
       }, APP_OPEN_WAIT_MS)
