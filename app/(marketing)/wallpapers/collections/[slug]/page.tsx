@@ -29,6 +29,8 @@ import {
   feedAlternateTypes,
   openGraphImageAbsoluteUrl,
 } from "@/lib/site-url"
+import { brandedTitle } from "@/lib/seo/create-page-metadata"
+import { ogImageForPath } from "@/lib/seo/og-images"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -65,7 +67,11 @@ export async function generateMetadata({
   const pathname = wallpaperCollectionPath(entry.slug)
   const canonical = canonicalSitePath(pathname)
   const cover = wallpapers?.[0]
-  const image = cover?.thumbUrl ?? openGraphImageAbsoluteUrl()
+  // Generated share card first, then the cover poster.
+  const image =
+    ogImageForPath(pathname)?.url ??
+    cover?.thumbUrl ??
+    openGraphImageAbsoluteUrl()
   // A failed catalog read keeps the page indexable; only a genuinely thin topic is not.
   const thin =
     wallpapers !== null && wallpapers.length < COLLECTION_MIN_WALLPAPERS
@@ -83,7 +89,7 @@ export async function generateMetadata({
     },
     ...(thin ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
-      title: `${entry.name} Live Wallpapers for Mac · ${macwall.name}`,
+      title: brandedTitle(entry.title),
       description: entry.description,
       url: canonical,
       siteName: macwall.name,
@@ -99,7 +105,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: `${entry.name} Live Wallpapers for Mac · ${macwall.name}`,
+      title: brandedTitle(entry.title),
       description: entry.description,
       images: [image],
     },

@@ -20,6 +20,7 @@ import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
 import {
   footerCategoryLinks,
   footerCompareLinks,
+  footerDisplayLinks,
   getMarketingFooterColumns,
   getMarketingFooterSocialLinks,
   type MarketingFooterColumn,
@@ -28,7 +29,8 @@ import {
 import { cn } from "@/lib/utils"
 
 /** `directory` is the live footer; the others are only shown on /footer-lab. */
-export type FooterVariant = "wordmark" | "desktop" | "wall" | "directory" | "card"
+export type FooterVariant =
+  "wordmark" | "desktop" | "wall" | "directory" | "card"
 
 const footerColumnTitleClass =
   "mb-4 text-[14px] font-medium leading-none text-foreground"
@@ -108,7 +110,12 @@ function LinkColumn({ column }: Readonly<{ column: MarketingFooterColumn }>) {
 
 function LinkColumns({ className }: Readonly<{ className?: string }>) {
   return (
-    <div className={cn("grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 sm:gap-x-12", className)}>
+    <div
+      className={cn(
+        "grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 sm:gap-x-12",
+        className
+      )}
+    >
       {getMarketingFooterColumns().map((column) => (
         <LinkColumn key={column.title} column={column} />
       ))}
@@ -126,7 +133,7 @@ function BrandBlock({ className }: Readonly<{ className?: string }>) {
       </p>
       {/* The buttons carry 9px of padding around each icon, so the margin
           is 9px short: the visible gap above the icons reads 24px. */}
-      <Socials className="-ml-[9px] mt-[15px]" />
+      <Socials className="mt-[15px] -ml-[9px]" />
     </div>
   )
 }
@@ -136,7 +143,7 @@ function BrandAndColumns() {
   return (
     <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,18rem)_1fr] lg:gap-16">
       <BrandBlock />
-      <LinkColumns className="lg:grid-cols-[repeat(3,10rem)] lg:justify-self-end lg:gap-x-14" />
+      <LinkColumns className="lg:grid-cols-[repeat(3,10rem)] lg:gap-x-14 lg:justify-self-end" />
     </div>
   )
 }
@@ -167,8 +174,8 @@ function FooterShell({
 }: Readonly<{ children: ReactNode; wordmark?: boolean }>) {
   return (
     <footer id="company" className="bg-background">
-      <div className="container relative mx-auto">
-        <div className="overflow-hidden border-border border-dashed sm:border-x">
+      <div className="relative container mx-auto">
+        <div className="overflow-hidden border-dashed border-border sm:border-x">
           <div
             className={cn(
               landingShellPad,
@@ -249,8 +256,8 @@ function WallFooter() {
 
   return (
     <footer id="company" className="bg-background">
-      <div className="container relative mx-auto">
-        <div className="overflow-hidden border-border border-dashed pt-14 pb-10 sm:border-x md:pt-16 md:pb-12 lg:pt-20">
+      <div className="relative container mx-auto">
+        <div className="overflow-hidden border-dashed border-border pt-14 pb-10 sm:border-x md:pt-16 md:pb-12 lg:pt-20">
           <WallpaperWall rows={rows} />
           <div className={cn(landingShellPad, "mt-14 md:mt-16")}>
             <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
@@ -264,7 +271,11 @@ function WallFooter() {
                   className="mt-3 inline-flex items-center gap-1 rounded-sm text-[14px] font-medium text-foreground transition-opacity outline-none hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring/50"
                 >
                   Browse them all
-                  <ArrowUpRight className="size-3.5" strokeWidth={2} aria-hidden />
+                  <ArrowUpRight
+                    className="size-3.5"
+                    strokeWidth={2}
+                    aria-hidden
+                  />
                 </Link>
               </div>
               <Socials className="-ml-[9px] sm:-mr-[9px] sm:ml-0" />
@@ -301,6 +312,7 @@ function DirectoryFooter() {
           },
         ]
       : []),
+    { title: "By Mac", links: footerDisplayLinks },
     { title: "Compare", links: footerCompareLinks },
     {
       title: "Connect",
@@ -381,8 +393,8 @@ function DirectoryFooter() {
       </p>
       <div className="mt-4 flex flex-col gap-3 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:justify-between">
         <p className={fine}>
-          Copyright © {new Date().getFullYear()} {foot.copyrightName}. All rights
-          reserved.
+          Copyright © {new Date().getFullYear()} {foot.copyrightName}. All
+          rights reserved.
         </p>
         <MarketingFooterAiSummary labelClassName="text-[12px]" />
       </div>

@@ -1,60 +1,43 @@
 import { BlogIndexPage } from "@/components/blog/blog-index-page"
 import { blogArticles } from "@/lib/blog"
-import {
-  macwall,
-  macwallLockScreenMacOSVersion,
-} from "@/lib/macwall-site"
-import {
-  canonicalSitePath,
-  feedAlternateTypes,
-  openGraphImageAbsoluteUrl,
-  openGraphImageSize,
-} from "@/lib/site-url"
+import { macwall, macwallLockScreenMacOSVersion } from "@/lib/macwall-site"
+import { JsonLd } from "@/components/seo/json-ld"
+import { createSimplePageMetadata } from "@/lib/seo/create-page-metadata"
+import { collectionPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import type { Metadata } from "next"
 
-const PAGE_DESCRIPTION =
-  `Guides, comparisons, and macOS news for live wallpapers on Mac. ${macwallLockScreenMacOSVersion} Lock Screen tips, app comparisons, battery advice, and more from the MacWall team.`
+const PAGE_DESCRIPTION = `Guides, app comparisons and macOS news for live wallpapers on Mac, with ${macwallLockScreenMacOSVersion} Lock Screen tips and battery advice from the MacWall team.`
 
 export const metadata: Metadata = {
-  title: "Blog: Mac Live Wallpaper Guides, Comparisons & News",
-  description: PAGE_DESCRIPTION,
-  alternates: {
-    canonical: canonicalSitePath("/blog"),
-    types: {
-      ...feedAlternateTypes(),
-      "text/markdown": canonicalSitePath("/blog.md"),
-    },
-  },
+  ...createSimplePageMetadata({
+    title: "Blog: Mac Live Wallpaper Guides and Comparisons",
+    description: PAGE_DESCRIPTION,
+    path: "/blog",
+  }),
   keywords: [
     "mac wallpaper blog",
     "live wallpaper guides mac",
     "macos wallpaper tips",
     macwall.name,
   ],
-  openGraph: {
-    title: `${macwall.name} App – Blog`,
-    description: PAGE_DESCRIPTION,
-    url: canonicalSitePath("/blog"),
-    siteName: `${macwall.name} App`,
-    type: "website",
-    images: [
-      {
-        url: openGraphImageAbsoluteUrl(),
-        width: openGraphImageSize.width,
-        height: openGraphImageSize.height,
-        alt: `${macwall.name} App – Blog`,
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${macwall.name} App – Blog`,
-    description: PAGE_DESCRIPTION,
-    images: [openGraphImageAbsoluteUrl()],
-  },
 }
 
-
 export default function BlogPage() {
-  return <BlogIndexPage articles={blogArticles} />
+  return (
+    <>
+      <JsonLd
+        payload={collectionPageJsonLd({
+          pathname: "/blog",
+          name: "MacWall Blog",
+          description: PAGE_DESCRIPTION,
+          breadcrumbLabel: "Blog",
+          items: blogArticles.map((article) => ({
+            name: article.headline,
+            pathname: article.pathname,
+          })),
+        })}
+      />
+      <BlogIndexPage articles={blogArticles} />
+    </>
+  )
 }

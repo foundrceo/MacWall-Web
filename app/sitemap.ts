@@ -17,6 +17,7 @@ function priorityForPath(path: string): number {
     path === "/pricing" ||
     path === "/ai-info" ||
     path === "/blog" ||
+    path === "/compare" ||
     path === "/wallpapers" ||
     path === WALLPAPER_COLLECTIONS_HUB_PATH ||
     path === "/docs"
@@ -62,7 +63,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = canonicalSiteOrigin()
 
   // Throw on transient failures so ISR retains its last successful sitemap.
-  const detailEntries = await listPublicWallpaperSitemapEntries()
+  const allDetailEntries = await listPublicWallpaperSitemapEntries()
+  // Thin wallpaper pages are noindex; listing them would contradict that.
+  const detailEntries = allDetailEntries.filter((entry) => !entry.thin)
+  const imageByPath = new Map(
+    detailEntries.flatMap((entry) =>
+      entry.imageUrl ? [[entry.path, entry.imageUrl] as const] : []
+    )
+  )
 
   const collectionSummaries = await listCollectionSummaries()
   // Newest wallpaper in the catalog stands in for "collection last changed".
@@ -101,9 +109,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return paths.map((path) => {
     const lastModified = lastModByPath.get(path)
+    const image = imageByPath.get(path)
     return {
       url: path === "/" ? origin : `${origin}${path}`,
       ...(lastModified ? { lastModified } : {}),
+      ...(image ? { images: [image] } : {}),
       changeFrequency: changeFrequencyForPath(path),
       priority: priorityForPath(path),
     }

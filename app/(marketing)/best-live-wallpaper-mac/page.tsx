@@ -7,7 +7,6 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const metadata = createSeoPageMetadata(bestLiveWallpaperMacPage)
 
-
 export default function BestLiveWallpaperMacPage() {
   const origin = canonicalSiteOrigin()
 
@@ -20,6 +19,7 @@ export default function BestLiveWallpaperMacPage() {
           pageTitle: "Best Live Wallpaper for Mac",
           headline: bestLiveWallpaperMacPage.headline,
           description: bestLiveWallpaperMacPage.description,
+          dateModifiedIso: bestLiveWallpaperMacPage.updatedAt,
         })}
       />
       <SeoLandingPage page={bestLiveWallpaperMacPage} />

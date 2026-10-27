@@ -51,6 +51,7 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
     {
       title: "Product",
       links: [
+        { label: "Download", href: "/download" },
         { label: "Wallpapers", href: "/wallpapers" },
         { label: "Collections", href: "/wallpapers/collections" },
         { label: "Bend", href: "/bend" },
@@ -105,6 +106,7 @@ export function getMarketingFooterSocialLinks(): readonly MarketingFooterSocialL
 
 /** SEO comparison pages: crawlable from expanded footer surfaces. */
 export const footerCompareLinks = [
+  { href: "/compare", label: "All Mac Wallpaper Apps" },
   { href: "/best-live-wallpaper-mac", label: "Best Live Wallpaper for Mac" },
   { href: "/alternatives/wallpaper-engine", label: "Wallpaper Engine for Mac" },
   {
@@ -116,6 +118,18 @@ export const footerCompareLinks = [
     href: "/alternatives/lively-wallpaper-mac",
     label: "Lively Wallpaper for Mac",
   },
+  { href: "/alternatives/24-hour-wallpaper", label: "24 Hour Wallpaper" },
+  { href: "/alternatives/plash", label: "Plash Alternative" },
+] as const
+
+/** Wallpapers picked by Mac display (resolution-matched landing pages). */
+export const footerDisplayLinks = [
+  { href: "/wallpapers/display/macbook-air", label: "MacBook Air" },
+  { href: "/wallpapers/display/macbook-pro", label: "MacBook Pro" },
+  { href: "/wallpapers/display/imac", label: "iMac" },
+  { href: "/wallpapers/display/studio-display", label: "Studio Display" },
+  { href: "/wallpapers/display/ultrawide", label: "Ultrawide" },
+  { href: "/wallpapers/display/4k", label: "4K" },
 ] as const
 
 /**

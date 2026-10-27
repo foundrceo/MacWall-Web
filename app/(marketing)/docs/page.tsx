@@ -1,9 +1,16 @@
 import Link from "next/link"
-import { ArrowRight01Icon, DiscordIcon, Mail01Icon } from "@hugeicons/core-free-icons"
+import {
+  ArrowRight01Icon,
+  DiscordIcon,
+  Mail01Icon,
+} from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import { HelpSearchButton } from "@/components/help/help-search-button"
-import { landingPageH1, landingPageLead } from "@/components/macwall-marketing/landing-type"
+import {
+  landingPageH1,
+  landingPageLead,
+} from "@/components/macwall-marketing/landing-type"
 import {
   MarketingBodySection,
   MarketingTitleSection,
@@ -19,7 +26,7 @@ import type { SeoContentPage } from "@/lib/content/types"
 const PAGE: SeoContentPage = {
   slug: "docs",
   pathname: "/docs",
-  title: `${macwall.name} Help`,
+  title: "Help Center",
   headline: "Help",
   description:
     "Find answers fast: install, live wallpapers, Lock Screen, your license, refunds, and fixes for common problems.",
@@ -67,10 +74,15 @@ export default function HelpCenterPage() {
               <li key={topic.href}>
                 <Link
                   href={topic.href}
-                  className="group flex h-full flex-col rounded-2xl bg-white/[0.03] p-5 no-underline ring-1 ring-white/[0.07] transition hover:bg-white/[0.06] hover:ring-white/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                  className="group flex h-full flex-col rounded-2xl bg-white/[0.03] p-5 no-underline ring-1 ring-white/[0.07] transition hover:bg-white/[0.06] hover:ring-white/[0.14] focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
                 >
                   <span className="inline-flex size-9 items-center justify-center rounded-xl bg-white/[0.07] text-white/80">
-                    <HugeiconsIcon icon={topic.icon} size={18} strokeWidth={1.75} aria-hidden />
+                    <HugeiconsIcon
+                      icon={topic.icon}
+                      size={18}
+                      strokeWidth={1.75}
+                      aria-hidden
+                    />
                   </span>
                   <span className="mt-4 text-[16px] font-medium text-white">
                     {topic.title}
@@ -98,12 +110,15 @@ export default function HelpCenterPage() {
             className="mt-6 flex flex-col gap-4 rounded-2xl bg-white/[0.03] p-5 ring-1 ring-white/[0.07] sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <h2 id="help-contact-title" className="text-[16px] font-medium text-white">
+              <h2
+                id="help-contact-title"
+                className="text-[16px] font-medium text-white"
+              >
                 Still stuck?
               </h2>
               <p className="mt-1 text-[14px] text-white/60">
-                A real person replies within 1 to 2 business days, usually sooner.
-                You can also ask from inside the app.
+                A real person replies within 1 to 2 business days, usually
+                sooner. You can also ask from inside the app.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -111,7 +126,12 @@ export default function HelpCenterPage() {
                 href="/contact"
                 className="inline-flex h-10 items-center gap-2 rounded-full bg-white px-4 text-[14px] font-medium text-black no-underline transition hover:bg-white/90"
               >
-                <HugeiconsIcon icon={Mail01Icon} size={16} strokeWidth={1.75} aria-hidden />
+                <HugeiconsIcon
+                  icon={Mail01Icon}
+                  size={16}
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
                 Contact us
               </Link>
               <a
@@ -120,18 +140,39 @@ export default function HelpCenterPage() {
                 rel="noopener noreferrer"
                 className="inline-flex h-10 items-center gap-2 rounded-full bg-white/10 px-4 text-[14px] font-medium text-white no-underline transition hover:bg-white/15"
               >
-                <HugeiconsIcon icon={DiscordIcon} size={16} strokeWidth={1.75} aria-hidden />
+                <HugeiconsIcon
+                  icon={DiscordIcon}
+                  size={16}
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
                 Ask on Discord
               </a>
             </div>
           </section>
 
           <p className="mt-6 text-[13px] text-white/45">
-            More reading: <Link href="/learn" className="underline-offset-4 hover:text-white/75 hover:underline">Learn</Link>
+            More reading:{" "}
+            <Link
+              href="/learn"
+              className="underline-offset-4 hover:text-white/75 hover:underline"
+            >
+              Learn
+            </Link>
             {" · "}
-            <Link href="/blog" className="underline-offset-4 hover:text-white/75 hover:underline">Blog</Link>
+            <Link
+              href="/blog"
+              className="underline-offset-4 hover:text-white/75 hover:underline"
+            >
+              Blog
+            </Link>
             {" · "}
-            <Link href="/docs/public-api" className="underline-offset-4 hover:text-white/75 hover:underline">Developers: API &amp; feeds</Link>
+            <Link
+              href="/docs/public-api"
+              className="underline-offset-4 hover:text-white/75 hover:underline"
+            >
+              Developers: API &amp; feeds
+            </Link>
           </p>
         </div>
       </MarketingBodySection>

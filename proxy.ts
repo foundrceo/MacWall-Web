@@ -9,6 +9,10 @@ import {
   MW_RESOLVED_COUNTRY_HEADER,
 } from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
+import {
+  negotiatedMarkdownPath,
+  prefersMarkdown,
+} from "@/lib/http/markdown-negotiation"
 
 /**
  * Every matched request is a billed invocation, so the matcher stays small:
@@ -19,6 +23,19 @@ import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // `Accept: text/markdown` on a page URL serves its `.md` twin. Production
+  // does this in worker/index.ts before vinext; this covers `next start`.
+  if (prefersMarkdown(request.headers.get("accept"))) {
+    const markdownPath = negotiatedMarkdownPath(pathname)
+    if (!markdownPath) return NextResponse.next()
+    const target = request.nextUrl.clone()
+    // Straight to the handler behind the `/:path+.md` rewrite.
+    target.pathname = `/md${markdownPath.replace(/\.md$/, "")}`
+    const response = NextResponse.rewrite(target)
+    response.headers.set("Vary", "Accept")
+    return response
+  }
 
   // Crawlers treat catalog keys (`"videoKey":"videos/<id>.mp4"`) in page
   // payloads and `/api/wallpapers` as relative links and request
@@ -35,11 +52,13 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/admin") || pathname.startsWith("/api/admin")
 
   // Header geo and the cookie only, never an IP lookup on the request path.
-  const country = isAdminSurface ? null : await resolveVisitorCountry({
-    headers: request.headers,
-    cookieCountry: request.cookies.get("mw_country")?.value,
-    skipIpLookup: true,
-  })
+  const country = isAdminSurface
+    ? null
+    : await resolveVisitorCountry({
+        headers: request.headers,
+        cookieCountry: request.cookies.get("mw_country")?.value,
+        skipIpLookup: true,
+      })
 
   const requestHeaders = new Headers(request.headers)
   if (country) {
@@ -109,5 +128,10 @@ export const config = {
     // Crawler-resolved relative catalog keys (see the `.mp4` early return).
     "/videos/:path*",
     "/:prefix+/videos/:path*",
+    // Markdown negotiation, only for requests that ask for Markdown.
+    {
+      source: "/((?!api/|_next/|admin|md/).*)",
+      has: [{ type: "header", key: "accept", value: ".*text/markdown.*" }],
+    },
   ],
 }

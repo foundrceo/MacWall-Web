@@ -289,9 +289,21 @@ const nextConfig = {
         )
       : CONTENT_SECURITY_POLICY_REPORT_ONLY
 
+    /**
+     * Share images from `npm run og:generate` carry a content hash in the name
+     * (`{slug}.{hash}.jpg`), so a file never changes once published.
+     */
+    const hashedShareImages = {
+      source: "/og/:file([a-z0-9-]+\\.[a-f0-9]{10}\\.jpg)",
+      headers: [
+        { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+      ],
+    }
+
     return [
       ...filteredGalleryNoindex,
       ...publicAssetCaching,
+      hashedShareImages,
       {
         // `/(.*)`, not `/:path*`: vinext doesn't match the bare `/` with
         // `/:path*`, so the homepage would miss these headers.

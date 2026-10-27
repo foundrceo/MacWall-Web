@@ -1,6 +1,8 @@
 import { WallpaperGalleryPageShell } from "@/components/wallpaper-gallery/wallpaper-gallery-page"
 import { ContentBody } from "@/components/content/content-body"
 import { CollectionLinkStrip } from "@/components/wallpaper-gallery/collection-link-strip"
+import { GalleryPagination } from "@/components/wallpaper-gallery/gallery-pagination"
+import { galleryPageCount } from "@/lib/seo/gallery-pages"
 import { wallpaperCollections } from "@/lib/seo/wallpaper-collections"
 import { JsonLd } from "@/components/seo/json-ld"
 import { wallpaperCategoryGalleryJsonLd } from "@/lib/seo/wallpaper-json-ld"
@@ -113,6 +115,12 @@ export default async function WallpaperCategoryGalleryPage({
         afterGallery={
           showSeoContent ? (
             <>
+              <GalleryPagination
+                basePath={`/wallpapers/${category}`}
+                current={1}
+                totalPages={galleryPageCount(initial.total)}
+                label={`${name} live wallpaper pages`}
+              />
               <CollectionLinkStrip
                 title={`${name} collections`}
                 collections={wallpaperCollections.filter(

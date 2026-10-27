@@ -3,6 +3,8 @@ import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSect
 import { macwall, macwallCatalog, macwallSocialProof } from "@/lib/macwall-site"
 import { macwallHomeFaq } from "@/lib/macwall-pricing-copy"
 import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
+import { brandedTitle } from "@/lib/seo/create-page-metadata"
+import { ogImageForPath } from "@/lib/seo/og-images"
 import {
   canonicalSitePath,
   feedAlternateTypes,
@@ -21,8 +23,17 @@ import { Reviews } from "./_components/reviews"
 
 const PAGE_DESCRIPTION = `Live wallpapers for Mac: ${macwallCatalog.liveCountLabel} 4K animated wallpapers for your desktop and Lock Screen. Trusted by ${macwallSocialProof.usersLabel} users. Free 24-hour trial, one payment.`
 
-/** Brand first, then the head term people search ("live wallpaper mac"). */
-const PAGE_TITLE = `${macwall.name}: Live Wallpapers for Mac – 4K Desktop & Lock Screen`
+/** Head term first ("live wallpaper mac"), brand last like every other page. */
+const PAGE_TITLE = brandedTitle(
+  "4K Live Wallpapers for Mac Desktop and Lock Screen"
+)
+
+const SHARE_IMAGE = ogImageForPath("/") ?? {
+  url: openGraphImageAbsoluteUrl(),
+  width: openGraphImageSize.width,
+  height: openGraphImageSize.height,
+  alt: macwall.fullTagline,
+}
 
 export const metadata: Metadata = {
   title: { absolute: PAGE_TITLE },
@@ -59,20 +70,13 @@ export const metadata: Metadata = {
     url: canonicalSitePath("/"),
     siteName: macwall.name,
     type: "website",
-    images: [
-      {
-        url: openGraphImageAbsoluteUrl(),
-        width: openGraphImageSize.width,
-        height: openGraphImageSize.height,
-        alt: macwall.fullTagline,
-      },
-    ],
+    images: [SHARE_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
-    images: [openGraphImageAbsoluteUrl()],
+    images: [SHARE_IMAGE.url],
   },
 }
 

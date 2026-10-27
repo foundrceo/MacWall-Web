@@ -161,8 +161,7 @@ export function WallpaperDetail({
           >
             {wallpaper.name}
             <span className="text-white/45">
-              {" "}
-              — {loopLengthArticle(wallpaper.durationSeconds)} live wallpaper
+              , {loopLengthArticle(wallpaper.durationSeconds)} live wallpaper
               {credit ? ` by ${credit}` : ""}, ready for your Mac.
             </span>
           </h1>
@@ -215,7 +214,11 @@ export function WallpaperDetail({
                   variant="ghost"
                   className={DETAIL_CHIP_CLASS}
                 >
-                  <Link href={wallpapersGalleryHref(categorySlug, { tag })}>
+                  {/* Filtered views are noindex; don't spend crawls on them. */}
+                  <Link
+                    href={wallpapersGalleryHref(categorySlug, { tag })}
+                    rel="nofollow"
+                  >
                     {tag}
                   </Link>
                 </Badge>
@@ -226,6 +229,40 @@ export function WallpaperDetail({
               <Link href={categoryHref}>{wallpaper.category}</Link>
             </Badge>
           )}
+
+          {content.colors.length > 0 ? (
+            <div>
+              <p
+                className={cn(
+                  "mb-3 text-[12px] font-medium tracking-[0.06em] uppercase",
+                  GALLERY_TEXT_TERTIARY_CLASS
+                )}
+              >
+                Colours
+              </p>
+              <ul className="flex flex-wrap gap-x-4 gap-y-2.5">
+                {content.colors.map((color) => (
+                  <li
+                    key={color.hex}
+                    className={cn(
+                      "flex items-center gap-2 text-[13px]",
+                      GALLERY_TEXT_SECONDARY_CLASS
+                    )}
+                  >
+                    <span
+                      aria-hidden
+                      className="size-4 rounded-full ring-1 ring-white/20"
+                      style={{ backgroundColor: color.hex }}
+                    />
+                    {color.name}
+                    <span className="font-mono text-[12px] text-white/40 uppercase">
+                      {color.hex}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
 
           {content.collections.length > 0 ? (
             <div>

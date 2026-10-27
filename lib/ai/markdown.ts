@@ -167,6 +167,8 @@ export function markdownResponse(
       "Content-Language": "en",
       "Cache-Control": `public, s-maxage=${cacheSeconds}, stale-while-revalidate=86400`,
       "X-Robots-Tag": "noindex",
+      // The page URL also answers with this body for `Accept: text/markdown`.
+      Vary: "Accept",
       ...(canonicalUrl
         ? {
             Link: `<${canonicalUrl}>; rel="canonical"; type="text/html", <${origin}/llms.txt>; rel="describedby"; type="text/markdown"`,

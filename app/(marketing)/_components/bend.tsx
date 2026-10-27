@@ -17,7 +17,11 @@ import { cn } from "@/lib/utils"
 
 const BEND_POSTER_SRC = "/hero/bend-poster.avif"
 
-export function Bend() {
+/** `h1` on the standalone /bend page; `h2` as a homepage section. */
+export function Bend({
+  headingLevel = "h2",
+}: { headingLevel?: "h1" | "h2" } = {}) {
+  const Heading = headingLevel
   const bend = macwallMarketingCopy.landing.bend
   const videoRef = useRef<HTMLVideoElement>(null)
   const [reduceMotion, setReduceMotion] = useState(false)
@@ -66,11 +70,13 @@ export function Bend() {
 
   return (
     <MarketingSection id="bend" aria-labelledby="bend-heading">
-      <div className={cn(landingPad, "flex max-w-2xl flex-col gap-2 pt-10 pb-8")}>
+      <div
+        className={cn(landingPad, "flex max-w-2xl flex-col gap-2 pt-10 pb-8")}
+      >
         <p className={landingEyebrow}>{bend.eyebrow}</p>
-        <h2 id="bend-heading" className={landingH2}>
+        <Heading id="bend-heading" className={landingH2}>
           {bend.title}
-        </h2>
+        </Heading>
         <p className={landingLead}>{bend.lead}</p>
       </div>
 

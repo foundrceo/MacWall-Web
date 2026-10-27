@@ -59,6 +59,7 @@ export function WallpaperCollectionPage({
   related,
   relatedTitle = "Related collections",
   emptyState,
+  footer,
 }: Readonly<{
   breadcrumbs: CollectionLink[]
   title: string
@@ -72,6 +73,8 @@ export function WallpaperCollectionPage({
   related?: CollectionLink[]
   relatedTitle?: string
   emptyState?: ReactNode
+  /** Below the grid, e.g. page links. */
+  footer?: ReactNode
 }>) {
   return (
     <MarketingRail innerClassName="min-h-[70vh]">
@@ -158,6 +161,8 @@ export function WallpaperCollectionPage({
         ) : (
           emptyState
         )}
+
+        {footer}
 
         {moreHref && moreLabel ? (
           <div className="mt-8 flex justify-center">

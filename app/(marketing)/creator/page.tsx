@@ -3,46 +3,18 @@ import MacWallMarketingCreatorPage from "@/components/macwall-marketing/marketin
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
 import { macwallCreatorCopy } from "@/lib/macwall-creator-copy"
 import { macwall } from "@/lib/macwall-site"
-import {
-  canonicalSiteOrigin,
-  canonicalSitePath,
-  openGraphImageAbsoluteUrl,
-  openGraphImageSize,
-} from "@/lib/site-url"
+import { canonicalSiteOrigin } from "@/lib/site-url"
+import { createSimplePageMetadata } from "@/lib/seo/create-page-metadata"
 import type { Metadata } from "next"
 
 const PAGE_TITLE = "Get Your Money Back With a Video"
-const PAGE_DESCRIPTION = `Download ${macwall.name} free with a 24-hour Pro trial. ${macwallCreatorCopy.heroTitle} Post a short video and get ${macwall.reelRefundHalfViews.toLocaleString()} views for 50% back, ${macwall.reelRefundFullViews.toLocaleString()} views for a full refund.`
+const PAGE_DESCRIPTION = `Post a short video about ${macwall.name} and get money back: 50% at ${macwall.reelRefundHalfViews.toLocaleString()} views, a full refund at ${macwall.reelRefundFullViews.toLocaleString()} views. Downloads start with a free 24-hour trial.`
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createSimplePageMetadata({
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  alternates: {
-    canonical: canonicalSitePath("/creator"),
-    types: { "text/markdown": canonicalSitePath("/creator.md") },
-  },
-  openGraph: {
-    title: `${macwall.name} – ${PAGE_TITLE}`,
-    description: PAGE_DESCRIPTION,
-    url: canonicalSitePath("/creator"),
-    siteName: macwall.name,
-    type: "website",
-    images: [
-      {
-        url: openGraphImageAbsoluteUrl(),
-        width: openGraphImageSize.width,
-        height: openGraphImageSize.height,
-        alt: `${macwall.name} – ${PAGE_TITLE}`,
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${macwall.name} – ${PAGE_TITLE}`,
-    description: PAGE_DESCRIPTION,
-    images: [openGraphImageAbsoluteUrl()],
-  },
-}
+  path: "/creator",
+})
 
 export default function CreatorPage() {
   const jsonLd = webPageWithBreadcrumbsJsonLd({

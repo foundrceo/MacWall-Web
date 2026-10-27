@@ -1,16 +1,18 @@
 import { CollectionLinkStrip } from "@/components/wallpaper-gallery/collection-link-strip"
+import { GalleryPagination } from "@/components/wallpaper-gallery/gallery-pagination"
+import { galleryPageCount } from "@/lib/seo/gallery-pages"
 import { WallpaperGalleryPageShell } from "@/components/wallpaper-gallery/wallpaper-gallery-page"
 import { wallpaperCollections } from "@/lib/seo/wallpaper-collections"
 import { JsonLd } from "@/components/seo/json-ld"
 import { wallpaperGalleryIndexJsonLd } from "@/lib/seo/wallpaper-json-ld"
 import { wallpaperGalleryIndexMetadata } from "@/lib/seo/wallpaper-metadata"
 import { listPublicWallpapers } from "@/lib/public-catalog/fetch"
-import { macwall } from "@/lib/macwall-site"
+import { macwall, macwallCatalog } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-const PAGE_TITLE = "Live Wallpapers for Mac"
-const PAGE_DESCRIPTION = `Browse cinematic live wallpapers for Mac on ${macwall.name}. Search by category, resolution, and style, then set any wallpaper in the MacWall app.`
+const PAGE_TITLE = "Live Wallpapers for Mac and MacBook"
+const PAGE_DESCRIPTION = `Browse ${macwallCatalog.liveCountLabel} live wallpapers for Mac and MacBook, most in 4K. They are video loops that play in the ${macwall.name} app, not still image downloads.`
 
 export const metadata: Metadata = wallpaperGalleryIndexMetadata()
 
@@ -61,10 +63,20 @@ export default async function WallpapersGalleryPage() {
         title="Live wallpapers for Mac"
         loadError={loadError}
         afterGallery={
-          <CollectionLinkStrip
-            title="Popular collections"
-            collections={wallpaperCollections}
-          />
+          <>
+            {!loadError ? (
+              <GalleryPagination
+                basePath="/wallpapers"
+                current={1}
+                totalPages={galleryPageCount(initial.total)}
+                label="Live wallpaper pages"
+              />
+            ) : null}
+            <CollectionLinkStrip
+              title="Popular collections"
+              collections={wallpaperCollections}
+            />
+          </>
         }
       />
     </>

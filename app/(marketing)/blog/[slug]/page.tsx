@@ -8,6 +8,7 @@ import { BLOG_CATEGORY_LABELS, type BlogCategory } from "@/lib/content/types"
 import { articleJsonLd, faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
 import { canonicalSiteOrigin } from "@/lib/site-url"
+import { ogImageForPath } from "@/lib/seo/og-images"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
@@ -40,7 +41,8 @@ export async function generateMetadata({
       openGraphType: "article",
       publishedTime: article.publishedAt,
       modifiedTime: article.updatedAt ?? article.publishedAt,
-      image: {
+      // The generated share card when there is one, else the blog poster.
+      image: ogImageForPath(article.pathname) ?? {
         url: posterUrl,
         width: 1200,
         height: 630,
@@ -57,9 +59,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
 
   const origin = canonicalSiteOrigin()
   const poster = blogTilePoster(slug, article.category, "og")
-  const posterUrl = poster.startsWith("http")
-    ? poster
-    : `${origin}${poster}`
+  const posterUrl = poster.startsWith("http") ? poster : `${origin}${poster}`
   const articleLd = articleJsonLd({
     origin,
     pathname: article.pathname,

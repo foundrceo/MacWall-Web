@@ -17,7 +17,7 @@ export const overviewArticles: BlogArticle[] = [
     title: "What Is MacWall? The Complete Guide (2026)",
     headline: "What Is MacWall? Everything You Need to Know",
     description:
-      "The definitive guide to MacWall: native live wallpapers for Mac, 4K catalog, hardware-decoded playback, Lock Screen on macOS 26, one-time pricing, community uploads, and comparisons.",
+      "What MacWall is: native live wallpapers for Mac, a 4K catalog, hardware-decoded playback, Lock Screen video on macOS 26, and one-time pricing.",
     excerpt:
       "One page. Every answer. What MacWall is, how it works, and how hardware decoding and pause rules reduce resource use.",
     category: "features",
@@ -48,7 +48,7 @@ export const overviewArticles: BlogArticle[] = [
           "Install from the DMG, launch once, MacWall lives in the menu bar (not the Dock clutter).",
           `Browse ${macwallCatalog.liveCountLabel} curated loops at macwall.app/wallpapers: Anime, Nature, Cars, Gaming, Space, Heroes, Dark, Abstract, Others.`,
           "Click any wallpaper to preview and set. One click. Hardware-decoded loop behind your windows.",
-          "Import your own MP4, MOV, M4V, or GIF. Drag into Library, set instantly.",
+          "With Pro, import your own MP4, MOV, M4V, or GIF. Drag it into Library and set it.",
           `Upgrade to Pro (${proPrice} one-time) for the full catalog, Lock Screen on ${macwallLockScreenMacOSVersion}+, Shuffle and Day Schedule, and lifetime updates on up to ${maxMacs} Macs.`,
         ],
       },
@@ -69,8 +69,8 @@ export const overviewArticles: BlogArticle[] = [
           "**Pause on high CPU**: auto-pause above ~80% system load, resume near ~55%",
           "**Pause on lock & sleep**: nothing renders when you walk away",
           "**Reduce Quality on Battery**: optional 1080p/30fps cap on battery or Low Power Mode",
-          "**One decoder per display**: multi-monitor without duplicate work",
-          "**Performance Mode**: optional 720p/24fps cap for maximum headroom on older Intel Macs",
+          "**Shared players**: displays showing the same loop share one decoder",
+          "**Performance preset**: optional 1280-pixel, 30fps cap for extra headroom on older Intel Macs",
         ],
       },
       {
@@ -83,14 +83,14 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Mac users today choose between native apps (MacWall, Backdrop, Wallspace) and cross-platform ports (Wallpaper Engine wrappers, Lively-style tools, Electron players). **MacWall's edge is the combination**: native SwiftUI UX, aggressive pause policy, community catalog + personal imports, web gallery at macwall.app, one-time Pro pricing, no account wall to browse, and Lock Screen support on ${macwallLockScreenMacOSVersion} where Apple allows custom video.",
+        text: `Mac users today choose between native apps (MacWall, Backdrop, Wallspace) and workarounds for Windows-only tools such as Wallpaper Engine and Lively Wallpaper. **MacWall's case is the combination**: a native Swift app, pause rules on by default, a community catalog plus personal imports, a web gallery at macwall.app, one-time Pro pricing, no account needed to browse, and Lock Screen video on ${macwallLockScreenMacOSVersion} or later. The [comparison hub](/compare) lays out the differences.`,
       },
       {
         type: "ul",
         items: [
           "**vs Backdrop**: Both native; MacWall adds community submit flow, Reel refund program, and menu-bar-first workflow. See [MacWall vs Backdrop](/alternatives/macwall-vs-backdrop).",
           "**vs Wallspace**: MacWall offers community uploads and macwall.app integration. See [MacWall vs Wallspace](/alternatives/macwall-vs-wallspace).",
-          "**vs Wallpaper Engine**: No official Mac port; wrappers add overhead. MacWall is Mac-native video loops. See [Wallpaper Engine on Mac](/alternatives/wallpaper-engine).",
+          "**vs Wallpaper Engine**: Its Steam page lists Windows only, with no Mac version; wrappers add overhead. MacWall is Mac-native video loops. See [Wallpaper Engine on Mac](/alternatives/wallpaper-engine).",
           "**vs free Electron tools**: Chromium-based players keep a browser engine alive for wallpaper duty. MacWall has no Electron layer.",
         ],
       },
@@ -100,7 +100,7 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "MacWall's library is **curated + community-built**. Staff picks, trending rankings, and category browsing live in-app and on macwall.app/wallpapers. Anyone can submit a loop at macwall.app/submit: seamless MP4/MOV, 1080p minimum (4K preferred), human review before publish. Deep links from the website open directly in the Mac app.",
+        text: "MacWall's library is **curated + community-built**. Staff picks, trending rankings, and category browsing live in-app and on macwall.app/wallpapers. Anyone can submit a loop from the upload panel in the Mac app: a clean-looping MP4 or MOV, 1080p minimum (4K preferred), with human review before it is published. Deep links from the website open directly in the Mac app.",
       },
       {
         type: "h2",
@@ -123,7 +123,7 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: `Desktop live wallpapers work on **macOS ${macwallMinimumMacOSVersion}+**. **Lock Screen and Screen Saver video motion** require **${macwallLockScreenMacOSVersion}+** (Apple's Tahoe generation) and MacWall Pro. MacWall uses Apple's wallpaper system, so there are no kernel extensions and no hacky installers. Turn it off anytime in Settings and your previous look returns.`,
+        text: `Desktop live wallpapers work on **${macwallMinimumMacOSVersion} or later**. **Lock Screen and Screen Saver video motion** require **${macwallLockScreenMacOSVersion}+** (Apple's Tahoe generation) and MacWall Pro. MacWall uses Apple's wallpaper system, so there are no kernel extensions and no hacky installers. Turn it off anytime in Settings and your previous look returns.`,
       },
       {
         type: "h2",
@@ -181,17 +181,17 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Download at [macwall.app/download](/download). Browse wallpapers at [macwall.app/wallpapers](/wallpapers). Questions? [Support](/support) or email support@macwall.app.",
+        text: "Download at [macwall.app/download](/download). Browse wallpapers at [macwall.app/wallpapers](/wallpapers). Questions? Read the [docs](/docs) or email support@macwall.app.",
       },
     ],
   },
   {
     slug: "macwall-performance-zero-overhead-guide",
     pathname: "/blog/macwall-performance-zero-overhead-guide",
-    title: "MacWall Performance: Hardware Decode and Pause Rules",
+    title: "MacWall Performance: Hardware Decode, Pause Rules",
     headline: "How MacWall Keeps Live Wallpapers Lightweight",
     description:
-      "Technical guide to MacWall's resource usage: hardware decode, every pause rule and its default, how to check CPU use yourself, and why native playback costs less than a browser-based wallpaper.",
+      "MacWall's resource use explained: hardware decode, every pause rule and its default, and how to check its CPU use on your own Mac in a minute.",
     excerpt:
       "How MacWall uses native hardware decoding and visibility-aware pause rules to reduce playback overhead.",
     category: "comparisons",
@@ -207,7 +207,7 @@ export const overviewArticles: BlogArticle[] = [
     sections: [
       {
         type: "p",
-        text: "Most live wallpaper horror stories come from **bad architecture**: software decode, always-on rendering, Electron shells, or scene engines running translation layers. **MacWall** was engineered around one rule: *if the user cannot see the wallpaper, stop decoding.* Everything else follows from native Apple media APIs.",
+        text: "Most complaints about live wallpapers come from **architecture**: software decode, always-on rendering, Electron shells, or scene engines running translation layers. **MacWall** was engineered around one rule: *if the user cannot see the wallpaper, stop decoding.* Everything else follows from native Apple media APIs.",
       },
       {
         type: "h2",
@@ -275,7 +275,7 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Turn on Pause when busy in Settings → Power and the wallpaper yields to your build or render once system CPU passes 80%.",
+        text: "Turn on Pause when busy in Settings > Battery & Performance and the wallpaper yields to your build or render once system CPU passes 80%.",
       },
       {
         type: "h2",
@@ -326,7 +326,7 @@ export const overviewArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "Live wallpapers are not inherently heavy. **Native hardware decode + aggressive pause policy** makes them a background luxury, not a performance tax. That is the engineering bet MacWall is built on.",
+        text: "Live wallpapers are not inherently heavy. **Native hardware decode + aggressive pause policy** makes them a light background task rather than a performance cost. That is the engineering bet MacWall is built on.",
       },
     ],
   },

@@ -3,8 +3,8 @@ import { SeoPageShell } from "@/components/content/seo-page-shell"
 import { HubLinkList } from "@/components/content/hub-link-list"
 import { JsonLd } from "@/components/seo/json-ld"
 import { getAllLearnSlugs, getLearnPage, learnPages } from "@/lib/learn/pages"
-import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
-import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
+import { articleJsonLd, faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
+import { ogImageForPath } from "@/lib/seo/og-images"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 import type { Metadata } from "next"
@@ -38,13 +38,16 @@ export default async function LearnDetailPage({ params }: RouteParams) {
   return (
     <>
       <JsonLd
-        payload={webPageWithBreadcrumbsJsonLd({
+        payload={articleJsonLd({
           origin: canonicalSiteOrigin(),
           pathname: page.pathname,
-          pageTitle: page.title,
           headline: page.headline,
           description: page.description,
-          dateModifiedIso: page.updatedAt ?? page.publishedAt,
+          datePublished: page.publishedAt ?? page.updatedAt ?? "",
+          dateModified: page.updatedAt ?? page.publishedAt,
+          image: ogImageForPath(page.pathname)?.url,
+          section: { name: "Learn", pathname: "/learn" },
+          type: "Article",
         })}
       />
       {page.faq && page.faq.length > 0 ? (

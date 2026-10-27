@@ -44,12 +44,14 @@ import {
   openGraphImageSize,
 } from "@/lib/site-url"
 import { cn } from "@/lib/utils"
+import { brandedTitle } from "@/lib/seo/create-page-metadata"
+import { ogImageForPath } from "@/lib/seo/og-images"
 import type { Metadata } from "next"
 
 /** Matches MARKETING_CATALOG_REVALIDATE_SECONDS (6h); catalog writes purge sooner. */
 export const revalidate = 21600
 
-const TITLE = "Live Wallpaper Collections for Mac: Anime, Cars, Rain & More"
+const TITLE = "Live Wallpaper Collections for Mac"
 const DESCRIPTION = `Browse ${wallpaperCollections.length} curated live wallpaper collections for Mac: Gojo, Naruto, Spider-Man, BMW, F1, rain, lofi, galaxy, and more. 4K loops for your desktop.`
 
 export const metadata: Metadata = {
@@ -72,18 +74,27 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: `${macwall.name} – ${TITLE}`,
+    title: brandedTitle(TITLE),
     description: DESCRIPTION,
     url: canonicalSitePath(WALLPAPER_COLLECTIONS_HUB_PATH),
     siteName: macwall.name,
     type: "website",
     images: [
-      {
+      ogImageForPath(WALLPAPER_COLLECTIONS_HUB_PATH) ?? {
         url: openGraphImageAbsoluteUrl(),
         width: openGraphImageSize.width,
         height: openGraphImageSize.height,
         alt: TITLE,
       },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: brandedTitle(TITLE),
+    description: DESCRIPTION,
+    images: [
+      ogImageForPath(WALLPAPER_COLLECTIONS_HUB_PATH)?.url ??
+        openGraphImageAbsoluteUrl(),
     ],
   },
 }

@@ -12,6 +12,10 @@ import type {
 import vinext from "vinext/server/fetch-handler"
 
 import { MW_RESOLVED_COUNTRY_HEADER } from "../lib/geo/country"
+import {
+  negotiatedMarkdownPath,
+  prefersMarkdown,
+} from "../lib/http/markdown-negotiation"
 
 import { CRON_ROUTES } from "./crons"
 
@@ -38,10 +42,31 @@ export default {
     }
     const ip = request.headers.get("cf-connecting-ip")
     if (ip) headers.set("x-forwarded-for", ip)
-    const forwarded = new Request(request as unknown as RequestInfo, {
-      headers,
-    }) as unknown as WorkerRequest
-    return vinext.fetch(forwarded, env, ctx)
+
+    // An agent asking for Markdown on a page URL gets the page's `.md` twin.
+    const url = new URL(request.url)
+    const markdownPath =
+      request.method === "GET" || request.method === "HEAD"
+        ? negotiatedMarkdownPath(url.pathname)
+        : null
+    const negotiate =
+      markdownPath !== null && prefersMarkdown(headers.get("accept"))
+    if (negotiate) url.pathname = markdownPath
+
+    const forwarded = new Request(
+      negotiate ? url.toString() : (request as unknown as RequestInfo),
+      negotiate ? { method: request.method, headers } : { headers }
+    ) as unknown as WorkerRequest
+    const response = await vinext.fetch(forwarded, env, ctx)
+    if (markdownPath === null) return response
+
+    // Page URLs answer in two formats, so shared caches must key on Accept.
+    const varied = new Response(response.body, response as unknown as Response)
+    const vary = varied.headers.get("vary")
+    if (!vary || !/\baccept\b/i.test(vary)) {
+      varied.headers.set("vary", vary ? `${vary}, Accept` : "Accept")
+    }
+    return varied as unknown as Awaited<ReturnType<typeof vinext.fetch>>
   },
   async scheduled(
     controller: ScheduledController,

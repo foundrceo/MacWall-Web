@@ -380,7 +380,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "football",
     name: "Football",
     group: "sports",
-    title: "Football Live Wallpapers for Mac: Ronaldo, Messi & More",
+    title: "Football Live Wallpapers for Mac: Ronaldo & Messi",
     description:
       "Football live wallpapers for Mac: animated Ronaldo, Messi, Mbappé, Neymar, and Real Madrid loops in 4K. Preview every soccer wallpaper and set it on your Mac.",
     keywords: [
@@ -419,7 +419,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "ronaldo",
     name: "Cristiano Ronaldo",
     group: "sports",
-    title: "Cristiano Ronaldo Wallpapers for Mac: 4K Live Loops",
+    title: "Cristiano Ronaldo Live Wallpapers for Mac in 4K",
     description:
       "Cristiano Ronaldo live wallpapers for Mac: animated CR7 celebrations, Real Madrid, Portugal, and Al Nassr loops in 4K. Set any Ronaldo wallpaper on your Mac.",
     keywords: [
@@ -443,7 +443,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "jdm",
     name: "JDM",
     group: "cars",
-    title: "JDM Car Live Wallpapers for Mac: Supra, GT-R & Drift",
+    title: "JDM Live Wallpapers for Mac: Supra, GT-R & Drift",
     description:
       "JDM live wallpapers for Mac: animated Toyota Supra, Nissan GT-R, Skyline, RX-7, and drift loops in 4K. Preview every car wallpaper and set it on your Mac.",
     keywords: [
@@ -518,7 +518,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "porsche",
     name: "Porsche",
     group: "cars",
-    title: "Porsche Live Wallpapers for Mac: 911 & GT3 4K Loops",
+    title: "Porsche Live Wallpapers for Mac: 911 & GT3 in 4K",
     description:
       "Porsche live wallpapers for Mac: animated 911, GT3 RS, and Taycan loops in 4K. Preview every Porsche wallpaper and set it on your Mac desktop in one click.",
     keywords: [
@@ -543,7 +543,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "supercars",
     name: "Supercars",
     group: "cars",
-    title: "Supercar Live Wallpapers for Mac: Lamborghini, McLaren & Ferrari",
+    title: "Supercar Live Wallpapers for Mac in 4K",
     description:
       "Supercar live wallpapers for Mac: animated Lamborghini, McLaren, Ferrari, and Bugatti loops in 4K. Preview each exotic car wallpaper and set it on your Mac.",
     keywords: [
@@ -714,7 +714,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "japanese",
     name: "Japanese",
     group: "moods",
-    title: "Japanese Live Wallpapers for Mac: Torii, Sakura & Shrines",
+    title: "Japanese Live Wallpapers for Mac: Torii & Sakura",
     description:
       "Japanese live wallpapers for Mac: animated torii gates, sakura blossoms, shrines, and lantern-lit streets in 4K. Calm, cinematic loops for your Mac desktop.",
     keywords: [
@@ -749,7 +749,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "samurai",
     name: "Samurai",
     group: "moods",
-    title: "Samurai Live Wallpapers for Mac: Katana & Ronin 4K Loops",
+    title: "Samurai Live Wallpapers for Mac: Katana & Ronin",
     description:
       "Samurai live wallpapers for Mac: animated ronin, katana duels, and Vagabond-style ink scenes in 4K. Preview each samurai wallpaper and set it on your Mac.",
     keywords: [
@@ -813,7 +813,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "sunset",
     name: "Sunset",
     group: "moods",
-    title: "Sunset Live Wallpapers for Mac: Golden Hour 4K Loops",
+    title: "Sunset Live Wallpapers for Mac: Golden Hour in 4K",
     description:
       "Sunset live wallpapers for Mac: animated golden hour skies, dusk horizons, and ocean sunsets in 4K. Warm, calm motion for your Mac desktop.",
     keywords: [
@@ -874,6 +874,31 @@ export const wallpaperCollections: WallpaperCollection[] = [
     related: ["rain", "snow", "sunset", "japanese"],
   }),
   collection({
+    slug: "autumn",
+    name: "Autumn",
+    group: "moods",
+    title: "Autumn Live Wallpapers for Mac: Fall Forests",
+    description:
+      "Autumn live wallpapers for Mac: fall forests, orange leaves, cozy cabins and torii rivers in 4K. Seasonal video loops for your MacBook desktop.",
+    keywords: [
+      "fall desktop wallpaper",
+      "fall macbook wallpaper",
+      "autumn macbook wallpaper",
+      "fall wallpaper mac",
+      "autumn live wallpaper",
+    ],
+    intro:
+      "Orange forests, a torii gate over an autumn river, a cabin bedroom with leaves outside. Every loop here is named for autumn in the catalog, so the palette runs to amber, rust and gold.",
+    patterns: ["\\bautumn\\b", "fall foliage", "autumn leaves", "\\bmaple\\b"],
+    category: "Nature",
+    faq: {
+      question: "Is there a fall wallpaper that changes with the season?",
+      answer:
+        "MacWall plays the loop you pick until you change it. To switch with the seasons, set an autumn loop now and pick a snow loop from the snow collection in winter.",
+    },
+    related: ["forest", "snow", "japanese", "sunset"],
+  }),
+  collection({
     slug: "snow",
     name: "Snow",
     group: "moods",
@@ -909,7 +934,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "ocean",
     name: "Ocean",
     group: "moods",
-    title: "Ocean Live Wallpapers for Mac: Waves & Beaches in 4K",
+    title: "Ocean Live Wallpapers for Mac: Waves in 4K",
     description:
       "Ocean live wallpapers for Mac: animated waves, beaches, underwater scenes, and sea horizons in 4K. Calm, cinematic motion for your Mac desktop.",
     keywords: [
@@ -942,7 +967,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "galaxy",
     name: "Galaxy",
     group: "space",
-    title: "Galaxy Live Wallpapers for Mac: Nebula & Stars in 4K",
+    title: "Galaxy Live Wallpapers for Mac: Nebulas in 4K",
     description:
       "Galaxy live wallpapers for Mac: animated nebulae, star fields, the Milky Way, and cosmic clouds in 4K. Deep-space motion for your Mac desktop.",
     keywords: [
@@ -976,7 +1001,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "black-hole",
     name: "Black Hole",
     group: "space",
-    title: "Black Hole Live Wallpapers for Mac: Gargantua in 4K",
+    title: "Black Hole Live Wallpapers for Mac: Gargantua",
     description:
       "Black hole live wallpapers for Mac: animated Gargantua, accretion disks, and singularities in 4K. Interstellar-style space motion for your Mac desktop.",
     keywords: [
@@ -1009,7 +1034,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "hacker",
     name: "Hacker",
     group: "moods",
-    title: "Hacker & Code Live Wallpapers for Mac: Matrix-Style Loops",
+    title: "Hacker Live Wallpapers for Mac: Matrix-Style Code",
     description:
       "Hacker live wallpapers for Mac: animated code rain, Matrix-style terminals, binary streams, and HUD loops in 4K. Developer-friendly motion for your Mac desktop.",
     keywords: [
@@ -1082,7 +1107,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "miles-morales",
     name: "Miles Morales",
     group: "heroes",
-    title: "Miles Morales Wallpapers for Mac: 4K Spider-Verse Loops",
+    title: "Miles Morales Live Wallpapers for Mac in 4K",
     description:
       "Miles Morales live wallpapers for Mac: animated Spider-Verse loops of Miles swinging, glitching, and posing in the rain, in 4K for your Mac desktop.",
     keywords: [
@@ -1107,7 +1132,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "sukuna",
     name: "Sukuna",
     group: "anime",
-    title: "Sukuna Wallpapers for Mac: 4K Live Jujutsu Kaisen Loops",
+    title: "Sukuna Live Wallpapers for Mac: Jujutsu Kaisen",
     description:
       "Ryomen Sukuna live wallpapers for Mac: animated Malevolent Shrine, Fuga flames, and Gojo vs Sukuna domain clashes in 4K for your Mac desktop.",
     keywords: [
@@ -1182,7 +1207,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "lamborghini",
     name: "Lamborghini",
     group: "cars",
-    title: "Lamborghini Wallpapers for Mac: 4K Live Aventador Loops",
+    title: "Lamborghini Live Wallpapers for Mac in 4K",
     description:
       "Lamborghini live wallpapers for Mac: animated Aventador, Huracán, Urus, and Diablo loops in 4K. Preview every Lamborghini wallpaper and set it on your Mac.",
     keywords: [
@@ -1214,7 +1239,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "ferrari",
     name: "Ferrari",
     group: "cars",
-    title: "Ferrari Wallpapers for Mac: 4K Live F1 & Road Car Loops",
+    title: "Ferrari Live Wallpapers for Mac: F1 & Road Cars",
     description:
       "Ferrari live wallpapers for Mac: animated F40, 812 Superfast, 458, and Scuderia Ferrari F1 loops in 4K. Preview each one and set it on your Mac desktop.",
     keywords: [
@@ -1239,7 +1264,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "mclaren",
     name: "McLaren",
     group: "cars",
-    title: "McLaren Wallpapers for Mac: 4K Live P1 & 720S Loops",
+    title: "McLaren Live Wallpapers for Mac: P1 & 720S in 4K",
     description:
       "McLaren live wallpapers for Mac: animated P1, 720S, and McLaren F1 loops in 4K, from sunset drives to foggy garages. Set any one on your Mac desktop.",
     keywords: [
@@ -1346,7 +1371,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "cat",
     name: "Cat",
     group: "moods",
-    title: "Cat Live Wallpapers for Mac: Cozy Animated Cats in 4K",
+    title: "Cat Live Wallpapers for Mac: Cozy Cats in 4K",
     description:
       "Cat live wallpapers for Mac: animated cats watching the sky, sleeping in cozy rooms, and wandering moonlit streets. Calm 4K loops for your Mac desktop.",
     keywords: [
@@ -1422,7 +1447,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "black",
     name: "Black",
     group: "colors",
-    title: "Black Wallpapers for Mac: 4K Live Dark & Monochrome",
+    title: "Black Live Wallpapers for Mac: Dark & Monochrome",
     description:
       "Black live wallpapers for Mac: animated monochrome portraits, black holes, and pitch-dark scenes in 4K. Minimal dark backgrounds that suit macOS dark mode.",
     keywords: [
@@ -1469,6 +1494,32 @@ export const wallpaperCollections: WallpaperCollection[] = [
         "Cool, low-contrast colors sit comfortably in peripheral vision, so a blue loop adds motion without competing with the windows you are working in.",
     },
     related: ["ocean", "purple", "galaxy", "hacker"],
+  }),
+  collection({
+    slug: "pink",
+    name: "Pink",
+    group: "colors",
+    title: "Pink Live Wallpapers for Mac: Sakura and More",
+    description:
+      "Pink live wallpapers for Mac: cherry blossom streets, sakura trees, pink cars and pastel skies in 4K. Video loops for your MacBook desktop and Lock Screen.",
+    keywords: [
+      "pink macbook wallpaper",
+      "pink mac wallpaper",
+      "aesthetic pink macbook wallpaper",
+      "sakura wallpaper mac",
+      "cherry blossom live wallpaper",
+    ],
+    intro:
+      "Cherry blossom streets, sakura trees over rivers, pink supercars at night. This collection gathers every loop in the catalog named for pink, sakura or cherry blossom, so it leans soft and spring-like.",
+    patterns: ["\\bpink\\b", "\\bsakura\\b", "cherry blossom"],
+    exclude: ["pink floyd"],
+    category: "Abstract",
+    faq: {
+      question: "Are these pink wallpapers still images?",
+      answer:
+        "No. Each one is a short video loop that plays behind your windows in MacWall. Preview any of them here before you install the app.",
+    },
+    related: ["purple", "japanese", "anime-girl", "sunset"],
   }),
 ]
 

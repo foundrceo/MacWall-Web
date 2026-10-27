@@ -1,3 +1,4 @@
+import { createSimplePageMetadata } from "@/lib/seo/create-page-metadata"
 import type { Metadata } from "next"
 
 import MacWallMarketingAffiliatePage from "@/components/macwall-marketing/marketing-affiliate"
@@ -5,45 +6,16 @@ import { JsonLd } from "@/components/seo/json-ld"
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
 import { macwallAffiliateCopy } from "@/lib/macwall-affiliate-copy"
 import { macwall } from "@/lib/macwall-site"
-import {
-  canonicalSiteOrigin,
-  canonicalSitePath,
-  openGraphImageAbsoluteUrl,
-  openGraphImageSize,
-} from "@/lib/site-url"
+import { canonicalSiteOrigin } from "@/lib/site-url"
 
 const PAGE_TITLE = macwallAffiliateCopy.pageTitle
-const PAGE_DESCRIPTION = macwallAffiliateCopy.heroLead
+const PAGE_DESCRIPTION = `${macwallAffiliateCopy.heroLead} Share one link in a video, post or newsletter and get paid for each purchase it brings.`
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createSimplePageMetadata({
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
-  alternates: {
-    canonical: canonicalSitePath("/affiliate"),
-    types: { "text/markdown": canonicalSitePath("/affiliate.md") },
-  },
-  openGraph: {
-    title: `${macwall.name} – ${PAGE_TITLE}`,
-    description: PAGE_DESCRIPTION,
-    url: canonicalSitePath("/affiliate"),
-    siteName: `${macwall.name} App`,
-    type: "website",
-    images: [
-      {
-        url: openGraphImageAbsoluteUrl(),
-        width: openGraphImageSize.width,
-        height: openGraphImageSize.height,
-        alt: `${macwall.name} – ${PAGE_TITLE}`,
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${macwall.name} – ${PAGE_TITLE}`,
-    description: PAGE_DESCRIPTION,
-    images: [openGraphImageAbsoluteUrl()],
-  },
-}
+  path: "/affiliate",
+})
 
 export default function AffiliatePage() {
   const jsonLd = webPageWithBreadcrumbsJsonLd({

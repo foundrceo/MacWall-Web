@@ -1,12 +1,17 @@
-import { macwall } from "@/lib/macwall-site"
+import { macwall, macwallCatalog } from "@/lib/macwall-site"
+import { ogImageForPath } from "@/lib/seo/og-images"
 import {
   catalogOpenGraphImageSize,
   catalogOpenGraphImageUrl,
 } from "@/lib/macwall-catalog-urls"
 import { wallpaperCategoryPage } from "@/lib/seo/landing-pages"
-import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
+import {
+  brandedTitle,
+  createSeoPageMetadata,
+} from "@/lib/seo/create-page-metadata"
 import {
   canonicalSitePath,
+  feedAlternateTypes,
   openGraphImageAbsoluteUrl,
   openGraphImageSize,
 } from "@/lib/site-url"
@@ -48,14 +53,15 @@ function defaultGalleryOpenGraph(input: {
   url: string
   alt: string
 }) {
+  const share = ogImageForPath(new URL(input.url).pathname)
   return {
-    title: `${macwall.name} – ${input.title}`,
+    title: brandedTitle(input.title),
     description: input.description,
     url: input.url,
     siteName: macwall.name,
     type: "website" as const,
     images: [
-      {
+      share ?? {
         url: openGraphImageAbsoluteUrl(),
         width: openGraphImageSize.width,
         height: openGraphImageSize.height,
@@ -65,12 +71,19 @@ function defaultGalleryOpenGraph(input: {
   }
 }
 
-function defaultGalleryTwitter(input: { title: string; description: string }) {
+function defaultGalleryTwitter(input: {
+  title: string
+  description: string
+  url: string
+}) {
   return {
     card: "summary_large_image" as const,
-    title: `${macwall.name} – ${input.title}`,
+    title: brandedTitle(input.title),
     description: input.description,
-    images: [openGraphImageAbsoluteUrl()],
+    images: [
+      ogImageForPath(new URL(input.url).pathname)?.url ??
+        openGraphImageAbsoluteUrl(),
+    ],
   }
 }
 
@@ -82,8 +95,8 @@ export function wallpaperGalleryIndexMetadata(
   const tag = filters.tag?.trim()
   const q = filters.q?.trim()
 
-  let title = "Live Wallpapers for Mac"
-  let description = `Browse cinematic live wallpapers for Mac on ${macwall.name}. Search by category, resolution, and style, then set any wallpaper in the MacWall app.`
+  let title = "Live Wallpapers for Mac and MacBook"
+  let description = `Browse ${macwallCatalog.liveCountLabel} live wallpapers for Mac and MacBook, most in 4K. They are video loops that play in the ${macwall.name} app, not still image downloads.`
 
   if (tag) {
     title = `${tag} Live Wallpapers for Mac`
@@ -117,9 +130,9 @@ export function wallpaperGalleryIndexMetadata(
       title,
       description,
       url: canonical,
-      alt: `${macwall.name} – ${title}`,
+      alt: title,
     }),
-    twitter: defaultGalleryTwitter({ title, description }),
+    twitter: defaultGalleryTwitter({ title, description, url: canonical }),
   }
 }
 
@@ -154,12 +167,12 @@ export function wallpaperCategoryGalleryMetadata(
     robots: filteredGalleryRobots(),
     openGraph: {
       ...base.openGraph,
-      title: `${macwall.name} – ${title}`,
+      title: brandedTitle(title),
       description,
     },
     twitter: {
       ...base.twitter,
-      title: `${macwall.name} – ${title}`,
+      title: brandedTitle(title),
       description,
     },
   }
@@ -174,11 +187,11 @@ function absoluteMediaUrl(url: string): string {
 /** Detail page metadata with absolute OG/Twitter thumbnail URLs. */
 export function wallpaperDetailMetadata(wallpaper: PublicWallpaper): Metadata {
   const content = buildWallpaperDetailContent(wallpaper)
-  const quality = content.qualityLabel ? ` (${content.qualityLabel})` : ""
   // People search "{name} wallpaper"; keep that phrase at the front of the title.
-  const title = `${wallpaper.name} Live Wallpaper for Mac${quality}`
+  const title = brandedTitle(content.pageTitle)
   const description = content.metaDescription
-  const canonical = canonicalSitePath(wallpaperDetailPath(wallpaper))
+  const detailPath = wallpaperDetailPath(wallpaper)
+  const canonical = canonicalSitePath(detailPath)
   const thumbUrl = absoluteMediaUrl(wallpaper.thumbUrl)
   // The wallpaper's own poster (the one the app shows), sent at the standard
   // share size; the original poster when it isn't on the CDN.
@@ -191,7 +204,7 @@ export function wallpaperDetailMetadata(wallpaper: PublicWallpaper): Metadata {
         type: "image/jpeg",
       }
     : { url: thumbUrl }
-  const shareAlt = `${wallpaper.name} – ${wallpaper.category} live wallpaper for Mac`
+  const shareAlt = `${wallpaper.name}, ${wallpaper.category.toLowerCase()} live wallpaper for Mac`
   const name = wallpaper.name.toLowerCase()
   const category = wallpaper.category.toLowerCase()
   const keywords = [
@@ -209,12 +222,19 @@ export function wallpaperDetailMetadata(wallpaper: PublicWallpaper): Metadata {
   ]
 
   return {
-    title,
+    title: { absolute: title },
     description,
     keywords,
-    alternates: { canonical },
+    ...(content.thin ? { robots: { index: false, follow: true } } : {}),
+    alternates: {
+      canonical,
+      types: {
+        ...feedAlternateTypes(),
+        "text/markdown": canonicalSitePath(`${detailPath}.md`),
+      },
+    },
     openGraph: {
-      title: `${wallpaper.name} · ${macwall.name}`,
+      title,
       description,
       url: canonical,
       siteName: macwall.name,
@@ -223,7 +243,7 @@ export function wallpaperDetailMetadata(wallpaper: PublicWallpaper): Metadata {
     },
     twitter: {
       card: "summary_large_image",
-      title: `${wallpaper.name} · ${macwall.name}`,
+      title,
       description,
       images: [{ url: shareImage.url, alt: shareAlt }],
     },

@@ -1,6 +1,7 @@
 import "server-only"
 
 import { normalizeCatalogQuery } from "@/lib/public-catalog/query"
+import { isThinWallpaper } from "@/lib/seo/wallpaper-detail-content"
 import { unstable_cache } from "next/cache"
 import { cache } from "react"
 import {
@@ -252,7 +253,8 @@ export async function listPublicWallpapers(
 ): Promise<PublicWallpaperListResult> {
   const normalized = normalizeCatalogQuery(options)
   // Free-form searches must not create a persisted cache entry for every input.
-  if (normalized.q || normalized.tag || normalized.page > 20) return fetchListPublicWallpapersUncached(normalized)
+  if (normalized.q || normalized.tag || normalized.page > 20)
+    return fetchListPublicWallpapersUncached(normalized)
   return getCachedListPublicWallpapers(listQueryCacheKey(normalized))
 }
 
@@ -293,7 +295,9 @@ export const getPublicWallpaperById = cache(async (wallpaperId: string) => {
   const id = wallpaperId.trim()
   if (!id) return null
   if (REMOVED_PUBLIC_WALLPAPER_IDS.has(id)) return null
-  const indexed = (await listPublicCatalogIndex()).find((wallpaper) => wallpaper.id === id)
+  const indexed = (await listPublicCatalogIndex()).find(
+    (wallpaper) => wallpaper.id === id
+  )
   // Not in the index (unknown id, or published since it was cached): read the
   // row directly, without creating a cache entry for arbitrary ids.
   return indexed ?? fetchPublicWallpaperByIdUncached(id)
@@ -313,10 +317,16 @@ export async function listSimilarPublicWallpapers(
   wallpaper: PublicWallpaper,
   limit = 6
 ): Promise<PublicWallpaper[]> {
-  const safeLimit = Number.isFinite(limit) ? Math.min(24, Math.max(1, Math.floor(limit))) : 6
+  const safeLimit = Number.isFinite(limit)
+    ? Math.min(24, Math.max(1, Math.floor(limit)))
+    : 6
   const index = await listPublicCatalogIndex()
   return index
-    .filter((candidate) => candidate.category === wallpaper.category && candidate.id !== wallpaper.id)
+    .filter(
+      (candidate) =>
+        candidate.category === wallpaper.category &&
+        candidate.id !== wallpaper.id
+    )
     .slice(0, safeLimit)
 }
 
@@ -324,14 +334,20 @@ type SitemapWallpaperRow = {
   id: string
   name: string
   category: string
+  tags: string[] | null
+  thumb_key: string | null
   created_at: string
 }
 
-const SITEMAP_SELECT_COLUMNS = "id,name,category,created_at"
+const SITEMAP_SELECT_COLUMNS = "id,name,category,tags,thumb_key,created_at"
 
 export type PublicWallpaperSitemapEntry = {
   path: string
   lastModified: Date
+  /** Poster for the image sitemap. */
+  imageUrl: string | null
+  /** No themes and no collection: the page is noindex (see `thin`). */
+  thin: boolean
 }
 
 // Larger batches reduce serial reads during builds and cache refreshes.
@@ -348,6 +364,14 @@ function mapSitemapRow(row: SitemapWallpaperRow): PublicWallpaperSitemapEntry {
       category: row.category,
     }),
     lastModified: Number.isFinite(parsed) ? new Date(parsed) : new Date(),
+    imageUrl: row.thumb_key
+      ? catalogPublicThumbUrlFromKey(row.thumb_key)
+      : null,
+    thin: isThinWallpaper({
+      name: row.name,
+      category: row.category,
+      tags: row.tags ?? [],
+    }),
   }
 }
 
@@ -395,7 +419,7 @@ async function fetchPublicWallpaperSitemapEntriesUncached(): Promise<
 
 const getCachedPublicWallpaperSitemapEntries = unstable_cache(
   async () => fetchPublicWallpaperSitemapEntriesUncached(),
-  ["public-wallpaper-sitemap-v1"],
+  ["public-wallpaper-sitemap-v2"],
   {
     revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
     tags: [PUBLIC_CATALOG_CACHE_TAG],

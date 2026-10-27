@@ -702,7 +702,7 @@ export const docsPages: DocsPage[] = [
     title: "MacWall Public API & Machine-Readable Feeds",
     headline: "Public API and machine-readable feeds",
     description:
-      "Read-only MacWall endpoints for the wallpaper catalog and release metadata, plus the RSS, JSON Feed, llms.txt, and API catalog documents that describe this site.",
+      "Read-only MacWall endpoints for the wallpaper catalog and release metadata, plus the RSS, JSON Feed, llms.txt and API catalog documents for this site.",
     keywords: [
       "macwall api",
       "wallpaper api",

@@ -3,6 +3,10 @@ import {
   findMarkdownDocument,
   siteMarkdownDocuments,
 } from "@/lib/ai/site-content"
+import {
+  galleryPageMarkdown,
+  wallpaperDetailMarkdown,
+} from "@/lib/ai/wallpaper-markdown"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const dynamic = "force-static"
@@ -24,6 +28,21 @@ export async function GET(
   const lookup = joined === "index" ? "/" : `/${joined}`
   const document = findMarkdownDocument(lookup)
 
+  // Catalog pages (wallpapers, gallery pages) render their twins on demand.
+  if (!document) {
+    const catalog = lookup.startsWith("/wallpaper/")
+      ? await wallpaperDetailMarkdown(lookup)
+      : lookup.includes("/page/")
+        ? await galleryPageMarkdown(lookup)
+        : null
+    if (catalog) {
+      return markdownResponse(catalog.body, {
+        canonicalPath: catalog.canonicalPath,
+        cacheSeconds: 86400,
+      })
+    }
+  }
+
   if (!document) {
     const origin = canonicalSiteOrigin()
     return new Response(
@@ -34,6 +53,7 @@ export async function GET(
           "Content-Type": "text/markdown; charset=utf-8",
           "Cache-Control": "public, s-maxage=300",
           "X-Robots-Tag": "noindex",
+          Vary: "Accept",
         },
       }
     )

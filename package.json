@@ -25,7 +25,11 @@
     "dev:cf": "vite dev --port 3001",
     "build:cf": "node scripts/generate-changelog.mjs && node scripts/generate-blog-thumbs.mjs && vite build",
     "preview:cf": "npm run build:cf && wrangler dev --config dist/server/wrangler.json",
-    "deploy:cf": "node scripts/generate-changelog.mjs && node scripts/generate-blog-thumbs.mjs && vinext-cloudflare deploy --config dist/server/wrangler.json"
+    "deploy:cf": "node scripts/generate-changelog.mjs && node scripts/generate-blog-thumbs.mjs && vinext-cloudflare deploy --config dist/server/wrangler.json",
+    "seo:check": "node scripts/seo-check.mjs",
+    "og:generate": "node scripts/generate-og-images.mjs",
+    "palettes:generate": "node scripts/generate-wallpaper-palettes.mjs",
+    "indexnow:submit": "node scripts/indexnow-submit.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

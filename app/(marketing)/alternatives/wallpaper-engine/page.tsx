@@ -7,7 +7,6 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const metadata = createSeoPageMetadata(wallpaperEngineAlternativePage)
 
-
 export default function WallpaperEngineAlternativePage() {
   const origin = canonicalSiteOrigin()
 
@@ -20,6 +19,7 @@ export default function WallpaperEngineAlternativePage() {
           pageTitle: "Wallpaper Engine Alternative",
           headline: wallpaperEngineAlternativePage.headline,
           description: wallpaperEngineAlternativePage.description,
+          dateModifiedIso: wallpaperEngineAlternativePage.updatedAt,
         })}
       />
       <SeoLandingPage

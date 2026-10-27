@@ -57,9 +57,12 @@ function formatSyncedAt(iso: string): string {
 }
 
 /** SEO metadata description — static fallback for crawlers. */
-export const CHANGELOG_SEO_DESCRIPTION = CHANGELOG_PAGE_LEAD
+export const CHANGELOG_SEO_DESCRIPTION =
+  "Every MacWall release, newest first: new features, fixes and performance changes in the Mac app and on the website, with dates and version numbers."
 
-export function isChangelogSectionKind(value: string): value is ChangelogSectionKind {
+export function isChangelogSectionKind(
+  value: string
+): value is ChangelogSectionKind {
   switch (value as ChangelogSectionKind) {
     case "highlights":
     case "features":

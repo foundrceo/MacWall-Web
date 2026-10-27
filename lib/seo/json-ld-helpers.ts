@@ -79,6 +79,10 @@ export function articleJsonLd(input: {
   datePublished: string
   dateModified?: string
   image?: string
+  /** Middle breadcrumb; blog posts by default. */
+  section?: { name: string; pathname: string }
+  /** `Article` for evergreen guides (/learn), `BlogPosting` for the blog. */
+  type?: "BlogPosting" | "Article"
 }) {
   const origin = input.origin.replace(/\/$/, "")
   const url = `${origin}${input.pathname}`
@@ -99,8 +103,8 @@ export function articleJsonLd(input: {
           {
             "@type": "ListItem",
             position: 2,
-            name: "Blog",
-            item: `${origin}/blog`,
+            name: input.section?.name ?? "Blog",
+            item: `${origin}${input.section?.pathname ?? "/blog"}`,
           },
           {
             "@type": "ListItem",
@@ -111,7 +115,7 @@ export function articleJsonLd(input: {
         ],
       },
       {
-        "@type": "BlogPosting",
+        "@type": input.type ?? "BlogPosting",
         "@id": `${url}#article`,
         headline: input.headline,
         description: input.description,

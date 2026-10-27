@@ -1,4 +1,5 @@
 import { macwall } from "@/lib/macwall-site"
+import { ogImageForPath } from "@/lib/seo/og-images"
 import {
   canonicalSitePath,
   feedAlternateTypes,
@@ -29,29 +30,31 @@ export type CreateSeoPageMetadataOptions = {
   alternateTypes?: Record<string, string>
 }
 
+/** Every page renders as "<Page> | MacWall", brand last, even when the page title names MacWall. */
+export function brandedTitle(title: string): string {
+  const suffix = ` | ${macwall.name}`
+  return title.endsWith(suffix) ? title : `${title}${suffix}`
+}
+
 export function createSeoPageMetadata(
   page: SeoContentPage,
   options: CreateSeoPageMetadataOptions = {}
 ): Metadata {
-  // Titles that already include the brand must be absolute so the root
-  // `%s | MacWall` template does not double-append the name.
-  const title = page.title.includes(macwall.name)
-    ? { absolute: page.title }
-    : page.title
-
-  const ogTitle = `${macwall.name} – ${page.headline}`
-  const image = options.image
+  const fullTitle = brandedTitle(page.title)
+  const ogTitle = fullTitle
+  const shareImage = options.image ?? ogImageForPath(page.pathname)
+  const image = shareImage
     ? {
-        url: options.image.url,
-        width: options.image.width ?? openGraphImageSize.width,
-        height: options.image.height ?? openGraphImageSize.height,
-        alt: options.image.alt ?? ogTitle,
+        url: shareImage.url,
+        width: shareImage.width ?? openGraphImageSize.width,
+        height: shareImage.height ?? openGraphImageSize.height,
+        alt: shareImage.alt ?? page.headline,
       }
     : {
         url: openGraphImageAbsoluteUrl(),
         width: openGraphImageSize.width,
         height: openGraphImageSize.height,
-        alt: ogTitle,
+        alt: page.headline,
       }
 
   const openGraphType = options.openGraphType ?? "website"
@@ -67,7 +70,7 @@ export function createSeoPageMetadata(
   }
 
   return {
-    title,
+    title: { absolute: fullTitle },
     description: page.description,
     alternates: {
       canonical: canonicalSitePath(page.pathname),
@@ -92,6 +95,54 @@ export function createSeoPageMetadata(
       card: "summary_large_image",
       title: ogTitle,
       description: page.description,
+      images: [image.url],
+    },
+  }
+}
+
+/**
+ * Metadata for pages without a `SeoContentPage` object (legal, contact, bend):
+ * branded title, canonical, Markdown twin, Open Graph and Twitter.
+ */
+export function createSimplePageMetadata(input: {
+  title: string
+  description: string
+  path: string
+  markdownAlternate?: boolean
+}): Metadata {
+  const title = brandedTitle(input.title)
+  const canonical = canonicalSitePath(input.path)
+  const image = ogImageForPath(input.path) ?? {
+    url: openGraphImageAbsoluteUrl(),
+    width: openGraphImageSize.width,
+    height: openGraphImageSize.height,
+    alt: title,
+  }
+  const markdownPath = input.path === "/" ? "/index.md" : `${input.path}.md`
+  return {
+    title: { absolute: title },
+    description: input.description,
+    alternates: {
+      canonical,
+      types: {
+        ...feedAlternateTypes(),
+        ...(input.markdownAlternate === false
+          ? {}
+          : { "text/markdown": canonicalSitePath(markdownPath) }),
+      },
+    },
+    openGraph: {
+      title,
+      description: input.description,
+      url: canonical,
+      siteName: macwall.name,
+      type: "website",
+      images: [image],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: input.description,
       images: [image.url],
     },
   }

@@ -2,6 +2,7 @@ import { getAllBlogSlugs } from "@/lib/blog"
 import { getAllDocsSlugs } from "@/lib/docs/pages"
 import { getAllLearnSlugs } from "@/lib/learn/pages"
 import { wallpaperCategorySlugs } from "@/lib/seo/category-slugs"
+import { displayPageDefs, displayPagePath } from "@/lib/seo/display-pages"
 
 /** All indexable marketing paths for sitemap generation. */
 export function indexableMarketingPaths(): string[] {
@@ -23,6 +24,10 @@ export function indexableMarketingPaths(): string[] {
     "/alternatives/macwall-vs-backdrop",
     "/alternatives/macwall-vs-wallspace",
     "/alternatives/lively-wallpaper-mac",
+    "/alternatives/24-hour-wallpaper",
+    "/alternatives/plash",
+    "/alternatives/dynamic-wallpaper-club",
+    "/compare",
     "/crawlers",
     "/contact",
     "/legal",
@@ -44,9 +49,10 @@ export function indexableMarketingPaths(): string[] {
 
   const learnPaths = getAllLearnSlugs().map((slug) => `/learn/${slug}`)
 
-  const wallpaperPaths = wallpaperCategorySlugs.map(
-    (slug) => `/wallpapers/${slug}`
-  )
+  const wallpaperPaths = [
+    ...wallpaperCategorySlugs.map((slug) => `/wallpapers/${slug}`),
+    ...displayPageDefs.map((def) => displayPagePath(def.slug)),
+  ]
 
   return [
     ...staticPaths,

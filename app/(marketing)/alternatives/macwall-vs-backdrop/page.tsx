@@ -7,7 +7,6 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const metadata = createSeoPageMetadata(macwallVsBackdropPage)
 
-
 export default function MacwallVsBackdropPage() {
   const origin = canonicalSiteOrigin()
 
@@ -20,6 +19,7 @@ export default function MacwallVsBackdropPage() {
           pageTitle: "MacWall vs Backdrop",
           headline: macwallVsBackdropPage.headline,
           description: macwallVsBackdropPage.description,
+          dateModifiedIso: macwallVsBackdropPage.updatedAt,
         })}
       />
       <SeoLandingPage page={macwallVsBackdropPage} />

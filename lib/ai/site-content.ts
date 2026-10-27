@@ -21,6 +21,19 @@ import {
   wallpaperEngineAlternativePage,
 } from "@/lib/seo/landing-pages"
 import { canonicalSiteOrigin } from "@/lib/site-url"
+import { LEGAL_DOCUMENTS } from "@/lib/legal/documents"
+import { LEGAL_HUB_DESCRIPTION } from "@/lib/legal/metadata"
+import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
+import { crawlersPage } from "@/lib/seo/crawlers-page"
+import { loadDisplayPage } from "@/lib/public-catalog/display-wallpapers"
+import { displayPageDefs, displayPagePath } from "@/lib/seo/display-pages"
+import { MAC_DISPLAY_SPECS_ACCESSED } from "@/lib/seo/mac-displays"
+import {
+  compareIndexPage,
+  dynamicWallpaperClubPage,
+  plashAlternativePage,
+  twentyFourHourWallpaperPage,
+} from "@/lib/seo/compare-pages"
 import { listCollectionWallpapers } from "@/lib/public-catalog/collections"
 import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
 import {
@@ -380,6 +393,52 @@ Source: ${origin}${input.pathname}
 `
 }
 
+const CONTACT_SUMMARY = `Contact ${macwall.name} support for license keys, activation, billing and refunds by email.`
+
+function contactMarkdown(): string {
+  const origin = canonicalSiteOrigin()
+  return `---
+title: "Contact ${macwall.name}"
+description: "${CONTACT_SUMMARY}"
+canonical: "${origin}/contact"
+---
+
+# Contact ${macwall.name}
+
+${CONTACT_SUMMARY}
+
+- Email: ${macwall.supportEmail}
+- Company: ${macwall.legalCompanyName}
+- Mailing address: ${macwall.legalMailingAddress}
+- Help and troubleshooting: ${origin}/docs
+
+---
+
+Source: ${origin}/contact
+`
+}
+
+function bendMarkdown(): string {
+  const origin = canonicalSiteOrigin()
+  const bend = macwallMarketingCopy.landing.bend
+  return `---
+title: "Bend"
+description: "${bend.lead}"
+canonical: "${origin}/bend"
+---
+
+# ${bend.title}
+
+${bend.lead}
+
+${bend.points.map((point) => `- **${point.title}**: ${point.body}`).join("\n")}
+
+---
+
+Source: ${origin}/bend
+`
+}
+
 function seoDoc(
   page: SeoContentPage,
   group: MarkdownGroup,
@@ -692,12 +751,43 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
     seoDoc(macwallVsBackdropPage, "comparisons"),
     seoDoc(macwallVsWallspacePage, "comparisons"),
     seoDoc(livelyWallpaperMacPage, "comparisons"),
+    seoDoc(twentyFourHourWallpaperPage, "comparisons"),
+    seoDoc(plashAlternativePage, "comparisons"),
+    seoDoc(dynamicWallpaperClubPage, "comparisons"),
+    seoDoc(compareIndexPage, "comparisons"),
+    ...displayPageDefs.map((def): MarkdownDocument => ({
+      path: displayPagePath(def.slug),
+      title: def.title,
+      summary: def.description,
+      group: "wallpapers",
+      updatedAt: MAC_DISPLAY_SPECS_ACCESSED,
+      includeInFullText: false,
+      render: async () => {
+        const data = await loadDisplayPage(def.slug)
+        if (!data) return ""
+        const origin = canonicalSiteOrigin()
+        const list = data.wallpapers
+          .map(
+            (w) =>
+              `- [${w.name}](${origin}${wallpaperDetailPath(w)})${w.resolution ? ` (${w.resolution})` : ""}`
+          )
+          .join("\n")
+        return seoPageToMarkdown({
+          ...data.page,
+          sections: [
+            ...data.page.sections.slice(0, 1),
+            { type: "h2", text: "Wallpapers" },
+            { type: "p", text: list },
+            ...data.page.sections.slice(1),
+          ],
+        })
+      },
+    })),
 
     {
       path: "/legal",
       title: "Legal",
-      summary:
-        "MacWall legal center: terms, privacy, cookies, refunds, DMCA, GDPR, CCPA, and security.",
+      summary: LEGAL_HUB_DESCRIPTION,
       group: "legal",
       updatedAt: macwall.legalEffectiveDateIso,
       includeInFullText: false,
@@ -705,42 +795,42 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
         legalStubMarkdown({
           title: `${macwall.name} Legal`,
           pathname: "/legal",
-          description:
-            "Legal policies for the MacWall macOS app and website, including privacy, terms, DMCA, and data-protection rights.",
+          description: LEGAL_HUB_DESCRIPTION,
         }),
     },
-    {
-      path: "/legal/privacy",
-      title: "Privacy Policy",
-      summary:
-        "What MacWall collects, how licensing and analytics data are handled, and your data-protection rights.",
+    ...LEGAL_DOCUMENTS.map((doc): MarkdownDocument => ({
+      path: doc.href,
+      title: doc.title,
+      summary: doc.metaDescription,
       group: "legal",
       updatedAt: macwall.legalEffectiveDateIso,
       includeInFullText: false,
       render: () =>
         legalStubMarkdown({
-          title: `${macwall.name} Privacy Policy`,
-          pathname: "/legal/privacy",
-          description:
-            "How MacWall collects, uses, stores, and shares information across the macOS app and website, including licensing, analytics, and your data-protection rights.",
+          title: `${macwall.name} ${doc.title}`,
+          pathname: doc.href,
+          description: doc.metaDescription,
         }),
+    })),
+    {
+      path: "/contact",
+      title: `Contact ${macwall.name}`,
+      summary: CONTACT_SUMMARY,
+      group: "product",
+      updatedAt: macwall.productInfoLastReviewedIso,
+      includeInFullText: false,
+      render: () => contactMarkdown(),
     },
     {
-      path: "/legal/terms",
-      title: "Terms of Service",
-      summary:
-        "License grant, acceptable use, wallpaper content rights, payment terms, and refunds.",
-      group: "legal",
-      updatedAt: macwall.legalEffectiveDateIso,
-      includeInFullText: false,
-      render: () =>
-        legalStubMarkdown({
-          title: `${macwall.name} Terms of Service`,
-          pathname: "/legal/terms",
-          description:
-            "The terms covering your MacWall license, acceptable use, wallpaper content rights, payments, and refunds.",
-        }),
+      path: "/bend",
+      title: "Bend",
+      summary: macwallMarketingCopy.landing.bend.lead,
+      group: "product",
+      updatedAt: macwall.productInfoLastReviewedIso,
+      includeInFullText: true,
+      render: () => bendMarkdown(),
     },
+    seoDoc(crawlersPage, "product", { includeInFullText: false }),
   ]
 
   cachedDocuments = documents

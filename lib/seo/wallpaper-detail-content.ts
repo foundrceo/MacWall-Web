@@ -11,6 +11,10 @@ import {
   collectionsForWallpaper,
   type WallpaperCollection,
 } from "@/lib/seo/wallpaper-collections"
+import {
+  wallpaperColors,
+  type WallpaperColor,
+} from "@/lib/seo/wallpaper-palette"
 
 /**
  * Per-wallpaper copy for detail pages, metadata, and structured data.
@@ -26,9 +30,42 @@ export type WallpaperDetailContent = {
   lead: string
   detail: string
   collections: WallpaperCollection[]
+  /** Colours measured from the poster, most common first. */
+  colors: WallpaperColor[]
   steps: string[]
   faq: ContentFaq[]
   metaDescription: string
+  /** Page title without the brand suffix, at most 50 characters. */
+  pageTitle: string
+  /**
+   * Nothing on the page beyond the template: no themes and no collection.
+   * These stay out of the index and the sitemap until they get tags, so a
+   * thousand near-identical pages don't read as scaled content.
+   */
+  thin: boolean
+}
+
+/** Longest title that leaves room for " | MacWall" inside 60 characters. */
+const PAGE_TITLE_MAX = 50
+
+/** "{name} Live Wallpaper for Mac (4K)", shortened until it fits. */
+export function wallpaperPageTitle(
+  name: string,
+  qualityLabel: string | null
+): string {
+  const quality = qualityLabel ? ` (${qualityLabel})` : ""
+  const candidates = [
+    `${name} Live Wallpaper for Mac${quality}`,
+    `${name} Live Wallpaper for Mac`,
+    `${name} Mac Live Wallpaper`,
+    `${name} Live Wallpaper`,
+  ]
+  const fit = candidates.find((title) => title.length <= PAGE_TITLE_MAX)
+  if (fit) return fit
+  const room = PAGE_TITLE_MAX - " Live Wallpaper".length - 1
+  const cut = name.slice(0, room)
+  const lastSpace = cut.lastIndexOf(" ")
+  return `${(lastSpace > 12 ? cut.slice(0, lastSpace) : cut).trim()}… Live Wallpaper`
 }
 
 export function wallpaperQualityLabel(resolution: string): string | null {
@@ -44,7 +81,10 @@ export function wallpaperQualityLabel(resolution: string): string | null {
 }
 
 /** Human tag list: dedupes case variants and drops the generic ones. */
-export function displayTags(wallpaper: PublicWallpaper, limit = 6): string[] {
+export function displayTags(
+  wallpaper: Pick<PublicWallpaper, "tags" | "category">,
+  limit = 6
+): string[] {
   const skip = new Set([
     "community",
     "others",
@@ -65,6 +105,16 @@ export function displayTags(wallpaper: PublicWallpaper, limit = 6): string[] {
     if (out.length >= limit) break
   }
   return out
+}
+
+/** No themes and no collection: nothing on the page beyond the template. */
+export function isThinWallpaper(
+  wallpaper: Pick<PublicWallpaper, "name" | "tags" | "category">
+): boolean {
+  return (
+    displayTags(wallpaper).length === 0 &&
+    collectionsForWallpaper(wallpaper).length === 0
+  )
 }
 
 function joinList(items: string[]): string {
@@ -136,8 +186,13 @@ export function buildWallpaperDetailContent(
   }
   const factsSentence = facts.length ? `${facts.join(" ")}.` : ""
   const tagSentence = tags.length ? ` Themes: ${tags.join(", ")}.` : ""
+  const colors = wallpaperColors(wallpaper.id)
+  const colorWords = colors.slice(0, 3).map((color) => color.name)
+  const colorSentence = colorWords.length
+    ? ` Main colours: ${joinList(colorWords)}.`
+    : ""
   const detail =
-    `${factsSentence}${tagSentence} Preview it above, then set it on your MacBook, iMac, or external display with ${macwall.name}.`.trim()
+    `${factsSentence}${tagSentence}${colorSentence} Preview it above, then set it on your MacBook, iMac, or external display with ${macwall.name}.`.trim()
 
   const steps = [
     `Download ${macwall.name} for macOS (${macwallMinimumMacOSVersion} or later) and open it.`,
@@ -165,21 +220,33 @@ export function buildWallpaperDetailContent(
     },
   ]
 
-  const metaDescription = clampDescription(
-    `${name}: ${kind.replace(/^an? ?/, "")}${kind === "a" ? "" : " "}live wallpaper for Mac${
+  const colorPhrase = colorWords.length
+    ? ` in ${joinList(colorWords.slice(0, 2))} tones`
+    : ""
+  let metaDescription = clampDescription(
+    `${name}: ${kind.replace(/^an? ?/, "")}${kind === "a" ? "" : " "}live wallpaper for Mac${colorPhrase}${
       hasDuration
         ? `, looping every ${loopLengthPhrase(wallpaper.durationSeconds)}`
         : ""
     }${tags.length ? ` featuring ${joinList(tags.slice(0, 3))}` : ""}. Preview it and set it on your Mac with ${macwall.name}.`
   )
+  // Short names leave the template under 110 characters.
+  if (metaDescription.length < 110) {
+    metaDescription = clampDescription(
+      `${metaDescription} Every download starts with a free 24-hour trial.`
+    )
+  }
 
   return {
     qualityLabel,
     lead,
     detail,
     collections,
+    colors,
     steps,
     faq,
     metaDescription,
+    pageTitle: wallpaperPageTitle(name, qualityLabel),
+    thin: isThinWallpaper(wallpaper),
   }
 }

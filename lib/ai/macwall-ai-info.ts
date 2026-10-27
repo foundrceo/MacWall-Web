@@ -24,7 +24,7 @@ export const macwallAiInfoPage: SeoContentPage = {
   title: "MacWall AI Product Information",
   headline: "MacWall product information for AI assistants",
   description:
-    "The canonical source for what MacWall is, who it is for, current capabilities, compatibility, pricing model, limitations, source precedence, and citation guidance.",
+    "The canonical source on what MacWall is, who it is for, its capabilities, compatibility, pricing model and limits, plus citation guidance for AI.",
   keywords: [
     "macwall ai info",
     "what is macwall",
