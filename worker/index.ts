@@ -23,6 +23,9 @@ export * from "vinext/server/fetch-handler"
 
 type CronEnv = { CRON_SECRET?: string }
 
+/** Files written by scripts/generate-og-images.mjs. */
+const HASHED_SHARE_IMAGE = /^\/og\/[a-z0-9-]+\.[a-f0-9]{10}\.jpg$/
+
 export default {
   ...vinext,
   /**
@@ -58,6 +61,19 @@ export default {
       negotiate ? { method: request.method, headers } : { headers }
     ) as unknown as WorkerRequest
     const response = await vinext.fetch(forwarded, env, ctx)
+
+    // vinext serves `public/` files with `max-age=0` and skips next.config
+    // headers for them. Share images carry a content hash in the name
+    // (`/og/{slug}.{hash}.jpg`), so a published file never changes.
+    if (response.ok && HASHED_SHARE_IMAGE.test(url.pathname)) {
+      const cached = new Response(
+        response.body,
+        response as unknown as Response
+      )
+      cached.headers.set("cache-control", "public, max-age=31536000, immutable")
+      return cached as unknown as Awaited<ReturnType<typeof vinext.fetch>>
+    }
+
     if (markdownPath === null) return response
 
     // Page URLs answer in two formats, so shared caches must key on Accept.
