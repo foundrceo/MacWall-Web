@@ -69,6 +69,7 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
         { label: "Contact", href: "/contact" },
         { label: foot.explore.blog, href: "/blog" },
         { label: "Learn", href: "/learn" },
+        { label: "Free Tools", href: "/tools" },
         { label: "Changelog", href: "/changelog" },
       ],
     },

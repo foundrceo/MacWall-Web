@@ -2,6 +2,7 @@ import { getAllBlogSlugs } from "@/lib/blog"
 import { getAllDocsSlugs } from "@/lib/docs/pages"
 import { getAllLearnSlugs } from "@/lib/learn/pages"
 import { wallpaperCategorySlugs } from "@/lib/seo/category-slugs"
+import { tools } from "@/lib/tools/tools"
 import { displayPageDefs, displayPagePath } from "@/lib/seo/display-pages"
 
 /** All indexable marketing paths for sitemap generation. */
@@ -28,6 +29,8 @@ export function indexableMarketingPaths(): string[] {
     "/alternatives/plash",
     "/alternatives/dynamic-wallpaper-club",
     "/compare",
+    "/tools",
+    ...tools.map((tool) => tool.pathname),
     "/crawlers",
     "/contact",
     "/legal",

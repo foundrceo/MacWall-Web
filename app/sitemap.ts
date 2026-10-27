@@ -18,6 +18,7 @@ function priorityForPath(path: string): number {
     path === "/ai-info" ||
     path === "/blog" ||
     path === "/compare" ||
+    path === "/tools" ||
     path === "/wallpapers" ||
     path === WALLPAPER_COLLECTIONS_HUB_PATH ||
     path === "/docs"

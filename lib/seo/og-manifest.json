@@ -485,6 +485,30 @@
     "height": 630,
     "alt": "MacWall Pricing, with the Mountain Star live wallpaper"
   },
+  "/tools": {
+    "file": "tools.99ba38b652.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Free Wallpaper Tools for Mac, with the Astronaut in Thunder Cloud live wallpaper"
+  },
+  "/tools/color-palette": {
+    "file": "tools-color-palette.337a046d4c.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Wallpaper Colour Palette Extractor, with the Dark Mountain Citadel live wallpaper"
+  },
+  "/tools/screen-resolution": {
+    "file": "tools-screen-resolution.aa96ae42ce.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "What's My Screen Resolution? Mac Checker, with the Space Window Ambience live wallpaper"
+  },
+  "/tools/wallpaper-resizer": {
+    "file": "tools-wallpaper-resizer.92f01a3fc7.jpg",
+    "width": 1200,
+    "height": 630,
+    "alt": "Mac Wallpaper Resizer: Crop to Any Mac Screen, with the Rainy Petal Road live wallpaper"
+  },
   "/wallpapers": {
     "file": "wallpapers.9680bd49e5.jpg",
     "width": 1200,

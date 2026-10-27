@@ -25,6 +25,7 @@ import { LEGAL_DOCUMENTS } from "@/lib/legal/documents"
 import { LEGAL_HUB_DESCRIPTION } from "@/lib/legal/metadata"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { crawlersPage } from "@/lib/seo/crawlers-page"
+import { toolSeoPage, tools, toolsHubPage } from "@/lib/tools/tools"
 import { loadDisplayPage } from "@/lib/public-catalog/display-wallpapers"
 import { displayPageDefs, displayPagePath } from "@/lib/seo/display-pages"
 import { MAC_DISPLAY_SPECS_ACCESSED } from "@/lib/seo/mac-displays"
@@ -755,6 +756,8 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
     seoDoc(plashAlternativePage, "comparisons"),
     seoDoc(dynamicWallpaperClubPage, "comparisons"),
     seoDoc(compareIndexPage, "comparisons"),
+    seoDoc(toolsHubPage, "product"),
+    ...tools.map((tool) => seoDoc(toolSeoPage(tool), "product")),
     ...displayPageDefs.map((def): MarkdownDocument => ({
       path: displayPagePath(def.slug),
       title: def.title,
