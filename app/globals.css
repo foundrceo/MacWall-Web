@@ -8,17 +8,38 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Apple-style continuous corners (same as PostMesh). Browsers without
+   corner-shape keep the plain border-radius. */
+@utility squircle {
+  corner-shape: squircle;
+}
+
+/* PostMesh's surface system: one ink scale, three surfaces, one hairline,
+   all on a pure black page. */
+@theme {
+  --color-ink: #ececec;
+  --color-ink-2: #a3a3a3;
+  --color-ink-3: #808080;
+  --color-surface-1: #111111;
+  --color-surface-2: #181818;
+  --color-surface-3: #222222;
+  --color-hairline: rgba(255, 255, 255, 0.06);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-heading:
+    "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
-  --font-pixel: var(--font-geist-pixel-square), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-averia-serif), "Averia Serif Libre", Georgia, serif;
+  --font-pixel:
+    var(--font-geist-pixel-square), ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    var(--font-averia-serif), "Averia Serif Libre", Georgia, serif;
   --color-landing-rule: rgba(255, 255, 255, 0.08);
-  --color-landing-muted: #a1a1a1;
+  --color-landing-muted: #8a8a8a;
   --color-landing-banner: #141414;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -86,41 +107,41 @@
   --macwall-marketing-banner-height: var(--marketing-banner-height);
   --macwall-marketing-nav-height: var(--marketing-nav-height);
 
-  --site-font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui,
-    sans-serif;
-  --site-font-heading: "Geist", "Geist Fallback", ui-sans-serif, system-ui,
-    sans-serif;
-  --site-font-mono: "Geist", "Geist Fallback", ui-sans-serif, system-ui,
-    sans-serif;
+  --site-font-sans:
+    "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --site-font-heading:
+    "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --site-font-mono:
+    "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
 
   --button-primary-bg: #fafafa;
   --button-primary-hover: #ededed;
   --button-secondary-bg: #171717;
   --button-secondary-hover: #1c1c1c;
 
-  --background: #0a0a0a;
+  --background: #000000;
   --foreground: #fafafa;
-  --marketing-muted: #a1a1a1;
-  --surface: #0a0a0a;
+  --marketing-muted: #a3a3a3;
+  --surface: #000000;
   --surface-elevated: #111111;
   --card: #111111;
   --card-foreground: #fafafa;
-  --popover: #141414;
+  --popover: #181818;
   --popover-foreground: #fafafa;
   --primary: #fafafa;
-  --primary-foreground: #0a0a0a;
-  --secondary: #171717;
+  --primary-foreground: #000000;
+  --secondary: #181818;
   --secondary-foreground: #fafafa;
   --hero-start: #111111;
   --hero-mid: #0a0a0a;
   --hero-end: #000000;
-  --muted: #171717;
-  --muted-foreground: #a1a1a1;
-  --accent: #1a1a1a;
+  --muted: #181818;
+  --muted-foreground: #a3a3a3;
+  --accent: #222222;
   --accent-foreground: #fafafa;
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: #fafafa;
-  --border: hsl(0 0% 18%);
+  --border: rgba(255, 255, 255, 0.08);
   --input: hsl(0 0% 18%);
   --ring: rgba(255, 255, 255, 0.22);
   --radius: 0.875rem;
@@ -154,6 +175,14 @@
   --marketing-chrome-height: var(--marketing-nav-height);
 }
 
+/* PostMesh's header is 64px tall on desktop. */
+@media (min-width: 1024px) {
+  :root,
+  .dark {
+    --marketing-nav-height: 4rem;
+  }
+}
+
 /* Same as SaasCN: stepped container, 1400px only at 2xl. */
 @utility container {
   width: 100%;
@@ -164,21 +193,24 @@
 
 @layer components {
   .marketing-page {
-    @apply min-h-svh w-full min-w-0 max-w-full bg-background text-white;
+    @apply min-h-svh w-full max-w-full min-w-0 bg-background text-white;
     overflow-wrap: break-word;
     /* Section corner crosses sit 12px outside the column; where the column
        is as wide as the viewport (1024, 1280) they would scroll the page
        sideways. clip, not hidden, so position: sticky keeps working. */
     overflow-x: clip;
-    font-feature-settings: "ss07", "ss08", "liga" 0;
+    font-feature-settings:
+      "ss07",
+      "ss08",
+      "liga" 0;
   }
 
   .launch-banner {
-    @apply fixed inset-x-0 top-0 z-[51] h-[var(--marketing-banner-height)] border-b border-dashed border-border bg-background lg:static lg:z-auto;
+    @apply fixed inset-x-0 top-0 z-[51] h-[var(--marketing-banner-height)] bg-background lg:static lg:z-auto;
   }
 
   .navbar-header {
-    @apply border-b border-dashed border-border bg-background/80 backdrop-blur-lg;
+    @apply bg-background/80 backdrop-blur-lg;
   }
 
   .mobile-nav-sheet {
@@ -332,7 +364,10 @@
 
   .landing-root {
     overflow-wrap: break-word;
-    font-feature-settings: "ss07", "ss08", "liga" 0;
+    font-feature-settings:
+      "ss07",
+      "ss08",
+      "liga" 0;
   }
 
   .landing-pillar-mark .pillar-track,
@@ -385,7 +420,8 @@
   .font-serif,
   .font-mono,
   .font-heading {
-    font-family: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+    font-family:
+      "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   }
 
   .marketing-wallpaper-marquee {
@@ -1209,5 +1245,80 @@ a[href*="/api/checkout/"][aria-busy="true"] {
   }
   to {
     opacity: 0.72;
+  }
+}
+
+/* Hero entrance (as PostMesh's): rise 16px from a 4px blur, staggered by
+   --rise-delay. Pure CSS, so it runs before JavaScript and never hides the
+   hero from a crawler or a slow device. */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+.hero-rise {
+  animation: hero-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise {
+    animation: none;
+  }
+}
+
+/* The footer's halftone wordmark shows only the word; the footer above it has
+   the links (same as PostMesh). */
+.landing-wordmark .hwf-top,
+.landing-wordmark .hwf-rule {
+  display: none;
+}
+
+/* A fixed feather along the bottom of the screen, as on PostMesh: content
+   blurs and fades into the page background as it scrolls toward the edge.
+   Two layers: a masked backdrop blur (strongest at the very bottom) and a
+   fade. */
+.landing-feather {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 40;
+  height: 44px;
+  pointer-events: none;
+}
+
+.landing-feather::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+/* The blur layer is a real element with Tailwind's backdrop-blur-[3px]: a
+   backdrop-filter written here is dropped by the CSS build. */
+.landing-feather-blur {
+  position: absolute;
+  inset: 0;
+  mask-image: linear-gradient(to top, #000 15%, transparent);
+}
+
+.landing-feather::after {
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--color-black) 80%, transparent) 0%,
+    color-mix(in srgb, var(--color-black) 45%, transparent) 30%,
+    color-mix(in srgb, var(--color-black) 15%, transparent) 65%,
+    transparent
+  );
+}
+
+@media (min-width: 1024px) {
+  .landing-feather {
+    height: 64px;
   }
 }

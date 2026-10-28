@@ -56,7 +56,10 @@ export function SendToMacButton({
       <button
         type="button"
         onClick={() => {
-          trackSiteEventClient("cta_click", { location, action: "send_to_mac_open" })
+          trackSiteEventClient("cta_click", {
+            location,
+            action: "send_to_mac_open",
+          })
           setOpen(true)
         }}
         className={className}
@@ -88,7 +91,7 @@ export function SendToMacButton({
               height={56}
               className={cn("size-14", macwallAppIconRadiusClass)}
             />
-            <DialogTitle className="font-display mt-3 text-2xl leading-tight font-normal tracking-tight text-foreground">
+            <DialogTitle className="mt-3 font-display text-2xl leading-tight font-normal tracking-tight text-foreground">
               Send {macwall.name} to your Mac
             </DialogTitle>
             <DialogDescription className="mt-1.5 text-[13px] leading-snug text-marketing-muted">

@@ -1,14 +1,14 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { PageMotion } from "@/components/motion/page-motion"
 import { JsonLd } from "@/components/seo/json-ld"
 import { LegalEntityDetails } from "@/components/legal/legal-entity"
-import { LegalNav } from "@/components/legal/legal-nav"
-import { legalLinkProse } from "@/components/legal/legal-classes"
 import {
-  MarketingBodySection,
-  MarketingTitleSection,
-} from "@/components/macwall-marketing/marketing-inner-page"
-import { landingPageH1, landingPageLead } from "@/components/macwall-marketing/landing-type"
+  legalBulletList,
+  legalColumn,
+  legalH1,
+  legalLinkProse,
+} from "@/components/legal/legal-classes"
 import { LEGAL_DOCUMENTS, LEGAL_HUB_HREF } from "@/lib/legal/documents"
 import { legalHubMetadata } from "@/lib/legal/metadata"
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
@@ -30,75 +30,92 @@ export default function LegalHubPage() {
     dateModifiedIso: macwall.legalEffectiveDateIso,
   })
 
+  // Grouped like PostMesh's "Terms & policies": agreements, then policies, then rights.
+  const groups: { title: string; slugs: string[] }[] = [
+    { title: "Legal", slugs: ["terms", "privacy", "refund"] },
+    {
+      title: "Policies",
+      slugs: ["acceptable-use", "cookies", "dmca", "security", "subprocessors"],
+    },
+    { title: "Your privacy rights", slugs: ["gdpr", "ccpa"] },
+  ]
+
   return (
     <>
       <JsonLd payload={jsonLd} />
-      <MarketingTitleSection className="text-center" aria-labelledby="legal-hub-title">
-        <h1 id="legal-hub-title" className={cn(landingPageH1, "md:text-4xl")}>
-          Legal
-        </h1>
-        <p className={cn(landingPageLead, "mx-auto text-center")}>
-          Last updated: {macwall.legalEffectiveDate}
-        </p>
-      </MarketingTitleSection>
-      <MarketingBodySection>
-        <div className="grid divide-y divide-dashed divide-border lg:grid-cols-[240px_minmax(0,1fr)] lg:divide-x lg:divide-y-0">
-          <aside className="p-6 md:sticky md:top-28 md:self-start lg:p-8">
-            <LegalNav />
-          </aside>
-          <div className="min-w-0">
-            <div className={cn("space-y-4 px-6 py-8 text-muted-foreground lg:px-8", legalLinkProse)}>
-              <p>
-                Policies for the {macwall.name} macOS app and website. Questions
-                go to{" "}
-                <a href={`mailto:${macwall.supportEmail}`}>
-                  {macwall.supportEmail}
-                </a>
-                .
-              </p>
-              <p>
-                {macwall.name} is a product and trade name of{" "}
-                {macwall.legalCompanyName}, {macwall.legalCompanyDescriptor}.
-                All {macwall.name} policies, purchases, and licenses are
-                provided by {macwall.legalCompanyName}.
-              </p>
-            </div>
-            <ul className="m-0 grid list-none divide-y divide-dashed divide-border border-t border-dashed border-border p-0 sm:grid-cols-2 sm:divide-x">
-              {LEGAL_DOCUMENTS.map((doc) => (
-                <li key={doc.slug} className="min-w-0">
-                  <Link
-                    href={doc.href}
-                    className="block h-full bg-card/50 p-6 transition-colors hover:bg-card/80"
-                  >
-                    <span className="block text-base font-medium text-foreground">
-                      {doc.title}
-                    </span>
-                    <span className="mt-2 block text-sm leading-relaxed text-muted-foreground">
-                      {doc.description}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+      <PageMotion />
+      <article className={legalColumn} aria-labelledby="legal-hub-title">
+        <header className="flex flex-col items-center gap-6 pb-12 text-center sm:pb-16">
+          <p className="text-sm text-foreground">
+            Effective:{" "}
+            <time dateTime={macwall.legalEffectiveDateIso}>
+              {macwall.legalEffectiveDate}
+            </time>
+          </p>
+          <h1 id="legal-hub-title" className={legalH1}>
+            Terms &amp; policies
+          </h1>
+        </header>
+        <div
+          data-reveal-root
+          className={cn(
+            "flex flex-col gap-6 text-base leading-7 text-ink-2 sm:text-[17px] sm:leading-[1.75]",
+            legalLinkProse
+          )}
+        >
+          {groups.map((group, i) => (
             <section
-              id="company"
-              aria-labelledby="legal-company-title"
-              className={cn(
-                "scroll-mt-28 space-y-4 border-t border-dashed border-border px-6 py-8 text-muted-foreground lg:px-8",
-                legalLinkProse
-              )}
+              key={group.title}
+              aria-labelledby={`legal-group-${i}`}
+              className="contents"
             >
               <h2
-                id="legal-company-title"
-                className="text-lg font-medium text-foreground"
+                id={`legal-group-${i}`}
+                className={cn(
+                  "font-display text-2xl leading-8 font-normal tracking-tight text-foreground",
+                  i > 0 && "mt-10"
+                )}
               >
-                Company information
+                {group.title}
               </h2>
-              <LegalEntityDetails />
+              <ul className={legalBulletList}>
+                {group.slugs
+                  .map((slug) =>
+                    LEGAL_DOCUMENTS.find((doc) => doc.slug === slug)
+                  )
+                  .filter((doc) => doc !== undefined)
+                  .map((doc) => (
+                    <li key={doc.slug}>
+                      <Link href={doc.href}>{doc.title}</Link>:{" "}
+                      {doc.description}
+                    </li>
+                  ))}
+              </ul>
             </section>
-          </div>
+          ))}
+
+          <h2
+            id="company"
+            className="mt-10 scroll-mt-24 font-display text-2xl leading-8 font-normal tracking-tight text-foreground"
+          >
+            Company information
+          </h2>
+          <p>
+            {macwall.name} is a product and trade name of{" "}
+            {macwall.legalCompanyName}, {macwall.legalCompanyDescriptor}. All{" "}
+            {macwall.name} policies, purchases and licenses are provided by{" "}
+            {macwall.legalCompanyName}.
+          </p>
+          <LegalEntityDetails />
+          <p>
+            Questions about these terms or policies? Email{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>
+              {macwall.supportEmail}
+            </a>
+            .
+          </p>
         </div>
-      </MarketingBodySection>
+      </article>
     </>
   )
 }

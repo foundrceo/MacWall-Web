@@ -98,21 +98,23 @@ export function ProModal({
               Everything, unlocked.
             </p>
             <div className="mt-3 flex items-center gap-2">
-              <span className="flex" aria-hidden>
-                {REVIEWER_AVATARS.map((item, index) => (
-                  <Image
-                    key={item.name}
-                    src={item.avatarSrc as string}
-                    alt=""
-                    width={40}
-                    height={40}
-                    sizes="20px"
-                    loading="eager"
-                    className="-ml-1.5 size-5 rounded-full object-cover ring-2 ring-secondary first:ml-0"
-                    style={{ zIndex: REVIEWER_AVATARS.length - index }}
-                  />
-                ))}
-              </span>
+              {REVIEWER_AVATARS.length > 0 ? (
+                <span className="flex" aria-hidden>
+                  {REVIEWER_AVATARS.map((item, index) => (
+                    <Image
+                      key={item.name}
+                      src={item.avatarSrc as string}
+                      alt=""
+                      width={40}
+                      height={40}
+                      sizes="20px"
+                      loading="eager"
+                      className="-ml-1.5 size-5 rounded-full object-cover ring-2 ring-secondary first:ml-0"
+                      style={{ zIndex: REVIEWER_AVATARS.length - index }}
+                    />
+                  ))}
+                </span>
+              ) : null}
               <p className="text-[12px] text-marketing-muted">
                 Trusted by{" "}
                 <span className="font-medium text-foreground">

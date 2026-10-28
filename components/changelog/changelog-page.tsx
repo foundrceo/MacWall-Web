@@ -10,7 +10,10 @@ import {
   MarketingBodySection,
   MarketingTitleSection,
 } from "@/components/macwall-marketing/marketing-inner-page"
-import { landingPageH1, landingPageLead } from "@/components/macwall-marketing/landing-type"
+import {
+  landingPageH1,
+  landingPageLead,
+} from "@/components/macwall-marketing/landing-type"
 
 const CHANGELOG_TITLE_ID = "changelog-title"
 
@@ -100,12 +103,12 @@ export function ChangelogPage({
         <p className={landingPageLead}>{copy.lead}</p>
       </MarketingTitleSection>
       <MarketingBodySection>
-        <div className="grid divide-y divide-dashed divide-border">
+        <div className="grid">
           {releases.map((release) => (
             <ChangelogReleaseBlock key={release.id} release={release} />
           ))}
         </div>
-        <footer className="space-y-3 border-t border-dashed border-border px-6 py-8 text-sm leading-relaxed text-muted-foreground">
+        <footer className="space-y-3 px-6 py-8 text-sm leading-relaxed text-muted-foreground">
           <p>{copy.omittedNote}</p>
           <p>{copy.autoUpdateNote}</p>
           {copy.syncedLabel ? <p>{copy.syncedLabel}</p> : null}

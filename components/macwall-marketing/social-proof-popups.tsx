@@ -67,9 +67,8 @@ export function SocialProofPopups() {
   const [skipped, setSkipped] = useState(() =>
     readSessionFlag(PURCHASE_COMPLETE_KEY)
   )
-  const [purchaseBannerOpen, setPurchaseBannerOpen] = useState(
-    isPurchaseBannerOpen
-  )
+  const [purchaseBannerOpen, setPurchaseBannerOpen] =
+    useState(isPurchaseBannerOpen)
   const [pageVisible, setPageVisible] = useState(() =>
     typeof document === "undefined" ? true : !document.hidden
   )
@@ -259,15 +258,11 @@ export function SocialProofPopups() {
           <motion.div
             key={current.key}
             initial={
-              reduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, y: 14, scale: 0.94 }
+              reduceMotion ? { opacity: 0 } : { opacity: 0, y: 14, scale: 0.94 }
             }
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={
-              reduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, y: 8, scale: 0.96 }
+              reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.96 }
             }
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             className="pointer-events-auto relative max-w-[min(22rem,calc(100vw-1.5rem))] rounded-[1.75rem] bg-white shadow-[0_14px_44px_rgba(0,0,0,0.32)]"

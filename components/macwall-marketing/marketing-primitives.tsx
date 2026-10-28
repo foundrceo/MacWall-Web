@@ -261,12 +261,7 @@ export function SectionLead({
   className?: string
 }>) {
   return (
-    <p
-      className={cn(
-        "text-[16px] leading-6 text-landing-muted",
-        className
-      )}
-    >
+    <p className={cn("text-[16px] leading-6 text-landing-muted", className)}>
       {children}
     </p>
   )

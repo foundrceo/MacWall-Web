@@ -255,10 +255,7 @@ const SHADE_WARP = `vec3 shade(vec2 uv, vec2 p, float t) {
 }`
 
 function fragmentSource(shade: ShaderUniformConfig["shade"]) {
-  return FRAG.replace(
-    "/*SHADE*/",
-    shade === "warp" ? SHADE_WARP : SHADE_WAVES
-  )
+  return FRAG.replace("/*SHADE*/", shade === "warp" ? SHADE_WARP : SHADE_WAVES)
 }
 
 const pendingContextReleases = new WeakMap<HTMLCanvasElement, number>()

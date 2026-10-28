@@ -1,7 +1,9 @@
+import { PageMotion } from "@/components/motion/page-motion"
 import { JsonLd } from "@/components/seo/json-ld"
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
 import { macwall, macwallCatalog, macwallSocialProof } from "@/lib/macwall-site"
 import { macwallHomeFaq } from "@/lib/macwall-pricing-copy"
+import { getPublicStats } from "@/lib/public-stats"
 import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import { brandedTitle } from "@/lib/seo/create-page-metadata"
 import { ogImageForPath } from "@/lib/seo/og-images"
@@ -13,11 +15,11 @@ import {
 } from "@/lib/site-url"
 import type { Metadata } from "next"
 
+import { BuiltForMac } from "./_components/built-for-mac"
 import { Categories } from "./_components/categories"
 import { Everything } from "./_components/everything"
 import { Features } from "./_components/features"
 import { Hero } from "./_components/hero"
-import { Pillars } from "./_components/pillars"
 import { Playback } from "./_components/playback"
 import { Reviews } from "./_components/reviews"
 
@@ -86,14 +88,19 @@ const HOME_FAQ = macwallHomeFaq.map((item) => ({
 }))
 
 export default async function Page() {
+  const stats = await getPublicStats()
   return (
     <>
       <JsonLd payload={faqPageJsonLd([...HOME_FAQ])} />
+      <PageMotion
+        layout="landing"
+        rootSelector="#main-content section:not(section section)"
+      />
       <Hero />
       <Categories />
       <Features variant="rows" />
       <Everything />
-      <Pillars />
+      <BuiltForMac stats={stats} />
       <Reviews />
       <Playback />
       <MarketingFaqSection items={macwallHomeFaq} />

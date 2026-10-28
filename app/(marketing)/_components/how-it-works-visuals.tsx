@@ -41,7 +41,8 @@ function MockWindow({ children }: Readonly<{ children: ReactNode }>) {
 const FLOW_VISUAL = "flex h-20 items-center justify-center @min-[21rem]:h-24"
 
 /** The window body: everything below the title bar. */
-const WINDOW_BODY = "flex h-[calc(100%-1.5rem)] @min-[21rem]:h-[calc(100%-1.75rem)]"
+const WINDOW_BODY =
+  "flex h-[calc(100%-1.5rem)] @min-[21rem]:h-[calc(100%-1.75rem)]"
 
 function FlowArrow() {
   return (
@@ -231,11 +232,19 @@ export function SetButtonVisual() {
             />
           </span>
           <span className="mw-set-state mw-set-state-2 absolute inset-0 flex items-center justify-center text-white">
-            <span className="mw-set-fill absolute inset-y-0 left-0 bg-white/15" aria-hidden />
+            <span
+              className="mw-set-fill absolute inset-y-0 left-0 bg-white/15"
+              aria-hidden
+            />
             <span className="relative">Downloading…</span>
           </span>
           <span className="mw-set-state mw-set-state-3 absolute inset-0 flex items-center justify-center gap-1.5 bg-white font-medium text-black">
-            <HugeiconsIcon icon={Tick02Icon} size={13} strokeWidth={3} aria-hidden />
+            <HugeiconsIcon
+              icon={Tick02Icon}
+              size={13}
+              strokeWidth={3}
+              aria-hidden
+            />
             Wallpaper set
           </span>
         </span>

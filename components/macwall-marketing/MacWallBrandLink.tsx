@@ -6,8 +6,7 @@ import { cn } from "@/lib/utils"
 /** Nav + footer brand row: icon and wordmark share one optical center line. */
 export const MACWALL_BRAND_ICON_SIZE = 20 as const
 
-const brandTextBase =
-  "text-[15px] font-medium leading-none tracking-[-0.01em]"
+const brandTextBase = "text-[15px] font-medium leading-none tracking-[-0.01em]"
 
 type MacWallBrandLinkProps = Readonly<{
   href?: string

@@ -3,6 +3,7 @@ import Link from "next/link"
 import type { ReactNode } from "react"
 
 import { MacWallBrandLink } from "@/components/macwall-marketing/MacWallBrandLink"
+import { SiteFooter } from "@/components/macwall-marketing/site-footer"
 import { DeferredVideo } from "@/components/macwall-marketing/deferred-video"
 import { MacDesktop } from "@/components/macwall-marketing/footer-mac-desktop"
 import {
@@ -18,9 +19,6 @@ import { MARKETING_GALLERY_WALLPAPERS_FALLBACK } from "@/lib/marketing-gallery-w
 import { macwall, macwallMinimumMacOSVersion } from "@/lib/macwall-site"
 import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
 import {
-  footerCategoryLinks,
-  footerCompareLinks,
-  footerDisplayLinks,
   getMarketingFooterColumns,
   getMarketingFooterSocialLinks,
   type MarketingFooterColumn,
@@ -28,7 +26,7 @@ import {
 } from "@/lib/marketing-footer-nav"
 import { cn } from "@/lib/utils"
 
-/** `directory` is the live footer; the others are only shown on /footer-lab. */
+/** `directory` is the live footer (SiteFooter); the others are only shown on /footer-lab. */
 export type FooterVariant =
   "wordmark" | "desktop" | "wall" | "directory" | "card"
 
@@ -164,7 +162,7 @@ function BottomBar({ className }: Readonly<{ className?: string }>) {
 }
 
 /**
- * The dashed column every footer sits in. With `wordmark`, it ends in the
+ * The column every footer sits in. With `wordmark`, it ends in the
  * giant serif "MacWall" fading and cropped by the bottom edge, whose outline
  * lights up around the pointer.
  */
@@ -175,7 +173,7 @@ function FooterShell({
   return (
     <footer id="company" className="bg-background">
       <div className="relative container mx-auto">
-        <div className="overflow-hidden border-dashed border-border sm:border-x">
+        <div className="overflow-hidden">
           <div
             className={cn(
               landingShellPad,
@@ -257,7 +255,7 @@ function WallFooter() {
   return (
     <footer id="company" className="bg-background">
       <div className="relative container mx-auto">
-        <div className="overflow-hidden border-dashed border-border pt-14 pb-10 sm:border-x md:pt-16 md:pb-12 lg:pt-20">
+        <div className="overflow-hidden pt-14 pb-10 md:pt-16 md:pb-12 lg:pt-20">
           <WallpaperWall rows={rows} />
           <div className={cn(landingShellPad, "mt-14 md:mt-16")}>
             <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
@@ -286,119 +284,6 @@ function WallFooter() {
         </div>
       </div>
     </footer>
-  )
-}
-
-/** Dense directory of every useful page in small type, then one fine-print row. */
-function DirectoryFooter() {
-  const [product, resources, legal] = getMarketingFooterColumns()
-  const foot = macwallMarketingCopy.footer
-  const socials = getMarketingFooterSocialLinks().map((social) => ({
-    label: social.label,
-    href: social.href,
-    external: true,
-  }))
-  const groups: { title: string; links: readonly MarketingFooterLink[] }[] = [
-    ...(product ? [product] : []),
-    {
-      title: "Wallpapers",
-      links: footerCategoryLinks.filter((link) => link.label !== "Others"),
-    },
-    ...(resources
-      ? [
-          {
-            title: resources.title,
-            links: resources.links.filter((link) => link.href !== "/contact"),
-          },
-        ]
-      : []),
-    { title: "By Mac", links: footerDisplayLinks },
-    { title: "Compare", links: footerCompareLinks },
-    {
-      title: "Connect",
-      links: [{ label: "Contact", href: "/contact" }, ...socials],
-    },
-    ...(legal ? [legal] : []),
-  ]
-  const fine = "text-[12px] leading-[1.5] text-white/55"
-  // py-1 / -my-1 grow every hit area to 24px+ without moving the text.
-  const dirLink =
-    "-my-1 flex w-fit items-center gap-1 rounded-sm py-1 text-[13px] leading-[1.4] text-white/55 transition-colors outline-none hover:text-foreground focus-visible:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
-  const inlineLink =
-    "rounded-sm text-white/70 underline-offset-2 transition-colors outline-none hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring/50"
-
-  return (
-    <FooterShell>
-      <nav
-        aria-label="Directory"
-        // On desktop the columns size to their content and share the spare
-        // room equally between them: the first starts at the left edge, the
-        // last ends at the right, so the block reads centred, not left-heavy.
-        className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 lg:flex lg:justify-between lg:gap-x-10"
-      >
-        {groups.map((group) => (
-          <div key={group.title}>
-            <p className="mb-3.5 text-[13px] leading-none font-semibold text-white/90">
-              {group.title}
-            </p>
-            <ul className="flex flex-col gap-2.5">
-              {group.links.map((link) =>
-                link.external ? (
-                  // Leaves the site in a new tab: say so with the arrow.
-                  <li key={link.href}>
-                    <a
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(dirLink, "group")}
-                    >
-                      {link.label}
-                      <ArrowUpRight
-                        className="size-3 opacity-50 transition-opacity group-hover:opacity-100"
-                        strokeWidth={2}
-                        aria-hidden
-                      />
-                      <span className="sr-only">(opens in a new tab)</span>
-                    </a>
-                  </li>
-                ) : (
-                  <li key={link.href}>
-                    <FooterLink link={link} className={dirLink} />
-                  </li>
-                )
-              )}
-            </ul>
-          </div>
-        ))}
-      </nav>
-      <p className={cn(fine, "mt-12 lg:mt-14")}>
-        More ways to get help:{" "}
-        <Link href="/docs" className={inlineLink}>
-          read the docs
-        </Link>
-        ,{" "}
-        <Link href="/contact" className={inlineLink}>
-          contact us
-        </Link>
-        , or{" "}
-        <a
-          href={macwall.discordInvite}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={inlineLink}
-        >
-          ask on Discord
-        </a>
-        .
-      </p>
-      <div className="mt-4 flex flex-col gap-3 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className={fine}>
-          Copyright © {new Date().getFullYear()} {foot.copyrightName}. All
-          rights reserved.
-        </p>
-        <MarketingFooterAiSummary labelClassName="text-[12px]" />
-      </div>
-    </FooterShell>
   )
 }
 
@@ -467,7 +352,7 @@ export default function MacWallMarketingFooter({
     wordmark: WordmarkFooter,
     desktop: DesktopFooter,
     wall: WallFooter,
-    directory: DirectoryFooter,
+    directory: SiteFooter,
     card: CardFooter,
   }[variant]
   return <Footer />

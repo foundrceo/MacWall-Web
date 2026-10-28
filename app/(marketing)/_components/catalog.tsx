@@ -15,7 +15,7 @@ export function Catalog() {
 
   return (
     <MarketingSection>
-      <div className="grid lg:grid-cols-2 lg:divide-x lg:divide-dashed lg:divide-border">
+      <div className="grid lg:grid-cols-2">
         <div className="min-h-[14rem] bg-card sm:min-h-[16rem]">
           <WallpaperBrowseCarousel
             wallpapers={MARKETING_FEATURE_CAROUSEL_FALLBACK}

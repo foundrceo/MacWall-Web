@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import dynamic from "next/dynamic"
+import { useEffect, useRef, useState } from "react"
 
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
@@ -29,8 +30,56 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
+/** three.js is heavy: load it only for the CTA, in the browser. */
+const AuroraRibbons = dynamic(() => import("@/components/ui/aurora-ribbons"), {
+  ssr: false,
+})
+
+/**
+ * Aurora ribbons behind the CTA. Mounts (and so downloads three.js) only when
+ * the card is near the viewport, then fades in.
+ */
+function CtaRibbons() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [near, setNear] = useState(false)
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        setNear(true)
+        observer.disconnect()
+      },
+      { rootMargin: "600px 0px" }
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      className="pointer-events-none absolute inset-0 -z-10 animate-in duration-1000 fade-in-0"
+    >
+      {near ? (
+        // Tilted across the card, and long enough that the faded ends sit
+        // outside it, so the band runs edge to edge. The dimming sits on this
+        // inner layer: the page's scroll reveal sets the wrapper to opacity 1.
+        <AuroraRibbons
+          className="h-full w-full opacity-70"
+          tilt={0.32}
+          length={30}
+        />
+      ) : null}
+    </div>
+  )
+}
+
 const heroOutlineCapsule =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-full border-0 bg-muted/70 px-5 text-sm font-medium text-foreground no-underline shadow-none transition-colors hover:bg-muted"
+  "inline-flex h-11 items-center justify-center gap-2 rounded-full border-0 bg-surface-2 px-5 text-sm font-medium text-ink no-underline shadow-none transition-colors hover:bg-surface-3"
 
 const heroFilledCapsule =
   "inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-black no-underline shadow-none transition-opacity hover:opacity-90"
@@ -40,12 +89,17 @@ export default function MacWallMarketingBottomCta() {
   const copy = macwallMarketingCopy.underFooter
 
   return (
-    <MarketingSection className="px-4 py-10 text-center md:px-6 md:py-14 lg:py-16">
-      <h2 className="font-display mx-auto max-w-2xl text-3xl font-normal tracking-tighter md:text-5xl">
-        {copy.title}
-      </h2>
-      <div className="mt-8 flex flex-wrap items-start justify-center gap-3">
-        <div className="flex flex-col items-center">
+    <MarketingSection className="pt-20 pb-20 lg:pt-[110px] lg:pb-[110px]">
+      {/* One rounded card, as on PostMesh's closing band (458px tall from sm up). */}
+      <div className="relative isolate mx-auto flex w-full max-w-[1200px] flex-col items-center justify-center overflow-hidden rounded-[32px] bg-surface-1 px-5 py-14 text-center squircle sm:min-h-[458px] sm:px-10 sm:py-16 lg:rounded-[40px] lg:px-16 lg:py-[72px]">
+        <CtaRibbons />
+        <h2 className="mx-auto max-w-2xl font-display text-[40px] leading-[48px] font-normal tracking-tight text-balance sm:text-[56px] sm:leading-[64px]">
+          {copy.title}
+        </h2>
+        <p className="mt-4 text-[15px] leading-[22px] text-pretty text-ink-2">
+          {copy.lead}
+        </p>
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <TrackedDownloadButton
             href={macwallInstallerLatestPath}
             size="pill"
@@ -55,23 +109,23 @@ export default function MacWallMarketingBottomCta() {
             <AppleIcon />
             Download for Mac
           </TrackedDownloadButton>
-          <p className="mt-2 text-center text-[11px] leading-snug text-muted-foreground sm:text-[12px]">
-            {macwallMinimumMacOSVersionLabel}
-          </p>
+          <button
+            type="button"
+            onClick={() => {
+              trackSiteEventClient("pricing_click", { location: "bottom_cta" })
+              setProOpen(true)
+            }}
+            className={heroOutlineCapsule}
+            aria-haspopup="dialog"
+            onPointerEnter={preloadProModal}
+            onFocus={preloadProModal}
+          >
+            Get License
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            trackSiteEventClient("pricing_click", { location: "bottom_cta" })
-            setProOpen(true)
-          }}
-          className={heroOutlineCapsule}
-          aria-haspopup="dialog"
-          onPointerEnter={preloadProModal}
-          onFocus={preloadProModal}
-        >
-          Get License
-        </button>
+        <p className="mt-4 text-[13px] leading-5 text-ink-3">
+          {macwallMinimumMacOSVersionLabel}
+        </p>
       </div>
       <ProModal open={proOpen} onOpenChange={setProOpen} />
     </MarketingSection>

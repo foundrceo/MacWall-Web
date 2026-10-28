@@ -9,7 +9,10 @@ import {
   LandingSectionHeader,
 } from "@/components/macwall-marketing/landing-section-header"
 import { MarketingMediaSlot } from "@/components/macwall-marketing/marketing-media-slot"
-import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
+import {
+  LANDING_SECTION_END,
+  MarketingSection,
+} from "@/components/macwall-marketing/marketing-section"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { MARKETING_BEND_VIDEO_MP4_URL } from "@/lib/marketing-assets-urls"
 import { cn } from "@/lib/utils"
@@ -23,7 +26,7 @@ export type FeaturesVariant = "bento" | "rows"
 type FeatureCopy = Readonly<{ eyebrow: string; title: string; body: string }>
 
 type FeatureItem = {
-  key: "music" | "lock" | "native" | "bend"
+  key: "music" | "lock" | "bend"
   /** In-page anchor (hero badge, nav); only set once per page. */
   anchor?: string
   copy: FeatureCopy
@@ -45,41 +48,6 @@ function ExclusiveBadge({ label }: Readonly<{ label: string }>) {
   )
 }
 
-/** "Smooth" has no clip to show, so its panel shows the proof instead. */
-function NativePanel({
-  stat,
-  statLabel,
-  toggles,
-}: Readonly<{ stat: string; statLabel: string; toggles: readonly string[] }>) {
-  return (
-    <div className="flex h-full items-center justify-center bg-[#0d0d0d] p-6 sm:p-8">
-      <div className="w-full max-w-sm">
-        <p className="font-display text-6xl leading-none tracking-tight text-foreground">
-          {stat}
-        </p>
-        <p className="mt-2 text-sm text-muted-foreground">{statLabel}</p>
-        {/* A slice of MacWall's Settings: the automatic pauses, all on. */}
-        <ul className="mt-6 divide-y divide-white/[0.06] rounded-xl bg-white/[0.04] ring-1 ring-white/[0.06]">
-          {toggles.map((label) => (
-            <li
-              key={label}
-              className="flex h-10 items-center justify-between gap-3 px-3.5 text-[13px] text-white/85"
-            >
-              <span className="truncate">{label}</span>
-              <span
-                className="relative h-[18px] w-[30px] shrink-0 rounded-full bg-[#30d158]"
-                aria-hidden
-              >
-                <span className="absolute top-[2px] right-[2px] size-[14px] rounded-full bg-white shadow" />
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  )
-}
-
 function buildItems(withAnchors: boolean): FeatureItem[] {
   const s = macwallMarketingCopy.home.showcase
   return [
@@ -98,18 +66,6 @@ function buildItems(withAnchors: boolean): FeatureItem[] {
         <LockScreenFeatureVideo
           ariaLabel={s.lockScreen.title}
           className="h-full min-h-0 w-full"
-        />
-      ),
-    },
-    {
-      key: "native",
-      copy: s.native,
-      exclusive: false,
-      media: () => (
-        <NativePanel
-          stat={s.native.stat}
-          statLabel={s.native.statLabel}
-          toggles={s.native.toggles}
         />
       ),
     },
@@ -151,7 +107,7 @@ function TileText({
         <span
           className={cn(
             "text-[13px]",
-            onMedia ? "text-white/70" : "text-muted-foreground"
+            onMedia ? "text-white/70" : "text-ink-3"
           )}
         >
           {item.copy.eyebrow}
@@ -160,7 +116,7 @@ function TileText({
       </div>
       <h3
         className={cn(
-          "mt-2 font-display font-normal tracking-tight text-foreground",
+          "mt-2 font-display font-normal tracking-tight text-ink",
           size === "lg" ? "text-3xl md:text-4xl" : "text-2xl md:text-3xl"
         )}
       >
@@ -168,8 +124,8 @@ function TileText({
       </h3>
       <p
         className={cn(
-          "mt-2 max-w-lg text-[15px] leading-relaxed",
-          onMedia ? "text-white/75" : "text-muted-foreground"
+          "mt-3 max-w-lg text-[15px] leading-[22px]",
+          onMedia ? "text-white/75" : "text-ink-2"
         )}
       >
         {item.copy.body}
@@ -179,7 +135,7 @@ function TileText({
 }
 
 const TILE =
-  "flex min-w-0 flex-col overflow-hidden rounded-2xl bg-white/[0.02] ring-1 ring-white/[0.07]"
+  "squircle flex min-w-0 flex-col overflow-hidden rounded-[28px] bg-surface-1"
 
 /* A · Bento */
 
@@ -190,8 +146,7 @@ function Bento({
   const order: [FeatureItem["key"], string][] = [
     ["music", "lg:col-span-3"],
     ["lock", "lg:col-span-2"],
-    ["native", "lg:col-span-2"],
-    ["bend", "lg:col-span-3"],
+    ["bend", "lg:col-span-5"],
   ]
   return (
     <ul
@@ -204,12 +159,7 @@ function Bento({
         const item = pick(items, key)
         return (
           <li key={key} id={item.anchor} className={cn(TILE, span)}>
-            <div
-              className={cn(
-                "relative overflow-hidden bg-black",
-                key === "native" ? "h-auto lg:h-80" : "h-60 sm:h-72 lg:h-80"
-              )}
-            >
+            <div className="relative h-60 overflow-hidden bg-black sm:h-72 lg:h-80">
               {item.media()}
             </div>
             <div className="p-6">
@@ -234,14 +184,9 @@ function Rows({
   items,
   label,
 }: Readonly<{ items: FeatureItem[]; label: string }>) {
-  const order: FeatureItem["key"][] = ["music", "bend", "lock", "native"]
+  const order: FeatureItem["key"][] = ["music", "bend", "lock"]
   return (
-    <ul
-      className={cn(
-        landingBlockPad,
-        "flex flex-col gap-14 pb-14 md:gap-20 md:pb-20"
-      )}
-    >
+    <ul className={cn(landingBlockPad, "flex flex-col gap-14 md:gap-20")}>
       {order.map((key, index) => {
         const item = pick(items, key)
         const flip = index % 2 === 1
@@ -260,10 +205,7 @@ function Rows({
           >
             <div
               className={cn(
-                "relative overflow-hidden rounded-2xl bg-black ring-1 ring-white/[0.07]",
-                // The stat panel is content, not a clip: on phones it takes
-                // the height it needs; side by side it matches the others.
-                key === "native" ? "lg:aspect-[16/10]" : "aspect-[16/10]",
+                "relative aspect-[16/10] overflow-hidden rounded-[28px] bg-surface-1 squircle",
                 flip && "lg:order-2"
               )}
             >
@@ -295,6 +237,7 @@ export function Features({
     <MarketingSection
       id={anchors ? "features" : undefined}
       aria-labelledby={`features-heading-${variant}`}
+      sectionClassName={LANDING_SECTION_END}
     >
       <LandingSectionHeader
         id={`features-heading-${variant}`}

@@ -3,7 +3,10 @@
 import NumberFlow from "@number-flow/react"
 import type { ReactNode } from "react"
 
-import { hasAmbiguousDollarSign, moneyFractionDigits } from "@/lib/pricing/money"
+import {
+  hasAmbiguousDollarSign,
+  moneyFractionDigits,
+} from "@/lib/pricing/money"
 import { cn } from "@/lib/utils"
 
 export function PricingPriceDisplay({
@@ -21,17 +24,19 @@ export function PricingPriceDisplay({
   className?: string
 }>) {
   // NumberFlow can't swap the sign, and `price` already says S$, CA$, A$ … there.
-  const ambiguousSign = locale !== undefined && hasAmbiguousDollarSign(currency, locale)
-  if (typeof priceMajor === "number" && Number.isFinite(priceMajor) && !ambiguousSign) {
+  const ambiguousSign =
+    locale !== undefined && hasAmbiguousDollarSign(currency, locale)
+  if (
+    typeof priceMajor === "number" &&
+    Number.isFinite(priceMajor) &&
+    !ambiguousSign
+  ) {
     const code = currency.toUpperCase()
     const digits = moneyFractionDigits(priceMajor, currency)
 
     return (
       <NumberFlow
-        className={cn(
-          "tabular-nums tracking-[-0.02em]",
-          className
-        )}
+        className={cn("tracking-[-0.02em] tabular-nums", className)}
         value={priceMajor}
         format={{
           style: "currency",
@@ -44,7 +49,7 @@ export function PricingPriceDisplay({
   }
 
   return (
-    <span className={cn("tabular-nums tracking-[-0.02em]", className)}>
+    <span className={cn("tracking-[-0.02em] tabular-nums", className)}>
       {price}
     </span>
   )

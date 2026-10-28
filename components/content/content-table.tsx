@@ -34,7 +34,7 @@ export function ContentTable({
             {block.rows.map((row) => (
               <tr
                 key={row[0]}
-                className="border-b border-dashed border-border align-top"
+                className="border-b border-white/[0.08] align-top"
               >
                 {row.map((cell, cellIndex) =>
                   cellIndex === 0 ? (

@@ -6,11 +6,7 @@ import { usePathname } from "next/navigation"
 import { useEffect, useId, useState } from "react"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { MacWallBrandLink } from "@/components/macwall-marketing/MacWallBrandLink"
-import {
-  LANDING_SHELL_CLASS,
-  landingShellPad,
-  landingShellRules,
-} from "@/components/macwall-marketing/landing-type"
+import { FOOTER_FRAME } from "@/components/macwall-marketing/marketing-section"
 import {
   macwall,
   macwallInstallerLatestPath,
@@ -117,13 +113,9 @@ export default function Navbar() {
 
   return (
     <header className="navbar-header fixed inset-x-0 top-[var(--marketing-banner-height)] z-50 w-full lg:sticky lg:top-0">
-      <div className={LANDING_SHELL_CLASS}>
+      <div className={FOOTER_FRAME}>
         <nav
-          className={cn(
-            landingShellRules,
-            landingShellPad,
-            "flex h-14 items-center justify-between gap-4"
-          )}
+          className="flex h-14 items-center justify-between gap-4 lg:h-16"
           aria-label="Main"
         >
           <div className="flex min-w-0 items-center gap-6">
@@ -174,7 +166,10 @@ export default function Navbar() {
             </div>
             <button
               type="button"
-              className={cn(iconButtonClass, "ms-0.5 text-foreground lg:hidden")}
+              className={cn(
+                iconButtonClass,
+                "ms-0.5 text-foreground lg:hidden"
+              )}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
               aria-expanded={menuOpen}
               aria-controls={menuId}
@@ -202,22 +197,13 @@ export default function Navbar() {
       {menuOpen ? (
         <div
           id={menuId}
-          className="absolute inset-x-0 top-full h-[calc(100dvh-var(--marketing-chrome-height))] overflow-y-auto overscroll-contain bg-background animate-in fade-in-0 slide-in-from-top-2 duration-200 lg:hidden"
+          className="absolute inset-x-0 top-full h-[calc(100dvh-var(--marketing-chrome-height))] animate-in overflow-y-auto overscroll-contain bg-background duration-200 fade-in-0 slide-in-from-top-2 lg:hidden"
         >
-          <div className={cn(LANDING_SHELL_CLASS, "flex min-h-full flex-col")}>
-            <div
-              className={cn(
-                landingShellRules,
-                landingShellPad,
-                "flex flex-1 flex-col pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
-              )}
-            >
+          <div className={cn(FOOTER_FRAME, "flex min-h-full flex-col")}>
+            <div className="flex flex-1 flex-col pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
               <ul className="flex flex-col">
                 {navItems.map((item) => (
-                  <li
-                    key={item.href}
-                    className="border-b border-dashed border-border"
-                  >
+                  <li key={item.href} className="">
                     <Link
                       href={item.href}
                       onClick={closeMenu}
@@ -244,9 +230,7 @@ export default function Navbar() {
 
               <div className="mt-6 grid grid-cols-2 gap-6 text-[15px] text-muted-foreground">
                 <div className="flex flex-col">
-                  <p className="pb-1 text-xs text-muted-foreground/70">
-                    Read
-                  </p>
+                  <p className="pb-1 text-xs text-muted-foreground/70">Read</p>
                   {secondaryItems.map((item) => (
                     <Link
                       key={item.href}

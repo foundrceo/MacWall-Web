@@ -41,12 +41,17 @@ export default async function MarketingLayout({
             <MarketingSiteChrome />
             <main
               id="main-content"
-              className="marketing-main-offset flex flex-1 flex-col divide-y divide-dashed divide-border"
+              className="marketing-main-offset flex flex-1 flex-col"
             >
               {children}
               <MarketingShellEnd />
             </main>
           </MarketingPageFrame>
+          {/* PostMesh's bottom feather: content blurs and fades into the page
+              as it scrolls to the screen's edge (globals.css). */}
+          <div aria-hidden className="landing-feather">
+            <div className="landing-feather-blur backdrop-blur-[3px]" />
+          </div>
           <InstallGuide />
           {FLAGS.socialProof ? <SocialProofMount /> : null}
           <WallpaperPurchaseBannerMount />

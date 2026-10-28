@@ -104,11 +104,7 @@ function ActivateRedirectBody() {
   }, [sessionId, urlKey])
 
   const licenseKey =
-    verify.status === "paid"
-      ? verify.licenseKey
-      : !sessionId
-        ? urlKey
-        : null
+    verify.status === "paid" ? verify.licenseKey : !sessionId ? urlKey : null
 
   const deepLink = licenseKey
     ? macwallLicenseActivationDeepLink(licenseKey)
@@ -122,7 +118,7 @@ function ActivateRedirectBody() {
       ? verify.amountMajor
       : undefined
   const conversionCurrency =
-    verify.status === "paid" ? verify.currency ?? undefined : undefined
+    verify.status === "paid" ? (verify.currency ?? undefined) : undefined
 
   useEffect(() => {
     if (!licenseKey) return

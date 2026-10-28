@@ -13,8 +13,7 @@ export const proseHeroIntro =
 
 export const proseHeroMeta = "mt-3 text-[14px] text-marketing-muted"
 
-export const proseDivider =
-  "my-10 h-8 border-y border-dashed border-border bg-dashed"
+export const proseDivider = "my-10 h-8"
 
 export const proseArticle = "mx-auto"
 
@@ -23,15 +22,13 @@ export const proseBody = "space-y-5"
 export const proseH2 =
   "scroll-mt-28 font-display text-3xl leading-[1.1] font-normal tracking-tighter text-white md:text-5xl"
 
-export const proseH3 =
-  "text-[20px] leading-7 font-normal text-white"
+export const proseH3 = "text-[20px] leading-7 font-normal text-white"
 
 export const proseP = "text-[16px] leading-6 text-landing-muted"
 
 export const proseUl = "space-y-2 pl-0"
 
-export const proseUlItem =
-  "flex gap-2 text-[16px] leading-6 text-landing-muted"
+export const proseUlItem = "flex gap-2 text-[16px] leading-6 text-landing-muted"
 
 export const proseUlBullet = "text-muted-foreground"
 
@@ -43,16 +40,13 @@ export const proseFaq = "mt-0"
 export const proseFaqTitle =
   "font-display text-3xl leading-[1.1] font-normal tracking-tighter text-white md:text-5xl"
 
-export const proseFaqList =
-  "mt-8 divide-y divide-dashed divide-border border-t border-dashed border-border"
+export const proseFaqList = "mt-8"
 
 export const proseFaqItem = "py-5"
 
-export const proseFaqQuestion =
-  "text-[16px] leading-6 font-normal text-white"
+export const proseFaqQuestion = "text-[16px] leading-6 font-normal text-white"
 
-export const proseFaqAnswer =
-  "mt-2 text-[16px] leading-6 text-landing-muted"
+export const proseFaqAnswer = "mt-2 text-[16px] leading-6 text-landing-muted"
 
 export const proseBreadcrumbs = "mb-8"
 

@@ -2,7 +2,8 @@ export const LANDING_SHELL_CLASS = "container relative mx-auto w-full min-w-0"
 
 export const landingShellPad = "px-4 lg:px-6"
 
-export const landingShellRules = "border-border border-dashed sm:border-x"
+/** Side rails were removed (PostMesh-style, no borders); kept as a no-op for callers. */
+export const landingShellRules = ""
 
 export const landingH1 =
   "max-w-2xl text-center font-display text-5xl font-normal tracking-tighter text-foreground md:text-7xl"

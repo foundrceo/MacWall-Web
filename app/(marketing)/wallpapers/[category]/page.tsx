@@ -127,7 +127,7 @@ export default async function WallpaperCategoryGalleryPage({
                   (entry) => entry.category === name
                 )}
               />
-              <div className="border-t border-dashed border-border px-4 py-10 md:px-6 md:py-14">
+              <div className="px-4 py-10 md:px-6 md:py-14">
                 <div className="marketing-prose-rail">
                   <div className={proseBody}>
                     <ContentBody sections={page.sections} />

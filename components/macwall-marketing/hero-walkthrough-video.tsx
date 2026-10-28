@@ -131,9 +131,7 @@ export function HeroWalkthroughVideo({
     const largeDesktop = window.matchMedia(LARGE_DESKTOP_QUERY).matches
     setNeedsTapToLoad(false)
     setActiveSrc(
-      largeDesktop
-        ? (sources[0]?.src ?? mobileSource.src)
-        : mobileSource.src
+      largeDesktop ? (sources[0]?.src ?? mobileSource.src) : mobileSource.src
     )
   }
 

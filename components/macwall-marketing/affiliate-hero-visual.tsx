@@ -35,9 +35,7 @@ export function AffiliateHeroVisual({
     const tick = (now: number) => {
       if (start === null) start = now
       const t = Math.min(1, (now - start) / COUNT_MS)
-      const next = Math.round(
-        easeOutCubic(t) * AFFILIATE_COMMISSION_PERCENT
-      )
+      const next = Math.round(easeOutCubic(t) * AFFILIATE_COMMISSION_PERCENT)
       setValue(next)
       if (t < 1) raf = requestAnimationFrame(tick)
       else setValue(AFFILIATE_COMMISSION_PERCENT)
@@ -77,7 +75,7 @@ export function AffiliateHeroVisual({
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/15" />
 
         <div className="absolute inset-x-0 bottom-0 p-7 sm:p-9 lg:p-10">
-          <p className="text-[clamp(4.5rem,12vw,7.5rem)] font-light leading-none tracking-[-0.04em] text-white">
+          <p className="text-[clamp(4.5rem,12vw,7.5rem)] leading-none font-light tracking-[-0.04em] text-white">
             <NumberFlow
               className="tabular-nums"
               value={value}
@@ -90,7 +88,7 @@ export function AffiliateHeroVisual({
               }}
             />
           </p>
-          <p className="mt-0.5 whitespace-nowrap text-[15px] font-normal leading-[1.4] text-white/70 sm:text-base">
+          <p className="mt-0.5 text-[15px] leading-[1.4] font-normal whitespace-nowrap text-white/70 sm:text-base">
             on every sale you refer
           </p>
         </div>

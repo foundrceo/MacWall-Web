@@ -137,17 +137,17 @@ export function WallpaperResizer() {
   return (
     <section
       aria-label="Wallpaper resizer"
-      className="flex flex-col gap-5 rounded-[28px] bg-white/[0.035] p-4 ring-1 ring-white/[0.08] ring-inset sm:p-6"
+      className="flex flex-col gap-5 rounded-[28px] bg-surface-1 p-4 squircle sm:p-6"
     >
       <div className="flex flex-col gap-2">
-        <label htmlFor="resizer-mac" className="text-[13px] text-white/45">
+        <label htmlFor="resizer-mac" className="text-[13px] text-ink-3">
           Mac
         </label>
         <select
           id="resizer-mac"
           value={displayId}
           onChange={(event) => setDisplayId(event.target.value)}
-          className="h-11 rounded-[14px] bg-white/[0.06] px-3 text-[15px] text-white ring-1 ring-white/[0.08] outline-none ring-inset focus-visible:ring-2 focus-visible:ring-white/50"
+          className="h-11 rounded-[14px] bg-surface-2 px-3 text-[15px] text-ink outline-none focus-visible:ring-2 focus-visible:ring-white/50"
         >
           {macDisplays.map((d) => (
             <option key={d.id} value={d.id} className="bg-neutral-900">
@@ -164,7 +164,7 @@ export function WallpaperResizer() {
           aria-label={`Preview of ${imageName} cropped to ${displayResolutionLabel(display)}`}
           tabIndex={mode === "fill" ? 0 : -1}
           className={cn(
-            "block w-full rounded-[20px] bg-black ring-1 ring-white/[0.08] outline-none focus-visible:ring-2 focus-visible:ring-white/50",
+            "block w-full rounded-[20px] bg-black outline-none squircle focus-visible:ring-2 focus-visible:ring-white/50",
             mode === "fill" && "cursor-grab touch-none active:cursor-grabbing"
           )}
           onPointerDown={(event) => {
@@ -213,7 +213,7 @@ export function WallpaperResizer() {
         />
       </ImageDropTarget>
 
-      <p className="text-[13px] leading-5 text-white/45">
+      <p className="text-[13px] leading-5 text-ink-3">
         {imageName}
         {image ? ` · ${image.naturalWidth} × ${image.naturalHeight}` : ""}
         {mode === "fill"
@@ -222,7 +222,7 @@ export function WallpaperResizer() {
       </p>
 
       {upscale > 1.05 ? (
-        <p className="rounded-[14px] bg-white/[0.05] px-4 py-3 text-[14px] leading-6 text-white/75">
+        <p className="rounded-[14px] bg-surface-2 px-4 py-3 text-[14px] leading-6 text-ink-2">
           This image is smaller than the screen, so it&apos;s enlarged{" "}
           {upscale.toFixed(1)}× and will look softer. For a sharp wallpaper, use
           an image at least {displayResolutionLabel(display)}.

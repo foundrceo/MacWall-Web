@@ -19,7 +19,11 @@ function MutedIcon({ className }: Readonly<{ className?: string }>) {
         strokeLinejoin="round"
         d="M11 5L6 9H3v6h3l5 4V5z"
       />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16 9l5 5M21 9l-5 5" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M16 9l5 5M21 9l-5 5"
+      />
     </svg>
   )
 }

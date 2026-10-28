@@ -83,37 +83,37 @@ export function ScreenResolution() {
     <section
       aria-label="Your screen"
       aria-live="polite"
-      className="flex flex-col gap-5 rounded-[28px] bg-white/[0.035] p-4 ring-1 ring-white/[0.08] ring-inset sm:p-6"
+      className="flex flex-col gap-5 rounded-[28px] bg-surface-1 p-4 squircle sm:p-6"
     >
       <div className="flex flex-col items-center gap-1 py-4 text-center">
-        <p className="text-[13px] text-white/45">This screen renders</p>
+        <p className="text-[13px] text-ink-3">This screen renders</p>
         <p className="font-display text-[44px] leading-[52px] tracking-tight text-white tabular-nums sm:text-[56px] sm:leading-[64px]">
           {rendered ? `${rendered.width} × ${rendered.height}` : "Reading…"}
         </p>
-        <p className="max-w-[440px] text-[15px] leading-6 text-balance text-white/70">
+        <p className="max-w-[440px] text-[15px] leading-6 text-balance text-ink-2">
           {native.length > 0
             ? `That's the native resolution of the ${native.map((d) => d.name).join(" and the ")}, so this screen is at its default setting.`
             : "That doesn't match a Mac's native resolution, so this is a scaled setting or a non-Apple display."}
         </p>
       </div>
 
-      <dl className="rounded-[20px] bg-black/30 px-4 ring-1 ring-white/[0.06] ring-inset sm:px-5">
+      <dl className="rounded-[20px] bg-surface-2 px-4 squircle sm:px-5">
         {rows.map((row, i) => (
           <div
             key={row.label}
             className={cn(
               "flex items-baseline justify-between gap-4 py-3",
-              i > 0 && "border-t border-white/[0.08]"
+              i > 0 && "border-t border-hairline"
             )}
           >
-            <dt className="text-[14px] text-white/45">{row.label}</dt>
+            <dt className="text-[14px] text-ink-3">{row.label}</dt>
             <dd className="text-[15px] text-white tabular-nums">{row.value}</dd>
           </div>
         ))}
       </dl>
 
       {rendered ? (
-        <p className="text-[14px] leading-6 text-white/70">
+        <p className="text-[14px] leading-6 text-ink-2">
           To make a wallpaper for this exact setting, use {rendered.width} ×{" "}
           {rendered.height}. For any setting, use the native resolution in the
           table below, or{" "}
@@ -127,7 +127,7 @@ export function ScreenResolution() {
         </p>
       ) : null}
 
-      <p className="text-[13px] leading-5 text-white/45">
+      <p className="text-[13px] leading-5 text-ink-3">
         On several displays, drag this window to the one you want and the
         numbers update. Current Macs:{" "}
         {macDisplays

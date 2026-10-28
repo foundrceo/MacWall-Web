@@ -3,8 +3,11 @@ import type { ReactNode } from "react"
 import { landingEyebrow } from "@/components/macwall-marketing/landing-type"
 import { cn } from "@/lib/utils"
 
-/** Inner padding every home section block uses, so edges line up down the page. */
-export const landingBlockPad = "px-6 lg:px-8"
+/**
+ * Inner padding for home section blocks. The section frame now carries the
+ * gutters (PostMesh-style), so blocks sit flush with the stage edge.
+ */
+export const landingBlockPad = ""
 
 /**
  * The heading block at the top of a home section: same padding, same type
@@ -31,22 +34,22 @@ export function LandingSectionHeader({
     <div
       className={cn(
         landingBlockPad,
-        "flex flex-col gap-3 pt-12 pb-10 md:pt-16 md:pb-12",
+        "flex flex-col pt-20 pb-10 lg:pt-[110px] lg:pb-14",
         align === "center" && "items-center text-center",
         className
       )}
     >
-      {eyebrow ? <p className={landingEyebrow}>{eyebrow}</p> : null}
+      {eyebrow ? <p className={cn(landingEyebrow, "mb-4")}>{eyebrow}</p> : null}
       <h2
         id={id}
-        className="font-display max-w-2xl text-3xl font-normal tracking-tighter text-balance md:text-5xl"
+        className="max-w-2xl font-display text-[36px] leading-[44px] font-normal tracking-tight text-balance text-ink sm:text-[48px] sm:leading-[58px]"
       >
         {title}
       </h2>
       {lead ? (
         <p
           className={cn(
-            "max-w-xl text-lg leading-relaxed tracking-tight text-pretty text-muted-foreground",
+            "mt-4 max-w-xl text-[15px] leading-[22px] text-pretty text-ink-2",
             align === "center" && "mx-auto"
           )}
         >

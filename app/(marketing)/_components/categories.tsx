@@ -12,7 +12,10 @@ import {
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 
-import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
+import {
+  LANDING_SECTION_END,
+  MarketingSection,
+} from "@/components/macwall-marketing/marketing-section"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { wallpapersGalleryPath } from "@/lib/public-catalog/urls"
 import { categorySlugFromName } from "@/lib/seo/category-slugs"
@@ -48,7 +51,7 @@ export function Categories() {
     <MarketingSection
       id="categories"
       aria-labelledby="categories-heading"
-      className="py-12 md:py-16"
+      sectionClassName={LANDING_SECTION_END}
     >
       <h2
         id="categories-heading"

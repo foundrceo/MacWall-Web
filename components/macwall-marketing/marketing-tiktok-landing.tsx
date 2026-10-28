@@ -29,7 +29,7 @@ export default function TikTokLandingHero() {
   const pricing = useMarketingPricing()
 
   return (
-    <MarketingSection className="relative overflow-hidden bg-dashed px-4 py-16 sm:px-16 sm:py-24">
+    <MarketingSection className="relative overflow-hidden px-4 py-16 sm:px-16 sm:py-24">
       <div className="max-w-3xl pb-4">
         <LandingReveal className="flex max-w-3xl flex-col pt-10 pb-6 md:pt-14 md:pb-8">
           <p className="text-[13px] leading-5 tracking-tight text-landing-muted">
@@ -44,13 +44,11 @@ export default function TikTokLandingHero() {
             4K loops on the desktop. Lock Screen on macOS 26. Pay once, keep it.
           </p>
 
-          <div className="mt-6 inline-flex w-fit flex-wrap items-baseline gap-x-3 gap-y-1 border border-dashed border-border bg-background/60 px-5 py-3">
-            <span className="text-[32px] font-normal tracking-[-0.03em] tabular-nums text-foreground">
+          <div className="mt-6 inline-flex w-fit flex-wrap items-baseline gap-x-3 gap-y-1 bg-background/60 px-5 py-3">
+            <span className="text-[32px] font-normal tracking-[-0.03em] text-foreground tabular-nums">
               {pricing.permanentPrice}
             </span>
-            <span className="text-[15px] text-marketing-muted">
-              one-time
-            </span>
+            <span className="text-[15px] text-marketing-muted">one-time</span>
             <span className="w-full text-[13px] text-marketing-muted">
               Up to 3 Macs. Post a Reel, get up to 100% back.
             </span>
@@ -78,7 +76,7 @@ export default function TikTokLandingHero() {
           <PurchaseTermsNote className="mt-3 max-w-md text-left" />
         </LandingReveal>
 
-        <div className="overflow-hidden border border-dashed border-border">
+        <div className="overflow-hidden">
           <HeroWalkthroughVideo
             endCaption={`Live wallpapers on your Mac with ${macwall.name}.`}
             ariaLabel={`${macwall.name} preview`}

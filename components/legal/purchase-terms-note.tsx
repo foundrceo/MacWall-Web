@@ -19,9 +19,8 @@ export function PurchaseTermsNote({
       )}
     >
       One-time payment, charged in USD, no subscription.{" "}
-      {macwall.refundWindowDays}-day
-      money-back guarantee. Taxes, if any, are calculated at checkout. By
-      purchasing you agree to our{" "}
+      {macwall.refundWindowDays}-day money-back guarantee. Taxes, if any, are
+      calculated at checkout. By purchasing you agree to our{" "}
       <Link href="/legal/terms" className="underline underline-offset-2">
         Terms
       </Link>{" "}

@@ -84,8 +84,14 @@ function AvatarStack({ size = 24 }: Readonly<{ size?: number }>) {
 /** Glass pill: faces, one line of proof, stars (stars hide on small phones). */
 function SocialProof() {
   return (
-    <div className="group inline-flex items-center gap-2 rounded-full border border-white/[0.09] bg-white/[0.03] py-1 pr-3 pl-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
-      <AvatarStack />
+    <div
+      className={cn(
+        "group inline-flex items-center gap-2 rounded-full border border-white/[0.09] bg-white/[0.03] py-1 pr-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md",
+        // Faces only when a reviewer has shared a photo; otherwise just the line.
+        reviewers.length > 0 ? "pl-1" : "pl-3"
+      )}
+    >
+      {reviewers.length > 0 ? <AvatarStack /> : null}
       <p className="text-[13px] text-zinc-400">
         Trusted by{" "}
         <span className="font-medium text-white">

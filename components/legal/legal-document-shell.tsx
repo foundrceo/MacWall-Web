@@ -1,15 +1,23 @@
-import { LegalNav } from "@/components/legal/legal-nav"
-import { legalArticle, legalLinkProse } from "@/components/legal/legal-classes"
-import { LegalOperatorNotice } from "@/components/legal/legal-entity"
 import {
-  MarketingBodySection,
-  MarketingTitleSection,
-} from "@/components/macwall-marketing/marketing-inner-page"
-import { landingPageH1 } from "@/components/macwall-marketing/landing-type"
+  legalArticle,
+  legalColumn,
+  legalH1,
+  legalLinkProse,
+} from "@/components/legal/legal-classes"
+import { LegalOperatorNotice } from "@/components/legal/legal-entity"
+import { ReadingProgress } from "@/components/legal/reading-progress"
+import { PageMotion } from "@/components/motion/page-motion"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 import type { ReactNode } from "react"
 
+const BODY_ID = "legal-body"
+
+/**
+ * Every /legal document, in PostMesh's reading layout: the effective date
+ * above a centred title, one column of text with numbered sections, and the
+ * right-edge reading progress on large screens. No rails, boxes or sidebar.
+ */
 export function LegalDocumentShell({
   title,
   intro,
@@ -19,33 +27,30 @@ export function LegalDocumentShell({
   intro: ReactNode
   children: ReactNode
 }>) {
-  const titleId = "legal-document-title"
-
   return (
-    <>
-      <MarketingTitleSection className="text-center" aria-labelledby={titleId}>
-        <h1 id={titleId} className={cn(landingPageH1, "md:text-4xl")}>
+    <article className={legalColumn} aria-labelledby="legal-document-title">
+      <header className="flex flex-col items-center gap-6 pb-12 text-center sm:pb-16">
+        <p className="text-sm text-foreground">
+          Effective:{" "}
+          <time dateTime={macwall.legalEffectiveDateIso}>
+            {macwall.legalEffectiveDate}
+          </time>
+        </p>
+        <h1 id="legal-document-title" className={legalH1}>
           {title}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Last updated: {macwall.legalEffectiveDate}
-        </p>
-      </MarketingTitleSection>
-
-      <MarketingBodySection>
-        <div className="grid divide-y divide-dashed divide-border lg:grid-cols-[240px_minmax(0,1fr)] lg:divide-x lg:divide-y-0">
-          <aside className="p-6 md:sticky md:top-28 md:self-start lg:p-8">
-            <LegalNav />
-          </aside>
-          <div className="min-w-0 px-6 py-8 lg:px-8 lg:py-10">
-            <div className={cn("mb-8 space-y-4 text-muted-foreground", legalLinkProse)}>
-              <LegalOperatorNotice />
-              {intro}
-            </div>
-            <article className={cn(legalArticle, legalLinkProse)}>{children}</article>
-          </div>
-        </div>
-      </MarketingBodySection>
-    </>
+      </header>
+      <ReadingProgress containerId={BODY_ID} />
+      <PageMotion />
+      <div
+        id={BODY_ID}
+        data-reveal-root
+        className={cn(legalArticle, legalLinkProse)}
+      >
+        <LegalOperatorNotice />
+        {intro}
+        {children}
+      </div>
+    </article>
   )
 }

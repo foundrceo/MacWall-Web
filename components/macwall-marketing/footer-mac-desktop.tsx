@@ -156,7 +156,10 @@ export function MacDesktop({
                 socialTile[social.brand]
               )}
             >
-              <MarketingSocialBrandIcon brand={social.brand} className="size-5" />
+              <MarketingSocialBrandIcon
+                brand={social.brand}
+                className="size-5"
+              />
             </span>
           </DockItem>
         ))}
@@ -194,7 +197,8 @@ const socialTile: Record<MarketingFooterSocialLink["brand"], string> = {
 
 const aiTile: Record<(typeof aiSummaryProviders)[number]["key"], string> = {
   chatgpt: "bg-white text-black",
-  gemini: "bg-linear-to-br from-[#4285f4] via-[#9b72cb] to-[#d96570] text-white",
+  gemini:
+    "bg-linear-to-br from-[#4285f4] via-[#9b72cb] to-[#d96570] text-white",
   perplexity: "bg-[#1f6f78] text-white",
 }
 
@@ -222,7 +226,10 @@ function DockItem({
       </span>
       {children}
       {running ? (
-        <span aria-hidden className="absolute -bottom-1 size-1 rounded-full bg-white/80" />
+        <span
+          aria-hidden
+          className="absolute -bottom-1 size-1 rounded-full bg-white/80"
+        />
       ) : null}
     </>
   )
@@ -244,7 +251,12 @@ function DockItem({
 }
 
 function DockDivider() {
-  return <span aria-hidden className="mx-0.5 h-8 w-px self-center bg-white/20 sm:h-9" />
+  return (
+    <span
+      aria-hidden
+      className="mx-0.5 h-8 w-px self-center bg-white/20 sm:h-9"
+    />
+  )
 }
 
 const clockFormat = new Intl.DateTimeFormat(undefined, {

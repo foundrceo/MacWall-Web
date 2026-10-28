@@ -15,7 +15,12 @@ import {
 } from "lucide-react"
 
 import { LandingSectionHeader } from "@/components/macwall-marketing/landing-section-header"
-import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
+import {
+  LANDING_CARD,
+  LANDING_SECTION_END,
+  MarketingSection,
+} from "@/components/macwall-marketing/marketing-section"
+import { cn } from "@/lib/utils"
 import { FeatureCard } from "@/components/ui/grid-feature-cards"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 
@@ -39,18 +44,21 @@ export function Everything() {
   const everything = macwallMarketingCopy.home.everything
 
   return (
-    <MarketingSection id="everything" aria-labelledby="everything-heading">
+    <MarketingSection
+      id="everything"
+      aria-labelledby="everything-heading"
+      sectionClassName={LANDING_SECTION_END}
+    >
       <LandingSectionHeader
         id="everything-heading"
         title={everything.title}
         lead={everything.lead}
       />
-      <div
-        className="grid grid-cols-1 divide-x divide-y divide-dashed divide-border border-t border-dashed border-border sm:grid-cols-2 lg:grid-cols-4"
-      >
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {everything.items.map((item, index) => (
           <FeatureCard
             key={item.title}
+            className={cn(LANDING_CARD, "p-6")}
             glow={index >= everything.items.length - 4 ? "down" : "up"}
             feature={{
               title: item.title,
@@ -59,7 +67,7 @@ export function Everything() {
             }}
           >
             {"shortcut" in item ? (
-              <kbd className="absolute top-6 right-6 rounded-md border border-dashed border-border px-1.5 py-0.5 font-sans text-[11px] text-muted-foreground">
+              <kbd className="absolute top-6 right-6 rounded-md bg-surface-3 px-1.5 py-0.5 font-sans text-[11px] text-muted-foreground">
                 {item.shortcut}
               </kbd>
             ) : null}

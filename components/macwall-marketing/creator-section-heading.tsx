@@ -34,7 +34,7 @@ export function CreatorSectionHeading({
       ) : null}
       <h2
         className={[
-          "text-balance font-normal tracking-tight text-white",
+          "font-normal tracking-tight text-balance text-white",
           eyebrow ? "mt-2" : "",
           "text-[32px] leading-[1.15] md:text-[40px]",
         ].join(" ")}
@@ -44,7 +44,7 @@ export function CreatorSectionHeading({
       {subtitle ? (
         <p
           className={[
-            "mx-auto mt-4 max-w-[34rem] text-balance text-[16px] leading-6 text-landing-muted",
+            "mx-auto mt-4 max-w-[34rem] text-[16px] leading-6 text-balance text-landing-muted",
             align === "center" ? "text-center" : "text-left",
             subtitleClassName,
           ]

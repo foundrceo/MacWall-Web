@@ -25,7 +25,9 @@ export function WallpaperWall({ rows }: Readonly<{ rows: WallTile[][] }>) {
         <div
           key={rowIndex}
           className="mw-marquee"
-          style={{ "--marquee-duration": `${70 + rowIndex * 12}s` } as CSSProperties}
+          style={
+            { "--marquee-duration": `${70 + rowIndex * 12}s` } as CSSProperties
+          }
         >
           <ul
             className="mw-marquee-track gap-3 pr-3"
@@ -47,7 +49,10 @@ export function WallpaperWall({ rows }: Readonly<{ rows: WallTile[][] }>) {
   )
 }
 
-function Tile({ tile, focusable }: Readonly<{ tile: WallTile; focusable: boolean }>) {
+function Tile({
+  tile,
+  focusable,
+}: Readonly<{ tile: WallTile; focusable: boolean }>) {
   const [playing, setPlaying] = useState(false)
   return (
     <Link
@@ -57,7 +62,7 @@ function Tile({ tile, focusable }: Readonly<{ tile: WallTile; focusable: boolean
       onPointerLeave={() => setPlaying(false)}
       onFocus={() => setPlaying(true)}
       onBlur={() => setPlaying(false)}
-      className="group relative block aspect-[16/10] w-56 overflow-hidden rounded-xl bg-white/[0.04] ring-1 ring-white/10 outline-none transition-transform duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-white/50 sm:w-64"
+      className="group relative block aspect-[16/10] w-56 overflow-hidden rounded-xl bg-white/[0.04] ring-1 ring-white/10 transition-transform duration-300 outline-none hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-white/50 sm:w-64"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

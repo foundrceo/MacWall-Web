@@ -249,38 +249,49 @@ export const macwallPricingCopy = {
 
   reviews: {
     eyebrow: "Trusted by Mac users",
-    title: "What people say",
-    subtitle: "From people who set it on their Mac.",
+    title: "Mac users, in their own words",
+    subtitle: "Real messages from people running MacWall.",
     items: [
       {
         quote:
-          "Just got Virat's wallpaper and it's awesome. I really loved that one.",
+          "Hats off to you, man! I really loved it. Thank you so much, keep working like this.",
         name: "Dev Sharma",
         context: "MacBook Air · M2",
-        avatarSrc: "/reviews/dev-sharma.jpg",
       },
       {
-        quote:
-          "I love the app and the wallpapers. Just a request: add more anime like Toji and Pain.",
+        quote: "Hey, I love the app and the wallpapers.",
         name: "Lakshay",
         context: "Mac · M5",
-        avatarSrc: "/reviews/lakshay.jpg",
       },
       {
-        quote:
-          "Thank you so much. Make a couple fight scenes and take all the time you need. Appreciated.",
+        quote: "Thank you so much. Take all the time you need. Appreciated.",
         name: "Kranthi Kalyan",
         context: "MacBook Air · M4",
-        avatarSrc: "/reviews/kranthi-kalyan.jpg",
       },
       {
         quote:
           "I want to share with the community as much as possible. I'll be submitting many videos over time.",
         name: "Dishan Shrestha",
         context: "MacBook Air · M1",
-        avatarSrc: "/reviews/dishan-shrestha.jpg",
       },
-    ] satisfies readonly PricingReview[],
+      // From support chats; first names only for people who haven't been asked.
+      {
+        quote:
+          "I like that the wallpaper still works when the app is closed. That's the best thing I like.",
+        name: "Om",
+        context: "MacBook Air · M5",
+      },
+      {
+        quote: "All the wallpapers are good.",
+        name: "Shreyas",
+        context: "MacBook Air · M4",
+      },
+      {
+        quote: "Good luck with your updates. Very excited.",
+        name: "Sonit",
+        context: "Mac · M5",
+      },
+    ] as readonly PricingReview[],
   },
 } as const
 

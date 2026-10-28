@@ -17,7 +17,7 @@ export function Community() {
 
   return (
     <MarketingSection>
-      <div className="grid lg:grid-cols-2 lg:divide-x lg:divide-dashed lg:divide-border">
+      <div className="grid lg:grid-cols-2">
         <div
           className={cn(
             landingPad,

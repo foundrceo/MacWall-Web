@@ -8,25 +8,27 @@ export function Hero() {
   const ix = macwallMarketingCopy.interact
 
   return (
-    <MarketingSection className="relative isolate overflow-hidden px-4 pt-14 pb-12 sm:px-8 sm:pt-20 sm:pb-16 lg:pt-24">
+    <MarketingSection className="relative isolate pt-14 pb-20 sm:pt-20 lg:pt-24 lg:pb-24">
       <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
-        <HeroBadge />
+        <div className="hero-rise">
+          <HeroBadge />
+        </div>
 
-        <h1 className="mt-6 text-[2.75rem] leading-[1.02] font-normal tracking-tighter text-balance sm:text-6xl md:text-7xl">
+        <h1 className="hero-rise mt-6 text-[2.75rem] leading-[1.02] font-normal tracking-tighter text-balance text-ink [--rise-delay:80ms] sm:text-6xl md:text-7xl">
           {ix.title}{" "}
-          <span className="text-muted-foreground md:block">{ix.titleMuted}</span>
+          <span className="text-ink-3 md:block">{ix.titleMuted}</span>
         </h1>
 
-        <p className="mt-5 max-w-2xl text-base leading-relaxed tracking-tight text-pretty text-muted-foreground sm:text-lg">
+        <p className="hero-rise mt-5 max-w-2xl text-base leading-relaxed tracking-tight text-pretty text-ink-2 [--rise-delay:160ms] sm:text-lg">
           {ix.heroLead}
         </p>
 
-        <div className="mt-8 w-full">
+        <div className="hero-rise mt-8 w-full [--rise-delay:240ms]">
           <HeroActions />
         </div>
       </div>
 
-      <div className="mt-14 sm:mt-16">
+      <div className="hero-rise mt-14 [--rise-delay:320ms] sm:mt-16">
         <HeroStage />
       </div>
     </MarketingSection>

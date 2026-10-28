@@ -2,7 +2,10 @@ import {
   MarketingBodySection,
   MarketingTitleSection,
 } from "@/components/macwall-marketing/marketing-inner-page"
-import { landingPageH1, landingPageLead } from "@/components/macwall-marketing/landing-type"
+import {
+  landingPageH1,
+  landingPageLead,
+} from "@/components/macwall-marketing/landing-type"
 import { BlogArticleCard } from "@/components/blog/blog-index-cards"
 import type { BlogArticle } from "@/lib/content/types"
 
@@ -24,7 +27,7 @@ export function BlogIndexPage({
       </MarketingTitleSection>
       <MarketingBodySection>
         {articles.length > 0 ? (
-          <ul className="grid divide-y divide-dashed divide-border text-left">
+          <ul className="grid text-left">
             {articles.map((article, index) => (
               <BlogArticleCard
                 key={article.slug}

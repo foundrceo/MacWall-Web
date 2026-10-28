@@ -81,7 +81,7 @@ export function FooterHoverWordmark({
       {/* The lit outline, revealed only around the pointer. */}
       <text
         {...label}
-        className="font-display fill-transparent transition-opacity duration-300"
+        className="fill-transparent font-display transition-opacity duration-300"
         stroke={`url(#${id}-ink)`}
         strokeWidth={1.4}
         mask={`url(#${id}-mask)`}

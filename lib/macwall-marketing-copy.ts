@@ -50,7 +50,8 @@ export const macwallMarketingCopy = {
     priceLine: `${macwall.pro.price} once, no subscription. Post a Reel and you can get all of it back.`,
   },
   underFooter: {
-    title: "Try MacWall Now",
+    title: "Your desktop is a minute away from moving.",
+    lead: "Install the app, pick a wallpaper, set it. No account needed.",
   },
   landing: {
     catalogEyebrow: "Browse by genre",
@@ -91,8 +92,6 @@ export const macwallMarketingCopy = {
     faqLead: "Licenses, macOS versions, and the Reel refund.",
     contactUs: "Contact us",
     closingMuted: "Free download. Pay once for Pro.",
-    pillarsTitle: "Quiet on the Mac",
-    pillarsLead: "Near idle. Pauses when a full-screen app covers it.",
     featureLockTitle: "Lock Screen",
     featureLockBody: `Live video on ${macwallLockScreenMacOSVersion}. Apple's wallpaper APIs. No extra installers.`,
     featureNativeTitle: "Native settings",
@@ -102,28 +101,6 @@ export const macwallMarketingCopy = {
       "Launch at login",
       "Pause on fullscreen",
       "Pause in Low Power Mode",
-    ] as const,
-    pillars: [
-      {
-        id: "idle",
-        title: "Near idle",
-        body: "Quit MacWall and your wallpaper keeps playing. macOS plays it, so the app uses no CPU at all (macOS 26+).",
-      },
-      {
-        id: "pause",
-        title: "Pauses with you",
-        body: "Full-screen apps, Low Power Mode, or a busy Mac. The loop stops.",
-      },
-      {
-        id: "set",
-        title: "One tap",
-        body: "Desktop, Lock Screen and screen saver, the way macOS does.",
-      },
-      {
-        id: "loop",
-        title: "Plays, then yields",
-        body: "The file runs on the desktop, then gets out of the way.",
-      },
     ] as const,
     /** Three steps, to match the title. */
     steps: [
@@ -238,19 +215,6 @@ export const macwallMarketingCopy = {
         title: "Lock Screen ready",
         body: `Lock Screen and screen saver play the same video from the same moment. ${macwallLockScreenMacOSVersion}.`,
       },
-      native: {
-        eyebrow: "Native",
-        title: "Smooth on every Mac",
-        body: "Swift and Metal, Intel through M5.",
-        stat: "0%",
-        statLabel: "MacWall CPU once you quit the app",
-        toggles: [
-          "Pause behind full-screen apps",
-          "Pause in Low Power Mode",
-          "Pause when your Mac is busy",
-          "Lower quality on battery",
-        ],
-      },
       bend: {
         eyebrow: "Bend",
         title: "Close the lid. Watch it fold.",
@@ -260,61 +224,62 @@ export const macwallMarketingCopy = {
     playback: {
       title: "Two ways to play",
       lead: "Pick one in Settings → Wallpaper → Playback. Switch any time.",
-      switchLabel: "Show playback mode",
-      momentLabel: "Moment",
-      caption: "What each playback mode does",
       modes: {
         system: {
           name: "System Wallpaper",
           tag: "Recommended",
           body: "macOS plays your wallpaper itself, like one of its own.",
+          runsOn: "macOS 26",
         },
         app: {
           name: "MacWall App",
           tag: "More control",
           body: "MacWall plays the desktop, behind your icons.",
+          runsOn: `${macwallMinimumMacOSVersion} and later`,
         },
       },
+      /**
+       * One line per moment, the same moments in both cards and in this
+       * order, so the rows line up side by side.
+       */
       rows: [
         {
-          icon: "power",
-          moment: "You quit MacWall or restart",
-          system: { ok: true, text: "Keeps playing" },
-          app: { ok: false, text: "Desktop waits for MacWall" },
+          system: {
+            ok: true,
+            text: "Keeps playing after you quit MacWall or restart",
+          },
+          app: {
+            ok: false,
+            text: "Desktop waits for MacWall after a quit or restart",
+          },
         },
         {
-          icon: "lock",
-          moment: "You lock your Mac",
+          system: {
+            ok: true,
+            text: "No MacWall CPU use once you quit the app",
+          },
+          app: { ok: false, text: "MacWall stays open to play your desktop" },
+        },
+        {
           system: {
             ok: true,
             text: "Lock Screen and screen saver match the desktop",
           },
-          app: { ok: true, text: "A different wallpaper on the Lock Screen" },
+          app: {
+            ok: true,
+            text: "A different Lock Screen wallpaper with Lock Screen Only",
+          },
         },
         {
-          icon: "sound",
-          moment: "Sound on the Lock Screen",
-          system: { ok: true, text: "Plays" },
-          app: { ok: false, text: "Muted" },
-        },
-        {
-          icon: "wallpaper",
-          moment: "Separate Lock Screen wallpaper",
-          system: { ok: false, text: "Same as the desktop" },
-          app: { ok: true, text: "Yes" },
-        },
-        {
-          icon: "macos",
-          moment: "Your macOS",
-          system: { ok: null, text: "macOS 26" },
-          app: { ok: null, text: `${macwallMinimumMacOSVersion} and later` },
+          system: { ok: true, text: "Sound plays on the Lock Screen" },
+          app: { ok: false, text: "Sound is muted on the Lock Screen" },
         },
       ],
     },
   },
   footer: {
     /** Under the brand in the footer. */
-    blurb: "Live wallpapers for your Mac's desktop and Lock Screen.",
+    blurb: "Cinematic live wallpapers, built for Mac.",
     shopTitle: "Store",
     exploreTitle: "Explore",
     compareTitle: "Compare",

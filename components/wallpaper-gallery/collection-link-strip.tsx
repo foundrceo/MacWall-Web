@@ -18,10 +18,7 @@ export function CollectionLinkStrip({
   if (collections.length === 0) return null
 
   return (
-    <nav
-      aria-label={title}
-      className="border-t border-dashed border-border px-4 py-10 md:px-6"
-    >
+    <nav aria-label={title} className="px-4 py-10 md:px-6">
       <h2 className={WALLPAPER_SECTION_SERIF_HEADING_CLASS}>{title}</h2>
       <ul className="mt-5 flex flex-wrap gap-2.5">
         {collections.map((entry) => (

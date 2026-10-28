@@ -91,10 +91,14 @@ export function InfiniteSlider({
   return (
     <div className={cn("overflow-hidden", className)}>
       <motion.div
-        className="flex w-max"
+        // Vertical tracks fill their column so text wraps; horizontal ones size
+        // to their content.
+        className={cn("flex", direction === "horizontal" ? "w-max" : "w-full")}
         ref={ref}
         style={{
-          ...(direction === "horizontal" ? { x: translation } : { y: translation }),
+          ...(direction === "horizontal"
+            ? { x: translation }
+            : { y: translation }),
           gap: `${gap}px`,
           flexDirection: direction === "horizontal" ? "row" : "column",
         }}

@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { ChevronRight, Check } from "lucide-react"
 
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
+import { PageMotion } from "@/components/motion/page-motion"
 import type { ContentFaq } from "@/lib/content/types"
 import { macwall } from "@/lib/macwall-site"
 import {
@@ -28,12 +29,11 @@ import { cn } from "@/lib/utils"
  * the FAQ. The interactive tool sits in its own card right under the header.
  */
 
-export const TOOL_CARD =
-  "rounded-[28px] bg-white/[0.035] ring-1 ring-white/[0.08] ring-inset"
-const HAIRLINE = "border-white/[0.08]"
-const INK = "text-white"
-const INK_2 = "text-white/70"
-const INK_3 = "text-white/45"
+export const TOOL_CARD = "squircle min-w-0 rounded-[28px] bg-surface-1"
+const HAIRLINE = "border-hairline"
+const INK = "text-ink"
+const INK_2 = "text-ink-2"
+const INK_3 = "text-ink-3"
 const COLUMN =
   "mx-auto w-full max-w-[720px] px-4 pt-12 pb-16 sm:px-6 sm:pt-16 sm:pb-20"
 const H2 =
@@ -42,7 +42,7 @@ const BODY = cn("text-[16px] leading-7", INK_2)
 const PRIMARY =
   "inline-flex h-11 items-center rounded-full bg-white px-5 text-[15px] font-medium text-black transition-colors duration-150 hover:bg-white/90 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
 const SECONDARY =
-  "inline-flex h-11 items-center rounded-full bg-white/[0.08] px-5 text-[15px] text-white transition-colors duration-150 hover:bg-white/[0.14] focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+  "inline-flex h-11 items-center rounded-full bg-surface-2 px-5 text-[15px] text-ink transition-colors duration-150 hover:bg-surface-3 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
 const LINK =
   "rounded-sm text-white underline decoration-white/30 decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-white"
 
@@ -61,7 +61,7 @@ export function ToolIcon({
   return (
     <span
       aria-hidden
-      className="grid shrink-0 place-items-center rounded-full bg-white/[0.08] text-white"
+      className="grid shrink-0 place-items-center rounded-full bg-surface-2 text-ink"
       style={{ width: size, height: size }}
     >
       <svg
@@ -264,12 +264,12 @@ function ToolList({ exclude }: Readonly<{ exclude?: string }>) {
           className={cn(
             "group/row relative",
             i > 0 &&
-              "before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-white/[0.08] before:transition-opacity before:duration-150 hover:before:opacity-0 [li:hover+&]:before:opacity-0"
+              "before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-hairline before:transition-opacity before:duration-150 hover:before:opacity-0 [li:hover+&]:before:opacity-0"
           )}
         >
           <Link
             href={tool.pathname}
-            className="flex items-center gap-4 rounded-[20px] px-4 py-3.5 transition-colors duration-150 outline-none hover:bg-white/[0.06] focus-visible:bg-white/[0.06]"
+            className="flex items-center gap-4 rounded-[20px] px-4 py-3.5 transition-colors duration-150 outline-none hover:bg-surface-2 focus-visible:bg-surface-2"
           >
             <ToolIcon slug={tool.slug} size={40} />
             <span className="min-w-0 flex-1">
@@ -282,7 +282,7 @@ function ToolList({ exclude }: Readonly<{ exclude?: string }>) {
             </span>
             <ChevronRight
               aria-hidden
-              className="size-5 shrink-0 text-white/45 transition-[color,transform] duration-150 group-hover/row:translate-x-0.5 group-hover/row:text-white motion-reduce:group-hover/row:translate-x-0"
+              className="size-5 shrink-0 text-ink-3 transition-[color,transform] duration-150 group-hover/row:translate-x-0.5 group-hover/row:text-ink motion-reduce:group-hover/row:translate-x-0"
             />
           </Link>
         </li>
@@ -305,7 +305,7 @@ export function ToolsHubPage({
 }: Readonly<{ faq: readonly ContentFaq[] }>) {
   return (
     <>
-      <article className={COLUMN}>
+      <article className={COLUMN} data-reveal-root>
         <Header
           icon={
             <div aria-hidden className="flex -space-x-2">
@@ -352,7 +352,10 @@ export function ToolsHubPage({
           <FactCard facts={TOOLS_SHARED_FACTS} />
         </Section>
       </article>
-      <Faq items={faq} />
+      <div data-reveal-root>
+        <Faq items={faq} />
+      </div>
+      <PageMotion />
     </>
   )
 }
@@ -365,7 +368,7 @@ export function ToolSpecPage({
   const showDisplays = tool.slug !== "color-palette"
   return (
     <>
-      <article className={COLUMN}>
+      <article className={COLUMN} data-reveal-root>
         <Header
           icon={<ToolIcon slug={tool.slug} size={64} />}
           title={tool.headline.replace(/^./, (c) => c.toUpperCase())}
@@ -387,7 +390,7 @@ export function ToolSpecPage({
           <ol className="flex flex-col gap-5">
             {tool.steps.map((step, i) => (
               <li key={step.title} className="flex gap-4">
-                <span className="grid size-8 shrink-0 place-items-center rounded-full bg-white/[0.08] text-[14px] text-white tabular-nums">
+                <span className="grid size-8 shrink-0 place-items-center rounded-full bg-surface-2 text-[14px] text-ink tabular-nums">
                   {i + 1}
                 </span>
                 <p className={cn("pt-0.5", BODY)}>
@@ -415,7 +418,7 @@ export function ToolSpecPage({
               <li key={item} className={cn("flex gap-3", BODY)}>
                 <Check
                   aria-hidden
-                  className="mt-1.5 size-4 shrink-0 text-white/70"
+                  className="mt-1.5 size-4 shrink-0 text-ink-2"
                 />
                 <span>{item}</span>
               </li>
@@ -441,7 +444,10 @@ export function ToolSpecPage({
           </Section>
         ) : null}
       </article>
-      <Faq items={tool.faq} />
+      <div data-reveal-root>
+        <Faq items={tool.faq} />
+      </div>
+      <PageMotion />
     </>
   )
 }

@@ -6,7 +6,9 @@ import { useCommandPalette } from "@/components/command-palette/command-palette-
 import { getCommandPaletteShortcutKeys } from "@/lib/command-palette/platform-shortcut"
 import { cn } from "@/lib/utils"
 
-export function NavSearchButton({ className }: Readonly<{ className?: string }>) {
+export function NavSearchButton({
+  className,
+}: Readonly<{ className?: string }>) {
   const { setOpen } = useCommandPalette()
   const keys = getCommandPaletteShortcutKeys()
 

@@ -97,7 +97,7 @@ function CopyValue({ value }: Readonly<{ value: string }>) {
           setCopied(false)
         }
       }}
-      className="rounded-md px-1.5 py-0.5 text-left font-mono text-[13px] text-white/80 tabular-nums transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+      className="rounded-md px-1.5 py-0.5 text-left font-mono text-[13px] text-ink-2 tabular-nums transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
       aria-label={`Copy ${value}`}
     >
       {copied ? "Copied" : value}
@@ -136,10 +136,10 @@ export function ColorPalette() {
   return (
     <section
       aria-label="Colour palette extractor"
-      className="flex flex-col gap-5 rounded-[28px] bg-white/[0.035] p-4 ring-1 ring-white/[0.08] ring-inset sm:p-6"
+      className="flex flex-col gap-5 rounded-[28px] bg-surface-1 p-4 squircle sm:p-6"
     >
       <ImageDropTarget onFile={handleFile}>
-        <div className="overflow-hidden rounded-[20px] bg-black ring-1 ring-white/[0.08]">
+        <div className="overflow-hidden rounded-[20px] bg-black squircle">
           {image ? (
             // A local object URL or the bundled sample; next/image can't take either.
             // eslint-disable-next-line @next/next/no-img-element
@@ -166,7 +166,7 @@ export function ColorPalette() {
         </div>
       </ImageDropTarget>
 
-      <p className="text-[13px] leading-5 text-white/45">
+      <p className="text-[13px] leading-5 text-ink-3">
         {imageName} · Drop another image on the preview to replace it.
       </p>
 
@@ -178,14 +178,14 @@ export function ColorPalette() {
 
       <ul
         aria-live="polite"
-        className="rounded-[20px] bg-black/30 px-3 ring-1 ring-white/[0.06] ring-inset sm:px-4"
+        className="rounded-[20px] bg-surface-2 px-3 squircle sm:px-4"
       >
         {swatches.map((s, i) => (
           <li
             key={s.hex}
             className={cn(
               "flex items-center gap-3 py-3",
-              i > 0 && "border-t border-white/[0.08]"
+              i > 0 && "border-t border-hairline"
             )}
           >
             <span
@@ -197,7 +197,7 @@ export function ColorPalette() {
               <span className="block text-[15px] leading-6 text-white capitalize">
                 {colorName(s.hex)}
               </span>
-              <span className="block text-[13px] leading-5 text-white/45 tabular-nums">
+              <span className="block text-[13px] leading-5 text-ink-3 tabular-nums">
                 {Math.round(s.share * 100)}% of the image
               </span>
             </span>

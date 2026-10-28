@@ -8,10 +8,7 @@ import { cn } from "@/lib/utils"
 
 import { STEP_VISUALS, type HowStep } from "./how-it-works-visuals"
 
-function StepText({
-  step,
-  index,
-}: Readonly<{ step: HowStep; index: number }>) {
+function StepText({ step, index }: Readonly<{ step: HowStep; index: number }>) {
   return (
     <>
       <span className="text-sm text-muted-foreground tabular-nums">

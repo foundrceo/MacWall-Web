@@ -80,7 +80,7 @@ export function Bend({
         <p className={landingLead}>{bend.lead}</p>
       </div>
 
-      <div className="relative aspect-[16/9] w-full border-t border-dashed border-border bg-black md:aspect-[2/1]">
+      <div className="relative aspect-[16/9] w-full bg-black md:aspect-[2/1]">
         <video
           ref={videoRef}
           poster={BEND_POSTER_SRC}
@@ -94,7 +94,7 @@ export function Bend({
         />
       </div>
 
-      <ul className="grid grid-cols-1 divide-x divide-y divide-dashed divide-border border-t border-dashed border-border sm:grid-cols-2 xl:grid-cols-4">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         {bend.points.map((point) => (
           <li key={point.title} className="min-w-0 p-6 sm:p-8">
             <h3 className={landingH3}>{point.title}</h3>

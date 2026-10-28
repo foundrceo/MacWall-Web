@@ -13,7 +13,12 @@ export function DeferredVideo({
   poster,
   label,
   className,
-}: Readonly<{ src: string; poster?: string; label: string; className?: string }>) {
+}: Readonly<{
+  src: string
+  poster?: string
+  label: string
+  className?: string
+}>) {
   const ref = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {

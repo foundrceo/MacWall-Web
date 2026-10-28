@@ -54,7 +54,9 @@ export function SendToMacForm({
       if (res.ok) {
         setStatus("sent")
       } else {
-        const body = (await res.json().catch(() => null)) as { error?: string } | null
+        const body = (await res.json().catch(() => null)) as {
+          error?: string
+        } | null
         setErrorCode(body?.error ?? "")
         setStatus("error")
       }
@@ -114,7 +116,10 @@ export function SendToMacForm({
 
   return (
     <div className={cn("w-full", className)}>
-      <form onSubmit={(event) => void onSubmit(event)} className="flex w-full flex-col gap-2">
+      <form
+        onSubmit={(event) => void onSubmit(event)}
+        className="flex w-full flex-col gap-2"
+      >
         <label htmlFor={`send-to-mac-${location}`} className="sr-only">
           Your email
         </label>
@@ -156,7 +161,9 @@ export function SendToMacForm({
         className="mt-2 w-full text-center text-[13px] text-marketing-muted underline-offset-4 hover:text-foreground hover:underline"
         aria-live="polite"
       >
-        {copied ? "Link copied. Open it on your Mac" : "Or share the link instead"}
+        {copied
+          ? "Link copied. Open it on your Mac"
+          : "Or share the link instead"}
       </button>
     </div>
   )

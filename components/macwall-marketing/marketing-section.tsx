@@ -3,7 +3,7 @@ import type { HTMLAttributes } from "react"
 
 import { cn } from "@/lib/utils"
 
-/** Plus mark drawn where a dashed rail meets a dashed row line. */
+/** Plus mark from the old dashed grid; sections no longer draw it. */
 export function MarketingCross() {
   return (
     <div className="relative size-6" aria-hidden>
@@ -16,43 +16,58 @@ export function MarketingCross() {
   )
 }
 
+/** PostMesh's section frame and stage. */
+export const LANDING_FRAME =
+  "relative mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8"
+export const LANDING_STAGE = "mx-auto w-full max-w-[1200px]"
+
+/** PostMesh's footer frame: wider than the section frame (1440px, 80px gutters on desktop). */
+export const FOOTER_FRAME =
+  "mx-auto w-full max-w-[1440px] px-4 sm:px-8 lg:px-20"
+
+/**
+ * Space under a landing section. With the next section's 80/110px top it makes
+ * one gap down the page: 160px on phones, 206px on desktop, the same as FAQ to
+ * CTA and CTA to footer.
+ */
+export const LANDING_SECTION_END = "pb-20 lg:pb-24"
+
+/** PostMesh's card: Apple-style corners on the first surface. */
+export const LANDING_CARD = "squircle min-w-0 rounded-[28px] bg-surface-1"
+
 type MarketingSectionProps = HTMLAttributes<HTMLElement> & {
   sectionClassName?: string
   innerClassName?: string
+  /** Accepted for old callers; corner marks are no longer drawn. */
   showCrosses?: boolean
 }
 
-/** SaasCN section: container column, dashed side rules, plus-cross corners. */
+function withoutCrosses<T extends { showCrosses?: boolean }>(props: T) {
+  const { showCrosses: _ignored, ...rest } = props
+  void _ignored
+  return rest
+}
+
+/**
+ * A page section in PostMesh's frame: 1280px wide with 16/24/32px gutters,
+ * content on a centred 1200px stage, so every edge lines up down the page.
+ */
 export function MarketingSection({
   children,
   className,
   sectionClassName,
   innerClassName,
-  showCrosses = true,
   ...props
 }: MarketingSectionProps) {
   return (
-    <section className={sectionClassName} {...props}>
-      <div className="container relative mx-auto">
-        <div
-          className={cn(
-            "border-border border-dashed sm:border-x",
-            className,
-            innerClassName
-          )}
-        >
+    <section
+      className={cn("w-full min-w-0", sectionClassName)}
+      {...withoutCrosses(props)}
+    >
+      <div className={LANDING_FRAME}>
+        <div className={cn(LANDING_STAGE, className, innerClassName)}>
           {children}
         </div>
-        {showCrosses ? (
-          <>
-            <div className="pointer-events-none absolute -bottom-3 -left-3 z-10 hidden size-6 sm:block">
-              <MarketingCross />
-            </div>
-            <div className="pointer-events-none absolute -right-3 -bottom-3 z-10 hidden size-6 -translate-x-px sm:block">
-              <MarketingCross />
-            </div>
-          </>
-        ) : null}
       </div>
     </section>
   )

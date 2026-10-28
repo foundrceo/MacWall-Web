@@ -177,7 +177,7 @@ export function WallpaperCollectionPage({
       </div>
 
       {sections?.length || faq?.length || related?.length ? (
-        <div className="mt-12 border-t border-dashed border-border py-10 md:py-14">
+        <div className="mt-12 py-10 md:py-14">
           <div className="marketing-prose-rail">
             {sections?.length ? (
               <div className={proseBody}>

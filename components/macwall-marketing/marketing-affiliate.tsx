@@ -16,7 +16,10 @@ import {
   MarketingBodySection,
   MarketingTitleSection,
 } from "@/components/macwall-marketing/marketing-inner-page"
-import { landingPageH1, landingPageLead } from "@/components/macwall-marketing/landing-type"
+import {
+  landingPageH1,
+  landingPageLead,
+} from "@/components/macwall-marketing/landing-type"
 import { macwallAffiliateCopy as copy } from "@/lib/macwall-affiliate-copy"
 import { macwallAffiliatePortalURL } from "@/lib/macwall-affiliate"
 
@@ -47,7 +50,7 @@ function PerkRow({
         strokeWidth={1.5}
         aria-hidden
       />
-      <p className="text-[15px] font-normal leading-[1.55] text-white/60">
+      <p className="text-[15px] leading-[1.55] font-normal text-white/60">
         {before}
         <span className="text-white/90">{highlight}</span>
         {after}
@@ -72,13 +75,13 @@ function StepCard({
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/12 to-transparent" />
 
-      <span className="relative text-[3.5rem] font-light leading-none tracking-tight text-white/35 sm:text-[4rem]">
+      <span className="relative text-[3.5rem] leading-none font-light tracking-tight text-white/35 sm:text-[4rem]">
         {id}
       </span>
-      <h3 className="relative mt-auto text-[1.55rem] font-normal leading-[1.15] tracking-[-0.02em] text-white sm:text-[1.65rem]">
+      <h3 className="relative mt-auto text-[1.55rem] leading-[1.15] font-normal tracking-[-0.02em] text-white sm:text-[1.65rem]">
         {title}
       </h3>
-      <p className="relative mt-3 max-w-[34ch] text-[14px] font-normal leading-[1.5] text-white/70">
+      <p className="relative mt-3 max-w-[34ch] text-[14px] leading-[1.5] font-normal text-white/70">
         {body}
       </p>
     </article>
@@ -88,7 +91,7 @@ function StepCard({
 export default function MacWallMarketingAffiliatePage() {
   return (
     <>
-      <MarketingTitleSection className="grid lg:grid-cols-2 lg:divide-x lg:divide-dashed lg:divide-border lg:p-0">
+      <MarketingTitleSection className="grid lg:grid-cols-2 lg:p-0">
         <div className="flex min-w-0 flex-col justify-center p-6 lg:p-10">
           <h1 className={landingPageH1}>
             {copy.heroTitleLines[0]}
@@ -119,7 +122,7 @@ export default function MacWallMarketingAffiliatePage() {
       </MarketingTitleSection>
       <MarketingBodySection>
         <div className="flex flex-col gap-6 px-6 py-10 sm:flex-row sm:items-end sm:justify-between md:px-8">
-          <h2 className="font-display max-w-[16ch] text-3xl font-normal tracking-tighter md:text-5xl">
+          <h2 className="max-w-[16ch] font-display text-3xl font-normal tracking-tighter md:text-5xl">
             {copy.socialProofTitle}
           </h2>
           <TrackedPricingButton
@@ -133,12 +136,12 @@ export default function MacWallMarketingAffiliatePage() {
             {copy.secondaryCta}
           </TrackedPricingButton>
         </div>
-        <div className="grid grid-cols-1 divide-y divide-dashed divide-border border-t border-dashed border-border md:grid-cols-3 md:divide-x md:divide-y-0">
+        <div className="grid grid-cols-1 md:grid-cols-3">
           {copy.steps.map((step) => (
             <StepCard key={step.id} {...step} />
           ))}
         </div>
-        <p className="border-t border-dashed border-border px-6 py-8 text-sm text-muted-foreground">
+        <p className="px-6 py-8 text-sm text-muted-foreground">
           Questions?{" "}
           <a
             href={copy.contactHref}

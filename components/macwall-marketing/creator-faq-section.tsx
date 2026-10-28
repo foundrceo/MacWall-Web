@@ -41,7 +41,7 @@ function CreatorFaqItem({
         onClick={onToggle}
         className={cn(
           "flex min-h-11 w-full cursor-pointer items-center justify-between gap-4 rounded-sm py-4 text-left text-[15px] font-normal transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:gap-4 sm:py-5 sm:text-[16px]",
-          isOpen ? "text-foreground" : "text-foreground/90",
+          isOpen ? "text-foreground" : "text-foreground/90"
         )}
       >
         <span className="min-w-0 pr-2 leading-snug">{question}</span>
@@ -54,7 +54,7 @@ function CreatorFaqItem({
           <FaqChevronIcon
             className={cn(
               "size-[18px] text-foreground/35 transition-colors duration-200",
-              isOpen && "text-foreground/65",
+              isOpen && "text-foreground/65"
             )}
           />
         </motion.span>
@@ -85,7 +85,7 @@ export default function CreatorFaqSection() {
 
   return (
     <section id="questions" className="scroll-mt-24">
-      <h2 className="text-[clamp(1.35rem,3.5vw,1.75rem)] font-normal leading-[1.2] tracking-[-0.02em] text-foreground">
+      <h2 className="text-[clamp(1.35rem,3.5vw,1.75rem)] leading-[1.2] font-normal tracking-[-0.02em] text-foreground">
         {copy.faqTitle}
       </h2>
       <div className="mt-8 border-t border-border/70 sm:mt-10">
@@ -97,9 +97,7 @@ export default function CreatorFaqSection() {
             isOpen={openQuestion === item.q}
             reduceMotion={reduceMotion}
             onToggle={() =>
-              setOpenQuestion((current) =>
-                current === item.q ? null : item.q,
-              )
+              setOpenQuestion((current) => (current === item.q ? null : item.q))
             }
           />
         ))}

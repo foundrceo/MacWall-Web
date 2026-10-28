@@ -184,11 +184,7 @@ export function ThankYouSuccessMark({
               },
             }}
           >
-            <MacWallAppIcon
-              size={MARK_SIZE}
-              className="size-full"
-              priority
-            />
+            <MacWallAppIcon size={MARK_SIZE} className="size-full" priority />
           </motion.div>
         )}
       </AnimatePresence>

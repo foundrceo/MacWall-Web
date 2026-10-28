@@ -19,10 +19,38 @@ function MarkFrame({ children }: Readonly<{ children: ReactNode }>) {
 export function PickMark() {
   return (
     <MarkFrame>
-      <rect x="28" y="22" width="48" height="32" rx="4" className="pillar-track" />
-      <rect x="84" y="22" width="48" height="32" rx="4" className="pillar-track" />
-      <rect x="28" y="66" width="48" height="32" rx="4" className="pillar-track" />
-      <rect x="84" y="66" width="48" height="32" rx="4" className="pillar-track" />
+      <rect
+        x="28"
+        y="22"
+        width="48"
+        height="32"
+        rx="4"
+        className="pillar-track"
+      />
+      <rect
+        x="84"
+        y="22"
+        width="48"
+        height="32"
+        rx="4"
+        className="pillar-track"
+      />
+      <rect
+        x="28"
+        y="66"
+        width="48"
+        height="32"
+        rx="4"
+        className="pillar-track"
+      />
+      <rect
+        x="84"
+        y="66"
+        width="48"
+        height="32"
+        rx="4"
+        className="pillar-track"
+      />
 
       <rect
         x="28"
@@ -66,7 +94,14 @@ export function PickMark() {
 export function ImportMark() {
   return (
     <MarkFrame>
-      <rect x="48" y="34" width="64" height="56" rx="8" className="pillar-line" />
+      <rect
+        x="48"
+        y="34"
+        width="64"
+        height="56"
+        rx="8"
+        className="pillar-line"
+      />
       <path
         d="M66 62h28M66 72h18"
         className="pillar-track"
@@ -95,9 +130,30 @@ export function ImportMark() {
 export function DisplaysMark() {
   return (
     <MarkFrame>
-      <rect x="18" y="30" width="78" height="50" rx="6" className="pillar-line" />
-      <rect x="34" y="84" width="46" height="4" rx="2" className="pillar-track" />
-      <rect x="42" y="88" width="30" height="4" rx="2" className="pillar-track" />
+      <rect
+        x="18"
+        y="30"
+        width="78"
+        height="50"
+        rx="6"
+        className="pillar-line"
+      />
+      <rect
+        x="34"
+        y="84"
+        width="46"
+        height="4"
+        rx="2"
+        className="pillar-track"
+      />
+      <rect
+        x="42"
+        y="88"
+        width="30"
+        height="4"
+        rx="2"
+        className="pillar-track"
+      />
 
       <rect
         x="72"
@@ -107,7 +163,14 @@ export function DisplaysMark() {
         rx="6"
         className="pillar-line pillar-soft"
       />
-      <rect x="88" y="88" width="34" height="3" rx="1.5" className="pillar-track" />
+      <rect
+        x="88"
+        y="88"
+        width="34"
+        height="3"
+        rx="1.5"
+        className="pillar-track"
+      />
 
       <path
         d="M64 55h18"

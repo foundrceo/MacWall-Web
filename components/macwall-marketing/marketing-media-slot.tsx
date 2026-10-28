@@ -11,11 +11,15 @@ import {
  * A recording on the home page. Until its file exists the frame stays empty,
  * with a dashed border and the name of what goes there.
  */
-export function MarketingMediaSlot({ id }: Readonly<{ id: MarketingMediaSlotId }>) {
+export function MarketingMediaSlot({
+  id,
+}: Readonly<{ id: MarketingMediaSlotId }>) {
   const slot: Slot = marketingMediaSlots[id]
 
   if (slot.src) {
-    return <DeferredVideo src={slot.src} poster={slot.poster} label={slot.label} />
+    return (
+      <DeferredVideo src={slot.src} poster={slot.poster} label={slot.label} />
+    )
   }
 
   return (
@@ -27,7 +31,9 @@ export function MarketingMediaSlot({ id }: Readonly<{ id: MarketingMediaSlotId }
       <span className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground">
         <Play className="size-3.5" aria-hidden />
       </span>
-      <span className="text-sm tracking-tight text-foreground">{slot.label}</span>
+      <span className="text-sm tracking-tight text-foreground">
+        {slot.label}
+      </span>
       <span className="max-w-xs text-xs leading-relaxed text-muted-foreground">
         {slot.note}
       </span>

@@ -16,14 +16,14 @@ export const segmentedClass = (active: boolean) =>
     "inline-flex h-9 items-center rounded-full px-4 text-[14px] transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none",
     active
       ? "bg-white text-black"
-      : "bg-white/[0.06] text-white/75 hover:bg-white/[0.12] hover:text-white"
+      : "bg-surface-2 text-ink-2 hover:bg-surface-3 hover:text-ink"
   )
 
 export const actionPrimary =
   "inline-flex h-10 items-center justify-center rounded-full bg-white px-5 text-[14px] font-medium text-black transition-colors duration-150 hover:bg-white/90 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none disabled:opacity-50"
 
 export const actionSecondary =
-  "inline-flex h-10 items-center justify-center rounded-full bg-white/[0.08] px-5 text-[14px] text-white transition-colors duration-150 hover:bg-white/[0.14] focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+  "inline-flex h-10 items-center justify-center rounded-full bg-surface-2 px-5 text-[14px] text-ink transition-colors duration-150 hover:bg-surface-3 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
 
 /** Loads a File into an <img>, entirely in the browser. */
 export function loadImageFile(file: File): Promise<HTMLImageElement> {
