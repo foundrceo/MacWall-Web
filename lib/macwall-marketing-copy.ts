@@ -226,15 +226,15 @@ export const macwallMarketingCopy = {
       lead: "Pick one in Settings → Wallpaper → Playback. Switch any time.",
       modes: {
         system: {
-          name: "System Wallpaper",
+          name: "MacWall Native",
           tag: "Recommended",
-          body: "macOS plays your wallpaper itself, like one of its own.",
+          body: "MacWall plays it through macOS, like Apple's own.",
           runsOn: "macOS 26",
         },
         app: {
-          name: "MacWall App",
+          name: "MacWall Player",
           tag: "More control",
-          body: "MacWall plays the desktop, behind your icons.",
+          body: "MacWall plays your desktop, with more settings.",
           runsOn: `${macwallMinimumMacOSVersion} and later`,
         },
       },

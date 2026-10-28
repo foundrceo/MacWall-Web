@@ -300,8 +300,8 @@ function CpuDrop() {
 function CpuCard() {
   return (
     <TopCard visual={<CpuDrop />} title="Zero CPU after you quit">
-      With System Wallpaper on macOS 26, your desktop keeps playing after
-      MacWall quits.
+      With MacWall Native on macOS 26, your desktop keeps playing after MacWall
+      quits.
     </TopCard>
   )
 }
