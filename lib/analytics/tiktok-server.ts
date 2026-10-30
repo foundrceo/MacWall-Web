@@ -25,8 +25,14 @@ function resolveTikTokTestEventCode(): string | undefined {
 const TIKTOK_EVENTS_API_URL =
   "https://business-api.tiktok.com/open_api/v1.3/event/track/"
 
+/**
+ * CompleteRegistration is server-only: `/api/send-to-mac` fires it after the
+ * email really sends, so it isn't in the browser relay's allowlist.
+ */
+export type TikTokServerEvent = TikTokTrackEvent | "CompleteRegistration"
+
 export type TikTokServerEventInput = {
-  event: TikTokTrackEvent
+  event: TikTokServerEvent
   eventId: string
   url: string
   ip?: string | null
@@ -66,10 +72,16 @@ export async function sendTikTokServerEvent(
   if (input.ip) user.ip = input.ip
   if (input.userAgent) user.user_agent = input.userAgent
 
-  const properties = {
-    ...macwallProProperties(),
-    ...(input.searchString ? { query: input.searchString.slice(0, 256) } : {}),
-  }
+  // A Send to my Mac signup has no price, so it carries no value.
+  const properties =
+    input.event === "CompleteRegistration"
+      ? {}
+      : {
+          ...macwallProProperties(),
+          ...(input.searchString
+            ? { query: input.searchString.slice(0, 256) }
+            : {}),
+        }
 
   const eventData: Record<string, unknown> = {
     event: input.event,

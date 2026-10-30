@@ -1,5 +1,8 @@
+import { cookies } from "next/headers"
 import { after, NextResponse } from "next/server"
 
+import { sendTikTokServerEvent } from "@/lib/analytics/tiktok-server"
+import { TIKTOK_CLICK_ID_COOKIE } from "@/lib/analytics/tiktok-shared"
 import { trackSiteEvent } from "@/lib/analytics/track-server"
 import { getCatalogSupabaseOrigin } from "@/lib/env/catalog-supabase"
 import { readBoundedJson, RequestBodyError } from "@/lib/http/bounded-json"
@@ -84,15 +87,34 @@ export async function POST(request: Request) {
 
   const sessionId =
     typeof body.sessionId === "string" && body.sessionId.length <= 64 ? body.sessionId : null
-  after(() =>
-    trackSiteEvent({
+  // Both cookies exist only when ad consent allowed the pixel, same as checkout.
+  const cookieStore = await cookies()
+  const ttclid = cookieStore.get(TIKTOK_CLICK_ID_COOKIE)?.value?.trim() || ""
+  const ttp = cookieStore.get("_ttp")?.value?.trim() || ""
+  after(async () => {
+    await trackSiteEvent({
       eventName: "send_to_mac_email",
       path: "/api/send-to-mac",
       userAgent: request.headers.get("user-agent"),
       sessionId,
       metadata: { has_wallpaper: typeof body.wallpaperPath === "string" },
     })
-  )
+    // The phone-side conversion TikTok ads optimise for: the buyer can't pay
+    // until they're on their Mac, often days later on another device.
+    if (ttclid || ttp) {
+      await sendTikTokServerEvent({
+        event: "CompleteRegistration",
+        eventId: `send_to_mac_${crypto.randomUUID()}`,
+        url: request.headers.get("referer")?.slice(0, 2048) || "https://macwall.app/",
+        ip: clientIpFromRequest(request),
+        userAgent: request.headers.get("user-agent")?.slice(0, 512) ?? null,
+        email,
+        sessionId,
+        ttclid: ttclid || null,
+        ttp: ttp || null,
+      })
+    }
+  })
 
   return NextResponse.json({ ok: true })
 }
