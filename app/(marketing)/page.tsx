@@ -23,7 +23,7 @@ import { Hero } from "./_components/hero"
 import { Playback } from "./_components/playback"
 import { Reviews } from "./_components/reviews"
 
-const PAGE_DESCRIPTION = `Live wallpapers for Mac: ${macwallCatalog.liveCountLabel} 4K animated wallpapers for your desktop and Lock Screen. Trusted by ${macwallSocialProof.usersLabel} users. Free 24-hour trial, one payment.`
+const PAGE_DESCRIPTION = `Live wallpapers for Mac: ${macwallCatalog.liveCountLabel} animated wallpapers, most in 4K, for your desktop and Lock Screen. ${macwallSocialProof.downloadsLine}. Free 24-hour trial, one payment.`
 
 /** Head term first ("live wallpaper mac"), brand last like every other page. */
 const PAGE_TITLE = brandedTitle(

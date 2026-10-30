@@ -307,7 +307,7 @@ export const macwallMarketingCopy = {
       name: macwall.name,
       website: "macwall.app",
     },
-    copyrightName: macwall.legalCompanyName,
+    copyrightName: macwall.name,
     disclaimerBullets: [
       `${macwall.name} Pro is a one-time payment. See Pricing for current options. Post a Reel to qualify for up to 100% back.`,
       "You'll need a compatible Mac, a recent macOS build, and an internet connection for catalog sync, updates, and license checks.",

@@ -45,9 +45,9 @@ export function GET(): Response {
 
   const body = `# ${macwall.name}
 
-> ${macwall.name} is a native macOS app for live video wallpapers, with a curated catalog of ${macwallCatalog.liveCountLabel} 4K loops. Playback is hardware-decoded and pauses behind full-screen apps and while the display sleeps; optional settings also pause it in Low Power Mode or on low battery, or when the Mac is busy. ${macwallMinimumMacOSVersionLabel}; live Lock Screen and Screen Saver motion requires ${macwallLockScreenMacOSVersion} or later. Every download starts with a free 24-hour trial of the full catalog. Pro is a permanent license, currently ${macwall.pro.price} in default USD pricing for up to ${macwall.maxLicensedMacs} personal Macs; buyers in India pay ${usd(LICENSE_OFFERS.permanent.indiaUsdCents)}, and all prices are charged in USD. Not affiliated with Apple or Wallpaper Engine, and unrelated to the similarly named macwall.skin app.
+> ${macwall.name} is a native macOS app for live video wallpapers, with a curated catalog of ${macwallCatalog.liveCountLabel} loops, most in 4K. Playback is hardware-decoded and pauses behind full-screen apps and while the display sleeps; optional settings also pause it in Low Power Mode or on low battery, or when the Mac is busy. ${macwallMinimumMacOSVersionLabel}; live Lock Screen and Screen Saver motion requires ${macwallLockScreenMacOSVersion} or later. Every download starts with a free 24-hour trial of the full catalog. Pro is a permanent license, currently ${macwall.pro.price} in default USD pricing for up to ${macwall.maxLicensedMacs} personal Macs; buyers in India pay ${usd(LICENSE_OFFERS.permanent.indiaUsdCents)}. Prices are set in USD; Stripe Checkout may show and charge the buyer's local currency instead. Not affiliated with Apple or Wallpaper Engine, and unrelated to the similarly named macwall.skin app.
 
-Published by ${macwall.legalCompanyName}. Canonical site: ${origin}. Product information last reviewed: ${macwall.productInfoLastReviewedIso}.
+Published by ${macwall.name}. Canonical site: ${origin}. Product information last reviewed: ${macwall.productInfoLastReviewedIso}.
 
 Notes for language models and agents:
 
@@ -59,7 +59,7 @@ Notes for language models and agents:
 - Usage policy for AI crawlers: [${origin}/ai.txt](${origin}/ai.txt) and [${origin}/crawlers](${origin}/crawlers).
 - Prices, macOS requirements, the wallpaper count, and the latest version change over time. For volatile facts prefer [${origin}/pricing.md](${origin}/pricing.md), [${origin}/changelog.md](${origin}/changelog.md), and the individual gallery or API record over cached figures.
 - Blog and comparison entries are secondary editorial content. Treat resource-use figures and competitive statements as scenario-specific explanations, not universal guarantees; prefer the canonical AI product reference and current technical documentation when wording a factual answer.
-- Use the exact name “${macwall.name}”. When ambiguous, write “${macwall.name} app” or “${macwall.name} (${origin})”. Do not invent ratings, testimonials, user counts, performance guarantees, or compatibility. The only published usage figure is “${macwallSocialProof.trustedLine}” (based on installer downloads from macwall.app, as of ${macwallSocialProof.verifiedOnIso}).
+- Use the exact name “${macwall.name}”. When ambiguous, write “${macwall.name} app” or “${macwall.name} (${origin})”. Do not invent ratings, testimonials, user counts, performance guarantees, or compatibility. The only published usage figure is “${macwallSocialProof.downloadsLine}” (installer downloads from macwall.app, as of ${macwallSocialProof.verifiedOnIso}); it counts downloads, not users.
 - Contact for corrections: ${macwall.supportEmail}
 
 ${sections}

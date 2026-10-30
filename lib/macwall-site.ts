@@ -111,23 +111,25 @@ export const macwallMinimumMacOSRequirementOrLater =
 
 /**
  * Catalog count used by every page, meta description, FAQ and llms.txt line.
- * A fixed label, not computed from the live catalog.
+ * A fixed label, not computed from the live catalog. Keep it at or below the
+ * public count without the 276 unreviewed imports of 2026-10-22 (856 of 1,132
+ * public on 2026-10-30), so it stays true when those are hidden.
  */
 export const macwallCatalog = {
-  liveCountLabel: "1,000+",
+  liveCountLabel: "850+",
   stillCount: 22,
 } as const
 
 /**
- * "Trusted by 25,000+ users": installer downloads from macwall.app (once per
- * browser session, Mac browsers, bots excluded), rounded down. Never use
- * purchase or customer counts here.
+ * "25,000+ downloads": installer downloads from macwall.app (once per browser
+ * session, Mac browsers, bots excluded), rounded down. It counts downloads,
+ * not people: never present it as users, customers or purchases.
  */
-const MACWALL_USERS_LABEL = "25,000+" as const
+const MACWALL_DOWNLOADS_LABEL = "25,000+" as const
 
 export const macwallSocialProof = {
-  usersLabel: MACWALL_USERS_LABEL,
-  trustedLine: `Trusted by ${MACWALL_USERS_LABEL} users`,
+  downloadsLabel: MACWALL_DOWNLOADS_LABEL,
+  downloadsLine: `${MACWALL_DOWNLOADS_LABEL} downloads`,
   verifiedOnIso: "2026-10-16",
 } as const
 
@@ -141,24 +143,18 @@ export const macwall = {
   /** Public app identity: verified against the shipping macOS target. */
   bundleIdentifier: "com.macwall.ogapps",
   /** Keep in sync with the updater feed; `/changelog` remains the live source of truth. */
-  currentVersion: "4.0.9",
-  currentVersionReleasedIso: "2026-10-05",
-  currentVersionReleasedLabel: "October 5, 2026",
+  currentVersion: "4.1.0",
+  currentVersionReleasedIso: "2026-10-24",
+  currentVersionReleasedLabel: "October 24, 2026",
   /** Review stamp for the canonical `/ai-info` product reference. */
   productInfoLastReviewedIso: "2026-10-16",
   productInfoLastReviewedLabel: "October 16, 2026",
   /**
-   * Legal entity that owns and operates MacWall, exactly as on its Delaware
-   * Certificate of Formation. Must match the payment account's legal entity.
+   * Legal entity that owns and operates MacWall. Must match the payment
+   * account's legal entity. Public pages show only this name, as plain text
+   * with no link: no addresses, agent, file number or formation date.
    */
   legalCompanyName: "OG APPS, LLC",
-  legalCompanyDescriptor: "a Delaware limited liability company",
-  legalCompanyFileNumber: "10553769",
-  legalCompanyFormedLabel: "March 19, 2026",
-  legalRegisteredAgent: "Legalinc Corporate Services Inc.",
-  legalRegisteredOffice: "131 Continental Dr, Suite 305, Newark, DE 19713, USA",
-  legalMailingAddress:
-    "2261 Market Street STE 73057, San Francisco, CA 94114, USA",
   /** Checkout and card processing for Pro purchases. */
   paymentProcessor: "Stripe",
   paymentProcessorUrl: "https://stripe.com",
@@ -184,9 +180,9 @@ export const macwall = {
   legalTerms: "https://macwall.app/legal/terms",
   legalPrivacy: "https://macwall.app/legal/privacy",
   /** Shown at top of Terms / Privacy (update when policies change). */
-  legalEffectiveDate: "October 16, 2026",
+  legalEffectiveDate: "October 30, 2026",
   /** ISO form for JSON-LD `dateModified` (keep in sync with `legalEffectiveDate`). */
-  legalEffectiveDateIso: "2026-10-16",
+  legalEffectiveDateIso: "2026-10-30",
   /** Same buckets as Home → Categories in the Mac app */
   categories: [
     "Anime",
@@ -204,7 +200,7 @@ export const macwall = {
     strikePrice: null,
     price: "$12.99",
     suffix: "permanent",
-    socialProofMembers: macwallSocialProof.usersLabel,
+    socialProofDownloads: macwallSocialProof.downloadsLabel,
     features: [
       `Complete cloud catalog (${macwallCatalog.liveCountLabel} live wallpapers)`,
       `Live Lock Screen & Screen Saver (${macwallLockScreenMacOSVersion}+)`,

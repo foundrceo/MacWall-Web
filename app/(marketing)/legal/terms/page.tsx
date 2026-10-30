@@ -1,12 +1,17 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { JsonLd } from "@/components/seo/json-ld"
-import { LEGAL_COMPANY_HREF } from "@/components/legal/legal-entity"
 import { LegalDocumentShell } from "@/components/legal/legal-document-shell"
 import { LegalSection, legalBulletList } from "@/components/legal/legal-section"
 import { legalDocumentBySlug } from "@/lib/legal/documents"
 import { legalPageMetadata } from "@/lib/legal/metadata"
 import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
+import { CHECKOUT_ADDONS, LICENSE_OFFERS } from "@/lib/license/offers.shared"
+import { AFFILIATE_COMMISSION_PERCENT } from "@/lib/macwall-affiliate-copy"
+import {
+  AFFONSO_COOKIE_DURATION_DAYS,
+  macwallAffiliatePortalURL,
+} from "@/lib/macwall-affiliate"
 import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 
@@ -15,9 +20,17 @@ const doc = legalDocumentBySlug("terms")!
 export const metadata: Metadata = legalPageMetadata(doc)
 
 const siteHost = macwall.website.replace(/^https?:\/\//, "")
+const usd = (cents: number) => `$${(cents / 100).toFixed(2)}`
+const support = (
+  <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>
+)
+
+const pro = LICENSE_OFFERS.permanent
+const proPlus = LICENSE_OFFERS.permanent_5
+const tenMacs = LICENSE_OFFERS.permanent_10
+const annual = LICENSE_OFFERS.annual
 
 export default function LegalTermsPage() {
-  const year = new Date().getFullYear()
   const jsonLd = webPageWithBreadcrumbsJsonLd({
     origin: canonicalSiteOrigin(),
     pathname: doc.href,
@@ -36,61 +49,67 @@ export default function LegalTermsPage() {
         intro={
           <>
             <p>
-              These Terms of Service (&ldquo;Terms&rdquo;) govern your access to
+              These Terms of Service (&ldquo;Terms&rdquo;) govern your use of
               the {macwall.name} macOS application (&ldquo;App&rdquo;) and our
               website at {siteHost} (&ldquo;Site&rdquo;). By using the App or
-              Site, or purchasing {macwall.name} Pro, you agree to these Terms.
+              Site, or buying a {macwall.name} license, you agree to these
+              Terms. Who &ldquo;we&rdquo; are is set out in the last section.
             </p>
             <p>
               Related policies:{" "}
               <Link href="/legal/privacy">Privacy Policy</Link>,{" "}
               <Link href="/legal/acceptable-use">Acceptable Use</Link>,{" "}
               <Link href="/legal/refund">Refund Policy</Link>,{" "}
-              <Link href="/legal/dmca">DMCA</Link>. Questions:{" "}
-              <a href={`mailto:${macwall.supportEmail}`}>
-                {macwall.supportEmail}
-              </a>
-              .
+              <Link href="/legal/dmca">DMCA / Copyright</Link>. Questions:{" "}
+              {support}.
+            </p>
+          </>
+        }
+        company={
+          <>
+            <p>
+              These Terms are an agreement between you and{" "}
+              {macwall.legalCompanyName}, which makes and sells {macwall.name}{" "}
+              (&ldquo;we,&rdquo; &ldquo;us&rdquo;).
+            </p>
+            <p>
+              We are the seller of every {macwall.name} license;{" "}
+              {macwall.paymentProcessor} processes the payment for us and is not
+              the seller. Contact: {support}.
             </p>
           </>
         }
       >
-        <LegalSection id="who-we-are" title="Who We Are">
-          <p>
-            {macwall.name} is owned and operated by {macwall.legalCompanyName},{" "}
-            {macwall.legalCompanyDescriptor} (Delaware file number{" "}
-            {macwall.legalCompanyFileNumber}). {macwall.name} is a trade name
-            and product of {macwall.legalCompanyName}; it is not a separate
-            legal entity. These Terms are an agreement between you and{" "}
-            {macwall.legalCompanyName}.
-          </p>
-          <p>
-            When you buy {macwall.name} Pro, the seller is{" "}
-            {macwall.legalCompanyName}. Payments are processed by{" "}
-            {macwall.paymentProcessor}, so your card statement may show{" "}
-            {macwall.paymentProcessor}&apos;s name. Company details, including
-            our registered office, are listed under{" "}
-            <Link href={LEGAL_COMPANY_HREF}>company information</Link>.
-          </p>
-        </LegalSection>
-
         <LegalSection id="the-service" title="The Service">
           <p>
-            {macwall.name} provides live and video desktop wallpapers, including
-            access to an online catalog, local imports, playback controls, and
-            optional paid features ({macwall.name} Pro). We may modify, suspend,
-            or discontinue features where we give reasonable notice when
-            practical.
+            {macwall.name} plays live video wallpapers on the Mac desktop, Lock
+            Screen and Screen Saver. The App is free to download. It includes
+            an online catalog of wallpapers, playback controls and, with a paid
+            license (&ldquo;{macwall.name} Pro&rdquo;), the full catalog, your
+            own videos as wallpapers and the other Pro features described on
+            our <Link href="/pricing">pricing page</Link>.
           </p>
         </LegalSection>
 
         <LegalSection id="eligibility" title="Eligibility">
           <p>
-            The Service is intended for individuals who are at least 13 years
-            old (or the minimum age in your region). If you are under the age of
-            majority where you live, a parent or guardian must agree to these
-            Terms for you. If you accept these Terms for an organization, you
-            confirm you have authority to bind that organization.
+            You must be at least 13 years old (or the minimum age where you
+            live) to use the Service. If you are under the age of majority
+            where you live, a parent or guardian must agree to these Terms for
+            you and make any purchase. If you accept these Terms for an
+            organization, you confirm you can bind it.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="license-key" title="No Accounts: Your License Key">
+          <p>
+            {macwall.name} has no user accounts. Your license key is what
+            proves your purchase, so keep it private and keep the purchase
+            email. When you activate Pro, the key is linked to that Mac using
+            an identifier derived from its hardware (we store only a one-way
+            hash of it). To move a license, unlink the old Mac in Settings,
+            then activate the new one. Anyone who has your key can use your
+            Mac slots: tell us at once if it leaks and we can help.
           </p>
         </LegalSection>
 
@@ -98,16 +117,16 @@ export default function LegalTermsPage() {
           <p>
             Subject to these Terms, we grant you a personal, non-exclusive,
             non-transferable, revocable license to download and run the App on
-            Mac computers you control for personal or internal business use. The
-            App, the Site, their code, design and our logos are owned by{" "}
-            {macwall.legalCompanyName} or its licensors; no other rights are
-            granted.
+            Macs you control, for personal use or internal use in your
+            organization. The App, the Site, their code and design, and the{" "}
+            {macwall.name} name and logo belong to us or our licensors; no
+            other rights are granted.
           </p>
           <p>You may not:</p>
           <ul className={legalBulletList}>
             <li>
-              Reverse engineer or attempt to extract source code except where
-              law forbids that restriction;
+              Reverse engineer the App or try to extract its source code,
+              except where the law forbids this restriction;
             </li>
             <li>
               Redistribute the App as your own product or misrepresent its
@@ -118,91 +137,241 @@ export default function LegalTermsPage() {
               license key;
             </li>
             <li>
-              Bypass license checks or device limits, or share a license key
-              with people outside its Mac limit;
+              Bypass license checks, trial limits or device limits, or share a
+              key beyond the Macs it covers;
             </li>
-            <li>Use the App to violate law or others&apos; rights.</li>
+            <li>Use the App to break the law or anyone&apos;s rights.</li>
           </ul>
         </LegalSection>
 
-        <LegalSection id="pro" title="Pro Licenses and Payment">
+        <LegalSection id="pro" title="Pro Licenses and Prices">
           <p>
-            {macwall.name} Pro is sold through our payment processor,{" "}
-            <a href={macwall.paymentProcessorUrl}>{macwall.paymentProcessor}</a>
-            . Checkout, receipts, refunds, and taxes may also be governed by{" "}
-            {macwall.paymentProcessor}&apos;s policies. Each license covers the
-            number of personal Macs shown for the pack you buy (Pro covers{" "}
-            {macwall.maxLicensedMacs}; larger packs cover more). Device limits
-            are enforced per license key.
+            Every license is a one-time payment for permanent Pro access: there
+            is no subscription and nothing renews. Licenses differ only in how
+            many of your Macs they cover. Current prices:
+          </p>
+          <ul className={legalBulletList}>
+            <li>
+              <strong>Pro</strong>, {pro.maxDevices} Macs:{" "}
+              {usd(pro.usdCents)}
+            </li>
+            <li>
+              <strong>Pro+</strong>, {proPlus.maxDevices} Macs:{" "}
+              {usd(proPlus.usdCents)}
+            </li>
+            <li>
+              <strong>Pro+</strong>, {tenMacs.maxDevices} Macs:{" "}
+              {usd(tenMacs.usdCents)}
+            </li>
+            <li>
+              <strong>In India</strong>, the same licenses cost{" "}
+              {usd(pro.indiaUsdCents)}, {usd(proPlus.indiaUsdCents)} and{" "}
+              {usd(tenMacs.indiaUsdCents)}. We apply these prices when our
+              Site detects that you are in India.
+            </li>
+            <li>
+              <strong>Checkout add-ons</strong> (optional): with Pro, 2 more
+              Macs for {usd(CHECKOUT_ADDONS.upgradeProPlus.usd)} (India{" "}
+              {usd(CHECKOUT_ADDONS.upgradeProPlus.indiaUsd)}), which makes it a{" "}
+              {proPlus.maxDevices}-Mac license; with Pro+ for{" "}
+              {proPlus.maxDevices} Macs, 5 more Macs for{" "}
+              {usd(CHECKOUT_ADDONS.addon5Macs.usd)} (India{" "}
+              {usd(CHECKOUT_ADDONS.addon5Macs.indiaUsd)}).
+            </li>
+          </ul>
+          <p>
+            The price and what it includes are shown before you pay. We may
+            change prices for future purchases; a change never affects a
+            license you already bought. &ldquo;Lifetime updates&rdquo; and
+            &ldquo;free updates forever&rdquo; mean every update to the App
+            that we release, for as long as we develop and distribute it, at no
+            extra charge. Some features need a recent version of the App or
+            macOS.
           </p>
           <p>
-            You agree to provide accurate information and not to share keys
-            beyond the Mac limit for the plan you purchased.
-          </p>
-          <p>
-            Every license comes with a {macwall.refundWindowDays}-day money-back
-            guarantee: email us within {macwall.refundWindowDays} days of
-            purchase for a full refund. See the{" "}
-            <Link href="/legal/refund">Refund Policy</Link>. The creator Reel
-            program on <Link href="/creator">/creator</Link> is a separate
-            promotional offer with its own conditions.
+            Your license key is emailed to the address you enter at checkout
+            right after payment and is also shown on the activation page. If it
+            doesn&apos;t arrive, email {support} from that address.
           </p>
         </LegalSection>
 
-        <LegalSection id="prices" title="Prices, Taxes and Checkout">
+        <LegalSection id="payment" title="Payment, Currency and Taxes">
           <p>
-            Prices are shown before you pay and are one-time charges: there is
-            no subscription and nothing renews automatically. Prices may vary by
-            region and may change for future purchases; a change never affects a
-            license you already bought.
+            Payments are processed by {macwall.paymentProcessor}. You enter
+            your card or other payment details on {macwall.paymentProcessor}
+            &apos;s checkout page: they never pass through or get stored on our
+            servers. {macwall.paymentProcessor} is certified to PCI DSS Level
+            1, the highest level of the card industry&apos;s security standard.
           </p>
           <p>
-            Sales tax, VAT or GST, where they apply, are calculated and
-            collected at checkout by {macwall.paymentProcessor} and shown before
-            you confirm. Promotional codes apply only as stated and cannot be
-            combined unless the offer says so.
+            <strong>Currency.</strong> Our prices are set in US dollars.{" "}
+            {macwall.paymentProcessor} Checkout may show the price in your
+            local currency and charge you in it, converted at{" "}
+            {macwall.paymentProcessor}&apos;s exchange rate; the amount and
+            currency you will pay are shown before you confirm. Local-currency
+            prices on our Site are estimates at a recent exchange rate. Your
+            bank may add its own foreign-transaction fees.
           </p>
           <p>
-            Your license key is delivered by email immediately after payment and
-            is also shown on the activation page. If it does not arrive, email{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>
-              {macwall.supportEmail}
-            </a>{" "}
-            from the address you paid with.
-          </p>
-        </LegalSection>
-
-        <LegalSection id="content" title="Content and the Catalog">
-          <p>
-            {macwall.name} does not claim ownership of the wallpapers in its
-            catalog. Community wallpapers belong to their creators or rights
-            holders, who license them to us when they submit them. Some older
-            wallpapers were added by {macwall.name} before our current rights
-            process and have no recorded source; we are reviewing them and
-            remove any whose rights we cannot establish.
-          </p>
-          <p>
-            Your use of catalog wallpapers is limited to what the App permits:
-            setting them on Macs you use. Do not scrape, redistribute, or
-            commercially exploit catalog wallpapers outside the App. A Pro
-            license pays for the App&apos;s features; it does not give you any
-            rights in the wallpapers themselves.
-          </p>
-          <p>
-            For files you import, you are responsible for having the rights to
-            use them on your devices. Community submissions must comply with our{" "}
-            <Link href="/legal/acceptable-use">Acceptable Use</Link> and{" "}
-            <Link href="/legal/dmca">DMCA</Link> policies.
+            <strong>Taxes.</strong> We don&apos;t currently add sales tax,
+            VAT or GST at checkout: the total shown before you confirm is the
+            full amount we charge. If we start collecting tax where the law
+            requires it, it will be shown at checkout before you pay.
           </p>
         </LegalSection>
 
         <LegalSection id="free-trial" title="Free Trial">
           <p>
-            New installs of the App may include a free Pro trial for a limited
-            time (currently 24 hours). The trial is free: no payment details are
-            collected for it and nothing is charged when it ends. When the trial
-            ends, Pro features stop until you buy a license. One trial per Mac;
-            we may change or end trial offers at any time.
+            New installs of the App include a free 24-hour Pro trial, once per
+            Mac. We recognize the Mac by a one-way hash of its hardware
+            identifier, so reinstalling the App doesn&apos;t start another
+            trial. The trial is free: no payment details are collected for it
+            and nothing is charged when it ends, because there is nothing to
+            renew. Current versions of the App ask for your email to start
+            the trial; the App shows a notice on your Mac about 3 hours before
+            the trial ends, and we email you when it has ended. The follow-up
+            emails and how to stop them are described in our{" "}
+            <Link href="/legal/privacy#emails">Privacy Policy</Link>.
+          </p>
+          <p>
+            When the trial ends, Pro features stop until you buy a license. We
+            may change or end the trial offer for future installs.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="promotions" title="Promotions and Programs">
+          <p>
+            <strong>Discount codes.</strong> We sometimes offer discount codes,
+            for example in the App, in emails after a trial or an unfinished
+            checkout, or to our community. A code gives the discount it states
+            on the price shown at checkout. One code can be used per purchase
+            and codes can&apos;t be combined. A time-limited offer works only
+            until the time stated in it; after that, its link may apply a
+            smaller standing discount instead. Codes have no cash value and
+            can&apos;t be added to a purchase after it is paid. We may end a
+            code that is shared publicly or misused.
+          </p>
+          <p>
+            <strong>Money back for a video.</strong> If you buy a license and
+            post a public video of {macwall.name} in real use, we refund 50% of
+            what you paid when one video reaches{" "}
+            {macwall.reelRefundHalfViews.toLocaleString("en-US")} views and
+            100% when it reaches{" "}
+            {macwall.reelRefundFullViews.toLocaleString("en-US")} views. The
+            post must be disclosed as paid (#ad or the platform&apos;s
+            paid-partnership label); views must be organic (no bots or paid
+            promotion); and views on different posts or platforms don&apos;t
+            add up. To claim, email{" "}
+            <a href={`mailto:${macwall.reelRefundEmail}`}>
+              {macwall.reelRefundEmail}
+            </a>{" "}
+            with the video link, a screenshot of the view count and your
+            purchase email. We verify the claim and refund to your original
+            payment method, usually within 48 hours. A 50% refund keeps your
+            license active; a 100% refund is a full refund and deactivates the
+            license key. We refund what you actually paid, never more. Full
+            rules are on <Link href="/creator">/creator</Link>. We may turn
+            down claims that look inflated, and we can end this offer at any
+            time.
+          </p>
+          <p>
+            <strong>Affiliate program.</strong> Creators and sites can apply to
+            promote {macwall.name} through our affiliate program at{" "}
+            <a href={macwallAffiliatePortalURL}>
+              {macwallAffiliatePortalURL.replace(/^https?:\/\//, "")}
+            </a>
+            , run on the Affonso platform. We review every application.
+            Approved affiliates earn the commission shown on our{" "}
+            <Link href="/affiliate">affiliate page</Link> (currently{" "}
+            {AFFILIATE_COMMISSION_PERCENT}% of each Pro sale made through their
+            link) for purchases made within the tracking window (currently{" "}
+            {AFFONSO_COOKIE_DURATION_DAYS} days after the click). Affiliates
+            must disclose the relationship in every post and must not use spam,
+            misleading claims, fake reviews or their own link for their own
+            purchases. We can withhold commission earned in breach of these
+            rules, reverse commission on sales that are refunded or charged
+            back, and remove an affiliate from the program. Clicks, commissions
+            and payouts are shown in the affiliate dashboard. We can change or
+            end the program at any time.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="annual" title="Legacy Annual Plan and Cancellation">
+          <p>
+            We no longer sell the annual plan ({usd(annual.usdCents)} a year).
+            If you bought it while it was offered, it renews automatically each
+            year at the price you signed up for until it is cancelled. To
+            cancel, email {support} from the address you paid with, at any
+            time. We stop the renewal so you are not charged again, and Pro
+            stays on until the end of the year you have already paid for, then
+            switches off. Your wallpapers and settings stay on your Mac.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="refunds" title="Refunds and Disputed Charges">
+          <p>
+            Every license comes with a {macwall.refundWindowDays}-day
+            money-back guarantee, and billing errors are fixed at any time. How
+            to ask, what is excluded and how long it takes are in our{" "}
+            <Link href="/legal/refund">Refund Policy</Link>. A full refund
+            deactivates the license key it paid for.
+          </p>
+          <p>
+            If something is wrong with a charge, emailing {support} is usually
+            the fastest way to fix it, and we can refund directly. You can also
+            dispute a charge with your bank or card issuer at any time. If a
+            payment is reversed, the license it paid for may be deactivated,
+            the same as after a full refund.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="eu-uk" title="EU and UK Consumers">
+          <p>
+            If you live in the EU, EEA or UK and buy as a consumer, you have a
+            legal right to withdraw from your purchase within 14 days without
+            giving a reason. We don&apos;t ask you to give up that right at
+            checkout, so it applies even after you have downloaded, activated
+            or used Pro. To withdraw, email {support} within 14 days of the
+            purchase with a clear statement and your purchase email or license
+            key. We refund the full amount to your original payment method
+            within 14 days of hearing from you, and the license key is
+            deactivated. This is in addition to our money-back guarantee and
+            to any other rights you have if the App is faulty or not as
+            described.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="content" title="Catalog Content">
+          <p>
+            <strong>Where it comes from.</strong> The catalog includes
+            wallpapers submitted by community creators, each with a rights
+            declaration and reviewed by a person before publication, and
+            wallpapers {macwall.name} added itself from free and community
+            sources. For many wallpapers we added, especially older ones, we
+            have no record of the original creator or of a license. We do not
+            claim to own catalog wallpapers, and we don&apos;t claim any license
+            to a wallpaper beyond what its submitter gave us.
+          </p>
+          <p>
+            <strong>What your license covers.</strong> A {macwall.name} license
+            pays for the App&apos;s features and access to the catalog inside
+            the App. It gives you no ownership of, and no rights in, any
+            wallpaper. You may display catalog wallpapers only through the App,
+            on Macs you use, for personal, non-commercial purposes. You may not
+            download, extract, screen-record for reuse, copy, redistribute,
+            sell or sublicense them, use them in other products, or use them to
+            train AI models. Showing {macwall.name} itself in use, such as in a
+            video for the program above, is fine.
+          </p>
+          <p>
+            <strong>Removal.</strong> Rights holders can ask us to remove any
+            wallpaper through our{" "}
+            <Link href="/legal/dmca">DMCA / Copyright</Link> process or by
+            emailing {support}. We remove wallpapers when a rights holder asks
+            or when we can&apos;t establish the rights to them, and we may
+            remove or change any wallpaper at any time. The catalog changes
+            over time, and we don&apos;t promise that a particular wallpaper
+            will stay available.
           </p>
         </LegalSection>
 
@@ -225,9 +394,11 @@ export default function LegalTermsPage() {
             Every submission includes a rights declaration: you choose which of
             these applies, and if it is the second, you name the original
             creator or rights holder, link the source, say what kind of license
-            or permission you have and, where needed, link to it. You also
-            confirm that the author name and origin you give are accurate. Do
-            not give a misleading author name or origin.
+            or permission you have and, where needed, link to it. You confirm
+            that the declaration, the author name and the origin you give are
+            true. Footage from films, TV, games, music videos, stock libraries
+            or other artists, and characters, logos or brands you don&apos;t
+            have a license for, are not allowed.
           </p>
           <p>
             <strong>Review before publication.</strong> Every submission starts
@@ -239,22 +410,43 @@ export default function LegalTermsPage() {
           </p>
           <p>
             <strong>Ownership and license.</strong> You keep ownership of your
-            submission; submitting it does not transfer copyright or any other
-            ownership to us. When you submit a wallpaper for the public catalog,
-            you grant {macwall.legalCompanyName} a non-exclusive, worldwide,
-            royalty-free license to host, store, reproduce, resize and
-            transcode, display and distribute it through {macwall.name} (the App
-            and the Site), including in previews used to show the catalog. We
+            submission. When you submit a wallpaper for the public catalog, you
+            grant us a non-exclusive, worldwide, royalty-free license to host,
+            store, reproduce, resize and transcode, display and distribute it
+            through {macwall.name} (the App and the Site), including in previews
+            used to show the catalog, for as long as it stays in the catalog. We
             show the author name you provide with the wallpaper.
           </p>
           <p>
-            <strong>Removal.</strong> You can ask us to remove an approved
-            submission at any time by emailing {macwall.supportEmail}; we take
-            it out of the catalog within a reasonable time. If we receive a
-            valid copyright notice about a submission we remove it, and we stop
-            accepting submissions from people who repeatedly upload infringing
-            material. See our{" "}
+            <strong>Removal and repeat infringers.</strong> You can ask us to
+            remove an approved submission at any time by emailing {support}; we
+            take it out of the catalog within a reasonable time. If we receive
+            a valid copyright notice about a submission we remove it, and we
+            block the Mac that repeatedly submits infringing material from
+            submitting again. See our{" "}
             <Link href="/legal/dmca">DMCA / Copyright Policy</Link>.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="imports" title="Your Own Videos">
+          <p>
+            Videos you import from your own files stay on your Mac. You are
+            responsible for having the rights to use them.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="ai" title="AI Features">
+          <p>
+            When you submit a wallpaper, the App can suggest a title and
+            category. To do that, our server sends OpenAI one thumbnail image
+            from your video (never the video), its file name and any draft
+            title, and OpenAI returns a suggestion. We send these requests with
+            OpenAI&apos;s response storage turned off, and OpenAI states that
+            it does not train its models on data sent through its API by
+            default. Suggestions can be wrong or can name a brand, character or
+            person in the image: check them before you submit. A suggestion
+            never means that you, we or anyone else has the rights to what it
+            names.
           </p>
         </LegalSection>
 
@@ -265,43 +457,71 @@ export default function LegalTermsPage() {
           </p>
         </LegalSection>
 
-        <LegalSection
-          id="trademarks"
-          title="Trademarks and Third-Party Content"
-        >
+        <LegalSection id="trademarks" title="Trademarks and Third-Party Names">
           <p>
             Names, characters, logos and brands that appear in wallpaper titles,
-            tags or artwork belong to their respective owners. {macwall.name} is
-            an independent product and is not affiliated with, sponsored by or
-            endorsed by any of them, and no license to their trademarks is
+            tags or artwork belong to their owners. {macwall.name} is an
+            independent product and is not affiliated with, sponsored by or
+            endorsed by any of them, or by Apple, Spotify or{" "}
+            {macwall.paymentProcessor}. No license to their trademarks is
             granted to you.
-          </p>
-          <p>
-            If you own rights in something shown in the catalog and want it
-            removed, send a notice under our{" "}
-            <Link href="/legal/dmca">DMCA / Copyright</Link> policy or email{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>
-              {macwall.supportEmail}
-            </a>
-            . We review every notice and remove infringing material promptly.
           </p>
         </LegalSection>
 
         <LegalSection id="acceptable-use" title="Acceptable Use">
           <p>
-            You agree not to misuse the service. The full rules live on our{" "}
-            <Link href="/legal/acceptable-use">Acceptable Use</Link> page,
-            including prohibitions on abuse, circumvention, and infringing
-            uploads.
+            You agree not to misuse the Service. The full rules are in our{" "}
+            <Link href="/legal/acceptable-use">Acceptable Use Policy</Link>,
+            including bans on abuse, circumvention and infringing uploads.
           </p>
         </LegalSection>
 
-        <LegalSection id="apple" title="Third-Party Services and Apple">
+        <LegalSection id="third-parties" title="Third-Party Services and Apple">
           <p>
-            The App runs on macOS and may use system wallpaper, Lock Screen, or
-            related APIs. Apple provides the platform under its own terms. We
-            are not responsible for macOS changes that affect how wallpapers
-            behave.
+            The App runs on macOS and uses Apple&apos;s wallpaper, Lock Screen
+            and related system features, which Apple provides under its own
+            terms. Music Sync reads the current track from Apple Music or
+            Spotify with your permission and uses outside services to find
+            artwork and lyrics, as described in our{" "}
+            <Link href="/legal/privacy#music-sync">Privacy Policy</Link>. Our
+            Discord community is run under Discord&apos;s terms. We are not
+            responsible for third-party services or for macOS changes that
+            affect how wallpapers behave.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="availability" title="Availability and Changes">
+          <p>
+            The catalog, license checks (Pro checks your license online about
+            once a week) and the trial depend on our servers. We work to keep
+            them running but don&apos;t promise the Service will be
+            uninterrupted or error-free. We may add, change or remove features
+            and wallpapers; we will give reasonable notice of significant
+            changes to paid features when we can.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="termination" title="Suspension and Termination">
+          <p>
+            You can stop using {macwall.name} at any time. We may suspend or
+            revoke a license key that was obtained through fraud or a stolen
+            payment method, whose payment was refunded or reversed, or that is
+            shared beyond its Mac limit, and we may suspend access for serious
+            or repeated breaches of these Terms. Where reasonable, we will
+            contact you first so you can resolve the issue.
+          </p>
+        </LegalSection>
+
+        <LegalSection id="sanctions" title="Sanctions, Export and Local Laws">
+          <p>
+            You may not use or buy {macwall.name} if you are located in, or
+            ordinarily resident in, a comprehensively sanctioned country or
+            region (currently Cuba, Iran, North Korea, Syria, and the Crimea,
+            Donetsk and Luhansk regions of Ukraine), or if you are on, or owned
+            or controlled by someone on, a U.S., UK, EU or UN restricted-party
+            list. Paid licenses are not offered to people or organizations in
+            Russia or Belarus. You are responsible for following the laws that
+            apply to you where you use the Service.
           </p>
         </LegalSection>
 
@@ -323,7 +543,7 @@ export default function LegalTermsPage() {
             YOUR USE OF THE APP OR SITE, EVEN IF ADVISED OF THE POSSIBILITY. OUR
             TOTAL LIABILITY FOR CLAIMS RELATING TO THE APP OR SITE IS LIMITED TO
             THE GREATER OF THE AMOUNT YOU PAID FOR {macwall.name.toUpperCase()}{" "}
-            PRO IN THE TWELVE (12) MONTHS BEFORE THE CLAIM AND USD $50.
+            IN THE TWELVE (12) MONTHS BEFORE THE CLAIM AND USD $50.
           </p>
           <p>
             Some jurisdictions do not allow certain limitations; in those
@@ -336,25 +556,21 @@ export default function LegalTermsPage() {
 
         <LegalSection id="indemnification" title="Indemnification">
           <p>
-            To the extent the law allows, you agree to defend and indemnify{" "}
-            {macwall.legalCompanyName} against claims, losses and reasonable
-            legal costs arising from your misuse of the App or Site, content you
-            submit or import, or your breach of these Terms. This does not apply
-            to consumers where local law forbids it.
+            To the extent the law allows, you agree to defend and indemnify us
+            against claims, losses and reasonable legal costs arising from your
+            misuse of the App or Site, content you submit or import, or your
+            breach of these Terms. This does not apply to consumers where local
+            law forbids it.
           </p>
         </LegalSection>
 
         <LegalSection id="disputes" title="Resolving Problems">
           <p>
-            Most problems are solved quickly by email. If something is wrong
-            with your purchase or a charge, we encourage you to contact{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>
-              {macwall.supportEmail}
-            </a>{" "}
-            first; we aim to reply within 1 to 2 business days. This does not
-            limit any right you have to dispute a charge with your bank or card
-            issuer. Either of us may bring an individual claim in a small-claims
-            court that has jurisdiction.
+            Most problems are solved quickly by email: write to {support} and
+            we aim to reply within 1 to 2 business days. This never limits your
+            right to dispute a charge with your bank or card issuer. Either of
+            us may bring an individual claim in a small-claims court that has
+            jurisdiction.
           </p>
         </LegalSection>
 
@@ -370,67 +586,35 @@ export default function LegalTermsPage() {
           </p>
         </LegalSection>
 
-        <LegalSection id="termination" title="Suspension and Termination">
-          <p>
-            You can stop using {macwall.name} at any time. We may suspend or
-            revoke a license key that was obtained through fraud, a stolen
-            payment method, a reversed or charged-back payment, or that is
-            shared beyond its Mac limit, and we may suspend access for serious
-            or repeated breaches of these Terms. Where reasonable, we will
-            contact you first so you can resolve the issue.
-          </p>
-        </LegalSection>
-
         <LegalSection id="general" title="General">
           <p>
             These Terms, together with the policies they link to, are the whole
-            agreement between you and {macwall.legalCompanyName} about{" "}
-            {macwall.name}. If a provision is found unenforceable, the rest
-            stays in effect. Not enforcing a provision is not a waiver. You may
-            not transfer these Terms or your license without our consent; we may
-            transfer them as part of a reorganization or sale of the business.
-            Nothing in these Terms limits rights you have under consumer laws
-            that cannot be waived by contract.
-          </p>
-          <p>
-            <strong>Updates:</strong> we release updates to fix problems and add
-            features; some features may require a current version of the App or
-            macOS. &ldquo;Lifetime updates&rdquo; and &ldquo;free updates
-            forever&rdquo; mean every update to the App that we release, for as
-            long as we develop and distribute it, at no extra charge to your
-            license. <strong>Electronic communications:</strong> you agree that
-            receipts, license keys and notices may be sent to you by email.{" "}
-            <strong>Events outside our control:</strong> we are not responsible
-            for delays or failures caused by events beyond our reasonable
-            control, such as outages of hosting or payment providers.{" "}
-            <strong>Export and sanctions:</strong> you may not use or buy{" "}
-            {macwall.name} where U.S. export or sanctions laws prohibit it.
+            agreement between you and us about {macwall.name}. If a provision
+            is found unenforceable, the rest stays in effect. Not enforcing a
+            provision is not a waiver. You may not transfer these Terms or your
+            license without our consent; we may transfer them as part of a
+            reorganization or sale of the business. You agree that receipts,
+            license keys and notices may be sent to you by email. We are not
+            responsible for delays or failures caused by events beyond our
+            reasonable control, such as outages of hosting or payment providers.
           </p>
         </LegalSection>
 
         <LegalSection id="changes-terms" title="Changes to These Terms">
           <p>
             We may update these Terms. We will post the new version on{" "}
-            <Link href={doc.href}>{doc.href}</Link> with an updated effective
-            date, and announce material changes on the Site or in the App.
-            Continued use after the effective date means you accept the revised
-            Terms. Your use of {macwall.name} is also covered by our{" "}
-            <Link href="/legal/privacy">Privacy Policy</Link> and{" "}
-            <Link href="/legal/cookies">Cookie Policy</Link>.
+            <Link href={doc.href}>{doc.href}</Link> with a new effective date,
+            and announce material changes on the Site or in the App. Changes
+            apply from the effective date and never change the terms of a
+            purchase you already made. Continued use after the effective date
+            means you accept the revised Terms.
           </p>
         </LegalSection>
 
         <LegalSection id="contact-terms" title="Contact">
           <p>
-            Questions about these Terms:{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>
-              {macwall.supportEmail}
-            </a>
-            .
-          </p>
-          <p>
-            Copyright © {year} {macwall.legalCompanyName}. All rights reserved.
-            Last updated {macwall.legalEffectiveDate}.
+            Questions about these Terms: {support}. Last updated{" "}
+            {macwall.legalEffectiveDate}.
           </p>
         </LegalSection>
       </LegalDocumentShell>

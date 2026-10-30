@@ -14,8 +14,11 @@ const doc = legalDocumentBySlug("cookies")!
 
 export const metadata: Metadata = legalPageMetadata(doc)
 
+const support = (
+  <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>
+)
+
 export default function LegalCookiesPage() {
-  const year = new Date().getFullYear()
   const jsonLd = webPageWithBreadcrumbsJsonLd({
     origin: canonicalSiteOrigin(),
     pathname: doc.href,
@@ -33,92 +36,44 @@ export default function LegalCookiesPage() {
         title={`${macwall.name} Cookie Policy`}
         intro={
           <p>
-            This Cookie Policy explains how {macwall.name} uses cookies and
-            similar technologies on {macwall.website}. For broader privacy
-            practices, see our <Link href="/legal/privacy">Privacy Policy</Link>
-            .
+            This Cookie Policy explains the cookies, browser storage and
+            tracking tools {macwall.website} uses, how long they last, and how
+            to change your choice. For everything else, see our{" "}
+            <Link href="/legal/privacy">Privacy Policy</Link>.
           </p>
         }
       >
         <LegalSection id="what-are-cookies" title="What Are Cookies?">
           <p>
-            Cookies are small text files stored on your device when you visit a
-            website. Similar technologies include local storage and pixels used
-            by payment or analytics partners.
-          </p>
-        </LegalSection>
-
-        <LegalSection id="how-we-use" title="How We Use Cookies">
-          <ul className={legalBulletList}>
-            <li>
-              <strong>Essential / functional:</strong> keep the site working.
-              for example remembering approximate country for pricing display (
-              <code>mw_country</code>) and securing admin sessions for our own
-              operators.
-            </li>
-            <li>
-              <strong>Payments:</strong> our payment processor,{" "}
-              {macwall.paymentProcessor}, may set cookies
-              during checkout to process your purchase securely.
-            </li>
-            <li>
-              <strong>Attribution / analytics:</strong> where configured,
-              analytics or referral partners may use cookies or similar
-              identifiers to understand traffic and product usage. These help us
-              improve the product; they are not used to sell your personal
-              information as a standalone product.
-            </li>
-          </ul>
-        </LegalSection>
-
-        <LegalSection id="list" title="Cookies and Technologies We Use">
-          <p>
-            <strong>Our own cookies</strong>
-          </p>
-          <ul className={legalBulletList}>
-            <li>
-              <code>mw_country</code>: approximate country, used to show
-              regional prices. Expires after 30 days.
-            </li>
-            <li>
-              <code>mw_visitor_id</code> and <code>mw_lead_email</code>: link a
-              checkout to the Mac that started it and pre-fill the email you
-              entered, so your license reaches you. Expire after 30 days.
-            </li>
-            <li>
-              <code>affonso_referral</code>: records which affiliate referred
-              you, so the right partner is credited. Set only when you arrive
-              through an affiliate link.
-            </li>
-            <li>
-              <code>macwall_admin_session</code>: signs in our own staff to the
-              admin area. Never set for customers.
-            </li>
-          </ul>
-          <p>
-            We also keep an anonymous analytics session ID and a few display
-            preferences in your browser&apos;s local storage.
-          </p>
-          <p>
-            <strong>Third-party pixels and analytics</strong> (marketing pages
-            only, where configured): Google Analytics, Meta Pixel, TikTok Pixel,
-            X (Twitter) Pixel and Ahrefs Web Analytics. They measure visits and which ads lead to downloads or
-            purchases, and may set their own cookies under their own policies.
-            Our legal pages and docs do not load ad pixels. Ahrefs analytics
-            is cookieless and always on.
+            Cookies are small text files a website stores in your browser.
+            Local storage and session storage are similar browser storage;
+            session storage is cleared when you close the tab. Pixels are small
+            scripts that tell an analytics or ad service you visited a page.
           </p>
         </LegalSection>
 
         <LegalSection id="consent" title="Your Choice">
           <ul className={legalBulletList}>
             <li>
-              <strong>EEA, UK and Switzerland:</strong> ad and analytics pixels
-              stay off until you choose &ldquo;Accept all&rdquo; in the cookie
-              banner. &ldquo;Essential only&rdquo; keeps them off.
+              <strong>EEA, UK and Switzerland:</strong> PostHog, Google
+              Analytics, Affonso and the ad pixels stay off until you choose
+              &ldquo;Accept all&rdquo; in the cookie banner. &ldquo;Essential
+              only&rdquo; keeps them off. We decide whether to ask from your
+              country, or from your browser&apos;s time zone if we don&apos;t
+              know it.
+            </li>
+            <li>
+              <strong>Everywhere else</strong> they are on by default and you
+              can turn them off below.
             </li>
             <li>
               <strong>Global Privacy Control:</strong> if your browser sends
-              it, we never load ad pixels, wherever you are.
+              it, they never load, wherever you are.
+            </li>
+            <li>
+              <strong>Always on:</strong> essential cookies, our own site
+              analytics (with its session ID in local storage) and Ahrefs Web
+              Analytics run for every visitor, including before you choose.
             </li>
             <li>
               Your current setting on this device: <CookieChoiceReset />.
@@ -126,47 +81,120 @@ export default function LegalCookiesPage() {
           </ul>
         </LegalSection>
 
+        <LegalSection id="list" title="Our Own Cookies">
+          <ul className={legalBulletList}>
+            <li>
+              <code>mw_country</code> (essential, 30 days): your approximate
+              country, to show regional prices.
+            </li>
+            <li>
+              <code>mw_lead_email</code> and <code>mw_visitor_id</code>{" "}
+              (functional, 30 days): set when you open checkout from a link
+              that carries your email or App install ID, so the email is filled
+              in and your license reaches the Mac that started the purchase.
+            </li>
+            <li>
+              <code>mw_ttclid</code> (advertising, 28 days, only with ad
+              consent): the TikTok click ID from an ad link, copied into your
+              checkout so TikTok can match the purchase to the ad.
+            </li>
+            <li>
+              <code>affonso_referral</code> (affiliate, 30 days, only with
+              consent): records which affiliate referred you, so the right
+              partner is credited.
+            </li>
+            <li>
+              <code>macwall_admin_session</code>: signs our own staff in to the
+              admin area. Never set for customers.
+            </li>
+          </ul>
+        </LegalSection>
+
+        <LegalSection id="storage" title="Browser Storage">
+          <ul className={legalBulletList}>
+            <li>
+              <strong>Local storage</strong>, kept until you clear it:{" "}
+              <code>mw_cookie_consent</code> (your cookie choice),{" "}
+              <code>macwall_analytics_session</code> (a random ID for our own
+              site analytics, set for every visitor), whether you have
+              downloaded the installer, cached prices and dismissed banners.
+            </li>
+            <li>
+              <strong>Session storage</strong>, cleared when you close the
+              tab: campaign tags and ad click IDs from the link you arrived by
+              (UTM tags, TikTok, Google and Meta click IDs), whether you
+              started or finished a checkout in this visit, and similar
+              short-lived flags.
+            </li>
+          </ul>
+        </LegalSection>
+
+        <LegalSection id="third-party" title="Third-Party Tools">
+          <ul className={legalBulletList}>
+            <li>
+              <strong>PostHog</strong> (analytics, with consent where
+              required): a <code>ph_…_posthog</code> cookie and matching local
+              storage, kept up to a year, holding a random ID. It records page
+              views, page leaves, clicks on download, pricing and checkout,
+              page-speed measurements, and a session recording for about 1 in
+              10 visits with all text and inputs masked. It runs on all pages
+              except activation, support and admin.
+            </li>
+            <li>
+              <strong>Google Analytics, Meta Pixel, TikTok Pixel and X
+              Pixel</strong> (advertising and analytics, with consent where
+              required, marketing pages only): they set their own cookies, for
+              example <code>_ga</code> (Google), <code>_fbp</code> (Meta) and{" "}
+              <code>_ttp</code> (TikTok), with lifetimes set by each company.
+            </li>
+            <li>
+              <strong>Ahrefs Web Analytics</strong> (always on, marketing pages
+              only): sets no cookies.
+            </li>
+            <li>
+              <strong>{macwall.paymentProcessor}</strong> sets its own cookies
+              on its checkout pages to process your payment and prevent fraud.
+            </li>
+          </ul>
+          <p>
+            Legal, docs and learn pages never load the ad pixels. Our server
+            also sends purchase information to TikTok, X and PostHog whatever
+            your cookie choice; see{" "}
+            <Link href="/legal/privacy#purchases">When You Buy</Link>.
+          </p>
+        </LegalSection>
+
         <LegalSection id="legal-basis" title="Legal Basis">
           <p>
-            Essential cookies rely on our legitimate interest in running a
-            secure, working site and on contractual necessity for checkout.
-            Analytics and ad cookies rely on your consent where the law
-            requires it.
+            Essential and functional cookies rely on our legitimate interest in
+            a secure, working site and on what&apos;s needed to deliver your
+            purchase. Our own site analytics and Ahrefs rely on legitimate
+            interests. PostHog, Google Analytics, Affonso and the ad pixels
+            rely on your consent where the law requires it.
           </p>
         </LegalSection>
 
         <LegalSection id="rights" title="Your Rights">
           <p>
-            You can ask to access or delete data collected through cookies, and
-            withdraw consent at any time. California residents can opt out of
-            sharing as described in our{" "}
-            <Link href="/legal/ccpa">CCPA</Link> page. Email{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>{macwall.supportEmail}</a>.
+            You can ask to access or delete data collected through cookies,
+            and withdraw consent at any time above. California residents can
+            opt out of sharing as described on our{" "}
+            <Link href="/legal/ccpa">CCPA</Link> page. Email {support}.
           </p>
         </LegalSection>
 
         <LegalSection id="managing" title="Managing Cookies">
           <p>
-            You can control cookies through your browser settings. Blocking
-            essential cookies may break checkout or regional pricing. Clearing
-            cookies may reset preferences such as country detection.
-          </p>
-        </LegalSection>
-
-        <LegalSection id="updates" title="Updates">
-          <p>
-            We may update this policy when our stack changes. The latest version
-            is always on this page. Last updated {macwall.legalEffectiveDate}.
+            You can also block or delete cookies and storage in your browser
+            settings. Blocking essential cookies may break checkout or regional
+            pricing.
           </p>
         </LegalSection>
 
         <LegalSection id="contact" title="Contact">
           <p>
-            Questions:{" "}
-            <a href={`mailto:${macwall.supportEmail}`}>
-              {macwall.supportEmail}
-            </a>
-            . © {year} {macwall.legalCompanyName}.
+            Questions: {support}. We update this policy when our tools change.
+            Last updated {macwall.legalEffectiveDate}.
           </p>
         </LegalSection>
       </LegalDocumentShell>

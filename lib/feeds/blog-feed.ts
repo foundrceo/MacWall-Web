@@ -110,7 +110,7 @@ export function buildRssXml(): string {
     <link>${escapeXml(`${origin}/blog`)}</link>
     <description>${escapeXml(FEED_DESCRIPTION)}</description>
     <language>en-us</language>
-    <copyright>${escapeXml(`© ${new Date().getUTCFullYear()} ${macwall.legalCompanyName}`)}</copyright>
+    <copyright>${escapeXml(`© ${new Date().getUTCFullYear()} ${macwall.name}`)}</copyright>
     <managingEditor>${escapeXml(`${macwall.supportEmail} (${macwall.name})`)}</managingEditor>
     <lastBuildDate>${lastBuild.toUTCString()}</lastBuildDate>
     <generator>${escapeXml(`${macwall.name} website`)}</generator>
@@ -156,7 +156,7 @@ export function buildAtomXml(): string {
   <updated>${updated.toISOString()}</updated>
   <icon>${escapeXml(`${origin}/favicon_io/favicon-32x32.png`)}</icon>
   <logo>${escapeXml(`${origin}/MacWall.png`)}</logo>
-  <rights>${escapeXml(`© ${new Date().getUTCFullYear()} ${macwall.legalCompanyName}`)}</rights>
+  <rights>${escapeXml(`© ${new Date().getUTCFullYear()} ${macwall.name}`)}</rights>
   <author>
     <name>${escapeXml(macwall.name)}</name>
     <email>${escapeXml(macwall.supportEmail)}</email>

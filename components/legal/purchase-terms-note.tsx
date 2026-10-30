@@ -6,7 +6,9 @@ import { cn } from "@/lib/utils"
 /**
  * Point-of-sale disclosure under Buy buttons: card networks expect the
  * refund policy and terms to be visible before payment, not only in the
- * footer.
+ * footer. Prices are set in USD, but Stripe Adaptive Pricing may charge local
+ * currency, and no tax is added at checkout today: keep this note to what is
+ * true of the checkout session.
  */
 export function PurchaseTermsNote({
   className,
@@ -18,9 +20,10 @@ export function PurchaseTermsNote({
         className
       )}
     >
-      One-time payment, charged in USD, no subscription.{" "}
-      {macwall.refundWindowDays}-day money-back guarantee. Taxes, if any, are
-      calculated at checkout. By purchasing you agree to our{" "}
+      One-time payment, no subscription. Prices are set in USD; checkout may
+      show and charge your local currency, and the total is shown before you
+      pay. {macwall.refundWindowDays}-day money-back guarantee. By purchasing
+      you agree to our{" "}
       <Link href="/legal/terms" className="underline underline-offset-2">
         Terms
       </Link>{" "}

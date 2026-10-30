@@ -25,7 +25,6 @@ import { useMarketingPricing } from "@/components/marketing/marketing-pricing-co
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import { PricingPlans } from "@/components/macwall-marketing/pricing-plans"
-import { StripeWordmark } from "@/components/macwall-marketing/stripe-wordmark"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
 import { macwall, macwallCatalog } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
@@ -93,11 +92,10 @@ function SocialProof() {
     >
       {reviewers.length > 0 ? <AvatarStack /> : null}
       <p className="text-[13px] text-zinc-400">
-        Trusted by{" "}
         <span className="font-medium text-white">
-          {macwall.pro.socialProofMembers}
+          {macwall.pro.socialProofDownloads}
         </span>{" "}
-        users
+        downloads
       </p>
     </div>
   )
@@ -171,12 +169,7 @@ const TRUST_TILES: readonly Tile[] = [
   {
     icon: SecurityLockIcon,
     title: "Secure checkout",
-    body: (
-      <span className="inline-flex items-center gap-1.5">
-        Powered by
-        <StripeWordmark className="h-[14px] text-zinc-400" />
-      </span>
-    ),
+    body: "Payments processed by Stripe.",
   },
   {
     icon: Mail01Icon,

@@ -233,7 +233,6 @@ export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
           "Fill remaining legal gaps: trial, submissions, cookies, vendors, DMCA agent.",
           "Complete the legal pages and show terms at the point of sale.",
           "Show only real social proof and true catalog numbers.",
-          "Show OG APPS, LLC as the legal owner of MacWall (#3).",
         ],
       },
     ],

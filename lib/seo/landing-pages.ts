@@ -13,7 +13,7 @@ export const downloadPage: SeoContentPage = {
   pathname: "/download",
   title: "Download MacWall for Mac, Free 24-Hour Trial",
   headline: "Download MacWall for Mac",
-  description: `Live wallpapers for macOS 15 or later. Free 24-hour trial with no card, then ${macwall.pro.price} once for up to ${macwall.maxLicensedMacs} Macs. ${macwallSocialProof.trustedLine}.`,
+  description: `Live wallpapers for macOS 15 or later. Free 24-hour trial with no card, then ${macwall.pro.price} once for up to ${macwall.maxLicensedMacs} Macs. ${macwallSocialProof.downloadsLine}.`,
   keywords: [
     "macwall download",
     "download live wallpaper mac",
@@ -27,7 +27,7 @@ export const downloadPage: SeoContentPage = {
     },
     {
       type: "p",
-      text: `The download is free and starts with a 24-hour trial of the full catalog: ${macwallCatalog.liveCountLabel} curated 4K live wallpapers. The trial asks for an email address, never a card, and runs once per Mac. After it, a one-time Pro license keeps everything unlocked; see [pricing](/pricing) for your region. ${macwallSocialProof.trustedLine}.`,
+      text: `The download is free and starts with a 24-hour trial of the full catalog: ${macwallCatalog.liveCountLabel} curated live wallpapers, most in 4K. The trial asks for an email address, never a card, and runs once per Mac. After it, a one-time Pro license keeps everything unlocked; see [pricing](/pricing) for your region. ${macwallSocialProof.downloadsLine}.`,
     },
     { type: "h2", text: "Install in under a minute" },
     {
@@ -229,7 +229,7 @@ export const bestLiveWallpaperMacPage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        `**MacWall**: ${macwallCatalog.liveCountLabel} curated 4K live wallpapers.`,
+        `**MacWall**: ${macwallCatalog.liveCountLabel} curated live wallpapers, most in 4K.`,
         "**Hanami**: 6,000+ live wallpapers.",
         "**Dynamic Wallpaper Studio**: 5,000+ live wallpapers, plus 700+ exclusive ones.",
         "**Paper**: 4,000+ wallpapers.",
@@ -371,7 +371,7 @@ export const wallpaperEngineAlternativePage: SeoContentPage = {
       type: "table",
       columns: ["", "Wallpaper Engine", "MacWall"],
       rows: [
-        ["Developer", "Wallpaper Engine Team", "OG APPS, LLC"],
+        ["Developer", "Wallpaper Engine Team", "MacWall"],
         ["Price model", "$4.99 one-time on Steam (US)", MACWALL_PRICE_SUMMARY],
         [
           "Platforms",
@@ -390,7 +390,7 @@ export const wallpaperEngineAlternativePage: SeoContentPage = {
     { type: "h2", text: "What to use on a Mac instead" },
     {
       type: "p",
-      text: `If you mostly used Wallpaper Engine for video loops, a native Mac app gives you the same look plus Mac features such as the Lock Screen. [MacWall](/download) has ${macwallCatalog.liveCountLabel} curated 4K live wallpapers, plays your own MP4 and MOV files with Pro, and puts motion on the Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion}. Other native options, each with its own sourced price:`,
+      text: `If you mostly used Wallpaper Engine for video loops, a native Mac app gives you the same look plus Mac features such as the Lock Screen. [MacWall](/download) has ${macwallCatalog.liveCountLabel} curated live wallpapers (most in 4K), plays your own MP4 and MOV files with Pro, and puts motion on the Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion}. Other native options, each with its own sourced price:`,
     },
     {
       type: "ul",
@@ -471,7 +471,7 @@ export const wallpaperEngineAlternativePage: SeoContentPage = {
     {
       question: "Is MacWall made by the Wallpaper Engine team?",
       answer:
-        "No. MacWall is an independent Mac app made by OG APPS, LLC and is not affiliated with Wallpaper Engine or Steam.",
+        "No. MacWall is an independent Mac app and is not affiliated with Wallpaper Engine or Steam.",
     },
   ],
 }
@@ -500,7 +500,7 @@ export const macwallVsBackdropPage: SeoContentPage = {
       type: "table",
       columns: ["", "MacWall", "Backdrop"],
       rows: [
-        ["Developer", "OG APPS, LLC", "Cindori AB"],
+        ["Developer", "MacWall", "Cindori AB"],
         [
           "Price model",
           `${MACWALL_PRO_USD} one-time for ${MACWALL_PRO_MACS} Macs (India ${MACWALL_PRO_INDIA_USD}); ${MACWALL_PRO_PLUS_MACS} Macs ${MACWALL_PRO_PLUS_USD}`,
@@ -523,7 +523,7 @@ export const macwallVsBackdropPage: SeoContentPage = {
         ],
         [
           "Library",
-          `${macwallCatalog.liveCountLabel} curated 4K loops`,
+          `${macwallCatalog.liveCountLabel} curated loops, most in 4K`,
           "“Thousands of community-created live wallpapers”",
         ],
         [
@@ -627,7 +627,7 @@ export const macwallVsWallspacePage: SeoContentPage = {
       type: "table",
       columns: ["", "MacWall", "Wallspace"],
       rows: [
-        ["Developer", "OG APPS, LLC", "Tangent Labs LLP"],
+        ["Developer", "MacWall", "Tangent Labs LLP"],
         [
           "Price model",
           `${MACWALL_PRO_USD} one-time for ${MACWALL_PRO_MACS} Macs (India ${MACWALL_PRO_INDIA_USD}); ${MACWALL_PRO_PLUS_MACS} Macs ${MACWALL_PRO_PLUS_USD}`,
@@ -646,7 +646,7 @@ export const macwallVsWallspacePage: SeoContentPage = {
         ],
         [
           "Library",
-          `${macwallCatalog.liveCountLabel} curated 4K loops`,
+          `${macwallCatalog.liveCountLabel} curated loops, most in 4K`,
           "1,000+ wallpapers",
         ],
         ["Your own videos", "MP4, MOV and M4V with Pro", "Your own MP4 files"],
@@ -747,7 +747,7 @@ export const livelyWallpaperMacPage: SeoContentPage = {
       type: "table",
       columns: ["", "Lively Wallpaper", "MacWall"],
       rows: [
-        ["Developer", "rocksdanister (GitHub repository)", "OG APPS, LLC"],
+        ["Developer", "rocksdanister (GitHub repository)", "MacWall"],
         ["Price model", "Free, open source (GPL-3.0)", MACWALL_PRICE_SUMMARY],
         ["Platforms", "Windows 10 and later", MACWALL_PLATFORMS],
         ["Runs on a Mac", "No", "Yes"],

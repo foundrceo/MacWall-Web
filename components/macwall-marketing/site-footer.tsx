@@ -149,9 +149,33 @@ export function SiteFooter({ className }: Readonly<{ className?: string }>) {
         </div>
 
         <div className="mt-16 flex flex-col gap-4 border-t border-hairline pt-8 text-[13px] leading-5 text-ink-3 md:flex-row md:items-center md:justify-between md:gap-6 lg:mt-20">
-          <p>
-            © {year} {macwall.name} is a product of {macwall.legalCompanyName}
-          </p>
+          <div className="flex flex-col gap-2">
+            <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span>
+                © {year} {macwall.name}. All rights reserved.
+              </span>
+              {/* The cookie page holds the live on/off control for this
+                  device (CookieChoiceReset); the banner itself only opens
+                  for EEA/UK/CH visitors who haven't chosen yet. */}
+              <Link
+                href="/legal/cookies#consent"
+                className={cn("transition-colors hover:text-white", linkFocus)}
+              >
+                Cookie settings
+              </Link>
+              <Link
+                href="/legal/ccpa#sale"
+                className={cn("transition-colors hover:text-white", linkFocus)}
+              >
+                Your Privacy Choices
+              </Link>
+            </p>
+            <p className="text-[12px] leading-5">
+              Mac and macOS are trademarks of Apple Inc., registered in the
+              U.S. and other countries and regions. {macwall.name} is not
+              affiliated with Apple.
+            </p>
+          </div>
           <MarketingFooterAiSummary labelClassName="text-[13px] leading-5 text-ink-3" />
         </div>
       </div>

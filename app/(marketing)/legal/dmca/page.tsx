@@ -14,7 +14,6 @@ const doc = legalDocumentBySlug("dmca")!
 export const metadata: Metadata = legalPageMetadata(doc)
 
 export default function LegalDmcaPage() {
-  const year = new Date().getFullYear()
   const jsonLd = webPageWithBreadcrumbsJsonLd({
     origin: canonicalSiteOrigin(),
     pathname: doc.href,
@@ -46,9 +45,17 @@ export default function LegalDmcaPage() {
         <LegalSection id="overview" title="Overview">
           <p>
             We respond to valid notices under the U.S. Digital Millennium
-            Copyright Act (DMCA) and similar laws. Community uploads and catalog
-            items may be removed when a complete notice identifies infringing
-            material.
+            Copyright Act (DMCA) and similar laws elsewhere. This covers every
+            wallpaper in the App and on the Site: community submissions and
+            wallpapers {macwall.name} added itself from free and community
+            sources, many of which have no recorded creator or license. We
+            don&apos;t claim to own catalog wallpapers. If you hold the rights
+            to one, tell us and we will remove it.
+          </p>
+          <p>
+            Trademark, likeness and other rights complaints (for example a
+            brand, character or person shown in a wallpaper) are welcome at the
+            same address; include the same details where they apply.
           </p>
         </LegalSection>
 
@@ -171,8 +178,6 @@ export default function LegalDmcaPage() {
           <p>
             Copyright Agent, {macwall.legalCompanyName}
             <br />
-            {macwall.legalMailingAddress}
-            <br />
             Email:{" "}
             <a href={`mailto:${macwall.supportEmail}`}>
               {macwall.supportEmail}
@@ -180,7 +185,7 @@ export default function LegalDmcaPage() {
             (subject line &ldquo;DMCA Notice&rdquo;)
           </p>
           <p>
-            Email is the fastest route. We review notices promptly and usually
+            Notices are accepted by email. We review them promptly and usually
             act within a few business days.
           </p>
         </LegalSection>
@@ -191,8 +196,8 @@ export default function LegalDmcaPage() {
             <a href={`mailto:${macwall.supportEmail}`}>
               {macwall.supportEmail}
             </a>
-            . © {year} {macwall.legalCompanyName}. Last updated {macwall.legalEffectiveDate}
-            .
+
+            . Last updated {macwall.legalEffectiveDate}.
           </p>
         </LegalSection>
       </LegalDocumentShell>

@@ -114,7 +114,7 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
         headline: `Here's ${app} for your Mac`,
         paragraphs: [
           "Open this email on your Mac and tap the button to download. Drag MacWall to Applications, open it, and pick a wallpaper.",
-          "Every feature is free for 24 hours, no card needed. 1,000+ live 4K wallpapers for your desktop, Lock Screen and screen saver.",
+          "Every feature is free for 24 hours, no card needed. 850+ live wallpapers for your desktop, Lock Screen and screen saver.",
         ],
         button: `Download ${app} for Mac`,
         secondaryLink: wallpaperLink,
@@ -186,7 +186,7 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
         paragraphs: [
           `You tried ${app} but didn't pick up Pro. We'd like to make it easier: for the next 24 hours, Pro is ${fifty.percent} off.`,
           `${app} has had a big update since you tried it: an all-new design, Spotlight-style search, and fixes for the problems people reported.`,
-          "Pro turns your live wallpapers back on and unlocks the full catalog: 1,000+ live 4K wallpapers, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
+          "Pro turns your live wallpapers back on and unlocks the full catalog: 850+ live wallpapers, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
           "It's a single payment, not a subscription. Every future update is included, one license covers up to 3 Macs, and there's a 7-day money-back guarantee.",
         ],
         code: {
@@ -208,7 +208,7 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
         headline: "Your trial has ended",
         paragraphs: [
           `Thanks for trying ${app}. Your live wallpapers are paused now, but everything you picked is still in the app.`,
-          "Pro turns them back on and unlocks the full catalog: 1,000+ live 4K wallpapers, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
+          "Pro turns them back on and unlocks the full catalog: 850+ live wallpapers, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
           "It's a single payment, not a subscription. Every future update is included, and one license covers up to 3 Macs.",
         ],
         code: {

@@ -14,7 +14,6 @@ const doc = legalDocumentBySlug("security")!
 export const metadata: Metadata = legalPageMetadata(doc)
 
 export default function LegalSecurityPage() {
-  const year = new Date().getFullYear()
   const jsonLd = webPageWithBreadcrumbsJsonLd({
     origin: canonicalSiteOrigin(),
     pathname: doc.href,
@@ -42,9 +41,11 @@ export default function LegalSecurityPage() {
         <LegalSection id="payments" title="Payments">
           <ul className={legalBulletList}>
             <li>
-              Card payments are processed by our payment provider,{" "}
-              {macwall.paymentProcessor}. We do not store full card numbers on
-              MacWall servers.
+              Payments are processed by {macwall.paymentProcessor}. You enter
+              card and other payment details on {macwall.paymentProcessor}
+              &apos;s checkout page; they never pass through or get stored on
+              our servers. {macwall.paymentProcessor} is certified to PCI DSS
+              Level 1.
             </li>
             <li>
               License keys are issued after successful payment and validated by
@@ -78,9 +79,15 @@ export default function LegalSecurityPage() {
 
         <LegalSection id="licensing" title="Licensing and Devices">
           <p>
-            Pro licenses may be bound to hardware identifiers to enforce Mac
-            limits and reduce key sharing. You are responsible for keeping your
-            license key private within your allowed device count.
+            Licenses and the free trial are bound to your Mac&apos;s hardware
+            identifier to enforce Mac limits and one trial per Mac; our server
+            stores only a SHA-256 hash of it. Keep your license key private:
+            anyone with it can use your Mac slots.
+          </p>
+          <p>
+            Screenshots and diagnostics reports you send through in-app
+            support are stored at long, random, unpublished links that are not
+            password-protected: anyone who has a link can open that file.
           </p>
         </LegalSection>
 
@@ -100,7 +107,11 @@ export default function LegalSecurityPage() {
 
         <LegalSection id="contact" title="Contact">
           <p>
-            © {year} {macwall.legalCompanyName}. Last updated{" "}
+            Questions:{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>
+              {macwall.supportEmail}
+            </a>
+            . Last updated{" "}
             {macwall.legalEffectiveDate}.
           </p>
         </LegalSection>

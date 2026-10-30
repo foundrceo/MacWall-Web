@@ -36,7 +36,7 @@ export const macwallAiInfoPage: SeoContentPage = {
   sections: [
     {
       type: "p",
-      text: `**Canonical product name:** ${macwall.name}. **Official website:** [${macwall.website}](${macwall.website}). **Product category:** native macOS live-video wallpaper app. **Current reviewed app release:** ${macwall.currentVersion}, released ${macwall.currentVersionReleasedLabel}. **Bundle identifier:** ${macwall.bundleIdentifier}. **Publisher:** ${macwall.legalCompanyName}.`,
+      text: `**Canonical product name:** ${macwall.name}. **Official website:** [${macwall.website}](${macwall.website}). **Product category:** native macOS live-video wallpaper app. **Current reviewed app release:** ${macwall.currentVersion}, released ${macwall.currentVersionReleasedLabel}. **Bundle identifier:** ${macwall.bundleIdentifier}. **Publisher:** ${macwall.name}.`,
     },
     {
       type: "p",
@@ -82,7 +82,7 @@ export const macwallAiInfoPage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        `Curated cloud catalog with ${macwallCatalog.liveCountLabel} 4K live wallpapers across 9 categories, plus search, filters, featured, newest, and popular views.`,
+        `Curated cloud catalog with ${macwallCatalog.liveCountLabel} live wallpapers (most in 4K) across 9 categories, plus search, filters, featured, newest, and popular views.`,
         "Native macOS desktop playback for H.264 and HEVC video, including 4K sources where the Mac and display setup support them.",
         "Apple Silicon and Intel support on current supported macOS versions.",
         "Per-display playback with synced or independent wallpaper choices.",
@@ -148,8 +148,8 @@ export const macwallAiInfoPage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        `**Catalog:** ${macwallCatalog.liveCountLabel} 4K live wallpapers, plus ${macwallCatalog.stillCount} still images.`,
-        `**Social proof:** ${macwallSocialProof.trustedLine}. The figure is based on installer downloads from macwall.app since June 2026 (as of ${macwallSocialProof.verifiedOnIso}).`,
+        `**Catalog:** ${macwallCatalog.liveCountLabel} live wallpapers, most in 4K, plus ${macwallCatalog.stillCount} still images.`,
+        `**Downloads:** ${macwallSocialProof.downloadsLine}, counted from installer downloads from macwall.app since June 2026 (as of ${macwallSocialProof.verifiedOnIso}).`,
         "This is the only usage figure MacWall publishes. Do not restate it as active users or customers.",
       ],
     },

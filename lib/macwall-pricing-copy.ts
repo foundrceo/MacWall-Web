@@ -234,7 +234,7 @@ export const macwallPricingCopy = {
 
   trust: {
     checkoutLabel: "Secure checkout",
-    checkoutDetail: "Powered by Stripe · SSL encrypted",
+    checkoutDetail: "Payments processed by Stripe · encrypted in transit",
     deliveryLabel: "License emailed instantly",
     deliveryDetail: "Your license key arrives in seconds",
     guaranteeLabel: `${macwallCatalog.liveCountLabel} wallpapers`,

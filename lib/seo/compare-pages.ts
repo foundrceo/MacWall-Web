@@ -99,7 +99,7 @@ export const twentyFourHourWallpaperPage: SeoContentPage = {
       type: "table",
       columns: ["", "24 Hour Wallpaper", "MacWall"],
       rows: [
-        ["Developer", "Jetson Creative LLC", "OG APPS, LLC"],
+        ["Developer", "Jetson Creative LLC", "MacWall"],
         [
           "Price model",
           "Free download with in-app purchases: lifetime access to all wallpapers at $29.99 or $69.99 (two listings), single wallpapers $2.49, and a 14-day free trial",
@@ -134,7 +134,7 @@ export const twentyFourHourWallpaperPage: SeoContentPage = {
         [
           "Resolution",
           "5K or higher",
-          `${macwallCatalog.liveCountLabel} curated loops in 4K`,
+          `${macwallCatalog.liveCountLabel} curated loops, most in 4K`,
         ],
         [
           "Multiple displays",
@@ -262,7 +262,7 @@ export const plashAlternativePage: SeoContentPage = {
       type: "table",
       columns: ["", "Plash", "MacWall"],
       rows: [
-        ["Developer", "Sindre Sorhus", "OG APPS, LLC"],
+        ["Developer", "Sindre Sorhus", "MacWall"],
         [
           "Price model",
           "Free; no in-app purchases listed",
@@ -310,7 +310,7 @@ export const plashAlternativePage: SeoContentPage = {
     { type: "h2", text: "What MacWall is good at" },
     {
       type: "p",
-      text: `MacWall is built for video. It has ${macwallCatalog.liveCountLabel} curated 4K live wallpapers across categories such as anime, nature, cars and space, plays a different loop on each display or the same loop on all of them, and decodes video in hardware. On ${macwallLockScreenMacOSVersion} or later the same loop can play on the Lock Screen and as the Screen Saver. MacWall cannot show a website; it only plays video files.`,
+      text: `MacWall is built for video. It has ${macwallCatalog.liveCountLabel} curated live wallpapers, most in 4K, across categories such as anime, nature, cars and space, plays a different loop on each display or the same loop on all of them, and decodes video in hardware. On ${macwallLockScreenMacOSVersion} or later the same loop can play on the Lock Screen and as the Screen Saver. MacWall cannot show a website; it only plays video files.`,
     },
     { type: "h2", text: "Pick Plash if" },
     {
@@ -375,7 +375,7 @@ export const plashAlternativePage: SeoContentPage = {
     {
       question: "Who makes Plash?",
       answer:
-        "Plash is made by Sindre Sorhus. MacWall is made by OG APPS, LLC and is not affiliated with Plash.",
+        "Plash is made by Sindre Sorhus. MacWall is an independent Mac app and is not affiliated with Plash.",
     },
   ],
 }
@@ -409,7 +409,7 @@ export const dynamicWallpaperClubPage: SeoContentPage = {
       columns: ["", "Dynamic Wallpaper Club", "MacWall"],
       rows: [
         ["What it is", "Website", "Mac app"],
-        ["Developer", "Not named on the site", "OG APPS, LLC"],
+        ["Developer", "Not named on the site", "MacWall"],
         [
           "Price model",
           "Free; supported by ads and donations",
@@ -451,7 +451,7 @@ export const dynamicWallpaperClubPage: SeoContentPage = {
     { type: "h2", text: "How a live wallpaper differs" },
     {
       type: "p",
-      text: `A live wallpaper is a video loop that keeps moving whenever the desktop is visible. MacWall plays ${macwallCatalog.liveCountLabel} curated 4K loops, decodes them in hardware, pauses behind full-screen apps, and on ${macwallLockScreenMacOSVersion} or later can play on the Lock Screen and as the Screen Saver. A video costs more energy than a still image, so a dynamic wallpaper is the lighter choice on battery. More detail: [dynamic vs live wallpaper on Mac](/blog/dynamic-wallpaper-vs-live-wallpaper-mac).`,
+      text: `A live wallpaper is a video loop that keeps moving whenever the desktop is visible. MacWall plays ${macwallCatalog.liveCountLabel} curated loops (most in 4K), decodes them in hardware, pauses behind full-screen apps, and on ${macwallLockScreenMacOSVersion} or later can play on the Lock Screen and as the Screen Saver. A video costs more energy than a still image, so a dynamic wallpaper is the lighter choice on battery. More detail: [dynamic vs live wallpaper on Mac](/blog/dynamic-wallpaper-vs-live-wallpaper-mac).`,
     },
     { type: "h2", text: "Pick Dynamic Wallpaper Club if" },
     {
@@ -534,7 +534,7 @@ export const dynamicWallpaperClubPage: SeoContentPage = {
     {
       question: "Who runs Dynamic Wallpaper Club?",
       answer:
-        "The site does not name a company or developer. MacWall is made by OG APPS, LLC and is not affiliated with it.",
+        "The site does not name a company or developer. MacWall is an independent Mac app and is not affiliated with it.",
     },
   ],
 }
@@ -559,7 +559,7 @@ export type MacWallpaperAppEntry = {
 export const macWallpaperApps: readonly MacWallpaperAppEntry[] = [
   {
     name: "MacWall",
-    developer: "OG APPS, LLC",
+    developer: "MacWall",
     priceModel: MACWALL_PRICE_SUMMARY,
     platforms: `${MACWALL_PLATFORMS}; Lock Screen video on macOS 26+`,
     comparePath: "/best-live-wallpaper-mac",

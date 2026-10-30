@@ -14,7 +14,6 @@ const doc = legalDocumentBySlug("acceptable-use")!
 export const metadata: Metadata = legalPageMetadata(doc)
 
 export default function LegalAcceptableUsePage() {
-  const year = new Date().getFullYear()
   const jsonLd = webPageWithBreadcrumbsJsonLd({
     origin: canonicalSiteOrigin(),
     pathname: doc.href,
@@ -73,8 +72,9 @@ export default function LegalAcceptableUsePage() {
               controls.
             </li>
             <li>
-              Redistribute catalog media outside the App, or sell MacWall
-              content as your own product.
+              Download, extract, record for reuse or redistribute catalog
+              wallpapers outside the App, use them commercially or to train AI
+              models, or sell MacWall content as your own product.
             </li>
             <li>
               Upload or import content you do not have rights to use, including
@@ -131,7 +131,11 @@ export default function LegalAcceptableUsePage() {
 
         <LegalSection id="contact" title="Contact">
           <p>
-            © {year} {macwall.legalCompanyName}. Last updated{" "}
+            Questions:{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>
+              {macwall.supportEmail}
+            </a>
+            . Last updated{" "}
             {macwall.legalEffectiveDate}.
           </p>
         </LegalSection>

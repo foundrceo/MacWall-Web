@@ -22,7 +22,7 @@ export type MarketingMultiMacOffer = {
   priceMajor: number
   /** e.g. "$4.00": price divided by Macs, same currency as `price`. */
   perMacPrice: string
-  /** When primary is local: "Charged in USD: $19.99". When primary is USD: null. */
+  /** When primary is local: "Set in USD: $19.99". When primary is USD: null. */
   localPriceHint: string | null
   checkoutUrl: string
   currency: string
@@ -41,7 +41,7 @@ export type MarketingPricing = {
   permanentPriceMajor: number
   /** e.g. "$4.33": Pro price divided by its Macs. */
   permanentPerMacPrice: string
-  /** When primary is local: "Charged in USD: $12.99". Otherwise null. */
+  /** When primary is local: "Set in USD: $12.99". Otherwise null. */
   permanentLocalHint: string | null
   /** Pro → Pro+ add-on offered at Checkout (Pro+ price minus Pro price). */
   proPlusUpgradePrice: string
@@ -92,11 +92,13 @@ function usdMoney(cents: number, locale = "en-US"): LocalizedMoney {
 }
 
 /**
- * Shown beside a local-currency price: the card is charged this USD amount,
- * and the local figure is only an estimate at today's rate.
+ * Shown beside a local-currency price: the price is set in this USD amount,
+ * and the local figure is only an estimate at today's rate. Adaptive Pricing
+ * may charge the buyer in local currency at Stripe's rate, so never say
+ * "charged in USD".
  */
 function usdCatalogHint(usdCents: number): string {
-  return `Charged in USD: $${(usdCents / 100).toFixed(2)}`
+  return `Set in USD: $${(usdCents / 100).toFixed(2)}`
 }
 
 export type MarketingFxRate = {

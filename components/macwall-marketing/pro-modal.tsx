@@ -116,11 +116,10 @@ export function ProModal({
                 </span>
               ) : null}
               <p className="text-[12px] text-marketing-muted">
-                Trusted by{" "}
                 <span className="font-medium text-foreground">
-                  {macwall.pro.socialProofMembers}
+                  {macwall.pro.socialProofDownloads}
                 </span>{" "}
-                users
+                downloads
               </p>
             </div>
           </div>
@@ -184,8 +183,8 @@ export function ProModal({
           <div className="mt-4 space-y-0.5 text-center text-[11px] leading-4 text-balance text-marketing-muted">
             <p>
               {pricing.permanentLocalHint
-                ? "Tax calculated at checkout"
-                : "Charged in USD · Tax calculated at checkout"}
+                ? "Checkout may charge in your currency · Total shown before you pay"
+                : "Price in USD · Total shown at checkout before you pay"}
             </p>
             <p>
               By purchasing, you agree to our{" "}

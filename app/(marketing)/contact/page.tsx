@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { legalLinkProse } from "@/components/legal/legal-classes"
-import { LEGAL_COMPANY_HREF } from "@/components/legal/legal-entity"
 import {
   landingPageH1,
   landingPageLead,
@@ -102,13 +101,8 @@ export default function ContactPage() {
           <section className="space-y-2">
             <h2 className="text-lg font-medium text-foreground">Company</h2>
             <p>
-              {macwall.name} is a product of {macwall.legalCompanyName},{" "}
-              {macwall.legalCompanyDescriptor}.
-              <br />
-              Mailing address: {macwall.legalMailingAddress}
-              <br />
-              Full details:{" "}
-              <Link href={LEGAL_COMPANY_HREF}>company information</Link>.
+              Our terms and policies, including who sells {macwall.name}, are
+              in the <Link href="/legal">legal center</Link>.
             </p>
           </section>
         </div>

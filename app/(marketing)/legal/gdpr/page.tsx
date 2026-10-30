@@ -14,7 +14,6 @@ const doc = legalDocumentBySlug("gdpr")!
 export const metadata: Metadata = legalPageMetadata(doc)
 
 export default function LegalGdprPage() {
-  const year = new Date().getFullYear()
   const jsonLd = webPageWithBreadcrumbsJsonLd({
     origin: canonicalSiteOrigin(),
     pathname: doc.href,
@@ -42,10 +41,8 @@ export default function LegalGdprPage() {
         <LegalSection id="controller" title="Controller">
           <p>
             For personal data processed through the {macwall.name} app and
-            website, the controller is {macwall.legalCompanyName},{" "}
-            {macwall.legalCompanyDescriptor}, registered office{" "}
-            {macwall.legalRegisteredOffice}, which operates {macwall.name}.
-            Contact:{" "}
+            website, the controller is {macwall.legalCompanyName}, which makes
+            and sells {macwall.name}. Contact:{" "}
             <a href={`mailto:${macwall.supportEmail}`}>
               {macwall.supportEmail}
             </a>
@@ -57,18 +54,23 @@ export default function LegalGdprPage() {
           <ul className={legalBulletList}>
             <li>
               <strong>Contract:</strong> processing purchases, delivering
-              license entitlements, and reviewing and publishing wallpapers you
+              license entitlements, running the trial and the features you turn
+              on, answering support, and reviewing and publishing wallpapers you
               submit under the license you grant us.
             </li>
             <li>
               <strong>Legitimate interests:</strong> securing the service,
-              preventing abuse, and improving reliability, balanced against your
-              rights, and keeping records of who submitted each wallpaper and
-              its rights declaration so we can handle copyright notices.
+              preventing abuse and key sharing, one trial per Mac, App analytics
+              and crash reports, our own site analytics, server-side purchase
+              measurement sent to TikTok, X and PostHog, reminder and update
+              emails, and keeping records of who submitted each wallpaper and
+              its rights declaration so we can handle copyright notices. You can
+              object to any of these.
             </li>
             <li>
-              <strong>Consent:</strong> where we ask for it (for example
-              optional non-essential communications).
+              <strong>Consent:</strong> PostHog, Google Analytics, Affonso and
+              the ad pixels on the Site, which load only after you choose
+              &ldquo;Accept all&rdquo;.
             </li>
             <li>
               <strong>Legal obligation:</strong> when we must retain or disclose
@@ -113,7 +115,11 @@ export default function LegalGdprPage() {
 
         <LegalSection id="contact" title="Contact">
           <p>
-            © {year} {macwall.legalCompanyName}. Last updated{" "}
+            Questions:{" "}
+            <a href={`mailto:${macwall.supportEmail}`}>
+              {macwall.supportEmail}
+            </a>
+            . Last updated{" "}
             {macwall.legalEffectiveDate}.
           </p>
         </LegalSection>

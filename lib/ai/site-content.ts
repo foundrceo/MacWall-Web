@@ -156,7 +156,7 @@ const homePage: SeoContentPage = {
       items: [
         `Support: [${macwall.supportEmail}](mailto:${macwall.supportEmail})`,
         `Community: [Discord](${macwall.discordInvite})`,
-        `Publisher: ${macwall.legalCompanyName}`,
+        `Publisher: ${macwall.name}`,
       ],
     },
   ],
@@ -382,7 +382,7 @@ updated: "${macwall.legalEffectiveDateIso}"
 
 ${input.description}
 
-Effective ${macwall.legalEffectiveDate}. Published by ${macwall.legalCompanyName}.
+Effective ${macwall.legalEffectiveDate}. Published by ${macwall.name}.
 
 The authoritative, complete text of this document is the HTML version at ${origin}${input.pathname}. Read it there, a summary is not a substitute for the policy itself.
 
@@ -409,8 +409,6 @@ canonical: "${origin}/contact"
 ${CONTACT_SUMMARY}
 
 - Email: ${macwall.supportEmail}
-- Company: ${macwall.legalCompanyName}
-- Mailing address: ${macwall.legalMailingAddress}
 - Help and troubleshooting: ${origin}/docs
 
 ---

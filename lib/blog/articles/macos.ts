@@ -93,7 +93,7 @@ export const macosArticles: BlogArticle[] = [
         type: "ul",
         items: [
           "Desktop live wallpapers with hardware video decoding on Apple silicon and Intel Macs",
-          `${macwallCatalog.liveCountLabel} 4K catalog loops, plus your own MP4 and MOV files with Pro`,
+          `${macwallCatalog.liveCountLabel} catalog loops (most in 4K), plus your own MP4 and MOV files with Pro`,
           "Pauses behind full-screen apps, and optionally in Low Power Mode or when the Mac is busy",
           `A one-time ${macwall.pro.price} Pro license instead of a subscription`,
         ],

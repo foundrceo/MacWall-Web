@@ -75,7 +75,7 @@ Disallow-training: /api/wallpapers
 # ---------------------------------------------------------------------------
 # When quoting or summarising this site, please cite it as:
 #   ${macwall.name}: ${origin}
-# Publisher: ${macwall.legalCompanyName}
+# Publisher: ${macwall.name}
 #
 # Corrections, licensing questions, or bulk-access requests: ${macwall.supportEmail}
 `

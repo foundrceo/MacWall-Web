@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { PageMotion } from "@/components/motion/page-motion"
 import { JsonLd } from "@/components/seo/json-ld"
-import { LegalEntityDetails } from "@/components/legal/legal-entity"
 import {
   legalBulletList,
   legalColumn,
@@ -98,15 +97,14 @@ export default function LegalHubPage() {
             id="company"
             className="mt-10 scroll-mt-24 font-display text-2xl leading-8 font-normal tracking-tight text-foreground"
           >
-            Company information
+            Who we are
           </h2>
           <p>
-            {macwall.name} is a product and trade name of{" "}
-            {macwall.legalCompanyName}, {macwall.legalCompanyDescriptor}. All{" "}
-            {macwall.name} policies, purchases and licenses are provided by{" "}
-            {macwall.legalCompanyName}.
+            The company that sells {macwall.name} and stands behind these
+            policies is named in our{" "}
+            <Link href="/legal/terms#who-we-are">Terms of Service</Link>.
+            Payments are processed by {macwall.paymentProcessor}.
           </p>
-          <LegalEntityDetails />
           <p>
             Questions about these terms or policies? Email{" "}
             <a href={`mailto:${macwall.supportEmail}`}>

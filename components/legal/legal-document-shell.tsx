@@ -4,7 +4,8 @@ import {
   legalH1,
   legalLinkProse,
 } from "@/components/legal/legal-classes"
-import { LegalOperatorNotice } from "@/components/legal/legal-entity"
+import { LegalCompanyNotice } from "@/components/legal/legal-entity"
+import { LegalSection } from "@/components/legal/legal-section"
 import { ReadingProgress } from "@/components/legal/reading-progress"
 import { PageMotion } from "@/components/motion/page-motion"
 import { macwall } from "@/lib/macwall-site"
@@ -17,14 +18,20 @@ const BODY_ID = "legal-body"
  * Every /legal document, in PostMesh's reading layout: the effective date
  * above a centred title, one column of text with numbered sections, and the
  * right-edge reading progress on large screens. No rails, boxes or sidebar.
+ *
+ * The company that stands behind the document is named in a closing
+ * "Who we are" section, not in the opening lines. Pass `company` to replace
+ * its default text (the Terms define the contracting party there).
  */
 export function LegalDocumentShell({
   title,
   intro,
+  company,
   children,
 }: Readonly<{
   title: string
   intro: ReactNode
+  company?: ReactNode
   children: ReactNode
 }>) {
   return (
@@ -47,9 +54,11 @@ export function LegalDocumentShell({
         data-reveal-root
         className={cn(legalArticle, legalLinkProse)}
       >
-        <LegalOperatorNotice />
         {intro}
         {children}
+        <LegalSection id="who-we-are" title="Who We Are">
+          {company ?? <LegalCompanyNotice />}
+        </LegalSection>
       </div>
     </article>
   )

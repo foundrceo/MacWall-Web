@@ -34,11 +34,14 @@ import { cn } from "@/lib/utils"
 
 /*
  * Based on Tailark's "Features 8" and "Features 9" (21st.dev). Content is real:
- * verified users, Cloudflare's bytes served (lib/public-stats.ts), the pause
- * rules from /docs/performance-and-battery, and reviewers already on the site.
+ * installer downloads, Cloudflare's bytes served (lib/public-stats.ts), the
+ * pause rules from /docs/performance-and-battery, and reviewers already on
+ * the site.
  */
 
-const USERS = Number(macwallSocialProof.usersLabel.replace(/\D/g, ""))
+const DOWNLOADS = Number(
+  macwallSocialProof.downloadsLabel.replace(/\D/g, "")
+)
 
 const CARD =
   "relative min-w-0 overflow-hidden rounded-[24px] bg-surface-1 p-6 squircle"
@@ -411,11 +414,12 @@ function UsersNarrowCard() {
       visual={<MacOrbit />}
       title={
         <>
-          <CountUp to={USERS} suffix="+" /> Mac users
+          <CountUp to={DOWNLOADS} suffix="+" /> downloads
         </>
       }
     >
-      Downloads from macwall.app. A few of them, from our reviews.
+      Installer downloads from macwall.app. A few of the people using it, from
+      our reviews.
     </TopCard>
   )
 }

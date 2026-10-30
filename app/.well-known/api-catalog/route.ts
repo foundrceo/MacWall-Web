@@ -48,7 +48,7 @@ export function GET(): Response {
         title: "AI and machine usage policy",
       },
     ],
-    author: [{ href: origin, title: macwall.legalCompanyName }],
+    author: [{ href: origin, title: macwall.name }],
     describedby: [
       {
         href: `${docs}.md`,
@@ -102,7 +102,7 @@ export function GET(): Response {
           { href: openapi, type: "application/openapi+json" },
         ],
         "service-doc": [{ href: docs, type: "text/html" }],
-        author: [{ href: origin, title: macwall.legalCompanyName }],
+        author: [{ href: origin, title: macwall.name }],
       },
     ],
   }
