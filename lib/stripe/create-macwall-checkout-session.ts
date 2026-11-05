@@ -17,13 +17,15 @@ import {
 import {
   CHECKOUT_INTEGRATION_ID,
   checkoutErrorMessage,
-  resolvePromotionCodeId,
+  resolvePromotionCode,
   type CreateCheckoutResult,
+  type ResolvedPromotionCode,
 } from "@/lib/stripe/checkout-shared"
 import {
   normalizeConversionPromo,
   parseOfferUntil,
 } from "@/lib/stripe/conversion-promos"
+import { activeSiteSale } from "@/lib/sale.shared"
 import { getStripe } from "@/lib/stripe/server"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
@@ -106,14 +108,29 @@ export async function createMacWallCheckoutSession(
     )
     // Independent lookups (two Stripe, one Supabase): run together so the
     // Function waits on the slowest, not the sum, before creating the session.
-    const [checkoutPrices, promotionCodeId, customerEmail] = await Promise.all([
-      checkoutPricesForOffer(stripe, offer.slug, region),
-      promoCode ? resolvePromotionCodeId(stripe, promoCode) : null,
-      resolveCheckoutCustomerEmail({
-        email: input.customerEmail,
-        visitorId: input.visitorId,
-      }),
-    ])
+    // A running sitewide sale applies its code to every checkout; a code the
+    // buyer brought (app / email ladder) wins only when it is bigger.
+    const sale = activeSiteSale()
+    const [checkoutPrices, requestedPromo, salePromo, customerEmail] =
+      await Promise.all([
+        checkoutPricesForOffer(stripe, offer.slug, region),
+        promoCode ? resolvePromotionCode(stripe, promoCode) : null,
+        sale && sale.code !== promoCode
+          ? resolvePromotionCode(stripe, sale.code)
+          : null,
+        resolveCheckoutCustomerEmail({
+          email: input.customerEmail,
+          visitorId: input.visitorId,
+        }),
+      ])
+    const appliedPromo: ResolvedPromotionCode | null =
+      salePromo &&
+      (!requestedPromo || salePromo.percentOff > requestedPromo.percentOff)
+        ? salePromo
+        : requestedPromo
+    const appliedPromoCode =
+      appliedPromo && appliedPromo === salePromo ? sale?.code : promoCode
+    const promotionCodeId = appliedPromo?.id ?? null
     const visitorId = normalizeCheckoutVisitorId(input.visitorId)
     const metadata = {
       license_key: licenseKey,
@@ -131,7 +148,7 @@ export async function createMacWallCheckoutSession(
       currency: "usd",
       unit_amount_usd: String(unitAmount),
       visitor_country: input.country?.trim().toUpperCase() || "",
-      ...(promoCode ? { promo_code: promoCode } : {}),
+      ...(appliedPromoCode ? { promo_code: appliedPromoCode } : {}),
       ...(promotionCodeId ? { stripe_promotion_code_id: promotionCodeId } : {}),
       ...(customerEmail ? { customer_email: customerEmail } : {}),
       ...(visitorId ? { visitor_id: visitorId } : {}),
@@ -141,7 +158,9 @@ export async function createMacWallCheckoutSession(
             tt_ttclid: metadataValue(input.tiktok.ttclid),
             tt_ttp: metadataValue(input.tiktok.ttp),
             tt_ip:
-              input.tiktok.ip === "unknown" ? "" : metadataValue(input.tiktok.ip),
+              input.tiktok.ip === "unknown"
+                ? ""
+                : metadataValue(input.tiktok.ip),
             tt_ua: metadataValue(input.tiktok.userAgent),
           }
         : {}),
@@ -160,7 +179,8 @@ export async function createMacWallCheckoutSession(
       {
         mode: "payment",
         // Expire after 1 hour so abandonment (and recovery) is known quickly.
-        expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_SESSION_TTL_SECONDS,
+        expires_at:
+          Math.floor(Date.now() / 1000) + CHECKOUT_SESSION_TTL_SECONDS,
         line_items: checkoutPrices.lineItems.map((price) => ({
           price,
           quantity: 1,

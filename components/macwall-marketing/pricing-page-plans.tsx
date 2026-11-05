@@ -1,5 +1,6 @@
 "use client"
 
+import { SaleWasPrice } from "@/components/macwall-marketing/sale-was-price"
 import {
   BatteryCharging01Icon,
   Download04Icon,
@@ -300,7 +301,8 @@ function StickyMobileCta({ checkoutUrl }: Readonly<{ checkoutUrl: string }>) {
       <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#111318]/95 p-2 pl-4 ring-1 ring-white/10 backdrop-blur-md ring-inset">
         <span className="min-w-0">
           <span className="block text-[14px] leading-5 text-white">
-            Pro · {pricing.permanentPrice}
+            Pro · <SaleWasPrice />
+            {pricing.permanentPrice}
           </span>
           <span className="block text-[12px] leading-4 text-landing-muted">
             One-time · free updates

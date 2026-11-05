@@ -1,5 +1,5 @@
 import { getR2PublicBaseUrl } from "@/lib/env/catalog-storage"
-import { FLAGS } from "@/lib/flags"
+import { FLAGS, showSaleBanner } from "@/lib/flags"
 import { CommandPaletteMount } from "@/components/command-palette/command-palette-mount"
 import { MarketingPricingProvider } from "@/components/marketing/marketing-pricing-context"
 import { MarketingShellEnd } from "@/components/marketing/shell-end"
@@ -27,7 +27,9 @@ export default async function MarketingLayout({
         <div
           className={cn(
             "dark min-h-screen bg-background text-foreground",
-            !FLAGS.announcementBanner && "no-announcement-banner"
+            !FLAGS.announcementBanner &&
+              !showSaleBanner() &&
+              "no-announcement-banner"
           )}
         >
           {/* Wallpaper videos load without CORS, so the warm connection must

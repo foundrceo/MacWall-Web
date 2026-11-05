@@ -115,6 +115,8 @@ function PlanCard({
   currency,
   locale,
   localPriceHint,
+  regularPrice,
+  saleLabel,
   action,
   featuresLabel,
   features,
@@ -130,6 +132,10 @@ function PlanCard({
   currency: string
   locale: string
   localPriceHint: string | null
+  /** Full price, struck through, while a sale runs. */
+  regularPrice?: string | null
+  /** e.g. "Black Friday · 30% off" while a sale runs. */
+  saleLabel?: string | null
   action: ReactNode
   featuresLabel: string
   features: readonly string[]
@@ -187,7 +193,18 @@ function PlanCard({
             {headerAside}
           </div>
 
+          {saleLabel ? (
+            <p className="mt-6 -mb-4 text-[12px] leading-4 font-medium text-[#67EDEC]">
+              {saleLabel}
+            </p>
+          ) : null}
           <div className="mt-8 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+            {regularPrice ? (
+              <s className="text-[22px] leading-none text-zinc-500 tabular-nums">
+                <span className="sr-only">Was </span>
+                {regularPrice}
+              </s>
+            ) : null}
             <PricingPriceDisplay
               price={price}
               priceMajor={priceMajor}
@@ -321,6 +338,11 @@ export function PricingPlans({
   )
   const [macs, setMacs] = useState(offers[0]?.macs ?? 5)
   const selected = offers.find((offer) => offer.macs === macs) ?? offers[0]
+  const sale = pricing.sale
+  const saleLabel = sale ? `${sale.name} · ${sale.percentOff}% off` : null
+  const regularSelected = sale?.regular.multiMacOffers.find(
+    (offer) => offer.slug === selected?.slug
+  )
 
   return (
     <div
@@ -345,6 +367,8 @@ export function PricingPlans({
         currency={pricing.currency}
         locale={pricing.locale}
         localPriceHint={pricing.permanentLocalHint}
+        regularPrice={sale?.regular.permanentPrice}
+        saleLabel={saleLabel}
         featuresLabel={stripColon(plans.pro.featuresPrefix)}
         features={cardFeatures(p.pro.features)}
         action={
@@ -382,6 +406,8 @@ export function PricingPlans({
           currency={selected.currency}
           locale={pricing.locale}
           localPriceHint={selected.localPriceHint}
+          regularPrice={regularSelected?.price}
+          saleLabel={saleLabel}
           featuresLabel={stripColon(plans.proPlus.featuresPrefix)}
           features={cardFeatures(
             withMacCount(p.proPlus.features, selected.macs)

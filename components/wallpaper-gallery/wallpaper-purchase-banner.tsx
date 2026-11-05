@@ -1,5 +1,6 @@
 "use client"
 
+import { SaleWasPrice } from "@/components/macwall-marketing/sale-was-price"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
@@ -269,8 +270,9 @@ export function WallpaperPurchaseBanner() {
                   <>
                     <p className="mt-1 font-sans text-[13px] leading-snug text-white/65">
                       Try all {macwallCatalog.liveCountLabel} wallpapers free
-                      for 24 hours. Then {pricing.permanentPrice} once, no
-                      subscription. {macwallSocialProof.downloadsLine}.
+                      for 24 hours. Then <SaleWasPrice />
+                      {pricing.permanentPrice} once, no subscription.{" "}
+                      {macwallSocialProof.downloadsLine}.
                     </p>
                     <div className="mt-3">
                       <span className="mw-when-desktop">
@@ -296,8 +298,9 @@ export function WallpaperPurchaseBanner() {
                   <>
                     <p className="mt-1 font-sans text-[13px] leading-snug text-white/65">
                       Pro unlocks all {macwallCatalog.liveCountLabel} wallpapers
-                      on up to 3 Macs. {pricing.permanentPrice} once, no
-                      subscription. {macwallSocialProof.downloadsLine}.
+                      on up to 3 Macs. <SaleWasPrice />
+                      {pricing.permanentPrice} once, no subscription.{" "}
+                      {macwallSocialProof.downloadsLine}.
                     </p>
                     <div className="mt-3">
                       <TrackedPricingButton

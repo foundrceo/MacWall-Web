@@ -10,6 +10,7 @@ import {
 } from "react"
 
 import { getVisitorCountry } from "@/lib/geo/country-client"
+import { isSaleLive } from "@/lib/sale.shared"
 import {
   buildDefaultMarketingPricing,
   type MarketingPricing,
@@ -27,7 +28,7 @@ const useIsomorphicLayoutEffect =
 const PRICING_FETCH_TIMEOUT_MS = 3000
 
 /** Last-known regional pricing: instant first paint for return visitors. */
-const PRICING_CACHE_KEY = "macwall-marketing-pricing-v2"
+const PRICING_CACHE_KEY = "macwall-marketing-pricing-v3"
 /** Local cache freshness: fetch again only after expiry or country change. */
 const PRICING_CACHE_TTL_MS = 24 * 60 * 60 * 1000
 /** Same-session refetch guard: provider remounts reuse memory first. */
@@ -47,7 +48,8 @@ function isFresh(entry: CachedPricing | null, ttlMs: number): boolean {
     typeof entry.at === "number" &&
     Date.now() - entry.at >= 0 &&
     Date.now() - entry.at < ttlMs &&
-    !!getVisitorCountry() && entry.pricing?.country === getVisitorCountry() &&
+    !!getVisitorCountry() &&
+    entry.pricing?.country === getVisitorCountry() &&
     !!entry.pricing &&
     typeof entry.pricing.permanentPrice === "string"
   )
@@ -150,8 +152,24 @@ export function MarketingPricingProvider({
     }
   }, [initialPricing])
 
+  // Prices are cached (CDN, localStorage, prerendered HTML), so the sale can
+  // outlive its window there. Drop to full price on the visitor's clock the
+  // moment it ends; the first render trusts the data so hydration matches.
+  const [saleEnded, setSaleEnded] = useState(false)
+  const sale = pricing.sale
+  useEffect(() => {
+    if (!sale) return
+    // 0 when already over; setTimeout caps at ~24.8 days, and a longer wait
+    // just re-checks on the next load.
+    const ms = isSaleLive(sale) ? Date.parse(sale.endsAt) - Date.now() : 0
+    if (ms > 2 ** 31 - 1) return
+    const timer = window.setTimeout(() => setSaleEnded(!isSaleLive(sale)), ms)
+    return () => window.clearTimeout(timer)
+  }, [sale])
+  const value = sale && saleEnded ? sale.regular : pricing
+
   return (
-    <MarketingPricingContext.Provider value={pricing}>
+    <MarketingPricingContext.Provider value={value}>
       {children}
     </MarketingPricingContext.Provider>
   )

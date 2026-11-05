@@ -10,6 +10,11 @@ import {
 import { isIndiaCountry } from "@/lib/geo/country"
 import { macwall } from "@/lib/macwall-site"
 import {
+  activeSiteSale,
+  applySaleCents,
+  type SiteSale,
+} from "@/lib/sale.shared"
+import {
   convertUsdCentsWithRate,
   formatMoney,
   type LocalizedMoney,
@@ -65,6 +70,16 @@ export type MarketingPricing = {
   checkoutUrl: string
   annualCheckoutUrl: string
   multiMacOffers: MarketingMultiMacOffer[]
+  /**
+   * Set while a sitewide sale runs: every price above is the sale price and
+   * `regular` holds the same pricing at full price (for strikethroughs, and
+   * for the client to fall back to once the sale ends).
+   */
+  sale: MarketingSale | null
+}
+
+export type MarketingSale = SiteSale & {
+  regular: MarketingPricing
 }
 
 /** Global catalog USD amounts. */
@@ -136,30 +151,45 @@ function perMac(money: LocalizedMoney, macs: number): string {
 }
 
 export function buildMarketingPricingFromLocalized(
-  bundle: MarketingPriceBundle
+  bundle: MarketingPriceBundle,
+  now: number = Date.now()
 ): MarketingPricing {
-  const { country, permanentLocal, proPlusLocal, fx } = bundle
+  const regular = buildPricing(bundle, null)
+  const sale = activeSiteSale(now)
+  if (!sale) return regular
+  return { ...buildPricing(bundle, sale), sale: { ...sale, regular } }
+}
+
+function buildPricing(
+  bundle: MarketingPriceBundle,
+  sale: SiteSale | null
+): MarketingPricing {
+  const { country, fx } = bundle
+  // Sale prices are recomputed from USD cents, so the precomputed local
+  // amounts (full price) only apply outside a sale.
+  const permanentLocal = sale ? null : bundle.permanentLocal
+  const proPlusLocal = sale ? null : bundle.proPlusLocal
+  const off = (cents: number) =>
+    sale ? applySaleCents(cents, sale.percentOff) : cents
   const india = isIndiaCountry(country)
   const region: PricingRegion = india ? "india" : "default"
 
   // Everyone is charged in USD (India at the India catalog price). Show the
   // local currency at the live FX rate when it is known.
   const proCents = licenseOfferPriceCents(LICENSE_OFFERS.permanent, region)
+  const fxSource = bundle.permanentLocal
   const useLocal =
-    Boolean(fx && fx.currency !== "usd") ||
-    Boolean(permanentLocal?.isLocalized)
+    Boolean(fx && fx.currency !== "usd") || Boolean(fxSource?.isLocalized)
   const activeFx: MarketingFxRate | null = !useLocal
     ? null
     : fx && fx.currency !== "usd"
       ? fx
-      : permanentLocal?.isLocalized
+      : fxSource?.isLocalized
         ? {
-            currency: permanentLocal.currency,
-            locale: permanentLocal.locale,
+            currency: fxSource.currency,
+            locale: fxSource.locale,
             usdPerUnit:
-              permanentLocal.major > 0
-                ? proCents / 100 / permanentLocal.major
-                : 0,
+              fxSource.major > 0 ? proCents / 100 / fxSource.major : 0,
           }
         : null
 
@@ -169,7 +199,7 @@ export function buildMarketingPricingFromLocalized(
   const hint = (usdCents: number): string | null =>
     activeFx ? usdCatalogHint(usdCents) : null
   const amount = (slug: LicenseOfferSlug): number =>
-    licenseOfferPriceCents(LICENSE_OFFERS[slug], region)
+    off(licenseOfferPriceCents(LICENSE_OFFERS[slug], region))
 
   const permanentAmount = amount("permanent")
   const permanent =
@@ -182,7 +212,7 @@ export function buildMarketingPricingFromLocalized(
   const permanentMacs = LICENSE_OFFERS.permanent.maxDevices
   const permanentLocalHint = hint(permanentAmount)
   const proPlusUpgradePrice = money(
-    checkoutAddonAmount("upgradeProPlus", region)
+    off(checkoutAddonAmount("upgradeProPlus", region))
   ).formatted
 
   const multiMacOffers: MarketingMultiMacOffer[] = MULTI_MAC_OFFER_SLUGS.map(
@@ -218,7 +248,9 @@ export function buildMarketingPricingFromLocalized(
     permanentPerMacPrice: perMac(permanent, permanentMacs),
     permanentLocalHint,
     proPlusUpgradePrice,
-    bannerText: `${macwall.name} Pro is ${permanentPrice}, paid once. No subscription, free updates forever`,
+    bannerText: sale
+      ? `${sale.name}: ${sale.percentOff}% off ${macwall.name} Pro and Pro+, now ${permanentPrice} once. Ends ${sale.endsLabel}`
+      : `${macwall.name} Pro is ${permanentPrice}, paid once. No subscription, free updates forever`,
     annualPrice: annual.formatted,
     annualPriceMajor: annual.major,
     salePrice: permanentPrice,
@@ -237,6 +269,7 @@ export function buildMarketingPricingFromLocalized(
     checkoutUrl: licenseOfferCheckoutPath("permanent"),
     annualCheckoutUrl: licenseOfferCheckoutPath("permanent"),
     multiMacOffers,
+    sale: null,
   }
 }
 

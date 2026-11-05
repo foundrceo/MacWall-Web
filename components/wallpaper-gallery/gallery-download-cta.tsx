@@ -1,5 +1,6 @@
 "use client"
 
+import { SaleWasPrice } from "@/components/macwall-marketing/sale-was-price"
 import { X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
@@ -31,7 +32,10 @@ const PILL =
   "inline-flex h-10 items-center justify-center gap-2 rounded-full bg-white px-5 text-[14px] font-medium text-black no-underline transition hover:bg-white/90"
 
 /** Download on Macs, "Send to my Mac" on phones; CSS picks one before paint. */
-function PlatformCta({ location, className }: Readonly<{ location: string; className?: string }>) {
+function PlatformCta({
+  location,
+  className,
+}: Readonly<{ location: string; className?: string }>) {
   return (
     <>
       <span className="mw-when-desktop">
@@ -55,7 +59,9 @@ function PlatformCta({ location, className }: Readonly<{ location: string; class
  * Download button under the gallery title, plus a slim bottom bar once that
  * button scrolls out of view.
  */
-export function GalleryDownloadCta({ location }: Readonly<{ location: string }>) {
+export function GalleryDownloadCta({
+  location,
+}: Readonly<{ location: string }>) {
   const pricing = useMarketingPricing()
   const inlineRef = useRef<HTMLDivElement>(null)
   const [inlineVisible, setInlineVisible] = useState(true)
@@ -86,7 +92,10 @@ export function GalleryDownloadCta({ location }: Readonly<{ location: string }>)
       setPurchaseBannerOpen(root.dataset.macwallPurchaseBannerOpen === "true")
     sync()
     const mo = new MutationObserver(sync)
-    mo.observe(root, { attributes: true, attributeFilter: ["data-macwall-purchase-banner-open"] })
+    mo.observe(root, {
+      attributes: true,
+      attributeFilter: ["data-macwall-purchase-banner-open"],
+    })
 
     return () => {
       io.disconnect()
@@ -107,14 +116,17 @@ export function GalleryDownloadCta({ location }: Readonly<{ location: string }>)
 
   const caption = (
     <>
-      Free for 24 hours, then{" "}
+      Free for 24 hours, then <SaleWasPrice />
       <span className="text-white">{pricing.permanentPrice}</span> once.
     </>
   )
 
   return (
     <>
-      <div ref={inlineRef} className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
+      <div
+        ref={inlineRef}
+        className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2"
+      >
         <PlatformCta location={location} />
         <span className="text-[13px] text-white/55">{caption}</span>
       </div>
@@ -123,20 +135,30 @@ export function GalleryDownloadCta({ location }: Readonly<{ location: string }>)
         inert={!barOpen}
         className={cn(
           "fixed inset-x-0 bottom-0 z-[75] flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] transition duration-300 sm:pb-5",
-          barOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
+          barOpen
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none translate-y-4 opacity-0"
         )}
       >
         <div className="flex w-full max-w-xl items-center gap-3 rounded-full bg-[#1a1a1a]/95 py-2 pr-2 pl-5 shadow-[0_12px_40px_rgba(0,0,0,0.5)] ring-1 ring-white/10 backdrop-blur">
           <p className="min-w-0 flex-1 truncate text-[13px] text-white/70">
             <span className="text-white sm:hidden">Love these?</span>
-            <span className="text-white max-sm:hidden">Like these on your Mac?</span>{" "}
+            <span className="text-white max-sm:hidden">
+              Like these on your Mac?
+            </span>{" "}
             <span className="max-sm:hidden">Free for 24 hours.</span>
           </p>
-          <PlatformCta location={`${location}_sticky`} className="h-9 px-4 text-[13px]" />
+          <PlatformCta
+            location={`${location}_sticky`}
+            className="h-9 px-4 text-[13px]"
+          />
           <button
             type="button"
             onClick={() => {
-              trackSiteEventClient("cta_click", { location: `${location}_sticky`, action: "dismiss" })
+              trackSiteEventClient("cta_click", {
+                location: `${location}_sticky`,
+                action: "dismiss",
+              })
               setDismissed(true)
               try {
                 window.sessionStorage.setItem(DISMISS_KEY, "1")

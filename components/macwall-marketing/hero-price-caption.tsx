@@ -1,5 +1,6 @@
 "use client"
 
+import { SaleWasPrice } from "@/components/macwall-marketing/sale-was-price"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 
 /**
@@ -12,7 +13,7 @@ export function HeroPriceCaption() {
 
   return (
     <p className="mt-4 text-center text-[13px] whitespace-nowrap text-muted-foreground">
-      Free for 24 hours, then{" "}
+      Free for 24 hours, then <SaleWasPrice />
       <span className="text-foreground">{pricing.permanentPrice}</span> once.
     </p>
   )

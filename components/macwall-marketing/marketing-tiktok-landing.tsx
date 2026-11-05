@@ -1,5 +1,6 @@
 "use client"
 
+import { SaleWasPrice } from "@/components/macwall-marketing/sale-was-price"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import {
   TrackedDownloadButton,
@@ -46,6 +47,7 @@ export default function TikTokLandingHero() {
 
           <div className="mt-6 inline-flex w-fit flex-wrap items-baseline gap-x-3 gap-y-1 bg-background/60 px-5 py-3">
             <span className="text-[32px] font-normal tracking-[-0.03em] text-foreground tabular-nums">
+              <SaleWasPrice className="text-[20px]" />
               {pricing.permanentPrice}
             </span>
             <span className="text-[15px] text-marketing-muted">one-time</span>

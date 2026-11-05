@@ -1,6 +1,7 @@
 import AnnouncementBanner from "@/components/macwall-marketing/AnnouncementBanner"
 import Navbar from "@/components/macwall-marketing/Navbar"
-import { FLAGS } from "@/lib/flags"
+import SaleBanner from "@/components/macwall-marketing/sale-banner"
+import { FLAGS, showSaleBanner } from "@/lib/flags"
 import type { ReactNode } from "react"
 
 /** Banner above navbar: shared site chrome for marketing pages. */
@@ -9,7 +10,11 @@ export default function MarketingSiteChrome({
 }: Readonly<{ children?: ReactNode }>) {
   return (
     <>
-      {FLAGS.announcementBanner ? <AnnouncementBanner /> : null}
+      {showSaleBanner() ? (
+        <SaleBanner />
+      ) : FLAGS.announcementBanner ? (
+        <AnnouncementBanner />
+      ) : null}
       <Navbar />
       {children}
     </>

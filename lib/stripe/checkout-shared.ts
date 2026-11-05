@@ -29,17 +29,29 @@ export function checkoutErrorMessage(error: unknown): string {
   return "Could not start checkout. Please try again."
 }
 
-export async function resolvePromotionCodeId(
+export type ResolvedPromotionCode = {
+  id: string
+  /** Percent off of its coupon; 0 for amount-off coupons. */
+  percentOff: number
+}
+
+export async function resolvePromotionCode(
   stripe: ReturnType<typeof getStripe>,
   code: string
-): Promise<string | null> {
+): Promise<ResolvedPromotionCode | null> {
   try {
     const listed = await stripe.promotionCodes.list({
       code,
       active: true,
       limit: 1,
+      expand: ["data.promotion.coupon"],
     })
-    return listed.data[0]?.id ?? null
+    const promo = listed.data[0]
+    if (!promo) return null
+    const coupon = promo.promotion?.coupon
+    const percentOff =
+      coupon && typeof coupon === "object" ? (coupon.percent_off ?? 0) : 0
+    return { id: promo.id, percentOff }
   } catch (error) {
     console.error(
       "[checkout] promotion code lookup failed",

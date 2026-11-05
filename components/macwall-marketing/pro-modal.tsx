@@ -1,5 +1,6 @@
 "use client"
 
+import { SaleWasPrice } from "@/components/macwall-marketing/sale-was-price"
 import Image from "next/image"
 import Link from "next/link"
 import { Check, Loader2, X } from "lucide-react"
@@ -128,6 +129,7 @@ export function ProModal({
           <div className="mt-6 rounded-2xl bg-white/[0.03] p-4 ring-1 ring-white/[0.06]">
             <div className="flex items-end justify-between gap-3">
               <span className="font-display text-[40px] leading-none font-normal tracking-tight text-foreground tabular-nums">
+                <SaleWasPrice className="text-[22px]" />
                 {pricing.permanentPrice}
               </span>
               <span className="pb-1 text-right text-[12px] leading-4 text-marketing-muted">
@@ -136,6 +138,12 @@ export function ProModal({
                 No subscription
               </span>
             </div>
+            {pricing.sale ? (
+              <p className="mt-1.5 text-[12px] font-medium text-[#67EDEC]">
+                {pricing.sale.name} · {pricing.sale.percentOff}% off until{" "}
+                {pricing.sale.endsLabel}, applied at checkout
+              </p>
+            ) : null}
             {pricing.permanentLocalHint ? (
               <p className="mt-1.5 text-[12px] text-marketing-muted tabular-nums">
                 {pricing.permanentLocalHint}
