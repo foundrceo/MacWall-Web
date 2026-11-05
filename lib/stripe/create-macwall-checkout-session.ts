@@ -110,7 +110,7 @@ export async function createMacWallCheckoutSession(
     // Function waits on the slowest, not the sum, before creating the session.
     // A running sitewide sale applies its code to every checkout; a code the
     // buyer brought (app / email ladder) wins only when it is bigger.
-    const sale = activeSiteSale()
+    const sale = activeSiteSale(region)
     const [checkoutPrices, requestedPromo, salePromo, customerEmail] =
       await Promise.all([
         checkoutPricesForOffer(stripe, offer.slug, region),

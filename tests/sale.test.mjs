@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-const { applySaleCents, isSaleLive, SITE_SALE } = await import(
+const { activeSiteSale, applySaleCents, isSaleLive } = await import(
   "../lib/sale.shared.ts"
 )
 
@@ -24,7 +24,21 @@ test("sale window is start-inclusive, end-exclusive", () => {
   assert.equal(isSaleLive(null), false)
 })
 
-test("configured sale ends when the Stripe BLACKFRIDAY code expires", () => {
-  // promo_1UYLj5IZgqo0QIlXBPO96ZMC expires_at 1796198400
-  if (SITE_SALE) assert.equal(Date.parse(SITE_SALE.endsAt) / 1000, 1796198400)
+const at = (iso) => Date.parse(iso)
+
+test("India: Diwali to Nov 10 IST, full price, then Black Friday", () => {
+  assert.equal(activeSiteSale("india", at("2026-11-06T00:00:00Z"))?.code, "DIWALI")
+  // Ends with the DIWALI Stripe code (expires_at 1794335400).
+  assert.equal(activeSiteSale("india", 1794335400 * 1000 - 1)?.code, "DIWALI")
+  assert.equal(activeSiteSale("india", 1794335400 * 1000), null)
+  assert.equal(activeSiteSale("india", at("2026-11-20T00:00:00Z")), null)
+  assert.equal(activeSiteSale("india", at("2026-11-26T18:30:00Z"))?.code, "BLACKFRIDAY")
+  assert.equal(activeSiteSale("india", 1796198400 * 1000), null)
+})
+
+test("everyone else: Black Friday until the BLACKFRIDAY code expires", () => {
+  assert.equal(activeSiteSale("default", at("2026-11-06T00:00:00Z"))?.code, "BLACKFRIDAY")
+  assert.equal(activeSiteSale("default", at("2026-11-20T00:00:00Z"))?.code, "BLACKFRIDAY")
+  assert.equal(activeSiteSale("default", 1796198400 * 1000 - 1)?.code, "BLACKFRIDAY")
+  assert.equal(activeSiteSale("default", 1796198400 * 1000), null)
 })

@@ -155,7 +155,10 @@ export function buildMarketingPricingFromLocalized(
   now: number = Date.now()
 ): MarketingPricing {
   const regular = buildPricing(bundle, null)
-  const sale = activeSiteSale(now)
+  const region: PricingRegion = isIndiaCountry(bundle.country)
+    ? "india"
+    : "default"
+  const sale = activeSiteSale(region, now)
   if (!sale) return regular
   return { ...buildPricing(bundle, sale), sale: { ...sale, regular } }
 }

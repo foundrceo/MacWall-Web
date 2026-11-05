@@ -1,4 +1,4 @@
-import { isSaleLive, SITE_SALE } from "@/lib/sale.shared"
+import { anySiteSaleLive } from "@/lib/sale.shared"
 
 /**
  * Static feature flags, so marketing pages stay prerenderable. To flip one,
@@ -13,10 +13,10 @@ export const FLAGS = {
 } as const
 
 /**
- * The sale strip takes the banner slot while `SITE_SALE` runs. Decided at
- * render time; the strip itself falls back to the price line if a cached
- * page outlives the sale.
+ * The sale strip takes the banner slot while any `SITE_SALES` entry runs.
+ * Decided at render time (pages are static, so not per region); the strip
+ * falls back to the price line for a region with no sale right now.
  */
 export function showSaleBanner(): boolean {
-  return isSaleLive(SITE_SALE)
+  return anySiteSaleLive()
 }

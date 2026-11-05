@@ -22,6 +22,7 @@ import { useId, useMemo, useState, type ReactNode } from "react"
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import { BuyReassurance } from "@/components/macwall-marketing/buy-reassurance"
+import { Diya } from "@/components/macwall-marketing/diwali-decor"
 import { PricingPriceDisplay } from "@/components/macwall-marketing/pricing-price-display"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
 import { macwall } from "@/lib/macwall-site"
@@ -117,6 +118,7 @@ function PlanCard({
   localPriceHint,
   regularPrice,
   saleLabel,
+  diwali = false,
   action,
   featuresLabel,
   features,
@@ -136,6 +138,8 @@ function PlanCard({
   regularPrice?: string | null
   /** e.g. "Black Friday · 30% off" while a sale runs. */
   saleLabel?: string | null
+  /** Diwali: gold label with a diya, warm glow on the card. */
+  diwali?: boolean
   action: ReactNode
   featuresLabel: string
   features: readonly string[]
@@ -194,7 +198,13 @@ function PlanCard({
           </div>
 
           {saleLabel ? (
-            <p className="mt-6 -mb-4 text-[12px] leading-4 font-medium text-[#67EDEC]">
+            <p
+              className={cn(
+                "mt-6 -mb-4 flex items-center gap-1.5 text-[12px] leading-4 font-medium",
+                diwali ? "text-[#FFC93C]" : "text-[#67EDEC]"
+              )}
+            >
+              {diwali ? <Diya className="-my-1 size-5" /> : null}
               {saleLabel}
             </p>
           ) : null}
@@ -339,7 +349,10 @@ export function PricingPlans({
   const [macs, setMacs] = useState(offers[0]?.macs ?? 5)
   const selected = offers.find((offer) => offer.macs === macs) ?? offers[0]
   const sale = pricing.sale
-  const saleLabel = sale ? `${sale.name} · ${sale.percentOff}% off` : null
+  const diwali = sale?.theme === "diwali"
+  const saleLabel = sale
+    ? `${sale.name} · ${sale.percentOff}% off${diwali ? ` · ends ${sale.endsLabel}` : ""}`
+    : null
   const regularSelected = sale?.regular.multiMacOffers.find(
     (offer) => offer.slug === selected?.slug
   )
@@ -369,6 +382,7 @@ export function PricingPlans({
         localPriceHint={pricing.permanentLocalHint}
         regularPrice={sale?.regular.permanentPrice}
         saleLabel={saleLabel}
+        diwali={diwali}
         featuresLabel={stripColon(plans.pro.featuresPrefix)}
         features={cardFeatures(p.pro.features)}
         action={
@@ -408,6 +422,7 @@ export function PricingPlans({
           localPriceHint={selected.localPriceHint}
           regularPrice={regularSelected?.price}
           saleLabel={saleLabel}
+          diwali={diwali}
           featuresLabel={stripColon(plans.proPlus.featuresPrefix)}
           features={cardFeatures(
             withMacCount(p.proPlus.features, selected.macs)

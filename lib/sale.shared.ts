@@ -1,13 +1,19 @@
+import type { PricingRegion } from "@/lib/license/offers.shared"
+
 /**
- * Sitewide sale. While it runs, every price on the site shows the discount
- * and Stripe Checkout applies `code` on its own (unless the buyer brings a
- * bigger code). The window is enforced on both ends: the Stripe promotion
- * code expires at `endsAt` too, so a stale page can't undercharge.
+ * Sitewide sales, per pricing region. While one runs for a region, every
+ * price that region sees shows the discount and Stripe Checkout applies
+ * `code` on its own (unless the buyer brings a bigger code). Each window
+ * matches its Stripe promotion code's expiry, so a stale page can't
+ * undercharge, and a stated deadline is a real one.
  *
  * To run another sale, create the coupon + promotion code in Stripe and
- * change this object. Set it to `null` to turn sales off.
+ * add an entry here. Overlapping entries for one region: the first wins.
  */
+export type SiteSaleTheme = "black-friday" | "diwali"
+
 export type SiteSale = {
+  id: string
   /** Short label for banners and badges. */
   name: string
   /** Stripe promotion code (customer-facing). */
@@ -18,17 +24,50 @@ export type SiteSale = {
   endsAt: string
   /** Human end date for copy, e.g. "Dec 1". */
   endsLabel: string
+  regions: readonly PricingRegion[]
+  /** Look of the banner and sale accents. */
+  theme: SiteSaleTheme
 }
 
-export const SITE_SALE: SiteSale | null = {
-  name: "Black Friday",
-  code: "BLACKFRIDAY",
-  percentOff: 30,
-  startsAt: "2026-11-05T00:00:00Z",
-  // End of Dec 1, Pacific time. Matches the Stripe promotion code expiry.
-  endsAt: "2026-12-02T08:00:00Z",
-  endsLabel: "Dec 1",
-}
+export const SITE_SALES: readonly SiteSale[] = [
+  {
+    id: "diwali-2026",
+    name: "Diwali Sale",
+    code: "DIWALI",
+    percentOff: 30,
+    startsAt: "2026-11-05T00:00:00Z",
+    // End of Nov 10, India time. Matches the DIWALI promotion code expiry.
+    endsAt: "2026-11-10T18:30:00Z",
+    endsLabel: "Nov 10",
+    regions: ["india"],
+    theme: "diwali",
+  },
+  {
+    id: "black-friday-2026",
+    name: "Black Friday",
+    code: "BLACKFRIDAY",
+    percentOff: 30,
+    startsAt: "2026-11-05T00:00:00Z",
+    // End of Dec 1, Pacific time. Matches the BLACKFRIDAY code expiry.
+    endsAt: "2026-12-02T08:00:00Z",
+    endsLabel: "Dec 1",
+    regions: ["default"],
+    theme: "black-friday",
+  },
+  {
+    // India's Black Friday starts on Black Friday itself (00:00 IST), after
+    // the Diwali sale and a gap at full price.
+    id: "black-friday-2026-india",
+    name: "Black Friday",
+    code: "BLACKFRIDAY",
+    percentOff: 30,
+    startsAt: "2026-11-26T18:30:00Z",
+    endsAt: "2026-12-02T08:00:00Z",
+    endsLabel: "Dec 1",
+    regions: ["india"],
+    theme: "black-friday",
+  },
+]
 
 export function isSaleLive(
   sale: Pick<SiteSale, "startsAt" | "endsAt"> | null | undefined,
@@ -38,9 +77,21 @@ export function isSaleLive(
   return now >= Date.parse(sale.startsAt) && now < Date.parse(sale.endsAt)
 }
 
-/** The sale running right now, if any. */
-export function activeSiteSale(now: number = Date.now()): SiteSale | null {
-  return isSaleLive(SITE_SALE, now) ? SITE_SALE : null
+/** The sale running right now for a pricing region, if any. */
+export function activeSiteSale(
+  region: PricingRegion,
+  now: number = Date.now()
+): SiteSale | null {
+  return (
+    SITE_SALES.find(
+      (sale) => sale.regions.includes(region) && isSaleLive(sale, now)
+    ) ?? null
+  )
+}
+
+/** True while any region has a sale (reserves the banner slot). */
+export function anySiteSaleLive(now: number = Date.now()): boolean {
+  return SITE_SALES.some((sale) => isSaleLive(sale, now))
 }
 
 /**
