@@ -28,7 +28,7 @@ const useIsomorphicLayoutEffect =
 const PRICING_FETCH_TIMEOUT_MS = 3000
 
 /** Last-known regional pricing: instant first paint for return visitors. */
-const PRICING_CACHE_KEY = "macwall-marketing-pricing-v3"
+const PRICING_CACHE_KEY = "macwall-marketing-pricing-v4"
 /** Local cache freshness: fetch again only after expiry or country change. */
 const PRICING_CACHE_TTL_MS = 24 * 60 * 60 * 1000
 /** Same-session refetch guard: provider remounts reuse memory first. */

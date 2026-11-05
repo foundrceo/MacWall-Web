@@ -8,6 +8,7 @@ import {
   isIndiaCountry,
 } from "@/lib/geo/country"
 import { resolveVisitorCountry } from "@/lib/geo/resolve-visitor-country"
+import { activeSiteSale } from "@/lib/sale.shared"
 import {
   PRO_INDIA_USD_CENTS,
   PRO_PLUS_INDIA_USD_CENTS,
@@ -95,14 +96,24 @@ async function resolvePricingForCountry(
   }
 }
 
-const cachedPricingForCountry = unstable_cache(
-  async (countryKey: string) =>
+const cachedPricingForSale = unstable_cache(
+  // `saleKey` only splits the cache: a sale starting or ending (or a new
+  // SITE_SALES entry) gets fresh prices at once instead of after 6h.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async (countryKey: string, _saleKey: string) =>
     resolvePricingForCountry(countryKey === "_" ? null : countryKey),
-  ["marketing-pricing-by-country-v11"],
+  ["marketing-pricing-by-country-v12"],
   // Display-only local prices (Stripe converts at checkout), so a 6h FX
   // refresh is plenty; each refresh is a KV write per active country.
   { revalidate: 6 * 60 * 60 }
 )
+
+function cachedPricingForCountry(countryKey: string) {
+  const region = isIndiaCountry(countryKey === "_" ? null : countryKey)
+    ? "india"
+    : "default"
+  return cachedPricingForSale(countryKey, activeSiteSale(region)?.id ?? "none")
+}
 
 /**
  * Localized marketing prices for client hydration (keeps HTML pages static/ISR).
