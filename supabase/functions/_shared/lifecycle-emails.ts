@@ -12,6 +12,7 @@
  *             → recovery_10 (day 1, 10%) → recovery_last_call (day 3, 20% for 48h)
  *   One-off:  trial_winback_50 (50% for 24h, sent by hand to trial users
  *             and checkouts that never bought)
+ *             diwali_sale (India, DIWALI 30% until Nov 10 IST, festive look)
  *
  * Copy rules: plain words, no em dashes, one primary button, no fake urgency.
  */
@@ -27,6 +28,20 @@ export const LIFECYCLE_PROMO = {
   fifty: { code: "SFM6TCBY", percent: "50%", validHours: 24 },
 } as const
 
+/**
+ * India Diwali sale (matches SITE_SALES "diwali-2026" and the Stripe code
+ * DIWALI, which expires at the deadline). India visitors get it applied at
+ * checkout automatically. Rupee figures are rounded at the rate the site
+ * showed when this was written, so the copy says "about".
+ */
+export const DIWALI_SALE = {
+  code: "DIWALI",
+  percent: "30%",
+  deadline: "Nov 10, 11:59 PM IST",
+  pro: { was: "$4.99", now: "$3.49", inr: "₹333", wasInr: "₹476" },
+  proPlus: { was: "$7.99", now: "$5.59", inr: "₹533", wasInr: "₹762" },
+} as const
+
 export type LifecycleEmailId =
   | "trial_ended"
   | "trial_reminder"
@@ -40,6 +55,7 @@ export type LifecycleEmailId =
   | "app_update_trial_offer"
   | "send_to_mac"
   | "send_to_mac_reminder"
+  | "diwali_sale"
 
 export type LifecycleEmailContext = {
   appName: string
@@ -85,6 +101,14 @@ type Copy = {
   ps?: string | null
   /** Why they are getting this mail (footer). */
   reason: string
+  /** Festive layout (header band, lights, price list). Default: plain. */
+  theme?: "diwali"
+  /** Diwali only: plan rows with the struck-through price. */
+  prices?: { plan: string; was: string; now: string; note: string }[]
+  /** Diwali only: large centred line under the headline. */
+  lead?: string
+  /** Diwali only: offer terms in small print above the footer. */
+  fineprint?: string
 }
 
 function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
@@ -107,6 +131,33 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
     : null
 
   switch (id) {
+    case "diwali_sale": {
+      const d = DIWALI_SALE
+      return {
+        theme: "diwali",
+        subject: `✨ Light up your Mac this Diwali`,
+        preheader: `${d.percent} off ${app} Pro and Pro+ until ${d.deadline}. Pro is ${d.pro.now}, about ${d.pro.inr}, paid once.`,
+        headline: "Light up|your Mac.",
+        lead: `Celebrate Diwali with ${d.percent} off ${app} Pro and Pro+. 850+ live wallpapers for your desktop and Lock Screen, paid once and yours forever.‡`,
+        paragraphs: [
+          "Pro unlocks the full catalog, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
+          "One payment, no subscription. Every future update is included, and there's a 7-day money-back guarantee.",
+        ],
+        prices: [
+          { plan: "Pro · 3 Macs", was: d.pro.was, now: d.pro.now, note: `about ${d.pro.inr}` },
+          { plan: "Pro+ · 5 Macs", was: d.proPlus.was, now: d.proPlus.now, note: `about ${d.proPlus.inr}` },
+        ],
+        code: {
+          code: d.code,
+          hint: `Applied automatically at checkout. Offer ends ${d.deadline}.`,
+        },
+        button: `Get ${app} Pro`,
+        secondaryLink: { label: "Compare Pro and Pro+", href: `${ctx.siteUrl}/pricing` },
+        fineprint: `‡ Offer for buyers in India: ${d.percent} off ${app} Pro and Pro+ with the code ${d.code}, applied automatically, until ${d.deadline}. Prices are set in US dollars. Rupee amounts are approximate, and checkout shows your exact total before you pay.`,
+        ps: "Questions? Reply to this email and a real person will answer.",
+        reason: checkoutReason,
+      }
+    }
     case "send_to_mac":
       return {
         subject: `Your ${app} download link`,
@@ -328,6 +379,7 @@ const FONT =
 const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"
 
 function renderHtml(copy: Copy, ctx: LifecycleEmailContext): string {
+  if (copy.theme === "diwali") return renderDiwaliHtml(copy, ctx)
   const p = (text: string) =>
     `<p style="margin:0 0 16px;font-family:${FONT};font-size:16px;line-height:1.6;color:#333333;">${escapeHtml(text)}</p>`
 
@@ -407,8 +459,123 @@ function renderHtml(copy: Copy, ctx: LifecycleEmailContext): string {
 </html>`
 }
 
+/**
+ * Diwali layout, in the style of a festive product mail: light page, one
+ * large rangoli artwork (public/email/diwali-rangoli.png, our own art), a
+ * two-tone headline (`headline` is "first|second"), short centred copy.
+ * Tables and solid colours only, so it holds up in Gmail and Outlook.
+ */
+function renderDiwaliHtml(copy: Copy, ctx: LifecycleEmailContext): string {
+  const BG = "#F5F5F7"
+  const INK = "#1D1D1F"
+  const MUTED = "#6E6E73"
+  const PINK = "#E2336B"
+  const ORANGE = "#F2832A"
+  const [first, second] = copy.headline.includes("|")
+    ? copy.headline.split("|")
+    : [copy.headline, ""]
+  const art = `${ctx.siteUrl}/email/diwali-rangoli.png`
+
+  const prices = (copy.prices ?? [])
+    .map(
+      (row) => `<td align="center" valign="top" width="50%" style="padding:0 6px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff" style="background:#ffffff;border-radius:18px;">
+          <tr><td align="center" style="padding:20px 12px 18px;">
+            <p style="margin:0 0 8px;font-family:${FONT};font-size:14px;line-height:1.3;color:${MUTED};">${escapeHtml(row.plan)}</p>
+            <p style="margin:0;font-family:${FONT};font-size:28px;line-height:1.1;font-weight:700;letter-spacing:-0.01em;color:${INK};">${escapeHtml(row.now)}</p>
+            <p style="margin:6px 0 0;font-family:${FONT};font-size:13px;line-height:1.4;color:${MUTED};"><span style="text-decoration:line-through;">${escapeHtml(row.was)}</span> &middot; ${escapeHtml(row.note)}</p>
+          </td></tr>
+        </table>
+      </td>`
+    )
+    .join("\n      ")
+
+  const code = copy.code
+    ? `<p style="margin:0 0 28px;font-family:${FONT};font-size:15px;line-height:1.5;color:${MUTED};text-align:center;">Code <strong style="font-family:${MONO};letter-spacing:0.08em;color:${PINK};">${escapeHtml(copy.code.code)}</strong>. ${escapeHtml(copy.code.hint)}</p>`
+    : ""
+
+  const secondary = copy.secondaryLink
+    ? `<p style="margin:0 0 8px;font-family:${FONT};font-size:17px;line-height:1.5;text-align:center;"><a href="${escapeHtml(copy.secondaryLink.href)}" style="color:#0066CC;text-decoration:none;">${escapeHtml(copy.secondaryLink.label)} &rsaquo;</a></p>`
+    : ""
+
+  const body = copy.paragraphs
+    .map(
+      (text) =>
+        `<p style="margin:0 0 12px;font-family:${FONT};font-size:15px;line-height:1.55;color:${MUTED};text-align:center;">${escapeHtml(text)}</p>`
+    )
+    .join("\n        ")
+
+  const unsubscribe = ctx.unsubscribeHref
+    ? ` <a href="${escapeHtml(ctx.unsubscribeHref)}" style="color:${MUTED};text-decoration:underline;">Unsubscribe</a>.`
+    : ""
+  const address = ctx.postalAddress?.trim()
+    ? `<br>${escapeHtml(ctx.postalAddress.trim())}`
+    : ""
+  const year = new Date().getFullYear()
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>${escapeHtml(copy.subject)}</title>
+</head>
+<body style="margin:0;padding:0;background:${BG};">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:${BG};">${escapeHtml(copy.preheader)}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="${BG}" style="background:${BG};">
+  <tr><td align="center" style="padding:28px 16px 44px;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;">
+      <tr><td align="center" style="padding:0 0 8px;">
+        <img src="${escapeHtml(ctx.logoUrl)}" width="32" height="32" alt="${escapeHtml(ctx.appName)}" style="display:block;width:32px;height:32px;border:0;border-radius:8px;">
+      </td></tr>
+      <tr><td align="center" style="padding:8px 0 4px;">
+        <img src="${escapeHtml(art)}" width="340" height="340" alt="A festive rangoli with a lit diya at its centre" style="display:block;width:340px;max-width:82%;height:auto;border:0;">
+      </td></tr>
+      <tr><td align="center" style="padding:20px 12px 0;">
+        <h1 style="margin:0 0 18px;font-family:${FONT};font-size:46px;line-height:1.08;font-weight:700;letter-spacing:-0.025em;text-align:center;"><span style="color:${PINK};">${escapeHtml(first)}</span>${second ? ` <span style="color:${ORANGE};">${escapeHtml(second)}</span>` : ""}</h1>
+        ${copy.lead ? `<p style="margin:0 auto 30px;max-width:470px;font-family:${FONT};font-size:21px;line-height:1.42;color:${INK};text-align:center;">${escapeHtml(copy.lead)}</p>` : ""}
+      </td></tr>
+      ${prices ? `<tr><td style="padding:0 0 18px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr>
+      ${prices}
+      </tr></table></td></tr>` : ""}
+      <tr><td align="center">
+        ${code}
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:0 auto 18px;">
+          <tr><td bgcolor="#0071E3" style="border-radius:980px;">
+            <a href="${escapeHtml(ctx.checkoutHref)}" style="display:inline-block;padding:14px 30px;font-family:${FONT};font-size:17px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:980px;">${escapeHtml(copy.button)}</a>
+          </td></tr>
+        </table>
+        ${secondary}
+      </td></tr>
+      <tr><td align="center" style="padding:34px 24px 6px;">
+        ${body}
+        ${copy.ps ? `<p style="margin:0;font-family:${FONT};font-size:15px;line-height:1.55;color:${MUTED};text-align:center;">${escapeHtml(copy.ps)}</p>` : ""}
+      </td></tr>
+      <tr><td style="padding:34px 8px 0;">
+        <p style="margin:0 0 14px;padding-top:20px;border-top:1px solid #D2D2D7;font-family:${FONT};font-size:12px;line-height:1.55;color:${MUTED};">${copy.fineprint ? escapeHtml(copy.fineprint) : ""}</p>
+        <p style="margin:0;font-family:${FONT};font-size:12px;line-height:1.6;color:${MUTED};">
+          ${escapeHtml(copy.reason)}${unsubscribe}<br>
+          Need help? <a href="mailto:${escapeHtml(ctx.supportEmail)}" style="color:${MUTED};text-decoration:underline;">${escapeHtml(ctx.supportEmail)}</a>${address}<br>
+          &copy; ${year} ${escapeHtml(ctx.appName)}
+        </p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`
+}
+
 function renderText(copy: Copy, ctx: LifecycleEmailContext): string {
-  const lines: string[] = [copy.headline, "", ...copy.paragraphs.flatMap((p) => [p, ""])]
+  const lines: string[] = [copy.headline.replace("|", " "), ""]
+  if (copy.lead) lines.push(copy.lead, "")
+  lines.push(...copy.paragraphs.flatMap((p) => [p, ""]))
+  for (const row of copy.prices ?? []) {
+    lines.push(`${row.plan}: ${row.now} (was ${row.was}, ${row.note})`)
+  }
+  if (copy.prices?.length) lines.push("")
   if (copy.summary) lines.push(copy.summary, "")
   if (copy.code) lines.push(`Your code: ${copy.code.code}`, copy.code.hint, "")
   lines.push(`${copy.button}: ${ctx.checkoutHref}`, "")
@@ -416,6 +583,7 @@ function renderText(copy: Copy, ctx: LifecycleEmailContext): string {
     lines.push(`${copy.secondaryLink.label}: ${copy.secondaryLink.href}`, "")
   }
   if (copy.ps) lines.push(copy.ps, "")
+  if (copy.fineprint) lines.push(copy.fineprint, "")
   lines.push("--", copy.reason)
   if (ctx.unsubscribeHref) lines.push(`Unsubscribe: ${ctx.unsubscribeHref}`)
   lines.push(`Help: ${ctx.supportEmail}`)

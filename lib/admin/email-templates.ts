@@ -408,6 +408,13 @@ const LIFECYCLE_META: Record<
     edgeFunction: "send-to-mac",
     tone: "green",
   },
+  diwali_sale: {
+    label: "Diwali sale: India, 30% until Nov 10",
+    description: "One-off to India visitors who opened a checkout and never bought. DIWALI, applied automatically for India at checkout.",
+    trigger: "send-app-update-emails with audience diwali",
+    edgeFunction: "send-app-update-emails",
+    tone: "amber",
+  },
   send_to_mac_reminder: {
     label: "Send to Mac: next-day reminder",
     description: "One reminder 24 hours after the link, skipped for buyers.",
