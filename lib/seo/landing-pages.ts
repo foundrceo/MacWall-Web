@@ -381,7 +381,7 @@ export const bestLiveWallpaperMacPage = salePricedPage((price) => {
 export const wallpaperEngineAlternativePage = salePricedPage((price) => ({
   slug: "wallpaper-engine",
   pathname: "/alternatives/wallpaper-engine",
-  title: `Wallpaper Engine for Mac (${comparisonTitleYear(COMPARISONS_RECHECKED_ISO)}): Every Way to Get It`,
+  title: `Wallpaper Engine for Mac (${comparisonTitleYear(COMPARISONS_RECHECKED_ISO)}): Every Option`,
   headline:
     "Wallpaper Engine for Mac: every way to get it, and the best alternatives",
   description:

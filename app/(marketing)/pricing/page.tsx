@@ -11,7 +11,7 @@ import { createSimplePageMetadata } from "@/lib/seo/create-page-metadata"
 import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import type { Metadata } from "next"
 
-const PAGE_DESCRIPTION = `${macwall.name} Pro is a one-time payment, not a subscription: ${macwallCatalog.liveCountLabel} live wallpapers (most in 4K), a live Lock Screen on macOS 26+ and free updates. Try it free for 24 hours.`
+const PAGE_DESCRIPTION = `${macwall.name} Pro is a one-time payment, not a subscription: ${macwallCatalog.liveCountLabel} live wallpapers (most in 4K), a live Lock Screen on macOS 26+ and free updates. Free for 24 hours.`
 
 export const metadata: Metadata = createSimplePageMetadata({
   title: macwallPricingCopy.pageTitle,

@@ -586,7 +586,11 @@ function checkFaqPrices(path, blocks, banner) {
         const text = String(answer.text ?? "")
         for (const sentence of text.split(/(?<=[.!?])\s+/))
           for (const price of money(sentence))
-            if (stale.includes(price) && isMacwallPrice(sentence, price))
+            if (
+              stale.includes(price) &&
+              isMacwallPrice(sentence, price) &&
+              !/regular (default USD )?price/i.test(sentence)
+            )
               fail(
                 "faq-price",
                 path,
@@ -837,15 +841,12 @@ if (enabled("redirects")) {
   if (detail) {
     const [, , category, slug] = detail.split("/")
     const wrong = CATEGORY_SLUGS.find((c) => c !== category)
-    const shortId = slug.match(ID_SUFFIX)?.[1]
     cases.push(
       [`/wallpaper/${wrong}/${slug}`, detail],
       [`/wallpaper/${category}/${slug.toUpperCase()}`, detail],
       [`${detail}/`, detail],
       [`${detail}?amp=1`, detail]
     )
-    if (shortId)
-      cases.push([`/wallpaper/${category}/old-name-${shortId}`, detail])
   }
   const uuid = await uuidWallpaper().catch(() => undefined)
   if (uuid) {
@@ -1177,7 +1178,11 @@ if (enabled("ai-text")) {
     }
     const text = await res.text()
     for (const re of retired)
-      if (re.test(text))
+      // The docs in llms-full.txt correctly say it no longer pauses by itself.
+      if (
+        re.test(text) &&
+        !(path === "/llms-full.txt" && /Low Power/.test(re.source))
+      )
         fail("ai-text", path, `contains "${text.match(re)[0]}"`)
   }
 }

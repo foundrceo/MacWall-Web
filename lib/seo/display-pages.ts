@@ -90,7 +90,7 @@ function displayIdsOn(slug: DisplayPageSlug): string[] {
 export const displayPageDefs: readonly DisplayPageDef[] = [
   {
     slug: "macbook-air",
-    title: "MacBook Air Wallpapers: Live and 4K, Sized for 13 and 15-inch",
+    title: "MacBook Air Wallpapers: Live, 4K, 13 and 15-inch",
     headline: "MacBook Air wallpapers, live and in 4K",
     label: "MacBook Air",
     description:
@@ -170,7 +170,7 @@ export const displayPageDefs: readonly DisplayPageDef[] = [
   },
   {
     slug: "ultrawide",
-    title: "3440x1440 and 5120x1440 Ultrawide Live Wallpapers for Mac",
+    title: "Ultrawide Mac Wallpapers: 3440x1440 and 5120x1440",
     headline: "Ultrawide live wallpapers for Mac: 3440 × 1440 and 5120 × 1440",
     label: "Ultrawide",
     description:
@@ -190,7 +190,7 @@ export const displayPageDefs: readonly DisplayPageDef[] = [
   },
   {
     slug: "4k",
-    title: "4K Wallpapers for Mac: Every Live Loop in 4K or Larger",
+    title: "4K Wallpapers for Mac: Live Loops in 4K and Up",
     headline: "Every 4K live wallpaper for Mac",
     label: "4K",
     description:
@@ -213,7 +213,7 @@ export const displayPageDefs: readonly DisplayPageDef[] = [
 export const macbookHubDef = {
   slug: "macbook",
   pathname: MACBOOK_HUB_PATH,
-  title: "MacBook Wallpapers: Live 4K Loops for Air, Pro and Neo",
+  title: "MacBook Wallpapers: Live 4K for Air, Pro and Neo",
   headline: "MacBook wallpapers: live 4K loops for every model",
   label: "MacBook",
   description:
@@ -233,7 +233,7 @@ export const macbookHubDef = {
 export const displayIndexDef = {
   slug: "display",
   pathname: DISPLAY_PAGES_PATH,
-  title: "Mac Wallpapers by Display: MacBook, iMac, Studio Display",
+  title: "Mac Wallpapers by Display and Screen Size",
   headline: "Live wallpapers by Mac display",
   label: "Displays",
   description:

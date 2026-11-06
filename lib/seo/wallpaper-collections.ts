@@ -967,7 +967,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     group: "moods",
     rights: "generic",
     rightsCleared: false,
-    title: "Fall Desktop Wallpaper for Mac: Live 4K Autumn Loops",
+    title: "Fall Desktop Wallpaper for Mac: Live Autumn Loops",
     headline: "Fall desktop wallpapers for Mac, live in 4K",
     description:
       "Fall desktop wallpapers for Mac that move: autumn forests, orange leaves, a cozy cabin and a torii river as 4K video loops for your MacBook or iMac desktop.",
@@ -1696,7 +1696,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "winter macbook wallpaper",
       "holiday wallpaper mac",
     ],
-    intro: "",
+    intro:
+      "Snowfall over pine forests, a cabin lit up at night and quiet winter streets: this page gathers the catalog's snow and winter loops for December. As Christmas-themed loops are published they move to the top. Each one is a real video loop, set on your desktop in one click on macOS 15 or later.",
     patterns: [
       "christmas",
       "\\bxmas\\b",
@@ -1739,7 +1740,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     rightsCleared: false,
     title: "Aesthetic MacBook Wallpapers: 4K Live Loops",
     headline: "Aesthetic live wallpapers for MacBook",
-    description: "",
+    description:
+      "Aesthetic live wallpapers for MacBook: cozy rooms, soft pastel palettes and dreamy scenes, as animated 4K loops you set on your Mac in one click.",
     keywords: [
       "aesthetic macbook wallpaper",
       "macbook wallpaper aesthetic",
@@ -1747,7 +1749,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "pastel wallpaper mac",
       "cozy aesthetic wallpaper",
     ],
-    intro: "",
+    intro:
+      "Soft light, pastel colour and quiet rooms: this collection gathers MacWall's cozy and dreamy loops, chosen by tag and by measured palette. Expect scenes like an autumn cabin bedroom, a cozy green yard and a calm window view, all moving gently behind your work.",
     patterns: [
       "^aesthetic\\b",
       "\\bcozy\\b",
@@ -1760,7 +1763,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     category: "Anime",
     faq: {
       question: "What makes a wallpaper aesthetic here?",
-      answer: "",
+      answer:
+        "A cozy, cute or dreamy tag, or a measured palette of light, soft colours. That is why some scenes appear here even when the word aesthetic isn't in their name.",
     },
     related: ["lofi", "pink", "cherry-blossom", "white"],
   }),
@@ -1771,7 +1775,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     rights: "generic",
     rightsCleared: false,
     title: "Neon Live Wallpapers for Mac: Glowing 4K Loops",
-    description: "",
+    description:
+      "Neon live wallpapers for Mac: glowing city skylines, lit-up garages and cars under neon light, as animated 4K loops for a dark, high-contrast desktop.",
     keywords: [
       "neon wallpaper",
       "neon live wallpaper",
@@ -1779,7 +1784,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "neon aesthetic wallpaper",
       "neon lights wallpaper 4k",
     ],
-    intro: "",
+    intro:
+      "Bright light on a dark background is what ties these loops together: cyberpunk skylines, neon garages, glowing portraits and night drives. They suit a desktop in macOS dark mode, where the colour stands out against everything around it.",
     patterns: ["\\bneon\\b"],
     entity: {
       name: "Neon lighting",
@@ -1787,8 +1793,9 @@ export const wallpaperCollections: WallpaperCollection[] = [
     },
     category: "Dark",
     faq: {
-      question: "",
-      answer: "",
+      question: "Do neon wallpapers suit macOS dark mode?",
+      answer:
+        "Yes. Most of these loops are bright accents on a dark background, so they sit well alongside dark mode windows, the Dock and the menu bar.",
     },
     related: ["cyberpunk", "city", "rain", "purple"],
   }),
@@ -1798,8 +1805,9 @@ export const wallpaperCollections: WallpaperCollection[] = [
     group: "gaming",
     rights: "generic",
     rightsCleared: false,
-    title: "Pixel Art Live Wallpapers for Mac: Animated 4K Loops",
-    description: "",
+    title: "Pixel Art Live Wallpapers for Mac: Animated Loops",
+    description:
+      "Pixel art live wallpapers for Mac: city night drives, collector rooms and retro game scenes as animated loops you set on your desktop in one click.",
     keywords: [
       "pixel art live wallpaper",
       "pixel art wallpaper mac",
@@ -1807,7 +1815,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "pixel wallpaper 4k",
       "retro pixel wallpaper",
     ],
-    intro: "",
+    intro:
+      "Pixel art has a look no other style matches, and it works especially well in motion. This collection gathers the catalog's pixel loops: city lights on a midnight drive, cluttered collector rooms and small retro game scenes, each one a real animation rather than a still.",
     patterns: ["pixel ?art", "\\bpixel(?:ated)?\\b", "8.?bit", "16.?bit"],
     entity: {
       name: "Pixel art",
@@ -1815,8 +1824,9 @@ export const wallpaperCollections: WallpaperCollection[] = [
     },
     category: "Gaming",
     faq: {
-      question: "",
-      answer: "",
+      question: "Are these pixel art wallpapers animated?",
+      answer:
+        "Every wallpaper here is a video loop, not a still image. MacWall plays it at the desktop wallpaper layer, the same way as every other loop in the catalog.",
     },
     related: ["lofi", "neon", "rain", "city"],
   }),
@@ -1827,7 +1837,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     rights: "generic",
     rightsCleared: false,
     title: "Cherry Blossom Live Wallpapers for Mac: Sakura 4K",
-    description: "",
+    description:
+      "Cherry blossom live wallpapers for Mac: sakura trees, spring courtyards and cars under pink petals, as animated 4K loops for your desktop in one click.",
     keywords: [
       "cherry blossom wallpaper",
       "cherry blossom live wallpaper",
@@ -1835,7 +1846,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "sakura live wallpaper",
       "cherry blossom macbook wallpaper",
     ],
-    intro: "",
+    intro:
+      "Sakura season on your desktop, all year: blossom trees, spring courtyards at sunset, quiet streets and even supercars parked under pink branches. Each loop is real video, so the scene moves while you work.",
     patterns: ["cherry", "\\bsakura\\b", "\\bblossoms?\\b", "\\bhanami\\b"],
     entity: {
       name: "Cherry blossom",
@@ -1843,8 +1855,9 @@ export const wallpaperCollections: WallpaperCollection[] = [
     },
     category: "Nature",
     faq: {
-      question: "",
-      answer: "",
+      question: "Are these sakura wallpapers animated or still?",
+      answer:
+        "Every wallpaper here is a video loop, not a still image. MacWall plays it at the desktop wallpaper layer, the same way as every other loop in the catalog.",
     },
     related: ["pink", "japanese", "aesthetic", "anime-girl"],
   }),
@@ -1855,7 +1868,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     rights: "generic",
     rightsCleared: false,
     title: "Green Live Wallpapers for Mac (4K)",
-    description: "",
+    description:
+      "Green live wallpapers for Mac: forest drives, fern leaves and ivy-covered scenes, picked by measured colour, as animated 4K loops for your desktop.",
     keywords: [
       "green wallpaper",
       "green aesthetic wallpaper",
@@ -1863,13 +1877,15 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "green wallpaper mac",
       "dark green wallpaper",
     ],
-    intro: "",
+    intro:
+      "From deep foliage to fern leaves and ivy-covered cafes, these loops share one thing: green is a main colour in the frame. Nature scenes lead the set, joined by cars and characters that happen to wear the colour well.",
     patterns: ["\\bgreen\\b", "\\bjade\\b"],
     palette: { kind: "hue", hues: ["green", "lime"] },
     category: "Nature",
     faq: {
-      question: "",
-      answer: "",
+      question: "How are green wallpapers picked?",
+      answer:
+        "By each wallpaper's measured colour palette as well as its name and tags, so a loop appears here when green is one of its main colours, not just a word in its title.",
     },
     related: ["forest", "teal", "hacker", "blue"],
   }),
@@ -1880,7 +1896,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     rights: "generic",
     rightsCleared: false,
     title: "Orange Live Wallpapers for Mac (4K)",
-    description: "",
+    description:
+      "Orange live wallpapers for Mac: sunset skies, autumn forests and warm-lit streets, picked by measured colour, as animated 4K loops for your desktop.",
     keywords: [
       "orange wallpaper",
       "orange aesthetic wallpaper",
@@ -1888,13 +1905,15 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "orange wallpaper mac",
       "sunset orange wallpaper",
     ],
-    intro: "",
+    intro:
+      "Warm light is the theme here: sunsets, autumn forests and golden-hour streets, plus cars and characters lit in amber. Every loop has orange as a main colour in the frame, which gives a desktop an evening glow at any hour.",
     patterns: ["\\borange\\b"],
     palette: { kind: "hue", hues: ["orange", "amber"] },
     category: "Nature",
     faq: {
-      question: "",
-      answer: "",
+      question: "How are orange wallpapers picked?",
+      answer:
+        "By each wallpaper's measured colour palette as well as its name and tags, so a loop appears here when orange is one of its main colours, not just a word in its title.",
     },
     related: ["sunset", "autumn", "red", "galaxy"],
   }),
@@ -1905,7 +1924,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     rights: "generic",
     rightsCleared: false,
     title: "Teal Live Wallpapers for Mac (4K)",
-    description: "",
+    description:
+      "Teal live wallpapers for Mac: ocean waves, moonlit water and blue-green city lights, picked by measured colour, as animated 4K loops for your desktop.",
     keywords: [
       "teal wallpaper",
       "teal aesthetic wallpaper",
@@ -1913,13 +1933,15 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "teal live wallpaper",
       "teal wallpaper mac",
     ],
-    intro: "",
+    intro:
+      "Teal sits between blue and green, and these loops live in that range: aerial ocean waves, moonlit water, rainy streets and cool-lit garages. It is a calm colour that stays easy on the eyes behind a full day of windows.",
     patterns: ["\\bteal\\b", "turquoise", "aquamarine"],
     palette: { kind: "hue", hues: ["teal"] },
     category: "Nature",
     faq: {
-      question: "",
-      answer: "",
+      question: "How are teal wallpapers picked?",
+      answer:
+        "By each wallpaper's measured colour palette as well as its name and tags, so a loop appears here when teal is one of its main colours, not just a word in its title.",
     },
     related: ["ocean", "blue", "green", "rain"],
   }),
@@ -1931,7 +1953,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     rightsCleared: false,
     title: "White Live Wallpapers for Mac: Light 4K Loops",
     headline: "White and light live wallpapers for Mac",
-    description: "",
+    description:
+      "White and light live wallpapers for Mac: pale skies, torii gates at dawn and bright scenes, picked by measured colour, as animated 4K loops for your desktop.",
     keywords: [
       "white wallpaper",
       "white aesthetic wallpaper",
@@ -1939,13 +1962,15 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "white live wallpaper",
       "minimalist white wallpaper",
     ],
-    intro: "",
+    intro:
+      "Not every desktop wants to be dark. These loops keep the frame pale and open: torii gates at dawn, bright skies and light-toned characters. They pair naturally with macOS light mode.",
     patterns: [],
     palette: { kind: "light" },
     category: "Anime",
     faq: {
-      question: "",
-      answer: "",
+      question: "How are white wallpapers picked?",
+      answer:
+        "By each wallpaper's measured colour palette as well as its name and tags, so a loop appears here when white is one of its main colours, not just a word in its title.",
     },
     related: ["black", "aesthetic", "japanese", "blue"],
   }),

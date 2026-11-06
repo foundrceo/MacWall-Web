@@ -62,15 +62,15 @@ function aiInfoFaq(now: number): ContentFaq[] {
     },
     {
       question: "Is MacWall free?",
-      answer: `No. MacWall is a paid app with a free 24-hour trial. ${macwallTrial.summary} After the trial the app is browse-only until you buy Pro, a one-time ${pro} for up to ${macwall.maxLicensedMacs} Macs.`,
+      answer: `No. MacWall is a paid app with a free 24-hour trial. ${macwallTrial.summary} After the trial the app is browse-only until you buy Pro, a one-time ${pro} at the regular price (less during sales) for up to ${macwall.maxLicensedMacs} Macs.`,
     },
     {
       question: "Is MacWall a subscription?",
-      answer: `No. Pro is a permanent license, a one-time ${pro} in default USD pricing for up to ${macwall.maxLicensedMacs} personal Macs, with updates included. The annual plan is retired for new purchases.`,
+      answer: `No. Pro is a permanent license, a one-time ${pro} at the regular default USD price (less during sales) for up to ${macwall.maxLicensedMacs} personal Macs, with updates included. The annual plan is retired for new purchases.`,
     },
     {
       question: "How much does MacWall cost in India?",
-      answer: `Pro costs ${india} for buyers in India, one time, for up to ${macwall.maxLicensedMacs} Macs. ${CURRENCY_NOTE}`,
+      answer: `Pro costs ${india} at the regular price for buyers in India (less during sales), one time, for up to ${macwall.maxLicensedMacs} Macs. ${CURRENCY_NOTE}`,
     },
     {
       question: "How many Macs does one MacWall license cover?",

@@ -1008,7 +1008,7 @@ export const compareIndexPage = salePricedPage((price) => {
   return {
     slug: "compare",
     pathname: "/compare",
-    title: `Best Wallpaper Apps for Mac (${comparisonTitleYear(COMPARE_CHECKED_ISO)}): Live and Static`,
+    title: `Best Wallpaper Apps for Mac in ${comparisonTitleYear(COMPARE_CHECKED_ISO)}: Live, Static`,
     headline: "Best wallpaper apps for Mac, compared",
     description: `${apps.length} Mac wallpaper apps side by side, live and static: developer, exact US price, price model and platforms, each with a dated source.`,
     keywords: [
