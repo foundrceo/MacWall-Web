@@ -155,7 +155,7 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
         subject: `✨ Light up your Mac this Diwali`,
         preheader: `${d.percent} off ${app} Pro and Pro+ until ${d.deadline}. Pro is ${d.pro.now}, about ${d.pro.inr}, paid once.`,
         headline: "Light up|your Mac.",
-        lead: `Celebrate Diwali with ${d.percent} off ${app} Pro and Pro+. 850+ live wallpapers for your desktop and Lock Screen, paid once and yours forever.‡`,
+        lead: `Celebrate Diwali with ${d.percent} off ${app} Pro and Pro+. 1,000+ live wallpapers for your desktop and Lock Screen, paid once and yours forever.‡`,
         paragraphs: [
           "Pro unlocks the full catalog, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
           "One payment, no subscription. Every future update is included, and there's a 7-day money-back guarantee.",
@@ -182,7 +182,7 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
         subject: `Black Friday: ${b.percent} off ${app} Pro`,
         preheader: `${app} Pro is ${b.pro.now} for Black Friday, paid once. Ends ${b.deadline}.`,
         headline: "Black Friday.|30% off Pro.",
-        lead: `${app} Pro and Pro+ are ${b.percent} off until ${b.deadline}. 850+ live wallpapers for your desktop and Lock Screen, paid once and yours forever.\u2021`,
+        lead: `${app} Pro and Pro+ are ${b.percent} off until ${b.deadline}. 1,000+ live wallpapers for your desktop and Lock Screen, paid once and yours forever.\u2021`,
         paragraphs: [
           ctx.checkoutOnly
             ? "Pro unlocks the full catalog, the live Lock Screen on macOS 26, and your own videos as wallpapers."
@@ -211,7 +211,7 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
         headline: `Here's ${app} for your Mac`,
         paragraphs: [
           "Open this email on your Mac and tap the button to download. Drag MacWall to Applications, open it, and pick a wallpaper.",
-          "Every feature is free for 24 hours, no card needed. 850+ live wallpapers for your desktop, Lock Screen and screen saver.",
+          "Every feature is free for 24 hours, no card needed. 1,000+ live wallpapers for your desktop, Lock Screen and screen saver.",
         ],
         button: `Download ${app} for Mac`,
         secondaryLink: wallpaperLink,
@@ -283,7 +283,7 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
         paragraphs: [
           `You tried ${app} but didn't pick up Pro. We'd like to make it easier: for the next 24 hours, Pro is ${fifty.percent} off.`,
           `${app} has had a big update since you tried it: an all-new design, Spotlight-style search, and fixes for the problems people reported.`,
-          "Pro turns your live wallpapers back on and unlocks the full catalog: 850+ live wallpapers, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
+          "Pro turns your live wallpapers back on and unlocks the full catalog: 1,000+ live wallpapers, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
           "It's a single payment, not a subscription. Every future update is included, one license covers up to 3 Macs, and there's a 7-day money-back guarantee.",
         ],
         code: {
@@ -305,7 +305,7 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
         headline: "Your trial has ended",
         paragraphs: [
           `Thanks for trying ${app}. Your live wallpapers are paused now, but everything you picked is still in the app.`,
-          "Pro turns them back on and unlocks the full catalog: 850+ live wallpapers, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
+          "Pro turns them back on and unlocks the full catalog: 1,000+ live wallpapers, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
           "It's a single payment, not a subscription. Every future update is included, and one license covers up to 3 Macs.",
         ],
         code: {

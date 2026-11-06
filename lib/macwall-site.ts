@@ -261,14 +261,13 @@ export const macwallCreatorDisclosure = {
 
 /**
  * Catalog count used by every page, meta description, FAQ and llms.txt line.
- * A fixed label, not computed from the live catalog. Keep it at or below the
- * public count without the 276 unreviewed imports of 2026-10-22 (856 of 1,132
- * public on 2026-10-30), so it stays true when those are hidden. Move it to
- * "1,000+" only once those imports are reviewed and the seo-check catalog
- * count assertion passes against the live API.
+ * A fixed label, not computed from the live catalog. The founder set it to
+ * "1,000+" on 2026-11-06. The seo-check catalog-claim check fails if the API
+ * total or the sitemap's wallpaper pages drop below it, for example if
+ * unreviewed imports are hidden.
  */
 export const macwallCatalog = {
-  liveCountLabel: "850+",
+  liveCountLabel: "1,000+",
   stillCount: 22,
 } as const
 

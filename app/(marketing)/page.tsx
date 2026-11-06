@@ -28,10 +28,8 @@ import { Categories } from "./_components/categories"
 import { Everything } from "./_components/everything"
 import { Features } from "./_components/features"
 import { Hero } from "./_components/hero"
-import { HomeCompareLinks } from "./_components/home-link-bands"
 import { Playback } from "./_components/playback"
 import { Reviews } from "./_components/reviews"
-import { WhatIsMacWall } from "./_components/what-is-macwall"
 
 const PAGE_DESCRIPTION = `The live wallpaper app for Mac: ${macwallCatalog.liveCountLabel} animated wallpapers, most in 4K, for your desktop and Lock Screen. ${macwallSocialProof.downloadsLine}. Free 24-hour trial, pay once.`
 
@@ -173,12 +171,7 @@ export default async function Page() {
       <BuiltForMac stats={stats} />
       <Reviews />
       <Playback />
-      <WhatIsMacWall />
-      <MarketingFaqSection
-        items={macwallHomeFaq}
-        heading="Live wallpaper for Mac: FAQ"
-        aside={<HomeCompareLinks />}
-      />
+      <MarketingFaqSection items={macwallHomeFaq} />
     </>
   )
 }

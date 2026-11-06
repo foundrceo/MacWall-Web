@@ -19,7 +19,6 @@ import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import { wallpapersGalleryPath } from "@/lib/public-catalog/urls"
 import { categorySlugFromName } from "@/lib/seo/category-slugs"
 
-import { HomeBrowseLinks } from "./home-link-bands"
 import { MarqueeTrack } from "./marquee-track"
 
 /**
@@ -86,7 +85,6 @@ export function Categories() {
           ))}
         </MarqueeTrack>
       </div>
-      <HomeBrowseLinks className="mt-12 md:mt-14" />
     </MarketingSection>
   )
 }
