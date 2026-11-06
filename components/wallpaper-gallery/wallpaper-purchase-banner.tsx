@@ -15,7 +15,10 @@ import { PurchaseTermsNote } from "@/components/legal/purchase-terms-note"
 import { MacWallAppIcon } from "@/components/macwall-app-icon"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import { SendToMacButton } from "@/components/macwall-marketing/send-to-mac-dialog"
-import { trackSiteEventClient } from "@/lib/analytics/client"
+import {
+  trackSiteEventAfterPaint,
+  trackSiteEventClient,
+} from "@/lib/analytics/client"
 import { hasDownloadedInstaller } from "@/lib/installer-seen"
 import {
   macwallInstallerLatestPath,
@@ -225,7 +228,7 @@ export function WallpaperPurchaseBanner() {
 
   const dismiss = () => {
     dismissForNow()
-    trackSiteEventClient("cta_click", {
+    trackSiteEventAfterPaint("cta_click", {
       source: "wallpaper_purchase_banner_dismiss",
       variant,
     })

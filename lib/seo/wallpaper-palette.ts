@@ -10,13 +10,20 @@ export { colorName }
  */
 const byId = palettes as Record<string, string[]>
 
+const NO_PALETTE: readonly string[] = []
+
+/** The measured palette as hex values, most common first; empty when not measured yet. */
+export function wallpaperPalette(id: string): readonly string[] {
+  return byId[id] ?? NO_PALETTE
+}
+
 export type WallpaperColor = { hex: string; name: string }
 
 /** Up to five measured colours with names, duplicates by name removed. */
 export function wallpaperColors(id: string): WallpaperColor[] {
   const seen = new Set<string>()
   const out: WallpaperColor[] = []
-  for (const hex of byId[id] ?? []) {
+  for (const hex of wallpaperPalette(id)) {
     const name = colorName(hex)
     if (seen.has(name)) continue
     seen.add(name)

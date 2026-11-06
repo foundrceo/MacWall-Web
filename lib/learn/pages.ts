@@ -1,8 +1,20 @@
+import {
+  appleSources,
+  sourcesBlocks,
+  type PageSource,
+} from "@/lib/content/sources"
 import type { SeoContentPage } from "@/lib/content/types"
 import {
   macwall,
+  macwallBatteryPolicy,
+  macwallCatalog,
+  macwallImportFormatsLabel,
+  macwallImportFormatsOrLabel,
   macwallLockScreenMacOSVersion,
   macwallMinimumMacOSVersion,
+  macwallPermissions,
+  macwallPlaybackModes,
+  macwallTrial,
 } from "@/lib/macwall-site"
 
 /**
@@ -17,13 +29,100 @@ export type LearnPage = SeoContentPage & {
   navLabel: string
   /** One-line answer surfaced on the hub: also the definition an LLM can lift. */
   takeaway: string
+  publishedAt: string
+  /** Day this page's text last changed. */
+  updatedAt: string
+  /** Primary sources for platform claims, listed at the end of the page. */
+  sources?: readonly PageSource[]
 }
 
 const updatedAt = "2026-08-02"
 
+/** Appends the page's Sources list to its sections. */
 function lesson(page: LearnPage): LearnPage {
-  return page
+  return {
+    ...page,
+    sections: [...page.sections, ...sourcesBlocks(page.sources)],
+  }
 }
+
+/** Day the sources below were read for the pages that cite them. */
+const LEARN_SOURCES_ACCESSED = "2026-11-06"
+
+/** Primary pages the learn explainers cite beyond the shared Apple set. */
+const learnSources = {
+  customizeWallpaper: {
+    name: "Customize the wallpaper on your Mac",
+    url: "https://support.apple.com/guide/mac-help/choose-your-desktop-picture-mchlp3013/mac",
+    publisher: "Apple Support",
+    accessed: LEARN_SOURCES_ACCESSED,
+  },
+  useScreenSaver: {
+    name: "Use a screen saver on your Mac",
+    url: "https://support.apple.com/guide/mac-help/use-a-screen-saver-mchl4b68853d/mac",
+    publisher: "Apple Support",
+    accessed: LEARN_SOURCES_ACCESSED,
+  },
+  lockScreenSettings: {
+    name: "Change Lock Screen settings on Mac",
+    url: "https://support.apple.com/guide/mac-help/change-lock-screen-settings-on-mac-mh11784/mac",
+    publisher: "Apple Support",
+    accessed: LEARN_SOURCES_ACCESSED,
+  },
+  tahoeCompatibility: {
+    name: "macOS Tahoe 26 is compatible with these computers",
+    url: "https://support.apple.com/en-us/122867",
+    publisher: "Apple Support",
+    accessed: LEARN_SOURCES_ACCESSED,
+  },
+  bootCamp: {
+    name: "Install Windows 10 on your Mac with Boot Camp Assistant",
+    url: "https://support.apple.com/en-us/102622",
+    publisher: "Apple Support",
+    accessed: LEARN_SOURCES_ACCESSED,
+  },
+  metal: {
+    name: "Metal Overview",
+    url: "https://developer.apple.com/metal/",
+    publisher: "Apple Developer",
+    accessed: LEARN_SOURCES_ACCESSED,
+  },
+  hevcTemporalLevel: {
+    name: "kCMSampleAttachmentKey_HEVCTemporalLevelInfo",
+    url: "https://developer.apple.com/documentation/coremedia/kcmsampleattachmentkey_hevctemporallevelinfo",
+    publisher: "Apple Developer",
+    accessed: LEARN_SOURCES_ACCESSED,
+  },
+  baseLayerFrameRate: {
+    name: "kVTCompressionPropertyKey_BaseLayerFrameRate",
+    url: "https://developer.apple.com/documentation/videotoolbox/kvtcompressionpropertykey_baselayerframerate",
+    publisher: "Apple Developer",
+    accessed: LEARN_SOURCES_ACCESSED,
+  },
+  wallpaperEngineSteam: {
+    name: "Wallpaper Engine on Steam",
+    url: "https://store.steampowered.com/app/431960/Wallpaper_Engine/",
+    publisher: "Steam",
+    accessed: LEARN_SOURCES_ACCESSED,
+  },
+  wallpaperEngineMacHelp: {
+    name: "Wallpaper Engine on Linux or Mac OS",
+    url: "https://help.wallpaperengine.io/en/functionality/linuxmacos.html",
+    publisher: "Wallpaper Engine",
+    accessed: LEARN_SOURCES_ACCESSED,
+  },
+  wallpaperEngineDocs: {
+    name: "Wallpaper Engine Designer Documentation",
+    url: "https://docs.wallpaperengine.io/en/",
+    publisher: "Wallpaper Engine",
+    accessed: LEARN_SOURCES_ACCESSED,
+  },
+} as const satisfies Record<string, PageSource>
+
+const systemPlayback = macwallPlaybackModes.systemWallpaper
+const appPlayback = macwallPlaybackModes.app
+/** "Full Disk Access, Accessibility or Screen Recording" */
+const neverAskedPermissions = `${macwallPermissions.never.slice(0, -1).join(", ")} or ${macwallPermissions.never[macwallPermissions.never.length - 1]}`
 
 export const learnPages: LearnPage[] = [
   lesson({
@@ -495,7 +594,7 @@ export const learnPages: LearnPage[] = [
       { type: "h2", text: "Why pause rules dominate" },
       {
         type: "p",
-        text: "Suppose an efficiently decoded 4K loop costs a small fraction of a percent of CPU. Over eight unplugged hours that is still eight hours of *something*. Now add a pause rule for Low Power Mode or low battery: the wallpaper stops when you most need the runtime and the cost goes to zero. Pause-in-full-screen removes the hours you spend in a full screen editor or a call. Display sleep removes the rest. Real-world battery impact is decided by these rules, not by shaving a megabit off the bitrate.",
+        text: "Suppose an efficiently decoded 4K loop costs a small fraction of a percent of CPU. Over eight unplugged hours that is still eight hours of *something*. Now add a pause rule for running on battery: the wallpaper holds its frame whenever the Mac is unplugged and the cost goes to zero. Pause-in-full-screen removes the hours you spend in a full screen editor or a call. Display sleep removes the rest. Real-world battery impact is decided by these rules, not by shaving a megabit off the bitrate.",
       },
       { type: "h2", text: "Measure it on your own Mac" },
       {
@@ -512,23 +611,21 @@ export const learnPages: LearnPage[] = [
       {
         type: "ul",
         items: [
-          "Turn on **pause on battery** (it pauses in Low Power Mode or at the low-battery warning) and **lower quality on battery** (1080p, 30 fps).",
+          `Turn on **${macwallBatteryPolicy.pauseOnBattery.label}** (it ${macwallBatteryPolicy.pauseOnBattery.detail}), or **${macwallBatteryPolicy.lowerQualityOnBattery.label}** if you want motion unplugged.`,
           "Mirror one loop across displays instead of decoding several.",
           "Prefer 24–30 fps loops encoded in a hardware-decoded codec.",
-          "Let **Low Power Mode** pause playback along with everything else.",
           "Then lower your screen brightness, which will save more than all of the above combined.",
         ],
       },
       {
         type: "p",
-        text: `${macwall.name} ships these rules on by default; each one is documented in [performance and battery](/docs/performance-and-battery).`,
+        text: `${macwall.name} turns on ${macwallBatteryPolicy.pauseBehindFullScreen.label} by default; the battery rules are opt-in under ${macwallBatteryPolicy.settingsPath}. Each one is documented in [performance and battery](/docs/performance-and-battery).`,
       },
     ],
     faq: [
       {
         question: "How much battery does a live wallpaper use?",
-        answer:
-          "With hardware decode it is roughly the cost of a small video playing in a window, less with lower quality on battery turned on, and none once Low Power Mode triggers the battery pause. We have not published a measured battery test yet.",
+        answer: `With hardware decode it is roughly the cost of a small video playing in a window, less with ${macwallBatteryPolicy.lowerQualityOnBattery.label} turned on, and none while ${macwallBatteryPolicy.pauseOnBattery.label} holds the frame on battery. We have not published a measured battery test yet.`,
       },
       {
         question: "Is Energy Impact measured in watts?",
@@ -540,6 +637,427 @@ export const learnPages: LearnPage[] = [
         answer:
           "No meaningful amount. A paused wallpaper decodes nothing, the last frame is held as a static desktop picture.",
       },
+    ],
+  }),
+
+  lesson({
+    navLabel: "Live vs dynamic vs aerial",
+    takeaway:
+      "Dynamic wallpapers are stills that change with the time of day, aerials are Apple videos that move as you lock or unlock, and live wallpapers are video loops that play on the desktop all day.",
+    slug: "live-vs-dynamic-vs-aerial-wallpapers-mac",
+    pathname: "/learn/live-vs-dynamic-vs-aerial-wallpapers-mac",
+    title: "Live vs Dynamic vs Aerial Wallpapers on Mac",
+    headline: "Live, dynamic and aerial wallpapers on Mac, explained",
+    description:
+      "How macOS Dynamic Wallpapers, Apple's aerials and video live wallpapers work: what each file is, who plays it, when it moves and what it costs in CPU.",
+    keywords: [
+      "live vs dynamic wallpaper mac",
+      "aerial wallpaper mac",
+      "dynamic wallpaper heic",
+      "what is an aerial wallpaper",
+      "mac wallpaper types",
+      "do aerial wallpapers use battery",
+    ],
+    publishedAt: "2026-11-06",
+    updatedAt: "2026-11-06",
+    sections: [
+      {
+        type: "p",
+        text: "macOS offers three kinds of changing wallpaper. A **Dynamic Wallpaper** is a HEIC image whose stills brighten and darken with the time of day. An **aerial** is Apple's own video that animates as you lock or unlock, then rests as a still. A **live wallpaper** is a video loop that keeps playing behind your windows while you work.",
+      },
+      {
+        type: "table",
+        columns: [
+          "",
+          "What the file is",
+          "When it moves",
+          "Who plays it",
+          "Work while you use the Mac",
+        ],
+        rows: [
+          [
+            "**Dynamic Wallpaper**",
+            "One HEIC image holding several stills and timing metadata",
+            "It doesn't; it brightens and darkens through the day",
+            "macOS",
+            "None between picture changes",
+          ],
+          [
+            "**Aerial**",
+            "A 4K HEVC video that macOS downloads from Apple",
+            "As you lock or unlock, and as the screen saver",
+            "macOS, with Apple's aerial player",
+            "None on the unlocked desktop",
+          ],
+          [
+            "**Live wallpaper**",
+            "A video loop, usually H.264 or HEVC in an MP4 or MOV file",
+            "Continuously, behind your windows",
+            "A wallpaper app",
+            "Hardware decoding while the desktop is visible",
+          ],
+        ],
+        caption:
+          "Apple's descriptions are from its Mac User Guide for macOS 26 and 27. File details were checked on macOS 27.2.",
+      },
+      {
+        type: "h2",
+        text: "Dynamic Wallpapers: one image file, several stills",
+      },
+      {
+        type: "p",
+        text: "A Dynamic Wallpaper is a single HEIC image file that holds several versions of the same scene, plus metadata telling macOS which one to show. Apple describes them as images that brighten and darken based on the time of day for your current location. Some instead carry a light and a dark version that follow your Light or Dark appearance. When you pick one, the menu next to its name offers:",
+      },
+      {
+        type: "ul",
+        items: [
+          "**Dynamic**: gradually brightens and darkens with the time of day where you are.",
+          "**Automatic**: switches from light to dark at sunset when Appearance is set to Auto.",
+          "**Light (Still)** and **Dark (Still)**: one fixed version of the picture.",
+        ],
+      },
+      {
+        type: "p",
+        text: "There is no video in a Dynamic Wallpaper. macOS changes the picture as the hours pass and draws a still in between, so it costs what any desktop picture costs. Some download from Apple the first time you choose them. The history and setup steps are in [dynamic vs live wallpaper on Mac](/blog/dynamic-wallpaper-vs-live-wallpaper-mac); apps that build your own HEIC files are compared on [Dynamic Wallpaper Club](/alternatives/dynamic-wallpaper-club) and [24 Hour Wallpaper](/alternatives/24-hour-wallpaper).",
+      },
+      {
+        type: "h2",
+        text: "Aerials: Apple's video, played as you lock and unlock",
+      },
+      {
+        type: "p",
+        text: "Aerials are Apple's slow-motion films, grouped as Landscape, Cityscape, Underwater and Earth. Apple's guide for macOS 26 and 27 says they animate as you lock or unlock your Mac, and that by default the aerial you pick is also your screen saver, played in slow motion. **Shuffle Aerials** is different: stills that change at an interval you set.",
+      },
+      {
+        type: "p",
+        text: "Each aerial is a 4K HEVC video that macOS downloads from Apple when you first choose it, and Apple's own player decodes it. You can't add a video of your own in System Settings: custom wallpaper there means photos, image files, folders and albums.",
+      },
+      {
+        type: "p",
+        text: "The video decodes only while it moves: on the Lock Screen, during the lock and unlock transitions, and while the screen saver runs. Once you are working, the desktop shows a still, so an aerial adds no decode work while you use the Mac.",
+      },
+      { type: "h2", text: "Live wallpapers: a video loop behind your windows" },
+      {
+        type: "p",
+        text: "A live wallpaper is a video loop, usually H.264 or HEVC in an MP4 or MOV file, that keeps playing at the desktop's wallpaper layer while you work. macOS has no setting for it, so it takes an app. Playback goes through Apple's Video Toolbox, which decodes supported H.264 and HEVC video in dedicated hardware; [hardware video decode](/learn/hardware-video-decode) explains why that matters.",
+      },
+      {
+        type: "p",
+        text: `This is the only one of the three that does decode work all day, for as long as the desktop is visible. How much depends on resolution, frame rate, how many displays play their own loop and what the app pauses for. ${macwall.name}, for example, pauses behind full-screen apps by default and stops while your displays sleep. On ${macwallLockScreenMacOSVersion} or later an app can also hand its video to macOS so it plays on the Lock Screen, the subject of [how Lock Screen video works on macOS Tahoe](/learn/how-macos-tahoe-lock-screen-video-works).`,
+      },
+      { type: "h2", text: "What each one costs in CPU" },
+      {
+        type: "ul",
+        items: [
+          "**Dynamic Wallpaper**: nothing between picture changes, because there is no video to decode.",
+          "**Aerial**: decode work while it plays on the Lock Screen and as the screen saver; none on the unlocked desktop.",
+          "**Live wallpaper**: continuous hardware decoding while the desktop is visible, and none while the app has it paused, because a paused wallpaper decodes no frames.",
+          "**Real-time rendered wallpaper** (shader scenes, game-engine scenes, web pages): the most expensive kind, because every frame is computed instead of decoded. It is the model behind Wallpaper Engine's scene wallpapers on Windows; see [why Wallpaper Engine doesn't run on Mac](/learn/why-wallpaper-engine-doesnt-run-on-mac).",
+        ],
+      },
+      {
+        type: "p",
+        text: "These are relative costs, not measurements. For figures from your own Mac, open Activity Monitor's Energy tab and compare a few minutes with the wallpaper playing and paused. [Battery and energy basics](/learn/battery-and-energy-basics) walks through the test, and [live wallpaper CPU usage on Mac](/blog/live-wallpaper-cpu-usage-mac) covers what drives the CPU number.",
+      },
+      { type: "h2", text: "Which one fits" },
+      {
+        type: "ul",
+        items: [
+          "**A desktop that follows the day without motion**: a Dynamic Wallpaper.",
+          "**Motion only when you lock or step away**: an aerial, or an aerial screen saver over any wallpaper.",
+          "**Motion while you work, your own clips, or a different loop per display**: a live wallpaper app. Screen saver options are covered in [how to change the screen saver on Mac](/blog/how-to-change-screen-saver-mac).",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Is a dynamic wallpaper the same as a live wallpaper?",
+        answer:
+          "No. A Dynamic Wallpaper is a set of stills in one HEIC file that macOS changes with the time of day or your Light or Dark appearance. A live wallpaper is a video loop that plays continuously behind your windows, and it needs an app.",
+      },
+      {
+        question: "Do aerial wallpapers move on the desktop?",
+        answer:
+          "Not while you work. Apple says aerials animate as you lock or unlock your Mac and can play in slow motion as your screen saver. Once you are on the desktop, the aerial rests as a still.",
+      },
+      {
+        question: "Can I set my own video as a Mac wallpaper without an app?",
+        answer:
+          "No. System Settings accepts photos, image files, folders and albums as custom wallpaper, not video files. Playing your own video as a wallpaper takes a live wallpaper app.",
+      },
+      {
+        question: "Which type of wallpaper uses the least battery?",
+        answer:
+          "A Dynamic Wallpaper, because nothing is decoded between picture changes. An aerial decodes only while it plays on the Lock Screen or as the screen saver. A live wallpaper decodes for as long as it plays on the desktop, which is why a good app pauses it whenever it can't be seen.",
+      },
+    ],
+    sources: [
+      learnSources.customizeWallpaper,
+      appleSources.wallpaperSettings,
+      learnSources.useScreenSaver,
+      appleSources.videoToolbox,
+      appleSources.activityMonitorEnergy,
+    ],
+  }),
+
+  lesson({
+    navLabel: "Why Wallpaper Engine isn't on Mac",
+    takeaway:
+      "Wallpaper Engine is Windows software with its own DirectX 11 renderer, and its developer says there are no immediate plans for a Mac version.",
+    slug: "why-wallpaper-engine-doesnt-run-on-mac",
+    pathname: "/learn/why-wallpaper-engine-doesnt-run-on-mac",
+    title: "Why Wallpaper Engine Doesn't Run on Mac",
+    headline: "Why Wallpaper Engine doesn't run on a Mac",
+    description:
+      "Wallpaper Engine is Windows-only, per its Steam page and official help. Why a Mac port isn't simple, which wallpaper types can move over, and the Mac options.",
+    keywords: [
+      "does wallpaper engine work on mac",
+      "wallpaper engine mac",
+      "why is wallpaper engine not on mac",
+      "wallpaper engine macos",
+      "wallpaper engine scenes on mac",
+      "wallpaper engine alternative mac",
+    ],
+    publishedAt: "2026-11-06",
+    updatedAt: "2026-11-06",
+    sections: [
+      {
+        type: "p",
+        text: "**Wallpaper Engine doesn't run on a Mac because it is Windows software.** Its Steam page lists only Windows 10 and Windows 11 and requires DirectX 11, and its official help page says the app is available for Windows and Android with no immediate plans for other platforms. On a Mac you need a native wallpaper app or macOS's own options.",
+      },
+      { type: "h2", text: "What the developer says" },
+      {
+        type: "p",
+        text: "Wallpaper Engine's help article on Linux and macOS explains that the core of the app is custom-written software that works closely with the operating system, so each platform needs its own tailored version rather than a quick port. The developer says that work isn't economically viable for macOS or Linux at the moment, points to Steam's hardware survey, where Windows dominates, and says it watches those numbers in case that changes. It built a free Android companion app first because far more of its users have Android devices.",
+      },
+      {
+        type: "p",
+        text: "The Steam store page agrees: it describes the app as live wallpapers for the Windows desktop, its system requirements name only Windows 10, Windows 11 and DirectX 11, and it lists no macOS build.",
+      },
+      { type: "h2", text: "Why a Mac version isn't a simple port" },
+      {
+        type: "ul",
+        items: [
+          "**Graphics**: scene wallpapers are drawn in real time by Wallpaper Engine's own renderer, which needs DirectX 11, Microsoft's graphics API for Windows. Macs draw 3D graphics through Apple's Metal, so that renderer would have to be rebuilt, not just recompiled.",
+          "**The wallpaper layer**: Windows and macOS assemble the desktop in different ways. A Mac app has to work with macOS's own wallpaper layer and, for the Lock Screen, with the system wallpaper on macOS 26 and later. See [how macOS wallpapers work](/learn/how-macos-wallpapers-work).",
+          "**Application wallpapers**: some wallpapers are Windows programs running in place of the desktop picture. Windows programs don't run on macOS, so these can't come across at all.",
+          "**Browsing and editing**: the developer notes that a desktop port would need the full Workshop browsing and editing experience, which its Android companion app doesn't have to carry.",
+        ],
+      },
+      {
+        type: "h2",
+        text: "Wallpaper Engine's wallpaper types, and which can move to a Mac",
+      },
+      {
+        type: "table",
+        columns: ["Type", "What it is", "On a Mac"],
+        rows: [
+          [
+            "**Scene**",
+            "A project made in the Wallpaper Engine Editor and drawn in real time",
+            "No. Only Wallpaper Engine can render a scene",
+          ],
+          [
+            "**Video**",
+            "A pre-rendered video file; Workshop uploads are MP4",
+            "Its video file can play in a Mac video wallpaper app, if you have the right to use it",
+          ],
+          [
+            "**Web**",
+            "A page built with HTML, CSS and JavaScript",
+            "Not as a Wallpaper Engine item. A web-page wallpaper app such as [Plash](/alternatives/plash) shows a website instead",
+          ],
+          [
+            "**Application**",
+            "A Windows program running as the wallpaper",
+            "No. Windows programs don't run on macOS",
+          ],
+        ],
+        caption:
+          "Types from Wallpaper Engine's designer documentation and Steam page.",
+      },
+      {
+        type: "p",
+        text: `Wallpaper Engine plays local videos in MP4, WebM, AVI, M4V, MOV or WMV, per its Steam page. A Mac wallpaper app may take fewer: ${macwall.name} adds ${macwallImportFormatsLabel} files, so convert other formats to an H.264 or HEVC MP4 first. [Video formats and codecs](/learn/video-formats-and-codecs) has the export settings.`,
+      },
+      { type: "h2", text: "What works on a Mac instead" },
+      {
+        type: "ul",
+        items: [
+          "**macOS's own motion**: aerials that animate as you lock or unlock, Dynamic Wallpapers that follow the time of day, and slow-motion screen savers, all free in System Settings → Wallpaper. [Live vs dynamic vs aerial wallpapers](/learn/live-vs-dynamic-vs-aerial-wallpapers-mac) explains the difference.",
+          `**A native video wallpaper app**: the closest match for Wallpaper Engine's video wallpapers. It plays loops at macOS's wallpaper layer and, on ${macwallLockScreenMacOSVersion} or later, can put them on the Lock Screen. ${macwall.name} is one, with ${macwallCatalog.liveCountLabel} curated loops, most in 4K. The [Wallpaper Engine for Mac comparison](/alternatives/wallpaper-engine) and [live wallpaper apps for Mac, compared](/best-live-wallpaper-mac) cover the others.`,
+          "**A web-page wallpaper**: for Wallpaper Engine's web wallpapers, an app that shows a website on the desktop, such as [Plash](/alternatives/plash).",
+          "**Windows on the Mac**: Boot Camp installs Windows alongside macOS on Intel-based Macs, and virtual machine apps run Windows in a window. Either way Wallpaper Engine animates the Windows desktop, not the macOS desktop behind your Mac apps.",
+        ],
+      },
+      { type: "h2", text: "Bringing wallpapers you already have" },
+      {
+        type: "ol",
+        items: [
+          "Find the video files you made yourself, or that a creator has allowed you to use. Workshop wallpapers belong to the people who made them.",
+          "Scene, web and application wallpapers don't convert by copying or renaming files. If a scene is your own work, recording it on Windows as a seamless video loop is the nearest you can get, without the interactivity.",
+          `Convert anything that isn't ${macwallImportFormatsOrLabel} to an H.264 or HEVC MP4 at your display's resolution.`,
+          `Import it into a Mac wallpaper app. In ${macwall.name} that needs Pro; [import your own videos](/docs/import-your-own-videos) walks through it.`,
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Is there a Mac version of Wallpaper Engine?",
+        answer:
+          "No. Wallpaper Engine's Steam page lists Windows 10 and Windows 11 only, and its official help says it is available for Windows and Android with no immediate plans for macOS or Linux.",
+      },
+      {
+        question: "Will Wallpaper Engine come to Mac?",
+        answer:
+          "Its developer says a port isn't economically viable at the moment, because the app is custom software tailored closely to Windows, but that it keeps an eye on Steam's platform statistics in case that changes.",
+      },
+      {
+        question:
+          "Can I run Wallpaper Engine in a Windows virtual machine on my Mac?",
+        answer:
+          "Even where Windows runs on a Mac, in a virtual machine or with Boot Camp on an Intel Mac, Wallpaper Engine animates the Windows desktop. It never reaches the macOS desktop behind your Mac apps.",
+      },
+      {
+        question: "Can I use my Wallpaper Engine wallpapers on a Mac?",
+        answer:
+          "Only the video ones, and only if you made them or have the creator's permission. Scene, web and application wallpapers need Wallpaper Engine itself to run.",
+      },
+      {
+        question: "Why can't a Mac app open Wallpaper Engine scenes?",
+        answer:
+          "Scenes are projects for Wallpaper Engine's own real-time renderer, which runs on Windows with DirectX 11. A Mac app would have to rebuild that renderer for Apple's Metal, so native Mac apps play video loops instead.",
+      },
+    ],
+    sources: [
+      learnSources.wallpaperEngineSteam,
+      learnSources.wallpaperEngineMacHelp,
+      learnSources.wallpaperEngineDocs,
+      learnSources.bootCamp,
+      learnSources.metal,
+    ],
+  }),
+
+  lesson({
+    navLabel: "Lock Screen video on Tahoe",
+    takeaway:
+      "On macOS 26 Tahoe and later the Lock Screen shows the system wallpaper and macOS plays it itself, so a video handed to the system keeps moving there after the app that set it quits.",
+    slug: "how-macos-tahoe-lock-screen-video-works",
+    pathname: "/learn/how-macos-tahoe-lock-screen-video-works",
+    title: "How macOS Tahoe Lock Screen Video Works",
+    headline: "How Lock Screen video works on macOS Tahoe",
+    description:
+      "Why the macOS 26 Lock Screen can play video, the two ways apps hand a video to it, what you need, and how to fix a Lock Screen that goes black after you unlock.",
+    keywords: [
+      "macos tahoe lock screen video",
+      "macos 26 lock screen wallpaper",
+      "live lock screen mac",
+      "mac lock screen black after unlock",
+      "lock screen video mac",
+      "macos 27 lock screen video",
+    ],
+    publishedAt: "2026-11-06",
+    updatedAt: "2026-11-06",
+    sections: [
+      {
+        type: "p",
+        text: `On macOS 26 Tahoe and later, the Lock Screen shows the system wallpaper, and macOS plays it rather than the app that installed it. An app gets video there in one of two ways: as a wallpaper extension macOS runs, or as a custom aerial that Apple's own player plays. ${macwall.name}'s Lock Screen video needs ${macwallLockScreenMacOSVersion} or later.`,
+      },
+      { type: "h2", text: "What the Lock Screen shows" },
+      {
+        type: "p",
+        text: "The Lock Screen is drawn by macOS before you unlock, so no app window can appear on it. It shows the wallpaper chosen in System Settings → Wallpaper. Apple's guide for macOS 26 and 27 says its aerial wallpapers animate as you lock or unlock your Mac, and that by default the aerial you pick also becomes your screen saver. The screen saver is its own choice under Wallpaper → Screen Saver, and the large clock can sit on the Lock Screen alone or on both.",
+      },
+      {
+        type: "p",
+        text: "That is why a desktop video on its own never reaches the Lock Screen. A window behind your icons works while you are signed in, but the Lock Screen only plays what macOS holds as the system wallpaper, so the video has to be handed to the system.",
+      },
+      { type: "h2", text: "Two ways an app hands macOS a video" },
+      {
+        type: "ol",
+        items: [
+          `**A wallpaper extension.** macOS loads the app's extension and gives it the desktop, Lock Screen and screen saver to draw on. One video plays on all three with the same frame, sound included, and keeps playing after the app quits or the Mac restarts. This is ${macwall.name}'s **${systemPlayback.setting}** mode.`,
+          `**A custom aerial.** The app converts the video into the format Apple's aerials use, 10-bit HEVC with no audio, and adds it to the system's list of aerials, so Apple's own player shows it on the Lock Screen and as the screen saver. The app can still play something else on the desktop in its own window. This is ${macwall.name}'s **${appPlayback.setting}** mode.`,
+        ],
+      },
+      {
+        type: "p",
+        text: `You choose between them in ${macwall.name}'s **${macwallPlaybackModes.settingsPath}**; new installs on macOS 26 and later start on ${systemPlayback.setting}. [Live Lock Screen and Screen Saver](/docs/live-lock-screen-and-screen-saver) has the steps for each mode, and [how to change the Lock Screen on Mac](/blog/how-to-change-lock-screen-on-mac) is the full walkthrough.`,
+      },
+      { type: "h2", text: "What you need" },
+      {
+        type: "ul",
+        items: [
+          `**${macwallLockScreenMacOSVersion} or later.** Check under Apple menu → About This Mac. Apple's compatibility list for macOS Tahoe 26 still includes some Intel Macs; macOS 27 needs Apple silicon.`,
+          `**On ${macwallMinimumMacOSVersion}**, ${macwall.name} plays the desktop only, and the Lock Screen shows a still from your wallpaper.`,
+          `**${macwall.name} Pro or the ${macwallTrial.name}**, which includes the Lock Screen.`,
+          `**No extra permission.** Putting a video on the desktop or Lock Screen needs no ${neverAskedPermissions} permission.`,
+          `**A moment the first time, with ${appPlayback.setting} only.** Converting a 4K video takes several seconds, and the wallpaper's page shows "Preparing the Lock Screen…" with a percentage. Setting the same wallpaper again uses the saved conversion.`,
+        ],
+      },
+      { type: "h2", text: "Why the Lock Screen goes black after you unlock" },
+      {
+        type: "p",
+        text: "Apple's aerial player speeds the video up and slows it down as your Mac locks and unlocks. To do that it reads each frame's HEVC temporal level, a label Apple's Core Media framework attaches to say where a frame sits in the video's hierarchy of frame dependencies. A movie whose frames lack those labels plays on the first lock, fails at unlock, and the next lock is black.",
+      },
+      {
+        type: "p",
+        text: `In ${macwall.name}'s testing, the encoder labelled every frame only when its base layer frame rate was exactly half the video's frame rate. Rounding that value, 12 instead of 11.988 for a 23.976 fps clip, left every frame unlabelled. Current ${macwall.name} builds encode at a standard constant frame rate with the base layer at exactly half, check the converted movie, convert again at 30 fps if the labels are missing, report an error rather than install a movie that would go black, and re-check the installed Lock Screen video at launch. With ${systemPlayback.setting} playback there is no aerial conversion at all.`,
+      },
+      { type: "h2", text: "Fix a black or frozen Lock Screen" },
+      {
+        type: "ol",
+        items: [
+          `**Update ${macwall.name}** in Settings → About → Check Now, then open it once. It re-checks the Lock Screen video and converts it again if an earlier build made it.`,
+          "**Set the wallpaper again.**",
+          "**Quit other live wallpaper apps.** Two apps that each keep their own video on the Lock Screen compete for the same system wallpaper choice.",
+          "**Check System Settings → Wallpaper → Screen Saver.** If you picked another screen saver after setting a video, macOS shows that one.",
+          `**Switch ${macwallPlaybackModes.settingsPath} to ${systemPlayback.setting}**, which skips the aerial conversion entirely.`,
+          "**Log out and back in**, then lock your Mac with Control-Command-Q.",
+        ],
+      },
+      {
+        type: "p",
+        text: `Two things look like faults but aren't. If the screen turns off rather than freezing, that is macOS: System Settings → Lock Screen sets how long the Mac waits on battery and on a power adapter. And a still frame can be a setting: with ${systemPlayback.setting}, turning off **Play the wallpaper while locked**, or **${macwallBatteryPolicy.pauseOnBattery.label}** while the Mac is unplugged, holds the frame on the Lock Screen too.`,
+      },
+      {
+        type: "p",
+        text: "Still stuck? [Troubleshooting](/docs/troubleshooting) covers desktop problems, [how macOS wallpapers work](/learn/how-macos-wallpapers-work) covers the layers underneath, and [the macOS 27 Lock Screen guide](/blog/macos-27-lock-screen-live-wallpaper) covers the newest release.",
+      },
+    ],
+    faq: [
+      {
+        question:
+          "Why does my Mac's Lock Screen video go black after I unlock?",
+        answer:
+          "Usually because the video was converted without an HEVC temporal level on every frame. Apple's aerial player needs those levels to slow the video down and speed it up at lock and unlock, so the first lock plays and the next one is black. Updating the app and setting the wallpaper again rebuilds the video.",
+      },
+      {
+        question: `Does Lock Screen video keep playing after I quit ${macwall.name}?`,
+        answer: `Yes, in both playback modes, because macOS plays it. With ${systemPlayback.setting} the desktop keeps moving too; with ${appPlayback.setting} the desktop holds a still until ${macwall.name} opens again.`,
+      },
+      {
+        question: "Can the Lock Screen and desktop show different videos?",
+        answer: `With ${appPlayback.setting} playback, yes: choose Lock Screen Only from the menu next to Set Wallpaper. With ${systemPlayback.setting} the Lock Screen always shows the desktop's wallpaper, because macOS plays one wallpaper on both.`,
+      },
+      {
+        question: "Does the Lock Screen video play sound?",
+        answer: `Only with ${systemPlayback.setting} playback, when the wallpaper's sound is on. A custom aerial has no audio track, so with ${appPlayback.setting} the Lock Screen is silent.`,
+      },
+      {
+        question: "Can I get Lock Screen video on macOS 15 Sequoia?",
+        answer: `Not with ${macwall.name}. Its Lock Screen video needs ${macwallLockScreenMacOSVersion} or later; on macOS 15 the Lock Screen shows a still from your wallpaper while the desktop keeps playing.`,
+      },
+    ],
+    sources: [
+      learnSources.customizeWallpaper,
+      appleSources.wallpaperSettings,
+      appleSources.screenSaverSettings,
+      learnSources.lockScreenSettings,
+      learnSources.tahoeCompatibility,
+      appleSources.macOS27Compatibility,
+      learnSources.hevcTemporalLevel,
+      learnSources.baseLayerFrameRate,
     ],
   }),
 ]

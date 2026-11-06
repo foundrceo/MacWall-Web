@@ -4,6 +4,10 @@ import {
   legalTextPrimary,
   legalTextSecondary,
 } from "@/components/legal/legal-classes"
+import {
+  ContentImageFigure,
+  ContentVideoFigure,
+} from "@/components/content/content-media"
 import { ContentTable } from "@/components/content/content-table"
 import type { ContentBlock } from "@/lib/content/types"
 import {
@@ -18,7 +22,7 @@ import {
   proseUlItem,
 } from "@/lib/marketing-prose-classes"
 import { cn } from "@/lib/utils"
-import type { ReactNode } from "react"
+import { Fragment, type ReactNode } from "react"
 
 const INLINE_LINK_PATTERN = /^\[([^\]]+)\]\(([^)]+)\)$/
 
@@ -57,72 +61,88 @@ function renderInlineText(text: string): ReactNode[] {
 
 export function ContentBody({
   sections,
-}: Readonly<{ sections: ContentBlock[] }>) {
+  afterFirstSection,
+}: Readonly<{
+  sections: ContentBlock[]
+  /** Rendered after the first H2 section (before the second H2), e.g. a CTA. */
+  afterFirstSection?: ReactNode
+}>) {
+  const nodes = sections.map((block, index) => {
+    switch (block.type) {
+      case "h2": {
+        const h2Index =
+          sections.slice(0, index).filter((b) => b.type === "h2").length + 1
+        return (
+          <h2
+            key={`h2-${index}`}
+            className={cn(proseH2, h2Index === 1 && "mt-0", legalTextPrimary)}
+          >
+            {block.text}
+          </h2>
+        )
+      }
+      case "h3":
+        return (
+          <h3 key={`h3-${index}`} className={cn(proseH3, legalTextPrimary)}>
+            {block.text}
+          </h3>
+        )
+      case "p":
+        return (
+          <p key={`p-${index}`} className={cn(proseP, legalTextSecondary)}>
+            {renderInlineText(block.text)}
+          </p>
+        )
+      case "ul":
+        return (
+          <ul key={`ul-${index}`} className={proseUl}>
+            {block.items.map((item) => (
+              <li key={item} className={proseUlItem}>
+                <span aria-hidden className={proseUlBullet}>
+                  •
+                </span>
+                <span>{renderInlineText(item)}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      case "ol":
+        return (
+          <ol key={`ol-${index}`} className={proseOl}>
+            {block.items.map((item) => (
+              <li key={item}>{renderInlineText(item)}</li>
+            ))}
+          </ol>
+        )
+      case "table":
+        return (
+          <ContentTable
+            key={`table-${index}`}
+            block={block}
+            renderInline={renderInlineText}
+          />
+        )
+      case "image":
+        return <ContentImageFigure key={`image-${index}`} block={block} />
+      case "video":
+        return <ContentVideoFigure key={`video-${index}`} block={block} />
+      default:
+        return null
+    }
+  })
+
+  if (afterFirstSection) {
+    const secondH2 = sections
+      .map((block, index) => (block.type === "h2" ? index : -1))
+      .filter((index) => index !== -1)[1]
+    nodes.splice(
+      secondH2 ?? nodes.length,
+      0,
+      <Fragment key="after-first-section">{afterFirstSection}</Fragment>
+    )
+  }
+
   return (
-    <div className={cn(proseBody, proseLinkProse, legalLinkProse)}>
-      {sections.map((block, index) => {
-        switch (block.type) {
-          case "h2": {
-            const h2Index =
-              sections.slice(0, index).filter((b) => b.type === "h2").length + 1
-            return (
-              <h2
-                key={`h2-${index}`}
-                className={cn(
-                  proseH2,
-                  h2Index === 1 && "mt-0",
-                  legalTextPrimary
-                )}
-              >
-                {block.text}
-              </h2>
-            )
-          }
-          case "h3":
-            return (
-              <h3 key={`h3-${index}`} className={cn(proseH3, legalTextPrimary)}>
-                {block.text}
-              </h3>
-            )
-          case "p":
-            return (
-              <p key={`p-${index}`} className={cn(proseP, legalTextSecondary)}>
-                {renderInlineText(block.text)}
-              </p>
-            )
-          case "ul":
-            return (
-              <ul key={`ul-${index}`} className={proseUl}>
-                {block.items.map((item) => (
-                  <li key={item} className={proseUlItem}>
-                    <span aria-hidden className={proseUlBullet}>
-                      •
-                    </span>
-                    <span>{renderInlineText(item)}</span>
-                  </li>
-                ))}
-              </ul>
-            )
-          case "ol":
-            return (
-              <ol key={`ol-${index}`} className={proseOl}>
-                {block.items.map((item) => (
-                  <li key={item}>{renderInlineText(item)}</li>
-                ))}
-              </ol>
-            )
-          case "table":
-            return (
-              <ContentTable
-                key={`table-${index}`}
-                block={block}
-                renderInline={renderInlineText}
-              />
-            )
-          default:
-            return null
-        }
-      })}
-    </div>
+    <div className={cn(proseBody, proseLinkProse, legalLinkProse)}>{nodes}</div>
   )
 }

@@ -7,7 +7,6 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const metadata = createSeoPageMetadata(downloadPage)
 
-
 export default function DownloadPage() {
   const origin = canonicalSiteOrigin()
 
@@ -17,6 +16,7 @@ export default function DownloadPage() {
     pageTitle: "Download",
     headline: downloadPage.headline,
     description: downloadPage.description,
+    aboutId: "#softwareapplication",
   })
 
   return (

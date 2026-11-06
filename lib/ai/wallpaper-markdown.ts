@@ -1,18 +1,33 @@
 import { absolutizeMarkdownLinks, faqToMarkdown } from "@/lib/ai/markdown"
 import { macwall } from "@/lib/macwall-site"
+import { wallpaperSourceLabel } from "@/lib/public-catalog/attribution"
 import {
   getPublicWallpaperByDetailSlug,
+  listPublicWallpapersForCollections,
   listSimilarPublicWallpapers,
 } from "@/lib/public-catalog/fetch"
+import type { PublicWallpaper } from "@/lib/public-catalog/types"
 import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
 import { buildWallpaperDetailContent } from "@/lib/seo/wallpaper-detail-content"
-import { wallpaperCollectionPath } from "@/lib/seo/wallpaper-collections"
+import { macFitLabel } from "@/lib/seo/wallpaper-detail-copy"
+import { buildWallpaperDetailLinks } from "@/lib/seo/wallpaper-detail-links"
+import {
+  accessedLabel,
+  displayResolutionLabel,
+  MAC_DISPLAY_SPECS_ACCESSED,
+} from "@/lib/seo/mac-displays"
 import { canonicalSiteOrigin } from "@/lib/site-url"
+
+/** A Markdown table cell: pipes escaped, one line. */
+function cell(text: string): string {
+  return text.replace(/\|/g, "\\|").replace(/\s+/g, " ").trim()
+}
 
 /**
  * Markdown twin of `/wallpaper/{category}/{slug}`, built from the same catalog
- * record and copy as the HTML page. Returns null for unknown wallpapers and
- * for non-canonical paths, so the twin never duplicates a redirect.
+ * record, copy and links as the HTML page. Returns null for unknown
+ * wallpapers and for non-canonical paths, so the twin never duplicates a
+ * redirect.
  */
 export async function wallpaperDetailMarkdown(
   path: string
@@ -26,24 +41,59 @@ export async function wallpaperDetailMarkdown(
 
   const origin = canonicalSiteOrigin()
   const content = buildWallpaperDetailContent(wallpaper)
-  let similar: Awaited<ReturnType<typeof listSimilarPublicWallpapers>> = []
+  let similar: PublicWallpaper[] = []
   try {
-    similar = await listSimilarPublicWallpapers(wallpaper, 6)
+    similar = await listSimilarPublicWallpapers(wallpaper)
   } catch {
     similar = []
   }
+  let catalog: PublicWallpaper[] | null
+  try {
+    catalog = await listPublicWallpapersForCollections()
+  } catch {
+    catalog = null
+  }
+  const links = buildWallpaperDetailLinks({
+    wallpaper,
+    content,
+    catalog,
+    similar,
+  })
+  const source = wallpaperSourceLabel(wallpaper)
 
   const facts = [
     `- Category: ${wallpaper.category}`,
-    wallpaper.resolution ? `- Resolution: ${wallpaper.resolution}` : null,
+    content.resolutionLabel
+      ? `- Resolution: ${content.resolutionLabel}${
+          content.qualityLabel ? ` (${content.qualityLabel})` : ""
+        }`
+      : null,
     wallpaper.durationSeconds > 0
       ? `- Loop length: ${Math.round(wallpaper.durationSeconds)} seconds`
       : null,
     content.colors.length
       ? `- Colours: ${content.colors.map((c) => `${c.name} (${c.hex})`).join(", ")}`
       : null,
+    source ? `- Source: ${source}` : null,
     `- Plays in: ${macwall.name} for macOS (video wallpaper, not a still image)`,
   ].filter(Boolean)
+
+  const fitsTable = content.fits.length
+    ? [
+        "## Fits these Macs",
+        [
+          `| Mac | Screen | ${cell(content.resolutionLabel)} loop |`,
+          "| --- | --- | --- |",
+          ...content.fits.map((row) => {
+            const mac = row.href
+              ? `[${cell(row.display.shortName)}](${origin}${row.href})`
+              : cell(row.display.shortName)
+            return `| ${mac} | ${displayResolutionLabel(row.display)} | ${macFitLabel(row)} |`
+          }),
+        ].join("\n"),
+        `Screen resolutions from Apple's tech specs, read ${accessedLabel(MAC_DISPLAY_SPECS_ACCESSED)}.`,
+      ].join("\n\n")
+    : ""
 
   const sections = [
     [
@@ -54,26 +104,35 @@ export async function wallpaperDetailMarkdown(
       `image: "${wallpaper.thumbUrl}"`,
       "---",
     ].join("\n"),
-    `# ${wallpaper.name}`,
+    `# ${content.heading}`,
     content.lead,
     content.detail,
     `## Details\n\n${facts.join("\n")}`,
-    content.collections.length
-      ? `## Collections\n\n${content.collections
-          .slice(0, 4)
+    fitsTable,
+    links.collections.length
+      ? `## Collections\n\n${links.collections
           .map(
-            (entry) =>
-              `- [${entry.name} wallpapers](${origin}${wallpaperCollectionPath(entry.slug)})`
+            ({ collection, href }) =>
+              `- [${collection.name} wallpapers](${origin}${href})`
           )
           .join("\n")}`
       : "",
-    `## How to set it on your Mac\n\n${content.steps.map((step, i) => `${i + 1}. ${step}`).join("\n")}`,
+    `## Set it up\n\n${content.setup.intro}\n\n${content.setup.links
+      .map((link) => `- [${link.label}](${origin}${link.href})`)
+      .join("\n")}`,
     similar.length
       ? `## Similar live wallpapers\n\n${similar
           .map(
             (item) => `- [${item.name}](${origin}${wallpaperDetailPath(item)})`
           )
           .join("\n")}`
+      : "",
+    links.alsoIn
+      ? `## Also in ${links.alsoIn.collection.name}\n\n${links.alsoIn.wallpapers
+          .map(
+            (item) => `- [${item.name}](${origin}${wallpaperDetailPath(item)})`
+          )
+          .join("\n")}\n\nAll of them: ${origin}${links.alsoIn.href}`
       : "",
     faqToMarkdown(content.faq),
     `---\n\nSource: ${origin}${canonicalPath}`,

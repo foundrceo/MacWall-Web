@@ -9,6 +9,9 @@ import CreatorHowItWorksBoard from "@/components/macwall-marketing/creator-how-i
 import { MarketingRichText } from "@/components/macwall-marketing/marketing-primitives"
 import { macwallCreatorCopy as copy } from "@/lib/macwall-creator-copy"
 
+/** Descriptive H2 over the steps (the H1 is the slogan). */
+const HOW_IT_WORKS_TITLE = "How the Reel refund works"
+
 export default function MacWallMarketingCreatorPage() {
   return (
     <>
@@ -22,8 +25,15 @@ export default function MacWallMarketingCreatorPage() {
       <MarketingBodySection>
         <section
           id="how-it-works"
+          aria-labelledby="how-it-works-title"
           className="scroll-mt-24 px-4 py-14 md:px-6 md:py-20"
         >
+          <h2
+            id="how-it-works-title"
+            className="mx-auto mb-10 max-w-2xl font-display text-2xl font-normal tracking-tighter md:text-3xl"
+          >
+            {HOW_IT_WORKS_TITLE}
+          </h2>
           <CreatorHowItWorksBoard />
         </section>
         <div className="mx-auto max-w-2xl px-4 py-14 md:px-6 md:py-20">

@@ -1,28 +1,33 @@
+import { appleSources, sourcesBlocks } from "@/lib/content/sources"
+import type { BlogArticleInput } from "@/lib/content/types"
 import {
   macwall,
+  macwallBatteryPolicy,
   macwallCatalog,
   macwallLockScreenMacOSVersion,
   macwallMinimumMacOSVersion,
+  macwallPlaybackModes,
 } from "@/lib/macwall-site"
-import type { BlogArticle } from "@/lib/content/types"
 
-export const comparisonArticles: BlogArticle[] = [
+export const comparisonArticles: BlogArticleInput[] = [
   {
     slug: "dynamic-wallpaper-vs-live-wallpaper-mac",
     pathname: "/blog/dynamic-wallpaper-vs-live-wallpaper-mac",
-    title: "Dynamic vs Live Wallpaper on Mac: The Difference",
-    headline: "Dynamic Wallpaper vs Live Wallpaper on Mac",
+    title: "Dynamic Wallpaper on Mac and Live Alternatives",
+    headline:
+      "Dynamic Wallpaper on Mac, and How It Differs from Live Wallpaper",
     description:
-      "Apple's Dynamic Wallpapers shift with the time of day and aerials move as you lock or unlock. Live wallpapers play video. How the three differ.",
+      "How macOS dynamic wallpapers change with the time of day, how to make your own HEIC dynamic wallpaper, and how aerials and live wallpapers differ.",
     excerpt:
-      "Dynamic Wallpapers, Apple's aerials, and live video wallpapers compared, with Apple's own descriptions.",
+      "Dynamic Wallpapers, Apple's aerials and live video wallpapers compared, plus how to make your own dynamic wallpaper.",
     category: "comparisons",
-    readMinutes: 7,
     publishedAt: "2026-07-13",
-    updatedAt: "2026-10-27",
+    updatedAt: "2026-11-06",
     keywords: [
-      "dynamic wallpaper vs live wallpaper mac",
       "dynamic wallpaper mac",
+      "mac dynamic wallpaper",
+      "dynamic wallpaper vs live wallpaper mac",
+      "heic dynamic wallpaper",
       "macos dynamic wallpaper",
       "animated wallpaper mac",
       "live wallpaper mac",
@@ -35,7 +40,7 @@ export const comparisonArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: "There is a third option that sits between the two: Apple's aerial wallpapers, which are slow-motion footage that moves when you lock or unlock your Mac. This guide uses Apple's own help pages and announcements to explain all three, then shows where a live wallpaper app fits.",
+        text: "There is a third option that sits between the two: Apple's aerial wallpapers, which are slow-motion footage that moves when you lock or unlock your Mac. This guide uses Apple's own help pages and announcements to explain all three, then shows where a live wallpaper app fits. For the definitions side by side, see [live vs dynamic vs aerial wallpapers](/learn/live-vs-dynamic-vs-aerial-wallpapers-mac).",
       },
       { type: "h2", text: "What a Dynamic Wallpaper is" },
       {
@@ -88,7 +93,7 @@ export const comparisonArticles: BlogArticle[] = [
       },
       {
         type: "p",
-        text: `Because a live wallpaper decodes video, how it plays matters. MacWall uses hardware video decoding for H.264 and HEVC, pauses by default when a full-screen app covers the desktop, when the screen is locked, and when displays sleep, and can also pause in Low Power Mode or when the Mac is busy. Desktop playback needs ${macwallMinimumMacOSVersion} or later. With Pro, MacWall can also play video on the Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion} or later.`,
+        text: `Because a live wallpaper decodes video, how it plays matters. MacWall uses hardware video decoding for H.264 and HEVC. ${macwallBatteryPolicy.summary} Desktop playback needs ${macwallMinimumMacOSVersion} or later. With Pro, MacWall can also play video on the Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion} or later.`,
       },
       { type: "h2", text: "Dynamic, aerial, and live side by side" },
       {
@@ -134,16 +139,40 @@ export const comparisonArticles: BlogArticle[] = [
             "Price",
             "Included with macOS",
             "Included with macOS",
-            `Free 24-hour trial, then ${macwall.pro.price} one-time for Pro`,
+            "Free 24-hour trial, then a one-time Pro purchase",
           ],
         ],
         caption:
           "Dynamic and aerial columns from Apple Support and Apple Newsroom; MacWall column from MacWall's docs and pricing.",
       },
+      { type: "h2", text: "Make your own dynamic (HEIC) wallpaper" },
+      {
+        type: "p",
+        text: "A dynamic wallpaper is a single HEIC file that holds several images of the same scene plus timing data that tells macOS which one to show. System Settings can't make one, but Dynamic Wallpaper Club's free creator can. Its FAQ describes two ways to time the images:",
+      },
+      {
+        type: "ul",
+        items: [
+          "**Sun Mode**: each image follows the sun's position where you are, including the seasons, so a winter afternoon gets a lower sun than a summer one. It needs GPS data in the photos' Exif metadata: DateTimeOriginal, GPSLatitude and GPSLongitude.",
+          "**Time Mode**: you set the time stamp at which each image appears.",
+        ],
+      },
+      {
+        type: "ol",
+        items: [
+          "Shoot or pick a series of the same scene at different times of day. A tripod and the same framing make the changes look natural. The site supports images up to 5K.",
+          "Upload them to Dynamic Wallpaper Club's creator, choose Sun Mode or Time Mode, and download the HEIC it makes.",
+          "Set it like any image: System Settings > Wallpaper > Your Photos > **Add Photo** > **Choose File**, or Control-click the file in the Finder and choose **Set Desktop Picture**.",
+        ],
+      },
+      {
+        type: "p",
+        text: "Dynamic Wallpaper Club's how-to adds an advanced option: put the file in Macintosh HD > Library > Desktop Pictures (you'll be asked for your password), which also makes the Light and Dark still versions selectable. If a dynamic wallpaper gets stuck on one image, its FAQ suggests switching to one of Apple's Dynamic Wallpapers set to Dynamic, then setting yours again from the Finder, and restarting if that doesn't help.",
+      },
       { type: "h2", text: "Third-party dynamic wallpaper tools" },
       {
         type: "p",
-        text: "If you like the time-of-day idea but want more scenes, a few third-party tools build on it:",
+        text: "If you like the time-of-day idea but want more scenes without making them, a few third-party tools build on it:",
       },
       {
         type: "ul",
@@ -184,6 +213,8 @@ export const comparisonArticles: BlogArticle[] = [
           "[macOS Sonoma brings new capabilities for elevating productivity and creativity](https://www.apple.com/newsroom/2023/06/macos-sonoma-brings-new-capabilities-for-elevating-productivity-and-creativity/), Apple Newsroom, accessed 27 October 2026",
           "[24 Hour Wallpaper](https://apps.apple.com/us/app/24-hour-wallpaper/id1226087575?mt=12), Mac App Store, accessed 27 October 2026",
           "[Dynamic Wallpaper Club](https://dynamicwallpaper.club/), dynamicwallpaper.club, accessed 27 October 2026",
+          "[Frequently Asked Questions about Dynamic Wallpapers](https://dynamicwallpaper.club/faq), Dynamic Wallpaper Club, accessed 6 November 2026",
+          "[How to set a Dynamic Wallpaper on macOS](https://dynamicwallpaper.club/how-to), Dynamic Wallpaper Club, accessed 6 November 2026",
         ],
       },
     ],
@@ -211,7 +242,7 @@ export const comparisonArticles: BlogArticle[] = [
       {
         question: "Can I make my own dynamic wallpaper?",
         answer:
-          "Not in System Settings. Third-party tools such as Dynamic Wallpaper Club's free creator or 24 Hour Wallpaper offer time-of-day wallpapers beyond Apple's set.",
+          "Not in System Settings. Dynamic Wallpaper Club's free creator turns a series of photos into a HEIC dynamic wallpaper timed by the sun's position or by time stamps; set the file like any image.",
       },
       {
         question: "Which Macs can run MacWall live wallpapers?",
@@ -222,50 +253,134 @@ export const comparisonArticles: BlogArticle[] = [
   {
     slug: "live-wallpaper-cpu-usage-mac",
     pathname: "/blog/live-wallpaper-cpu-usage-mac",
-    title: "Live Wallpaper CPU Usage on Mac: What Drives It",
-    headline: "Live Wallpaper CPU Usage on Mac: What Drives It",
+    title: "Do Live Wallpapers Drain Battery on a Mac?",
+    headline: "Live Wallpaper CPU and Battery Use on Mac: What Drives It",
     description:
-      "What affects live-wallpaper CPU use on a Mac, including hardware decode, source media, display count, auto-pause behavior, and battery quality settings.",
+      "What makes a live wallpaper cost CPU and battery on a Mac, how hardware decoding and pause rules cut it, and how to measure it in Activity Monitor.",
     excerpt:
-      "Hardware decode can keep CPU work low, while source media, displays, and pause settings determine real-world resource use.",
+      "Decoding, resolution, frame rate, displays and pause rules decide what a live wallpaper costs. How to keep it low and measure your own Mac.",
     category: "comparisons",
-    readMinutes: 6,
     publishedAt: "2026-07-15",
+    updatedAt: "2026-11-06",
     keywords: [
       "live wallpaper cpu usage mac",
       "do live wallpapers drain battery mac",
-      "lightest wallpaper app mac",
+      "live wallpaper battery drain mac",
       "live wallpaper performance macos",
+      "apple silicon live wallpaper",
       "low cpu live wallpaper mac",
     ],
     sections: [
       {
         type: "p",
-        text: "A common worry about live wallpapers is whether they will slow down a Mac. Apple Silicon can decode H.264 and HEVC in dedicated media hardware, which reduces CPU work when the source video and codec are supported. Real resource use still depends on everything **around** the decoder: source resolution and frame rate, display count, compositing, and pause behavior.",
+        text: "**Yes, a live wallpaper uses some battery: playing video costs energy. How much depends on how the app decodes the video and how much video it decodes (resolution, frame rate, codec and the number of displays) and on whether it stops when you can't see it.** On a Mac, H.264 and HEVC video can be decoded by Apple's media hardware rather than the CPU, which is the biggest single factor. MacWall hasn't published a measured battery test, so the last part of this guide shows how to measure your own Mac.",
       },
-      { type: "h2", text: "What MacWall does to keep CPU low" },
+      { type: "h2", text: "What a live wallpaper spends energy on" },
       {
         type: "ul",
         items: [
-          "**Quit the app, keep the wallpaper**: on macOS 26 and later (System Wallpaper mode), macOS itself plays the wallpaper, so you can quit MacWall and it keeps moving with 0% MacWall CPU",
-          "**Hardware decode** via AVFoundation/VideoToolbox, so decoding runs on the media engine rather than the CPU",
-          "**Pause when busy** (optional, off by default): playback pauses when system load passes 80% and resumes at 55%",
-          "**Pause behind full-screen apps** (on by default): a covered wallpaper does no decode work, per display",
-          "**Pause on screen lock and display sleep**: nothing renders when you're away",
-          "**Lower quality on battery** (optional): caps playback at 1080p/30fps on battery",
-          "**Shared players**: displays showing the same loop share one player instead of decoding it twice",
-          "**Quality presets**: the Performance preset caps playback at 1280 pixels and 30fps if you want extra headroom",
+          "**Decoding the video**: turning compressed frames into pictures, 24 to 60 times a second. Done in software, this keeps CPU cores busy for as long as the video plays; done in hardware, it runs on the media engine instead.",
+          "**Resolution and frame rate**: a 4K loop has four times the pixels of a 1080p one, and 60 fps is twice the frames of 30 fps. Pixels above your display's resolution are decoded and never seen.",
+          "**The codec**: H.264 and HEVC decode in hardware on Apple silicon. Other codecs may fall back to software or need converting first.",
+          "**Displays**: the same loop on every display can be decoded once and drawn on each; a different loop per display is decoded separately, so three 4K loops are three times the work.",
+          "**Playing when nobody can see it**: behind a full-screen app, on a locked Mac or with the display asleep, a wallpaper that keeps decoding spends energy for nothing.",
         ],
       },
-      { type: "h2", text: "How other approaches differ" },
+      { type: "h2", text: "Hardware decoding on Apple silicon and Intel" },
       {
         type: "p",
-        text: "Website-as-wallpaper tools keep a full web rendering engine running to draw the desktop, which costs more than handing a video file to the media engine. Scene-based wallpapers are rendered frame by frame on the GPU. Other native video apps such as Backdrop and Wallspace use the same hardware decode path, so differences between them come down to pause rules and settings. We have not run a controlled head-to-head test, so treat any app's CPU claim, including ours, as something to check on your own Mac.",
+        text: "Apple's video frameworks, AVFoundation and Video Toolbox, give apps access to hardware decoding. On Apple silicon the media engine handles H.264 and HEVC, so a well-built player leaves the CPU mostly idle while the video plays. Intel Macs decode in hardware for the codecs their graphics support, so a lower resolution and frame rate matter more there. MacWall is a native Mac app that plays video through Apple's own frameworks, on Apple silicon and Intel Macs.",
       },
-      { type: "h2", text: "Check it yourself" },
       {
         type: "p",
-        text: "MacWall shows live CPU, RAM, and cache stats right in its menu bar popover. Open Activity Monitor next to it, with a full-screen app in front, MacWall is not decoding the wallpaper at all.",
+        text: "Other kinds of wallpaper apps do other work. A web page as the wallpaper keeps a web view running, and an interactive scene is rendered frame by frame. Neither is the same job as decoding a video file, so CPU figures don't compare directly across these kinds of apps. What each kind of wallpaper costs, including Apple's dynamic and aerial ones, is explained in [live vs dynamic vs aerial wallpapers](/learn/live-vs-dynamic-vs-aerial-wallpapers-mac). We have not run a controlled head-to-head test, so treat any app's CPU claim, including ours, as something to check on your own Mac.",
+      },
+      { type: "h2", text: "What MacWall does to keep it low" },
+      {
+        type: "ul",
+        items: [
+          `**${macwallPlaybackModes.systemWallpaper.setting} playback** (${macwallPlaybackModes.systemWallpaper.minimumMacOS} and later): macOS plays the wallpaper itself, so you can quit MacWall and it keeps moving; ${macwallPlaybackModes.systemWallpaper.cpu}.`,
+          `**${macwallBatteryPolicy.pauseBehindFullScreen.label}** (on by default): a wallpaper covered by a full-screen app does no decoding, display by display.`,
+          `**${macwallBatteryPolicy.pauseOnBattery.label}** (off by default): ${macwallBatteryPolicy.pauseOnBattery.detail}, even while MacWall is closed.`,
+          `**${macwallBatteryPolicy.lowerQualityOnBattery.label}** (off by default): ${macwallBatteryPolicy.lowerQualityOnBattery.detail}.`,
+          `**${macwallBatteryPolicy.pauseWhenBusy.label}** (off by default): ${macwallBatteryPolicy.pauseWhenBusy.detail}.`,
+          "**Display sleep**: playback stops while your displays sleep.",
+          "**Shared loops**: displays showing the same wallpaper share one decoder.",
+        ],
+      },
+      {
+        type: "p",
+        text: `All of these are in **${macwallBatteryPolicy.settingsPath}**. A paused wallpaper keeps its last frame and starts again on its own. On the Lock Screen, ${macwallPlaybackModes.systemWallpaper.setting} keeps playing unless you turn off **Play the wallpaper while locked**, which holds the frame.`,
+      },
+      { type: "h2", text: "Measure it on your own Mac" },
+      {
+        type: "ol",
+        items: [
+          "Set a wallpaper and leave it playing on the desktop for a few minutes.",
+          "Open Activity Monitor (Applications > Utilities) and click **CPU** to see each process's CPU use.",
+          "Click **Energy**. Apple describes **Energy Impact** as a relative measure of an app's current energy use, lower is better; on a Mac laptop, **12 hr Power** averages it over the last 12 hours.",
+          "Open any app full screen and watch MacWall's numbers drop while the wallpaper is covered.",
+          "Compare with the wallpaper stopped (Stop Wallpaper in the menu bar), or with a still wallpaper, over the same stretch of time.",
+        ],
+      },
+      {
+        type: "p",
+        text: `With ${macwallPlaybackModes.systemWallpaper.setting} playback the video is decoded by macOS's wallpaper process rather than by the MacWall app, so compare the whole Mac's CPU and energy use, not just MacWall's row. On a laptop, the battery panel at the bottom of the Energy tab shows the remaining charge and the last 12 hours, which makes a longer before-and-after easy to read. The setup is explained step by step in [performance and battery](/docs/performance-and-battery).`,
+      },
+      { type: "h2", text: "Settings for a MacBook" },
+      {
+        type: "ul",
+        items: [
+          `**Most battery**: turn on ${macwallBatteryPolicy.pauseOnBattery.label}. The wallpaper holds its frame unplugged and plays again when you plug in.`,
+          `**Motion on battery, for less**: leave that off and turn on ${macwallBatteryPolicy.lowerQualityOnBattery.label}.`,
+          `**Games, exports and builds**: turn on ${macwallBatteryPolicy.pauseWhenBusy.label}.`,
+          "**One loop on every display** when a MacBook drives external screens, so it is decoded once.",
+        ],
+      },
+      { type: "h2", text: "Encode your own loops for lighter playback" },
+      {
+        type: "ul",
+        items: [
+          "Match the display's resolution, or 3840 × 2160 for a 4K panel; [MacBook wallpaper size](/blog/macbook-wallpaper-size) lists every Mac.",
+          "24 to 30 fps is plenty for ambient motion.",
+          "Use HEVC or H.264. ProRes, AV1 and VP9 are converted when you set them.",
+          "Short seamless loops of 5 to 30 seconds look better than long clips and are no more work to play.",
+        ],
+      },
+      {
+        type: "p",
+        text: "The full export guide is in [how to use a video as your wallpaper](/blog/how-to-use-video-as-wallpaper-mac). How the decoding works is explained in [hardware video decode](/learn/hardware-video-decode), and the general picture of laptop energy use in [battery and energy basics](/learn/battery-and-energy-basics).",
+      },
+      ...sourcesBlocks([
+        appleSources.activityMonitorEnergy,
+        appleSources.videoToolbox,
+        appleSources.avFoundation,
+      ]),
+    ],
+    faq: [
+      {
+        question: "Do live wallpapers drain battery on a Mac?",
+        answer:
+          "They use some energy, because playing video does. Hardware decoding, a resolution that matches your display, 24 to 30 fps, and pausing when the wallpaper is hidden or the Mac is unplugged keep it small.",
+      },
+      {
+        question: "How much CPU does MacWall use?",
+        answer:
+          "It depends on the Mac, the video and the number of displays, so MacWall doesn't publish a fixed figure. Check it in Activity Monitor's CPU and Energy tabs; with System Wallpaper playback, compare the whole Mac, since macOS decodes the video.",
+      },
+      {
+        question: "Does MacWall pause on battery?",
+        answer: `If you turn on ${macwallBatteryPolicy.pauseOnBattery.label} in ${macwallBatteryPolicy.settingsPath}, it ${macwallBatteryPolicy.pauseOnBattery.detail}. It is off by default.`,
+      },
+      {
+        question: "Is a 4K live wallpaper too heavy for a MacBook Air?",
+        answer:
+          "A 4K loop decodes more pixels than a 13-inch MacBook Air panel shows. Use a loop sized to the display, or turn on Lower quality on battery, for the same look at less cost.",
+      },
+      {
+        question: "Do two monitors double the cost?",
+        answer:
+          "Only with two different loops. The same wallpaper on both displays is decoded once.",
       },
     ],
   },

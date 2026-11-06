@@ -17,7 +17,7 @@ export type LicenseOffer = {
   billingModel: LicenseBillingModel
   maxDevices: number
   usdCents: number
-  /** India price in USD cents. Charged in USD; the site shows live INR. */
+  /** India price in USD cents. Set in USD; the site shows live INR. */
   indiaUsdCents: number
 }
 
@@ -36,8 +36,8 @@ export function indiaDiscountPercentOff(
  *   Global (USD): Pro 3 Macs $12.99 · Pro+ 5 Macs $19.99 · 10 Macs $34.99
  *   India  (USD): Pro 3 Macs  $4.99 · Pro+ 5 Macs  $7.99 · 10 Macs $12.99
  *
- * Everything is charged in USD. India visitors see prices converted to INR
- * at the live rate on the site. The 10-Mac pack is Pro+ plus the “Add 5 more
+ * Prices are set in USD; Stripe Adaptive Pricing may charge local currency.
+ * India visitors see prices converted to INR at the live rate on the site. The 10-Mac pack is Pro+ plus the “Add 5 more
  * Macs” add-on. 15/20-Mac packs are retired; old links normalize to 10 Macs.
  */
 export const LICENSE_OFFERS: Record<LicenseOfferSlug, LicenseOffer> = {
@@ -150,7 +150,8 @@ export function normalizeLicenseOfferSlug(
   // Annual is retired: old ?offer=annual links become permanent one-time.
   if (value === "annual") return "permanent"
   // 15/20-Mac packs are retired: the largest pack is 10 Macs.
-  if (value === "permanent_15" || value === "permanent_20") return "permanent_10"
+  if (value === "permanent_15" || value === "permanent_20")
+    return "permanent_10"
 
   if (isLicenseOfferSlug(value)) return value
 

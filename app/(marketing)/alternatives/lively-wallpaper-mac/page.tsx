@@ -1,28 +1,28 @@
-import { SeoLandingPage } from "@/components/content/seo-landing-page"
-import { JsonLd } from "@/components/seo/json-ld"
-import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
+import { ComparisonLandingPage } from "@/components/content/comparison-landing-page"
+import { COMPARISON_SOURCES } from "@/lib/seo/comparison-facts"
 import { livelyWallpaperMacPage } from "@/lib/seo/landing-pages"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
-import { canonicalSiteOrigin } from "@/lib/site-url"
 
-export const metadata = createSeoPageMetadata(livelyWallpaperMacPage)
+const page = livelyWallpaperMacPage
+
+export const metadata = createSeoPageMetadata(page, {
+  openGraphType: "article",
+  publishedTime: page.publishedAt,
+  modifiedTime: page.updatedAt,
+})
 
 export default function LivelyWallpaperMacPage() {
-  const origin = canonicalSiteOrigin()
-
   return (
-    <>
-      <JsonLd
-        payload={webPageWithBreadcrumbsJsonLd({
-          origin,
-          pathname: livelyWallpaperMacPage.pathname,
-          pageTitle: "Lively Wallpaper for Mac",
-          headline: livelyWallpaperMacPage.headline,
-          description: livelyWallpaperMacPage.description,
-          dateModifiedIso: livelyWallpaperMacPage.updatedAt,
-        })}
-      />
-      <SeoLandingPage page={livelyWallpaperMacPage} />
-    </>
+    <ComparisonLandingPage
+      page={page}
+      breadcrumbName="Lively Wallpaper for Mac"
+      compared={[
+        {
+          name: "Lively Wallpaper",
+          url: COMPARISON_SOURCES.lively,
+          operatingSystem: "Windows 10, Windows 11",
+        },
+      ]}
+    />
   )
 }

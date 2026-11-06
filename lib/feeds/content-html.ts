@@ -79,6 +79,22 @@ export function contentBlocksToHtml(blocks: readonly ContentBlock[]): string {
           }`
         )
         break
+      case "image":
+        parts.push(
+          `<figure><img src="${escapeHtml(absoluteMediaUrl(block.src))}" alt="${escapeHtml(block.alt)}" width="${block.width}" height="${block.height}" />${
+            block.caption
+              ? `<figcaption>${inlineMarkdownToHtml(block.caption)}</figcaption>`
+              : ""
+          }</figure>`
+        )
+        break
+      case "video":
+        parts.push(
+          `<figure><video src="${escapeHtml(absoluteMediaUrl(block.src))}" poster="${escapeHtml(absoluteMediaUrl(block.poster))}" controls preload="none"${
+            block.width ? ` width="${block.width}"` : ""
+          }${block.height ? ` height="${block.height}"` : ""}></video><figcaption>${inlineMarkdownToHtml(block.caption)}</figcaption></figure>`
+        )
+        break
       default: {
         const exhaustive: never = block
         void exhaustive
@@ -87,6 +103,11 @@ export function contentBlocksToHtml(blocks: readonly ContentBlock[]): string {
   }
 
   return parts.join("\n")
+}
+
+/** Media `src` as an absolute URL: feed readers have no page to resolve against. */
+function absoluteMediaUrl(src: string): string {
+  return src.startsWith("/") ? `${canonicalSiteOrigin()}${src}` : src
 }
 
 export function faqToHtml(faq: readonly ContentFaq[]): string {

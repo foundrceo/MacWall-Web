@@ -3,16 +3,18 @@ import { WallpaperDetail } from "@/components/wallpaper-gallery/wallpaper-detail
 import { JsonLd } from "@/components/seo/json-ld"
 import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import { buildWallpaperDetailContent } from "@/lib/seo/wallpaper-detail-content"
+import { buildWallpaperDetailLinks } from "@/lib/seo/wallpaper-detail-links"
 import { wallpaperDetailPageJsonLd } from "@/lib/seo/wallpaper-json-ld"
 import { wallpaperDetailMetadata } from "@/lib/seo/wallpaper-metadata"
 import {
   getPublicWallpaperByDetailSlug,
+  listPublicWallpapersForCollections,
   listSimilarPublicWallpapers,
 } from "@/lib/public-catalog/fetch"
-import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
+import type { PublicWallpaper } from "@/lib/public-catalog/types"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 import type { Metadata } from "next"
-import { notFound, permanentRedirect } from "next/navigation"
+import { notFound } from "next/navigation"
 
 type PageProps = {
   params: Promise<{ category: string; slug: string }>
@@ -41,26 +43,40 @@ export async function generateMetadata({
 }
 
 export default async function WallpaperDetailPage({ params }: PageProps) {
-  const { category, slug } = await params
+  const { slug } = await params
 
   const wallpaper = await getPublicWallpaperByDetailSlug(slug)
   if (!wallpaper) notFound()
 
-  const canonicalPath = wallpaperDetailPath(wallpaper)
-  if (`/wallpaper/${category}/${slug}` !== canonicalPath) {
-    permanentRedirect(canonicalPath)
-  }
+  // A wrong category, stale name, bare id or uppercase URL gets one 308 to
+  // the canonical path in worker/index.ts before it reaches this page. One
+  // that slips through (a wallpaper newer than the Worker's map, or
+  // `next start`) renders here, with `rel=canonical` on the canonical path.
 
   // `wallpaper.videoUrl` is the downscaled web preview, never the master file.
-  let similar: Awaited<ReturnType<typeof listSimilarPublicWallpapers>> = []
+  let similar: PublicWallpaper[] = []
   try {
-    similar = await listSimilarPublicWallpapers(wallpaper, 6)
+    similar = await listSimilarPublicWallpapers(wallpaper)
   } catch {
     similar = []
+  }
+  // The same cached catalog index the wallpaper came from: counts collection
+  // members (only indexable collections are linked) and fills "Also in".
+  let catalog: PublicWallpaper[] | null
+  try {
+    catalog = await listPublicWallpapersForCollections()
+  } catch {
+    catalog = null
   }
 
   const origin = canonicalSiteOrigin()
   const content = buildWallpaperDetailContent(wallpaper)
+  const links = buildWallpaperDetailLinks({
+    wallpaper,
+    content,
+    catalog,
+    similar,
+  })
 
   return (
     <>
@@ -68,7 +84,8 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
         payload={wallpaperDetailPageJsonLd({
           origin,
           wallpaper,
-          description: content.metaDescription,
+          description: content.summary,
+          headline: content.heading,
           durationSeconds: wallpaper.durationSeconds,
         })}
       />
@@ -79,6 +96,7 @@ export default async function WallpaperDetailPage({ params }: PageProps) {
           similar={similar}
           origin={origin}
           content={content}
+          links={links}
         />
       </MarketingRail>
     </>

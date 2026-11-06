@@ -1,5 +1,7 @@
 import type { ContentFaq } from "@/lib/content/types"
 import { macwall, macwallLockScreenMacOSVersion } from "@/lib/macwall-site"
+import { paletteMatches, type PaletteRule } from "@/lib/seo/color-name"
+import { GALLERY_PAGE_SIZE } from "@/lib/seo/gallery-pages"
 
 /**
  * Curated, keyword-researched wallpaper collections served at
@@ -8,24 +10,38 @@ import { macwall, macwallLockScreenMacOSVersion } from "@/lib/macwall-site"
  * Catalog tags are free-form (mixed case, split words, near-duplicates), so raw
  * tags make poor landing pages. Each collection instead names the topic people
  * actually search for ("gojo wallpaper", "rain live wallpaper") and matches it
- * against wallpaper names and tags with case-insensitive patterns.
+ * against wallpaper names and tags with case-insensitive patterns. Colour
+ * collections also match the palette measured from each poster.
  *
  * Collections below `COLLECTION_MIN_WALLPAPERS` matches are served `noindex`
  * and left out of the sitemap, so a thin topic never ships as a doorway page.
+ * Collections the rights gate holds back (`collectionPublishable`) are not
+ * built at all.
  */
 
 export const COLLECTION_MIN_WALLPAPERS = 6
 
-/** Cap for the server-rendered grid: keeps the HTML light on huge topics. */
+/** Wallpapers per collection page, the gallery's page size, so `/page/{n}` lines up. */
+export const COLLECTION_PAGE_SIZE = GALLERY_PAGE_SIZE
+
+/** Wallpapers listed in a collection's Markdown twin, which has no pages. */
 export const COLLECTION_GRID_LIMIT = 48
 
 export type WallpaperCollectionGroup =
-  "anime" | "heroes" | "sports" | "cars" | "moods" | "space" | "colors"
+  | "anime"
+  | "heroes"
+  | "gaming"
+  | "sports"
+  | "cars"
+  | "moods"
+  | "space"
+  | "colors"
 
 export const COLLECTION_GROUP_LABELS: Record<WallpaperCollectionGroup, string> =
   {
     anime: "Anime",
     heroes: "Heroes & movies",
+    gaming: "Gaming",
     sports: "Sports",
     cars: "Cars",
     moods: "Moods & places",
@@ -36,6 +52,7 @@ export const COLLECTION_GROUP_LABELS: Record<WallpaperCollectionGroup, string> =
 export const COLLECTION_GROUP_ORDER: readonly WallpaperCollectionGroup[] = [
   "anime",
   "heroes",
+  "gaming",
   "cars",
   "sports",
   "moods",
@@ -43,13 +60,25 @@ export const COLLECTION_GROUP_ORDER: readonly WallpaperCollectionGroup[] = [
   "colors",
 ] as const
 
+/**
+ * What a collection's topic is: a generic subject (rain, neon, pixel art), a
+ * fictional franchise, a brand, or a real person.
+ */
+export type CollectionRights =
+  "generic" | "franchise" | "trademark" | "likeness"
+
 export type WallpaperCollection = {
   slug: string
   /** Topic name as people type it: "Gojo", "Spider-Man", "Rain". */
   name: string
   group: WallpaperCollectionGroup
+  rights: CollectionRights
+  /** Every member passed the rights review. Generic topics don't need one. */
+  rightsCleared: boolean
   /** `<title>` without the site suffix (root layout appends it). */
   title: string
+  /** H1, when "{name} live wallpapers for Mac" misses what people search for. */
+  headline?: string
   /** Meta description, 140–160 characters. */
   description: string
   keywords: string[]
@@ -57,8 +86,18 @@ export type WallpaperCollection = {
   intro: string
   /** Case-insensitive regex sources tested against the name and every tag. */
   patterns: string[]
-  /** Name/tag patterns that disqualify a match (e.g. "dragon" but not Dragon Ball). */
+  /** Name/tag patterns that disqualify a wallpaper (e.g. "dragon" but not Dragon Ball). */
   exclude?: string[]
+  /** Colour collections: wallpapers whose measured palette fits also belong. */
+  palette?: PaletteRule
+  /**
+   * While fewer than `minimum` wallpapers match `patterns`, wallpapers that
+   * match these follow them, so a seasonal page isn't empty before its
+   * loops are published.
+   */
+  fallback?: { minimum: number; patterns: string[]; exclude?: string[] }
+  /** The thing the page is about, for structured data. Only unambiguous ones. */
+  entity?: { name: string; sameAs: readonly string[] }
   /** Catalog category most of the collection lives in, for the internal link. */
   category: string
   /** One topic-specific question on top of the shared FAQ. */
@@ -75,6 +114,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "gojo",
     name: "Gojo",
     group: "anime",
+    rights: "franchise",
+    rightsCleared: false,
     title: "Gojo Wallpapers for Mac: 4K Live & Animated",
     description:
       "Satoru Gojo live wallpapers for Mac: animated 4K Jujutsu Kaisen loops of Infinity, Hollow Purple, and the blindfold, ready to set on your desktop in one click.",
@@ -101,6 +142,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "jujutsu-kaisen",
     name: "Jujutsu Kaisen",
     group: "anime",
+    rights: "franchise",
+    rightsCleared: false,
     title: "Jujutsu Kaisen Wallpapers for Mac: 4K Live Loops",
     description:
       "Jujutsu Kaisen live wallpapers for Mac: animated Gojo, Sukuna, Yuji, and Megumi loops in 4K. Preview every JJK wallpaper and set it on your Mac desktop.",
@@ -138,6 +181,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "naruto",
     name: "Naruto",
     group: "anime",
+    rights: "franchise",
+    rightsCleared: false,
     title: "Naruto Wallpapers for Mac: 4K Live & Animated",
     description:
       "Naruto live wallpapers for Mac: animated Itachi, Sasuke, Kakashi, and Akatsuki loops in 4K. Preview each Naruto wallpaper and set it on your Mac in one click.",
@@ -174,6 +219,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "goku",
     name: "Goku",
     group: "anime",
+    rights: "franchise",
+    rightsCleared: false,
     title: "Goku Wallpapers for Mac: Dragon Ball 4K Live Loops",
     description:
       "Goku live wallpapers for Mac: animated Dragon Ball loops of Super Saiyan transformations, Ultra Instinct, and Vegeta rivalries in 4K for your Mac desktop.",
@@ -207,6 +254,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "one-piece",
     name: "One Piece",
     group: "anime",
+    rights: "franchise",
+    rightsCleared: false,
     title: "One Piece Wallpapers for Mac: Luffy 4K Live Loops",
     description:
       "One Piece live wallpapers for Mac: animated Luffy Gear 5, Zoro, and Straw Hat loops in 4K. Preview every One Piece wallpaper and set it on your Mac desktop.",
@@ -241,6 +290,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "demon-slayer",
     name: "Demon Slayer",
     group: "anime",
+    rights: "franchise",
+    rightsCleared: false,
     title: "Demon Slayer Wallpapers for Mac: 4K Live Loops",
     description:
       "Demon Slayer live wallpapers for Mac: animated Tanjiro, Nezuko, Rengoku, and Hashira loops in 4K. Preview each wallpaper and set it on your Mac desktop.",
@@ -275,6 +326,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "spider-man",
     name: "Spider-Man",
     group: "heroes",
+    rights: "franchise",
+    rightsCleared: false,
     title: "Spider-Man Wallpapers for Mac: 4K Live & Animated",
     description:
       "Spider-Man live wallpapers for Mac: animated Miles Morales, Spider-Verse, and web-swinging loops in 4K. Preview each one and set it on your Mac desktop.",
@@ -308,6 +361,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "marvel",
     name: "Marvel",
     group: "heroes",
+    rights: "franchise",
+    rightsCleared: false,
     title: "Marvel Live Wallpapers for Mac: 4K Hero Loops",
     description:
       "Marvel live wallpapers for Mac: animated Spider-Man, Iron Man, Venom, and Avengers loops in 4K. Preview every Marvel wallpaper and set it on your Mac.",
@@ -348,6 +403,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "batman",
     name: "Batman",
     group: "heroes",
+    rights: "franchise",
+    rightsCleared: false,
     title: "Batman Live Wallpapers for Mac: Dark 4K Loops",
     description:
       "Batman live wallpapers for Mac: animated Gotham rooftops, Joker scenes, and Dark Knight silhouettes in 4K. Preview each loop and set it on your Mac desktop.",
@@ -380,6 +437,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "football",
     name: "Football",
     group: "sports",
+    rights: "likeness",
+    rightsCleared: false,
     title: "Football Live Wallpapers for Mac: Ronaldo & Messi",
     description:
       "Football live wallpapers for Mac: animated Ronaldo, Messi, Mbappé, Neymar, and Real Madrid loops in 4K. Preview every soccer wallpaper and set it on your Mac.",
@@ -419,6 +478,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "ronaldo",
     name: "Cristiano Ronaldo",
     group: "sports",
+    rights: "likeness",
+    rightsCleared: false,
     title: "Cristiano Ronaldo Live Wallpapers for Mac in 4K",
     description:
       "Cristiano Ronaldo live wallpapers for Mac: animated CR7 celebrations, Real Madrid, Portugal, and Al Nassr loops in 4K. Set any Ronaldo wallpaper on your Mac.",
@@ -435,7 +496,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     category: "Others",
     faq: {
       question: "Are Ronaldo wallpapers free on MacWall?",
-      answer: `MacWall starts with a free 24-hour trial of the full catalog. After that, the full catalog, including every Ronaldo loop, stays unlocked with a one-time ${macwall.pro.price} Pro license with no subscription.`,
+      answer:
+        "MacWall starts with a free 24-hour trial of the full catalog. After that, the full catalog, including every Ronaldo loop, stays unlocked with a one-time Pro license (see pricing for your region), with no subscription.",
     },
     related: ["football", "f1", "supercars", "bmw"],
   }),
@@ -443,6 +505,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "jdm",
     name: "JDM",
     group: "cars",
+    rights: "trademark",
+    rightsCleared: false,
     title: "JDM Live Wallpapers for Mac: Supra, GT-R & Drift",
     description:
       "JDM live wallpapers for Mac: animated Toyota Supra, Nissan GT-R, Skyline, RX-7, and drift loops in 4K. Preview every car wallpaper and set it on your Mac.",
@@ -485,6 +549,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "bmw",
     name: "BMW",
     group: "cars",
+    rights: "trademark",
+    rightsCleared: false,
     title: "BMW Live Wallpapers for Mac: M3, M4 & M5 4K Loops",
     description:
       "BMW live wallpapers for Mac: animated M3, M4, M5, and E30 loops in 4K, from night drives to track days. Preview each BMW wallpaper and set it on your Mac.",
@@ -518,6 +584,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "porsche",
     name: "Porsche",
     group: "cars",
+    rights: "trademark",
+    rightsCleared: false,
     title: "Porsche Live Wallpapers for Mac: 911 & GT3 in 4K",
     description:
       "Porsche live wallpapers for Mac: animated 911, GT3 RS, and Taycan loops in 4K. Preview every Porsche wallpaper and set it on your Mac desktop in one click.",
@@ -543,6 +611,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "supercars",
     name: "Supercars",
     group: "cars",
+    rights: "trademark",
+    rightsCleared: false,
     title: "Supercar Live Wallpapers for Mac in 4K",
     description:
       "Supercar live wallpapers for Mac: animated Lamborghini, McLaren, Ferrari, and Bugatti loops in 4K. Preview each exotic car wallpaper and set it on your Mac.",
@@ -580,6 +650,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "f1",
     name: "F1",
     group: "sports",
+    rights: "trademark",
+    rightsCleared: false,
     title: "F1 Live Wallpapers for Mac: Formula 1 4K Loops",
     description:
       "F1 live wallpapers for Mac: animated Formula 1 loops of Leclerc, Ferrari, McLaren, and night races in 4K. Preview each F1 wallpaper and set it on your Mac.",
@@ -614,6 +686,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "rain",
     name: "Rain",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "Rain Live Wallpapers for Mac: Rainy 4K Loops",
     description:
       "Rain live wallpapers for Mac: animated rainy windows, wet city streets, and storm loops in 4K. Calm, focus-friendly motion for your Mac desktop.",
@@ -646,6 +720,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "city",
     name: "City",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "City Live Wallpapers for Mac: Night Skylines in 4K",
     description:
       "City live wallpapers for Mac: animated night skylines, Tokyo streets, New York aerials, and urban timelapses in 4K. Preview each loop and set it on your Mac.",
@@ -682,6 +758,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "cyberpunk",
     name: "Cyberpunk",
     group: "moods",
+    rights: "franchise",
+    rightsCleared: false,
     title: "Cyberpunk Wallpapers for Mac: Neon 4K Live Loops",
     description:
       "Cyberpunk live wallpapers for Mac: animated neon cities, futuristic streets, and synthwave glow in 4K. Preview every cyberpunk wallpaper and set it on your Mac.",
@@ -714,6 +792,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "japanese",
     name: "Japanese",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "Japanese Live Wallpapers for Mac: Torii & Sakura",
     description:
       "Japanese live wallpapers for Mac: animated torii gates, sakura blossoms, shrines, and lantern-lit streets in 4K. Calm, cinematic loops for your Mac desktop.",
@@ -749,6 +829,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "samurai",
     name: "Samurai",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "Samurai Live Wallpapers for Mac: Katana & Ronin",
     description:
       "Samurai live wallpapers for Mac: animated ronin, katana duels, and Vagabond-style ink scenes in 4K. Preview each samurai wallpaper and set it on your Mac.",
@@ -780,6 +862,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "lofi",
     name: "Lofi",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "Lofi Live Wallpapers for Mac: Cozy Study Loops",
     description:
       "Lofi live wallpapers for Mac: cozy animated study rooms, cafés, and rainy windows in 4K. Calm, focus-friendly motion for studying and deep work on your Mac.",
@@ -791,7 +875,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "aesthetic live wallpaper",
     ],
     intro:
-      "Warm desk lamps, a cat asleep by the window, rain outside a café. The lofi collection is made for study sessions and long work blocks: soft palettes, slow loops, and nothing that flashes. Pair one with your favourite beats playlist and MacWall's Music Sync.",
+      "Lofi and cozy loops for study sessions and long work blocks: a desk with headphones and a city view, a cat café in a rainy forest, a ramen shop on a snowy night, a mountain cabin with the fire lit. The motion is slow and the palettes run warm, so nothing on the desktop flashes or pulls your eye away from the window you're working in. Every loop is a silent video, so your own playlist stays in charge.",
     patterns: [
       "lo-?fi",
       "\\bcozy\\b",
@@ -805,14 +889,16 @@ export const wallpaperCollections: WallpaperCollection[] = [
     faq: {
       question: "Can a lofi wallpaper react to my music?",
       answer:
-        "MacWall's Music Sync adds album-art gradients from Apple Music and Spotify. The lofi loops themselves are silent videos, so your own music stays in charge.",
+        "The lofi loops are silent videos and don't react to sound. MacWall's separate Music Sync feature puts your music on the desktop instead, with visuals in the album cover's colours for Apple Music and Spotify.",
     },
-    related: ["rain", "japanese", "city", "forest"],
+    related: ["rain", "aesthetic", "japanese", "city"],
   }),
   collection({
     slug: "sunset",
     name: "Sunset",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "Sunset Live Wallpapers for Mac: Golden Hour in 4K",
     description:
       "Sunset live wallpapers for Mac: animated golden hour skies, dusk horizons, and ocean sunsets in 4K. Warm, calm motion for your Mac desktop.",
@@ -845,6 +931,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "forest",
     name: "Forest",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "Forest Live Wallpapers for Mac: Nature 4K Loops",
     description:
       "Forest live wallpapers for Mac: animated misty woods, sunlit trees, and mountain forests in 4K. Calm nature motion for your Mac desktop, hardware decoded.",
@@ -869,7 +957,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     faq: {
       question: "What is the best nature live wallpaper for a MacBook Air?",
       answer:
-        "Any forest loop in this collection runs well on a MacBook Air. MacWall decodes video in hardware, and you can cap playback at 1080p on battery, so fanless Macs stay cool.",
+        "Any forest loop in this collection runs well on a MacBook Air. MacWall decodes video in hardware, and its Lower quality on battery setting caps playback at 1080p and 30 fps while the Mac is unplugged, so fanless Macs stay cool.",
     },
     related: ["rain", "snow", "sunset", "japanese"],
   }),
@@ -877,9 +965,12 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "autumn",
     name: "Autumn",
     group: "moods",
-    title: "Autumn Live Wallpapers for Mac: Fall Forests",
+    rights: "generic",
+    rightsCleared: false,
+    title: "Fall Desktop Wallpaper for Mac: Live 4K Autumn Loops",
+    headline: "Fall desktop wallpapers for Mac, live in 4K",
     description:
-      "Autumn live wallpapers for Mac: fall forests, orange leaves, cozy cabins and torii rivers in 4K. Seasonal video loops for your MacBook desktop.",
+      "Fall desktop wallpapers for Mac that move: autumn forests, orange leaves, a cozy cabin and a torii river as 4K video loops for your MacBook or iMac desktop.",
     keywords: [
       "fall desktop wallpaper",
       "fall macbook wallpaper",
@@ -888,20 +979,32 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "autumn live wallpaper",
     ],
     intro:
-      "Orange forests, a torii gate over an autumn river, a cabin bedroom with leaves outside. Every loop here is named for autumn in the catalog, so the palette runs to amber, rust and gold.",
-    patterns: ["\\bautumn\\b", "fall foliage", "autumn leaves", "\\bmaple\\b"],
+      "Orange forests at sunset, a torii gate over an autumn river, a cabin bedroom with leaves blowing past the window, a knight resting in a quiet autumn wood. Every loop here is named or tagged for autumn in the catalog, so the palette runs to amber, rust and gold. They are video loops rather than stills, so the leaves actually fall behind your windows, and each one plays on the desktop of a MacBook, iMac or external display.",
+    patterns: [
+      "\\bautumn\\b",
+      "fall foliage",
+      "fall leaves",
+      "autumn leaves",
+      "\\bmaple\\b",
+    ],
+    entity: {
+      name: "Autumn",
+      sameAs: ["https://en.wikipedia.org/wiki/Autumn"],
+    },
     category: "Nature",
     faq: {
       question: "Is there a fall wallpaper that changes with the season?",
       answer:
-        "MacWall plays the loop you pick until you change it. To switch with the seasons, set an autumn loop now and pick a snow loop from the snow collection in winter.",
+        "Not by season. A loop plays until you change it, or until Shuffle or the Day Schedule switches it during the day. To follow the seasons, set an autumn loop now and pick one from the Christmas or snow collections in December.",
     },
-    related: ["forest", "snow", "japanese", "sunset"],
+    related: ["forest", "christmas", "snow", "orange"],
   }),
   collection({
     slug: "snow",
     name: "Snow",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "Snow Live Wallpapers for Mac: Winter 4K Loops",
     description:
       "Snow live wallpapers for Mac: animated snowfall, winter cabins, and frozen mountains in 4K. Quiet, seasonal motion for your Mac desktop.",
@@ -909,7 +1012,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "snow live wallpaper",
       "winter live wallpaper",
       "snowfall wallpaper mac",
-      "christmas live wallpaper mac",
+      "winter wallpaper mac",
       "cozy winter wallpaper",
     ],
     intro:
@@ -922,18 +1025,24 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "\\bcabin\\b",
       "christmas",
     ],
+    entity: {
+      name: "Snow",
+      sameAs: ["https://en.wikipedia.org/wiki/Snow"],
+    },
     category: "Nature",
     faq: {
-      question: "Is there a Christmas or winter live wallpaper for Mac?",
+      question: "Is there a winter live wallpaper for Mac?",
       answer:
-        "Yes. Snowfall, winter cabins, and holiday scenes are grouped here and update as new seasonal loops are added.",
+        "Yes. Snowfall, winter cabins and frozen landscapes are grouped here and update as new seasonal loops are added. For the holidays, see the Christmas collection.",
     },
-    related: ["forest", "rain", "japanese", "lofi"],
+    related: ["christmas", "forest", "mountain", "lofi"],
   }),
   collection({
     slug: "ocean",
     name: "Ocean",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "Ocean Live Wallpapers for Mac: Waves in 4K",
     description:
       "Ocean live wallpapers for Mac: animated waves, beaches, underwater scenes, and sea horizons in 4K. Calm, cinematic motion for your Mac desktop.",
@@ -967,6 +1076,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "galaxy",
     name: "Galaxy",
     group: "space",
+    rights: "generic",
+    rightsCleared: false,
     title: "Galaxy Live Wallpapers for Mac: Nebulas in 4K",
     description:
       "Galaxy live wallpapers for Mac: animated nebulae, star fields, the Milky Way, and cosmic clouds in 4K. Deep-space motion for your Mac desktop.",
@@ -1001,6 +1112,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "black-hole",
     name: "Black Hole",
     group: "space",
+    rights: "generic",
+    rightsCleared: false,
     title: "Black Hole Live Wallpapers for Mac: Gargantua",
     description:
       "Black hole live wallpapers for Mac: animated Gargantua, accretion disks, and singularities in 4K. Interstellar-style space motion for your Mac desktop.",
@@ -1022,6 +1135,10 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "interstellar",
       "wormhole",
     ],
+    entity: {
+      name: "Black hole",
+      sameAs: ["https://en.wikipedia.org/wiki/Black_hole"],
+    },
     category: "Space",
     faq: {
       question: "Is there an Interstellar Gargantua live wallpaper for Mac?",
@@ -1034,6 +1151,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "hacker",
     name: "Hacker",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "Hacker Live Wallpapers for Mac: Matrix-Style Code",
     description:
       "Hacker live wallpapers for Mac: animated code rain, Matrix-style terminals, binary streams, and HUD loops in 4K. Developer-friendly motion for your Mac desktop.",
@@ -1061,7 +1180,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
     faq: {
       question: "Do hacker wallpapers slow down Xcode or builds?",
       answer:
-        "No meaningful impact. MacWall decodes video on the media engine rather than the CPU and can auto-pause when system load spikes, so compile times stay the same.",
+        "No meaningful impact. MacWall decodes video on the media engine rather than the CPU, and its Pause when your Mac is busy setting stops playback while builds and exports need the processor.",
     },
     related: ["cyberpunk", "black-hole", "city", "galaxy"],
   }),
@@ -1069,6 +1188,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "dark-fantasy",
     name: "Dark Fantasy",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "Dark Fantasy Live Wallpapers for Mac: 4K Loops",
     description:
       "Dark fantasy live wallpapers for Mac: animated knights, dragons, gothic castles, and moonlit battlefields in 4K. Cinematic motion for dark-mode desktops.",
@@ -1107,6 +1228,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "miles-morales",
     name: "Miles Morales",
     group: "heroes",
+    rights: "franchise",
+    rightsCleared: false,
     title: "Miles Morales Live Wallpapers for Mac in 4K",
     description:
       "Miles Morales live wallpapers for Mac: animated Spider-Verse loops of Miles swinging, glitching, and posing in the rain, in 4K for your Mac desktop.",
@@ -1132,6 +1255,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "sukuna",
     name: "Sukuna",
     group: "anime",
+    rights: "franchise",
+    rightsCleared: false,
     title: "Sukuna Live Wallpapers for Mac: Jujutsu Kaisen",
     description:
       "Ryomen Sukuna live wallpapers for Mac: animated Malevolent Shrine, Fuga flames, and Gojo vs Sukuna domain clashes in 4K for your Mac desktop.",
@@ -1157,6 +1282,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "itachi",
     name: "Itachi",
     group: "anime",
+    rights: "franchise",
+    rightsCleared: false,
     title: "Itachi Wallpapers for Mac: 4K Live Sharingan Loops",
     description:
       "Itachi Uchiha live wallpapers for Mac: animated Sharingan, red moon, and crimson forest loops in 4K. Preview each Itachi wallpaper and set it on your Mac.",
@@ -1182,6 +1309,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "anime-girl",
     name: "Anime Girl",
     group: "anime",
+    rights: "generic",
+    rightsCleared: false,
     title: "Anime Girl Wallpapers for Mac: 4K Live & Aesthetic",
     description:
       "Anime girl live wallpapers for Mac: aesthetic animated loops of anime girls in rain, neon cities, and quiet rooms, in 4K for your Mac desktop.",
@@ -1207,6 +1336,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "lamborghini",
     name: "Lamborghini",
     group: "cars",
+    rights: "trademark",
+    rightsCleared: false,
     title: "Lamborghini Live Wallpapers for Mac in 4K",
     description:
       "Lamborghini live wallpapers for Mac: animated Aventador, Huracán, Urus, and Diablo loops in 4K. Preview every Lamborghini wallpaper and set it on your Mac.",
@@ -1239,6 +1370,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "ferrari",
     name: "Ferrari",
     group: "cars",
+    rights: "trademark",
+    rightsCleared: false,
     title: "Ferrari Live Wallpapers for Mac: F1 & Road Cars",
     description:
       "Ferrari live wallpapers for Mac: animated F40, 812 Superfast, 458, and Scuderia Ferrari F1 loops in 4K. Preview each one and set it on your Mac desktop.",
@@ -1264,6 +1397,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "mclaren",
     name: "McLaren",
     group: "cars",
+    rights: "trademark",
+    rightsCleared: false,
     title: "McLaren Live Wallpapers for Mac: P1 & 720S in 4K",
     description:
       "McLaren live wallpapers for Mac: animated P1, 720S, and McLaren F1 loops in 4K, from sunset drives to foggy garages. Set any one on your Mac desktop.",
@@ -1289,6 +1424,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "mercedes-amg",
     name: "Mercedes-AMG",
     group: "cars",
+    rights: "trademark",
+    rightsCleared: false,
     title: "Mercedes-AMG Wallpapers for Mac: 4K Live Loops",
     description:
       "Mercedes-AMG live wallpapers for Mac: animated C63, G63, drifting AMGs, and Mercedes F1 garage loops in 4K. Set any one on your Mac desktop.",
@@ -1314,6 +1451,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "moon",
     name: "Moon",
     group: "space",
+    rights: "generic",
+    rightsCleared: false,
     title: "Moon Live Wallpapers for Mac: Moonlit 4K Loops",
     description:
       "Moon live wallpapers for Mac: animated full moons, blood moons, eclipses, and moonlit landscapes in 4K. Calm night-time motion for your Mac desktop.",
@@ -1340,6 +1479,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "mountain",
     name: "Mountain",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "Mountain Live Wallpapers for Mac: 4K Peaks & Lakes",
     description:
       "Mountain live wallpapers for Mac: animated snowy peaks, mountain lakes, and alpine roads in 4K. Calm, cinematic landscape motion for your Mac desktop.",
@@ -1371,6 +1512,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "cat",
     name: "Cat",
     group: "moods",
+    rights: "generic",
+    rightsCleared: false,
     title: "Cat Live Wallpapers for Mac: Cozy Cats in 4K",
     description:
       "Cat live wallpapers for Mac: animated cats watching the sky, sleeping in cozy rooms, and wandering moonlit streets. Calm 4K loops for your Mac desktop.",
@@ -1396,6 +1539,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "purple",
     name: "Purple",
     group: "colors",
+    rights: "generic",
+    rightsCleared: false,
     title: "Purple Wallpapers for Mac: 4K Live & Aesthetic",
     description:
       "Purple live wallpapers for Mac: aesthetic violet nebulae, neon portraits, and purple night skies in 4K. Animated purple backgrounds for your Mac desktop.",
@@ -1407,8 +1552,9 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "violet wallpaper 4k",
     ],
     intro:
-      "Violet nebulae, neon portraits, purple moonlit clouds. The purple collection gathers every loop in the catalog where purple leads the palette, and it pairs well with the purple accent color in macOS settings.",
+      "Violet nebulae, neon portraits, purple moonlit clouds. The purple collection gathers every loop named for purple, violet or lavender, plus every loop where purple or magenta leads the colours measured from its poster, and it pairs well with the purple accent color in macOS settings.",
     patterns: ["purple", "violet", "lavender", "magenta"],
+    palette: { kind: "hue", hues: ["purple", "magenta"] },
     category: "Abstract",
     faq: {
       question: "Can I match my Mac accent color to a purple wallpaper?",
@@ -1421,6 +1567,8 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "red",
     name: "Red",
     group: "colors",
+    rights: "generic",
+    rightsCleared: false,
     title: "Red Wallpapers for Mac: 4K Live & Dark Red Loops",
     description:
       "Red live wallpapers for Mac: crimson skies, red moons, Sharingan eyes, and red neon in 4K. Dark, dramatic animated red backgrounds for your Mac desktop.",
@@ -1435,6 +1583,7 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "Crimson moonlit skies, red neon reflections, glowing Sharingan eyes. The red collection is the most dramatic color set in the catalog, mostly dark frames with red light, so it stays readable behind your windows.",
     patterns: ["\\bred\\b", "crimson", "scarlet"],
     exclude: ["red dead", "red bull"],
+    palette: { kind: "hue", hues: ["red"] },
     category: "Dark",
     faq: {
       question: "Is a dark red wallpaper hard on the eyes?",
@@ -1447,32 +1596,37 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "black",
     name: "Black",
     group: "colors",
-    title: "Black Live Wallpapers for Mac: Dark & Monochrome",
+    rights: "generic",
+    rightsCleared: false,
+    title: "Black and Monochrome Live Wallpapers for Mac",
+    headline: "Black and monochrome live wallpapers for Mac",
     description:
-      "Black live wallpapers for Mac: animated monochrome portraits, black holes, and pitch-dark scenes in 4K. Minimal dark backgrounds that suit macOS dark mode.",
+      "Black and monochrome live wallpapers for Mac: black-and-white portraits, ink silhouettes and near-black scenes with one point of light, as 4K video loops.",
     keywords: [
       "black wallpaper",
       "black aesthetic wallpaper",
-      "dark wallpaper mac",
+      "black and white wallpaper mac",
       "black live wallpaper",
       "monochrome wallpaper",
     ],
     intro:
-      "Monochrome portraits, silhouettes, black holes, and near-black scenes with a single point of light. The black collection is the minimal end of the catalog, built for dark mode and for desktops full of icons.",
+      "Monochrome portraits, ink-wash silhouettes, black holes, and near-black scenes with a single point of light. The black collection is the minimal end of the catalog: little colour, lots of empty space, and icons that stay easy to read on top. For moody scenes with more colour, browse the dark category instead.",
     patterns: ["\\bblack\\b", "monochrome", "amoled", "\\bnoir\\b"],
     exclude: ["black panther"],
     category: "Dark",
     faq: {
       question: "Do black live wallpapers save battery on a MacBook?",
       answer:
-        "MacBook panels are LCD or mini-LED, so black pixels save a little on mini-LED MacBook Pro and little on LCD. The bigger saving comes from MacWall's Low Power Mode pause and its 1080p cap on battery.",
+        "Only a little. MacBook panels are LCD or mini-LED, so black pixels save some power on a mini-LED MacBook Pro and almost none on LCD. The bigger savings come from MacWall's optional Pause on battery and Lower quality on battery settings.",
     },
-    related: ["red", "moon", "black-hole", "hacker"],
+    related: ["red", "moon", "black-hole", "white"],
   }),
   collection({
     slug: "blue",
     name: "Blue",
     group: "colors",
+    rights: "generic",
+    rightsCleared: false,
     title: "Blue Wallpapers for Mac: 4K Live & Aesthetic Loops",
     description:
       "Blue live wallpapers for Mac: animated blue oceans, nebulae, code rain, and blue-hour cities in 4K. Calm, cool-toned motion for your Mac desktop.",
@@ -1484,9 +1638,10 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "blue wallpaper mac",
     ],
     intro:
-      "Deep ocean blue, blue-hour skylines, cyan code rain, and nebula drift. Blue is the calmest color set in the catalog and the default favourite for people who want motion without distraction.",
+      "Deep ocean blue, blue-hour skylines, cyan code rain, and nebula drift. The blue collection gathers every loop named for blue, plus every loop where blue or indigo leads the colours measured from its poster. Blue is the calmest color set in the catalog and the default favourite for people who want motion without distraction.",
     patterns: ["\\bblue\\b", "azure", "\\bcyan\\b"],
     exclude: ["blue archive", "blue lock"],
+    palette: { kind: "hue", hues: ["blue", "indigo"] },
     category: "Abstract",
     faq: {
       question: "Why are blue wallpapers popular for work?",
@@ -1499,9 +1654,11 @@ export const wallpaperCollections: WallpaperCollection[] = [
     slug: "pink",
     name: "Pink",
     group: "colors",
-    title: "Pink Live Wallpapers for Mac: Sakura and More",
+    rights: "generic",
+    rightsCleared: false,
+    title: "Pink MacBook Wallpaper: Live 4K Loops",
     description:
-      "Pink live wallpapers for Mac: cherry blossom streets, sakura trees, pink cars and pastel skies in 4K. Video loops for your MacBook desktop and Lock Screen.",
+      "Pink MacBook wallpapers that move: cherry blossom streets, sakura trees, pink cars and pastel skies as 4K video loops for your Mac desktop and Lock Screen.",
     keywords: [
       "pink macbook wallpaper",
       "pink mac wallpaper",
@@ -1510,16 +1667,287 @@ export const wallpaperCollections: WallpaperCollection[] = [
       "cherry blossom live wallpaper",
     ],
     intro:
-      "Cherry blossom streets, sakura trees over rivers, pink supercars at night. This collection gathers every loop in the catalog named for pink, sakura or cherry blossom, so it leans soft and spring-like.",
+      "Cherry blossom streets, sakura trees over rivers, pink supercars at night. This collection gathers every loop named for pink, sakura or cherry blossom, plus every loop where pink or magenta leads the colours measured from its poster, so it leans soft and spring-like.",
     patterns: ["\\bpink\\b", "\\bsakura\\b", "cherry blossom"],
     exclude: ["pink floyd"],
+    palette: { kind: "hue", hues: ["pink", "magenta"] },
     category: "Abstract",
     faq: {
       question: "Are these pink wallpapers still images?",
       answer:
         "No. Each one is a short video loop that plays behind your windows in MacWall. Preview any of them here before you install the app.",
     },
-    related: ["purple", "japanese", "anime-girl", "sunset"],
+    related: ["cherry-blossom", "aesthetic", "purple", "japanese"],
+  }),
+  collection({
+    slug: "christmas",
+    name: "Christmas",
+    group: "moods",
+    rights: "generic",
+    rightsCleared: false,
+    title: "Christmas MacBook Wallpaper: Live 4K Winter Loops",
+    headline: "Christmas and winter live wallpapers for Mac",
+    description:
+      "Christmas and winter live wallpapers for Mac: snowfall over a cabin, a snow-lit torii shrine and a lofi city on a snowy night, as 4K loops for December.",
+    keywords: [
+      "christmas macbook wallpaper",
+      "christmas live wallpaper",
+      "christmas live wallpaper mac",
+      "winter macbook wallpaper",
+      "holiday wallpaper mac",
+    ],
+    intro: "",
+    patterns: [
+      "christmas",
+      "\\bxmas\\b",
+      "\\bsanta\\b",
+      "\\breindeer\\b",
+      "\\bsnowman\\b",
+      "gingerbread",
+      "\\bfestive\\b",
+    ],
+    fallback: {
+      minimum: 10,
+      patterns: ["\\bsnow(?:y|fall|lit)?\\b", "\\bwinter\\b", "\\bblizzard\\b"],
+      exclude: [
+        "jon snow",
+        "snowbreak",
+        "\\bsteam\\b",
+        "\\bguts\\b",
+        "nissan",
+        "mclaren",
+        "\\bbmw\\b",
+      ],
+    },
+    entity: {
+      name: "Christmas",
+      sameAs: ["https://en.wikipedia.org/wiki/Christmas"],
+    },
+    category: "Nature",
+    faq: {
+      question: "Are there Christmas live wallpapers for Mac?",
+      answer:
+        "This page lists every holiday loop in the MacWall catalog. While there are fewer than ten of them, it also lists the catalog's snowy winter scenes, so a December desktop always has something to choose from.",
+    },
+    related: ["snow", "lofi", "autumn", "mountain"],
+  }),
+  collection({
+    slug: "aesthetic",
+    name: "Aesthetic",
+    group: "moods",
+    rights: "generic",
+    rightsCleared: false,
+    title: "Aesthetic MacBook Wallpapers: 4K Live Loops",
+    headline: "Aesthetic live wallpapers for MacBook",
+    description: "",
+    keywords: [
+      "aesthetic macbook wallpaper",
+      "macbook wallpaper aesthetic",
+      "aesthetic live wallpaper mac",
+      "pastel wallpaper mac",
+      "cozy aesthetic wallpaper",
+    ],
+    intro: "",
+    patterns: [
+      "^aesthetic\\b",
+      "\\bcozy\\b",
+      "\\bcute\\b",
+      "pastel",
+      "kawaii",
+      "\\bdreamy\\b",
+    ],
+    palette: { kind: "pastel" },
+    category: "Anime",
+    faq: {
+      question: "What makes a wallpaper aesthetic here?",
+      answer: "",
+    },
+    related: ["lofi", "pink", "cherry-blossom", "white"],
+  }),
+  collection({
+    slug: "neon",
+    name: "Neon",
+    group: "moods",
+    rights: "generic",
+    rightsCleared: false,
+    title: "Neon Live Wallpapers for Mac: Glowing 4K Loops",
+    description: "",
+    keywords: [
+      "neon wallpaper",
+      "neon live wallpaper",
+      "neon wallpaper mac",
+      "neon aesthetic wallpaper",
+      "neon lights wallpaper 4k",
+    ],
+    intro: "",
+    patterns: ["\\bneon\\b"],
+    entity: {
+      name: "Neon lighting",
+      sameAs: ["https://en.wikipedia.org/wiki/Neon_lighting"],
+    },
+    category: "Dark",
+    faq: {
+      question: "",
+      answer: "",
+    },
+    related: ["cyberpunk", "city", "rain", "purple"],
+  }),
+  collection({
+    slug: "pixel-art",
+    name: "Pixel Art",
+    group: "gaming",
+    rights: "generic",
+    rightsCleared: false,
+    title: "Pixel Art Live Wallpapers for Mac: Animated 4K Loops",
+    description: "",
+    keywords: [
+      "pixel art live wallpaper",
+      "pixel art wallpaper mac",
+      "animated pixel art wallpaper",
+      "pixel wallpaper 4k",
+      "retro pixel wallpaper",
+    ],
+    intro: "",
+    patterns: ["pixel ?art", "\\bpixel(?:ated)?\\b", "8.?bit", "16.?bit"],
+    entity: {
+      name: "Pixel art",
+      sameAs: ["https://en.wikipedia.org/wiki/Pixel_art"],
+    },
+    category: "Gaming",
+    faq: {
+      question: "",
+      answer: "",
+    },
+    related: ["lofi", "neon", "rain", "city"],
+  }),
+  collection({
+    slug: "cherry-blossom",
+    name: "Cherry Blossom",
+    group: "moods",
+    rights: "generic",
+    rightsCleared: false,
+    title: "Cherry Blossom Live Wallpapers for Mac: Sakura 4K",
+    description: "",
+    keywords: [
+      "cherry blossom wallpaper",
+      "cherry blossom live wallpaper",
+      "sakura wallpaper mac",
+      "sakura live wallpaper",
+      "cherry blossom macbook wallpaper",
+    ],
+    intro: "",
+    patterns: ["cherry", "\\bsakura\\b", "\\bblossoms?\\b", "\\bhanami\\b"],
+    entity: {
+      name: "Cherry blossom",
+      sameAs: ["https://en.wikipedia.org/wiki/Cherry_blossom"],
+    },
+    category: "Nature",
+    faq: {
+      question: "",
+      answer: "",
+    },
+    related: ["pink", "japanese", "aesthetic", "anime-girl"],
+  }),
+  collection({
+    slug: "green",
+    name: "Green",
+    group: "colors",
+    rights: "generic",
+    rightsCleared: false,
+    title: "Green Live Wallpapers for Mac (4K)",
+    description: "",
+    keywords: [
+      "green wallpaper",
+      "green aesthetic wallpaper",
+      "green live wallpaper",
+      "green wallpaper mac",
+      "dark green wallpaper",
+    ],
+    intro: "",
+    patterns: ["\\bgreen\\b", "\\bjade\\b"],
+    palette: { kind: "hue", hues: ["green", "lime"] },
+    category: "Nature",
+    faq: {
+      question: "",
+      answer: "",
+    },
+    related: ["forest", "teal", "hacker", "blue"],
+  }),
+  collection({
+    slug: "orange",
+    name: "Orange",
+    group: "colors",
+    rights: "generic",
+    rightsCleared: false,
+    title: "Orange Live Wallpapers for Mac (4K)",
+    description: "",
+    keywords: [
+      "orange wallpaper",
+      "orange aesthetic wallpaper",
+      "orange live wallpaper",
+      "orange wallpaper mac",
+      "sunset orange wallpaper",
+    ],
+    intro: "",
+    patterns: ["\\borange\\b"],
+    palette: { kind: "hue", hues: ["orange", "amber"] },
+    category: "Nature",
+    faq: {
+      question: "",
+      answer: "",
+    },
+    related: ["sunset", "autumn", "red", "galaxy"],
+  }),
+  collection({
+    slug: "teal",
+    name: "Teal",
+    group: "colors",
+    rights: "generic",
+    rightsCleared: false,
+    title: "Teal Live Wallpapers for Mac (4K)",
+    description: "",
+    keywords: [
+      "teal wallpaper",
+      "teal aesthetic wallpaper",
+      "turquoise wallpaper",
+      "teal live wallpaper",
+      "teal wallpaper mac",
+    ],
+    intro: "",
+    patterns: ["\\bteal\\b", "turquoise", "aquamarine"],
+    palette: { kind: "hue", hues: ["teal"] },
+    category: "Nature",
+    faq: {
+      question: "",
+      answer: "",
+    },
+    related: ["ocean", "blue", "green", "rain"],
+  }),
+  collection({
+    slug: "white",
+    name: "White",
+    group: "colors",
+    rights: "generic",
+    rightsCleared: false,
+    title: "White Live Wallpapers for Mac: Light 4K Loops",
+    headline: "White and light live wallpapers for Mac",
+    description: "",
+    keywords: [
+      "white wallpaper",
+      "white aesthetic wallpaper",
+      "light wallpaper mac",
+      "white live wallpaper",
+      "minimalist white wallpaper",
+    ],
+    intro: "",
+    patterns: [],
+    palette: { kind: "light" },
+    category: "Anime",
+    faq: {
+      question: "",
+      answer: "",
+    },
+    related: ["black", "aesthetic", "japanese", "blue"],
   }),
 ]
 
@@ -1539,34 +1967,92 @@ export function wallpaperCollectionPath(slug: string): string {
 
 export const WALLPAPER_COLLECTIONS_HUB_PATH = "/wallpapers/collections" as const
 
+/**
+ * Whether the page is built at all. Collections about a real person
+ * (`likeness`) never are: their route 404s and nothing links them.
+ */
+export function collectionPublishable(entry: WallpaperCollection): boolean {
+  return entry.rights !== "likeness"
+}
+
+/**
+ * Collections other pages may promote (homepage, hubs, link strips): generic
+ * topics, plus franchise and trademark topics whose members passed the
+ * rights review. Never a likeness collection.
+ */
+export function promotableCollections(): WallpaperCollection[] {
+  return wallpaperCollections.filter(
+    (entry) =>
+      collectionPublishable(entry) &&
+      (entry.rights === "generic" || entry.rightsCleared)
+  )
+}
+
 type MatchableWallpaper = { name: string; tags: readonly string[] }
 
-type CompiledCollection = { include: RegExp[]; exclude: RegExp[] }
+type CompiledPatterns = { include: RegExp[]; exclude: RegExp[] }
 
-const compiledPatterns = new Map<string, CompiledCollection>()
+const compiledPatterns = new Map<string, CompiledPatterns>()
 
-function patternsFor(entry: WallpaperCollection): CompiledCollection {
-  let compiled = compiledPatterns.get(entry.slug)
+function compile(
+  key: string,
+  patterns: readonly string[],
+  exclude: readonly string[] = []
+): CompiledPatterns {
+  let compiled = compiledPatterns.get(key)
   if (!compiled) {
     compiled = {
-      include: entry.patterns.map((source) => new RegExp(source, "i")),
-      exclude: (entry.exclude ?? []).map((source) => new RegExp(source, "i")),
+      include: patterns.map((source) => new RegExp(source, "i")),
+      exclude: exclude.map((source) => new RegExp(source, "i")),
     }
-    compiledPatterns.set(entry.slug, compiled)
+    compiledPatterns.set(key, compiled)
   }
   return compiled
 }
 
-export function wallpaperMatchesCollection(
-  wallpaper: MatchableWallpaper,
-  entry: WallpaperCollection
-): boolean {
+function haystacksFor(wallpaper: MatchableWallpaper): string[] {
   // Tags are often hyphenated slugs ("spider-man"); match them as words.
-  const haystacks = [
+  return [
     wallpaper.name,
     ...wallpaper.tags.map((tag) => tag.replace(/-/g, " ")),
   ]
-  const { include, exclude } = patternsFor(entry)
+}
+
+/**
+ * Name and tag patterns, plus, for colour collections, the measured palette
+ * (most common colour first) when the caller has it. Excludes always win.
+ */
+export function wallpaperMatchesCollection(
+  wallpaper: MatchableWallpaper,
+  entry: WallpaperCollection,
+  palette?: readonly string[]
+): boolean {
+  const haystacks = haystacksFor(wallpaper)
+  const { include, exclude } = compile(
+    entry.slug,
+    entry.patterns,
+    entry.exclude
+  )
+  const hit = (pattern: RegExp) => haystacks.some((text) => pattern.test(text))
+  if (exclude.some(hit)) return false
+  if (include.some(hit)) return true
+  return Boolean(
+    entry.palette && palette?.length && paletteMatches(palette, entry.palette)
+  )
+}
+
+/** The `fallback` patterns of a seasonal collection (see `fallback`). */
+export function wallpaperMatchesCollectionFallback(
+  wallpaper: MatchableWallpaper,
+  entry: WallpaperCollection
+): boolean {
+  if (!entry.fallback) return false
+  const { include, exclude } = compile(
+    `${entry.slug}#fallback`,
+    entry.fallback.patterns,
+    [...(entry.exclude ?? []), ...(entry.fallback.exclude ?? [])]
+  )
+  const haystacks = haystacksFor(wallpaper)
   const hit = (pattern: RegExp) => haystacks.some((text) => pattern.test(text))
   return include.some(hit) && !exclude.some(hit)
 }
@@ -1579,8 +2065,10 @@ export function wallpaperMatchesCollection(
 export function collectionsForWallpaper(
   wallpaper: MatchableWallpaper
 ): WallpaperCollection[] {
-  const matches = wallpaperCollections.filter((entry) =>
-    wallpaperMatchesCollection(wallpaper, entry)
+  const matches = wallpaperCollections.filter(
+    (entry) =>
+      collectionPublishable(entry) &&
+      wallpaperMatchesCollection(wallpaper, entry)
   )
   const byName = (entry: WallpaperCollection) =>
     wallpaperMatchesCollection({ name: wallpaper.name, tags: [] }, entry)

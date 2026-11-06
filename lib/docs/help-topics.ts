@@ -14,7 +14,11 @@ import {
 } from "@hugeicons/core-free-icons"
 import type { IconSvgElement } from "@hugeicons/react"
 
-import { macwall, macwallLockScreenMacOSVersion } from "@/lib/macwall-site"
+import {
+  macwall,
+  macwallImportFormatsOrLabel,
+  macwallLockScreenMacOSVersion,
+} from "@/lib/macwall-site"
 
 export type HelpTopic = {
   title: string
@@ -44,21 +48,21 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
   },
   {
     title: "Lock Screen",
-    description: `Play your wallpaper on the Lock Screen and screen saver on ${macwallLockScreenMacOSVersion}.`,
+    description: `Play your wallpaper on the Lock Screen and screen saver on ${macwallLockScreenMacOSVersion} and later.`,
     linkLabel: "Lock Screen",
     href: "/docs/live-lock-screen-and-screen-saver",
     icon: SquareLock02Icon,
   },
   {
     title: "Your own videos",
-    description: "Turn any MP4 or MOV clip into a live wallpaper.",
+    description: `Turn your own ${macwallImportFormatsOrLabel} videos into live wallpapers with Pro.`,
     linkLabel: "Import",
     href: "/docs/import-your-own-videos",
     icon: Video01Icon,
   },
   {
     title: "License & Pro",
-    description: `One payment of ${macwall.pro.price}, up to ${macwall.maxLicensedMacs} Macs, and how to move your key to a new Mac.`,
+    description: `One payment, no subscription, up to ${macwall.maxLicensedMacs} Macs, and how to move your key to a new Mac.`,
     linkLabel: "License",
     href: "/docs/license-and-activation",
     icon: Key01Icon,
@@ -79,7 +83,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
   },
   {
     title: "Menu bar",
-    description: "Pause, skip and shuffle wallpapers without opening the app.",
+    description: "Play, pause, skip and shuffle wallpapers without opening the app.",
     linkLabel: "Controls",
     href: "/docs/menu-bar-controls",
     icon: MenuSquareIcon,

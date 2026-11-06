@@ -36,8 +36,7 @@ import {
   formatLikeCount,
   formatLoopDuration,
 } from "@/lib/public-catalog/format"
-import { wallpaperCreditName } from "@/lib/public-catalog/attribution"
-import { wallpaperQualityLabel } from "@/lib/seo/wallpaper-detail-content"
+import { wallpaperSourceLabel } from "@/lib/public-catalog/attribution"
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
 import {
   wallpaperShareUrl,
@@ -45,6 +44,7 @@ import {
   wallpapersGalleryPath,
   wallpaperCategorySlugOrFallback,
 } from "@/lib/public-catalog/urls"
+import { wallpaperImageAlt } from "@/lib/public-catalog/wallpaper-alt"
 import {
   WALLPAPER_DETAIL_HEADING_CLASS,
   WALLPAPER_SECTION_FONT_CLASS,
@@ -52,8 +52,15 @@ import {
 } from "@/lib/public-catalog/typography"
 import { buildWallpaperReportMessage } from "@/lib/support/shared"
 import type { WallpaperDetailContent } from "@/lib/seo/wallpaper-detail-content"
-import { wallpaperCollectionPath } from "@/lib/seo/wallpaper-collections"
+import { macFitLabel } from "@/lib/seo/wallpaper-detail-copy"
+import type { WallpaperDetailLinks } from "@/lib/seo/wallpaper-detail-links"
+import {
+  accessedLabel,
+  displayResolutionLabel,
+  MAC_DISPLAY_SPECS_ACCESSED,
+} from "@/lib/seo/mac-displays"
 import { macwall } from "@/lib/macwall-site"
+import { categoryDisplayLabel } from "@/lib/seo/category-seo"
 import { cn } from "@/lib/utils"
 
 const META_ICON_SIZE = 17
@@ -63,35 +70,35 @@ const META_ICON_STROKE = 1.75
 const DETAIL_CHIP_CLASS =
   "inline-flex h-9 shrink-0 items-center rounded-full border-0 bg-white/[0.06] px-3.5 text-[13px] font-normal text-white/65 shadow-none ring-0 transition duration-200 ease-out outline-none hover:border-0 hover:bg-white/[0.1] hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
 
+/** A tag or colour with nowhere to link: same shape as a chip, not clickable. */
+const DETAIL_TEXT_CHIP_CLASS =
+  "inline-flex h-9 shrink-0 items-center rounded-full bg-white/[0.04] px-3.5 text-[13px] font-normal text-white/55"
+
 /** Soft aside surface without outline: Apple-style fill only. */
 const DETAIL_ASIDE_SURFACE_CLASS = "border-0 bg-white/[0.06] shadow-none ring-0"
 
-/** "a 31-second", "a 1-minute 5-second", or "a" when the length is unknown. */
-function loopLengthArticle(seconds: number): string {
-  const total = Math.max(0, Math.round(seconds))
-  if (total === 0) return "a"
-  const mins = Math.floor(total / 60)
-  const secs = total % 60
-  const parts: string[] = []
-  if (mins > 0) parts.push(`${mins}-minute`)
-  if (secs > 0) parts.push(`${secs}-second`)
-  // "an 8-second", "an 11-minute", "an 18-second"
-  const article = /^(8|11|18|8\d)-/.test(parts[0]) ? "an" : "a"
-  return `${article} ${parts.join(" ")}`
-}
+/** Small uppercase label above a group of chips. */
+const DETAIL_GROUP_LABEL_CLASS = cn(
+  "mb-3 text-[12px] font-medium tracking-[0.06em] uppercase",
+  GALLERY_TEXT_TERTIARY_CLASS
+)
 
 export function WallpaperDetail({
   wallpaper,
   similar,
   origin,
   content,
+  links,
 }: Readonly<{
   wallpaper: PublicWallpaper
   similar: PublicWallpaper[]
   origin: string
   content: WallpaperDetailContent
+  links: WallpaperDetailLinks
 }>) {
   const categorySlug = wallpaperCategorySlugOrFallback(wallpaper.category)
+  // The hub's own name ("More" for Others), as its breadcrumb and JSON-LD use.
+  const categoryLabel = categoryDisplayLabel(wallpaper.category)
   const categoryHref = wallpapersGalleryHref(categorySlug)
   const shareUrl = wallpaperShareUrl(wallpaper, origin)
   // Reports go to the support inbox by email.
@@ -100,16 +107,9 @@ export function WallpaperDetail({
   )}&body=${encodeURIComponent(buildWallpaperReportMessage(wallpaper, shareUrl))}`
   const loopTime = formatLoopDuration(wallpaper.durationSeconds)
   const sizeLabel = formatFileSize(wallpaper.fileSizeBytes)
-  const credit = wallpaperCreditName(wallpaper)
-  const factLine = [
-    wallpaperQualityLabel(wallpaper.resolution),
-    wallpaper.durationSeconds > 0
-      ? `${Math.round(wallpaper.durationSeconds)} sec`
-      : null,
-    wallpaper.category,
-  ]
-    .filter(Boolean)
-    .join(" • ")
+  // A named author, MacWall for its own loops, or "Community upload": never
+  // a "Community" byline.
+  const source = wallpaperSourceLabel(wallpaper)
 
   return (
     <div className={WALLPAPER_SECTION_FONT_CLASS}>
@@ -128,7 +128,7 @@ export function WallpaperDetail({
           <BreadcrumbSeparator className="text-white/35" />
           <BreadcrumbItem>
             <BreadcrumbLink asChild className="transition hover:text-white">
-              <Link href={categoryHref}>{wallpaper.category}</Link>
+              <Link href={categoryHref}>{categoryLabel}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator className="text-white/35" />
@@ -160,19 +160,16 @@ export function WallpaperDetail({
             )}
           >
             {wallpaper.name}
-            <span className="text-white/45">
-              , {loopLengthArticle(wallpaper.durationSeconds)} live wallpaper
-              {credit ? ` by ${credit}` : ""}, ready for your Mac.
-            </span>
+            <span className="text-white/45">{content.headingSuffix}</span>
           </h1>
-          {factLine ? (
+          {content.metaLine.length > 0 ? (
             <p
               className={cn(
                 "mt-2 text-[13px] tracking-wide",
                 GALLERY_TEXT_SECONDARY_CLASS
               )}
             >
-              {factLine}
+              {content.metaLine.join(" · ")}
             </p>
           ) : null}
         </div>
@@ -195,6 +192,7 @@ export function WallpaperDetail({
           src={wallpaper.videoUrl}
           poster={wallpaper.thumbUrl}
           title={wallpaper.name}
+          posterAlt={wallpaperImageAlt(wallpaper)}
         />
       </div>
 
@@ -202,116 +200,174 @@ export function WallpaperDetail({
         <div className="flex min-w-0 flex-col gap-7">
           <div className="space-y-4 text-[16px] leading-[1.65]">
             <p className={GALLERY_TEXT_PRIMARY_CLASS}>{content.lead}</p>
-            <p className={GALLERY_TEXT_SECONDARY_CLASS}>{content.detail}</p>
+            {content.detail ? (
+              <p className={GALLERY_TEXT_SECONDARY_CLASS}>{content.detail}</p>
+            ) : null}
           </div>
 
-          {wallpaper.tags.length > 0 ? (
-            <div className="flex flex-wrap gap-2.5">
-              {wallpaper.tags.slice(0, 12).map((tag) => (
-                <Badge
-                  key={tag}
-                  asChild
-                  variant="ghost"
-                  className={DETAIL_CHIP_CLASS}
-                >
-                  {/* Filtered views are noindex; don't spend crawls on them. */}
-                  <Link
-                    href={wallpapersGalleryHref(categorySlug, { tag })}
-                    rel="nofollow"
-                  >
-                    {tag}
-                  </Link>
-                </Badge>
-              ))}
-            </div>
-          ) : (
-            <Badge asChild variant="ghost" className={DETAIL_CHIP_CLASS}>
-              <Link href={categoryHref}>{wallpaper.category}</Link>
-            </Badge>
-          )}
-
-          {content.colors.length > 0 ? (
+          {links.tags.length > 0 ? (
             <div>
-              <p
-                className={cn(
-                  "mb-3 text-[12px] font-medium tracking-[0.06em] uppercase",
-                  GALLERY_TEXT_TERTIARY_CLASS
-                )}
-              >
-                Colours
-              </p>
-              <ul className="flex flex-wrap gap-x-4 gap-y-2.5">
-                {content.colors.map((color) => (
-                  <li
-                    key={color.hex}
-                    className={cn(
-                      "flex items-center gap-2 text-[13px]",
-                      GALLERY_TEXT_SECONDARY_CLASS
+              <p className={DETAIL_GROUP_LABEL_CLASS}>Themes</p>
+              <ul className="flex flex-wrap gap-2.5">
+                {links.tags.map((tag) => (
+                  <li key={tag.label}>
+                    {/* Tags that name a collection lead to it; filtered
+                        ?tag= views are noindex, so other tags stay text. */}
+                    {tag.href ? (
+                      <Badge
+                        asChild
+                        variant="ghost"
+                        className={DETAIL_CHIP_CLASS}
+                      >
+                        <Link href={tag.href}>{tag.label}</Link>
+                      </Badge>
+                    ) : (
+                      <span className={DETAIL_TEXT_CHIP_CLASS}>
+                        {tag.label}
+                      </span>
                     )}
-                  >
-                    <span
-                      aria-hidden
-                      className="size-4 rounded-full ring-1 ring-white/20"
-                      style={{ backgroundColor: color.hex }}
-                    />
-                    {color.name}
-                    <span className="font-mono text-[12px] text-white/40 uppercase">
-                      {color.hex}
-                    </span>
                   </li>
                 ))}
               </ul>
             </div>
           ) : null}
 
-          {content.collections.length > 0 ? (
+          {links.colors.length > 0 ? (
             <div>
-              <p
-                className={cn(
-                  "mb-3 text-[12px] font-medium tracking-[0.06em] uppercase",
-                  GALLERY_TEXT_TERTIARY_CLASS
-                )}
-              >
-                In collections
-              </p>
+              <p className={DETAIL_GROUP_LABEL_CLASS}>Colours</p>
+              <ul className="flex flex-wrap gap-2.5">
+                {links.colors.map((color) => {
+                  const swatch = (
+                    <>
+                      <span
+                        aria-hidden
+                        className="size-4 rounded-full ring-1 ring-white/20"
+                        style={{ backgroundColor: color.hex }}
+                      />
+                      {color.name}
+                      <span className="font-mono text-[12px] text-white/40 uppercase">
+                        {color.hex}
+                      </span>
+                    </>
+                  )
+                  return (
+                    <li key={color.hex}>
+                      {color.href ? (
+                        <Link
+                          href={color.href}
+                          title={`${color.collectionName} live wallpapers`}
+                          className={cn(DETAIL_CHIP_CLASS, "gap-2")}
+                        >
+                          {swatch}
+                        </Link>
+                      ) : (
+                        <span className={cn(DETAIL_TEXT_CHIP_CLASS, "gap-2")}>
+                          {swatch}
+                        </span>
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          ) : null}
+
+          {links.collections.length > 0 ? (
+            <div>
+              <p className={DETAIL_GROUP_LABEL_CLASS}>In collections</p>
               <div className="flex flex-wrap gap-2.5">
-                {content.collections.slice(0, 4).map((entry) => (
+                {links.collections.map(({ collection, href }) => (
                   <Badge
-                    key={entry.slug}
+                    key={collection.slug}
                     asChild
                     variant="ghost"
                     className={DETAIL_CHIP_CLASS}
                   >
-                    <Link href={wallpaperCollectionPath(entry.slug)}>
-                      {entry.name} wallpapers
-                    </Link>
+                    <Link href={href}>{collection.name} wallpapers</Link>
                   </Badge>
                 ))}
               </div>
             </div>
           ) : null}
 
-          <section aria-labelledby="wallpaper-howto">
-            <h2
-              id="wallpaper-howto"
-              className={cn(
-                "text-[17px] font-medium tracking-[-0.01em]",
-                GALLERY_TEXT_PRIMARY_CLASS
-              )}
-            >
-              How to set {wallpaper.name} as your Mac wallpaper
-            </h2>
-            <ol
-              className={cn(
-                "mt-3 list-decimal space-y-1.5 pl-5 text-[15px] leading-[1.6]",
-                GALLERY_TEXT_SECONDARY_CLASS
-              )}
-            >
-              {content.steps.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
-          </section>
+          {content.fits.length > 0 ? (
+            <section aria-labelledby="wallpaper-fits">
+              <h2
+                id="wallpaper-fits"
+                className={cn(
+                  "text-[17px] font-medium tracking-[-0.01em]",
+                  GALLERY_TEXT_PRIMARY_CLASS
+                )}
+              >
+                Fits these Macs
+              </h2>
+              <div className="mt-3 overflow-x-auto">
+                <table className="w-full min-w-[22rem] border-collapse text-left text-[14px]">
+                  <thead>
+                    <tr className={GALLERY_TEXT_TERTIARY_CLASS}>
+                      <th scope="col" className="py-2 pr-4 font-medium">
+                        Mac
+                      </th>
+                      <th scope="col" className="py-2 pr-4 font-medium">
+                        Screen
+                      </th>
+                      <th scope="col" className="py-2 font-medium">
+                        {content.resolutionLabel} loop
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className={GALLERY_TEXT_SECONDARY_CLASS}>
+                    {content.fits.map((row) => (
+                      <tr
+                        key={row.display.id}
+                        className="border-t border-white/[0.08]"
+                      >
+                        <th
+                          scope="row"
+                          className={cn(
+                            "py-2 pr-4 font-normal",
+                            GALLERY_TEXT_PRIMARY_CLASS
+                          )}
+                        >
+                          {row.href ? (
+                            <Link
+                              href={row.href}
+                              className="underline decoration-white/25 underline-offset-4 transition hover:decoration-white"
+                            >
+                              {row.display.shortName}
+                            </Link>
+                          ) : (
+                            row.display.shortName
+                          )}
+                        </th>
+                        <td className="py-2 pr-4 tabular-nums">
+                          {displayResolutionLabel(row.display)}
+                        </td>
+                        <td
+                          className={cn(
+                            "py-2",
+                            row.fits ? GALLERY_TEXT_PRIMARY_CLASS : undefined
+                          )}
+                        >
+                          {macFitLabel(row)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p
+                className={cn(
+                  "mt-2 text-[12px] leading-[1.5]",
+                  GALLERY_TEXT_TERTIARY_CLASS
+                )}
+              >
+                Screen resolutions from Apple&apos;s tech specs, read{" "}
+                {accessedLabel(MAC_DISPLAY_SPECS_ACCESSED)}. Upscaled is how
+                much the loop is enlarged to cover the screen.
+              </p>
+            </section>
+          ) : null}
         </div>
 
         <aside
@@ -322,17 +378,17 @@ export function WallpaperDetail({
           )}
         >
           <MetaBlock title="Details">
-            {credit ? (
+            {source ? (
               <MetaRow icon={UserIcon}>
-                <span className="sr-only">Creator: </span>
-                {credit}
+                <span className="sr-only">Source: </span>
+                {source}
               </MetaRow>
             ) : null}
             <MetaRow icon={HeartIcon}>
               {formatLikeCount(wallpaper.likeCount)} likes
             </MetaRow>
-            {wallpaper.resolution && wallpaper.resolution !== "—" ? (
-              <MetaRow icon={ComputerIcon}>{wallpaper.resolution}</MetaRow>
+            {content.resolutionLabel ? (
+              <MetaRow icon={ComputerIcon}>{content.resolutionLabel}</MetaRow>
             ) : null}
             {wallpaper.durationSeconds > 0 ? (
               <MetaRow icon={Clock01Icon}>{loopTime} loop</MetaRow>
@@ -341,13 +397,50 @@ export function WallpaperDetail({
               <MetaRow icon={File01Icon}>{sizeLabel}</MetaRow>
             ) : null}
             <MetaLinkRow href={categoryHref} icon={Folder01Icon}>
-              {wallpaper.category}
+              {categoryLabel}
             </MetaLinkRow>
             <MetaLinkRow href={reportChatHref} icon={Flag01Icon}>
               Report wallpaper
             </MetaLinkRow>
           </MetaBlock>
         </aside>
+      </section>
+
+      <section
+        aria-labelledby="wallpaper-setup"
+        className="mt-14 max-w-3xl md:mt-16"
+      >
+        <h2
+          id="wallpaper-setup"
+          className={WALLPAPER_SECTION_SERIF_HEADING_CLASS}
+        >
+          Set it up
+        </h2>
+        <p
+          className={cn(
+            "mt-3 text-[15px] leading-[1.6]",
+            GALLERY_TEXT_SECONDARY_CLASS
+          )}
+        >
+          {content.setup.intro}
+        </p>
+        <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
+          {content.setup.links.map((link) => (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                className={cn(
+                  "flex h-full items-center px-4 py-3 text-[15px] leading-snug transition hover:bg-white/[0.1]",
+                  GALLERY_PANEL_RADIUS_CLASS,
+                  DETAIL_ASIDE_SURFACE_CLASS,
+                  GALLERY_TEXT_PRIMARY_CLASS
+                )}
+              >
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section
@@ -394,11 +487,32 @@ export function WallpaperDetail({
               href={categoryHref}
               className="shrink-0 font-sans text-[14px] leading-snug text-white/65 transition hover:text-white"
             >
-              Browse {wallpaper.category}
+              Browse {categoryLabel}
             </Link>
           </div>
           <div className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-9">
             {similar.map((item, index) => (
+              <WallpaperCard key={item.id} wallpaper={item} index={index} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {links.alsoIn ? (
+        <section className="mt-14 md:mt-16">
+          <div className="mb-7 flex items-baseline justify-between gap-5 sm:gap-6">
+            <h2 className={WALLPAPER_SECTION_SERIF_HEADING_CLASS}>
+              Also in {links.alsoIn.collection.name}
+            </h2>
+            <Link
+              href={links.alsoIn.href}
+              className="shrink-0 font-sans text-[14px] leading-snug text-white/65 transition hover:text-white"
+            >
+              All {links.alsoIn.collection.name} wallpapers
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-9">
+            {links.alsoIn.wallpapers.map((item, index) => (
               <WallpaperCard key={item.id} wallpaper={item} index={index} />
             ))}
           </div>

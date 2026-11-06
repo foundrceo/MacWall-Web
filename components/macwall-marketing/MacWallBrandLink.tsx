@@ -13,18 +13,17 @@ type MacWallBrandLinkProps = Readonly<{
   /** Nav uses white text on dark chrome; footer uses foreground token. */
   variant?: "nav" | "footer"
   className?: string
-  priority?: boolean
 }>
 
 export function MacWallBrandLink({
   href = "/",
   variant = "nav",
   className,
-  priority,
 }: MacWallBrandLinkProps) {
   return (
     <Link
       href={href}
+      prefetch={false}
       className={cn(
         "inline-flex min-h-[20px] min-w-0 shrink-0 items-center gap-2",
         "rounded-sm transition-opacity outline-none hover:opacity-80",
@@ -33,11 +32,8 @@ export function MacWallBrandLink({
       )}
       aria-label={macwall.name}
     >
-      <MacWallAppIcon
-        size={MACWALL_BRAND_ICON_SIZE}
-        priority={priority}
-        aria-hidden
-      />
+      {/* Never preloaded: a 20px logo must not compete with the page's LCP image. */}
+      <MacWallAppIcon size={MACWALL_BRAND_ICON_SIZE} aria-hidden />
       <span
         className={cn(
           brandTextBase,

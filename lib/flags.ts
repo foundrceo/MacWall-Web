@@ -6,8 +6,12 @@ import { anySiteSaleLive } from "@/lib/sale.shared"
  */
 
 export const FLAGS = {
-  /** Floating purchase nudges (`SocialProofMount`). */
-  socialProof: true,
+  /**
+   * One downloads-only toast per session on desktop (`SocialProofMount`).
+   * Off: social proof never shows purchases, and the toast stays dormant
+   * until the founder signs off on bringing it back.
+   */
+  socialProof: false,
   /** Top launch strip above the navbar (`AnnouncementBanner`). */
   announcementBanner: false,
 } as const

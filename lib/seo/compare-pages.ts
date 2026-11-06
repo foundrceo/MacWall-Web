@@ -1,5 +1,5 @@
-import { LICENSE_OFFERS } from "@/lib/license/offers.shared"
 import {
+  macwall,
   macwallCatalog,
   macwallLockScreenMacOSVersion,
 } from "@/lib/macwall-site"
@@ -10,6 +10,19 @@ import {
   macwallVsWallspacePage,
   wallpaperEngineAlternativePage,
 } from "@/lib/seo/landing-pages"
+import {
+  COMPARISONS_CHECKED_ISO,
+  COMPARISONS_RECHECKED_ISO,
+  COMPARISON_SOURCES,
+  MACWALL_FACTS_NOTE,
+  MACWALL_PLATFORMS,
+  accessedLabel,
+  comparisonTitleYear,
+  macwallPriceFacts,
+  salePricedPage,
+  sourceItem,
+  type MacwallPriceFacts,
+} from "@/lib/seo/comparison-facts"
 import type {
   ContentBlock,
   ContentTableBlock,
@@ -17,65 +30,21 @@ import type {
 } from "@/lib/content/types"
 
 /**
- * Competitor facts in this file were read on this date from the URLs below
- * (US prices). Re-check every source before changing a figure.
+ * Competitor facts in this file were read on COMPARISONS_CHECKED_ISO, or on
+ * COMPARISONS_RECHECKED_ISO where a Sources entry says so (US prices).
+ * Re-check every source before changing a figure.
  */
-export const COMPARE_CHECKED_ISO = "2026-10-27"
-const COMPARE_ACCESSED_LABEL = "27 October 2026"
+export const COMPARE_CHECKED_ISO = COMPARISONS_RECHECKED_ISO
+const CHECKED = accessedLabel(COMPARISONS_CHECKED_ISO)
+const RECHECKED = accessedLabel(COMPARISONS_RECHECKED_ISO)
 
-const usd = (cents: number) => `$${(cents / 100).toFixed(2)}`
-const MACWALL_PRO_USD = usd(LICENSE_OFFERS.permanent.usdCents)
-const MACWALL_PRO_INDIA_USD = usd(LICENSE_OFFERS.permanent.indiaUsdCents)
-const MACWALL_PRO_PLUS_USD = usd(LICENSE_OFFERS.permanent_5.usdCents)
-const MACWALL_PRO_MACS = LICENSE_OFFERS.permanent.maxDevices
-const MACWALL_PRO_PLUS_MACS = LICENSE_OFFERS.permanent_5.maxDevices
-
-const MACWALL_PRICE_SUMMARY = `${MACWALL_PRO_USD} one-time for ${MACWALL_PRO_MACS} Macs (India ${MACWALL_PRO_INDIA_USD}); ${MACWALL_PRO_PLUS_MACS} Macs ${MACWALL_PRO_PLUS_USD}; 24-hour free trial`
-const MACWALL_PLATFORMS = "macOS 15+ (Apple silicon and Intel)"
-
-const MACWALL_FACTS_NOTE =
-  "MacWall's own prices and requirements come from our [pricing](/pricing) and [download](/download) pages."
-
-/** One "Sources" list item: "[Page](url), accessed 27 October 2026". */
-const sourceItem = (label: string, url: string) =>
-  `[${label}](${url}), accessed ${COMPARE_ACCESSED_LABEL}`
-
-const SOURCES = {
-  backdrop: "https://cindori.com/backdrop",
-  wallspace: "https://wallspace.app/",
-  wallpaperEngineSteam:
-    "https://store.steampowered.com/app/431960/Wallpaper_Engine/?cc=us",
-  wallpaperEngineSite: "https://www.wallpaperengine.io/en",
-  lively: "https://github.com/rocksdanister/lively",
-  plashSite: "https://sindresorhus.com/plash",
-  plashAppStore: "https://apps.apple.com/us/app/plash/id1494023538",
-  twentyFourHour:
-    "https://apps.apple.com/us/app/24-hour-wallpaper/id1226087575?mt=12",
-  dynamicWallpaperClub: "https://dynamicwallpaper.club/",
-  dynamicWallpaperStudio:
-    "https://apps.apple.com/us/app/dynamic-wallpaper-studio/id1453504509?mt=12",
-  wallper: "https://www.wallper.app/",
-  wallux: "https://wallux.app/",
-  hanami:
-    "https://apps.apple.com/us/app/hanami-live-wallpaper/id1456235760?mt=12",
-  fourKLive: "https://apps.apple.com/us/app/4k-live-wallpaper/id1469182113",
-  paper:
-    "https://apps.apple.com/us/app/paper-4k-live-wallpapers/id1515245310?mt=12",
-  wallnetic:
-    "https://apps.apple.com/us/app/wallnetic-live-wallpaper-4k/id6760347328?mt=12",
-  appleChangeWallpaper:
-    "https://support.apple.com/guide/mac-help/mchlp3013/mac",
-  appleWallpaperSettings:
-    "https://support.apple.com/guide/mac-help/mchlp1103/mac",
-  appleMojave:
-    "https://www.apple.com/newsroom/2018/06/apple-introduces-macos-mojave/",
-} as const
+const S = COMPARISON_SOURCES
 
 // ---------------------------------------------------------------------------
 // /alternatives/24-hour-wallpaper
 // ---------------------------------------------------------------------------
 
-export const twentyFourHourWallpaperPage: SeoContentPage = {
+export const twentyFourHourWallpaperPage = salePricedPage((price) => ({
   slug: "24-hour-wallpaper",
   pathname: "/alternatives/24-hour-wallpaper",
   title: "24 Hour Wallpaper vs MacWall: Mac Apps Compared",
@@ -89,11 +58,12 @@ export const twentyFourHourWallpaperPage: SeoContentPage = {
     "time of day wallpaper mac",
     "24 hour wallpaper vs macwall",
   ],
-  updatedAt: COMPARE_CHECKED_ISO,
+  publishedAt: "2026-10-27",
+  updatedAt: COMPARISONS_CHECKED_ISO,
   sections: [
     {
       type: "p",
-      text: `**24 Hour Wallpaper and MacWall do different jobs.** 24 Hour Wallpaper, by Jetson Creative, shows wallpapers that change with the time of day at your location, using its own ProTime engine or Apple's Dynamic Desktop format, per its [Mac App Store page](${SOURCES.twentyFourHour}). MacWall plays looping video. Pick 24 Hour Wallpaper for a scene that shifts from morning to night, and MacWall for constant motion and a live Lock Screen.`,
+      text: `**24 Hour Wallpaper and MacWall do different jobs.** 24 Hour Wallpaper, by Jetson Creative, shows wallpapers that change with the time of day at your location, using its own ProTime engine or Apple's Dynamic Desktop format, per its [Mac App Store page](${S.twentyFourHour}). MacWall plays looping video. Pick 24 Hour Wallpaper for a scene that shifts from morning to night, and MacWall for constant motion and a live Lock Screen. The three kinds of moving wallpaper are defined in [live vs dynamic vs aerial wallpapers](/learn/live-vs-dynamic-vs-aerial-wallpapers-mac).`,
     },
     {
       type: "table",
@@ -103,7 +73,7 @@ export const twentyFourHourWallpaperPage: SeoContentPage = {
         [
           "Price model",
           "Free download with in-app purchases: lifetime access to all wallpapers at $29.99 or $69.99 (two listings), single wallpapers $2.49, and a 14-day free trial",
-          MACWALL_PRICE_SUMMARY,
+          price.summary,
         ],
         [
           "Where to get it",
@@ -142,7 +112,7 @@ export const twentyFourHourWallpaperPage: SeoContentPage = {
           "Different loop per display, or the same on all",
         ],
       ],
-      caption: `24 Hour Wallpaper facts from its US Mac App Store page, accessed ${COMPARE_ACCESSED_LABEL}.`,
+      caption: `24 Hour Wallpaper facts from its US Mac App Store page, accessed ${CHECKED}.`,
     },
     { type: "h2", text: "How they differ" },
     {
@@ -170,9 +140,9 @@ export const twentyFourHourWallpaperPage: SeoContentPage = {
       items: [
         "You want motion: every wallpaper is a looping video.",
         `You want a live Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion} or later.`,
-        `You want the whole catalog for one price: ${MACWALL_PRO_USD} once for up to ${MACWALL_PRO_MACS} Macs (${MACWALL_PRO_INDIA_USD} in India), against $29.99 or $69.99 for 24 Hour Wallpaper's lifetime options.`,
-        "You want to import your own MP4 and MOV clips (with Pro).",
-        "You want Music Sync gradients from Apple Music and Spotify, or Bend on an Apple silicon MacBook.",
+        `You want the whole catalog for one price: ${price.proText} once for up to ${price.proMacs} Macs (${price.india} in India), against $29.99 or $69.99 for 24 Hour Wallpaper's lifetime options.`,
+        "You want to import your own MP4, MOV and M4V clips (with Pro).",
+        "You want Music Sync visuals from Apple Music and Spotify, or Bend on an Apple silicon MacBook.",
       ],
     },
     { type: "h2", text: "Can MacWall follow the time of day?" },
@@ -183,23 +153,20 @@ export const twentyFourHourWallpaperPage: SeoContentPage = {
     { type: "h2", text: "The free option built into macOS" },
     {
       type: "p",
-      text: `Before you pay for either app, try Apple's dynamic wallpapers. Apple says they "brighten and darken, based on the time of day for your current location" ([Apple Support](${SOURCES.appleChangeWallpaper})). Open System Settings, click Wallpaper, and pick one under Dynamic Wallpapers. The Appearance menu next to it offers Automatic, Dynamic, Light (Still) and Dark (Still) ([Apple Support](${SOURCES.appleWallpaperSettings})). 24 Hour Wallpaper adds 173 more scenes on top of those (8 free, 165 paid). For more on the difference, read [dynamic vs live wallpaper on Mac](/blog/dynamic-wallpaper-vs-live-wallpaper-mac).`,
+      text: `Before you pay for either app, try Apple's dynamic wallpapers. Apple says they "brighten and darken, based on the time of day for your current location" ([Apple Support](${S.appleChangeWallpaper})). Open System Settings, click Wallpaper, and pick one under Dynamic Wallpapers. The Appearance menu next to it offers Automatic, Dynamic, Light (Still) and Dark (Still) ([Apple Support](${S.appleWallpaperSettings})). 24 Hour Wallpaper adds 173 more scenes on top of those (8 free, 165 paid). For more on the difference, read [dynamic vs live wallpaper on Mac](/blog/dynamic-wallpaper-vs-live-wallpaper-mac), or see [Dynamic Wallpaper Club vs MacWall](/alternatives/dynamic-wallpaper-club).`,
     },
     { type: "h2", text: "Sources" },
     {
       type: "ul",
       items: [
-        sourceItem(
-          "24 Hour Wallpaper on the Mac App Store",
-          SOURCES.twentyFourHour
-        ),
+        sourceItem("24 Hour Wallpaper on the Mac App Store", S.twentyFourHour),
         sourceItem(
           "Apple Support: Change your wallpaper on Mac",
-          SOURCES.appleChangeWallpaper
+          S.appleChangeWallpaper
         ),
         sourceItem(
           "Apple Support: Wallpaper settings on Mac",
-          SOURCES.appleWallpaperSettings
+          S.appleWallpaperSettings
         ),
       ],
     },
@@ -232,13 +199,13 @@ export const twentyFourHourWallpaperPage: SeoContentPage = {
         "Yes, with Day Schedule, which picks a wallpaper by time of day. It switches between whole video loops rather than gradually changing the light in one scene.",
     },
   ],
-}
+}))
 
 // ---------------------------------------------------------------------------
 // /alternatives/plash
 // ---------------------------------------------------------------------------
 
-export const plashAlternativePage: SeoContentPage = {
+export const plashAlternativePage = salePricedPage((price) => ({
   slug: "plash",
   pathname: "/alternatives/plash",
   title: "Plash for Mac vs MacWall: Web or Video Wallpaper",
@@ -252,22 +219,19 @@ export const plashAlternativePage: SeoContentPage = {
     "website as wallpaper mac",
     "plash vs macwall",
   ],
-  updatedAt: COMPARE_CHECKED_ISO,
+  publishedAt: "2026-10-27",
+  updatedAt: COMPARISONS_CHECKED_ISO,
   sections: [
     {
       type: "p",
-      text: `**Plash and MacWall put different things on your desktop.** Plash, a free app by Sindre Sorhus, makes any website your wallpaper, per [its site](${SOURCES.plashSite}). MacWall plays looping video from a curated catalog or your own files. If you want a dashboard, a live web page or a page you built yourself behind your windows, Plash is the better fit and costs nothing.`,
+      text: `**Plash and MacWall put different things on your desktop.** Plash, a free app by Sindre Sorhus, makes any website your wallpaper, per [its site](${S.plashSite}). MacWall plays looping video from a curated catalog or your own files. If you want a dashboard, a live web page or a page you built yourself behind your windows, Plash is the better fit and costs nothing.`,
     },
     {
       type: "table",
       columns: ["", "Plash", "MacWall"],
       rows: [
         ["Developer", "Sindre Sorhus", "MacWall"],
-        [
-          "Price model",
-          "Free; no in-app purchases listed",
-          MACWALL_PRICE_SUMMARY,
-        ],
+        ["Price model", "Free; no in-app purchases listed", price.summary],
         [
           "Where to get it",
           "Mac App Store or the developer's site",
@@ -287,16 +251,16 @@ export const plashAlternativePage: SeoContentPage = {
         [
           "Customizing",
           "Custom CSS and JavaScript, auto-reload on an interval, Browsing Mode",
-          "Import your own MP4 and MOV clips with Pro",
+          "Import your own MP4, MOV and M4V clips with Pro",
         ],
         ["Automation", "Shortcuts and a URL scheme", "Menu bar controls"],
         [
           "Battery",
           "Can pause on battery",
-          "Pauses behind full-screen apps; optional pause in Low Power Mode",
+          "Pauses behind full-screen apps; optional Pause on battery",
         ],
       ],
-      caption: `Plash facts from sindresorhus.com/plash and its US Mac App Store page, accessed ${COMPARE_ACCESSED_LABEL}.`,
+      caption: `Plash facts from sindresorhus.com/plash and its US Mac App Store page, accessed ${CHECKED}.`,
     },
     { type: "h2", text: "What Plash is good at" },
     {
@@ -329,7 +293,7 @@ export const plashAlternativePage: SeoContentPage = {
         "You want moving video, not a web page.",
         `You want motion on the Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion} or later.`,
         "You are on macOS 15 Sequoia and the current Plash release needs a newer version.",
-        `You are fine paying once: ${MACWALL_PRO_USD} for up to ${MACWALL_PRO_MACS} Macs, after a free 24-hour trial.`,
+        `You are fine paying once: ${price.proText} for up to ${price.proMacs} Macs, after a free 24-hour trial.`,
       ],
     },
     { type: "h2", text: "Check your macOS version first" },
@@ -339,14 +303,14 @@ export const plashAlternativePage: SeoContentPage = {
     },
     {
       type: "p",
-      text: "Want other video wallpaper apps? See [live wallpaper apps for Mac, compared](/best-live-wallpaper-mac) or the [full comparison index](/compare).",
+      text: "Want other video wallpaper apps? See [the best live wallpaper apps for Mac](/best-live-wallpaper-mac) or [the best wallpaper apps for Mac](/compare).",
     },
     { type: "h2", text: "Sources" },
     {
       type: "ul",
       items: [
-        sourceItem("Plash by Sindre Sorhus", SOURCES.plashSite),
-        sourceItem("Plash on the Mac App Store", SOURCES.plashAppStore),
+        sourceItem("Plash by Sindre Sorhus", S.plashSite),
+        sourceItem("Plash on the Mac App Store", S.plashAppStore),
       ],
     },
     { type: "p", text: MACWALL_FACTS_NOTE },
@@ -378,13 +342,13 @@ export const plashAlternativePage: SeoContentPage = {
         "Plash is made by Sindre Sorhus. MacWall is an independent Mac app and is not affiliated with Plash.",
     },
   ],
-}
+}))
 
 // ---------------------------------------------------------------------------
 // /alternatives/dynamic-wallpaper-club
 // ---------------------------------------------------------------------------
 
-export const dynamicWallpaperClubPage: SeoContentPage = {
+export const dynamicWallpaperClubPage = salePricedPage((price) => ({
   slug: "dynamic-wallpaper-club",
   pathname: "/alternatives/dynamic-wallpaper-club",
   title: "Dynamic Wallpaper Club vs MacWall: Which to Use",
@@ -398,11 +362,12 @@ export const dynamicWallpaperClubPage: SeoContentPage = {
     "dynamic wallpaper mac",
     "dynamic wallpaper club alternative",
   ],
-  updatedAt: COMPARE_CHECKED_ISO,
+  publishedAt: "2026-10-27",
+  updatedAt: COMPARISONS_CHECKED_ISO,
   sections: [
     {
       type: "p",
-      text: `**Dynamic Wallpaper Club is a free website, not an app.** It hosts a community gallery of macOS dynamic wallpapers and a free Dynamic Wallpaper Creator that times images by the sun's position (Sun Mode) or by time stamps you set (Time Mode), per [dynamicwallpaper.club](${SOURCES.dynamicWallpaperClub}). macOS then plays the result itself. MacWall is a paid Mac app that plays looping video instead.`,
+      text: `**Dynamic Wallpaper Club is a free website, not an app.** It hosts a community gallery of macOS dynamic wallpapers and a free Dynamic Wallpaper Creator that times images by the sun's position (Sun Mode) or by time stamps you set (Time Mode), per [dynamicwallpaper.club](${S.dynamicWallpaperClub}). macOS then plays the result itself. MacWall is a paid Mac app that plays looping video instead. For how dynamic, aerial and live wallpapers differ, see [live vs dynamic vs aerial wallpapers](/learn/live-vs-dynamic-vs-aerial-wallpapers-mac).`,
     },
     {
       type: "table",
@@ -410,11 +375,7 @@ export const dynamicWallpaperClubPage: SeoContentPage = {
       rows: [
         ["What it is", "Website", "Mac app"],
         ["Developer", "Not named on the site", "MacWall"],
-        [
-          "Price model",
-          "Free; supported by ads and donations",
-          MACWALL_PRICE_SUMMARY,
-        ],
+        ["Price model", "Free; supported by ads and donations", price.summary],
         [
           "Platforms",
           "Web; makes wallpapers for macOS (minimum macOS not stated)",
@@ -428,7 +389,7 @@ export const dynamicWallpaperClubPage: SeoContentPage = {
         [
           "Make your own",
           "Free creator with Sun Mode and Time Mode",
-          "Import your own MP4 and MOV clips with Pro",
+          "Import your own MP4, MOV and M4V clips with Pro",
         ],
         ["Resolution", "Up to 5K", "4K catalog"],
         [
@@ -437,12 +398,12 @@ export const dynamicWallpaperClubPage: SeoContentPage = {
           `Video, ${macwallLockScreenMacOSVersion} or later`,
         ],
       ],
-      caption: `Dynamic Wallpaper Club facts from dynamicwallpaper.club, accessed ${COMPARE_ACCESSED_LABEL}.`,
+      caption: `Dynamic Wallpaper Club facts from dynamicwallpaper.club, accessed ${CHECKED}.`,
     },
     { type: "h2", text: "How a dynamic wallpaper works on a Mac" },
     {
       type: "p",
-      text: `Apple added dynamic wallpapers in macOS Mojave in 2018, under the name Dynamic Desktop, which changes the desktop picture to match the time of day ([Apple Newsroom](${SOURCES.appleMojave})). Today Apple describes them as wallpapers that "brighten and darken, based on the time of day for your current location" ([Apple Support](${SOURCES.appleChangeWallpaper})). A dynamic wallpaper is a set of still images; macOS picks which one to show. Nothing plays as video.`,
+      text: `Apple added dynamic wallpapers in macOS Mojave in 2018, under the name Dynamic Desktop, which changes the desktop picture to match the time of day ([Apple Newsroom](${S.appleMojave})). Today Apple describes them as wallpapers that "brighten and darken, based on the time of day for your current location" ([Apple Support](${S.appleChangeWallpaper})). A dynamic wallpaper is a set of still images; macOS picks which one to show. Nothing plays as video.`,
     },
     {
       type: "p",
@@ -470,39 +431,39 @@ export const dynamicWallpaperClubPage: SeoContentPage = {
         "You want moving video on the desktop.",
         `You want motion on the Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion} or later.`,
         "You want a different loop on each display, Shuffle, or a time-of-day Day Schedule that switches between loops.",
-        `You are fine paying once: ${MACWALL_PRO_USD} for up to ${MACWALL_PRO_MACS} Macs, after a free 24-hour trial.`,
+        `You are fine paying once: ${price.proText} for up to ${price.proMacs} Macs, after a free 24-hour trial.`,
       ],
     },
     { type: "h2", text: "A note on similar names" },
     {
       type: "p",
-      text: `Dynamic Wallpaper Studio on the Mac App Store is a different product: a live (video) wallpaper app by Aesthetic Apps & Widgets srl, free with in-app purchases at $2.99 a week or $29.99 a year, for macOS 12 and later ([Mac App Store](${SOURCES.dynamicWallpaperStudio})). If you want time-of-day wallpapers in an app rather than a website, see [24 Hour Wallpaper vs MacWall](/alternatives/24-hour-wallpaper).`,
+      text: `Dynamic Wallpaper Studio on the Mac App Store is a different product: a live (video) wallpaper app by Aesthetic Apps & Widgets srl, free with in-app purchases at $2.99 a week or $29.99 a year, for macOS 12 and later ([Mac App Store](${S.dynamicWallpaperStudio})). If you want time-of-day wallpapers in an app rather than a website, see [24 Hour Wallpaper vs MacWall](/alternatives/24-hour-wallpaper).`,
     },
     { type: "h2", text: "Adding a downloaded wallpaper" },
     {
       type: "p",
-      text: `Apple's steps for using your own image: open System Settings, click Wallpaper, then under Your Photos click Add Photo and choose Choose File ([Apple Support](${SOURCES.appleChangeWallpaper})). The Appearance menu offers Automatic, Dynamic, Light (Still) and Dark (Still) for dynamic wallpapers ([Apple Support](${SOURCES.appleWallpaperSettings})). MacWall cannot open these files; it imports video only.`,
+      text: `Apple's steps for using your own image: open System Settings, click Wallpaper, then under Your Photos click Add Photo and choose Choose File ([Apple Support](${S.appleChangeWallpaper})). The Appearance menu offers Automatic, Dynamic, Light (Still) and Dark (Still) for dynamic wallpapers ([Apple Support](${S.appleWallpaperSettings})). MacWall cannot open these files; it imports video only.`,
     },
     { type: "h2", text: "Sources" },
     {
       type: "ul",
       items: [
-        sourceItem("Dynamic Wallpaper Club", SOURCES.dynamicWallpaperClub),
+        sourceItem("Dynamic Wallpaper Club", S.dynamicWallpaperClub),
         sourceItem(
           "Dynamic Wallpaper Studio on the Mac App Store",
-          SOURCES.dynamicWallpaperStudio
+          S.dynamicWallpaperStudio
         ),
         sourceItem(
           "Apple Newsroom: Apple introduces macOS Mojave",
-          SOURCES.appleMojave
+          S.appleMojave
         ),
         sourceItem(
           "Apple Support: Change your wallpaper on Mac",
-          SOURCES.appleChangeWallpaper
+          S.appleChangeWallpaper
         ),
         sourceItem(
           "Apple Support: Wallpaper settings on Mac",
-          SOURCES.appleWallpaperSettings
+          S.appleWallpaperSettings
         ),
       ],
     },
@@ -537,15 +498,177 @@ export const dynamicWallpaperClubPage: SeoContentPage = {
         "The site does not name a company or developer. MacWall is an independent Mac app and is not affiliated with it.",
     },
   ],
-}
+}))
+
+// ---------------------------------------------------------------------------
+// /alternatives/iwallpaper
+// ---------------------------------------------------------------------------
+
+/** iWallpaper's one in-app purchase on the US Mac App Store. */
+const IWALLPAPER_UNLOCK_CENTS = 699
+
+export const iwallpaperAlternativePage = salePricedPage((price) => ({
+  slug: "iwallpaper",
+  pathname: "/alternatives/iwallpaper",
+  title: "iWallpaper for Mac vs MacWall: Price and Features",
+  headline: "iWallpaper vs MacWall",
+  description:
+    "iWallpaper vs MacWall on Mac: price, watermark, macOS versions, multiple monitors and the Lock Screen compared from the App Store listing, with sources.",
+  keywords: [
+    "iwallpaper",
+    "iwallpaper mac",
+    "iwallpaper live wallpaper",
+    "iwallpaper alternative",
+    "iwallpaper vs macwall",
+    "iwallpaper watermark",
+  ],
+  publishedAt: COMPARISONS_RECHECKED_ISO,
+  updatedAt: COMPARISONS_RECHECKED_ISO,
+  sections: [
+    {
+      type: "p",
+      text: `**iWallpaper and MacWall both play live wallpapers on a Mac; they differ most on price, the macOS versions they support and the Lock Screen.** iWallpaper is a free download on the Mac App Store whose one in-app purchase, Remove watermark, costs $6.99, and it runs on macOS 10.15 Catalina or later, per its [App Store listing](${S.iwallpaper}). MacWall is a direct download for macOS 15 or later with a 24-hour trial, then a one-time Pro license (${price.proText} for ${price.proMacs} Macs), and it also plays wallpapers on the Lock Screen and as the screen saver on macOS 26.`,
+    },
+    {
+      type: "table",
+      columns: ["", "iWallpaper", "MacWall"],
+      rows: [
+        ["Developer", "晓栋 周 (as listed on the App Store)", "MacWall"],
+        [
+          "Price model",
+          "Free download; Remove watermark $6.99 (in-app purchase)",
+          price.summary,
+        ],
+        [
+          "Where to get it",
+          "Mac App Store",
+          "Direct download from macwall.app",
+        ],
+        [
+          "Platforms",
+          "macOS 10.15+; lists Apple silicon support",
+          MACWALL_PLATFORMS,
+        ],
+        [
+          "Lock Screen",
+          "Not stated",
+          `Video, ${macwallLockScreenMacOSVersion} or later, plus Screen Saver`,
+        ],
+        [
+          "Library",
+          "Wallpapers shared by its users, ranked by popularity and date; new ones every day, per the listing",
+          `${macwallCatalog.liveCountLabel} curated loops, most in 4K, in 9 categories`,
+        ],
+        ["Your own videos", "Not stated", "MP4, MOV and M4V with Pro"],
+        [
+          "Multiple displays",
+          "Separate settings for each monitor; standard, vertical, 21:9 and 32:9 ratios",
+          "Different loop per display, or the same on all",
+        ],
+        [
+          "Power",
+          "Static when the wallpaper is hidden; static modes on battery and in low power",
+          "Pauses behind full-screen apps; optional Pause on battery and Lower quality on battery",
+        ],
+        [
+          "Account",
+          "Uses iCloud (CloudKit); no separate login",
+          "None; the trial asks for an email",
+        ],
+        [
+          "Latest version",
+          "1.1.3, June 12, 2025",
+          `${macwall.currentVersion}, ${macwall.currentVersionReleasedLabel}`,
+        ],
+      ],
+      caption: `iWallpaper facts from its US Mac App Store listing, accessed ${RECHECKED}.`,
+    },
+    { type: "h2", text: "Pick iWallpaper if" },
+    {
+      type: "ul",
+      items: [
+        "You are on macOS 10.15 Catalina to macOS 14 Sonoma; MacWall needs macOS 15.",
+        price.proCurrentCents > IWALLPAPER_UNLOCK_CENTS
+          ? `You want the smallest one-time cost: $6.99 removes iWallpaper's watermark, against ${price.proText} for MacWall Pro.`
+          : "You want to try an app free with no time limit, and a watermark is fine until you pay.",
+        "You use a vertical or 32:9 super-ultrawide monitor; its listing names both ratios.",
+        "You prefer to buy through the Mac App Store and sign in with iCloud only.",
+        "You want wallpapers other people share, with new ones every day.",
+      ],
+    },
+    { type: "h2", text: "Pick MacWall if" },
+    {
+      type: "ul",
+      items: [
+        `You want a live Lock Screen and screen saver on ${macwallLockScreenMacOSVersion} or later; iWallpaper's listing doesn't mention the Lock Screen. See [live video screen savers](/screen-saver-mac).`,
+        "You want a curated catalog you can preview on the web first: the [MacWall gallery](/wallpapers) shows every loop by category.",
+        "You want to import your own videos; iWallpaper's listing doesn't mention it.",
+        `You want one license for up to ${price.proMacs} Macs, Bend on an Apple silicon MacBook, Music Sync, or a time-of-day Day Schedule.`,
+        `Recent updates matter to you: MacWall ${macwall.currentVersion} shipped on ${macwall.currentVersionReleasedLabel}, while iWallpaper's latest listed version, 1.1.3, is from June 12, 2025.`,
+      ],
+    },
+    { type: "h2", text: "Performance" },
+    {
+      type: "p",
+      text: "Both apps say they stop the wallpaper when you can't see it: iWallpaper's listing describes an occlusion check that keeps a hidden wallpaper static, and MacWall pauses behind full-screen apps. Neither of us publishes an independent test, so compare them in Activity Monitor on your own Mac; the [performance guide](/docs/performance-and-battery) shows how.",
+    },
+    {
+      type: "p",
+      text: "More comparisons: [MacWall vs Backdrop](/alternatives/macwall-vs-backdrop), [MacWall vs Wallspace](/alternatives/macwall-vs-wallspace) and [the best live wallpaper apps for Mac](/best-live-wallpaper-mac).",
+    },
+    { type: "h2", text: "Sources" },
+    {
+      type: "ul",
+      items: [
+        sourceItem(
+          "iWallpaper on the Mac App Store",
+          S.iwallpaper,
+          COMPARISONS_RECHECKED_ISO
+        ),
+      ],
+    },
+    { type: "p", text: MACWALL_FACTS_NOTE },
+  ],
+  faq: [
+    {
+      question: "Is iWallpaper free?",
+      answer:
+        "iWallpaper is free to download. Its one in-app purchase on the US Mac App Store, Remove watermark, is $6.99, so the free version shows a watermark.",
+    },
+    {
+      question: "Does iWallpaper work on the Lock Screen?",
+      answer:
+        "Its App Store listing doesn't say. MacWall plays live wallpapers on the Lock Screen and as the screen saver on macOS 26 Tahoe or later.",
+    },
+    {
+      question: "What macOS does iWallpaper need?",
+      answer:
+        "macOS 10.15 Catalina or later, per its App Store listing. MacWall needs macOS 15 Sequoia or later.",
+    },
+    {
+      question: "Is iWallpaper the same as Wallpaper Engine?",
+      answer:
+        "No. iWallpaper is a separate Mac App Store app from a different developer. Wallpaper Engine has no Mac version.",
+    },
+    {
+      question: "Is MacWall affiliated with iWallpaper?",
+      answer:
+        "No. MacWall is an independent Mac app and is not affiliated with iWallpaper or its developer.",
+    },
+  ],
+}))
 
 // ---------------------------------------------------------------------------
 // /compare index
 // ---------------------------------------------------------------------------
 
-/** One row of the /compare table. Every non-MacWall figure comes from `sourceUrl`. */
+export type MacWallpaperAppType =
+  "Live video" | "Static photos" | "Time of day" | "Website" | "Windows only"
+
+/** One row of the /compare table. Every non-MacWall figure comes from `siteUrl`. */
 export type MacWallpaperAppEntry = {
   name: string
+  type: MacWallpaperAppType
   developer: string
   priceModel: string
   platforms: string
@@ -554,142 +677,221 @@ export type MacWallpaperAppEntry = {
   /** The developer's site or store listing (also the price source). */
   siteUrl: string
   sourceLabel: string
+  /** When `siteUrl` was read; COMPARISONS_CHECKED_ISO unless set. */
+  accessedIso?: string
 }
 
-export const macWallpaperApps: readonly MacWallpaperAppEntry[] = [
-  {
-    name: "MacWall",
-    developer: "MacWall",
-    priceModel: MACWALL_PRICE_SUMMARY,
-    platforms: `${MACWALL_PLATFORMS}; Lock Screen video on macOS 26+`,
-    comparePath: "/best-live-wallpaper-mac",
-    siteUrl: "/download",
-    sourceLabel: "MacWall pricing",
-  },
-  {
-    name: "Backdrop",
-    developer: "Cindori AB",
-    priceModel:
-      "Free tier (3 watermarked wallpapers); $1.99/month, $14.99/year or $29.99 lifetime",
-    platforms: "macOS 15+",
-    comparePath: macwallVsBackdropPage.pathname,
-    siteUrl: SOURCES.backdrop,
-    sourceLabel: "Backdrop by Cindori",
-  },
-  {
-    name: "Wallspace",
-    developer: "Tangent Labs LLP",
-    priceModel: "Free; Pro $12.99 one-time",
-    platforms: "macOS 15+ (Lock Screen needs macOS 26)",
-    comparePath: macwallVsWallspacePage.pathname,
-    siteUrl: SOURCES.wallspace,
-    sourceLabel: "Wallspace",
-  },
-  {
-    name: "Wallper",
-    developer: "Sandimax LLC",
-    priceModel: "One-time license from $14.99; 7-day free trial",
-    platforms: "macOS 14.6+ (Intel and Apple silicon)",
-    siteUrl: SOURCES.wallper,
-    sourceLabel: "Wallper",
-  },
-  {
-    name: "Wallux",
-    developer: "Not stated",
-    priceModel: "Has a free plan",
-    platforms: "macOS 15+ (Lock Screen needs macOS 26)",
-    siteUrl: SOURCES.wallux,
-    sourceLabel: "Wallux",
-  },
-  {
-    name: "Hanami - 6000+ Live Wallpapers",
-    developer: "豪 文 (WHBALZAC Inc)",
-    priceModel:
-      "Free with in-app purchases: $0.99/week, $1.99/month, $4.99 for 6 months, $7.99/year; lifetime upgrade $3.99 or $4.99",
-    platforms: "macOS 13+",
-    siteUrl: SOURCES.hanami,
-    sourceLabel: "Hanami on the Mac App Store",
-  },
-  {
-    name: "4K Live Wallpaper",
-    developer: "Hao Wen",
-    priceModel:
-      "Free with in-app purchases: $1.99/month, $8.99 for 6 months, $12.99/year, $29.99 lifetime",
-    platforms: "macOS 13+",
-    siteUrl: SOURCES.fourKLive,
-    sourceLabel: "4K Live Wallpaper on the Mac App Store",
-  },
-  {
-    name: "Paper - 4k Live Wallpapers",
-    developer: "凌云 张",
-    priceModel: "$7.99 upfront",
-    platforms: "macOS 12+",
-    siteUrl: SOURCES.paper,
-    sourceLabel: "Paper on the Mac App Store",
-  },
-  {
-    name: "Dynamic Wallpaper Studio",
-    developer: "Aesthetic Apps & Widgets srl",
-    priceModel: "Free with in-app purchases: $2.99/week or $29.99/year",
-    platforms: "macOS 12+",
-    siteUrl: SOURCES.dynamicWallpaperStudio,
-    sourceLabel: "Dynamic Wallpaper Studio on the Mac App Store",
-  },
-  {
-    name: "Wallnetic: Live Wallpaper 4K",
-    developer: "TSQUARE BILISIM REKLAM SANAYI VE TICARET LIMITED SIRKETI",
-    priceModel: "Free; no in-app purchases listed",
-    platforms: "macOS 13+",
-    siteUrl: SOURCES.wallnetic,
-    sourceLabel: "Wallnetic on the Mac App Store",
-  },
-  {
-    name: "24 Hour Wallpaper",
-    developer: "Jetson Creative LLC",
-    priceModel:
-      "Free with in-app purchases: all wallpapers $29.99 or $69.99 lifetime, single wallpapers $2.49; 14-day free trial",
-    platforms: "macOS 15+",
-    comparePath: twentyFourHourWallpaperPage.pathname,
-    siteUrl: SOURCES.twentyFourHour,
-    sourceLabel: "24 Hour Wallpaper on the Mac App Store",
-  },
-  {
-    name: "Plash",
-    developer: "Sindre Sorhus",
-    priceModel: "Free; no in-app purchases listed",
-    platforms: "macOS 26.4+ (App Store version)",
-    comparePath: plashAlternativePage.pathname,
-    siteUrl: SOURCES.plashAppStore,
-    sourceLabel: "Plash on the Mac App Store",
-  },
-  {
-    name: "Dynamic Wallpaper Club",
-    developer: "Not named on the site",
-    priceModel: "Free website (ads and donations)",
-    platforms: "Web; makes macOS dynamic wallpapers",
-    comparePath: dynamicWallpaperClubPage.pathname,
-    siteUrl: SOURCES.dynamicWallpaperClub,
-    sourceLabel: "Dynamic Wallpaper Club",
-  },
-  {
-    name: "Wallpaper Engine",
-    developer: "Wallpaper Engine Team",
-    priceModel: "$4.99 one-time on Steam",
-    platforms: "Windows 10 and 11 only; Android companion. No Mac version",
-    comparePath: wallpaperEngineAlternativePage.pathname,
-    siteUrl: SOURCES.wallpaperEngineSteam,
-    sourceLabel: "Wallpaper Engine on Steam",
-  },
-  {
-    name: "Lively Wallpaper",
-    developer: "rocksdanister (GitHub repository)",
-    priceModel: "Free, open source (GPL-3.0)",
-    platforms: "Windows 10 only. No Mac version",
-    comparePath: livelyWallpaperMacPage.pathname,
-    siteUrl: SOURCES.lively,
-    sourceLabel: "Lively Wallpaper on GitHub",
-  },
-]
+/** Every app on /compare, with MacWall's price as checkout charges it at `now`. */
+export function macWallpaperApps(
+  price: MacwallPriceFacts = macwallPriceFacts()
+): MacWallpaperAppEntry[] {
+  return [
+    {
+      name: "MacWall",
+      type: "Live video",
+      developer: "MacWall",
+      priceModel: price.summary,
+      platforms: `${MACWALL_PLATFORMS}; Lock Screen video on macOS 26+`,
+      comparePath: "/best-live-wallpaper-mac",
+      siteUrl: "/download",
+      sourceLabel: "MacWall pricing",
+    },
+    {
+      name: "Backdrop",
+      type: "Live video",
+      developer: "Cindori AB",
+      priceModel:
+        "Free tier (3 watermarked wallpapers); $1.99/month, $14.99/year or $29.99 lifetime",
+      platforms: "macOS 15+",
+      comparePath: macwallVsBackdropPage.pathname,
+      siteUrl: S.backdrop,
+      sourceLabel: "Backdrop by Cindori",
+    },
+    {
+      name: "Wallspace",
+      type: "Live video",
+      developer: "Tangent Labs LLP",
+      priceModel: "Free; Pro $12.99 one-time",
+      platforms: "macOS 15+ (Lock Screen needs macOS 26)",
+      comparePath: macwallVsWallspacePage.pathname,
+      siteUrl: S.wallspace,
+      sourceLabel: "Wallspace",
+    },
+    {
+      name: "iWallpaper",
+      type: "Live video",
+      developer: "晓栋 周",
+      priceModel: "Free; Remove watermark $6.99 (in-app purchase)",
+      platforms: "macOS 10.15+",
+      comparePath: "/alternatives/iwallpaper",
+      siteUrl: S.iwallpaper,
+      sourceLabel: "iWallpaper on the Mac App Store",
+      accessedIso: COMPARISONS_RECHECKED_ISO,
+    },
+    {
+      name: "Wallper",
+      type: "Live video",
+      developer: "Sandimax LLC",
+      priceModel: "One-time license from $14.99; 7-day free trial",
+      platforms: "macOS 14.6+ (Intel and Apple silicon)",
+      siteUrl: S.wallper,
+      sourceLabel: "Wallper",
+    },
+    {
+      name: "Wallux",
+      type: "Live video",
+      developer: "Not stated",
+      priceModel: "Has a free plan",
+      platforms: "macOS 15+ (Lock Screen needs macOS 26)",
+      siteUrl: S.wallux,
+      sourceLabel: "Wallux",
+    },
+    {
+      name: "Hanami - 6000+ Live Wallpapers",
+      type: "Live video",
+      developer: "豪 文 (WHBALZAC Inc)",
+      priceModel:
+        "Free with in-app purchases: $0.99/week, $1.99/month, $4.99 for 6 months, $7.99/year; lifetime upgrade $3.99 or $4.99",
+      platforms: "macOS 13+",
+      siteUrl: S.hanami,
+      sourceLabel: "Hanami on the Mac App Store",
+    },
+    {
+      name: "4K Live Wallpaper",
+      type: "Live video",
+      developer: "Hao Wen",
+      priceModel:
+        "Free with in-app purchases: $1.99/month, $8.99 for 6 months, $12.99/year, $29.99 lifetime",
+      platforms: "macOS 13+",
+      siteUrl: S.fourKLive,
+      sourceLabel: "4K Live Wallpaper on the Mac App Store",
+    },
+    {
+      name: "Live Wallpaper Engine HD",
+      type: "Live video",
+      developer: "Voros Innovation & Business Services Pty Ltd",
+      priceModel:
+        "Free with in-app purchases from $3.99 to $5.99, including a $5.99 unlock that removes ads",
+      platforms: "macOS 10.13+",
+      siteUrl: S.liveWallpaperEngineHd,
+      sourceLabel: "Live Wallpaper Engine HD on the Mac App Store",
+      accessedIso: COMPARISONS_RECHECKED_ISO,
+    },
+    {
+      name: "Paper - 4k Live Wallpapers",
+      type: "Live video",
+      developer: "凌云 张",
+      priceModel: "$7.99 upfront",
+      platforms: "macOS 12+",
+      siteUrl: S.paper,
+      sourceLabel: "Paper on the Mac App Store",
+    },
+    {
+      name: "Dynamic Wallpaper Studio",
+      type: "Live video",
+      developer: "Aesthetic Apps & Widgets srl",
+      priceModel: "Free with in-app purchases: $2.99/week or $29.99/year",
+      platforms: "macOS 12+",
+      siteUrl: S.dynamicWallpaperStudio,
+      sourceLabel: "Dynamic Wallpaper Studio on the Mac App Store",
+    },
+    {
+      name: "Wallnetic: Live Wallpaper 4K",
+      type: "Live video",
+      developer: "TSQUARE BILISIM REKLAM SANAYI VE TICARET LIMITED SIRKETI",
+      priceModel: "Free; no in-app purchases listed",
+      platforms: "macOS 13+",
+      siteUrl: S.wallnetic,
+      sourceLabel: "Wallnetic on the Mac App Store",
+    },
+    {
+      name: "WallpaperMachine",
+      type: "Live video",
+      developer: "MMFoundation",
+      priceModel:
+        "Free, open source (GPL-3.0); Workshop downloads need a Steam account that owns Wallpaper Engine",
+      platforms: "macOS 15+, Apple silicon only",
+      comparePath: wallpaperEngineAlternativePage.pathname,
+      siteUrl: S.wallpaperMachine,
+      sourceLabel: "WallpaperMachine on GitHub",
+      accessedIso: COMPARISONS_RECHECKED_ISO,
+    },
+    {
+      name: "Irvue",
+      type: "Static photos",
+      developer: "Igor Savelev",
+      priceModel:
+        "Free; optional subscriptions listed at $0.69/month or $7.00/year",
+      platforms: "macOS 14+",
+      siteUrl: S.irvue,
+      sourceLabel: "Irvue on the Mac App Store",
+      accessedIso: COMPARISONS_RECHECKED_ISO,
+    },
+    {
+      name: "Unsplash Wallpapers",
+      type: "Static photos",
+      developer: "Unsplash Inc",
+      priceModel: "Free; no in-app purchases listed",
+      platforms: "macOS 13+",
+      siteUrl: S.unsplashWallpapers,
+      sourceLabel: "Unsplash Wallpapers on the Mac App Store",
+      accessedIso: COMPARISONS_RECHECKED_ISO,
+    },
+    {
+      name: "24 Hour Wallpaper",
+      type: "Time of day",
+      developer: "Jetson Creative LLC",
+      priceModel:
+        "Free with in-app purchases: all wallpapers $29.99 or $69.99 lifetime, single wallpapers $2.49; 14-day free trial",
+      platforms: "macOS 15+",
+      comparePath: twentyFourHourWallpaperPage.pathname,
+      siteUrl: S.twentyFourHour,
+      sourceLabel: "24 Hour Wallpaper on the Mac App Store",
+    },
+    {
+      name: "Dynamic Wallpaper Club",
+      type: "Time of day",
+      developer: "Not named on the site",
+      priceModel: "Free website (ads and donations)",
+      platforms: "Web; makes macOS dynamic wallpapers",
+      comparePath: dynamicWallpaperClubPage.pathname,
+      siteUrl: S.dynamicWallpaperClub,
+      sourceLabel: "Dynamic Wallpaper Club",
+    },
+    {
+      name: "Plash",
+      type: "Website",
+      developer: "Sindre Sorhus",
+      priceModel: "Free; no in-app purchases listed",
+      platforms: "macOS 26.4+ (App Store version)",
+      comparePath: plashAlternativePage.pathname,
+      siteUrl: S.plashAppStore,
+      sourceLabel: "Plash on the Mac App Store",
+    },
+    {
+      name: "Wallpaper Engine",
+      type: "Windows only",
+      developer: "Wallpaper Engine Team",
+      priceModel: "$4.99 one-time on Steam",
+      platforms: "Windows 10 and 11; Android companion app. No Mac version",
+      comparePath: wallpaperEngineAlternativePage.pathname,
+      siteUrl: S.wallpaperEngineSteam,
+      sourceLabel: "Wallpaper Engine on Steam",
+      accessedIso: COMPARISONS_RECHECKED_ISO,
+    },
+    {
+      name: "Lively Wallpaper",
+      type: "Windows only",
+      developer: "rocksdanister (GitHub repository)",
+      priceModel: "Free, open source (GPL-3.0)",
+      platforms: "Windows 10 (1903+) and 11; no Mac version",
+      comparePath: livelyWallpaperMacPage.pathname,
+      siteUrl: S.lively,
+      sourceLabel: "Lively Wallpaper on GitHub",
+      accessedIso: COMPARISONS_RECHECKED_ISO,
+    },
+  ]
+}
 
 /** Every comparison or alternative page, in the order the /compare hub lists them. */
 export const comparisonPages: readonly SeoContentPage[] = [
@@ -697,6 +899,7 @@ export const comparisonPages: readonly SeoContentPage[] = [
   wallpaperEngineAlternativePage,
   macwallVsBackdropPage,
   macwallVsWallspacePage,
+  iwallpaperAlternativePage,
   livelyWallpaperMacPage,
   twentyFourHourWallpaperPage,
   plashAlternativePage,
@@ -705,6 +908,7 @@ export const comparisonPages: readonly SeoContentPage[] = [
 
 export const COMPARE_TABLE_COLUMNS = [
   "App",
+  "Type",
   "Developer",
   "Price model (US)",
   "Platforms",
@@ -716,29 +920,41 @@ export function compareDetailsCell(app: MacWallpaperAppEntry): string {
   if (app.comparePath) return `[Our comparison](${app.comparePath})`
   const label = app.siteUrl.startsWith("https://apps.apple.com/")
     ? "Mac App Store listing"
-    : "Developer site"
+    : app.siteUrl.startsWith("https://github.com/")
+      ? "GitHub"
+      : "Developer site"
   return `[${label}](${app.siteUrl})`
 }
 
 /** The app table, shared by the /compare route and its Markdown twin. */
-export const compareAppTable: ContentTableBlock = {
-  type: "table",
-  columns: [...COMPARE_TABLE_COLUMNS],
-  rows: macWallpaperApps.map((app) => [
-    app.name === "MacWall" ? "**MacWall**" : app.name,
-    app.developer,
-    app.priceModel,
-    app.platforms,
-    compareDetailsCell(app),
-  ]),
-  caption: `US prices as listed on ${COMPARE_ACCESSED_LABEL} on each developer's site, the US Mac App Store or Steam; some sites show local prices by region. Every source is listed below.`,
+export function compareAppTable(
+  apps: readonly MacWallpaperAppEntry[] = macWallpaperApps()
+): ContentTableBlock {
+  return {
+    type: "table",
+    columns: [...COMPARE_TABLE_COLUMNS],
+    rows: apps.map((app) => [
+      app.name === "MacWall" ? "**MacWall**" : app.name,
+      app.type,
+      app.developer,
+      app.priceModel,
+      app.platforms,
+      compareDetailsCell(app),
+    ]),
+    caption: `US prices as listed on each developer's site, the US Mac App Store, Steam or GitHub, read on ${CHECKED} or, where the Sources list says so, ${RECHECKED}. Some sites show local prices by region.`,
+  }
 }
+
+const APP_COUNT = macWallpaperApps().length
+const LIVE_COUNT = macWallpaperApps().filter(
+  (app) => app.type === "Live video"
+).length
 
 /** Sections before the app table (the /compare route renders the table itself). */
 export const compareIntroSections: ContentBlock[] = [
   {
     type: "p",
-    text: `**This table lists ${macWallpaperApps.length} wallpaper apps and tools that people use or search for on a Mac, with each one's developer, price model, exact US price and platforms, read from the developer's page, the Mac App Store or Steam on ${COMPARE_ACCESSED_LABEL}.** Two of them, Wallpaper Engine and Lively Wallpaper, do not run on macOS. The Mac apps need anything from macOS 12 to macOS 26.4. The MacWall team wrote this page, so every row has a source and our comparison pages say where another app is the better fit.`,
+    text: `**The best wallpaper app for a Mac depends on what you want on screen: moving video, a new photo every day, a scene that follows the time of day, or a web page.** This table lists ${APP_COUNT} apps and tools people use or search for on a Mac, ${LIVE_COUNT} of them for live video wallpapers, with each one's developer, price model, exact US price and platforms, read from the developer's page, the Mac App Store, Steam or GitHub. Two of them, Wallpaper Engine and Lively Wallpaper, do not run on macOS. The MacWall team wrote this page, so every row has a source and our comparison pages say where another app is the better fit. For live wallpaper apps only, see [the best live wallpaper apps for Mac](/best-live-wallpaper-mac).`,
   },
   { type: "h2", text: "All apps at a glance" },
 ]
@@ -749,85 +965,100 @@ export const compareOutroSections: ContentBlock[] = [
   {
     type: "ul",
     items: [
-      "**Pay once for a video catalog**: MacWall, Wallspace Pro, Wallper or Paper.",
-      "**Use it free for as long as you like**: Wallspace, Wallnetic, or Backdrop's watermarked free tier.",
-      "**Older macOS**: Paper and Dynamic Wallpaper Studio list macOS 12; Hanami, 4K Live Wallpaper and Wallnetic list macOS 13.",
+      "**Pay once for a video catalog**: MacWall, Wallspace Pro, Wallper, Paper, or iWallpaper's $6.99 watermark removal.",
+      "**Use it free for as long as you like**: Wallspace, Wallnetic, WallpaperMachine, or Backdrop's watermarked free tier.",
+      "**A new still photo on a schedule**: Unsplash Wallpapers (free) or Irvue (free, with optional subscriptions).",
+      "**Older macOS**: Live Wallpaper Engine HD lists macOS 10.13 and iWallpaper macOS 10.15; Paper and Dynamic Wallpaper Studio list macOS 12; Hanami, 4K Live Wallpaper, Wallnetic and Unsplash Wallpapers list macOS 13.",
       "**A website as wallpaper**: Plash.",
       "**A wallpaper that follows the time of day**: 24 Hour Wallpaper, Dynamic Wallpaper Club, or Apple's built-in dynamic wallpapers.",
-      "**Coming from Windows**: Wallpaper Engine and Lively have no Mac version, so pick one of the Mac apps.",
+      "**A moving screen saver**: [live video screen savers for Mac](/screen-saver-mac).",
+      "**Coming from Windows**: Wallpaper Engine and Lively have no Mac version. WallpaperMachine plays many Wallpaper Engine wallpapers you own on Apple silicon Macs, or pick one of the Mac apps.",
     ],
   },
 ]
 
 /** The Sources list: one entry per competitor URL. */
-export const compareSourcesSections: ContentBlock[] = [
-  { type: "h2", text: "Sources" },
-  {
-    type: "ul",
-    items: [
-      ...macWallpaperApps
-        .filter((app) => app.name !== "MacWall")
-        .map((app) => sourceItem(app.sourceLabel, app.siteUrl)),
-      sourceItem("Plash by Sindre Sorhus", SOURCES.plashSite),
-      sourceItem("Wallpaper Engine official site", SOURCES.wallpaperEngineSite),
-    ],
-  },
-  { type: "p", text: MACWALL_FACTS_NOTE },
-]
-
-export const compareIndexPage: SeoContentPage = {
-  slug: "compare",
-  pathname: "/compare",
-  title: "Mac Wallpaper Apps Compared: Prices and Platforms",
-  headline: "Mac wallpaper apps compared",
-  description:
-    "15 Mac wallpaper apps and tools side by side: developer, exact US price, price model and platforms, each with a dated source, plus our comparisons.",
-  keywords: [
-    "mac wallpaper app",
-    "wallpaper app mac",
-    "macbook wallpaper app",
-    "mac live wallpaper app",
-    "live wallpaper app mac comparison",
-    "mac wallpaper apps compared",
-  ],
-  updatedAt: COMPARE_CHECKED_ISO,
-  sections: [
-    ...compareIntroSections,
-    compareAppTable,
-    ...compareOutroSections,
-    { type: "h2", text: "Our comparison pages" },
+export function compareSourcesSections(
+  apps: readonly MacWallpaperAppEntry[] = macWallpaperApps()
+): ContentBlock[] {
+  return [
+    { type: "h2", text: "Sources" },
     {
       type: "ul",
-      items: comparisonPages.map(
-        (page) => `[${page.headline}](${page.pathname}): ${page.description}`
-      ),
+      items: [
+        ...apps
+          .filter((app) => app.name !== "MacWall")
+          .map((app) =>
+            sourceItem(
+              app.sourceLabel,
+              app.siteUrl,
+              app.accessedIso ?? COMPARISONS_CHECKED_ISO
+            )
+          ),
+        sourceItem("Plash by Sindre Sorhus", S.plashSite),
+        sourceItem("Wallpaper Engine official site", S.wallpaperEngineSite),
+      ],
     },
-    ...compareSourcesSections,
-  ],
-  faq: [
-    {
-      question: "What is the best wallpaper app for Mac?",
-      answer:
-        "It depends on your macOS version, budget and what you want on screen. For video wallpapers with a one-time price, MacWall, Wallspace Pro and Wallper are options; for free use, Wallspace, Wallnetic or Backdrop's free tier; for a website, Plash; for time-of-day wallpapers, 24 Hour Wallpaper or Dynamic Wallpaper Club.",
-    },
-    {
-      question: "Which Mac wallpaper apps are free?",
-      answer:
-        "Wallspace, Wallnetic and Plash are free, and Dynamic Wallpaper Club is a free website. Backdrop, Hanami, 4K Live Wallpaper, Dynamic Wallpaper Studio and 24 Hour Wallpaper are free to download with paid upgrades. MacWall is free for 24 hours, then needs a one-time license.",
-    },
-    {
-      question: "Do Wallpaper Engine or Lively Wallpaper run on Mac?",
-      answer:
-        "No. Wallpaper Engine's Steam page lists Windows 10 and 11 only, and Lively Wallpaper's README describes a Windows app. Use a native Mac app instead.",
-    },
-    {
-      question: "Which apps work on older versions of macOS?",
-      answer:
-        "Paper and Dynamic Wallpaper Studio list macOS 12; Hanami, 4K Live Wallpaper and Wallnetic list macOS 13; Wallper lists macOS 14.6. MacWall, Backdrop, Wallspace, Wallux and 24 Hour Wallpaper need macOS 15, and the current Plash needs macOS 26.4.",
-    },
-    {
-      question: "How were these prices checked?",
-      answer: `We read each developer's page, Mac App Store listing or Steam page on ${COMPARE_ACCESSED_LABEL}, using US prices. Prices change and some stores show local prices, so follow the source link before you buy.`,
-    },
-  ],
+    { type: "p", text: MACWALL_FACTS_NOTE },
+  ]
 }
+
+export const compareIndexPage = salePricedPage((price) => {
+  const apps = macWallpaperApps(price)
+  return {
+    slug: "compare",
+    pathname: "/compare",
+    title: `Best Wallpaper Apps for Mac (${comparisonTitleYear(COMPARE_CHECKED_ISO)}): Live and Static`,
+    headline: "Best wallpaper apps for Mac, compared",
+    description: `${apps.length} Mac wallpaper apps side by side, live and static: developer, exact US price, price model and platforms, each with a dated source.`,
+    keywords: [
+      "best wallpaper app for mac",
+      "mac wallpaper app",
+      "wallpaper app mac",
+      "macbook wallpaper app",
+      "wallpaper apps for mac",
+      "mac wallpaper apps compared",
+    ],
+    publishedAt: "2026-10-27",
+    updatedAt: COMPARE_CHECKED_ISO,
+    sections: [
+      ...compareIntroSections,
+      compareAppTable(apps),
+      ...compareOutroSections,
+      { type: "h2", text: "Our comparison pages" },
+      {
+        type: "ul",
+        items: comparisonPages.map(
+          (page) => `[${page.headline}](${page.pathname}): ${page.description}`
+        ),
+      },
+      ...compareSourcesSections(apps),
+    ],
+    faq: [
+      {
+        question: "What is the best wallpaper app for Mac?",
+        answer:
+          "It depends on your macOS version, budget and what you want on screen. For video wallpapers with a one-time price, MacWall, Wallspace Pro and Wallper are options; for free use, Wallspace, Wallnetic or Backdrop's free tier; for a new photo every day, Unsplash Wallpapers or Irvue; for a website, Plash; for time-of-day wallpapers, 24 Hour Wallpaper or Dynamic Wallpaper Club.",
+      },
+      {
+        question: "Which Mac wallpaper apps are free?",
+        answer:
+          "Wallspace, Wallnetic, Plash, Unsplash Wallpapers and WallpaperMachine are free, and Dynamic Wallpaper Club is a free website. Backdrop, iWallpaper, Irvue, Hanami, 4K Live Wallpaper, Live Wallpaper Engine HD, Dynamic Wallpaper Studio and 24 Hour Wallpaper are free to download with paid upgrades. MacWall is free for 24 hours, then needs a one-time license.",
+      },
+      {
+        question: "Do Wallpaper Engine or Lively Wallpaper run on Mac?",
+        answer:
+          "No. Wallpaper Engine's Steam page lists Windows 10 and 11 only, and Lively Wallpaper's README describes a Windows app. WallpaperMachine, a separate open-source app, plays many Wallpaper Engine wallpapers on Apple silicon Macs; otherwise use a native Mac app.",
+      },
+      {
+        question: "Which apps work on older versions of macOS?",
+        answer:
+          "Live Wallpaper Engine HD lists macOS 10.13 and iWallpaper macOS 10.15; Paper and Dynamic Wallpaper Studio list macOS 12; Hanami, 4K Live Wallpaper, Wallnetic and Unsplash Wallpapers list macOS 13; Irvue lists macOS 14 and Wallper macOS 14.6. MacWall, Backdrop, Wallspace, Wallux, WallpaperMachine and 24 Hour Wallpaper need macOS 15, and the current Plash needs macOS 26.4.",
+      },
+      {
+        question: "How were these prices checked?",
+        answer: `We read each developer's page, Mac App Store listing, Steam page or GitHub README on ${CHECKED}, or on ${RECHECKED} for the rows the Sources list marks, using US prices. Prices change and some stores show local prices, so follow the source link before you buy.`,
+      },
+    ],
+  }
+})

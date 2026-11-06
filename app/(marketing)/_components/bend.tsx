@@ -17,10 +17,20 @@ import { cn } from "@/lib/utils"
 
 const BEND_POSTER_SRC = "/hero/bend-poster.avif"
 
-/** `h1` on the standalone /bend page; `h2` as a homepage section. */
+/**
+ * `h1` on the standalone /bend page; `h2` as a homepage section. The /bend
+ * page passes a descriptive `headline` (the marketing title becomes the
+ * first line of the lead) and a `pointsHeading` above the four points.
+ */
 export function Bend({
   headingLevel = "h2",
-}: { headingLevel?: "h1" | "h2" } = {}) {
+  headline,
+  pointsHeading,
+}: {
+  headingLevel?: "h1" | "h2"
+  headline?: string
+  pointsHeading?: string
+} = {}) {
   const Heading = headingLevel
   const bend = macwallMarketingCopy.landing.bend
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -75,9 +85,11 @@ export function Bend({
       >
         <p className={landingEyebrow}>{bend.eyebrow}</p>
         <Heading id="bend-heading" className={landingH2}>
-          {bend.title}
+          {headline ?? bend.title}
         </Heading>
-        <p className={landingLead}>{bend.lead}</p>
+        <p className={landingLead}>
+          {headline ? `${bend.title} ${bend.lead}` : bend.lead}
+        </p>
       </div>
 
       <div className="relative aspect-[16/9] w-full bg-black md:aspect-[2/1]">
@@ -94,6 +106,9 @@ export function Bend({
         />
       </div>
 
+      {pointsHeading ? (
+        <h2 className={cn(landingPad, landingH3, "pt-8")}>{pointsHeading}</h2>
+      ) : null}
       <ul className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
         {bend.points.map((point) => (
           <li key={point.title} className="min-w-0 p-6 sm:p-8">

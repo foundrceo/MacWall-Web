@@ -1,11 +1,28 @@
-import type { ContentFaq, SeoContentPage } from "@/lib/content/types"
+import type {
+  ContentBlock,
+  ContentFaq,
+  SeoContentPage,
+} from "@/lib/content/types"
 import { macwall } from "@/lib/macwall-site"
+import {
+  DISPLAY_PAGES_PATH,
+  displayPageDefs,
+  displayPagePath,
+  MACBOOK_HUB_PATH,
+} from "@/lib/seo/display-pages"
 import {
   accessedLabel,
   displayResolutionLabel,
   MAC_DISPLAY_SPECS_ACCESSED,
+  macDisplayPagePath,
+  macDisplaySources,
   macDisplays,
 } from "@/lib/seo/mac-displays"
+import {
+  wallpaperCollectionPath,
+  wallpaperCollections,
+  type WallpaperCollection,
+} from "@/lib/seo/wallpaper-collections"
 
 /**
  * Free browser tools at /tools. Every tool runs on the visitor's Mac in the
@@ -33,12 +50,61 @@ export type ToolPage = SeoContentPage & {
 
 export const TOOLS_HUB_PATH = "/tools"
 
-const appleSources = [
-  ...new Map(macDisplays.map((d) => [d.source, d])).values(),
-].map(
-  (d) =>
-    `[${d.name} tech specs](${d.source}), Apple, accessed ${accessedLabel(d.accessed)}`
+const appleSources = macDisplaySources().map(
+  (source) =>
+    `[${source.name}](${source.url}), Apple, accessed ${accessedLabel(source.accessed)}`
 )
+
+/** Wallpaper pages per screen, linked from the resizer and resolution tools. */
+export const TOOL_DISPLAY_LINKS: readonly { href: string; label: string }[] = [
+  { href: MACBOOK_HUB_PATH, label: "Every MacBook" },
+  ...displayPageDefs.map((def) => ({
+    href: displayPagePath(def.slug),
+    label: def.label,
+  })),
+  { href: DISPLAY_PAGES_PATH, label: "All Mac displays" },
+]
+
+export type ColorCollectionLink = {
+  href: string
+  name: string
+  /**
+   * Colour words that put an image in this collection: the hues of its
+   * palette rule, the light tones for a light collection, or its own name.
+   */
+  words: string[]
+}
+
+const LIGHT_COLOR_WORDS = ["white", "off-white", "light grey"]
+
+function colorWordsFor(entry: WallpaperCollection): string[] {
+  // Read defensively: not every collection has a palette rule.
+  const rule = (
+    entry as { palette?: { kind?: string; hues?: readonly string[] } }
+  ).palette
+  if (rule?.kind === "hue" && rule.hues?.length) return [...rule.hues]
+  if (rule?.kind === "light") return LIGHT_COLOR_WORDS
+  return [entry.name.toLowerCase()]
+}
+
+/**
+ * The colour collections (/wallpapers/collections/{colour}) the palette tool
+ * links to: written ones only, so a collection still being drafted never
+ * gets a link.
+ */
+export const TOOL_COLOR_COLLECTIONS: readonly ColorCollectionLink[] =
+  wallpaperCollections
+    .filter(
+      (entry) =>
+        entry.group === "colors" &&
+        entry.description.trim().length > 0 &&
+        entry.intro.trim().length > 0
+    )
+    .map((entry) => ({
+      href: wallpaperCollectionPath(entry.slug),
+      name: entry.name,
+      words: colorWordsFor(entry),
+    }))
 
 const resolutionList = macDisplays
   .filter((d) => d.current)
@@ -139,7 +205,7 @@ const screenResolution: ToolPage = {
   title: "What's My Screen Resolution? Mac Checker",
   headline: "What's my screen resolution?",
   description:
-    "See the resolution your Mac's screen is running at, its pixel density and colour depth, and compare it with Apple's native resolution for every Mac.",
+    "See the resolution your Mac's screen is running at, its pixel density and color depth, and compare it with Apple's native resolution for every Mac.",
   line: "Your browser reports the screen this page is open on. Here's what it says, and what it means for wallpapers.",
   question: "How do I find my Mac's screen resolution?",
   answer:
@@ -187,7 +253,7 @@ const screenResolution: ToolPage = {
     },
     {
       title: "Compare with native",
-      body: "If rendered pixels match a row in the table, the screen is at its default setting.",
+      body: "If rendered pixels match a row in the table, the screen is at its default setting, and the tool links the live wallpapers that fit it.",
     },
     {
       title: "Size your wallpaper",
@@ -218,33 +284,33 @@ const screenResolution: ToolPage = {
 const colorPalette: ToolPage = {
   slug: "color-palette",
   pathname: "/tools/color-palette",
-  name: "Colour palette extractor",
-  summary: "Pull the main colours out of any wallpaper",
-  title: "Wallpaper Colour Palette Extractor",
-  headline: "Wallpaper colour palette extractor",
+  name: "Color palette extractor",
+  summary: "Pull the main colors out of any image",
+  title: "Color Palette From Image: Free Hex & RGB Extractor",
+  headline: "Color palette from any image",
   description:
-    "Drop in a wallpaper or photo and get its main colours as hex and RGB, ready to copy. Match your Mac accent colour, widgets or desktop setup to it.",
-  line: "Drop in any wallpaper and get its six main colours, from the most common down, ready to copy.",
-  question: "How do I find the colours in a wallpaper?",
+    "Get a color palette from any image: drop in a wallpaper or photo and copy its six main colors as hex and RGB. Free, in your browser, nothing uploaded.",
+  line: "Drop in any image and get its six main colors, from the most common down, ready to copy as hex or RGB.",
+  question: "How do I get a color palette from an image?",
   answer:
-    "Add the image here. The tool shrinks a copy, groups similar pixels together and lists the six colour groups that cover the most of the picture, with how much of it each one covers.",
+    "Add the image here. The tool shrinks a copy, groups similar pixels together and lists the six color groups that cover the most of the picture, with how much of it each one covers, as hex and RGB values you can copy.",
   keywords: [
     "color palette from image",
-    "wallpaper color palette",
+    "color palette extractor",
     "extract colors from image",
-    "image color picker",
     "hex color from image",
+    "wallpaper color palette",
   ],
   facts: [
     {
-      label: "Colours",
+      label: "Colors",
       value: "Six, ordered by how much of the image each one covers.",
     },
     { label: "Formats", value: "Hex and RGB, each copied with one click." },
     {
       label: "Method",
       value:
-        "k-means clustering on a 96-pixel-wide copy, the same way MacWall measures its wallpaper colours.",
+        "k-means clustering on a 96-pixel-wide copy, the same way MacWall measures the colours of its own wallpapers.",
     },
     {
       label: "Privacy",
@@ -259,28 +325,28 @@ const colorPalette: ToolPage = {
     },
     {
       title: "Read the palette",
-      body: "Each swatch shows its share of the image, a plain colour name and its hex value.",
+      body: "Each swatch shows its share of the image, a plain color name and its hex value.",
     },
-    { title: "Copy a colour", body: "Click a hex or RGB value to copy it." },
+    { title: "Copy a color", body: "Click a hex or RGB value to copy it." },
     {
       title: "Use it",
-      body: "Pick the closest accent colour in System Settings → Appearance, or use the hex values in your own designs.",
+      body: "Pick the closest accent color in System Settings → Appearance, use the hex values in your own designs, or open the live wallpapers in the same colors.",
     },
   ],
   faq: [
     {
-      question: "Why are there only six colours?",
+      question: "Why are there only six colors?",
       answer:
         "Six covers the look of most wallpapers without listing near-identical shades. Smaller details blend into the nearest group.",
     },
     {
       question: "Does it upload my image?",
       answer:
-        "No. The colours are worked out by JavaScript in your browser, on your Mac.",
+        "No. The colors are worked out by JavaScript in your browser, on your Mac.",
     },
     {
       question: "Can I see palettes for MacWall wallpapers?",
-      answer: `Yes. Every wallpaper page on ${macwall.name} lists the colours measured from that wallpaper.`,
+      answer: `Yes. Every wallpaper page on ${macwall.name} lists the colors measured from that wallpaper, and the color collections group live wallpapers by their main color.`,
     },
   ],
   sections: [],
@@ -302,7 +368,7 @@ export const toolsHubPage: SeoContentPage = {
   title: "Free Wallpaper Tools for Mac",
   headline: "Wallpaper tools for your Mac",
   description:
-    "Free tools that run in your browser: resize a wallpaper to any Mac screen, check your screen resolution, and pull a colour palette from any image.",
+    "Free tools that run in your browser: resize a wallpaper to any Mac screen, check your screen resolution, and pull a color palette from any image.",
   keywords: [
     "mac wallpaper tools",
     "wallpaper resizer",
@@ -350,8 +416,50 @@ export const TOOLS_HUB_FAQ: ContentFaq[] = [
   },
 ]
 
+function linkList(links: readonly { href: string; label: string }[]): string {
+  return links.map((link) => `[${link.label}](${link.href})`).join(" · ")
+}
+
 /** Markdown/SEO body for a tool page: answer, facts, steps, sources. */
 export function toolSeoPage(tool: ToolPage): SeoContentPage {
+  const tail: ContentBlock[] =
+    tool.slug === "color-palette"
+      ? TOOL_COLOR_COLLECTIONS.length > 0
+        ? [
+            { type: "h2", text: "Live wallpapers by color" },
+            {
+              type: "p",
+              text: linkList(
+                TOOL_COLOR_COLLECTIONS.map((entry) => ({
+                  href: entry.href,
+                  label: `${entry.name} live wallpapers`,
+                }))
+              ),
+            },
+          ]
+        : []
+      : [
+          { type: "h2", text: "Native resolution of every Mac" },
+          {
+            type: "table",
+            columns: [
+              "Display",
+              "Screen",
+              "Native resolution",
+              "Pixels per inch",
+            ],
+            rows: macDisplays.map((d) => [
+              `[${d.name}](${macDisplayPagePath(d)})`,
+              `${d.sizeInches}-inch`,
+              displayResolutionLabel(d),
+              String(d.ppi),
+            ]),
+          },
+          { type: "h2", text: "Live wallpapers for each screen" },
+          { type: "p", text: linkList(TOOL_DISPLAY_LINKS) },
+          { type: "h2", text: "Sources" },
+          { type: "ul", items: appleSources },
+        ]
   return {
     ...tool,
     sections: [
@@ -366,28 +474,7 @@ export function toolSeoPage(tool: ToolPage): SeoContentPage {
         type: "ol",
         items: tool.steps.map((step) => `**${step.title}.** ${step.body}`),
       },
-      ...(tool.slug === "color-palette"
-        ? []
-        : [
-            { type: "h2" as const, text: "Native resolution of every Mac" },
-            {
-              type: "table" as const,
-              columns: [
-                "Display",
-                "Screen",
-                "Native resolution",
-                "Pixels per inch",
-              ],
-              rows: macDisplays.map((d) => [
-                d.name,
-                `${d.sizeInches}-inch`,
-                displayResolutionLabel(d),
-                String(d.ppi),
-              ]),
-            },
-            { type: "h2" as const, text: "Sources" },
-            { type: "ul" as const, items: appleSources },
-          ]),
+      ...tail,
     ],
   }
 }

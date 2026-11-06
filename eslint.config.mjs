@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // vinext / Vite build output (npm run build:cf).
+    "dist/**",
   ]),
 ])
 

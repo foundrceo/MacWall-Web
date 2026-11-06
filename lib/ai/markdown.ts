@@ -22,6 +22,11 @@ export function absolutizeMarkdownLinks(text: string): string {
   })
 }
 
+/** Root-relative asset paths become absolute; CDN URLs pass through. */
+function absoluteAssetUrl(src: string): string {
+  return src.startsWith("/") ? `${canonicalSiteOrigin()}${src}` : src
+}
+
 export function contentBlocksToMarkdown(
   blocks: readonly ContentBlock[]
 ): string {
@@ -67,6 +72,20 @@ export function contentBlocksToMarkdown(
         parts.push(lines.join("\n"))
         break
       }
+      case "image": {
+        const image = `![${block.alt.replace(/[[\]]/g, "")}](${absoluteAssetUrl(block.src)})`
+        parts.push(
+          block.caption
+            ? `${image}\n\n${absolutizeMarkdownLinks(block.caption)}`
+            : image
+        )
+        break
+      }
+      case "video":
+        parts.push(
+          `Video: [${block.caption.replace(/[[\]]/g, "")}](${absoluteAssetUrl(block.src)}) (${block.durationIso.replace(/^PT/, "").toLowerCase()}, published ${block.uploadDate})`
+        )
+        break
       default: {
         const exhaustive: never = block
         void exhaustive

@@ -1,10 +1,14 @@
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 
 import MacWallMarketingFooter, {
   type FooterVariant,
 } from "@/components/macwall-marketing/marketing-footer"
 
-/** Temporary: compare footer designs. Delete after picking. */
+/**
+ * Temporary: compare footer designs. Delete after picking. Local dev only;
+ * production answers 404.
+ */
 export const metadata: Metadata = {
   title: "Footer lab",
   robots: { index: false, follow: false },
@@ -39,6 +43,7 @@ const VARIANTS: readonly { variant: FooterVariant; name: string; note: string }[
 ]
 
 export default function FooterLabPage() {
+  if (process.env.NODE_ENV === "production") notFound()
   return (
     <>
       {VARIANTS.map((item) => (

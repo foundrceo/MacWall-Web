@@ -3,8 +3,58 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
-import { displayResolutionLabel, macDisplays } from "@/lib/seo/mac-displays"
+import {
+  DISPLAY_PAGES_PATH,
+  displayPagePathFor,
+  displayResolutionLabel,
+  macDisplayPagePath,
+  macDisplays,
+  macDisplaysAtResolution,
+  type MacDisplay,
+} from "@/lib/seo/mac-displays"
 import { cn } from "@/lib/utils"
+
+type WallpaperLink = { href: string; label: string }
+
+/**
+ * Where to find wallpapers for the screen this page is on: the Mac whose
+ * native resolution it renders at, else an ultrawide or 4K monitor by shape
+ * and size, else the list of every display page.
+ */
+function wallpaperLinks(
+  rendered: { width: number; height: number },
+  native: readonly MacDisplay[]
+): WallpaperLink[] {
+  if (native.length > 0) {
+    const byPage = new Map<string, MacDisplay>()
+    for (const display of native) {
+      if (!byPage.has(display.page)) byPage.set(display.page, display)
+    }
+    return [...byPage.values()].map((display) => ({
+      href: macDisplayPagePath(display),
+      label: `Wallpapers that fit your ${display.shortName}`,
+    }))
+  }
+  const long = Math.max(rendered.width, rendered.height)
+  const short = Math.min(rendered.width, rendered.height)
+  if (long / short >= 2.3) {
+    return [
+      {
+        href: displayPagePathFor("ultrawide"),
+        label: "Wallpapers for ultrawide monitors",
+      },
+    ]
+  }
+  if (long >= 3840 && short >= 2160) {
+    return [
+      {
+        href: displayPagePathFor("4k"),
+        label: "4K wallpapers that fill this screen",
+      },
+    ]
+  }
+  return [{ href: DISPLAY_PAGES_PATH, label: "Find wallpapers for your Mac" }]
+}
 
 type Reading = {
   width: number
@@ -55,10 +105,9 @@ export function ScreenResolution() {
       }
     : null
   const native = rendered
-    ? macDisplays.filter(
-        (d) => d.width === rendered.width && d.height === rendered.height
-      )
+    ? macDisplaysAtResolution(rendered.width, rendered.height)
     : []
+  const links = rendered ? wallpaperLinks(rendered, native) : []
 
   const rows = reading
     ? [
@@ -75,7 +124,7 @@ export function ScreenResolution() {
           label: "Browser window",
           value: `${reading.windowWidth} × ${reading.windowHeight}`,
         },
-        { label: "Colour depth", value: `${reading.colorDepth}-bit` },
+        { label: "Color depth", value: `${reading.colorDepth}-bit` },
       ]
     : []
 
@@ -95,6 +144,20 @@ export function ScreenResolution() {
             ? `That's the native resolution of the ${native.map((d) => d.name).join(" and the ")}, so this screen is at its default setting.`
             : "That doesn't match a Mac's native resolution, so this is a scaled setting or a non-Apple display."}
         </p>
+        {links.length > 0 ? (
+          <ul className="mt-3 flex flex-wrap justify-center gap-2">
+            {links.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="inline-flex h-10 items-center rounded-full bg-white px-4 text-[14px] font-medium text-black transition-colors duration-150 hover:bg-white/90 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </div>
 
       <dl className="rounded-[20px] bg-surface-2 px-4 squircle sm:px-5">

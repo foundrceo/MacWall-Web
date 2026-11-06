@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import { SendToMacButton } from "@/components/macwall-marketing/send-to-mac-dialog"
-import { trackSiteEventClient } from "@/lib/analytics/client"
+import { trackSiteEventAfterPaint } from "@/lib/analytics/client"
 import { macwallInstallerLatestPath } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
@@ -140,7 +140,9 @@ export function GalleryDownloadCta({
             : "pointer-events-none translate-y-4 opacity-0"
         )}
       >
-        <div className="flex w-full max-w-xl items-center gap-3 rounded-full bg-[#1a1a1a]/95 py-2 pr-2 pl-5 shadow-[0_12px_40px_rgba(0,0,0,0.5)] ring-1 ring-white/10 backdrop-blur">
+        {/* No backdrop blur on touch screens: at 95% opacity it barely shows,
+            and re-blurring under a fixed bar costs every scrolled frame. */}
+        <div className="flex w-full max-w-xl items-center gap-3 rounded-full bg-[#1a1a1a]/95 py-2 pr-2 pl-5 shadow-[0_12px_40px_rgba(0,0,0,0.5)] ring-1 ring-white/10 pointer-fine:backdrop-blur">
           <p className="min-w-0 flex-1 truncate text-[13px] text-white/70">
             <span className="text-white sm:hidden">Love these?</span>
             <span className="text-white max-sm:hidden">
@@ -155,16 +157,16 @@ export function GalleryDownloadCta({
           <button
             type="button"
             onClick={() => {
-              trackSiteEventClient("cta_click", {
-                location: `${location}_sticky`,
-                action: "dismiss",
-              })
               setDismissed(true)
               try {
                 window.sessionStorage.setItem(DISMISS_KEY, "1")
               } catch {
                 // Storage blocked: dismissed for this page only.
               }
+              trackSiteEventAfterPaint("cta_click", {
+                location: `${location}_sticky`,
+                action: "dismiss",
+              })
             }}
             className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-white/50 transition hover:bg-white/10 hover:text-white"
             aria-label="Hide"

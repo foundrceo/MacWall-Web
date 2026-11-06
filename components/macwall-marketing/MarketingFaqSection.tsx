@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { motion, useReducedMotion, type Transition } from "motion/react"
 import { Accordion as AccordionPrimitive } from "radix-ui"
 
@@ -19,6 +19,13 @@ type MarketingFaqSectionProps = Readonly<{
   defaultOpenQuestion?: string | null
   /** Questions to show; the pricing FAQ when omitted. */
   items?: readonly MarketingFaqItem[]
+  /**
+   * The H2. Pages that rank for a topic name it here (the home page uses
+   * "Live wallpaper for Mac: FAQ"); others keep "Good questions.".
+   */
+  heading?: string
+  /** Extra lines under the contact line, e.g. related links. */
+  aside?: ReactNode
 }>
 
 /** transitions.dev motion tokens: 250 ms, smooth-out, 2 px blur (as on PostMesh). */
@@ -46,7 +53,7 @@ function FaqAnswer({ item }: Readonly<{ item: MarketingFaqItem }>) {
 }
 
 /**
- * "Good questions." in PostMesh's layout: the heading and a contact line on
+ * The FAQ in PostMesh's layout: the heading and a contact line on
  * the left (sticky on desktop), the questions on the right with hairlines
  * between them and a + that turns into −. One answer opens at a time; a
  * `#question-anchor` in the URL opens that one. Answers always stay in the
@@ -57,6 +64,8 @@ export default function MarketingFaqSection({
   className,
   defaultOpenQuestion = null,
   items = pricingCopy.faq,
+  heading = "Good questions.",
+  aside,
 }: MarketingFaqSectionProps) {
   const [open, setOpen] = useState<string>(defaultOpenQuestion ?? "")
   const reduce = useReducedMotion()
@@ -89,7 +98,7 @@ export default function MarketingFaqSection({
               id="faq-title"
               className="font-display text-[36px] leading-[44px] font-normal tracking-tight text-ink sm:text-[48px] sm:leading-[58px]"
             >
-              Good questions.
+              {heading}
             </h2>
             <p className="mt-4 text-[15px] leading-[22px] text-ink-2">
               Something else? Write to{" "}
@@ -101,6 +110,11 @@ export default function MarketingFaqSection({
               </a>
               .
             </p>
+            {aside ? (
+              <div className="mt-6 text-[15px] leading-[22px] text-ink-2">
+                {aside}
+              </div>
+            ) : null}
           </div>
           <div className="min-w-0">
             <AccordionPrimitive.Root

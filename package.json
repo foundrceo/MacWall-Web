@@ -27,6 +27,7 @@
     "preview:cf": "npm run build:cf && wrangler dev --config dist/server/wrangler.json",
     "deploy:cf": "node scripts/generate-changelog.mjs && node scripts/generate-blog-thumbs.mjs && vinext-cloudflare deploy --config dist/server/wrangler.json",
     "seo:check": "node scripts/seo-check.mjs",
+    "seo:check:preview": "node scripts/seo-check.mjs \"${PREVIEW_URL:?Set PREVIEW_URL to the preview origin}\"",
     "og:generate": "node scripts/generate-og-images.mjs",
     "palettes:generate": "node scripts/generate-wallpaper-palettes.mjs",
     "indexnow:submit": "node scripts/indexnow-submit.mjs"

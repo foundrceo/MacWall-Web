@@ -8,12 +8,11 @@ export const runtime = "nodejs"
 
 /**
  * Every response is public catalog data keyed by its URL, so the CDN can
- * answer repeats. Free-form search and deep pages skip the persistent Data
- * Cache (see `listPublicWallpapers`) and get a shorter CDN window instead.
+ * answer repeats. Free-form search and pages past the end skip the persistent
+ * Data Cache (see `listPublicWallpapers`) and get a shorter CDN window instead.
  */
 const LIST_CACHE_CONTROL = `public, s-maxage=${MARKETING_CATALOG_API_CDN_SECONDS}, stale-while-revalidate=86400`
-const SEARCH_CACHE_CONTROL =
-  "public, s-maxage=300, stale-while-revalidate=3600"
+const SEARCH_CACHE_CONTROL = "public, s-maxage=300, stale-while-revalidate=3600"
 
 function parseSort(value: string | null): PublicCatalogSort {
   switch (value) {
@@ -41,8 +40,10 @@ export async function GET(request: NextRequest) {
       limit: Number.isFinite(limit) ? limit : 24,
     })
 
-    const isSearch =
-      searchParams.has("q") || searchParams.has("tag") || page > 20
+    // A page past the end is a 200 with an empty list; it can start filling
+    // as soon as a wallpaper is published, so it gets the short window too.
+    const pastEnd = result.page > Math.ceil(result.total / result.limit)
+    const isSearch = searchParams.has("q") || searchParams.has("tag") || pastEnd
 
     return NextResponse.json(result, {
       headers: {

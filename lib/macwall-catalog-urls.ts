@@ -65,7 +65,9 @@ export function catalogPublicVideoUrlFromKey(videoKey: string): string {
 
 /**
  * Web preview: width-capped, silent Media Transformation of the master.
- * Never falls back to the master: callers show the poster if this fails.
+ * Grid cards never fall back to the master: they show the poster. The detail
+ * player loads the master only after the preview fails and the visitor taps
+ * Play.
  */
 export function catalogPreviewVideoUrlFromKey(
   videoKey: string,

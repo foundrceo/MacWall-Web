@@ -9,7 +9,8 @@ import {
   ProModal,
   preloadProModal,
 } from "@/components/macwall-marketing/pro-modal-lazy"
-import { trackSiteEventClient } from "@/lib/analytics/client"
+import { SendToMacButton } from "@/components/macwall-marketing/send-to-mac-dialog"
+import { trackSiteEventAfterPaint } from "@/lib/analytics/client"
 import { macwallInstallerLatestPath } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
@@ -54,20 +55,30 @@ export function HeroActions({
           )}
         >
           <div className="flex flex-row items-center gap-3">
-            <TrackedDownloadButton
-              href={macwallInstallerLatestPath}
-              size="pill"
-              location={location}
-              className={heroFilledCapsule}
-            >
-              <AppleIcon className="size-4" />
-              Download for Mac
-            </TrackedDownloadButton>
+            {/* Macs get the .dmg; Windows and Linux desktops get a link to their Mac. */}
+            <span className="mw-when-mac">
+              <TrackedDownloadButton
+                href={macwallInstallerLatestPath}
+                size="pill"
+                location={location}
+                className={heroFilledCapsule}
+              >
+                <AppleIcon className="size-4" />
+                Download for Mac
+              </TrackedDownloadButton>
+            </span>
+            <span className="mw-when-not-mac">
+              <SendToMacButton
+                location={location}
+                className={heroFilledCapsule}
+              />
+            </span>
             <button
               type="button"
               onClick={() => {
-                trackSiteEventClient("pricing_click", { location })
+                // Open first; the event is sent after the next paint (INP).
                 setProOpen(true)
+                trackSiteEventAfterPaint("pricing_click", { location })
               }}
               className={heroSecondaryCapsule}
               aria-haspopup="dialog"

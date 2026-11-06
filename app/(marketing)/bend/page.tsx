@@ -9,6 +9,7 @@ import { Bend } from "../_components/bend"
 
 const bend = macwallMarketingCopy.landing.bend
 const PAGE_TITLE = "Bend"
+const PAGE_HEADLINE = "Bend: a lid-angle desktop effect for MacBook"
 const PAGE_DESCRIPTION = bend.lead
 
 export const metadata: Metadata = createSimplePageMetadata({
@@ -22,14 +23,19 @@ export default function BendPage() {
     origin: canonicalSiteOrigin(),
     pathname: "/bend",
     pageTitle: PAGE_TITLE,
-    headline: bend.title,
+    headline: PAGE_HEADLINE,
     description: PAGE_DESCRIPTION,
+    aboutId: "#softwareapplication",
   })
 
   return (
     <>
       <JsonLd payload={jsonLd} />
-      <Bend headingLevel="h1" />
+      <Bend
+        headingLevel="h1"
+        headline={PAGE_HEADLINE}
+        pointsHeading="How Bend works"
+      />
     </>
   )
 }

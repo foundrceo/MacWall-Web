@@ -3,18 +3,27 @@
  * Submits URLs to IndexNow (Bing, Yandex, Seznam, Naver and others share
  * submissions). The key is public by design and lives at /{key}.txt.
  *
+ * The site does this on its own once INDEXNOW_KEY is set on the Worker: a
+ * daily cron submits sitemap URLs changed since its last run, sale starts and
+ * ends submit the pricing pages, and /api/revalidate/catalog submits the
+ * gallery (lib/seo/indexnow.ts). Use this script for one-off pushes, e.g.
+ * right after a deploy that changed many pages.
+ *
  * Usage:
  *   node scripts/indexnow-submit.mjs                 # every URL in the live sitemap
  *   node scripts/indexnow-submit.mjs --since=2026-10-27
  *   node scripts/indexnow-submit.mjs https://macwall.app/compare https://macwall.app/tools
  *   node scripts/indexnow-submit.mjs --dry-run
  *
+ * INDEXNOW_KEY overrides the key below (same variable the Worker reads).
+ *
  * Run it only after a deploy is live: IndexNow fetches the key file from the
  * site to verify ownership.
  */
 
 const HOST = "macwall.app"
-const KEY = "df962b19cbd7269f00b9c1cb2d58e25c"
+const KEY =
+  process.env.INDEXNOW_KEY?.trim() || "df962b19cbd7269f00b9c1cb2d58e25c"
 const ENDPOINT = "https://api.indexnow.org/indexnow"
 const BATCH = 10000
 
@@ -23,12 +32,26 @@ const dryRun = args.includes("--dry-run")
 const since = args.find((a) => a.startsWith("--since="))?.split("=")[1]
 const explicit = args.filter((a) => /^https?:\/\//.test(a))
 
-async function sitemapUrls() {
-  const xml = await (await fetch(`https://${HOST}/sitemap.xml`)).text()
-  const entries = [...xml.matchAll(/<url>([\s\S]*?)<\/url>/g)].map((m) => ({
-    loc: m[1].match(/<loc>([^<]+)<\/loc>/)?.[1],
-    lastmod: m[1].match(/<lastmod>([^<]+)<\/lastmod>/)?.[1],
+const tagValue = (xml, tag) =>
+  xml.match(new RegExp(`<${tag}>([^<]+)</${tag}>`))?.[1]
+
+/** Every `<url>` in a sitemap, following a sitemap index one level down. */
+async function sitemapEntries(sitemapUrl) {
+  const xml = await (await fetch(sitemapUrl)).text()
+  const children = [...xml.matchAll(/<sitemap>([\s\S]*?)<\/sitemap>/g)]
+    .map((m) => tagValue(m[1], "loc"))
+    .filter(Boolean)
+  if (children.length > 0) {
+    return (await Promise.all(children.map(sitemapEntries))).flat()
+  }
+  return [...xml.matchAll(/<url>([\s\S]*?)<\/url>/g)].map((m) => ({
+    loc: tagValue(m[1], "loc"),
+    lastmod: tagValue(m[1], "lastmod"),
   }))
+}
+
+async function sitemapUrls() {
+  const entries = await sitemapEntries(`https://${HOST}/sitemap.xml`)
   return entries
     .filter((entry) => entry.loc)
     .filter((entry) => !since || !entry.lastmod || entry.lastmod >= since)

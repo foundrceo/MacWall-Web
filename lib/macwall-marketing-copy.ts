@@ -1,9 +1,14 @@
 import {
   macwall,
+  macwallBatteryPolicy,
   macwallLockScreenMacOSVersion,
   macwallMinimumMacOSVersion,
   macwallCatalog,
+  macwallPlaybackModes,
 } from "@/lib/macwall-site"
+
+const systemPlayback = macwallPlaybackModes.systemWallpaper
+const appPlayback = macwallPlaybackModes.app
 
 /** User-visible strings for marketing pages (`macwall-marketing/*`). */
 export const macwallMarketingCopy = {
@@ -40,14 +45,19 @@ export const macwallMarketingCopy = {
     chipTag: "New",
     chip: "Music Sync is here",
     chipHref: "#music-sync",
-    title: "Cinematic 4K live wallpapers,",
-    titleMuted: "built for Mac.",
+    /** The H1 names the product ("app") and keeps 4K; the caption under the CTAs is fixed. */
+    title: "The live wallpaper app for Mac,",
+    titleMuted: "in cinematic 4K.",
+    /** The hero poster (the LCP image), also the home page's primaryImageOfPage. */
+    heroPosterAlt: `${macwall.name} app playing a 4K live wallpaper on a MacBook desktop`,
     heroLead: `${macwallCatalog.liveCountLabel} wallpapers that move, on your desktop, Lock Screen and screen saver. A native app that decodes video in hardware and pauses behind full-screen apps.`,
   },
   pricing: {
     buyCta: "Get Pro",
     secondaryCta: "Get money back with a Reel",
-    priceLine: `${macwall.pro.price} once, no subscription. Post a Reel and you can get all of it back.`,
+    /** No price here: prices come from lib/pricing/sale-aware-price.ts where they render. */
+    priceLine:
+      "Pay once, no subscription. Post a Reel and you can get all of it back.",
   },
   underFooter: {
     title: "Your desktop is a minute away from moving.",
@@ -72,12 +82,12 @@ export const macwallMarketingCopy = {
           body: "Follows the hinge angle on Apple silicon MacBooks.",
         },
         {
-          title: "One still",
-          body: "Grabs a desktop snapshot as you close. No recording stream.",
+          title: "Drawn live",
+          body: "Drawn live over the desktop. Nothing is captured or recorded.",
         },
         {
           title: "On device",
-          body: "Frames stay in memory on your Mac. Nothing uploaded.",
+          body: "Runs entirely on your Mac. Nothing uploaded.",
         },
         {
           title: "Your choice",
@@ -99,8 +109,8 @@ export const macwallMarketingCopy = {
       "Swift and Metal. Intel through M5. These toggles live in the app.",
     featureNativeChips: [
       "Launch at login",
-      "Pause on fullscreen",
-      "Pause in Low Power Mode",
+      macwallBatteryPolicy.pauseBehindFullScreen.label,
+      macwallBatteryPolicy.pauseOnBattery.label,
     ] as const,
     /** Three steps, to match the title. */
     steps: [
@@ -132,7 +142,7 @@ export const macwallMarketingCopy = {
   /** Home page feature sections (every claim matches the app). */
   home: {
     everything: {
-      title: "Everything in the app",
+      title: "Everything in the live wallpaper app for Mac",
       lead: "The small things that make it feel like part of macOS.",
       items: [
         {
@@ -214,27 +224,36 @@ export const macwallMarketingCopy = {
         eyebrow: "Lock Screen",
         title: "Lock Screen ready",
         body: `Lock Screen and screen saver play the same video from the same moment. ${macwallLockScreenMacOSVersion}.`,
+        link: {
+          href: "/docs/live-lock-screen-and-screen-saver",
+          label: "Set up the live Lock Screen",
+        },
       },
       bend: {
         eyebrow: "Bend",
         title: "Close the lid. Watch it fold.",
         body: "Bend follows your MacBook's lid angle and folds the desktop with it. Apple silicon MacBooks.",
+        link: { href: "/bend", label: "See how Bend works" },
       },
     },
     playback: {
       title: "Two ways to play",
-      lead: "Pick one in Settings → Wallpaper → Playback. Switch any time.",
+      lead: `Pick one in ${macwallPlaybackModes.settingsPath}. Switch any time.`,
+      /**
+       * Marketing name first, then the name Settings shows, so people (and
+       * answer engines) can find the mode in the app.
+       */
       modes: {
         system: {
-          name: "MacWall Native",
+          name: systemPlayback.marketing,
           tag: "Recommended",
-          body: "MacWall plays it through macOS, like Apple's own.",
-          runsOn: "macOS 26",
+          body: `MacWall plays it through macOS, like Apple's own. In Settings it's ${systemPlayback.setting}.`,
+          runsOn: `${systemPlayback.minimumMacOS} and later`,
         },
         app: {
-          name: "MacWall Player",
+          name: appPlayback.marketing,
           tag: "More control",
-          body: "MacWall plays your desktop, with more settings.",
+          body: `MacWall plays your desktop, with more settings. In Settings it's ${appPlayback.setting}.`,
           runsOn: `${macwallMinimumMacOSVersion} and later`,
         },
       },

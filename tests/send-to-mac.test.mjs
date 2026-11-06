@@ -21,6 +21,7 @@ function handler({ipAllowed=true,emailAllowed=true,unavailable=false,sent=true,r
     consumePublicSubjectQuota:async(subject,operation,limit,window)=>{calls.push({subject,operation,limit,window});return emailAllowed},
     fetch:async(_url,options)=>{calls.push({send:true,deadline:Boolean(options.signal)});return Response.json({sent,reason})},
     after:()=>undefined,trackSiteEvent:()=>undefined,
+    cookies:async()=>({get:()=>undefined}),TIKTOK_CLICK_ID_COOKIE:'ttclid',sendTikTokServerEvent:async()=>undefined,
   })
   return {POST,calls}
 }

@@ -31,6 +31,11 @@ function DialogClose({
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
 }
 
+/**
+ * Phones and tablets get a solid dim instead of the blur: a full-screen
+ * backdrop blur is slow to paint on mobile GPUs, and it lands in the frame
+ * right after the tap that opened the dialog (INP).
+ */
 function DialogOverlay({
   className,
   ...props
@@ -39,7 +44,7 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-black/30 duration-100 supports-backdrop-filter:backdrop-blur-sm data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        "fixed inset-0 isolate z-50 bg-black/30 duration-100 pointer-coarse:bg-black/60 pointer-fine:supports-backdrop-filter:backdrop-blur-sm data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className
       )}
       {...props}

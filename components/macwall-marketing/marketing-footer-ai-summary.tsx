@@ -21,7 +21,8 @@ export function ChatGptIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
-export function GeminiIcon({ className }: Readonly<{ className?: string }>) {
+/** Google "G" mark, for the Google AI Mode link. */
+export function GoogleIcon({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
       className={className}
@@ -35,7 +36,28 @@ export function GeminiIcon({ className }: Readonly<{ className?: string }>) {
       width="14"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81" />
+      <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
+    </svg>
+  )
+}
+
+/** A plain spark for the Claude link (drawn here, not a brand asset). */
+export function ClaudeIcon({ className }: Readonly<{ className?: string }>) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      role="img"
+      viewBox="0 0 24 24"
+      aria-hidden
+      height="14"
+      width="14"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M12 2.5v19M2.5 12h19M5.3 5.3l13.4 13.4M18.7 5.3 5.3 18.7" />
     </svg>
   )
 }
@@ -68,7 +90,8 @@ const aiSummaryLinkClass =
 
 const providers = [
   { key: "chatgpt", name: "ChatGPT", Icon: ChatGptIcon },
-  { key: "gemini", name: "Gemini", Icon: GeminiIcon },
+  { key: "claude", name: "Claude", Icon: ClaudeIcon },
+  { key: "googleAiMode", name: "Google AI Mode", Icon: GoogleIcon },
   { key: "perplexity", name: "Perplexity", Icon: PerplexityIcon },
 ] as const
 

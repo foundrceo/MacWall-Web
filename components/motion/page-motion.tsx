@@ -2,21 +2,26 @@
 
 import { useEffect } from "react"
 
-import "lenis/dist/lenis.css"
+/** Lenis is for wheel and trackpad; touch screens keep native scrolling. */
+const SMOOTH_SCROLL_POINTER = "(pointer: fine)"
 
 /**
- * Smooth scrolling and scroll reveals for reading pages (legal, tools), the
- * same feel as PostMesh's landing motion: Lenis for wheel and trackpad
- * scrolling, driven by GSAP's ticker, and GSAP reveals as blocks come in.
+ * Scroll reveals for the homepage and reading pages (legal, tools), plus
+ * Lenis smooth scrolling for mouse and trackpad: the same feel as PostMesh's
+ * landing motion.
  *
  * Every block inside the elements matching `rootSelector` (a <section> counts
- * as its children, so headings and paragraphs stagger) fades up from 16px with
- * a 4px blur as it comes into view: ~600ms, smooth-out, no bounce.
+ * as its children, so headings and paragraphs stagger) fades up from 16px as
+ * it comes into view: ~600ms, smooth-out, no bounce. Opacity and transform
+ * only, so reveals stay on the compositor instead of repainting a filter.
  *
- * - GSAP and Lenis load after the page is up (dynamic import), so they never
- *   weigh on the first paint.
+ * - GSAP loads after the page is up (dynamic import), so it never weighs on
+ *   the first paint.
+ * - Lenis and its stylesheet load only for a fine pointer (smooth-scroll.ts),
+ *   so phones and tablets never download them.
  * - Only blocks still below the screen are hidden, so nothing on screen blinks.
- * - Off for reduced motion. Everything is reverted on unmount.
+ * - The scroll and resize listeners detach once every block has revealed.
+ * - Off entirely for reduced motion. Everything is reverted on unmount.
  */
 export function PageMotion({
   rootSelector = "[data-reveal-root]",
@@ -28,33 +33,31 @@ export function PageMotion({
 }>) {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const smoothScroll = window.matchMedia(SMOOTH_SCROLL_POINTER).matches
     let revert: (() => void) | undefined
     let cancelled = false
 
     void (async () => {
-      const [{ gsap }, { default: Lenis }] = await Promise.all([
+      const [{ gsap }, smooth] = await Promise.all([
         import("gsap"),
-        import("lenis"),
+        smoothScroll
+          ? import("@/components/motion/smooth-scroll").catch(() => null)
+          : null,
       ])
       if (cancelled) return
 
-      const lenis = new Lenis({ anchors: true })
-      const tick = (time: number) => lenis.raf(time * 1000)
-      gsap.ticker.add(tick)
-      gsap.ticker.lagSmoothing(0)
+      const stopSmoothScroll = smooth?.startSmoothScroll()
 
-      const revealed = new WeakSet<Element>()
-      let targets: HTMLElement[] = []
+      let hidden: HTMLElement[] = []
       const ctx = gsap.context(() => {
-        targets = (
+        hidden = (
           layout === "landing"
             ? landingTargets(rootSelector)
             : revealTargets(rootSelector)
         ).filter(
           (el) => el.getBoundingClientRect().top > window.innerHeight * 0.92
         )
-        if (targets.length > 0)
-          gsap.set(targets, { autoAlpha: 0, y: 16, filter: "blur(4px)" })
+        if (hidden.length > 0) gsap.set(hidden, { autoAlpha: 0, y: 16 })
       })
 
       // Reveal every hidden block whose top has reached 88% of the screen,
@@ -63,45 +66,49 @@ export function PageMotion({
       const sweep = () => {
         frame = 0
         const line = window.innerHeight * 0.88
-        const due = targets.filter(
-          (el) => !revealed.has(el) && el.getBoundingClientRect().top < line
-        )
-        if (due.length === 0) return
-        due.forEach((el) => revealed.add(el))
-        ctx.add(() =>
-          gsap.to(due, {
-            autoAlpha: 1,
-            y: 0,
-            filter: "blur(0px)",
-            duration: 0.6,
-            ease: "power3.out",
-            // After a long jump many blocks are due; keep the whole cascade short.
-            stagger: Math.min(0.08, 0.6 / due.length),
-            overwrite: true,
-            clearProps: "filter,transform",
-          })
-        )
+        const due: HTMLElement[] = []
+        hidden = hidden.filter((el) => {
+          if (el.getBoundingClientRect().top >= line) return true
+          due.push(el)
+          return false
+        })
+        if (due.length > 0)
+          ctx.add(() =>
+            gsap.to(due, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.6,
+              ease: "power3.out",
+              // After a long jump many blocks are due; keep the cascade short.
+              stagger: Math.min(0.08, 0.6 / due.length),
+              overwrite: true,
+              clearProps: "transform",
+            })
+          )
+        if (hidden.length === 0) unwatch()
       }
       const schedule = () => {
         if (!frame) frame = requestAnimationFrame(sweep)
       }
-      lenis.on("scroll", schedule)
-      window.addEventListener("scroll", schedule, { passive: true })
-      window.addEventListener("resize", schedule)
       // Late layout (a canvas sizing itself, fonts, images) moves blocks.
       const observer = new ResizeObserver(schedule)
-      observer.observe(document.body)
-      schedule()
-
-      revert = () => {
+      const unwatch = () => {
         observer.disconnect()
-        if (frame) cancelAnimationFrame(frame)
         window.removeEventListener("scroll", schedule)
         window.removeEventListener("resize", schedule)
+      }
+      if (hidden.length > 0) {
+        window.addEventListener("scroll", schedule, { passive: true })
+        window.addEventListener("resize", schedule)
+        observer.observe(document.body)
+        schedule()
+      }
+
+      revert = () => {
+        unwatch()
+        if (frame) cancelAnimationFrame(frame)
         ctx.revert()
-        gsap.ticker.remove(tick)
-        gsap.ticker.lagSmoothing(500, 33)
-        lenis.destroy()
+        stopSmoothScroll?.()
       }
     })()
 

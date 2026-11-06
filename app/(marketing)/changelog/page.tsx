@@ -44,7 +44,11 @@ export default async function ChangelogRoutePage() {
     pageTitle: seoPage.title,
     headline: seoPage.headline,
     description: seoPage.description,
-    dateModifiedIso: data.syncedAt,
+    breadcrumbName: "Changelog",
+    // The newest release on the page, not the render time: an hourly re-render
+    // with no new release is not a modification.
+    dateModifiedIso:
+      data.releases[0]?.date ?? macwall.currentVersionReleasedIso,
   })
 
   return (

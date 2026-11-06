@@ -1,15 +1,17 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useEffect, useRef, useState } from "react"
+import { usePathname } from "next/navigation"
+import { useEffect, useRef, useState, useSyncExternalStore } from "react"
 
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
+import { SendToMacButton } from "@/components/macwall-marketing/send-to-mac-dialog"
 import {
   ProModal,
   preloadProModal,
 } from "@/components/macwall-marketing/pro-modal-lazy"
-import { trackSiteEventClient } from "@/lib/analytics/client"
+import { trackSiteEventAfterPaint } from "@/lib/analytics/client"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
 import {
   macwallInstallerLatestPath,
@@ -30,22 +32,60 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
   )
 }
 
-/** three.js is heavy: load it only for the CTA, in the browser. */
+/**
+ * The ribbons' gate (aurora-ribbons.tsx), which itself loads three.js only
+ * for a mouse or trackpad with motion allowed.
+ */
 const AuroraRibbons = dynamic(() => import("@/components/ui/aurora-ribbons"), {
   ssr: false,
 })
 
+/** A laptop or desktop sized window with a mouse or trackpad. */
+const AURORA_MEDIA = "(pointer: fine) and (min-width: 1024px)"
+
 /**
- * Aurora ribbons behind the CTA. Mounts (and so downloads three.js) only when
- * the card is near the viewport, then fades in.
+ * Templates where the CTA sits under long content people scroll through on
+ * any device (1,000+ wallpaper pages, every post): no WebGL there.
+ */
+const AURORA_SKIPPED_PREFIXES = ["/wallpaper/", "/blog/"] as const
+
+function subscribeAuroraMedia(onChange: () => void) {
+  const query = window.matchMedia(AURORA_MEDIA)
+  query.addEventListener("change", onChange)
+  return () => query.removeEventListener("change", onChange)
+}
+
+/** Big screen, fine pointer and at least 8 cores: the GPU work is cheap there. */
+function auroraCapable(): boolean {
+  return (
+    window.matchMedia(AURORA_MEDIA).matches &&
+    (navigator.hardwareConcurrency ?? 0) >= 8
+  )
+}
+
+const auroraCapableOnServer = () => false
+
+/**
+ * Aurora ribbons behind the CTA. Mounts (and so downloads three.js) only on
+ * capable desktops, off the wallpaper and blog templates, once the card is
+ * near the viewport, then fades in. Everyone else sees the plain card.
  */
 function CtaRibbons() {
+  const pathname = usePathname()
+  const capable = useSyncExternalStore(
+    subscribeAuroraMedia,
+    auroraCapable,
+    auroraCapableOnServer
+  )
+  const allowedHere = !AURORA_SKIPPED_PREFIXES.some((prefix) =>
+    pathname.startsWith(prefix)
+  )
   const ref = useRef<HTMLDivElement>(null)
   const [near, setNear] = useState(false)
 
   useEffect(() => {
     const node = ref.current
-    if (!node) return
+    if (!node || !capable || !allowedHere) return
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return
@@ -56,7 +96,7 @@ function CtaRibbons() {
     )
     observer.observe(node)
     return () => observer.disconnect()
-  }, [])
+  }, [capable, allowedHere])
 
   return (
     <div
@@ -64,7 +104,7 @@ function CtaRibbons() {
       aria-hidden
       className="pointer-events-none absolute inset-0 -z-10 animate-in duration-1000 fade-in-0"
     >
-      {near ? (
+      {near && capable && allowedHere ? (
         // Tilted across the card, and long enough that the faded ends sit
         // outside it, so the band runs edge to edge. The dimming sits on this
         // inner layer: the page's scroll reveal sets the wrapper to opacity 1.
@@ -100,20 +140,32 @@ export default function MacWallMarketingBottomCta() {
           {copy.lead}
         </p>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <TrackedDownloadButton
-            href={macwallInstallerLatestPath}
-            size="pill"
-            location="bottom_cta"
-            className={heroFilledCapsule}
-          >
-            <AppleIcon />
-            Download for Mac
-          </TrackedDownloadButton>
+          {/* Macs get the .dmg; phones, Windows and Linux get "Send to my
+              Mac" (data-platform, set before paint). Only one shows. */}
+          <span className="mw-when-mac">
+            <TrackedDownloadButton
+              href={macwallInstallerLatestPath}
+              size="pill"
+              location="bottom_cta"
+              className={heroFilledCapsule}
+            >
+              <AppleIcon />
+              Download for Mac
+            </TrackedDownloadButton>
+          </span>
+          <span className="mw-when-not-mac">
+            <SendToMacButton
+              location="bottom_cta"
+              className={heroFilledCapsule}
+            />
+          </span>
           <button
             type="button"
             onClick={() => {
-              trackSiteEventClient("pricing_click", { location: "bottom_cta" })
               setProOpen(true)
+              trackSiteEventAfterPaint("pricing_click", {
+                location: "bottom_cta",
+              })
             }}
             className={heroOutlineCapsule}
             aria-haspopup="dialog"

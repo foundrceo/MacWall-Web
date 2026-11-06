@@ -1,6 +1,13 @@
 import type { SeoContentPage } from "@/lib/content/types"
 import { macwall } from "@/lib/macwall-site"
 
+/**
+ * The day the crawler and AI usage policy (this page and /ai.txt) last
+ * changed. Its own date, not the product review date: bump it only when the
+ * policy text or the robots rules it describes change.
+ */
+export const AI_POLICY_UPDATED_ISO = "2026-11-06"
+
 /** `/crawlers`: shared by the page and its Markdown twin. */
 export const crawlersPage: SeoContentPage = {
   slug: "crawlers",
@@ -16,7 +23,7 @@ export const crawlersPage: SeoContentPage = {
     "ai.txt",
     "content licensing",
   ],
-  updatedAt: macwall.productInfoLastReviewedIso,
+  updatedAt: AI_POLICY_UPDATED_ISO,
   sections: [
     {
       type: "p",
@@ -37,6 +44,7 @@ export const crawlersPage: SeoContentPage = {
       type: "ul",
       items: [
         "[/ai-info](/ai-info) and [/ai-info.md](/ai-info.md): canonical product identity, capabilities, requirements, pricing model, limitations, source precedence, and AI assistant guidance.",
+        "[/about](/about) and [/press](/press): who makes MacWall, contact details, a fact sheet and brand assets.",
         "[/llms.txt](/llms.txt): curated Markdown index of every content page, in the llms.txt format.",
         "[/llms-full.txt](/llms-full.txt): combined long-form product, documentation, learning, blog, and comparison text in one document; volatile listings and legal text stay linked.",
         "**Append `.md` to any content URL**, for example `/docs/install-macwall.md`. Same content, clean Markdown with YAML frontmatter, no layout markup.",
@@ -51,8 +59,10 @@ export const crawlersPage: SeoContentPage = {
     {
       type: "ul",
       items: [
-        "`/admin/`, `/api/admin/`, and `/auth/` are administrative surfaces, disallowed in robots.txt.",
-        "`/activate`, `/thank-you`, and `/open` are post-purchase and deep-link bridges that contain no useful content and may carry personal parameters.",
+        "`/admin/`, `/api/admin/` and `/auth/` are administrative surfaces, disallowed in robots.txt.",
+        "`/api/checkout/`, `/download/latest` and `/api/installers/` start a checkout or an installer download, so robots.txt disallows them.",
+        "`/md/` is the internal handler behind the `.md` twins; request `/{path}.md` instead.",
+        "`/activate`, `/thank-you` and the `/open` deep-link bridge are post-purchase and hand-off pages with no useful content. They carry `noindex` and may carry personal parameters.",
         "Bulk downloading of wallpaper video files, or hotlinking them into another site or app.",
         "Ignoring cache headers, or requesting at a rate that degrades the service for other clients.",
       ],

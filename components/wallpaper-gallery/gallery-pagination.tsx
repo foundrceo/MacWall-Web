@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils"
 
 /**
  * Plain links to every page of a gallery. "Show more" loads pages with script;
- * this is the crawlable path to wallpapers past the first page.
+ * this is the crawlable path to wallpapers past the first page. No viewport
+ * prefetch: a pager shows a dozen links nobody follows on most visits.
  */
 export function GalleryPagination({
   basePath,
@@ -33,6 +34,7 @@ export function GalleryPagination({
           <li>
             <Link
               href={galleryPageHref(basePath, current - 1)}
+              prefetch={false}
               rel="prev"
               className={GALLERY_CHIP_CLASS}
             >
@@ -53,6 +55,7 @@ export function GalleryPagination({
             <li key={n}>
               <Link
                 href={galleryPageHref(basePath, n)}
+                prefetch={false}
                 aria-current={n === current ? "page" : undefined}
                 className={cn(
                   GALLERY_CHIP_CLASS,
@@ -68,6 +71,7 @@ export function GalleryPagination({
           <li>
             <Link
               href={galleryPageHref(basePath, current + 1)}
+              prefetch={false}
               rel="next"
               className={GALLERY_CHIP_CLASS}
             >

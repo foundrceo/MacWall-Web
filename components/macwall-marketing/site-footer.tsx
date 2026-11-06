@@ -5,61 +5,24 @@ import { FooterWordmark } from "@/components/macwall-marketing/footer-wordmark"
 import { FOOTER_FRAME } from "@/components/macwall-marketing/marketing-section"
 import MarketingFooterAiSummary from "@/components/macwall-marketing/marketing-footer-ai-summary"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
+import {
+  footerDeveloperLinks,
+  getSiteFooterColumns,
+  type SiteFooterLink,
+} from "@/lib/marketing-footer-nav"
 import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
-type FooterLink = Readonly<{ href: string; label: string }>
-
-/**
- * Doormat columns, as on PostMesh: Product first and Legal last, help before
- * the developer pieces. No links to page sections.
- */
-const FOOTER_COLUMNS: ReadonlyArray<
-  Readonly<{ title: string; links: ReadonlyArray<FooterLink> }>
-> = [
-  {
-    title: "Product",
-    links: [
-      { href: "/wallpapers", label: "Wallpapers" },
-      { href: "/download", label: "Download" },
-      { href: "/pricing", label: "Pricing" },
-      { href: "/compare", label: "Compare" },
-      { href: "/tools", label: "Free tools" },
-      { href: "/blog", label: "Blog" },
-    ],
-  },
-  {
-    title: "Support",
-    links: [
-      { href: "/docs", label: "Help center" },
-      { href: "/contact", label: "Contact us" },
-      { href: macwall.discordInvite, label: "Discord" },
-    ],
-  },
-  {
-    title: "Developers",
-    links: [
-      { href: "/docs/public-api", label: "Public API" },
-      { href: "/ai-info", label: "AI product info" },
-      { href: "/llms.txt", label: "llms.txt" },
-      { href: "/llms-full.txt", label: "llms-full.txt" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { href: "/legal/privacy", label: "Privacy Policy" },
-      { href: "/legal/terms", label: "Terms of Service" },
-      { href: "/legal/refund", label: "Refund Policy" },
-      { href: "/legal", label: "All policies" },
-    ],
-  },
-]
+type FooterLink = SiteFooterLink
 
 const linkFocus =
   "rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-white/40"
 
-/** Files (llms.txt, sitemap.xml) aren't pages, so they get a plain <a>. */
+/**
+ * Files (llms.txt, sitemap.xml) aren't pages, so they get a plain <a>. Pages
+ * get a Link without viewport prefetch: the footer is on every page, and
+ * prefetching its ~50 links would fetch every hub's RSC payload on each view.
+ */
 function FooterAnchor({
   href,
   label,
@@ -85,20 +48,23 @@ function FooterAnchor({
     )
   }
   return (
-    <Link href={href} className={className}>
+    <Link href={href} prefetch={false} className={className}>
       {label}
     </Link>
   )
 }
 
 /**
- * The site footer, built the way PostMesh's is: the brand block and four link
- * columns, a bottom row with the copyright and the AI summary links, then the giant
- * halftone wordmark cropped by the page's bottom edge. Uses PostMesh's own
- * footer frame (1440px, 80px gutters on desktop).
+ * The site footer, built the way PostMesh's is: the brand block and the link
+ * columns (lib/marketing-footer-nav.ts), a bottom row with the copyright, the
+ * developer files and the AI summary links, then the giant halftone wordmark
+ * cropped by the page's bottom edge. Uses PostMesh's own footer frame
+ * (1440px, 80px gutters on desktop). A server component: none of it needs
+ * the browser.
  */
 export function SiteFooter({ className }: Readonly<{ className?: string }>) {
   const year = new Date().getFullYear()
+  const columns = getSiteFooterColumns()
 
   return (
     <footer id="company" className={cn("bg-black", className)}>
@@ -106,9 +72,10 @@ export function SiteFooter({ className }: Readonly<{ className?: string }>) {
         className={cn(FOOTER_FRAME, "pt-20 pb-20 sm:pb-24 lg:pt-24 lg:pb-32")}
       >
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-3">
             <Link
               href="/"
+              prefetch={false}
               aria-label={`${macwall.name} home`}
               className="inline-flex shrink-0 items-center gap-2.5 rounded-full text-[17px] leading-none font-medium tracking-[-0.01em] text-ink transition-colors outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/40"
             >
@@ -120,8 +87,8 @@ export function SiteFooter({ className }: Readonly<{ className?: string }>) {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 lg:col-span-8">
-            {FOOTER_COLUMNS.map((column) => (
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:col-span-9 lg:grid-cols-6">
+            {columns.map((column) => (
               <nav
                 key={column.title}
                 aria-label={column.title}
@@ -159,21 +126,38 @@ export function SiteFooter({ className }: Readonly<{ className?: string }>) {
                   for EEA/UK/CH visitors who haven't chosen yet. */}
               <Link
                 href="/legal/cookies#consent"
+                prefetch={false}
                 className={cn("transition-colors hover:text-white", linkFocus)}
               >
                 Cookie settings
               </Link>
               <Link
                 href="/legal/ccpa#sale"
+                prefetch={false}
                 className={cn("transition-colors hover:text-white", linkFocus)}
               >
                 Your Privacy Choices
               </Link>
             </p>
+            <nav aria-label="Developers">
+              <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <span>Developers:</span>
+                {footerDeveloperLinks.map((item) => (
+                  <FooterAnchor
+                    key={item.href}
+                    {...item}
+                    className={cn(
+                      "transition-colors hover:text-white",
+                      linkFocus
+                    )}
+                  />
+                ))}
+              </p>
+            </nav>
             <p className="text-[12px] leading-5">
-              Mac and macOS are trademarks of Apple Inc., registered in the
-              U.S. and other countries and regions. {macwall.name} is not
-              affiliated with Apple.
+              Mac and macOS are trademarks of Apple Inc., registered in the U.S.
+              and other countries and regions. {macwall.name} is not affiliated
+              with Apple.
             </p>
           </div>
           <MarketingFooterAiSummary labelClassName="text-[13px] leading-5 text-ink-3" />

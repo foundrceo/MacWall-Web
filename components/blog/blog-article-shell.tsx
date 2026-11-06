@@ -1,5 +1,6 @@
 import { BlogContentBody } from "@/components/blog/blog-content-body"
 import { BlogTilePicture } from "@/components/blog/blog-tile-picture"
+import { ContentCta } from "@/components/content/content-cta"
 import { ProseBreadcrumbs } from "@/components/content/prose-breadcrumbs"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import type { ContentBlock, ContentFaq } from "@/lib/content/types"
@@ -26,15 +27,18 @@ import {
 } from "@/lib/blog-prose-classes"
 import type { ReactNode } from "react"
 
+/** "November 6, 2026". Dates are calendar days (YYYY-MM-DD), read as UTC. */
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
+  return new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "UTC",
   })
 }
 
 export function BlogArticleShell({
+  slug,
   headline,
   description,
   sections,
@@ -43,9 +47,12 @@ export function BlogArticleShell({
   categoryLabel,
   readMinutes,
   publishedAt,
+  updatedAt,
   coverSrc,
   children,
 }: Readonly<{
+  /** Sent with CTA clicks so downloads can be traced to the post. */
+  slug: string
   headline: string
   description: string
   sections?: ContentBlock[]
@@ -53,11 +60,14 @@ export function BlogArticleShell({
   breadcrumbs?: { label: string; href: string }[]
   categoryLabel: string
   readMinutes: number
-  publishedAt?: string
+  publishedAt: string
+  /** Shown as "Updated {date}" when later than `publishedAt`. */
+  updatedAt?: string
   coverSrc?: string
   children?: ReactNode
 }>) {
   const titleId = "blog-article-title"
+  const showUpdated = Boolean(updatedAt && updatedAt > publishedAt)
 
   return (
     <MarketingSection className="marketing-main" aria-labelledby={titleId}>
@@ -74,12 +84,22 @@ export function BlogArticleShell({
           <p className={blogHeroLead}>{description}</p>
           <p className={blogHeroMeta}>
             <span>{readMinutes} min read</span>
-            {publishedAt ? (
+            <span aria-hidden className={blogHeroMetaSep}>
+              ·
+            </span>
+            <span>
+              Published{" "}
+              <time dateTime={publishedAt}>{formatDate(publishedAt)}</time>
+            </span>
+            {showUpdated && updatedAt ? (
               <>
                 <span aria-hidden className={blogHeroMetaSep}>
                   ·
                 </span>
-                <time dateTime={publishedAt}>{formatDate(publishedAt)}</time>
+                <span>
+                  Updated{" "}
+                  <time dateTime={updatedAt}>{formatDate(updatedAt)}</time>
+                </span>
               </>
             ) : null}
           </p>
@@ -91,6 +111,7 @@ export function BlogArticleShell({
               src={coverSrc}
               alt={headline}
               variant="curated"
+              sizes="(min-width: 660px) 620px, 100vw"
               priority
             />
           </div>
@@ -99,7 +120,12 @@ export function BlogArticleShell({
         <div className={blogDivider} role="presentation" />
 
         <article className={blogArticle}>
-          {sections ? <BlogContentBody sections={sections} /> : null}
+          {sections ? (
+            <BlogContentBody
+              sections={sections}
+              afterFirstSection={<ContentCta slug={slug} pageType="blog" />}
+            />
+          ) : null}
           {faq && faq.length > 0 ? (
             <section className={proseFaq} aria-labelledby="blog-article-faq">
               <h2 id="blog-article-faq" className={proseFaqTitle}>

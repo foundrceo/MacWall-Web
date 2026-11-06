@@ -1,33 +1,30 @@
-import { WallpaperGalleryPageShell } from "@/components/wallpaper-gallery/wallpaper-gallery-page"
-import { ContentBody } from "@/components/content/content-body"
+import {
+  GalleryHubProse,
+  WallpaperGalleryPageShell,
+} from "@/components/wallpaper-gallery/wallpaper-gallery-page"
 import { CollectionLinkStrip } from "@/components/wallpaper-gallery/collection-link-strip"
+import { DisplayLinkStrip } from "@/components/wallpaper-gallery/display-link-strip"
 import { GalleryPagination } from "@/components/wallpaper-gallery/gallery-pagination"
-import { galleryPageCount } from "@/lib/seo/gallery-pages"
-import { wallpaperCollections } from "@/lib/seo/wallpaper-collections"
+import { galleryPageCount, GALLERY_PAGE_SIZE } from "@/lib/seo/gallery-pages"
 import { JsonLd } from "@/components/seo/json-ld"
 import { wallpaperCategoryGalleryJsonLd } from "@/lib/seo/wallpaper-json-ld"
 import { wallpaperCategoryGalleryMetadata } from "@/lib/seo/wallpaper-metadata"
 import { listPublicWallpapers } from "@/lib/public-catalog/fetch"
 import {
-  categoryNameFromSlug,
-  LEGACY_CATEGORY_SLUG_REDIRECTS,
+  canonicalCategoryNameFromSlug,
   wallpaperCategorySlugs,
 } from "@/lib/seo/category-slugs"
+import {
+  categoryCollections,
+  categoryHubIntro,
+  categoryHubSections,
+  categorySeoFor,
+} from "@/lib/seo/category-seo"
 import { wallpaperCategoryPage } from "@/lib/seo/landing-pages"
 import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
-import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
-import {
-  proseBody,
-  proseFaq,
-  proseFaqAnswer,
-  proseFaqItem,
-  proseFaqList,
-  proseFaqQuestion,
-  proseFaqTitle,
-} from "@/lib/marketing-prose-classes"
 import type { Metadata } from "next"
-import { notFound, permanentRedirect } from "next/navigation"
+import { notFound } from "next/navigation"
 
 type PageProps = {
   params: Promise<{ category: string }>
@@ -41,9 +38,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { category } = await params
-  const legacySlug = LEGACY_CATEGORY_SLUG_REDIRECTS[category]
-  if (legacySlug) permanentRedirect(`/wallpapers/${legacySlug}`)
-  const name = categoryNameFromSlug(category)
+  const name = canonicalCategoryNameFromSlug(category)
   if (!name) return {}
 
   return wallpaperCategoryGalleryMetadata(name)
@@ -52,15 +47,16 @@ export async function generateMetadata({
 /**
  * Prerendered per category (ISR via the catalog fetch's 6h revalidate + tag).
  * `?q=&tag=&sort=` are applied client-side by the gallery, and next.config
- * marks those URLs `noindex` with an `X-Robots-Tag` header.
+ * marks those URLs `noindex` with an `X-Robots-Tag` header. Retired slugs
+ * (`/wallpapers/city`) 308 in next.config and never reach this page.
+ *
+ * All hub copy (title, H1, intro, body, FAQ) comes from lib/seo/category-seo.ts.
  */
 export default async function WallpaperCategoryGalleryPage({
   params,
 }: PageProps) {
   const { category } = await params
-  const legacySlug = LEGACY_CATEGORY_SLUG_REDIRECTS[category]
-  if (legacySlug) permanentRedirect(`/wallpapers/${legacySlug}`)
-  const name = categoryNameFromSlug(category)
+  const name = canonicalCategoryNameFromSlug(category)
   if (!name) notFound()
 
   const origin = canonicalSiteOrigin()
@@ -72,7 +68,7 @@ export default async function WallpaperCategoryGalleryPage({
       category: name,
       sort: "popular",
       page: 1,
-      limit: 24,
+      limit: GALLERY_PAGE_SIZE,
     })
   } catch {
     loadError = true
@@ -80,13 +76,17 @@ export default async function WallpaperCategoryGalleryPage({
       wallpapers: [],
       total: 0,
       page: 1,
-      limit: 24,
+      limit: GALLERY_PAGE_SIZE,
       hasMore: false,
     }
   }
 
   const showSeoContent = !loadError
-  const page = wallpaperCategoryPage(name, { total: initial.total })
+  // Same title, headline and description the metadata uses.
+  const page = wallpaperCategoryPage(name)
+  const seo = categorySeoFor(name)
+  const faq = seo?.faq ?? []
+  const displayLabel = seo?.displayLabel ?? name
 
   return (
     <>
@@ -95,22 +95,21 @@ export default async function WallpaperCategoryGalleryPage({
           payload={wallpaperCategoryGalleryJsonLd({
             origin,
             categoryName: name,
-            pageTitle: `${name} Live Wallpapers for Mac`,
+            pageTitle: page.title,
             headline: page.headline,
             description: page.description,
             wallpapers: initial.wallpapers,
-            totalCount: initial.total,
           })}
         />
       ) : null}
-      {showSeoContent && page.faq ? (
-        <JsonLd payload={faqPageJsonLd(page.faq)} />
+      {showSeoContent && faq.length > 0 ? (
+        <JsonLd payload={faqPageJsonLd(faq)} />
       ) : null}
       <WallpaperGalleryPageShell
         initial={initial}
         activeCategory={name}
-        title={`${name} live wallpapers for Mac`}
-        subtitle={`Cinematic ${name} loops for your Mac desktop, hand-picked in ${macwall.name}.`}
+        title={page.headline}
+        intro={categoryHubIntro(name, initial.total)}
         loadError={loadError}
         afterGallery={
           showSeoContent ? (
@@ -119,41 +118,18 @@ export default async function WallpaperCategoryGalleryPage({
                 basePath={`/wallpapers/${category}`}
                 current={1}
                 totalPages={galleryPageCount(initial.total)}
-                label={`${name} live wallpaper pages`}
+                label={`${displayLabel} live wallpaper pages`}
               />
               <CollectionLinkStrip
-                title={`${name} collections`}
-                collections={wallpaperCollections.filter(
-                  (entry) => entry.category === name
-                )}
+                title={`${displayLabel} collections`}
+                collections={categoryCollections(name)}
               />
-              <div className="px-4 py-10 md:px-6 md:py-14">
-                <div className="marketing-prose-rail">
-                  <div className={proseBody}>
-                    <ContentBody sections={page.sections} />
-                  </div>
-                  {page.faq && page.faq.length > 0 ? (
-                    <section
-                      className={proseFaq}
-                      aria-labelledby="category-faq"
-                    >
-                      <h2 id="category-faq" className={proseFaqTitle}>
-                        Frequently asked questions
-                      </h2>
-                      <dl className={proseFaqList}>
-                        {page.faq.map((item) => (
-                          <div key={item.question} className={proseFaqItem}>
-                            <dt className={proseFaqQuestion}>
-                              {item.question}
-                            </dt>
-                            <dd className={proseFaqAnswer}>{item.answer}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    </section>
-                  ) : null}
-                </div>
-              </div>
+              <DisplayLinkStrip />
+              <GalleryHubProse
+                sections={categoryHubSections(name)}
+                faq={faq}
+                faqHeadingId="category-faq"
+              />
             </>
           ) : null
         }

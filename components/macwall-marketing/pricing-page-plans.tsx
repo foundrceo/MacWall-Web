@@ -27,7 +27,13 @@ import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSect
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import { PricingPlans } from "@/components/macwall-marketing/pricing-plans"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
-import { macwall, macwallCatalog } from "@/lib/macwall-site"
+import {
+  macwall,
+  macwallCatalog,
+  macwallImportFormatsOrLabel,
+  macwallPlaybackModes,
+  macwallTrial,
+} from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 const PLANS_ANCHOR_ID = "plans"
@@ -104,20 +110,26 @@ function SocialProof() {
 
 function PricingHero({
   checkoutError,
-}: Readonly<{ checkoutError: string | null }>) {
+  priceLine,
+}: Readonly<{ checkoutError: string | null; priceLine?: string }>) {
   return (
     <div className="mx-auto max-w-3xl text-center">
       <SocialProof />
 
       <h1 className="mt-6 text-4xl font-normal tracking-tight text-balance text-white sm:text-5xl lg:text-6xl">
-        Bring your Mac to life.
+        {p.heroH1}
       </h1>
       <p className="mx-auto mt-4 max-w-2xl text-base text-balance text-zinc-400 sm:text-lg">
         {macwallCatalog.liveCountLabel} cinematic live wallpapers for your
         desktop and Lock Screen, running native and near idle so your Mac stays
-        fast. Pay once, keep every future update, and try it all free for 24
-        hours first.
+        fast. Pay once, keep every future update, and try the catalog and Lock
+        Screen free for {macwallTrial.hours} hours first.
       </p>
+      {priceLine ? (
+        <p className="mx-auto mt-3 max-w-2xl text-[14px] leading-6 text-balance text-landing-muted">
+          {priceLine}
+        </p>
+      ) : null}
 
       {checkoutError ? (
         <p
@@ -142,7 +154,7 @@ const FEATURE_TILES: readonly Tile[] = [
   {
     icon: SquareLock02Icon,
     title: "Live Lock Screen",
-    body: "Your wallpaper on Lock Screen and Screen Saver.",
+    body: `Your wallpaper on Lock Screen and Screen Saver, ${macwallPlaybackModes.systemWallpaper.minimumMacOS}+.`,
   },
   {
     icon: LaptopIcon,
@@ -152,7 +164,7 @@ const FEATURE_TILES: readonly Tile[] = [
   {
     icon: BatteryCharging01Icon,
     title: "Near idle",
-    body: "Quit the app and the wallpaper keeps playing. 0% MacWall CPU.",
+    body: `With ${macwallPlaybackModes.systemWallpaper.setting} on ${macwallPlaybackModes.systemWallpaper.minimumMacOS}+, quit the app and the wallpaper keeps playing. 0% MacWall CPU.`,
   },
   {
     icon: MusicNote01Icon,
@@ -165,7 +177,7 @@ const TRUST_TILES: readonly Tile[] = [
   {
     icon: FileImportIcon,
     title: "Your own videos",
-    body: "Turn any clip into a live wallpaper.",
+    body: `Turn your ${macwallImportFormatsOrLabel} clips into live wallpapers.`,
   },
   {
     icon: SecurityLockIcon,
@@ -185,7 +197,7 @@ const TRUST_TILES: readonly Tile[] = [
   {
     icon: Download04Icon,
     title: "Try it first",
-    body: "Every feature free for 24 hours.",
+    body: `${macwallTrial.short}.`,
   },
 ]
 
@@ -322,15 +334,24 @@ function StickyMobileCta({ checkoutUrl }: Readonly<{ checkoutUrl: string }>) {
   )
 }
 
-/** Pricing page preview. Checkout URLs and card analytics match the live page. */
+/**
+ * Pricing page preview. Checkout URLs and card analytics match the live page.
+ * `priceLine` is computed on the server (pricingHeroPriceLine) so the price
+ * text never depends on the visitor's clock or a hydration pass.
+ */
 export function PricingPagePlans({
   checkoutUrl,
   checkoutError,
-}: Readonly<{ checkoutUrl: string; checkoutError: string | null }>) {
+  priceLine,
+}: Readonly<{
+  checkoutUrl: string
+  checkoutError: string | null
+  priceLine?: string
+}>) {
   return (
     <>
       <MarketingSection className="px-4 py-16 sm:py-20 lg:px-6">
-        <PricingHero checkoutError={checkoutError} />
+        <PricingHero checkoutError={checkoutError} priceLine={priceLine} />
         <div id={PLANS_ANCHOR_ID} className="mt-12 scroll-mt-24">
           <PricingPlans checkoutUrl={checkoutUrl} />
         </div>

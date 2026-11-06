@@ -30,11 +30,18 @@ export type CreateSeoPageMetadataOptions = {
   alternateTypes?: Record<string, string>
 }
 
-/** Every page renders as "<Page> | MacWall", brand last, even when the page title names MacWall. */
+const BRAND_IN_TITLE = new RegExp(`\\b${macwall.name}\\b`)
+
+/**
+ * "<Page> | MacWall", brand last. A title that already names MacWall stays
+ * as written, so the brand never shows twice and the space goes to the query.
+ */
 export function brandedTitle(title: string): string {
-  const suffix = ` | ${macwall.name}`
-  return title.endsWith(suffix) ? title : `${title}${suffix}`
+  return BRAND_IN_TITLE.test(title) ? title : `${title} | ${macwall.name}`
 }
+
+/** Open Graph locale for every page: the site is written in US English. */
+export const OPEN_GRAPH_LOCALE = "en_US"
 
 export function createSeoPageMetadata(
   page: SeoContentPage,
@@ -76,12 +83,12 @@ export function createSeoPageMetadata(
       canonical: canonicalSitePath(page.pathname),
       ...(Object.keys(types).length > 0 ? { types } : {}),
     },
-    keywords: page.keywords,
     openGraph: {
       title: ogTitle,
       description: page.description,
       url: canonicalSitePath(page.pathname),
       siteName: macwall.name,
+      locale: OPEN_GRAPH_LOCALE,
       type: openGraphType,
       ...(openGraphType === "article"
         ? {
@@ -95,7 +102,7 @@ export function createSeoPageMetadata(
       card: "summary_large_image",
       title: ogTitle,
       description: page.description,
-      images: [image.url],
+      images: [{ url: image.url, alt: image.alt }],
     },
   }
 }
@@ -136,6 +143,7 @@ export function createSimplePageMetadata(input: {
       description: input.description,
       url: canonical,
       siteName: macwall.name,
+      locale: OPEN_GRAPH_LOCALE,
       type: "website",
       images: [image],
     },
@@ -143,7 +151,7 @@ export function createSimplePageMetadata(input: {
       card: "summary_large_image",
       title,
       description: input.description,
-      images: [image.url],
+      images: [{ url: image.url, alt: image.alt }],
     },
   }
 }

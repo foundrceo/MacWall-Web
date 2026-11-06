@@ -14,7 +14,9 @@ export function Hero() {
           <HeroBadge />
         </div>
 
-        <h1 className="hero-rise mt-6 text-[2.75rem] leading-[1.02] font-normal tracking-tighter text-balance text-ink [--rise-delay:80ms] sm:text-6xl md:text-7xl">
+        {/* The H1 and the stage hold the LCP: they rise without a fade or blur,
+            so they paint on the first frame. */}
+        <h1 className="hero-rise-solid mt-6 text-[2.75rem] leading-[1.02] font-normal tracking-tighter text-balance text-ink [--rise-delay:80ms] sm:text-6xl md:text-7xl">
           {ix.title}{" "}
           <span className="text-ink-3 md:block">{ix.titleMuted}</span>
         </h1>
@@ -28,7 +30,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="hero-rise mt-14 [--rise-delay:320ms] sm:mt-16">
+      <div className="hero-rise-solid mt-14 [--rise-delay:320ms] sm:mt-16">
         <HeroStage />
       </div>
     </MarketingSection>

@@ -269,11 +269,6 @@ function ResultRow({
             </span>
           ) : null}
         </span>
-        {item.kind === "wallpaper" && item.wallpaper.isPro ? (
-          <span className="shrink-0 rounded-full bg-white/[0.08] px-1.5 py-0.5 font-sans text-[9px] font-medium tracking-wide text-white/50 uppercase">
-            Pro
-          </span>
-        ) : null}
         <HugeiconsIcon
           icon={ArrowRight01Icon}
           size={13}

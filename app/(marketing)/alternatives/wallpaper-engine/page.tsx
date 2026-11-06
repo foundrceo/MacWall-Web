@@ -1,37 +1,45 @@
-import { SeoLandingPage } from "@/components/content/seo-landing-page"
-import { JsonLd } from "@/components/seo/json-ld"
-import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
+import { ComparisonLandingPage } from "@/components/content/comparison-landing-page"
+import { COMPARISON_SOURCES } from "@/lib/seo/comparison-facts"
 import { wallpaperEngineAlternativePage } from "@/lib/seo/landing-pages"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
-import { canonicalSiteOrigin } from "@/lib/site-url"
 
-export const metadata = createSeoPageMetadata(wallpaperEngineAlternativePage)
+const page = wallpaperEngineAlternativePage
+
+export const metadata = createSeoPageMetadata(page, {
+  openGraphType: "article",
+  publishedTime: page.publishedAt,
+  modifiedTime: page.updatedAt,
+})
 
 export default function WallpaperEngineAlternativePage() {
-  const origin = canonicalSiteOrigin()
-
   return (
-    <>
-      <JsonLd
-        payload={webPageWithBreadcrumbsJsonLd({
-          origin,
-          pathname: wallpaperEngineAlternativePage.pathname,
-          pageTitle: "Wallpaper Engine Alternative",
-          headline: wallpaperEngineAlternativePage.headline,
-          description: wallpaperEngineAlternativePage.description,
-          dateModifiedIso: wallpaperEngineAlternativePage.updatedAt,
-        })}
-      />
-      <SeoLandingPage
-        page={wallpaperEngineAlternativePage}
-        breadcrumbs={[
-          { label: "Home", href: "/" },
-          {
-            label: "Wallpaper Engine Alternative",
-            href: wallpaperEngineAlternativePage.pathname,
-          },
-        ]}
-      />
-    </>
+    <ComparisonLandingPage
+      page={page}
+      breadcrumbName="Wallpaper Engine for Mac"
+      compared={[
+        {
+          name: "Wallpaper Engine",
+          url: COMPARISON_SOURCES.wallpaperEngineSteam,
+          operatingSystem: "Windows 10, Windows 11",
+        },
+      ]}
+      mentions={[
+        {
+          name: "WallpaperMachine",
+          url: COMPARISON_SOURCES.wallpaperMachine,
+          operatingSystem: "macOS 15 or later (Apple silicon only)",
+        },
+        {
+          name: "iWallpaper",
+          url: COMPARISON_SOURCES.iwallpaper,
+          operatingSystem: "macOS 10.15 or later",
+        },
+        {
+          name: "Live Wallpaper Engine HD",
+          url: COMPARISON_SOURCES.liveWallpaperEngineHd,
+          operatingSystem: "macOS 10.13 or later",
+        },
+      ]}
+    />
   )
 }

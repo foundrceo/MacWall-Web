@@ -5,6 +5,7 @@ import { macwallCreatorCopy } from "@/lib/macwall-creator-copy"
 import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 import { createSimplePageMetadata } from "@/lib/seo/create-page-metadata"
+import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import type { Metadata } from "next"
 
 const PAGE_TITLE = "Get Your Money Back With a Video"
@@ -23,11 +24,20 @@ export default function CreatorPage() {
     pageTitle: PAGE_TITLE,
     headline: macwallCreatorCopy.heroTitle,
     description: PAGE_DESCRIPTION,
+    breadcrumbName: "Reel refund",
   })
 
   return (
     <>
       <JsonLd payload={jsonLd} />
+      <JsonLd
+        payload={faqPageJsonLd(
+          macwallCreatorCopy.faq.map((item) => ({
+            question: item.q,
+            answer: item.a,
+          }))
+        )}
+      />
       <MacWallMarketingCreatorPage />
     </>
   )

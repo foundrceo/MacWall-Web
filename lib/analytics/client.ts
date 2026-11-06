@@ -53,28 +53,76 @@ export function trackSiteEventClient(
   metadata?: SiteAnalyticsMetadata
 ) {
   if (typeof window === "undefined") return
+  sendSiteEvent(eventName, metadata, window.location.pathname)
+}
 
+type PendingSiteEvent = {
+  eventName: SiteAnalyticsEventName
+  metadata?: SiteAnalyticsMetadata
+  path: string
+}
+
+let pendingEvents: PendingSiteEvent[] = []
+let flushScheduled = false
+let flushOnHideBound = false
+
+function flushPendingEvents() {
+  flushScheduled = false
+  const batch = pendingEvents
+  pendingEvents = []
+  for (const event of batch) {
+    try {
+      sendSiteEvent(event.eventName, event.metadata, event.path)
+    } catch {
+      // Analytics must never break the product path.
+    }
+  }
+}
+
+function flushWhenHidden() {
+  if (document.visibilityState === "hidden") flushPendingEvents()
+}
+
+/**
+ * `trackSiteEventClient` for tap handlers that open or toggle UI (a dialog, a
+ * menu, a dismiss). The handler sets its state first and this runs the
+ * PostHog capture, JSON encoding and beacon after the next frame is painted,
+ * so analytics never sits between the tap and the screen updating (INP).
+ *
+ * The path is read now, so a route change in between can't misfile the
+ * event, and anything still queued is sent on pagehide or when the tab is
+ * hidden. Links that navigate away keep the synchronous version.
+ */
+export function trackSiteEventAfterPaint(
+  eventName: SiteAnalyticsEventName,
+  metadata?: SiteAnalyticsMetadata
+) {
+  if (typeof window === "undefined") return
+  pendingEvents.push({ eventName, metadata, path: window.location.pathname })
+
+  if (!flushOnHideBound) {
+    flushOnHideBound = true
+    window.addEventListener("pagehide", flushPendingEvents)
+    document.addEventListener("visibilitychange", flushWhenHidden)
+  }
+
+  if (flushScheduled) return
+  flushScheduled = true
+  // rAF runs just before the next paint; the timeout lands just after it.
+  requestAnimationFrame(() => window.setTimeout(flushPendingEvents, 0))
+}
+
+function sendSiteEvent(
+  eventName: SiteAnalyticsEventName,
+  metadata: SiteAnalyticsMetadata | undefined,
+  path: string
+) {
   // "Set on Mac" opens the app, every other download_click fetches the DMG.
   if (
     eventName === "download_click" &&
     metadata?.location !== "wallpaper_detail_set_on_mac"
   ) {
     markInstallerDownloaded()
-  }
-
-  // PostHog records page views itself; every other site event is mirrored
-  // there unsampled (download, pricing, checkout, purchase, CTA clicks).
-  if (eventName !== "page_view") {
-    const country = getVisitorCountry()
-    capturePostHogEvent(eventName, {
-      ...(metadata ?? {}),
-      ...(country ? { country } : {}),
-      ...(isVisitorFromIndia() ? { audience: "india" } : {}),
-    })
-  }
-
-  if (eventName === "page_view" && Math.random() > PAGE_VIEW_SAMPLE_RATE) {
-    return
   }
 
   const country = getVisitorCountry()
@@ -84,9 +132,19 @@ export function trackSiteEventClient(
     ...(isVisitorFromIndia() ? { audience: "india" } : {}),
   }
 
+  // PostHog records page views itself; every other site event is mirrored
+  // there unsampled (download, pricing, checkout, purchase, CTA clicks).
+  if (eventName !== "page_view") {
+    capturePostHogEvent(eventName, enriched)
+  }
+
+  if (eventName === "page_view" && Math.random() > PAGE_VIEW_SAMPLE_RATE) {
+    return
+  }
+
   const payload = {
     eventName,
-    path: window.location.pathname,
+    path,
     referrer: document.referrer || null,
     sessionId: getAnalyticsSessionId(),
     metadata: enriched,

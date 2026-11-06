@@ -67,8 +67,15 @@ export function PostHogAnalytics() {
           capture_exceptions: false,
           autocapture: false,
           capture_dead_clicks: false,
-          // Core Web Vitals go to PostHog too.
-          capture_performance: { web_vitals: true, network_timing: false },
+          // Core Web Vitals go to PostHog too, with attribution: the INP
+          // target, the LCP phase breakdown, and the CLS largestShiftTarget
+          // (off by default) to find which element shifts on detail and
+          // gallery pages.
+          capture_performance: {
+            web_vitals: true,
+            web_vitals_attribution: ["INP", "LCP", "CLS"],
+            network_timing: false,
+          },
           person_profiles: "identified_only",
           persistence: "localStorage+cookie",
           disable_session_recording: false,

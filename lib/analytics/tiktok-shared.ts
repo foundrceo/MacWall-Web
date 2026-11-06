@@ -1,3 +1,4 @@
+import { LICENSE_OFFERS } from "@/lib/license/offers.shared"
 import { macwall } from "@/lib/macwall-site"
 
 /**
@@ -41,8 +42,7 @@ export type TikTokContent = {
 }
 
 export function macwallProValue(): number {
-  const value = Number.parseFloat(macwall.pro.price.replace(/[^0-9.]/g, ""))
-  return Number.isFinite(value) ? value : 9.99
+  return LICENSE_OFFERS.permanent.usdCents / 100
 }
 
 export function macwallProProperties(overrides?: Partial<TikTokContent>) {

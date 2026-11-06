@@ -4,80 +4,99 @@ import {
   macwallLockScreenMacOSVersion,
   macwallMinimumMacOSVersion,
 } from "@/lib/macwall-site"
-import { aspectRatioLabel, parseResolution } from "@/lib/public-catalog/format"
-import { wallpaperCreditName } from "@/lib/public-catalog/attribution"
+import {
+  isCommunitySubmission,
+  wallpaperNamedAuthor,
+} from "@/lib/public-catalog/attribution"
+import { aspectRatioLabel } from "@/lib/public-catalog/format"
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
+import { wallpaperCategoryAltLabel } from "@/lib/public-catalog/wallpaper-alt"
 import {
   collectionsForWallpaper,
+  wallpaperCollections,
   type WallpaperCollection,
 } from "@/lib/seo/wallpaper-collections"
+import {
+  isNameEchoTag,
+  isRenameLeftoverTag,
+  loopLengthAdjective,
+  loopLengthPhrase,
+  macFitRows,
+  macFitSummary,
+  matchingDisplayPage,
+  resolutionLabel,
+  wallpaperHeadingSuffix,
+  wallpaperMetaDescription,
+  wallpaperQualityLabel,
+  wallpaperTitles,
+  withIndefiniteArticle,
+  type MacFitRow,
+} from "@/lib/seo/wallpaper-detail-copy"
 import {
   wallpaperColors,
   type WallpaperColor,
 } from "@/lib/seo/wallpaper-palette"
 
+export { wallpaperQualityLabel }
+
 /**
  * Per-wallpaper copy for detail pages, metadata, and structured data.
  *
  * Everything is derived from the wallpaper's own fields (resolution, length,
- * tags, category, collections), so each detail page says something specific
- * about its loop instead of repeating one template line.
+ * tags, category, collections, measured colours), so each page carries facts
+ * no other page has: how the loop fits each current Mac, its colours and its
+ * collections. The wording rules live in wallpaper-detail-copy.ts.
  */
 
+export type WallpaperDetailLink = { href: string; label: string }
+
+export type WallpaperDetailTag = {
+  /** Lowercase tag as stored ("spider man"). */
+  label: string
+  /** How copy shows it: proper names keep their casing ("Spider-Man"). */
+  display: string
+  /** The name already says it ("gojo" on "Gojo Domain"). */
+  echo: boolean
+}
+
 export type WallpaperDetailContent = {
-  /** "4K", "1440p", "1080p", or null when unknown. */
+  /** "8K", "4K", "1440p", "1080p", or null when unknown. */
   qualityLabel: string | null
+  /** H1: "{Name} Live Wallpaper for Mac". */
+  heading: string
+  /** What follows the name in the H1, shown muted. */
+  headingSuffix: string
+  /** Muted line under the H1: quality, loop length, a named author only. */
+  metaLine: string[]
   lead: string
+  /** Encoded size, loop length and how it fits current Macs; may be empty. */
   detail: string
+  /** Lead and detail, untruncated: the description for structured data. */
+  summary: string
+  /** Collections the wallpaper is in, topics named in its title first. */
   collections: WallpaperCollection[]
   /** Colours measured from the poster, most common first. */
   colors: WallpaperColor[]
-  steps: string[]
+  /** Tag chips: display tags without leftovers from a rename. */
+  tags: WallpaperDetailTag[]
+  /** "3840 × 2160", or "" when unknown. */
+  resolutionLabel: string
+  /** "Fits these Macs" rows; empty when the resolution is unknown. */
+  fits: MacFitRow[]
+  fitSummary: string | null
+  setup: { intro: string; links: WallpaperDetailLink[] }
   faq: ContentFaq[]
   metaDescription: string
-  /** Page title without the brand suffix, at most 50 characters. */
+  /** Title without the brand suffix. */
   pageTitle: string
+  /** `<title>`: with " | MacWall" when it fits in 60 characters. */
+  documentTitle: string
   /**
    * Nothing on the page beyond the template: no themes and no collection.
    * These stay out of the index and the sitemap until they get tags, so a
    * thousand near-identical pages don't read as scaled content.
    */
   thin: boolean
-}
-
-/** Longest title that leaves room for " | MacWall" inside 60 characters. */
-const PAGE_TITLE_MAX = 50
-
-/** "{name} Live Wallpaper for Mac (4K)", shortened until it fits. */
-export function wallpaperPageTitle(
-  name: string,
-  qualityLabel: string | null
-): string {
-  const quality = qualityLabel ? ` (${qualityLabel})` : ""
-  const candidates = [
-    `${name} Live Wallpaper for Mac${quality}`,
-    `${name} Live Wallpaper for Mac`,
-    `${name} Mac Live Wallpaper`,
-    `${name} Live Wallpaper`,
-  ]
-  const fit = candidates.find((title) => title.length <= PAGE_TITLE_MAX)
-  if (fit) return fit
-  const room = PAGE_TITLE_MAX - " Live Wallpaper".length - 1
-  const cut = name.slice(0, room)
-  const lastSpace = cut.lastIndexOf(" ")
-  return `${(lastSpace > 12 ? cut.slice(0, lastSpace) : cut).trim()}… Live Wallpaper`
-}
-
-export function wallpaperQualityLabel(resolution: string): string | null {
-  const dims = parseResolution(resolution)
-  if (!dims) return null
-  const longEdge = Math.max(dims.width, dims.height)
-  const shortEdge = Math.min(dims.width, dims.height)
-  if (longEdge >= 5000) return "5K"
-  if (longEdge >= 3800 || shortEdge >= 2100) return "4K"
-  if (shortEdge >= 1400) return "1440p"
-  if (shortEdge >= 1000) return "1080p"
-  return null
 }
 
 /** Human tag list: dedupes case variants and drops the generic ones. */
@@ -117,136 +136,191 @@ export function isThinWallpaper(
   )
 }
 
-function joinList(items: string[]): string {
-  if (items.length <= 1) return items.join("")
-  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`
+/** Tags without the ones a rename left behind (see `isRenameLeftoverTag`). */
+export function currentWallpaperTags(
+  wallpaper: Pick<PublicWallpaper, "id" | "name" | "tags">
+): string[] {
+  return wallpaper.tags.filter((tag) => !isRenameLeftoverTag(tag, wallpaper))
 }
 
-/** "12 seconds", "1 minute 30 seconds". */
-function loopLengthPhrase(seconds: number): string {
-  const total = Math.max(0, Math.round(seconds))
-  const mins = Math.floor(total / 60)
-  const secs = total % 60
-  const parts: string[] = []
-  if (mins > 0) parts.push(`${mins} ${mins === 1 ? "minute" : "minutes"}`)
-  if (secs > 0) parts.push(`${secs} ${secs === 1 ? "second" : "seconds"}`)
-  return parts.join(" ")
+/** Tag or name as a lookup key: "Spider-Man" and "spider man" match. */
+function themeKey(text: string): string {
+  return text.toLowerCase().replace(/-/g, " ").trim()
 }
 
-/** "a 4K anime", "an anime", "a" (for the catch-all Others bucket). */
-function describedKind(category: string, qualityLabel: string | null): string {
-  const kind = [qualityLabel, category === "others" ? null : category]
-    .filter(Boolean)
-    .join(" ")
-  if (!kind) return "a"
-  return `${/^[aeiou]/i.test(kind) ? "an" : "a"} ${kind}`
+/**
+ * Proper names keep their casing in copy ("bmw" reads as "BMW", "naruto" as
+ * "Naruto"): a collection about a franchise or brand, or one whose name has
+ * capitals inside it. Generic topics ("rain", "football") stay lowercase.
+ * `rights` is read defensively; collections without it use the capitals rule.
+ */
+const properThemeNames = new Map(
+  wallpaperCollections.flatMap((entry) => {
+    const rights = (entry as { rights?: string }).rights
+    const proper =
+      rights === "franchise" ||
+      rights === "trademark" ||
+      /[A-Z0-9]/.test(entry.name.slice(1))
+    return proper ? [[themeKey(entry.name), entry.name] as const] : []
+  })
+)
+
+function themeLabel(tag: string): string {
+  return properThemeNames.get(themeKey(tag)) ?? tag
 }
 
-function clampDescription(text: string, max = 158): string {
-  if (text.length <= max) return text
-  const cut = text.slice(0, max - 1)
-  const lastSpace = cut.lastIndexOf(" ")
-  return `${cut.slice(0, lastSpace > 80 ? lastSpace : cut.length).replace(/[,.;:\s]+$/, "")}…`
+const SETUP_GUIDE: WallpaperDetailLink = {
+  href: "/blog/how-to-set-live-wallpaper-mac",
+  label: "How to set a live wallpaper on Mac",
+}
+const LOCK_SCREEN_GUIDE: WallpaperDetailLink = {
+  href: "/blog/how-to-change-lock-screen-on-mac",
+  label: "How to change the Lock Screen on Mac",
+}
+const BATTERY_DOC: WallpaperDetailLink = {
+  href: "/docs/performance-and-battery",
+  label: "Performance and battery settings",
+}
+const COMPARE_APPS: WallpaperDetailLink = {
+  href: "/best-live-wallpaper-mac",
+  label: "The best live wallpaper apps for Mac",
 }
 
 export function buildWallpaperDetailContent(
   wallpaper: PublicWallpaper
 ): WallpaperDetailContent {
   const name = wallpaper.name
-  const category = wallpaper.category.toLowerCase()
   const qualityLabel = wallpaperQualityLabel(wallpaper.resolution)
-  const aspect = aspectRatioLabel(wallpaper.resolution)
-  const hasResolution =
-    wallpaper.resolution.length > 0 && wallpaper.resolution !== "—"
-  const hasDuration = wallpaper.durationSeconds > 0
-  const tags = displayTags(wallpaper)
-  const collections = collectionsForWallpaper(wallpaper)
+  const categoryLabel = wallpaperCategoryAltLabel(wallpaper.category)
+  const size = resolutionLabel(wallpaper.resolution)
+  // Only a named ratio ("16:9", "21:9"); an odd size has none worth quoting.
+  const ratio = aspectRatioLabel(wallpaper.resolution)
+  const aspect = ratio && /^\d{1,2}:\d{1,2}$/.test(ratio) ? ratio : null
+  const loop = loopLengthPhrase(wallpaper.durationSeconds)
+  const loopAdjective = loopLengthAdjective(wallpaper.durationSeconds)
+  const namedAuthor = wallpaperNamedAuthor(wallpaper)
+
+  const tagsNow = currentWallpaperTags(wallpaper)
+  const collections = collectionsForWallpaper({ name, tags: tagsNow })
   const primaryCollection = collections[0]
-
-  const kind = describedKind(category, qualityLabel)
-  const credit = wallpaperCreditName(wallpaper)
-  const leadParts = [
-    `${name} is ${kind} live wallpaper for Mac${credit ? ` by ${credit}` : ""}`,
-  ]
-  if (primaryCollection) {
-    leadParts.push(`from the ${primaryCollection.name} collection`)
-  }
-  const lead = `${leadParts.join(" ")} in the ${macwall.name} catalog.`
-
-  const facts: string[] = []
-  if (hasResolution) {
-    facts.push(
-      `It is encoded at ${wallpaper.resolution}${aspect ? ` (${aspect})` : ""}`
-    )
-  }
-  if (hasDuration) {
-    facts.push(
-      `${facts.length ? "and" : "It"} loops every ${loopLengthPhrase(wallpaper.durationSeconds)} without a visible cut`
-    )
-  }
-  const factsSentence = facts.length ? `${facts.join(" ")}.` : ""
-  const tagSentence = tags.length ? ` Themes: ${tags.join(", ")}.` : ""
+  const tags = displayTags(
+    { tags: tagsNow, category: wallpaper.category },
+    12
+  ).map((label) => ({
+    label,
+    display: themeLabel(label),
+    echo: isNameEchoTag(label, name),
+  }))
+  const themes = tags.filter((tag) => !tag.echo).map((tag) => tag.display)
   const colors = wallpaperColors(wallpaper.id)
-  const colorWords = colors.slice(0, 3).map((color) => color.name)
-  const colorSentence = colorWords.length
-    ? ` Main colours: ${joinList(colorWords)}.`
-    : ""
-  const detail =
-    `${factsSentence}${tagSentence}${colorSentence} Preview it above, then set it on your MacBook, iMac, or external display with ${macwall.name}.`.trim()
 
-  const steps = [
-    `Download ${macwall.name} for macOS (${macwallMinimumMacOSVersion} or later) and open it.`,
-    `Choose Set on Mac on this page, or search "${name}" in the app.`,
-    `Pick one display or all of them. ${name} starts playing as your desktop wallpaper.`,
-    `Optional: with Pro on ${macwallLockScreenMacOSVersion} or later, also use it on the Lock Screen and as a Screen Saver.`,
+  const headingSuffix = wallpaperHeadingSuffix(name)
+  const metaLine = [
+    qualityLabel,
+    loopAdjective ? `${loopAdjective} loop` : null,
+    namedAuthor ? `by ${namedAuthor}` : null,
+  ].filter((part): part is string => Boolean(part))
+
+  // An unnamed community submission is described, never credited to
+  // "Community"; MacWall's own loops say so.
+  const kindWords = [
+    isCommunitySubmission(wallpaper) && !namedAuthor
+      ? "community-submitted"
+      : null,
+    qualityLabel,
+    categoryLabel || null,
   ]
+    .filter(Boolean)
+    .join(" ")
+  const kind = withIndefiniteArticle(
+    `${kindWords ? `${kindWords} ` : ""}live wallpaper`
+  )
+  const credit = namedAuthor
+    ? ` by ${namedAuthor}`
+    : wallpaper.originType === "macwall_original"
+      ? ` made by ${macwall.name}`
+      : ""
+  const lead = `${name} is ${kind} for Mac${credit}${
+    primaryCollection
+      ? `, part of the ${primaryCollection.name} collection`
+      : ""
+  }.`
 
+  const fits = macFitRows(wallpaper.resolution)
+  const fitSummary = macFitSummary(
+    fits,
+    wallpaper.resolution,
+    size ? "At that size" : undefined
+  )
+  const facts = size
+    ? `It is encoded at ${size}${aspect ? ` (${aspect})` : ""}${
+        loop ? ` and loops every ${loop}` : ""
+      }.`
+    : loop
+      ? `It loops every ${loop}.`
+      : ""
+  const detail = [facts, fitSummary].filter(Boolean).join(" ")
+
+  const displayPage = matchingDisplayPage(wallpaper.resolution, fits)
+  const setup = {
+    intro: `Set on Mac opens ${name} in ${macwall.name} (${macwallMinimumMacOSVersion} or later); click Set Wallpaper there to put it on your desktop. These guides cover the rest.`,
+    links: [
+      SETUP_GUIDE,
+      LOCK_SCREEN_GUIDE,
+      ...(displayPage ? [displayPage] : []),
+      BATTERY_DOC,
+      COMPARE_APPS,
+    ],
+  }
+
+  // Two questions with answers specific to this loop. No price (it changes
+  // with sales and region) and no battery promise (the docs cover settings).
   const faq: ContentFaq[] = [
     {
       question: `How do I set ${name} as my Mac wallpaper?`,
-      answer: `Install ${macwall.name}, then choose Set on Mac on this page or search "${name}" in the app. It plays behind your windows as a live desktop wallpaper on any connected display.`,
+      answer: `Download ${macwall.name} for ${macwallMinimumMacOSVersion} or later, choose Set on Mac on this page or search "${name}" in the app, then click Set Wallpaper. On ${macwallLockScreenMacOSVersion} or later it can also play on the Lock Screen and as the screen saver.`,
     },
     {
       question: `Is ${name} a video or a still wallpaper?`,
-      answer: `It is a video loop${hasResolution ? ` at ${wallpaper.resolution}` : ""}${hasDuration ? ` that repeats every ${loopLengthPhrase(wallpaper.durationSeconds)}` : ""}, played with hardware decoding so it stays smooth without slowing your Mac.`,
-    },
-    {
-      question: `Will the ${name} live wallpaper drain my MacBook battery?`,
-      answer: `${macwall.name} pauses playback behind full-screen apps and when the display sleeps, so ${name} costs very little in everyday use.`,
-    },
-    {
-      question: `Can I use ${name} on the Mac Lock Screen?`,
-      answer: `Yes, with ${macwall.name} Pro on ${macwallLockScreenMacOSVersion} or later. Pro is a one-time ${macwall.pro.price} payment that unlocks the full catalog, with no subscription.`,
+      answer: `A video. ${name} is ${withIndefiniteArticle(
+        loopAdjective ? `${loopAdjective} loop` : "video loop"
+      )}${size ? ` encoded at ${size}` : ""}, and ${macwall.name} plays it behind your windows as a moving desktop rather than a still image.`,
     },
   ]
 
-  const colorPhrase = colorWords.length
-    ? ` in ${joinList(colorWords.slice(0, 2))} tones`
-    : ""
-  let metaDescription = clampDescription(
-    `${name}: ${kind.replace(/^an? ?/, "")}${kind === "a" ? "" : " "}live wallpaper for Mac${colorPhrase}${
-      hasDuration
-        ? `, looping every ${loopLengthPhrase(wallpaper.durationSeconds)}`
-        : ""
-    }${tags.length ? ` featuring ${joinList(tags.slice(0, 3))}` : ""}. Preview it and set it on your Mac with ${macwall.name}.`
+  const { pageTitle, documentTitle } = wallpaperTitles(
+    name,
+    qualityLabel,
+    macwall.name
   )
-  // Short names leave the template under 110 characters.
-  if (metaDescription.length < 110) {
-    metaDescription = clampDescription(
-      `${metaDescription} Every download starts with a free 24-hour trial.`
-    )
-  }
 
   return {
     qualityLabel,
+    heading: `${name}${headingSuffix}`,
+    headingSuffix,
+    metaLine,
     lead,
     detail,
+    summary: [lead, detail].filter(Boolean).join(" "),
     collections,
     colors,
-    steps,
+    tags,
+    resolutionLabel: size,
+    fits,
+    fitSummary,
+    setup,
     faq,
-    metaDescription,
-    pageTitle: wallpaperPageTitle(name, qualityLabel),
+    metaDescription: wallpaperMetaDescription({
+      name,
+      qualityLabel,
+      categoryLabel,
+      durationSeconds: wallpaper.durationSeconds,
+      colorNames: colors.map((color) => color.name),
+      themes,
+      brand: macwall.name,
+    }),
+    pageTitle,
+    documentTitle,
     thin: isThinWallpaper(wallpaper),
   }
 }

@@ -81,13 +81,11 @@ export const macwallAppIconRadiusClass = "rounded-[22.37%]" as const
 export const macwallFaviconBase = "/favicon_io" as const
 
 export const macwallFavicons = {
-  ico: `${macwallFaviconBase}/favicon.ico`,
   icon16: `${macwallFaviconBase}/favicon-16x16.png`,
   icon32: `${macwallFaviconBase}/favicon-32x32.png`,
   appleTouch: `${macwallFaviconBase}/apple-touch-icon.png`,
   android192: `${macwallFaviconBase}/android-chrome-192x192.png`,
   android512: `${macwallFaviconBase}/android-chrome-512x512.png`,
-  webManifest: `${macwallFaviconBase}/site.webmanifest`,
 } as const
 
 /** Minimum macOS for desktop live wallpapers (Sequoia+). */
@@ -109,11 +107,165 @@ export const macwallMacOSRequirementsHint =
 export const macwallMinimumMacOSRequirementOrLater =
   `${macwallMinimumMacOSVersion} or later` as const
 
+/** "A, B and C" (the site's list style, no serial comma). */
+function listPhrase(items: readonly string[], conjunction = "and"): string {
+  if (items.length <= 1) return items.join("")
+  return `${items.slice(0, -1).join(", ")} ${conjunction} ${items[items.length - 1]}`
+}
+
+/*
+ * Product facts, single-sourced. Each one is checked against the shipped Mac
+ * app (MacWall-App, 4.1.0) before it changes; copy everywhere builds on these
+ * instead of restating them, so docs, FAQs, JSON-LD and llms.txt can't drift.
+ */
+
+/**
+ * macOS versions MacWall runs on: the app's deployment target is macOS 15, it
+ * ships as a universal binary (Apple silicon and Intel) and is tested on
+ * macOS 27. Lock Screen video needs macOS 26 or later. macOS 27 itself runs
+ * only on Apple silicon (Apple Support 127255, read 2026-11-05).
+ */
+export const macwallSupportedMacOS = {
+  versions: ["macOS 15 Sequoia", "macOS 26 Tahoe", "macOS 27 Golden Gate"],
+  /** "macOS 15 Sequoia, macOS 26 Tahoe and macOS 27 Golden Gate" */
+  label: "macOS 15 Sequoia, macOS 26 Tahoe and macOS 27 Golden Gate",
+  lockScreenVersions: ["macOS 26 Tahoe", "macOS 27 Golden Gate"],
+  architectures: "Apple silicon and Intel Macs",
+  /** One sentence for FAQs, docs and AI summaries. */
+  summary:
+    "MacWall runs on macOS 15 Sequoia, macOS 26 Tahoe and macOS 27 Golden Gate, on Apple silicon and Intel Macs (macOS 27 itself needs Apple silicon). Live Lock Screen and Screen Saver video needs macOS 26 or later.",
+} as const
+
+/**
+ * The two playback modes (Settings → Wallpaper → Playback). Users see the
+ * Settings names, so lead with those; the homepage's marketing names map to
+ * them. Before macOS 26 MacWall always uses MacWall App; new installs on
+ * macOS 26+ start on System Wallpaper.
+ */
+export const macwallPlaybackModes = {
+  settingsPath: "Settings → Wallpaper → Playback",
+  systemWallpaper: {
+    setting: "System Wallpaper",
+    marketing: "MacWall Native",
+    minimumMacOS: "macOS 26",
+    keepsPlayingAfterQuit: true,
+    summary:
+      "macOS plays your wallpaper on the desktop, Lock Screen and screen saver, even when MacWall is closed or after a restart. The Lock Screen always shows the desktop's wallpaper.",
+    /** Founder-approved CPU wording for this mode. */
+    cpu: "the MacWall process uses 0% CPU after you quit; macOS still decodes the video",
+  },
+  app: {
+    setting: "MacWall App",
+    marketing: "MacWall Player",
+    minimumMacOS: "macOS 15",
+    keepsPlayingAfterQuit: false,
+    summary:
+      "MacWall plays the desktop itself while it's open, and the Lock Screen can have a different wallpaper. After you quit, the desktop holds a still frame until MacWall opens again.",
+  },
+} as const
+
+/**
+ * The free trial as the app runs it: 24 hours, once per Mac, started with an
+ * email address (required since 2026-10-24) and never a card. It covers the
+ * catalog, Set Wallpaper and the Lock Screen; imports and uploads need Pro.
+ */
+const TRIAL_INCLUDES = [
+  "the full catalog",
+  "Set Wallpaper",
+  "the Lock Screen",
+] as const
+
+export const macwallTrial = {
+  hours: 24,
+  /** "free 24-hour trial" (never "Pro trial": imports aren't part of it). */
+  name: "free 24-hour trial",
+  includes: TRIAL_INCLUDES,
+  /** "the full catalog, Set Wallpaper and the Lock Screen" */
+  includesLabel: listPhrase(TRIAL_INCLUDES),
+  excludes: ["importing your own videos", "community uploads"],
+  requiresEmail: true,
+  requiresCard: false,
+  oncePerMac: true,
+  /** Pricing tile and short lines. */
+  short: "Catalog and Lock Screen free for 24 hours",
+  summary: `Every Mac gets one free 24-hour trial of ${listPhrase(TRIAL_INCLUDES)}. It asks for your email address but never a card. Importing your own videos needs Pro.`,
+} as const
+
+/**
+ * Pause and power settings (Settings → Battery & Performance), as of 4.1.0.
+ * Only "Pause behind full-screen apps" is on by default. Through 4.0.9 Pause
+ * on battery only acted in Low Power Mode or at the low-battery warning; it
+ * now holds the frame whenever the Mac is unplugged, even with MacWall closed.
+ */
+export const macwallBatteryPolicy = {
+  settingsPath: "Settings → Battery & Performance",
+  pauseBehindFullScreen: {
+    label: "Pause behind full-screen apps",
+    onByDefault: true,
+  },
+  pauseOnBattery: {
+    label: "Pause on battery",
+    onByDefault: false,
+    detail:
+      "holds the frame whenever your Mac is unplugged and plays again when you plug it in",
+  },
+  lowerQualityOnBattery: {
+    label: "Lower quality on battery",
+    onByDefault: false,
+    detail:
+      "decodes less while your Mac runs on battery, never on the Lock Screen",
+  },
+  pauseWhenBusy: {
+    label: "Pause when your Mac is busy",
+    onByDefault: false,
+    detail: "gives games, exports and builds the full processor",
+  },
+  summary:
+    "MacWall pauses behind full-screen apps by default and stops while your displays sleep. In Settings → Battery & Performance you can also turn on Pause on battery, which holds the frame whenever your Mac is unplugged, Lower quality on battery, and Pause when your Mac is busy. A paused wallpaper keeps its last frame and starts again on its own.",
+} as const
+
+/**
+ * Video files you can add as your own wallpapers (Upload Wallpaper → Private,
+ * Pro). No GIF or still images; WebM exists only for server-side community
+ * uploads. H.264 or HEVC inside plays best; ProRes, AV1 and VP9 are converted
+ * when set.
+ */
+export const macwallImportFormats = ["MP4", "MOV", "M4V"] as const
+/** "MP4, MOV and M4V" */
+export const macwallImportFormatsLabel = listPhrase(macwallImportFormats)
+/** "MP4, MOV or M4V" */
+export const macwallImportFormatsOrLabel = listPhrase(
+  macwallImportFormats,
+  "or"
+)
+
+/**
+ * What MacWall asks macOS for. Setting a wallpaper needs no permission, and
+ * Bend draws without capturing the screen. Only Music Sync asks: Automation
+ * (the current track) and System Audio Recording (the beat; nothing is
+ * recorded or stored).
+ */
+export const macwallPermissions = {
+  never: ["Full Disk Access", "Accessibility", "Screen Recording"],
+  musicSync: ["Automation", "System Audio Recording"],
+  optional: ["Notifications", "Open at login"],
+  summary:
+    "MacWall never asks for Full Disk Access, Accessibility or Screen Recording. Only Music Sync asks for anything: Automation, to read the track playing in Apple Music or Spotify, and System Audio Recording, to move with the beat. Nothing is recorded or stored.",
+} as const
+
+/** What a Reel refund or creator post must carry so viewers know it's paid. */
+export const macwallCreatorDisclosure = {
+  tag: "#ad",
+  label: "#ad or the platform's paid-partnership label",
+} as const
+
 /**
  * Catalog count used by every page, meta description, FAQ and llms.txt line.
  * A fixed label, not computed from the live catalog. Keep it at or below the
  * public count without the 276 unreviewed imports of 2026-10-22 (856 of 1,132
- * public on 2026-10-30), so it stays true when those are hidden.
+ * public on 2026-10-30), so it stays true when those are hidden. Move it to
+ * "1,000+" only once those imports are reviewed and the seo-check catalog
+ * count assertion passes against the live API.
  */
 export const macwallCatalog = {
   liveCountLabel: "850+",
@@ -146,9 +298,13 @@ export const macwall = {
   currentVersion: "4.1.0",
   currentVersionReleasedIso: "2026-10-24",
   currentVersionReleasedLabel: "October 24, 2026",
-  /** Review stamp for the canonical `/ai-info` product reference. */
-  productInfoLastReviewedIso: "2026-10-16",
-  productInfoLastReviewedLabel: "October 16, 2026",
+  /**
+   * Review stamp for the canonical `/ai-info` product reference: the day the
+   * product facts above were last checked against the shipped app. Never
+   * older than `currentVersionReleasedIso`; bump it with every release.
+   */
+  productInfoLastReviewedIso: "2026-11-05",
+  productInfoLastReviewedLabel: "November 5, 2026",
   /**
    * Legal entity that owns and operates MacWall. Must match the payment
    * account's legal entity. Public pages show only this name, as plain text
@@ -165,6 +321,8 @@ export const macwall = {
   website: "https://macwall.app",
   /** Community invite: matches `discordInviteURLString` in the Mac app. */
   discordInvite: "https://discord.gg/4tq2Axvg2h",
+  /** Official channel ("MacWall", @MacWallApp), which links back to macwall.app. */
+  youtubeChannelURL: "https://www.youtube.com/channel/UC0AggWIjNCI-iCQC1NNHdeA",
   supportEmail: "support@macwall.app",
   /** Reel refund program: 50% at 2k views, 100% at 20k views. */
   reelRefundEmail: "discount@macwall.app",
@@ -198,7 +356,6 @@ export const macwall = {
   pro: {
     headline: "Permanent License",
     strikePrice: null,
-    price: "$12.99",
     suffix: "permanent",
     socialProofDownloads: macwallSocialProof.downloadsLabel,
     features: [
@@ -209,7 +366,6 @@ export const macwall = {
     ],
   },
   annual: {
-    price: "$4.99",
     suffix: "per year",
   },
   /** Shown in Pro discount flows: keep in sync with AppBrand.proDiscountPromoCode + Stripe. */
@@ -223,11 +379,13 @@ export const macwall = {
     "Cloud catalog: featured, newest, and most popular",
     "Explore with search, filters, and community engagement",
     "Save favorites and browse 9 categories",
-    "Import your own MP4 and MOV clips",
+    `Import your own ${macwallImportFormatsLabel} videos`,
     "Multi-display playback, synced or solo (hardware decode)",
-    "Music Sync: album-art gradients from Apple Music and Spotify",
-    "Menu bar control: pause, resume, stop, switch wallpapers",
-    "Auto-pause behind full-screen apps; optional pause in Low Power Mode or when the Mac is busy",
+    "Music Sync: visuals from the album cover for Apple Music and Spotify",
+    "Menu bar control: play, pause, skip, stop and switch wallpapers",
+    "Shuffle and a Day Schedule that changes the wallpaper through the day",
+    `Live Lock Screen and Screen Saver on ${macwallLockScreenMacOSVersion} or later`,
+    "Pauses behind full-screen apps; optional pause on battery or when the Mac is busy",
   ],
 } as const
 

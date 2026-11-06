@@ -1,28 +1,27 @@
-import { SeoLandingPage } from "@/components/content/seo-landing-page"
-import { JsonLd } from "@/components/seo/json-ld"
-import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
-import { bestLiveWallpaperMacPage } from "@/lib/seo/landing-pages"
+import { ComparisonLandingPage } from "@/components/content/comparison-landing-page"
+import { macWallpaperApps } from "@/lib/seo/compare-pages"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
-import { canonicalSiteOrigin } from "@/lib/site-url"
+import { bestLiveWallpaperMacPage } from "@/lib/seo/landing-pages"
 
-export const metadata = createSeoPageMetadata(bestLiveWallpaperMacPage)
+const page = bestLiveWallpaperMacPage
+
+export const metadata = createSeoPageMetadata(page, {
+  openGraphType: "article",
+  publishedTime: page.publishedAt,
+  modifiedTime: page.updatedAt,
+})
 
 export default function BestLiveWallpaperMacPage() {
-  const origin = canonicalSiteOrigin()
+  // The live video apps the page compares, as listed in the /compare table.
+  const mentions = macWallpaperApps()
+    .filter((app) => app.type === "Live video" && app.name !== "MacWall")
+    .map((app) => ({ name: app.name, url: app.siteUrl }))
 
   return (
-    <>
-      <JsonLd
-        payload={webPageWithBreadcrumbsJsonLd({
-          origin,
-          pathname: bestLiveWallpaperMacPage.pathname,
-          pageTitle: "Best Live Wallpaper for Mac",
-          headline: bestLiveWallpaperMacPage.headline,
-          description: bestLiveWallpaperMacPage.description,
-          dateModifiedIso: bestLiveWallpaperMacPage.updatedAt,
-        })}
-      />
-      <SeoLandingPage page={bestLiveWallpaperMacPage} />
-    </>
+    <ComparisonLandingPage
+      page={page}
+      breadcrumbName="Best live wallpaper apps"
+      mentions={mentions}
+    />
   )
 }

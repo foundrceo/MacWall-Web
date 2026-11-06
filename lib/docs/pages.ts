@@ -1,10 +1,22 @@
+import {
+  appleSources,
+  sourcesBlocks,
+  type PageSource,
+} from "@/lib/content/sources"
 import type { SeoContentPage } from "@/lib/content/types"
 import {
   macwall,
+  macwallBatteryPolicy,
+  macwallCatalog,
+  macwallImportFormatsLabel,
   macwallLockScreenMacOSVersion,
   macwallMinimumMacOSVersionLabel,
-  macwallCatalog,
+  macwallPermissions,
+  macwallPlaybackModes,
+  macwallSupportedMacOS,
+  macwallTrial,
 } from "@/lib/macwall-site"
+import { formatPriceCents, proPriceFor } from "@/lib/pricing/sale-aware-price"
 
 /**
  * Product documentation: task-oriented "how do I…" pages.
@@ -12,6 +24,10 @@ import {
  * Intent split that keeps these from cannibalising other surfaces:
  * `/docs` answers *how to use MacWall*, `/learn` explains *concepts*, and
  * `/blog` covers opinion, comparisons, and news.
+ *
+ * Every product fact here matches the shipped app (4.1.0) and comes from the
+ * constants in lib/macwall-site.ts where one exists. Give a page a new
+ * `updatedAt` only when its own text changes.
  */
 
 export type DocsSectionId =
@@ -21,6 +37,11 @@ export type DocsPage = SeoContentPage & {
   section: DocsSectionId
   /** Short label for hub cards and breadcrumbs. */
   navLabel: string
+  publishedAt: string
+  /** Day this page's text last changed (per page, never a shared date). */
+  updatedAt: string
+  /** Primary sources for platform claims, listed at the end of the page. */
+  sources?: readonly PageSource[]
 }
 
 export const DOCS_SECTION_LABELS: Record<DocsSectionId, string> = {
@@ -39,12 +60,25 @@ export const DOCS_SECTION_ORDER: readonly DocsSectionId[] = [
   "developers",
 ] as const
 
-const proPrice = macwall.pro.price
 const maxMacs = macwall.maxLicensedMacs
-const updatedAt = "2026-08-02"
+/** Regular prices: they don't move with sales. Today's price is on /pricing. */
+const proRegularPrice = formatPriceCents(proPriceFor("default").regularCents)
+const proIndiaRegularPrice = formatPriceCents(proPriceFor("india").regularCents)
 
+const systemPlayback = macwallPlaybackModes.systemWallpaper
+const appPlayback = macwallPlaybackModes.app
+const playbackPath = macwallPlaybackModes.settingsPath
+/** "The MacWall process uses 0% CPU after you quit; macOS still decodes the video." */
+const systemPlaybackCpuSentence = `${systemPlayback.cpu.charAt(0).toUpperCase()}${systemPlayback.cpu.slice(1)}.`
+const power = macwallBatteryPolicy
+const supportLink = `[${macwall.supportEmail}](mailto:${macwall.supportEmail})`
+
+/** Appends the page's Sources list to its sections. */
 function doc(page: DocsPage): DocsPage {
-  return page
+  return {
+    ...page,
+    sections: [...page.sections, ...sourcesBlocks(page.sources)],
+  }
 }
 
 export const docsPages: DocsPage[] = [
@@ -56,19 +90,20 @@ export const docsPages: DocsPage[] = [
     title: "Install MacWall on Mac",
     headline: "Install MacWall on your Mac",
     description:
-      "Download the MacWall DMG, install it, grant the one permission macOS asks for, and get a live wallpaper running in under two minutes.",
+      "Download the MacWall DMG, move it to Applications, open it from there and get a live wallpaper running in about two minutes. Works on macOS 15, 26 and 27.",
     keywords: [
       "install macwall",
       "macwall setup",
       "macwall dmg",
       "live wallpaper mac install",
+      "macwall macos 27",
     ],
     publishedAt: "2026-08-02",
-    updatedAt,
+    updatedAt: "2026-11-05",
     sections: [
       {
         type: "p",
-        text: `MacWall is a native macOS app distributed as a signed and notarised DMG. There is no App Store build, no account, and no installer bundle of extras. Requirements: ${macwallMinimumMacOSVersionLabel}. Live Lock Screen and Screen Saver playback additionally needs ${macwallLockScreenMacOSVersion} or later.`,
+        text: `MacWall is a native macOS app distributed as a signed and notarized DMG. There is no App Store build, no account and no installer bundle of extras. ${macwallSupportedMacOS.summary}`,
       },
       { type: "h2", text: "Install steps" },
       {
@@ -76,9 +111,9 @@ export const docsPages: DocsPage[] = [
         items: [
           "Download the latest build from [macwall.app/download](/download). The link always serves the current release.",
           "Open the downloaded `.dmg` and drag **MacWall** into your Applications folder.",
-          "Eject the disk image, then launch MacWall from Applications or Spotlight.",
-          "On first launch macOS asks to confirm an app downloaded from the internet, so click **Open**. The build is Developer ID signed and notarised by Apple.",
-          "MacWall installs itself as a menu bar app. Look for the icon in the right side of your menu bar; it does not sit in the Dock.",
+          "Eject the disk image, then open MacWall from Applications or Spotlight. Running it from the disk image is a common cause of setup problems.",
+          "On first launch macOS asks you to confirm an app downloaded from the internet: click **Open**. The build is Developer ID signed and notarized by Apple.",
+          "MacWall lives in the menu bar: look for its mountain icon on the right. The Dock icon shows only while a MacWall window is open.",
         ],
       },
       { type: "h2", text: "First wallpaper" },
@@ -86,45 +121,50 @@ export const docsPages: DocsPage[] = [
         type: "ol",
         items: [
           "Click the MacWall menu bar icon, then **Open MacWall**.",
-          "Pick any wallpaper from Featured, Newest, or a category.",
-          "Click **Set wallpaper**. MacWall downloads the loop, then starts hardware-decoded playback behind your windows.",
+          "Pick any wallpaper from **Home** or **Explore**, or press **⌘K** to search.",
+          "Click **Set Wallpaper**. MacWall downloads the video once, then plays it on your desktop with hardware decoding.",
         ],
       },
       {
         type: "p",
-        text: "Fresh downloads include a 24-hour Pro trial: the full catalog unlocks for a day with no card required. It is the easiest window to evaluate Pro or film a [creator video](/creator).",
+        text: `Every Mac gets one ${macwallTrial.name} of ${macwallTrial.includesLabel}. It asks for your email address but never a card, and importing your own videos needs Pro. It is the easiest window to evaluate MacWall or film a [creator video](/creator).`,
       },
-      { type: "h2", text: "Permissions MacWall asks for" },
+      { type: "h2", text: "Permissions" },
       {
         type: "ul",
         items: [
-          "**Screen wallpaper access**: required to replace the desktop picture. macOS grants this through the standard wallpaper APIs.",
-          "**Notifications (optional)**: used only for download-complete and update prompts. Declining changes nothing else.",
-          "**No Full Disk Access, no Accessibility, no Screen Recording.** If any app asks for those to set a wallpaper, it is not MacWall.",
+          `**No ${macwallPermissions.never.join(", no ")}.** Setting a wallpaper needs none of them. If an app asks for those to set a wallpaper, it is not MacWall.`,
+          `**Music Sync (optional)**: asks for ${macwallPermissions.musicSync.join(" and ")}, to read the track playing in Apple Music or Spotify and to move with the beat. Nothing is recorded or stored.`,
+          "**Notifications and Open at login (optional)**: offered during setup. Change them later in System Settings → Notifications and in MacWall → Settings → General.",
         ],
       },
       { type: "h2", text: "Updates" },
       {
         type: "p",
-        text: "Auto-update is on by default. MacWall checks a signed updater feed and installs releases in place, the same feed that drives [the changelog](/changelog). You can also re-download the current build at any time from [/download](/download); installing over an existing copy keeps your library, favourites, and license.",
+        text: "MacWall updates itself while it's open and restarts when the update is ready; **Settings → About → Check Now** looks right away. Every release is listed in [the changelog](/changelog). You can also download the current build at any time from [/download](/download); installing over an existing copy keeps your library, favorites and license.",
       },
     ],
     faq: [
       {
         question: "Does MacWall work on Intel Macs?",
-        answer: `Yes. MacWall ships a universal binary for Apple silicon and Intel, and requires ${macwallMinimumMacOSVersionLabel}. Hardware video decode is used on both architectures.`,
+        answer: `Yes. MacWall ships a universal binary for Apple silicon and Intel and needs ${macwallMinimumMacOSVersionLabel}. macOS 27 itself runs only on Apple silicon, so Intel Macs use MacWall on macOS 15 or 26. Hardware video decoding is used on both.`,
+      },
+      {
+        question: "Does MacWall work on macOS 27 Golden Gate?",
+        answer: `Yes. MacWall runs on ${macwallSupportedMacOS.label}. Live Lock Screen and Screen Saver video works on macOS 26 and 27. macOS 27 itself needs an Apple silicon Mac.`,
       },
       {
         question: "Do I need an account to use MacWall?",
         answer:
-          "No. The free 24-hour trial starts right after install with no sign-up. A Pro license is a key you activate, with still no account, no password, or email wall.",
+          "No. There is no account or password. The free 24-hour trial asks for your email address but never a card, and a Pro license is a key you activate.",
       },
       {
         question: "Where does MacWall store downloaded wallpapers?",
         answer:
-          "In MacWall's application support folder inside your user Library. Removing the app and that folder removes every cached video. See [Uninstall MacWall](/docs/uninstall-macwall).",
+          "In the MacWall folder inside ~/Library/Application Support. Settings → Storage shows how much space it uses. See [Uninstall MacWall](/docs/uninstall-macwall) to remove it.",
       },
     ],
+    sources: [appleSources.macOS27Compatibility, appleSources.findMacOSVersion],
   }),
 
   doc({
@@ -135,37 +175,42 @@ export const docsPages: DocsPage[] = [
     title: "MacWall Menu Bar Controls",
     headline: "Control playback from the menu bar",
     description:
-      "Pause, resume, stop, shuffle, and switch live wallpapers from the MacWall menu bar item without opening the full window.",
+      "Play, pause, skip, mute, shuffle and stop live wallpapers from the MacWall menu bar icon without opening the full window.",
     keywords: [
       "macwall menu bar",
       "pause live wallpaper mac",
       "macwall controls",
+      "quit macwall",
     ],
     publishedAt: "2026-08-02",
-    updatedAt,
+    updatedAt: "2026-11-05",
     sections: [
       {
         type: "p",
-        text: "MacWall's primary interface is the menu bar item. Everything you need during a work day (pausing motion before a call, switching a loop, muting playback) is one click away, and the main window stays closed.",
+        text: "MacWall lives in the menu bar. Click its mountain icon for the wallpaper that's playing and the controls you need during a workday, like pausing before a call or switching wallpapers, while the main window stays closed.",
       },
       { type: "h2", text: "What the menu offers" },
       {
         type: "ul",
         items: [
-          "**Pause / Resume**: freezes the current frame. A paused wallpaper decodes nothing and costs no measurable CPU or GPU.",
-          "**Stop**: ends playback and restores your previous static desktop picture.",
-          "**Next wallpaper**: advances through your Shuffle source, such as favourites or downloads.",
-          "**Open MacWall**: opens the full browsing window for the catalog, library, and settings.",
-          "**Settings**: pause rules, per-display behaviour, Music Sync, launch at login, and license status.",
+          "**Play / Pause**: a paused wallpaper keeps its last frame and decodes nothing until you press Play.",
+          "**Previous and Next**: switch to the previous or next wallpaper.",
+          "**Sound**: turns the wallpaper's sound on or off. Only wallpapers with sound play audio.",
+          "**Favorite** and **recent wallpapers**: save the one that's playing, or click a recent one to set it again.",
+          "**Shuffle** and **Music Sync** switches, and a **Displays** menu showing what plays on each display.",
+          "**Open MacWall** and the **⋯** menu: Keyboard Shortcuts, Settings, Stop Wallpaper and Quit MacWall.",
         ],
       },
-      { type: "h2", text: "Behaviour worth knowing" },
+      { type: "h2", text: "Good to know" },
       {
         type: "ul",
         items: [
-          "Closing the MacWall window does not stop the wallpaper. Playback is owned by the background service, not the UI.",
-          "Quitting MacWall from the menu restores your static desktop picture, so you never get stuck on a frozen frame.",
-          "**Launch at login** is off until you enable it in Settings. With it on, MacWall restores your last wallpaper before you reach the desktop.",
+          "Closing the MacWall window doesn't quit MacWall or stop the wallpaper. MacWall keeps running in the menu bar.",
+          "**Stop Wallpaper** gives your own macOS wallpaper back. **Pause** keeps the current frame instead.",
+          `**Quit MacWall** depends on the playback mode (${playbackPath}): with ${systemPlayback.setting} playback (${systemPlayback.minimumMacOS}+) the wallpaper keeps moving after you quit and after a restart; with ${appPlayback.setting} playback the desktop holds a still frame until MacWall opens again.`,
+          `**Open at login** (Settings → General) starts MacWall when you log in, which ${appPlayback.setting} playback needs to keep your desktop moving.`,
+          "**Shortcuts in every app**: ⌃⌥⌘P plays or pauses, ⌃⌥⌘M turns sound on or off.",
+          "Hid the icon? Open MacWall from Applications, then turn on **Show MacWall in the menu bar** in Settings → General.",
         ],
       },
       {
@@ -177,12 +222,16 @@ export const docsPages: DocsPage[] = [
       {
         question: "Can I hide the MacWall menu bar icon?",
         answer:
-          "The icon is how you reach playback controls, so MacWall keeps it visible. Use a menu bar manager if you want it tucked into an overflow area. MacWall keeps working while hidden.",
+          "Yes. Turn off Show MacWall in the menu bar in Settings → General. MacWall keeps working; to get back to it, open MacWall from Applications.",
       },
       {
         question: "Does pausing keep the wallpaper on screen?",
         answer:
-          "Yes. Pause holds the current video frame as your desktop picture, so the look stays and decoding stops entirely.",
+          "Yes. Pause holds the current frame on your desktop and stops decoding until you press Play.",
+      },
+      {
+        question: "Does the wallpaper keep playing after I quit MacWall?",
+        answer: `With ${systemPlayback.setting} playback on ${systemPlayback.minimumMacOS} or later, yes: macOS plays it, even after a restart. With ${appPlayback.setting} playback the desktop holds a still frame until MacWall opens again. To get your own wallpaper back, choose Stop Wallpaper.`,
       },
     ],
   }),
@@ -195,64 +244,87 @@ export const docsPages: DocsPage[] = [
     title: "Set a Live Wallpaper on Mac",
     headline: "Set a live wallpaper on your desktop",
     description:
-      "Browse the MacWall catalog, preview a loop, and set it as your desktop live wallpaper, including per-display setups on multi-monitor Macs.",
+      "Pick a wallpaper in MacWall, set it on one display or all of them, and choose between System Wallpaper and MacWall App playback on macOS 26 and later.",
     keywords: [
       "set live wallpaper mac",
       "macwall wallpaper",
       "multi monitor live wallpaper mac",
+      "macwall system wallpaper",
     ],
     publishedAt: "2026-08-02",
-    updatedAt: macwall.productInfoLastReviewedIso,
+    updatedAt: "2026-11-05",
     sections: [
       {
         type: "p",
-        text: `Every wallpaper in MacWall is a 4K video loop. Setting one replaces your desktop picture with hardware-decoded playback; your icons, windows, Stage Manager, and Mission Control behave exactly as before. The catalog spans ${macwall.categories.length} categories: ${macwall.categories.join(", ")}.`,
+        text: `MacWall wallpapers are video loops, most in 4K. Setting one replaces your desktop picture with hardware-decoded playback; your icons and windows sit on top as usual. The catalog spans ${macwall.categories.length} categories: ${macwall.categories.join(", ")}.`,
       },
       { type: "h2", text: "From the app" },
       {
         type: "ol",
         items: [
-          "Open MacWall and browse **Featured**, **Newest**, **Popular**, or a category.",
-          "Click a wallpaper to open its detail view and preview the loop.",
-          "Click **Set wallpaper**. First use downloads the video; after that it is cached locally and applies instantly.",
+          "Open MacWall and browse **Home** or **Explore**, or press **⌘K** to search.",
+          "Click a wallpaper to open it and preview the loop.",
+          "Click **Set Wallpaper**. The first time, MacWall downloads the full video; after that it plays from your Mac with no internet.",
+        ],
+      },
+      {
+        type: "p",
+        text: "**Save to Library** downloads a wallpaper without setting it.",
+      },
+      { type: "h2", text: "Playback modes: System Wallpaper or MacWall App" },
+      {
+        type: "p",
+        text: `On ${macwallLockScreenMacOSVersion} and later, ${playbackPath} offers two ways to play, and you can switch any time. The homepage calls them ${systemPlayback.marketing} and ${appPlayback.marketing}. Before macOS 26, MacWall always uses ${appPlayback.setting}.`,
+      },
+      {
+        type: "ul",
+        items: [
+          `**${systemPlayback.setting}** (${systemPlayback.minimumMacOS}+, the default for new installs): ${systemPlayback.summary} ${systemPlaybackCpuSentence}`,
+          `**${appPlayback.setting}** (${appPlayback.minimumMacOS}+): ${appPlayback.summary} Turn on Open at login (Settings → General) to keep it running.`,
         ],
       },
       { type: "h2", text: "From the web gallery" },
       {
         type: "p",
-        text: "You can also browse the full catalog at [macwall.app/wallpapers](/wallpapers) in any browser. Each detail page has a **Set on Mac** link that hands the wallpaper to the installed app through a `macwall://` deep link. If MacWall is not installed yet, the same link offers the download instead.",
+        text: "You can also browse the full catalog at [macwall.app/wallpapers](/wallpapers) in any browser. Each wallpaper page has a **Set on Mac** button that opens that wallpaper in MacWall, which asks before downloading it. If MacWall isn't installed yet, the page offers the download instead.",
       },
       { type: "h2", text: "Multiple displays" },
       {
         type: "ul",
         items: [
-          "**Same loop everywhere**: one wallpaper mirrored across every connected display, decoded once.",
-          "**Different loop per display**: select a display in MacWall, then set a wallpaper while it is focused.",
-          "Disconnecting a display keeps its assignment. Reconnect it later and the wallpaper returns.",
+          "**Every display**: Set Wallpaper applies to all displays, and the same wallpaper stays in sync across them.",
+          "**One display**: open a wallpaper, click the arrow next to **Set Wallpaper** and pick a display under Display.",
+          "**Settings → Displays** shows what plays on each display.",
+          "MacWall remembers each display's wallpaper for each monitor setup, so unplugging and reconnecting a display brings its wallpaper back.",
+          "**Fill screen** crops the edges and **Fit to screen** shows the whole wallpaper (Settings → Wallpaper).",
         ],
       },
-      { type: "h2", text: "Playlists and shuffle" },
+      { type: "h2", text: "Shuffle and Day Schedule" },
       {
         type: "p",
-        text: "Shuffle rotates wallpapers from your favourites, your downloads or the whole catalog every 15 minutes, 1, 4 or 12 hours, or once a day, and Day Schedule picks a wallpaper by time of day. Rotation happens at the video layer, so switching loops does not touch your desktop layout or reset window positions.",
+        text: `Shuffle changes the wallpaper every 15 minutes, 1, 4 or 12 hours, or once a day, choosing from your favorites, your downloads or everything you've saved. Day Schedule, in Playlists, changes the wallpaper at times of day you set, like alarms; turning on Shuffle turns it off. Shuffle waits while your Mac is locked, its displays sleep or ${power.pauseOnBattery.label} holds the wallpaper. Switching wallpapers never moves your windows or desktop icons.`,
       },
     ],
     faq: [
       {
         question: "Will a live wallpaper cover my desktop icons?",
         answer:
-          "No. MacWall renders at the wallpaper layer, below icons and windows, using the same compositing position as a static desktop picture.",
+          "No. MacWall plays behind your desktop icons and windows, where a static desktop picture would be.",
       },
       {
         question: "Does the loop keep playing in full screen apps?",
-        answer:
-          "By default MacWall pauses when a full screen app covers the display, because nothing is visible to animate. You can turn that rule off in Settings.",
+        answer: `No. By default MacWall pauses a display that a full-screen app covers, because nothing there is visible. Turn off ${power.pauseBehindFullScreen.label} in ${power.settingsPath} to change that.`,
       },
       {
         question: "How many wallpapers are in the catalog?",
-        answer: `${macwallCatalog.liveCountLabel} curated loops, with new sets published regularly. Every download starts with a free 24-hour trial of the full catalog; after that, Pro keeps it unlocked.`,
+        answer: `${macwallCatalog.liveCountLabel} curated loops, most in 4K, with new ones added regularly. Every Mac gets a ${macwallTrial.name} of ${macwallTrial.includesLabel}; after that, Pro keeps them unlocked.`,
+      },
+      {
+        question: "Which playback mode should I use?",
+        answer: `On macOS 26 or later, ${systemPlayback.setting} if you want the wallpaper to keep playing with MacWall closed and the same wallpaper on the Lock Screen. ${appPlayback.setting} if you want a different Lock Screen wallpaper. On macOS 15, MacWall always uses ${appPlayback.setting}.`,
       },
     ],
+    sources: [appleSources.wallpaperSettings],
   }),
 
   doc({
@@ -262,37 +334,36 @@ export const docsPages: DocsPage[] = [
     pathname: "/docs/import-your-own-videos",
     title: "Import Your Own Video as a Mac Wallpaper",
     headline: "Use your own video as a live wallpaper",
-    description:
-      "Drag any MP4, MOV, M4V, or GIF into MacWall to use it as a Mac live wallpaper, plus the encoding settings that keep playback smooth and efficient.",
+    description: `Add your own ${macwallImportFormatsLabel} videos to MacWall as private live wallpapers with Pro, plus the export settings that keep playback smooth and efficient.`,
     keywords: [
       "custom live wallpaper mac",
       "mp4 wallpaper mac",
       "own video wallpaper mac",
-      "gif wallpaper mac",
+      "mov wallpaper mac",
     ],
     publishedAt: "2026-08-02",
-    updatedAt,
+    updatedAt: "2026-11-05",
     sections: [
       {
         type: "p",
-        text: "MacWall is not limited to the catalog. Any local video can become your wallpaper, and imported files stay on your Mac. Nothing is uploaded when you import.",
+        text: "MacWall isn't limited to the catalog. With Pro, your own videos can become wallpapers. Added privately, they stay on your Mac and only you see them.",
       },
-      { type: "h2", text: "Import a file" },
+      { type: "h2", text: "Add a video" },
       {
         type: "ol",
         items: [
-          "Open MacWall and go to **Library**.",
-          "Drag your video into the window, or use **Import** and pick a file.",
-          "Click the imported item, then **Set wallpaper**.",
+          "In MacWall, choose **Upload Wallpaper** (⌘N).",
+          "Pick **Private**, then drag your videos in or click **Choose Videos**. You can add up to 10 at a time.",
+          "Add them to your Library, then open one and click **Set Wallpaper**.",
         ],
       },
       { type: "h2", text: "Supported formats" },
       {
         type: "ul",
         items: [
-          "**MP4 / M4V** with H.264 or HEVC, the best choice, both decode on Apple hardware.",
-          "**MOV** with H.264, HEVC, or ProRes. ProRes works but is far larger than it needs to be for a wallpaper.",
-          "**GIF**: converted on import to a video loop so playback stays efficient.",
+          `**${macwallImportFormatsLabel}** with H.264 or HEVC inside, the best choice: both decode on Apple's media hardware.`,
+          "**ProRes, AV1 or VP9 inside**: MacWall converts these when you set them, and the wallpaper can look black until that finishes. Export H.264 or HEVC instead.",
+          "**GIFs and still images** can't be added as private wallpapers. Convert a GIF to an MP4 first.",
         ],
       },
       { type: "h2", text: "Encoding settings that look and run best" },
@@ -303,7 +374,7 @@ export const docsPages: DocsPage[] = [
           "**Frame rate**: 24–30 fps is plenty for ambient motion and noticeably cheaper than 60 fps.",
           "**Codec**: HEVC (H.265) for the smallest file at equal quality; H.264 for maximum compatibility.",
           "**Length**: 5–30 seconds that loops cleanly. Short seamless loops beat long clips with a visible jump.",
-          "**Audio**: strip it. MacWall does not play wallpaper audio, and the track only inflates the file.",
+          "**Audio**: keep it only if you want sound. MacWall plays a wallpaper's sound only when you turn it on (player bar, menu bar or Settings → Sound) and remembers that for each wallpaper. Otherwise strip the track to keep the file small.",
         ],
       },
       { type: "h2", text: "Why seamless loops matter" },
@@ -311,21 +382,30 @@ export const docsPages: DocsPage[] = [
         type: "p",
         text: "A wallpaper repeats hundreds of times an hour in your peripheral vision, so any cut at the loop point becomes the only thing you notice. Pick footage whose first and last frames are close: slow pans, drifting clouds, rain, particle drift, or crossfade the ends before exporting.",
       },
+      { type: "h2", text: "Share a wallpaper with everyone" },
+      {
+        type: "p",
+        text: "To submit a video to the public catalog, choose **Upload Wallpaper** → **Public**. Every upload is reviewed before it appears in Community, and **Submissions** shows whether each one is pending, approved or rejected. Public uploads need at least 1920×1080 and at most 300 MB.",
+      },
     ],
     faq: [
       {
         question: "Are imported videos uploaded anywhere?",
-        answer: `No. Imports are read from disk and stay local. If you want a wallpaper published to the public catalog, share it with the [Discord community](${macwall.discordInvite}) for review.`,
+        answer:
+          "No. Videos you add under Private stay on your Mac and only you see them. Only what you submit under Public is uploaded, for review before it appears in the catalog.",
       },
       {
         question: "Is there a file size limit for imports?",
         answer:
-          "No hard limit, but large ProRes files use more disk and more decode bandwidth. An HEVC export usually gives identical on-screen quality at a fraction of the size.",
+          "Not for private videos, but large ProRes files use more disk and take a while to convert. An HEVC export usually gives the same on-screen quality at a fraction of the size. Public submissions are capped at 300 MB.",
       },
       {
         question: "Can I import videos without Pro?",
-        answer:
-          "Importing your own MP4 and MOV clips needs a Pro license; it is not part of the free 24-hour trial. The trial covers the full catalog, Set Wallpaper and Lock Screen motion; after it ends, those need Pro too.",
+        answer: `No. Adding your own videos needs Pro; it isn't part of the ${macwallTrial.name}, which covers ${macwallTrial.includesLabel}.`,
+      },
+      {
+        question: "Can I use a GIF as a live wallpaper?",
+        answer: `Not directly. MacWall adds video files (${macwallImportFormatsLabel}). Convert the GIF to an H.264 or HEVC MP4 first, which also makes it smaller and smoother.`,
       },
     ],
   }),
@@ -337,71 +417,95 @@ export const docsPages: DocsPage[] = [
     pathname: "/docs/live-lock-screen-and-screen-saver",
     title: "Live Lock Screen & Screen Saver on macOS",
     headline: "Enable live Lock Screen and Screen Saver motion",
-    description: `Turn on MacWall's live Lock Screen and Screen Saver playback on ${macwallLockScreenMacOSVersion} and later, and understand the macOS limits behind it.`,
+    description: `Turn on MacWall's live Lock Screen and Screen Saver playback on ${macwallLockScreenMacOSVersion} and later, including macOS 27, in either playback mode.`,
     keywords: [
       "live lock screen mac",
       "macos live screen saver",
       "macos 26 lock screen wallpaper",
+      "macos 27 lock screen wallpaper",
       "macwall lock screen",
     ],
     publishedAt: "2026-08-02",
-    updatedAt,
+    updatedAt: "2026-11-05",
     sections: [
       {
         type: "p",
-        text: `Live Lock Screen and Screen Saver playback is a Pro feature and requires ${macwallLockScreenMacOSVersion} or later. Below that version, macOS does not expose the wallpaper APIs that let a third-party app supply Lock Screen video, so MacWall keeps desktop-only playback.`,
+        text: `Live Lock Screen and Screen Saver playback needs Pro (or the free trial) and ${macwallLockScreenMacOSVersion} or later, including macOS 27. On macOS 15 MacWall plays the desktop only, and the Lock Screen shows a still from your wallpaper. How the Lock Screen works depends on the playback mode in **${playbackPath}**.`,
       },
-      { type: "h2", text: "Turn it on" },
+      { type: "h2", text: `With ${systemPlayback.setting} playback` },
+      {
+        type: "ul",
+        items: [
+          "Set a wallpaper as usual. The Lock Screen and screen saver show the same wallpaper as the desktop, sound included, even while MacWall is closed.",
+          "**Play only on the Lock Screen** (Settings → Lock Screen): your desktop rests on a still frame, and the wallpaper moves when you lock your Mac or the screen saver starts, then slows to a stop when you unlock, like Apple's Aerials.",
+          "**Play the wallpaper while locked**: turn it off and the Lock Screen holds the frame it was on, which saves battery.",
+          `For a different wallpaper on the Lock Screen, switch to ${appPlayback.setting} playback.`,
+        ],
+      },
+      { type: "h2", text: `With ${appPlayback.setting} playback` },
       {
         type: "ol",
         items: [
           "Activate Pro. See [License and activation](/docs/license-and-activation).",
-          "Open MacWall → **Settings** → **Lock Screen**.",
-          "Enable **Live Lock Screen & Screen Saver**.",
-          "Pick the wallpaper you want on the Lock Screen. It can be the same loop as your desktop or a different one.",
-          "Lock your Mac (**Control-Command-Q**) to confirm the motion applies.",
+          "Open MacWall → **Settings** → **Lock Screen** and turn on **Show on Lock Screen and screen saver**.",
+          "Set a wallpaper as usual. The menu next to **Set Wallpaper** picks Desktop & Lock Screen, Desktop Only or Lock Screen Only.",
+          "For a different Lock Screen wallpaper, open it, click the arrow next to **Set Wallpaper** and choose **Lock Screen Only**.",
+          "Lock your Mac (**Control-Command-Q**) to check it.",
         ],
+      },
+      {
+        type: "p",
+        text: "**Lock Screen only** in Settings → Lock Screen makes Set Wallpaper change only the Lock Screen. macOS then shows a still of that wallpaper on the desktop, because it uses one picture for both.",
       },
       { type: "h2", text: "How macOS handles it" },
       {
         type: "ul",
         items: [
-          "macOS treats the Lock Screen video as a system wallpaper asset, so the loop is registered with the system rather than drawn by MacWall in real time.",
-          "The Screen Saver and Lock Screen share the same asset, which is why enabling one shows motion in both.",
-          "Applying a Lock Screen wallpaper takes a moment the first time: macOS re-encodes and indexes the asset before it appears.",
+          `With ${systemPlayback.setting}, MacWall's wallpaper extension is the system wallpaper: macOS runs it on the desktop, Lock Screen and screen saver.`,
+          `With ${appPlayback.setting}, MacWall converts the wallpaper into a Lock Screen video that macOS plays itself, the way it plays Apple's Aerials, so the first apply takes a moment.`,
+          "The screen saver and the Lock Screen show the same video.",
         ],
       },
       { type: "h2", text: "If motion does not appear" },
       {
         type: "ol",
         items: [
-          "Confirm you are on a supported macOS version in System Settings → General → About.",
-          "Confirm Pro is active in MacWall → Settings.",
-          "Re-apply the wallpaper. If macOS cached a stale asset, re-applying replaces it.",
-          "Check System Settings → Screen Saver: if another screen saver was selected after MacWall applied its asset, macOS uses that instead.",
-          "Log out and back in. This is the reliable way to force macOS to reload wallpaper assets.",
+          "Confirm you are on macOS 26 or later: Apple menu → About This Mac.",
+          "Confirm Pro (or the trial) is active in MacWall → Settings → MacWall Pro.",
+          "Update MacWall (Settings → About → Check Now), then set the wallpaper again.",
+          "On macOS 26 and 27, check System Settings → Wallpaper → Screen Saver: if you picked another screen saver after MacWall set its own, macOS shows that one.",
+          "Log out and back in, then lock your Mac again.",
+          "If motion plays at first but the Lock Screen goes black after you unlock, read [how Lock Screen video works on macOS Tahoe](/learn/how-macos-tahoe-lock-screen-video-works).",
         ],
       },
       {
         type: "p",
-        text: `Still nothing? Send your macOS version and MacWall version to [${macwall.supportEmail}](mailto:${macwall.supportEmail}). Behaviour here changes between macOS betas and we track it per build in [the changelog](/changelog).`,
+        text: `Still nothing? Send your macOS version and MacWall version to ${supportLink}. Behavior here can change between macOS releases; fixes are listed in [the changelog](/changelog).`,
       },
     ],
     faq: [
       {
         question: "Does the Lock Screen video drain battery while locked?",
-        answer:
-          "The Lock Screen asset is played by macOS, and the display sleeps quickly once locked. When the display is asleep nothing is decoded. Desktop playback is separately governed by MacWall's pause rules.",
+        answer: `With ${systemPlayback.setting} playback the Lock Screen plays the wallpaper unless you turn off Play the wallpaper while locked, which holds the frame and saves battery. Once the display sleeps nothing is decoded. With ${appPlayback.setting} playback the desktop stops while the Mac is locked.`,
       },
       {
         question: "Can I get a live Lock Screen on macOS 15?",
-        answer: `No app can below ${macwallLockScreenMacOSVersion}. The API that lets third-party apps supply Lock Screen video did not exist before then. Desktop live wallpapers work on macOS 15 and later.`,
+        answer: `Not with MacWall. Its Lock Screen video needs ${macwallLockScreenMacOSVersion} or later; on macOS 15 the Lock Screen shows a still from your wallpaper. Desktop live wallpapers work on macOS 15 and later.`,
+      },
+      {
+        question: "Does live Lock Screen work on macOS 27?",
+        answer:
+          "Yes. Live Lock Screen and Screen Saver video works on macOS 26 Tahoe and macOS 27 Golden Gate, in both playback modes.",
       },
       {
         question: "Can the Lock Screen and desktop use different wallpapers?",
-        answer:
-          "Yes. Choose them independently in Settings, a calm loop for the Lock Screen and something busier on the desktop is a common setup.",
+        answer: `Yes, with ${appPlayback.setting} playback: open a wallpaper, click the arrow next to Set Wallpaper and choose Lock Screen Only. With ${systemPlayback.setting} playback the Lock Screen always shows the desktop's wallpaper.`,
       },
+    ],
+    sources: [
+      appleSources.screenSaverSettings,
+      appleSources.wallpaperSettings,
+      appleSources.findMacOSVersion,
     ],
   }),
 
@@ -412,7 +516,7 @@ export const docsPages: DocsPage[] = [
     pathname: "/docs/license-and-activation",
     title: "MacWall License & Activation",
     headline: "Activate your MacWall Pro license",
-    description: `How MacWall Pro licensing works: one-time ${proPrice} purchase, instant key activation, up to ${maxMacs} Macs, and how to move a license to a new machine.`,
+    description: `How MacWall Pro licensing works: a one-time purchase, instant key activation, up to ${maxMacs} Macs, and how to move a license to a new Mac.`,
     keywords: [
       "macwall license",
       "macwall pro activation",
@@ -420,35 +524,36 @@ export const docsPages: DocsPage[] = [
       "transfer macwall license",
     ],
     publishedAt: "2026-08-02",
-    updatedAt: macwall.productInfoLastReviewedIso,
+    updatedAt: "2026-11-05",
     sections: [
       {
         type: "p",
-        text: `MacWall Pro is a one-time ${proPrice} purchase, not a subscription. You get a license key, lifetime updates, and activation on up to ${maxMacs} Macs you own. There is no account to create and no recurring charge. Every fresh download starts with a free 24-hour Pro trial before you pay anything.`,
+        text: `MacWall Pro is a one-time purchase, not a subscription: ${proRegularPrice} at the regular price for up to ${maxMacs} Macs, or ${proIndiaRegularPrice} in India, and less during sales. [Pricing](/pricing) shows today's price for your region. You get a license key, lifetime updates and activation on up to ${maxMacs} Macs you own, with no account and no recurring charge. Every Mac can try MacWall first with a ${macwallTrial.name}.`,
       },
       { type: "h2", text: "Activate after purchase" },
       {
         type: "ol",
         items: [
           "Complete checkout from [/pricing](/pricing). Payment is processed by Stripe; MacWall never sees your card details.",
-          "Stripe returns you to the activation page, which verifies the payment server-side and shows your license key.",
-          "Click **Activate on this Mac**. That opens MacWall and applies the key automatically.",
-          "Prefer manual entry? Open MacWall → **Settings** → **License**, paste the key, and click **Activate**.",
+          "Stripe returns you to the activation page, which verifies the payment and shows your license key.",
+          "MacWall opens and applies the key by itself. If it doesn't open, click **Open MacWall** on that page.",
+          "Prefer to paste it? Open MacWall → **Settings** → **MacWall Pro** → **Enter License Key…** and paste the key, or the whole line from the email.",
+          "Bought inside MacWall with **Pay Once**? Pro turns on by itself a few moments after you pay; keep MacWall open.",
         ],
       },
       { type: "h2", text: "Lost your key" },
       {
         type: "p",
-        text: `Your key is in the email we send from licenses@macwall.app right after payment. If you cannot find it, email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) from the address you paid with and we will resend it.`,
+        text: `Your key (it starts with MW-) is in the email we send from licenses@macwall.app right after payment. Search for MacWall or "MW-", and check Spam and Promotions. Still missing? Email ${supportLink} from the address you paid with and we will resend it.`,
       },
       { type: "h2", text: "Move a license to a new Mac" },
       {
         type: "ul",
         items: [
-          `A base license covers ${maxMacs} activations. Under that limit, just enter the same key on the new Mac.`,
-          "At the limit, deactivate an old Mac in MacWall → Settings → License, which frees a slot immediately.",
-          `No longer have the old Mac? Email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) with your key and we will release the seat.`,
-          "Need more machines, a studio, a family, a lab? The Pro+ pack raises the limit; see [/pricing](/pricing).",
+          `One Pro key works on ${maxMacs} Macs. Under that limit, just enter the same key on the new Mac.`,
+          "At the limit, open **Settings → MacWall Pro** on the old Mac and click **Unlink**, which frees its place at once.",
+          `No longer have the old Mac? Email ${supportLink} with your key and we will release it.`,
+          "Need more machines for a studio, a family or a lab? Pro+ covers 5 or 10 Macs; see [/pricing](/pricing).",
         ],
       },
       { type: "h2", text: "What Pro unlocks" },
@@ -456,18 +561,18 @@ export const docsPages: DocsPage[] = [
       { type: "h2", text: "Refunds" },
       {
         type: "p",
-        text: `Every license has a ${macwall.refundWindowDays}-day money-back guarantee. Email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) within ${macwall.refundWindowDays} days of purchase for a full refund, no reason needed; details are in the [Refund Policy](/legal/refund). Separately, the [creator program](/creator) refunds your purchase for posting a MacWall video that reaches the view thresholds.`,
+        text: `Every license has a ${macwall.refundWindowDays}-day money-back guarantee. Email ${supportLink} within ${macwall.refundWindowDays} days of purchase for a full refund, no reason needed; details are in the [Refund Policy](/legal/refund). Separately, the [creator program](/creator) refunds your purchase for posting a MacWall video that reaches the view thresholds.`,
       },
     ],
     faq: [
       {
         question: "Is MacWall Pro a subscription?",
-        answer: `No. The permanent license is a single ${proPrice} payment in default USD pricing with lifetime updates. The annual plan is retired for new purchases.`,
+        answer: `No. Pro is a single payment with lifetime updates: ${proRegularPrice} at the regular price for ${maxMacs} Macs (${proIndiaRegularPrice} in India). The annual plan is retired for new purchases.`,
       },
       {
         question: "Does the license work offline?",
         answer:
-          "Yes. Activation needs a network connection once. After that Pro features work offline; only browsing the cloud catalog requires internet.",
+          "Yes. Activation needs an internet connection, and downloaded wallpapers play offline. If your Mac has been offline for a long time, MacWall asks you to reconnect so it can check the license, never to pay again.",
       },
       {
         question: "Do I need to buy again for a new macOS version?",
@@ -483,32 +588,43 @@ export const docsPages: DocsPage[] = [
     slug: "performance-and-battery",
     pathname: "/docs/performance-and-battery",
     title: "MacWall Performance & Battery Settings",
-    headline: "Tune performance, CPU, and battery behaviour",
+    headline: "Tune performance, CPU, and battery behavior",
     description:
-      "Every MacWall pause rule explained: battery, full screen, display sleep, high CPU, plus how to verify real CPU usage in Activity Monitor.",
+      "MacWall 4.1.0 pause rules: full-screen apps, display sleep, Pause on battery, Lower quality on battery and Pause when busy, and how to check CPU use.",
     keywords: [
       "live wallpaper cpu usage mac",
       "macwall battery",
       "macwall performance settings",
       "mac wallpaper battery drain",
+      "pause on battery",
     ],
     publishedAt: "2026-08-02",
-    updatedAt,
+    updatedAt: "2026-11-05",
     sections: [
       {
         type: "p",
-        text: "MacWall's design goal is that you forget it is running. Video frames are decoded by Apple's media hardware through VideoToolbox and composited with Metal, so the CPU is not decoding pixels, and when nothing is visible, playback stops instead of running in the background.",
+        text: "MacWall's design goal is that you forget it is running. Video frames are decoded by the Mac's media hardware through Apple's video frameworks rather than by the CPU, and when nobody can see the wallpaper, playback stops instead of running in the background.",
       },
       { type: "h2", text: "Pause rules" },
       {
         type: "ul",
         items: [
-          "**Pause on battery** (off by default): on battery, stops playback once Low Power Mode is on or macOS shows the low-battery warning, and resumes on power. Pair it with **Lower quality on battery**, which caps playback at 1080p and 30 fps whenever you are unplugged.",
-          "**Pause in full screen**: a full screen app covers the wallpaper, so decoding it is pure waste.",
-          "**Pause on display sleep / lock**: always on. Nothing decodes while the screen is off.",
-          "**Pause on high CPU**: yields automatically during exports, compiles, and other heavy work, then resumes when load drops.",
-          "**Pause on Low Power Mode**: follows the system energy preference you already set.",
+          `**${power.pauseBehindFullScreen.label}** (on by default): a display covered by a full-screen app, or by windows over the whole desktop, stops decoding until the wallpaper is visible again.`,
+          "**Displays asleep**: always. Nothing decodes while the displays sleep.",
+          `**Screen locked**: with ${appPlayback.setting} playback the desktop stops while the Mac is locked. With ${systemPlayback.setting} playback the Lock Screen plays the wallpaper unless you turn off Play the wallpaper while locked.`,
+          `**${power.pauseOnBattery.label}** (off by default): since 4.1.0 it ${power.pauseOnBattery.detail}, even while MacWall is closed. Pressing Play overrides it until you plug in or unplug again. Through 4.0.9 it acted only in Low Power Mode or at the low-battery warning.`,
+          `**${power.lowerQualityOnBattery.label}** (off by default): ${power.lowerQualityOnBattery.detail}. With ${appPlayback.setting} playback it caps the wallpaper at 1920 pixels and 30 fps. It's not needed while ${power.pauseOnBattery.label} is on, since the wallpaper is already paused then.`,
+          `**${power.pauseWhenBusy.label}** (off by default): ${power.pauseWhenBusy.detail}, then plays again when the load drops.`,
         ],
+      },
+      {
+        type: "p",
+        text: `All of these live in ${power.settingsPath}. A paused wallpaper keeps its last frame and starts again on its own.`,
+      },
+      { type: "h2", text: "Playback mode and CPU" },
+      {
+        type: "p",
+        text: `On ${macwallLockScreenMacOSVersion} and later, **${systemPlayback.setting}** playback (${playbackPath}) lets macOS play the wallpaper, so MacWall can stay closed: ${systemPlayback.cpu}. With **${appPlayback.setting}** playback MacWall plays the video itself and stays open.`,
       },
       { type: "h2", text: "Verify it yourself" },
       {
@@ -517,40 +633,47 @@ export const docsPages: DocsPage[] = [
           "Open **Activity Monitor** → **CPU** tab.",
           "Search for `MacWall` and watch the **% CPU** column with a wallpaper playing.",
           "Switch to the **Energy** tab and check **Energy Impact** over a few minutes.",
-          "Pause from the menu bar and watch both values fall to effectively zero.",
+          "Pause from the menu bar and watch both values drop.",
         ],
       },
       {
         type: "p",
-        text: "With hardware-decodable media, MacWall moves video decoding off the CPU and stops the wallpaper decoder while paused. Actual CPU and Energy Impact readings vary by Mac, source video, display setup, and settings; use the steps above to measure your own setup. The methodology is broken down in [the performance guide](/blog/macwall-performance-zero-overhead-guide).",
+        text: `With ${systemPlayback.setting} playback the video is decoded by macOS's wallpaper process rather than by the MacWall app, so compare the whole Mac's CPU and energy use, not just MacWall's row. Readings vary by Mac, source video, display setup and settings; use the steps above to measure your own setup. What drives the cost, and how to compare readings, is in [live wallpaper CPU and battery use](/blog/live-wallpaper-cpu-usage-mac).`,
       },
       { type: "h2", text: "If usage looks higher than expected" },
       {
         type: "ul",
         items: [
           "**Check the source video.** A 60 fps 8K import costs far more to decode than a 4K 30 fps loop. Re-encode using the guidance in [Import your own videos](/docs/import-your-own-videos).",
-          "**Check codec support.** Unusual codecs can fall back to software decode. H.264 and HEVC always use hardware.",
-          "**Count displays.** Separate loops on several 4K panels multiply decode work; mirroring one loop decodes once.",
-          "**Check for a competing wallpaper app.** Two apps fighting over the wallpaper layer will both keep working, and both keep drawing.",
+          "**Check the codec.** H.264 and HEVC decode in hardware. AV1 needs a recent Apple silicon Mac, and ProRes or VP9 imports are converted first.",
+          "**Count displays.** Displays showing the same video share one player, so only a display with its own wallpaper adds decode work. Several 4K displays with different loops cost more than one.",
+          "**Quit other wallpaper apps.** On macOS 26 there is one system wallpaper, and another app setting its own replaces MacWall's.",
         ],
       },
     ],
     faq: [
       {
         question: "Will a live wallpaper drain my MacBook battery?",
-        answer:
-          "Expect a modest cost similar to a small video playing in a window. Lower quality on battery reduces it, and pause-on-battery stops it entirely in Low Power Mode or at the low-battery warning. We have not published a measured battery test yet.",
+        answer: `Expect a modest cost, similar to a small video playing in a window. ${power.lowerQualityOnBattery.label} reduces it, and ${power.pauseOnBattery.label} stops it entirely whenever your Mac is unplugged. We have not published a measured battery test yet.`,
+      },
+      {
+        question: "Does MacWall pause in Low Power Mode?",
+        answer: `Not by itself since 4.1.0. Turn on ${power.pauseOnBattery.label} to hold the frame whenever your Mac is unplugged, which covers Low Power Mode on battery. ${power.lowerQualityOnBattery.label} also decodes less in Low Power Mode.`,
       },
       {
         question: "Does MacWall run when the lid is closed?",
         answer:
-          "No. Display sleep stops playback unconditionally, and closing the lid sleeps the display.",
+          "Not on the built-in display: closing the lid turns it off, and nothing is decoded for it. With an external display and the lid closed, the wallpaper keeps playing on the external display.",
       },
       {
         question: "Does MacWall affect gaming performance?",
-        answer:
-          "Games run full screen, and pause-in-full-screen stops the wallpaper there. Combined with pause-on-high-CPU, MacWall stays out of the way during demanding work.",
+        answer: `Games usually run full screen, and ${power.pauseBehindFullScreen.label} (on by default) stops the wallpaper there. Turn on ${power.pauseWhenBusy.label} for heavy work in a window.`,
       },
+    ],
+    sources: [
+      appleSources.videoToolbox,
+      appleSources.activityMonitorEnergy,
+      appleSources.powerModes,
     ],
   }),
 
@@ -570,66 +693,68 @@ export const docsPages: DocsPage[] = [
       "mac wallpaper black screen",
     ],
     publishedAt: "2026-08-02",
-    updatedAt,
+    updatedAt: "2026-11-05",
     sections: [
       {
         type: "p",
-        text: "Most issues come from one of four causes: macOS cached the previous wallpaper, a pause rule is doing exactly what you asked, another wallpaper app is competing for the same layer, or a macOS update changed wallpaper behaviour. Work through the matching section below.",
+        text: "Most issues come from one of four causes: MacWall is out of date or running from the disk image, a pause rule is doing exactly what you asked, another wallpaper app is replacing MacWall's, or a macOS update changed wallpaper behavior. Work through the matching section below.",
       },
       { type: "h2", text: "Wallpaper does not appear" },
       {
         type: "ol",
         items: [
-          "Check the MacWall menu bar item. If it shows **Paused**, resume.",
-          "Confirm no pause rule is active: Low Power Mode with pause-on-battery on, high CPU with pause-when-busy on, or a full-screen app in front.",
-          "Re-apply the wallpaper from MacWall. This overwrites a stale macOS wallpaper asset.",
-          "Quit and relaunch MacWall.",
-          "Log out and back in, which forces macOS to reload wallpaper assets.",
+          "Update MacWall (Settings → About → Check Now). Most apply errors are fixed in the latest version.",
+          "Make sure MacWall is in Applications and opened from there, not from the disk image, and quit other live wallpaper apps.",
+          "Check the MacWall menu bar icon. If the wallpaper is paused, press Play.",
+          `Check the pause rules: a full-screen app in front, ${power.pauseOnBattery.label} while unplugged, or ${power.pauseWhenBusy.label} during heavy work.`,
+          `If MacWall says macOS didn't start the wallpaper, click **Use MacWall App** on that message, or choose ${appPlayback.setting} in ${playbackPath}.`,
+          "Click **Set Wallpaper** again.",
         ],
       },
       { type: "h2", text: "Playback is frozen on one frame" },
       {
         type: "p",
-        text: "A frozen frame is what a paused wallpaper looks like. That is deliberate, not a crash. Resume from the menu bar. If it re-pauses immediately, a rule is firing: battery, high CPU, or Low Power Mode. Review them in [Performance and battery](/docs/performance-and-battery).",
+        text: `A frozen frame is what a paused wallpaper looks like. That is deliberate, not a crash. Press Play in the menu bar. If it pauses again right away, a rule is firing: a full-screen app, ${power.pauseOnBattery.label} while unplugged, or ${power.pauseWhenBusy.label}. Review them in [Performance and battery](/docs/performance-and-battery).`,
       },
       { type: "h2", text: "Downloads fail or stall" },
       {
         type: "ul",
         items: [
           "Catalog videos are served over HTTPS from a CDN. A VPN, corporate proxy, or content filter can block them, so try with it off.",
-          "Confirm free disk space. 4K loops are large and a failed write looks like a stalled download.",
-          "Retry from the wallpaper's detail view; MacWall resumes rather than restarting from zero.",
+          "Confirm free disk space. 4K loops are large, and Settings → Storage → Clear Cache can free room.",
+          "Retry from the wallpaper's page; MacWall resumes where the download stopped rather than starting from zero.",
         ],
       },
       { type: "h2", text: "Black desktop after a macOS update" },
       {
         type: "ol",
         items: [
-          "Update MacWall first. [/download](/download) always serves the current build, and wallpaper behaviour changes between macOS releases.",
-          "Set a plain static wallpaper in System Settings, then re-apply your MacWall wallpaper. This clears a broken asset.",
-          "If the desktop stays black, restart. macOS occasionally needs one restart after a wallpaper subsystem change.",
+          "Update MacWall first. [/download](/download) always serves the current build, and wallpaper behavior changes between macOS releases.",
+          "Make sure MacWall is running (its icon is in the menu bar), then click **Set Wallpaper** again.",
+          "Your own ProRes, AV1 or VP9 video can stay black while MacWall converts it. Give it a moment, or re-export it as H.264 or HEVC.",
+          "If the desktop stays black, restart your Mac and set the wallpaper again.",
         ],
       },
       { type: "h2", text: "Lock Screen motion missing" },
       {
         type: "p",
-        text: "Lock Screen playback needs Pro and a supported macOS version. The full checklist is in [Live Lock Screen and Screen Saver](/docs/live-lock-screen-and-screen-saver).",
+        text: "Lock Screen playback needs Pro (or the trial) and macOS 26 or later. The full checklist is in [Live Lock Screen and Screen Saver](/docs/live-lock-screen-and-screen-saver).",
       },
       { type: "h2", text: "Still stuck" },
       {
         type: "p",
-        text: `Email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) with your macOS version, Mac model, MacWall version, and what you already tried. The [Discord community](${macwall.discordInvite}) is often faster for setup questions.`,
+        text: `Use **Settings → Help & Support** inside MacWall, or email ${supportLink} with your macOS version, Mac model, MacWall version and what you already tried. The [Discord community](${macwall.discordInvite}) is often faster for setup questions.`,
       },
     ],
     faq: [
       {
         question: "Can I run MacWall alongside another wallpaper app?",
         answer:
-          "Not reliably. Two apps writing the wallpaper layer will override each other and both keep consuming resources. Quit the other app before troubleshooting MacWall.",
+          "Not reliably. On macOS 26 there is one system wallpaper: another wallpaper app, or a still image set in System Settings, replaces MacWall's. Quit the other app, then click Set Wallpaper in MacWall.",
       },
       {
         question: "How do I report a bug?",
-        answer: `Email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) with your macOS and MacWall versions and steps to reproduce. Fixes ship in the next release and are listed in [the changelog](/changelog).`,
+        answer: `Email ${supportLink} with your macOS and MacWall versions and steps to reproduce. Fixes ship in the next release and are listed in [the changelog](/changelog).`,
       },
     ],
   }),
@@ -642,54 +767,61 @@ export const docsPages: DocsPage[] = [
     title: "Uninstall MacWall",
     headline: "Uninstall MacWall completely",
     description:
-      "Remove MacWall and every cached wallpaper video from your Mac, restore your static desktop picture, and keep your license for later.",
+      "Remove MacWall from your Mac, get your own wallpaper back on the desktop and Lock Screen, delete its downloaded videos and keep your license for later.",
     keywords: [
       "uninstall macwall",
       "remove macwall mac",
       "delete live wallpaper app mac",
     ],
     publishedAt: "2026-08-02",
-    updatedAt,
+    updatedAt: "2026-11-05",
     sections: [
       {
         type: "p",
-        text: "MacWall installs no kernel extensions, no launch daemons, and no background installer. Removing it is a normal app removal plus one support folder if you also want the cached videos gone.",
+        text: "MacWall installs no kernel extensions and no launch daemons. The cleanest way to remove it is built in: **Uninstall MacWall** gives your own wallpaper back, takes MacWall out of Login Items, deletes its downloads, caches and settings, turns off its wallpaper extension and moves the app to the Trash.",
       },
-      { type: "h2", text: "Remove the app" },
+      { type: "h2", text: "Uninstall from MacWall's settings" },
       {
         type: "ol",
         items: [
-          "Click the MacWall menu bar icon → **Quit MacWall**. Quitting restores your previous static desktop picture.",
-          "Open **Applications** and move **MacWall** to the Trash.",
-          "Empty the Trash.",
+          "Click the MacWall menu bar icon → **⋯** → **Settings**.",
+          "Open **General** and click **Uninstall…** next to Uninstall MacWall, then confirm.",
+          "MacWall lists anything it couldn't remove, then quits. Empty the Trash when you're ready.",
         ],
       },
-      { type: "h2", text: "Remove cached wallpapers and settings" },
+      { type: "h2", text: "Remove it by hand" },
       {
         type: "ol",
         items: [
-          "In Finder press **Shift-Command-G** and go to `~/Library/Application Support/`.",
-          "Delete the **MacWall** folder, which is where downloaded and imported loops are cached.",
-          "Go to `~/Library/Preferences/` and delete the MacWall `.plist` file to clear settings.",
-          "Empty the Trash and restart if you want the wallpaper subsystem fully reset.",
+          "In the menu bar choose **⋯** → **Stop Wallpaper**. This gives your own macOS wallpaper back; quitting alone doesn't, because with System Wallpaper playback the wallpaper keeps playing after you quit.",
+          "Choose **⋯** → **Quit MacWall**.",
+          "Open **Applications** and move **MacWall** to the Trash.",
+          "In Finder press **Shift-Command-G**, go to `~/Library/Application Support/` and delete the **MacWall** folder, where downloaded and added videos are kept. Do the same in `~/Library/Caches/`.",
+          "To clear settings too, delete `com.macwall.ogapps.plist` from `~/Library/Preferences/`.",
+          "If you turned on Open at login, remove MacWall in System Settings → General → Login Items & Extensions.",
         ],
       },
       { type: "h2", text: "Your license after uninstalling" },
       {
         type: "p",
-        text: `A Pro license belongs to you, not to the install. Keep the key: reinstalling and re-entering it restores Pro. If you are uninstalling to free an activation slot, deactivate in Settings → License **before** removing the app, or email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) and we will release the seat.`,
+        text: `A Pro license belongs to you, not to the install, and uninstalling doesn't unlink it. Keep the key: reinstalling and entering it restores Pro. To free one of your ${maxMacs} Macs, click **Unlink** in Settings → MacWall Pro **before** removing the app, or email ${supportLink} and we will release it.`,
       },
     ],
     faq: [
       {
         question: "Does uninstalling change my desktop wallpaper back?",
         answer:
-          "Yes. Quitting MacWall restores the static picture you had before, so you never end up on a frozen frame or a black desktop.",
+          "Yes, with Uninstall MacWall in Settings → General, or with Stop Wallpaper in the menu bar before you remove the app by hand. Both put back the wallpaper you had before MacWall.",
       },
       {
         question: "Do I lose imported videos?",
         answer:
-          "Your original files are untouched wherever you keep them. Only MacWall's cached copies in Application Support are removed.",
+          "Your original files stay wherever you keep them. Uninstalling removes only MacWall's own copies.",
+      },
+      {
+        question: "What's the difference between Reset and Uninstall?",
+        answer:
+          "Reset MacWall (Settings → General) removes downloads, your own videos and settings but keeps your license and favorites, so you can start over. Uninstall MacWall removes the app and its files completely.",
       },
     ],
   }),
@@ -711,7 +843,7 @@ export const docsPages: DocsPage[] = [
       "api catalog",
     ],
     publishedAt: "2026-08-02",
-    updatedAt: macwall.productInfoLastReviewedIso,
+    updatedAt: "2026-10-27",
     sections: [
       {
         type: "p",
@@ -725,17 +857,17 @@ export const docsPages: DocsPage[] = [
       {
         type: "ul",
         items: [
-          "`q`: free-text search across name and tags.",
+          "`q`: case-insensitive search across name, id, category and resolution.",
           `\`category\`: one of ${macwall.categories.join(", ")}.`,
           "`tag`: filter by a single tag.",
           "`sort`: `newest` (default), `popular`, or `older`.",
           "`page`: 1-based page number, default `1`.",
-          "`limit`: items per page, default `24`.",
+          "`limit`: items per page, default `24`, at most `60`.",
         ],
       },
       {
         type: "p",
-        text: "Returns `{ wallpapers, total, page, limit, hasMore }`. Each wallpaper includes `id`, `name`, `category`, `tags`, `resolution`, `durationSeconds`, `fileSizeBytes`, `thumbUrl`, `videoUrl`, `isPro`, `isFeatured`, `likeCount`, and `createdAt`. `videoUrl` is a downscaled, silent web preview, not the source file; full-resolution wallpapers are only available in the app.",
+        text: "Returns `{ wallpapers, total, page, limit, hasMore }`. Each wallpaper includes `id`, `name`, `category`, `tags`, `resolution`, `durationSeconds`, `fileSizeBytes`, `videoKey`, `thumbKey`, `thumbUrl`, `videoUrl`, `likeCount`, and `createdAt`. A page past the end returns `200` with an empty `wallpapers` array and `hasMore: false`. `videoUrl` is a downscaled, silent web preview, not the source file; full-resolution wallpapers are only available in the app.",
       },
       {
         type: "h2",
@@ -793,7 +925,7 @@ export const docsPages: DocsPage[] = [
       },
       {
         question: "Can I use the catalog data in my own app?",
-        answer: `Metadata, yes, with attribution and a link back to macwall.app. The wallpaper videos themselves are licensed for MacWall use only. Ask first at [${macwall.supportEmail}](mailto:${macwall.supportEmail}).`,
+        answer: `Metadata, yes, with attribution and a link back to macwall.app. The wallpaper videos themselves are licensed for MacWall use only. Ask first at ${supportLink}.`,
       },
     ],
   }),
@@ -805,6 +937,13 @@ export function getDocsPage(slug: string): DocsPage | undefined {
 
 export function getAllDocsSlugs(): string[] {
   return docsPages.map((page) => page.slug)
+}
+
+/** Newest `updatedAt` across the docs, for the hub's dateModified. */
+export function docsLastUpdatedIso(): string {
+  return docsPages
+    .map((page) => page.updatedAt)
+    .reduce((latest, iso) => (iso > latest ? iso : latest))
 }
 
 export function docsPagesBySection(): {

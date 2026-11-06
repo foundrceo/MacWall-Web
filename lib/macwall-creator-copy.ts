@@ -1,6 +1,7 @@
 import {
   macwall,
   macwallInstallerLatestPath,
+  macwallTrial,
   mailtoReelRefund,
 } from "@/lib/macwall-site"
 
@@ -10,13 +11,13 @@ const fullViews = macwall.reelRefundFullViews.toLocaleString()
 export const macwallCreatorCopy = {
   pageTitle: "Money back for a video",
   heroTitle: "Post a video. Get your money back.",
-  heroLead: `Download free with a 24-hour Pro trial. Post a short video of it running on your Mac, and we pay you back: 50% at ${halfViews} views, all of it at ${fullViews}.`,
+  heroLead: `Download free with a ${macwallTrial.name}. Post a short video of it running on your Mac, and we pay you back: 50% at ${halfViews} views, all of it at ${fullViews}.`,
 
   steps: [
     {
       id: "1",
-      title: "Start your free 24-hour Pro trial",
-      body: "Download MacWall free and the full Pro catalog unlocks for 24 hours, no card needed. Film everything inside the trial, buy only when you're ready to post.",
+      title: `Start your ${macwallTrial.name}`,
+      body: "Download MacWall free and the full catalog unlocks for 24 hours, no card needed. Film everything inside the trial, buy only when you're ready to post.",
     },
     {
       id: "2",

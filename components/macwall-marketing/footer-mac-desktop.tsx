@@ -197,8 +197,8 @@ const socialTile: Record<MarketingFooterSocialLink["brand"], string> = {
 
 const aiTile: Record<(typeof aiSummaryProviders)[number]["key"], string> = {
   chatgpt: "bg-white text-black",
-  gemini:
-    "bg-linear-to-br from-[#4285f4] via-[#9b72cb] to-[#d96570] text-white",
+  claude: "bg-[#d97757] text-white",
+  googleAiMode: "bg-white text-[#4285f4]",
   perplexity: "bg-[#1f6f78] text-white",
 }
 

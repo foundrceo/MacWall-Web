@@ -1,0 +1,43 @@
+name: SEO check
+
+# Daily crawl of the live site with scripts/seo-check.mjs. It only reads
+# (GET/HEAD) and needs no secrets. It isn't wired to pushes or pull
+# requests, so it never blocks a deploy: a red run is a report to act on.
+on:
+  schedule:
+    # 06:17 UTC: away from midnight-UTC date rollovers and the 03:15 IndexNow cron.
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+    inputs:
+      origin:
+        description: Site to crawl (production or a Workers preview URL)
+        default: https://macwall.app
+        required: true
+      wallpapers:
+        description: Wallpaper detail pages to sample
+        default: "40"
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seo-check
+  cancel-in-progress: true
+
+jobs:
+  seo-check:
+    name: Crawl and check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      # No npm ci: the script has no dependencies.
+      - name: Run scripts/seo-check.mjs
+        env:
+          ORIGIN: ${{ inputs.origin || 'https://macwall.app' }}
+          WALLPAPERS: ${{ inputs.wallpapers || '40' }}
+        run: node scripts/seo-check.mjs "$ORIGIN" --wallpapers="$WALLPAPERS" --details=0

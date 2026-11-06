@@ -4,16 +4,21 @@ import { ChevronRight, Check } from "lucide-react"
 
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
 import { PageMotion } from "@/components/motion/page-motion"
+import { ColorCollectionsProvider } from "@/components/tools/color-collections-context"
 import type { ContentFaq } from "@/lib/content/types"
 import { macwall } from "@/lib/macwall-site"
 import {
   accessedLabel,
   displayResolutionLabel,
   MAC_DISPLAY_SPECS_ACCESSED,
+  macDisplayPagePath,
+  macDisplaySources,
   macDisplays,
 } from "@/lib/seo/mac-displays"
 import {
   TOOL_APPLE_SOURCES,
+  TOOL_COLOR_COLLECTIONS,
+  TOOL_DISPLAY_LINKS,
   TOOLS_HUB_PATH,
   TOOLS_SHARED_FACTS,
   tools,
@@ -45,6 +50,8 @@ const SECONDARY =
   "inline-flex h-11 items-center rounded-full bg-surface-2 px-5 text-[15px] text-ink transition-colors duration-150 hover:bg-surface-3 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
 const LINK =
   "rounded-sm text-white underline decoration-white/30 decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-white"
+const CHIP =
+  "inline-flex h-9 items-center rounded-full bg-surface-2 px-4 text-[14px] text-ink transition-colors duration-150 hover:bg-surface-3 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
 
 /** Simple line icons, one per tool, drawn in the brand's white on dark. */
 export function ToolIcon({
@@ -195,7 +202,7 @@ export function FactCard({ facts }: Readonly<{ facts: readonly ToolFact[] }>) {
   )
 }
 
-/** Apple's native resolutions, the table every tool page shares. */
+/** Apple's native resolutions, the table every tool page shares; each Mac links its wallpapers. */
 export function MacDisplayTable() {
   return (
     <div className={cn(TOOL_CARD, "overflow-x-auto")}>
@@ -223,7 +230,13 @@ export function MacDisplayTable() {
           {macDisplays.map((d) => (
             <tr key={d.id} className={cn("border-t align-top", HAIRLINE)}>
               <th scope="row" className={cn("px-5 py-3.5 font-normal", INK)}>
-                {d.name}
+                <Link
+                  href={macDisplayPagePath(d)}
+                  className={LINK}
+                  aria-label={`${d.name}: live wallpapers that fit`}
+                >
+                  {d.name}
+                </Link>
               </th>
               <td className={cn("px-3 py-3.5", INK_2)}>{d.sizeInches}-inch</td>
               <td className={cn("px-3 py-3.5 tabular-nums", INK_2)}>
@@ -241,12 +254,33 @@ export function MacDisplayTable() {
 function Sources() {
   return (
     <ul className="flex flex-col gap-2">
-      {[...new Map(macDisplays.map((d) => [d.source, d])).values()].map((d) => (
-        <li key={d.source} className={cn("text-[14px] leading-6", INK_3)}>
-          <a href={d.source} className={LINK} rel="noopener" target="_blank">
-            {d.name} tech specs
+      {macDisplaySources().map((source) => (
+        <li key={source.url} className={cn("text-[14px] leading-6", INK_3)}>
+          <a href={source.url} className={LINK} rel="noopener" target="_blank">
+            {source.name}
           </a>
-          , Apple, accessed {accessedLabel(d.accessed)}
+          , Apple, accessed {accessedLabel(source.accessed)}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** Plain links as chips: wallpaper pages per screen or per color. */
+function ChipLinks({
+  label,
+  links,
+}: Readonly<{
+  label: string
+  links: readonly { href: string; label: string }[]
+}>) {
+  return (
+    <ul aria-label={label} className="flex flex-wrap gap-2">
+      {links.map((link) => (
+        <li key={link.href}>
+          <Link href={link.href} className={CHIP}>
+            {link.label}
+          </Link>
         </li>
       ))}
     </ul>
@@ -320,7 +354,7 @@ export function ToolsHubPage({
             </div>
           }
           title="Wallpaper tools for your Mac"
-          line="Free tools that run in your browser. Size a wallpaper for any Mac screen, check your resolution, or pull the colours out of an image."
+          line="Free tools that run in your browser. Size a wallpaper for any Mac screen, check your resolution, or pull the colors out of an image."
         >
           <div className="flex flex-wrap justify-center gap-3">
             <Link href={tools[0].pathname} className={PRIMARY}>
@@ -344,7 +378,7 @@ export function ToolsHubPage({
           <p className={cn("text-[14px] leading-6", INK_3)}>
             From Apple&apos;s tech specs, read{" "}
             {accessedLabel(MAC_DISPLAY_SPECS_ACCESSED)}. Sources are listed on
-            each tool.
+            each tool. Each Mac links the live wallpapers that fit its screen.
           </p>
         </Section>
 
@@ -365,18 +399,25 @@ export function ToolSpecPage({
   tool,
   children,
 }: Readonly<{ tool: ToolPage; children: ReactNode }>) {
-  const showDisplays = tool.slug !== "color-palette"
+  const isPalette = tool.slug === "color-palette"
+  const showDisplays = !isPalette
   return (
     <>
       <article className={COLUMN} data-reveal-root>
         <Header
           icon={<ToolIcon slug={tool.slug} size={64} />}
-          title={tool.headline.replace(/^./, (c) => c.toUpperCase())}
+          title={tool.headline}
           line={tool.line}
           breadcrumb={tool.name}
         />
 
-        {children}
+        {isPalette ? (
+          <ColorCollectionsProvider collections={TOOL_COLOR_COLLECTIONS}>
+            {children}
+          </ColorCollectionsProvider>
+        ) : (
+          children
+        )}
 
         <Section id="answer" title={tool.question}>
           <p className={cn(BODY, "sm:text-[17px]")}>{tool.answer}</p>
@@ -403,8 +444,35 @@ export function ToolSpecPage({
         </Section>
 
         {showDisplays ? (
-          <Section id="screens" title="Native resolution of every Mac">
-            <MacDisplayTable />
+          <>
+            <Section id="screens" title="Native resolution of every Mac">
+              <MacDisplayTable />
+            </Section>
+            <Section id="wallpapers" title="Live wallpapers for each screen">
+              <p className={BODY}>
+                Each page picks live wallpapers by how well they cover that
+                screen at its native resolution, using Apple&apos;s numbers for
+                every model.
+              </p>
+              <ChipLinks
+                label="Live wallpapers by Mac display"
+                links={TOOL_DISPLAY_LINKS}
+              />
+            </Section>
+          </>
+        ) : TOOL_COLOR_COLLECTIONS.length > 0 ? (
+          <Section id="colors" title="Live wallpapers by color">
+            <p className={BODY}>
+              Each collection gathers the live wallpapers in that color, so a
+              palette you like here leads to loops that match it.
+            </p>
+            <ChipLinks
+              label="Live wallpaper color collections"
+              links={TOOL_COLOR_COLLECTIONS.map((entry) => ({
+                href: entry.href,
+                label: entry.name,
+              }))}
+            />
           </Section>
         ) : null}
 
@@ -412,7 +480,7 @@ export function ToolSpecPage({
           <ul className="flex flex-col gap-3">
             {[
               `${macwall.name} plays 4K video wallpapers behind your windows on macOS.`,
-              "Every wallpaper page shows its resolution and the colours measured from it.",
+              "Every wallpaper page shows its resolution and the colors measured from it.",
               "Every download starts with a free 24-hour trial.",
             ].map((item) => (
               <li key={item} className={cn("flex gap-3", BODY)}>

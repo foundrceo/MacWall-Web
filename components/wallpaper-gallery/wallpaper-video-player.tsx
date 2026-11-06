@@ -19,12 +19,30 @@ import {
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
+import {
+  afterPageLoadIdle,
+  prefersLightweightMedia,
+  prefersReducedMotion,
+} from "@/lib/deferred-media"
 import { cn } from "@/lib/utils"
 
 const CONTROL_ICON_SIZE = 16
 const CONTROL_ICON_STROKE = 1.75
-/** If the video never becomes ready, surface an error instead of a black hole. */
+/** A stream that never becomes playable counts as failed after this long. */
 const STUCK_BUFFERING_MS = 20_000
+
+type PlaybackSource = "preview" | "master"
+
+/**
+ * - `idle`: poster only; the preview starts once the player is in view and
+ *   the page has loaded and gone idle.
+ * - `tap`: poster + "Play preview" (Save-Data, 2G/3G, reduced motion, or the
+ *   browser blocked autoplay).
+ * - `loading` / `ready`: a file is attached to the <video>.
+ * - `retry`: the preview failed; poster + "Play preview".
+ * - `failed`: nothing playable; poster + "Preview unavailable".
+ */
+type PlayerPhase = "idle" | "tap" | "loading" | "ready" | "retry" | "failed"
 
 function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00"
@@ -36,6 +54,17 @@ function formatTime(seconds: number): string {
 
 function blockMediaContextMenu(event: SyntheticEvent) {
   event.preventDefault()
+}
+
+/**
+ * The master file behind a Media Transformation preview URL
+ * (`/cdn-cgi/media/<options>/videos/…` → `/videos/…`), or "" when the
+ * preview isn't a transform. Only ever loaded after an explicit tap on
+ * "Play preview" once the preview itself has failed: never autoplayed.
+ */
+function masterFallbackUrl(previewSrc: string): string {
+  const master = previewSrc.replace(/\/cdn-cgi\/media\/[^/]+/, "")
+  return master !== previewSrc ? master : ""
 }
 
 function VideoLoader({
@@ -62,103 +91,61 @@ export function WallpaperVideoPlayer({
   src,
   poster,
   title,
+  posterAlt,
   className,
 }: Readonly<{
   /** Downscaled web preview (never the full-resolution master). */
   src: string
   poster: string
   title: string
+  /** Alt text for the poster, the page's main image of the wallpaper. */
+  posterAlt?: string
   className?: string
 }>) {
-  const initialSrc = src.trim()
-  const [[playbackSrc, fallbackUsed], setPlayback] = useState<
-    [string, boolean]
-  >([initialSrc, false])
-  const [reloadNonce, setReloadNonce] = useState(0)
-
-  // Adjust state during render (not in an effect) when the wallpaper changes.
-  const [prevSrc, setPrevSrc] = useState(initialSrc)
-  if (prevSrc !== initialSrc) {
-    setPrevSrc(initialSrc)
-    setPlayback([initialSrc, false])
-  }
-
-  const retryPlayback = useCallback(() => {
-    setPlayback([initialSrc, false])
-    setReloadNonce((n) => n + 1)
-  }, [initialSrc])
-
-  const onMediaError = useCallback(async () => {
-    // Cloudflare Media Transformations run on a limited quota (free tier:
-    // error 9422 when unique transformations are exhausted). The transform
-    // URL then 404s/429s for every wallpaper. Fall back once to the direct
-    // CDN object so previews keep working; drop this when quota recovers.
-    if (!fallbackUsed) {
-      const master = initialSrc.replace(/\/cdn-cgi\/media\/[^/]+/, "")
-      if (master && master !== playbackSrc) {
-        setPlayback([master, true])
-        return true
-      }
-    }
-    return false
-  }, [initialSrc, playbackSrc, fallbackUsed])
-
-  const onStuckBuffering = useCallback(() => {
-    // Same fallback for streams that hang without firing `error`
-    // (transform URLs time out instead of failing fast).
-    if (!fallbackUsed) {
-      const master = initialSrc.replace(/\/cdn-cgi\/media\/[^/]+/, "")
-      if (master && master !== playbackSrc) {
-        setPlayback([master, true])
-        return true
-      }
-    }
-    return false
-  }, [initialSrc, playbackSrc, fallbackUsed])
-
+  const previewSrc = src.trim()
   return (
     <WallpaperVideoPlayerInner
-      key={`${playbackSrc}|${reloadNonce}`}
-      src={playbackSrc}
+      // Another wallpaper starts from a clean slate: poster, idle, no file.
+      key={previewSrc}
+      previewSrc={previewSrc}
       poster={poster}
       title={title}
+      posterAlt={posterAlt?.trim() || `${title} live wallpaper for Mac`}
       className={className}
-      onMediaError={onMediaError}
-      onStuckBuffering={onStuckBuffering}
-      onRetry={retryPlayback}
     />
   )
 }
 
 function WallpaperVideoPlayerInner({
-  src,
+  previewSrc,
   poster,
   title,
+  posterAlt,
   className,
-  bootstrapping,
-  onMediaError,
-  onStuckBuffering,
-  onRetry,
 }: Readonly<{
-  src: string
+  previewSrc: string
   poster: string
   title: string
+  posterAlt: string
   className?: string
-  bootstrapping?: boolean
-  onMediaError: () => Promise<boolean>
-  onStuckBuffering: () => boolean
-  onRetry: () => void
 }>) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const shellRef = useRef<HTMLDivElement>(null)
   const hideTimerRef = useRef<number | null>(null)
   const controlsRevealedRef = useRef(false)
-  const errorHandledRef = useRef(false)
+  /** Which file is attached to the <video> right now, if any. */
+  const sourceRef = useRef<PlaybackSource | null>(null)
+  const startedRef = useRef(false)
+  const previewRetriedRef = useRef(false)
+  /** Paused because it scrolled out of view (not by the visitor). */
+  const autoPausedRef = useRef(false)
   const reduceMotion = useReducedMotion()
+  const masterSrc = masterFallbackUrl(previewSrc)
 
-  const [playbackFailed, setFailed] = useState(false)
-  const failed = playbackFailed || (!src?.trim() && !bootstrapping)
-  const [playing, setPlaying] = useState(true)
+  const [phase, setPhase] = useState<PlayerPhase>(
+    previewSrc ? "idle" : "failed"
+  )
+  const [playing, setPlaying] = useState(false)
   const [muted, setMuted] = useState(true)
   const [progress, setProgress] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
@@ -166,11 +153,81 @@ function WallpaperVideoPlayerInner({
   const [controlsVisible, setControlsVisible] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [scrubbing, setScrubbing] = useState(false)
-  const [buffering, setBuffering] = useState(true)
-  const [ready, setReady] = useState(false)
+  const [buffering, setBuffering] = useState(false)
 
-  const showPoster = Boolean(poster) && (!ready || failed || bootstrapping)
-  const showLoader = (buffering || bootstrapping) && !failed
+  const ready = phase === "ready"
+  const showLoader = phase === "loading" || (ready && buffering)
+  const showPlayButton = phase === "tap" || phase === "retry"
+
+  /**
+   * Attach a file and play it. The preview runs from the idle/in-view
+   * effect or a tap; the master only from a tap on "Play preview" after the
+   * preview failed, so it loads with preload="metadata" and never autoplays.
+   */
+  const start = useCallback(
+    (source: PlaybackSource) => {
+      const video = videoRef.current
+      const url = source === "master" ? masterSrc : previewSrc
+      if (!video || !url) return
+      // Autoplay needs the element muted; the visitor can unmute later.
+      if (!startedRef.current) video.muted = true
+      startedRef.current = true
+      sourceRef.current = source
+      autoPausedRef.current = false
+      video.preload = source === "master" ? "metadata" : "none"
+      video.src = url
+      setBuffering(true)
+      setPhase("loading")
+      void video.play().catch((error: unknown) => {
+        // Autoplay blocked (e.g. Low Power Mode): wait for a tap. Load
+        // failures arrive through the element's `error` event instead.
+        if (
+          error instanceof DOMException &&
+          error.name === "NotAllowedError" &&
+          sourceRef.current === source
+        ) {
+          setBuffering(false)
+          setPhase("tap")
+        }
+      })
+    },
+    [masterSrc, previewSrc]
+  )
+
+  /** Drop a dead file, keep the poster, and offer the next step. */
+  const fail = useCallback(() => {
+    const source = sourceRef.current
+    if (!source) return
+    sourceRef.current = null
+    const video = videoRef.current
+    if (video) {
+      // Detach the stream so a hanging download stops too.
+      video.pause()
+      video.removeAttribute("src")
+      video.load()
+    }
+    setBuffering(false)
+    setPlaying(false)
+    setControlsVisible(false)
+    setPhase(
+      source === "preview" && (masterSrc || !previewRetriedRef.current)
+        ? "retry"
+        : "failed"
+    )
+  }, [masterSrc])
+
+  const onPlayButton = () => {
+    if (phase === "retry") {
+      if (masterSrc) {
+        start("master")
+      } else {
+        previewRetriedRef.current = true
+        start("preview")
+      }
+      return
+    }
+    start(sourceRef.current ?? "preview")
+  }
 
   const clearHideTimer = useCallback(() => {
     if (hideTimerRef.current != null) {
@@ -179,34 +236,51 @@ function WallpaperVideoPlayerInner({
     }
   }, [])
 
-  const scheduleHideControls = useCallback(() => {
-    clearHideTimer()
-    if (!playing) return
-    hideTimerRef.current = window.setTimeout(() => {
-      setControlsVisible(false)
-    }, 2200)
-  }, [clearHideTimer, playing])
+  const scheduleHideControls = useCallback(
+    (isPlaying: boolean) => {
+      clearHideTimer()
+      if (!isPlaying) return
+      hideTimerRef.current = window.setTimeout(() => {
+        setControlsVisible(false)
+      }, 2200)
+    },
+    [clearHideTimer]
+  )
+
+  /** Time and progress only re-render while the controls are on screen. */
+  const syncTime = useCallback(() => {
+    const video = videoRef.current
+    if (!video || !video.duration) return
+    setCurrentTime(video.currentTime)
+    setProgress(video.currentTime / video.duration)
+  }, [])
+
+  const revealControls = useCallback(
+    (isPlaying: boolean = playing) => {
+      if (!controlsVisible) syncTime()
+      setControlsVisible(true)
+      scheduleHideControls(isPlaying)
+    },
+    [controlsVisible, playing, scheduleHideControls, syncTime]
+  )
 
   const markReady = useCallback(() => {
+    if (!sourceRef.current) return
     setBuffering(false)
-    setReady(true)
+    setPhase((current) => (current === "loading" ? "ready" : current))
+  }, [])
+
+  const markBuffering = useCallback(() => {
+    if (sourceRef.current) setBuffering(true)
   }, [])
 
   const revealControlsAfterFirstPlayback = useCallback(() => {
     if (controlsRevealedRef.current) return
     controlsRevealedRef.current = true
+    syncTime()
     setControlsVisible(true)
-    scheduleHideControls()
-  }, [scheduleHideControls])
-
-  const markBuffering = useCallback(() => {
-    setBuffering(true)
-  }, [])
-
-  const revealControls = useCallback(() => {
-    setControlsVisible(true)
-    scheduleHideControls()
-  }, [scheduleHideControls])
+    scheduleHideControls(true)
+  }, [scheduleHideControls, syncTime])
 
   useEffect(() => clearHideTimer, [clearHideTimer])
 
@@ -220,46 +294,100 @@ function WallpaperVideoPlayerInner({
     }
   }, [])
 
-  // Never sit on a black shell forever if the stream dies silently.
-  // Hanging transform URLs get one fallback attempt before giving up.
+  // The preview loads only once the player is near the viewport and the
+  // page has finished loading and gone idle: the poster is the LCP image and
+  // the video must not compete with it. Save-Data, slow connections and
+  // reduced motion get the poster with tap-to-play instead.
   useEffect(() => {
-    if (ready || failed || !src) return
-    const timer = window.setTimeout(() => {
-      if (onStuckBuffering()) return
-      setBuffering(false)
-      setFailed(true)
-    }, STUCK_BUFFERING_MS)
-    return () => window.clearTimeout(timer)
-  }, [ready, failed, src, bootstrapping, onStuckBuffering])
+    const shell = shellRef.current
+    if (!shell || !previewSrc) return
+    let cancelIdle: (() => void) | null = null
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        observer.disconnect()
+        if (startedRef.current) return
+        if (prefersLightweightMedia() || prefersReducedMotion()) {
+          setPhase((current) => (current === "idle" ? "tap" : current))
+          return
+        }
+        cancelIdle = afterPageLoadIdle(() => {
+          if (!startedRef.current) start("preview")
+        })
+      },
+      { rootMargin: "200px 0px" }
+    )
+    observer.observe(shell)
+    return () => {
+      observer.disconnect()
+      cancelIdle?.()
+    }
+  }, [previewSrc, start])
 
-  const togglePlay = useCallback(async () => {
+  // A stream that never becomes playable is treated as failed, so the
+  // visitor gets the poster and a clear next step, not an endless spinner.
+  useEffect(() => {
+    if (phase !== "loading") return
+    const timer = window.setTimeout(fail, STUCK_BUFFERING_MS)
+    return () => window.clearTimeout(timer)
+  }, [phase, fail])
+
+  // Stop decoding while the player is scrolled away; resume on the way back
+  // unless the visitor paused it.
+  useEffect(() => {
+    const shell = shellRef.current
+    if (!shell || !ready) return
+    const observer = new IntersectionObserver(([entry]) => {
+      const video = videoRef.current
+      if (!entry || !video) return
+      if (!entry.isIntersecting) {
+        if (!video.paused) {
+          autoPausedRef.current = true
+          video.pause()
+        }
+      } else if (autoPausedRef.current) {
+        autoPausedRef.current = false
+        void video.play().catch(() => undefined)
+      }
+    })
+    observer.observe(shell)
+    return () => observer.disconnect()
+  }, [ready])
+
+  const togglePlay = useCallback(() => {
     const video = videoRef.current
     if (!video) return
+    autoPausedRef.current = false
+    // UI first, media second: the button responds on the next frame.
     if (video.paused) {
-      try {
-        await video.play()
-        setPlaying(true)
-      } catch {
-        setPlaying(false)
-      }
+      setPlaying(true)
+      revealControls(true)
+      void video.play().catch(() => setPlaying(false))
     } else {
-      video.pause()
       setPlaying(false)
+      revealControls(false)
+      video.pause()
     }
-    revealControls()
   }, [revealControls])
+
+  const onVideoClick = () => {
+    if (ready) togglePlay()
+    else if (phase === "idle") start("preview")
+  }
 
   const toggleMute = useCallback(() => {
     const video = videoRef.current
     if (!video) return
-    video.muted = !video.muted
-    setMuted(video.muted)
+    const nextMuted = !video.muted
+    setMuted(nextMuted)
     revealControls()
+    video.muted = nextMuted
   }, [revealControls])
 
   const toggleFullscreen = useCallback(async () => {
     const shell = shellRef.current
     if (!shell) return
+    revealControls()
     try {
       if (document.fullscreenElement) {
         await document.exitFullscreen()
@@ -269,7 +397,6 @@ function WallpaperVideoPlayerInner({
     } catch {
       // Ignore fullscreen failures (Safari permissions, etc.).
     }
-    revealControls()
   }, [revealControls])
 
   const seekFromClientX = useCallback(
@@ -314,58 +441,6 @@ function WallpaperVideoPlayerInner({
     }
   }
 
-  const handleError = useCallback(async () => {
-    if (errorHandledRef.current) return
-    errorHandledRef.current = true
-    setBuffering(true)
-    const recovered = await onMediaError()
-    if (recovered) {
-      errorHandledRef.current = false
-      setFailed(false)
-      setReady(false)
-      setBuffering(true)
-      return
-    }
-    setBuffering(false)
-    setFailed(true)
-  }, [onMediaError])
-
-  if (failed) {
-    return (
-      <div
-        className={cn(
-          "relative aspect-video overflow-hidden bg-black",
-          className
-        )}
-        onContextMenu={blockMediaContextMenu}
-      >
-        {poster ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={poster}
-            alt={title}
-            className="h-full w-full select-none object-cover [-webkit-user-drag:none]"
-            draggable={false}
-            onContextMenu={blockMediaContextMenu}
-            onDragStart={blockMediaContextMenu}
-          />
-        ) : null}
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/55 px-4 text-center">
-          <p className="font-sans text-[14px] text-white/85">
-            Preview couldn&apos;t load
-          </p>
-          <button
-            type="button"
-            onClick={onRetry}
-            className="inline-flex h-9 items-center justify-center rounded-full bg-white px-4 text-[13px] font-medium text-black transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
-          >
-            Try again
-          </button>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div
       ref={shellRef}
@@ -373,37 +448,52 @@ function WallpaperVideoPlayerInner({
         "group relative aspect-video overflow-hidden bg-black select-none",
         className
       )}
-      onMouseMove={revealControls}
+      onMouseMove={ready ? () => revealControls() : undefined}
       onMouseLeave={() => {
         if (playing) setControlsVisible(false)
       }}
-      onFocusCapture={revealControls}
+      onFocusCapture={ready ? () => revealControls() : undefined}
       onContextMenu={blockMediaContextMenu}
     >
       {/*
-        Custom controls only: no native download UI. `src` is a downscaled
-        preview; the full-resolution master is never sent to the browser.
+        The poster is the page's main image of the wallpaper (LCP, image
+        search, the sitemap's image entry), so it stays in the DOM with real
+        alt text in every state. The video sits over it in the same box.
       */}
-      {src ? (
+      {poster ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={poster}
+          alt={posterAlt}
+          fetchPriority="high"
+          decoding="async"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover select-none [-webkit-user-drag:none]"
+          draggable={false}
+          onContextMenu={blockMediaContextMenu}
+          onDragStart={blockMediaContextMenu}
+        />
+      ) : null}
+
+      {/*
+        Custom controls only: no native download UI. The file is attached
+        from script (see `start`), so the server HTML carries no `src` and
+        `preload="none"`: nothing downloads until the page is idle.
+      */}
+      {previewSrc ? (
         <video
           ref={videoRef}
-          className={cn(
-            "h-full w-full bg-black object-cover transition-opacity duration-300 [-webkit-user-drag:none]",
-            ready ? "opacity-100" : "opacity-0"
-          )}
-          src={src}
-          poster={poster}
+          className="absolute inset-0 h-full w-full object-cover [-webkit-user-drag:none]"
+          poster={poster || undefined}
           playsInline
           loop
           muted={muted}
-          autoPlay
           controls={false}
           controlsList="nodownload noremoteplayback noplaybackrate"
           disablePictureInPicture
           disableRemotePlayback
           draggable={false}
-          preload="auto"
-          onClick={() => void togglePlay()}
+          preload="none"
+          onClick={onVideoClick}
           onContextMenu={blockMediaContextMenu}
           onDragStart={blockMediaContextMenu}
           onLoadStart={markBuffering}
@@ -429,35 +519,41 @@ function WallpaperVideoPlayerInner({
           }}
           onPause={() => setPlaying(false)}
           onTimeUpdate={() => {
-            const video = videoRef.current
-            if (!video || !video.duration || scrubbing) return
-            setCurrentTime(video.currentTime)
-            setProgress(video.currentTime / video.duration)
+            if (controlsVisible && !scrubbing) syncTime()
           }}
           onLoadedMetadata={() => {
             const video = videoRef.current
             if (!video) return
             setDuration(video.duration || 0)
           }}
-          onError={() => {
-            void handleError()
-          }}
+          onError={fail}
           aria-label={title}
         />
       ) : null}
 
-      {/* Poster stays up until first frame, never a blank black shell. */}
-      {showPoster ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={poster}
-          alt=""
-          aria-hidden
-          fetchPriority="high"
-          decoding="async"
-          className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover [-webkit-user-drag:none]"
-          draggable={false}
-        />
+      {showPlayButton ? (
+        <button
+          type="button"
+          onClick={onPlayButton}
+          aria-label={`Play preview of ${title}`}
+          className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center bg-black/20 transition-colors hover:bg-black/30 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none focus-visible:ring-inset"
+        >
+          <span className="inline-flex h-10 items-center gap-2 rounded-full bg-black/70 px-4 font-sans text-[14px] font-medium text-white">
+            <HugeiconsIcon
+              icon={PlayIcon}
+              size={CONTROL_ICON_SIZE}
+              strokeWidth={CONTROL_ICON_STROKE}
+              aria-hidden
+            />
+            Play preview
+          </span>
+        </button>
+      ) : null}
+
+      {phase === "failed" ? (
+        <p className="pointer-events-none absolute bottom-3 left-3 z-10 rounded-full bg-black/70 px-3 py-1 font-sans text-[12px] text-white/85">
+          Preview unavailable
+        </p>
       ) : null}
 
       <AnimatePresence>
@@ -466,7 +562,7 @@ function WallpaperVideoPlayerInner({
             key="loader"
             initial={reduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={reduceMotion ? { opacity: 0 } : { opacity: 0 }}
+            exit={{ opacity: 0 }}
             transition={{
               duration: reduceMotion ? 0 : 0.22,
               ease: [0.22, 1, 0.36, 1],
@@ -498,10 +594,9 @@ function WallpaperVideoPlayerInner({
                 onPointerUp={onProgressPointerUp}
                 onPointerCancel={onProgressPointerUp}
               >
-                <motion.div
+                <div
                   className="absolute inset-y-0 left-0 rounded-full bg-white"
                   style={{ width: `${progress * 100}%` }}
-                  layout={false}
                 />
                 <span
                   className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white opacity-0 shadow transition group-hover/seek:opacity-100"
@@ -513,7 +608,7 @@ function WallpaperVideoPlayerInner({
                 <div className="flex items-center gap-1.5">
                   <ControlButton
                     label={playing ? "Pause" : "Play"}
-                    onClick={() => void togglePlay()}
+                    onClick={togglePlay}
                   >
                     <HugeiconsIcon
                       icon={playing ? PauseIcon : PlayIcon}
@@ -558,6 +653,7 @@ function WallpaperVideoPlayerInner({
   )
 }
 
+/** Plain button with a CSS press state: no JS gesture work on tap (INP). */
 function ControlButton({
   label,
   onClick,
@@ -568,14 +664,13 @@ function ControlButton({
   children: ReactNode
 }>) {
   return (
-    <motion.button
+    <button
       type="button"
       aria-label={label}
       onClick={onClick}
-      whileTap={{ scale: 0.92 }}
-      className="inline-flex size-9 items-center justify-center rounded-full text-white transition hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+      className="inline-flex size-9 items-center justify-center rounded-full text-white transition hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none active:scale-[0.92]"
     >
       {children}
-    </motion.button>
+    </button>
   )
 }

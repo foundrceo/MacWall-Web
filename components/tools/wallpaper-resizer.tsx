@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import {
@@ -11,7 +12,11 @@ import {
   SAMPLE_IMAGE,
   segmentedClass,
 } from "@/components/tools/tool-controls"
-import { displayResolutionLabel, macDisplays } from "@/lib/seo/mac-displays"
+import {
+  displayResolutionLabel,
+  macDisplayPagePath,
+  macDisplays,
+} from "@/lib/seo/mac-displays"
 import { cn } from "@/lib/utils"
 
 type Mode = "fill" | "fit"
@@ -285,6 +290,17 @@ export function WallpaperResizer() {
         </button>
         <ChooseImageButton onFile={handleFile} />
       </div>
+
+      <p className="text-[14px] leading-6 text-ink-2">
+        Want it to move?{" "}
+        <Link
+          href={macDisplayPagePath(display)}
+          className="text-white underline decoration-white/30 underline-offset-4 hover:decoration-white"
+        >
+          Live wallpapers that fit the {display.shortName}
+        </Link>
+        , picked by resolution.
+      </p>
     </section>
   )
 }

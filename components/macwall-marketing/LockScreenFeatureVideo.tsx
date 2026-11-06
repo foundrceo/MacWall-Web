@@ -1,7 +1,4 @@
-"use client"
-
-import { useEffect, useRef, useState } from "react"
-
+import { DeferredVideo } from "@/components/macwall-marketing/deferred-video"
 import { MARKETING_LOCK_SCREEN_VIDEO_MP4_URL } from "@/lib/marketing-assets-urls"
 import { cn } from "@/lib/utils"
 
@@ -10,70 +7,21 @@ const LOCK_SCREEN_VIDEO_SRC = MARKETING_LOCK_SCREEN_VIDEO_MP4_URL
 const LOCK_SCREEN_POSTER_SRC = "/hero/lockscreen-poster.avif"
 
 /**
- * Lock Screen feature demo: defers loading the clip until it is near the
- * viewport so it never competes with above-the-fold work, then plays it.
+ * Lock Screen feature demo. Like every home-page clip it is in the server
+ * HTML with `preload="none"`, plays only while near the viewport (pausing
+ * when it leaves, so it never decodes off-screen) and never for reduced
+ * motion.
  */
 export default function LockScreenFeatureVideo({
   ariaLabel,
   className,
 }: Readonly<{ ariaLabel: string; className?: string }>) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [reduceMotion, setReduceMotion] = useState(false)
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const update = () => setReduceMotion(mq.matches)
-    update()
-    mq.addEventListener("change", update)
-    return () => mq.removeEventListener("change", update)
-  }, [])
-
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-
-    const load = () => {
-      if (video.getAttribute("src") === LOCK_SCREEN_VIDEO_SRC) return
-      video.src = LOCK_SCREEN_VIDEO_SRC
-      video.load()
-      if (!reduceMotion) {
-        void video.play().catch(() => undefined)
-      }
-    }
-
-    if (typeof IntersectionObserver === "undefined") {
-      load()
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            load()
-            observer.disconnect()
-            break
-          }
-        }
-      },
-      { rootMargin: "200px" }
-    )
-    observer.observe(video)
-    return () => observer.disconnect()
-  }, [reduceMotion])
-
   return (
     <div className={cn("relative h-full w-full bg-black", className)}>
-      <video
-        ref={videoRef}
+      <DeferredVideo
+        src={LOCK_SCREEN_VIDEO_SRC}
         poster={LOCK_SCREEN_POSTER_SRC}
-        autoPlay={!reduceMotion}
-        muted
-        loop={!reduceMotion}
-        playsInline
-        preload="none"
-        className="absolute inset-0 h-full w-full object-cover"
-        aria-label={ariaLabel}
+        label={ariaLabel}
       />
     </div>
   )

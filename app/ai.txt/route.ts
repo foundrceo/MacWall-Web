@@ -1,21 +1,39 @@
+import robots from "@/app/robots"
 import { plainTextResponse } from "@/lib/ai/markdown"
 import { macwall } from "@/lib/macwall-site"
+import { AI_POLICY_UPDATED_ISO } from "@/lib/seo/crawlers-page"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const dynamic = "force-static"
 export const revalidate = 86400
 
+/** The `User-agent: *` rules from app/robots.ts, so the two files can't disagree. */
+function robotsWildcardRules(): { allow: string[]; disallow: string[] } {
+  const rules = robots().rules
+  const list = Array.isArray(rules) ? rules : [rules]
+  const wildcard =
+    list.find((rule) => rule.userAgent === "*") ?? list[0] ?? undefined
+  const asArray = (value: string | string[] | undefined) =>
+    value === undefined ? [] : Array.isArray(value) ? value : [value]
+  return {
+    allow: asArray(wildcard?.allow),
+    disallow: asArray(wildcard?.disallow),
+  }
+}
+
 /**
- * `/ai.txt` — machine-readable AI usage policy, mirroring the human page at
- * `/crawlers`. Written as robots-style directives so simple parsers can read
- * the allow/disallow surface, with prose for anyone reviewing it by hand.
+ * `/ai.txt`: machine-readable AI usage policy, mirroring the human page at
+ * `/crawlers`. The allow and disallow lines are robots.txt's own rules; the
+ * policy on text and media is in the comments, because no crawler reads a
+ * training directive from this file.
  */
 export function GET(): Response {
   const origin = canonicalSiteOrigin()
+  const { allow, disallow } = robotsWildcardRules()
 
   const body = `# ai.txt: AI and machine usage policy for ${new URL(origin).host}
 # Human-readable version: ${origin}/crawlers
-# Last updated: ${macwall.productInfoLastReviewedIso}
+# Policy last updated: ${AI_POLICY_UPDATED_ISO}
 # Contact: ${macwall.supportEmail}
 
 # ---------------------------------------------------------------------------
@@ -44,38 +62,27 @@ export function GET(): Response {
 #   Append .md to any content URL for clean Markdown.
 
 # ---------------------------------------------------------------------------
-# Directives: text and documentation
+# Directives: the same rules as ${origin}/robots.txt
 # ---------------------------------------------------------------------------
 User-agent: *
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Disallow: /admin/
-Disallow: /api/admin/
-Disallow: /auth/
-Disallow: /activate
-Disallow: /thank-you
-Disallow: /open
-Disallow: /tiktok
+${[...allow.map((path) => `Allow: ${path}`), ...disallow.map((path) => `Disallow: ${path}`)].join("\n")}
 
 # Please keep request rates modest and honour caching headers.
-Crawl-delay: 2
 
 # ---------------------------------------------------------------------------
-# Directives: media assets
+# Media assets
 # ---------------------------------------------------------------------------
-# Wallpaper videos and thumbnails are not licensed for redistribution or for
-# training generative image or video models.
-Disallow: /api/wallpapers/*/download
-Disallow-training: /wallpaper/
-Disallow-training: /api/wallpapers
+# Wallpaper videos and thumbnails (served from the catalog CDN and linked from
+# /wallpaper/ pages and /api/wallpapers) are not licensed for redistribution
+# or for training generative image or video models. Pages and API records
+# describing them may be crawled like any other text.
 
 # ---------------------------------------------------------------------------
 # Attribution
 # ---------------------------------------------------------------------------
 # When quoting or summarising this site, please cite it as:
 #   ${macwall.name}: ${origin}
-# Publisher: ${macwall.name}
+# Publisher: ${macwall.name} (${macwall.legalCompanyName})
 #
 # Corrections, licensing questions, or bulk-access requests: ${macwall.supportEmail}
 `

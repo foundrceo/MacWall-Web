@@ -1,6 +1,13 @@
 import { macwall } from "@/lib/macwall-site"
 import { wallpaperNamedAuthor } from "@/lib/public-catalog/attribution"
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
+import { wallpaperImageAlt } from "@/lib/public-catalog/wallpaper-alt"
+import { categoryDisplayLabel, categorySeoFor } from "@/lib/seo/category-seo"
+import {
+  isoDurationFromSeconds,
+  organizationRef,
+  siteEntityIds,
+} from "@/lib/seo/json-ld-helpers"
 import {
   wallpaperDetailPath,
   wallpapersGalleryPath,
@@ -30,16 +37,21 @@ function breadcrumbListJsonLd(items: BreadcrumbItem[]) {
   }
 }
 
+/**
+ * The wallpapers listed on the page. `numberOfItems` counts the listed
+ * elements, not the catalog or collection total: the visible copy carries
+ * the public count label (`macwallCatalog.liveCountLabel`), and a larger
+ * raw total here would contradict it.
+ */
 function itemListElementFromWallpapers(
   origin: string,
   wallpapers: PublicWallpaper[],
-  listName: string,
-  totalCount?: number
+  listName: string
 ) {
   return {
     "@type": "ItemList" as const,
     name: listName,
-    numberOfItems: totalCount ?? wallpapers.length,
+    numberOfItems: wallpapers.length,
     itemListElement: wallpapers.map((wallpaper, index) => {
       const path = wallpaperDetailPath(wallpaper)
       return {
@@ -59,6 +71,7 @@ export function wallpaperGalleryIndexJsonLd(input: {
   headline: string
   description: string
   wallpapers: PublicWallpaper[]
+  /** Not emitted: `numberOfItems` counts the listed wallpapers. */
   totalCount?: number
 }) {
   const origin = input.origin.replace(/\/+$/, "")
@@ -85,8 +98,7 @@ export function wallpaperGalleryIndexJsonLd(input: {
         mainEntity: itemListElementFromWallpapers(
           origin,
           input.wallpapers,
-          `${macwall.name} live wallpapers`,
-          input.totalCount
+          `${macwall.name} live wallpapers`
         ),
       },
     ],
@@ -101,6 +113,7 @@ export function wallpaperCategoryGalleryJsonLd(input: {
   headline: string
   description: string
   wallpapers: PublicWallpaper[]
+  /** Not emitted: `numberOfItems` counts the listed wallpapers. */
   totalCount?: number
 }) {
   const origin = input.origin.replace(/\/+$/, "")
@@ -117,7 +130,8 @@ export function wallpaperCategoryGalleryJsonLd(input: {
       breadcrumbListJsonLd([
         { name: macwall.name, item: origin },
         { name: "Wallpapers", item: wallpapersIndexUrl },
-        { name: input.categoryName, item: url },
+        // The visible crumb and chips say "More" for Others.
+        { name: categoryDisplayLabel(input.categoryName), item: url },
       ]),
       {
         "@type": "CollectionPage",
@@ -131,8 +145,8 @@ export function wallpaperCategoryGalleryJsonLd(input: {
         mainEntity: itemListElementFromWallpapers(
           origin,
           input.wallpapers,
-          `${input.categoryName} live wallpapers for Mac`,
-          input.totalCount
+          categorySeoFor(input.categoryName)?.headline ??
+            `${input.categoryName} live wallpapers for Mac`
         ),
       },
     ],
@@ -141,24 +155,43 @@ export function wallpaperCategoryGalleryJsonLd(input: {
 
 /**
  * Detail page structured data: breadcrumbs, WebPage, ImageObject, VideoObject.
- * Omits `contentUrl` on VideoObject (anti-theft); uses thumbnail + embed page URL only.
+ *
+ * The VideoObject has no `contentUrl`: the only fetchable file today is the
+ * full-resolution master, which is never published here. It has no
+ * `embedUrl` either: that must be a player URL, and the page itself is not
+ * one. Once a pre-rendered preview file exists, it becomes `contentUrl`.
  */
 export function wallpaperDetailPageJsonLd(input: {
   origin: string
   wallpaper: PublicWallpaper
+  /** Full description, never a clamped meta description. */
   description: string
+  /** H1 text; defaults to the wallpaper name. */
+  headline?: string
   durationSeconds?: number
 }) {
   const origin = input.origin.replace(/\/+$/, "")
   const { wallpaper } = input
+  const ids = siteEntityIds(origin)
   const path = wallpaperDetailPath(wallpaper)
   const url = absoluteUrl(origin, path)
-  const siteId = `${origin}/#website`
   const pageId = `${url}#webpage`
   const categorySlug = wallpaperCategorySlugOrFallback(wallpaper.category)
   const categoryPath = wallpapersGalleryPath(categorySlug)
   const categoryUrl = absoluteUrl(origin, categoryPath)
   const wallpapersIndexUrl = absoluteUrl(origin, "/wallpapers")
+
+  // Credit only from a real attribution record (or MacWall's own loops),
+  // never the "Community" placeholder and never a licence claim: much of the
+  // catalog shows characters, brands and people MacWall doesn't own.
+  const namedAuthor = wallpaperNamedAuthor(wallpaper)
+  const isOriginal = wallpaper.originType === "macwall_original"
+  const creator = namedAuthor
+    ? { "@type": "Person", name: namedAuthor }
+    : isOriginal
+      ? organizationRef(origin)
+      : null
+  const creditText = namedAuthor ?? (isOriginal ? macwall.name : null)
 
   const imageObject: Record<string, unknown> = {
     "@type": "ImageObject",
@@ -166,9 +199,11 @@ export function wallpaperDetailPageJsonLd(input: {
     url: wallpaper.thumbUrl,
     contentUrl: wallpaper.thumbUrl,
     name: `${wallpaper.name} preview`,
-    caption: `${wallpaper.name} live wallpaper preview`,
+    caption: wallpaperImageAlt(wallpaper),
     representativeOfPage: true,
   }
+  if (creator) imageObject.creator = creator
+  if (creditText) imageObject.creditText = creditText
 
   const videoObject: Record<string, unknown> = {
     "@type": "VideoObject",
@@ -177,23 +212,13 @@ export function wallpaperDetailPageJsonLd(input: {
     description: input.description,
     thumbnailUrl: [wallpaper.thumbUrl],
     uploadDate: wallpaper.createdAt,
-    embedUrl: url,
-    isFamilyFriendly: true,
-    publisher: {
-      "@type": "Organization",
-      name: macwall.name,
-      url: origin,
-    },
+    inLanguage: "en-US",
+    publisher: organizationRef(origin),
   }
-
-  // Only a real attribution record names a creator; never the placeholder.
-  const namedAuthor = wallpaperNamedAuthor(wallpaper)
-  if (namedAuthor) {
-    videoObject.creator = { "@type": "Person", name: namedAuthor }
-  }
+  if (creator) videoObject.creator = creator
 
   if (input.durationSeconds && input.durationSeconds > 0) {
-    videoObject.duration = `PT${Math.round(input.durationSeconds)}S`
+    videoObject.duration = isoDurationFromSeconds(input.durationSeconds)
   }
 
   return {
@@ -202,7 +227,7 @@ export function wallpaperDetailPageJsonLd(input: {
       breadcrumbListJsonLd([
         { name: macwall.name, item: origin },
         { name: "Wallpapers", item: wallpapersIndexUrl },
-        { name: wallpaper.category, item: categoryUrl },
+        { name: categoryDisplayLabel(wallpaper.category), item: categoryUrl },
         { name: wallpaper.name, item: url },
       ]),
       {
@@ -210,10 +235,11 @@ export function wallpaperDetailPageJsonLd(input: {
         "@id": pageId,
         url,
         name: wallpaper.name,
-        headline: wallpaper.name,
+        headline: input.headline ?? wallpaper.name,
         description: input.description,
         inLanguage: "en-US",
-        isPartOf: { "@id": siteId },
+        isPartOf: { "@id": ids.website },
+        publisher: organizationRef(origin),
         primaryImageOfPage: { "@id": `${url}#thumbnail` },
         video: { "@id": `${url}#video` },
       },
@@ -231,13 +257,20 @@ export function wallpaperCollectionJsonLd(input: {
   pageTitle: string
   description: string
   wallpapers: PublicWallpaper[]
-  totalCount: number
+  /** Not emitted: `numberOfItems` counts the listed wallpapers. */
+  totalCount?: number
+  /**
+   * What the collection is about, e.g. a character with its Wikidata URL.
+   * Defaults to a Thing named after the collection.
+   */
+  about?: { name: string; sameAs?: readonly string[] }
 }) {
   const origin = input.origin.replace(/\/+$/, "")
   const url = absoluteUrl(origin, input.pathname)
   const wallpapersIndexUrl = absoluteUrl(origin, "/wallpapers")
   const hubUrl = absoluteUrl(origin, "/wallpapers/collections")
   const cover = input.wallpapers[0]
+  const about = input.about ?? { name: input.name }
 
   return {
     "@context": "https://schema.org",
@@ -256,22 +289,27 @@ export function wallpaperCollectionJsonLd(input: {
         headline: `${input.name} live wallpapers for Mac`,
         description: input.description,
         inLanguage: "en-US",
-        isPartOf: { "@id": `${origin}/#website` },
-        about: { "@id": `${origin}/#softwareapplication` },
+        isPartOf: { "@id": siteEntityIds(origin).website },
+        // The page is about its topic; the app is only mentioned.
+        about: {
+          "@type": "Thing",
+          name: about.name,
+          ...(about.sameAs?.length ? { sameAs: [...about.sameAs] } : {}),
+        },
+        mentions: { "@id": siteEntityIds(origin).softwareApplication },
         ...(cover
           ? {
               primaryImageOfPage: {
                 "@type": "ImageObject",
                 url: cover.thumbUrl,
-                caption: `${cover.name}, a ${input.name} live wallpaper for Mac`,
+                caption: `${cover.name}: ${input.name} live wallpaper for Mac`,
               },
             }
           : {}),
         mainEntity: itemListElementFromWallpapers(
           origin,
           input.wallpapers,
-          `${input.name} live wallpapers for Mac`,
-          input.totalCount
+          `${input.name} live wallpapers for Mac`
         ),
       },
     ],

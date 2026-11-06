@@ -1,10 +1,14 @@
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 
 import MacWallMarketingBottomCta from "@/components/macwall-marketing/marketing-bottom-cta"
 
 import { CtaDesign, type CtaVariant } from "../_components/cta-designs"
 
-/** Temporary: compare designs for the closing call to action. Delete after picking. */
+/**
+ * Temporary: compare designs for the closing call to action. Delete after
+ * picking. Local dev only; production answers 404.
+ */
 export const metadata: Metadata = {
   title: "CTA lab",
   robots: { index: false, follow: false },
@@ -53,6 +57,7 @@ function Label({ name, note }: Readonly<{ name: string; note: string }>) {
 }
 
 export default function CtaLabPage() {
+  if (process.env.NODE_ENV === "production") notFound()
   return (
     <>
       <div>

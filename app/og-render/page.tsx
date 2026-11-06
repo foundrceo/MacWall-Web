@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 import type { ReactNode } from "react"
 
 import { MARKETING_GALLERY_WALLPAPERS_FALLBACK } from "@/lib/marketing-gallery-wallpapers"
@@ -14,7 +15,8 @@ import { macwall, macwallAppIconPath, macwallCatalog } from "@/lib/macwall-site"
  *     "http://localhost:3000/og-render"
  *
  * then scaled to 1200 × 630. The default is the live image; `?v=poster` and
- * `?v=wall` are the alternatives. Not for visitors.
+ * `?v=wall` are the alternatives. Not for visitors: it only renders under
+ * `next dev`, and production answers 404.
  */
 export const metadata: Metadata = {
   title: "Share image",
@@ -184,6 +186,7 @@ export default async function OgRenderPage({
 }: Readonly<{
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }>) {
+  if (process.env.NODE_ENV === "production") notFound()
   const { v } = await searchParams
   if (v === "poster") return <Poster />
   if (v === "wall") return <Wall />

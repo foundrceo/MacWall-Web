@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { MarketingRichText } from "@/components/macwall-marketing/marketing-primitives"
 import { macwallCreatorCopy as copy } from "@/lib/macwall-creator-copy"
-import { macwall } from "@/lib/macwall-site"
+import { macwall, macwallCreatorDisclosure } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 
 function CreatorStepLink({
@@ -30,11 +30,14 @@ function CreatorStepBody({
   if (stepId === "3") {
     return (
       <p className="text-[15px] leading-relaxed text-foreground/65">
-        Instagram, TikTok, YouTube Shorts, Threads, or X. Your pick. Add{" "}
+        Instagram, TikTok, YouTube Shorts, Threads, or X. Your pick. Because we
+        pay you back for it, the post has to say so: add{" "}
+        {macwallCreatorDisclosure.tag} (or turn on the platform&apos;s
+        paid-partnership label) along with{" "}
         <CreatorStepLink href={macwall.reelRefundHashtagURL}>
           {macwall.reelRefundHashtag}
         </CreatorStepLink>
-        {" wherever you post. Tag "}
+        {", and tag "}
         <CreatorStepLink href={macwall.reelRefundInstagramURL}>
           {macwall.reelRefundInstagram}
         </CreatorStepLink>

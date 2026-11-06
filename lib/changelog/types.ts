@@ -34,7 +34,7 @@ export const CHANGELOG_SECTION_ORDER: readonly ChangelogSectionKind[] = [
 
 export const CHANGELOG_PAGE_EYEBROW = "Updates"
 
-export const CHANGELOG_PAGE_TITLE = "Changelog"
+export const CHANGELOG_PAGE_TITLE = "MacWall changelog and release notes"
 
 export function formatChangelogVersion(
   version: string,

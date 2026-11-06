@@ -36,10 +36,8 @@ export default async function MarketingLayout({
               not be `crossorigin` or the browser opens a second one. Catalog
               reads happen server-side, so there's no Supabase hint here. */}
           <link rel="preconnect" href={mediaOrigin} />
+          {/* The skip link to #main-content is the root layout's. */}
           <MarketingPageFrame>
-            <a href="#main-content" className="marketing-skip-link">
-              Skip to main content
-            </a>
             <MarketingSiteChrome />
             <main
               id="main-content"

@@ -12,6 +12,7 @@ import {
   useState,
   useTransition,
   type FormEvent,
+  type MouseEvent,
 } from "react"
 import { Loading03Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -25,14 +26,6 @@ import { ChevronDown, Search, X } from "lucide-react"
 import { CategoryIcon } from "@/components/wallpaper-gallery/category-icons"
 import { GalleryDownloadCta } from "@/components/wallpaper-gallery/gallery-download-cta"
 import { WallpaperCard } from "@/components/wallpaper-gallery/wallpaper-card"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -54,11 +47,9 @@ import {
   GALLERY_SORT_MENU_CLASS,
   GALLERY_SORT_MENU_ITEM_CLASS,
   GALLERY_SORT_TRIGGER_CLASS,
-  GALLERY_SUBTITLE_AFTER_TITLE_CLASS,
   GALLERY_TEXT_PRIMARY_CLASS,
   GALLERY_TEXT_SECONDARY_CLASS,
   GALLERY_TEXT_TERTIARY_CLASS,
-  GALLERY_TITLE_AFTER_BREADCRUMB_CLASS,
   GALLERY_TITLE_BLOCK_BOTTOM_CLASS,
 } from "@/lib/public-catalog/chrome"
 import type {
@@ -66,10 +57,6 @@ import type {
   PublicWallpaper,
   PublicWallpaperListResult,
 } from "@/lib/public-catalog/types"
-import {
-  WALLPAPER_DISPLAY_HEADING_CLASS,
-  WALLPAPER_SECTION_FONT_CLASS,
-} from "@/lib/public-catalog/typography"
 import {
   getGalleryReturnForFilters,
   galleryReturnFiltersMatch,
@@ -84,14 +71,21 @@ import {
   wallpapersGalleryPath,
 } from "@/lib/public-catalog/urls"
 import { categorySlugFromName } from "@/lib/seo/category-slugs"
-import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
+
+/** One category chip. The server sends these, labels included ("More" for Others). */
+export type GalleryCategoryChip = {
+  /** Catalog category name; null for "All". */
+  name: string | null
+  label: string
+  /** Path slug; null for "All" (`/wallpapers`). */
+  slug: string | null
+}
 
 type WallpaperGalleryProps = {
   initial: PublicWallpaperListResult
   activeCategory?: string | null
-  title?: string
-  subtitle?: string
+  categories: readonly GalleryCategoryChip[]
   loadError?: boolean
 }
 
@@ -205,14 +199,31 @@ function GallerySearchParamsSync({
     onChange({ q, tag, sort })
   }, [onChange, q, tag, sort])
 
+  // Tag matching ignores case, so `?tag=Anime` and `?tag=anime` are one view:
+  // keep the lower-case URL. vinext's replaceState updates useSearchParams.
+  useEffect(() => {
+    if (!tag || tag === tag.toLowerCase()) return
+    const params = new URLSearchParams(window.location.search)
+    params.set("tag", tag.toLowerCase())
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${window.location.pathname}?${params}${window.location.hash}`
+    )
+  }, [tag])
+
   return null
 }
 
+/**
+ * The interactive part of a gallery hub: download CTA, search, category
+ * chips, sort, the grid and "Show more". The page's breadcrumb, H1 and intro
+ * are server markup in `WallpaperGalleryPageShell`.
+ */
 export function WallpaperGallery({
   initial,
   activeCategory = null,
-  title = "Live wallpapers for Mac",
-  subtitle,
+  categories,
   loadError = false,
 }: WallpaperGalleryProps) {
   const router = useRouter()
@@ -227,11 +238,7 @@ export function WallpaperGallery({
   // overwrites a filtered view's Back snapshot.
   const [filters, setFilters] = useState<GalleryFilters | null>(null)
   const filtersReady = filters !== null
-  const {
-    q: qParam,
-    tag: tagParam,
-    sort,
-  } = filters ?? DEFAULT_GALLERY_FILTERS
+  const { q: qParam, tag: tagParam, sort } = filters ?? DEFAULT_GALLERY_FILTERS
 
   // Key the cache by the gallery route, not usePathname(): on detail
   // navigation the pathname becomes /wallpaper/... before this unmounts, and
@@ -274,6 +281,11 @@ export function WallpaperGallery({
   >(() => buildEntranceIndices(initial.wallpapers))
   /** Skip card fade/slide after back-nav restore (set false again on user Show more). */
   const [suppressEntrance, setSuppressEntrance] = useState(false)
+  /** Cards of the server-rendered first page: they never fade in. */
+  const initialIds = useMemo(
+    () => new Set(initial.wallpapers.map((wallpaper) => wallpaper.id)),
+    [initial.wallpapers]
+  )
 
   const persistSnapshot = useCallback(
     (
@@ -317,24 +329,41 @@ export function WallpaperGallery({
   // URL synchronization is an external notification from the child boundary.
   // Restore session state in that notification, before paint, rather than
   // cascading from a second effect or calling flushSync inside a lifecycle.
-  const onFiltersChange = useCallback((next: GalleryFilters) => {
-    setFilters((current) => current && current.q === next.q &&
-      current.tag === next.tag && current.sort === next.sort ? current : next)
-    setQuery(next.q)
-    const saved = getGalleryReturnForFilters({
-      pathname: galleryPathname, category: activeCategory, ...next,
-    })
-    if (!saved || !shouldRestoreGallerySnapshot(saved, initial.wallpapers.length)) return
-    setSuppressEntrance(true)
-    setWallpapers(saved.wallpapers)
-    setListFilterKey(galleryFilterKey(activeCategory, next, initial.limit))
-    setPage(saved.page)
-    setHasMore(saved.hasMore)
-    setEntranceIndices(buildEntranceIndices(saved.wallpapers))
-  }, [galleryPathname, activeCategory, initial.wallpapers.length, initial.limit])
+  const onFiltersChange = useCallback(
+    (next: GalleryFilters) => {
+      setFilters((current) =>
+        current &&
+        current.q === next.q &&
+        current.tag === next.tag &&
+        current.sort === next.sort
+          ? current
+          : next
+      )
+      setQuery(next.q)
+      const saved = getGalleryReturnForFilters({
+        pathname: galleryPathname,
+        category: activeCategory,
+        ...next,
+      })
+      if (
+        !saved ||
+        !shouldRestoreGallerySnapshot(saved, initial.wallpapers.length)
+      )
+        return
+      setSuppressEntrance(true)
+      setWallpapers(saved.wallpapers)
+      setListFilterKey(galleryFilterKey(activeCategory, next, initial.limit))
+      setPage(saved.page)
+      setHasMore(saved.hasMore)
+      setEntranceIndices(buildEntranceIndices(saved.wallpapers))
+    },
+    [galleryPathname, activeCategory, initial.wallpapers.length, initial.limit]
+  )
 
   const persistSnapshotRef = useRef(persistSnapshot)
-  useLayoutEffect(() => { persistSnapshotRef.current = persistSnapshot }, [persistSnapshot])
+  useLayoutEffect(() => {
+    persistSnapshotRef.current = persistSnapshot
+  }, [persistSnapshot])
 
   // Refetch only when the list doesn't match the filters, not when callback
   // identity changes (having persistSnapshot in deps re-fired this on Back
@@ -464,14 +493,6 @@ export function WallpaperGallery({
     wallpapers.length,
   ])
 
-  const resolvedSubtitle = useMemo(() => {
-    if (subtitle) return subtitle
-    if (activeCategory) {
-      return `Cinematic ${activeCategory} loops, curated for desktop Macs.`
-    }
-    return "Cinematic loops for every genre. Preview here, set in MacWall."
-  }, [activeCategory, subtitle])
-
   const updateParams = useCallback(
     (patch: Record<string, string | null>) => {
       const next = new URLSearchParams(window.location.search)
@@ -544,88 +565,45 @@ export function WallpaperGallery({
 
   const showLoadMoreFooter = hasMore || Boolean(loadMoreError)
 
-  const categories: Array<{
-    name: string | null
-    label: string
-    href: string
-  }> = [
-    { name: null, label: "All", href: wallpapersGalleryPath() },
-    ...macwall.categories.map((name) => {
-      const slug = categorySlugFromName(name)
-      return {
-        name: name as string,
-        label: name as string,
-        href: slug ? wallpapersGalleryPath(slug) : wallpapersGalleryPath(),
-      }
-    }),
-  ]
-
   const galleryQuery = {
     q: qParam || null,
     tag: tagParam || null,
     sort,
   }
+  const hasActiveFilters = Boolean(qParam || tagParam || sort !== "popular")
+
+  // Chip hrefs are bare category paths, so crawlers never get a filtered
+  // (noindex) URL from a chip. A plain click carries the search, tag and sort
+  // over by client navigation instead.
+  const onCategoryChipClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    slug: string | null
+  ) => {
+    if (
+      !hasActiveFilters ||
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return
+    }
+    event.preventDefault()
+    router.push(wallpapersGalleryHref(slug, galleryQuery))
+  }
 
   return (
-    <div className={WALLPAPER_SECTION_FONT_CLASS}>
+    <>
       <Suspense fallback={null}>
         <GallerySearchParamsSync onChange={onFiltersChange} />
       </Suspense>
-      <Breadcrumb>
-        <BreadcrumbList
-          className={cn(
-            "flex-wrap gap-y-1 text-[13px]",
-            GALLERY_TEXT_TERTIARY_CLASS
-          )}
-        >
-          {activeCategory ? (
-            <>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild className="transition hover:text-white">
-                  <Link href={wallpapersGalleryPath()}>Wallpapers</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="text-white/35" />
-              <BreadcrumbItem className="min-w-0">
-                <BreadcrumbPage className={GALLERY_TEXT_PRIMARY_CLASS}>
-                  {activeCategory}
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </>
-          ) : (
-            <BreadcrumbItem>
-              <BreadcrumbPage className={GALLERY_TEXT_PRIMARY_CLASS}>
-                Wallpapers
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          )}
-        </BreadcrumbList>
-      </Breadcrumb>
 
-      <header
-        className={cn(
-          GALLERY_TITLE_AFTER_BREADCRUMB_CLASS,
-          GALLERY_TITLE_BLOCK_BOTTOM_CLASS
-        )}
-      >
-        <h1
-          className={cn(
-            WALLPAPER_DISPLAY_HEADING_CLASS,
-            GALLERY_TEXT_PRIMARY_CLASS
-          )}
-        >
-          {title}
-        </h1>
-        <p
-          className={cn(
-            GALLERY_SUBTITLE_AFTER_TITLE_CLASS,
-            "text-[15px] leading-[1.5] sm:text-[16px] sm:leading-[1.55]",
-            GALLERY_TEXT_SECONDARY_CLASS
-          )}
-        >
-          {resolvedSubtitle}
-        </p>
-        <GalleryDownloadCta location={activeCategory ? "gallery_category" : "gallery"} />
+      <div className={GALLERY_TITLE_BLOCK_BOTTOM_CLASS}>
+        <GalleryDownloadCta
+          location={activeCategory ? "gallery_category" : "gallery"}
+        />
 
         <form
           onSubmit={onSearchSubmit}
@@ -682,7 +660,7 @@ export function WallpaperGallery({
             )}
           </div>
         </form>
-      </header>
+      </div>
 
       <div
         className="mt-4 flex [scrollbar-width:none] gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
@@ -694,15 +672,14 @@ export function WallpaperGallery({
             category.name === null
               ? !activeCategory
               : category.name === activeCategory
-          const href = wallpapersGalleryHref(
-            category.name ? categorySlugFromName(category.name) : null,
-            galleryQuery
-          )
 
           return (
             <Link
-              key={category.label}
-              href={href}
+              key={category.slug ?? "all"}
+              href={wallpapersGalleryPath(category.slug)}
+              prefetch={false}
+              onClick={(event) => onCategoryChipClick(event, category.slug)}
+              aria-current={active ? "page" : undefined}
               className={
                 active ? GALLERY_CHIP_ACTIVE_CLASS : GALLERY_CHIP_CLASS
               }
@@ -814,7 +791,11 @@ export function WallpaperGallery({
               priority={index < 3}
               index={index}
               entranceIndex={entranceIndices[wallpaper.id] ?? index}
-              animateEntrance={!suppressEntrance}
+              // Only cards added on the client (Show more, a filter refresh)
+              // fade in; the first page is in the server HTML.
+              animateEntrance={
+                !suppressEntrance && !initialIds.has(wallpaper.id)
+              }
             />
           ))}
         </div>
@@ -882,6 +863,6 @@ export function WallpaperGallery({
           ) : null}
         </div>
       ) : null}
-    </div>
+    </>
   )
 }

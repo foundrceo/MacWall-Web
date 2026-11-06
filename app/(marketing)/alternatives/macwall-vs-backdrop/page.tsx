@@ -1,28 +1,28 @@
-import { SeoLandingPage } from "@/components/content/seo-landing-page"
-import { JsonLd } from "@/components/seo/json-ld"
-import { webPageWithBreadcrumbsJsonLd } from "@/lib/legal-page-json-ld"
+import { ComparisonLandingPage } from "@/components/content/comparison-landing-page"
+import { COMPARISON_SOURCES } from "@/lib/seo/comparison-facts"
 import { macwallVsBackdropPage } from "@/lib/seo/landing-pages"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
-import { canonicalSiteOrigin } from "@/lib/site-url"
 
-export const metadata = createSeoPageMetadata(macwallVsBackdropPage)
+const page = macwallVsBackdropPage
+
+export const metadata = createSeoPageMetadata(page, {
+  openGraphType: "article",
+  publishedTime: page.publishedAt,
+  modifiedTime: page.updatedAt,
+})
 
 export default function MacwallVsBackdropPage() {
-  const origin = canonicalSiteOrigin()
-
   return (
-    <>
-      <JsonLd
-        payload={webPageWithBreadcrumbsJsonLd({
-          origin,
-          pathname: macwallVsBackdropPage.pathname,
-          pageTitle: "MacWall vs Backdrop",
-          headline: macwallVsBackdropPage.headline,
-          description: macwallVsBackdropPage.description,
-          dateModifiedIso: macwallVsBackdropPage.updatedAt,
-        })}
-      />
-      <SeoLandingPage page={macwallVsBackdropPage} />
-    </>
+    <ComparisonLandingPage
+      page={page}
+      breadcrumbName="MacWall vs Backdrop"
+      compared={[
+        {
+          name: "Backdrop",
+          url: COMPARISON_SOURCES.backdrop,
+          operatingSystem: "macOS 15 or later",
+        },
+      ]}
+    />
   )
 }

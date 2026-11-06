@@ -1,22 +1,22 @@
+import { llmsTxtFactLines, llmsTxtSummary } from "@/lib/ai/llms-txt"
 import { plainTextResponse } from "@/lib/ai/markdown"
 import { siteMarkdownDocuments } from "@/lib/ai/site-content"
-import {
-  macwall,
-  macwallLockScreenMacOSVersion,
-  macwallMinimumMacOSVersionLabel,
-} from "@/lib/macwall-site"
+import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 
 export const dynamic = "force-static"
 export const revalidate = 3600
 
 /**
- * `/llms-full.txt` — long-form product, documentation, learning, blog, and
- * comparison pages concatenated for one-fetch ingestion. Volatile listings,
- * the changelog, and legal text stay linked instead of being cached here.
+ * `/llms-full.txt` — long-form product, documentation, FAQ, learning, blog,
+ * and comparison pages concatenated for one-fetch ingestion. Volatile
+ * listings, the changelog, and legal text stay linked instead of being cached
+ * here. Prices are computed when this renders; the sale-boundary cron
+ * revalidates it when a sale starts or ends.
  */
 export async function GET(): Promise<Response> {
   const origin = canonicalSiteOrigin()
+  const now = Date.now()
   const documents = siteMarkdownDocuments().filter(
     (doc) => doc.includeInFullText
   )
@@ -28,16 +28,23 @@ export async function GET(): Promise<Response> {
     })
   )
 
+  // The newest content change among the documents, not the time of this render.
+  const lastContentUpdate = documents
+    .map((doc) => doc.updatedAt)
+    .filter((date): date is string => Boolean(date))
+    .sort()
+    .at(-1)
+
   const header = `# ${macwall.name}: full site text
 
-> ${macwall.name} is a native macOS app for cinematic 4K live video wallpapers, with hardware-decoded playback, automatic pause policies, and live Lock Screen motion on ${macwallLockScreenMacOSVersion}+. ${macwallMinimumMacOSVersionLabel}. Every download starts with a free 24-hour trial of the full catalog; Pro is a permanent license currently ${macwall.pro.price} in default USD pricing.
+> ${llmsTxtSummary(now)}
 
-Canonical site: ${origin}
-Publisher: ${macwall.name}
+${llmsTxtFactLines(origin, now).join("\n\n")}
+
 Contact: ${macwall.supportEmail}
-Product information last reviewed: ${macwall.productInfoLastReviewedIso}
 Documents: ${documents.length}
-Generated: ${new Date().toISOString()}
+Newest document update: ${lastContentUpdate ?? macwall.productInfoLastReviewedIso}
+Served from cache built: ${new Date(now).toISOString()}
 
 Curated index: ${origin}/llms.txt
 Canonical product reference: ${origin}/ai-info.md

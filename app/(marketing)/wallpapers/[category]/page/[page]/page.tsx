@@ -1,4 +1,5 @@
 import {
+  categoryGalleryStaticParams,
   GalleryPageRoute,
   galleryPageMetadata,
 } from "@/lib/seo/gallery-page-route"
@@ -9,8 +10,12 @@ type PageProps = { params: Promise<{ category: string; page: string }> }
 /** Same window as the gallery's catalog cache. */
 export const revalidate = 21600
 
+/**
+ * Every page of every category, so each is prerendered and cached. A page a
+ * category grows into after the build still renders on demand.
+ */
 export async function generateStaticParams() {
-  return []
+  return categoryGalleryStaticParams()
 }
 
 export async function generateMetadata({

@@ -1,10 +1,18 @@
 #!/usr/bin/env node
 /**
  * Generates Apple-style MacBook mockup thumbnails for every blog post.
- * Output: public/blog/thumbs/{slug}.jpg (1200×800, 3:2), plus -og / -list
- * variants and AVIF siblings of the main and list images.
+ * Output in public/blog/thumbs/, from the 1200×800 mockup {slug}.jpg:
+ * - {slug}-640.jpg (640×427) for narrow tiles (`srcset`)
+ * - {slug}-list.jpg (480×480) and {slug}-og.jpg (1200×630)
+ * - {slug}-16x9.jpg (1422×800), -4x3.jpg (1200×900) and -1x1.jpg (1200×1200)
+ *   for Article structured data: the mockup on a wider or taller canvas of
+ *   the same background, so nothing is cropped or upscaled
+ * - AVIF siblings of the on-page images ({slug}, -640, -list)
  *
- * Usage: npm run blog-thumbs:generate
+ * Only the mockup needs the network (the wallpaper comes from the CDN); every
+ * other file is derived from it, so missing ones are filled in offline.
+ *
+ * Usage: npm run blog-thumbs:generate [-- --force]
  */
 import { readdirSync, readFileSync, mkdirSync, existsSync } from "node:fs"
 import { dirname, join } from "node:path"
@@ -16,66 +24,55 @@ const root = join(__dirname, "..")
 const outDir = join(root, "public/blog/thumbs")
 
 const CDN = (
-  process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL?.trim() || "https://cdn.macwall.app"
+  process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL?.trim() ||
+  "https://cdn.macwall.app"
 ).replace(/\/$/, "")
 
 const W = 1200
 const H = 800
 
-/** Same pool as lib/blog/tile-media.ts — keep in sync. */
+/**
+ * Same pool as `BLOG_ABSTRACT_WALLPAPER_THUMB_KEYS` in lib/blog/tile-media.ts:
+ * keep in sync. The reviewed generic uploads (`GENERIC_WALLPAPER_IDS` in
+ * scripts/generate-og-images.mjs) come first.
+ */
 const THUMB_KEYS = [
+  "thumbs/b8b6c772-df82-4cca-bf5e-bbfd557b17d0.jpg", // Zen Bamboo Forest Path
+  "thumbs/61b61ea1-f67d-4c17-9dc0-b80db1b65256.jpg", // Rainy Petal Road
+  "thumbs/d6b3be93-9476-4077-be83-7bc97477e74f.jpg", // Dark Mountain Citadel
+  "thumbs/914f49ea-7e0d-4f4c-8503-4b5b21aadae5.jpg", // Night City Highway
+  "thumbs/7babae5a-ba0a-4af1-8dce-2426e122b214.jpg", // Cliffside Coastline
+  "thumbs/891090f5-3f25-4be7-9b86-48438207dbdc.jpg", // Astronaut in Thunder Cloud
+  "thumbs/c48f0449-8f63-40df-b44a-fe926d991dda.jpg", // Mountain Star
+  "thumbs/9ceaaf80-257f-4130-a784-a9b50d939bd1.jpg", // Space Window Ambience
+  "thumbs/9037f48f-0f1a-4eca-b62a-724ddeb4a190.jpg", // Blue Mountain Lake Stag
   "thumbs/emerald-nebula-swirl.jpg",
   "thumbs/ringed-black-hole.jpg",
-  "thumbs/solar-flare-singularity.jpg",
   "thumbs/black-hole-eclipse.jpg",
-  "thumbs/accretion-disk-black-hole.jpg",
   "thumbs/fiery-ocean-portal.jpg",
-  "thumbs/gargantua-accretion-disk.jpg",
   "thumbs/purple-black-hole.jpg",
-  "thumbs/molten-black-hole.jpg",
   "thumbs/milky-way-galaxy.jpg",
-  "thumbs/astronaut-at-black-hole.jpg",
-  "thumbs/black-hole-gargantua-moewalls-com.jpg",
   "thumbs/earth-in-shadow.jpg",
   "thumbs/orbital-station-above-earth.jpg",
-  "thumbs/astronaut-in-nebula-drift.jpg",
-  "thumbs/black-hole-collision.jpg",
-  "thumbs/supermassive-singularity.jpg",
-  "thumbs/wallpaper-giant-black-hole-gargantua.jpg",
   "thumbs/crimson-moonlit-sky.jpg",
   "thumbs/purple-moonlit-clouds.jpg",
-  "thumbs/astronaut-before-singularity.jpg",
-  "thumbs/red-planet-wanderer.jpg",
   "thumbs/wallpaper-black-liquid-texture.jpg",
-  "thumbs/dimensional-portal.jpg",
-  "thumbs/sci-fi-black-hole-moewalls-com.jpg",
-  "thumbs/chrome-android-in-space.jpg",
-  "thumbs/wallpaper-velvet-afterglow3840x.jpg",
-  "thumbs/anonymous-mask-silhouette.jpg",
-  "thumbs/android-angel.jpg",
-  "thumbs/stranded-moon-wreck.jpg",
-  "thumbs/nanami-yellow-glow.jpg",
-  "thumbs/orbital-station-above-earth2.jpg",
 ]
 
-/** Slug → thumb key overrides for thematic fit. */
+/**
+ * Slug → thumb key, so a post's cover never changes when posts are added or
+ * removed (the fallback picks by position in the sorted slug list). New
+ * posts take a reviewed generic upload.
+ */
 const SLUG_THUMB_OVERRIDES = {
-  "anime-live-wallpaper-mac": "thumbs/nanami-yellow-glow.jpg",
-  "nature-live-wallpaper-mac": "thumbs/emerald-nebula-swirl.jpg",
-  "space-wallpaper-mac": "thumbs/milky-way-galaxy.jpg",
-  "gaming-wallpaper-mac": "thumbs/chrome-android-in-space.jpg",
   "macwall-vs-wallspace": "thumbs/ringed-black-hole.jpg",
   "macwall-vs-backdrop": "thumbs/black-hole-eclipse.jpg",
-  "macwall-vs-lively-wallpaper": "thumbs/solar-flare-singularity.jpg",
   "live-wallpaper-cpu-usage-mac": "thumbs/wallpaper-black-liquid-texture.jpg",
-  "macwall-performance-zero-overhead-guide":
-    "thumbs/wallpaper-black-liquid-texture.jpg",
-  "apple-silicon-wallpaper-performance": "thumbs/supermassive-singularity.jpg",
-  "4k-video-wallpaper-mac": "thumbs/gargantua-accretion-disk.jpg",
-  "lock-screen-live-wallpaper-macos": "thumbs/crimson-moonlit-sky.jpg",
   "macos-27-lock-screen-live-wallpaper": "thumbs/purple-moonlit-clouds.jpg",
   "what-is-macwall-complete-guide": "thumbs/astronaut-at-black-hole.jpg",
-  "best-live-wallpaper-app-mac-2026": "thumbs/fiery-ocean-portal.jpg",
+  "how-to-change-lock-screen-on-mac":
+    "thumbs/d6b3be93-9476-4077-be83-7bc97477e74f.jpg",
+  "macos-wallpapers": "thumbs/c48f0449-8f63-40df-b44a-fe926d991dda.jpg",
 }
 
 const LAPTOP = {
@@ -198,7 +195,9 @@ async function generateThumb(wallpaperUrl, outputPath) {
     .toBuffer()
 
   const roundedScreen = await sharp(screenWallpaper)
-    .composite([{ input: roundedMask(screenW, screenH, screenR), blend: "dest-in" }])
+    .composite([
+      { input: roundedMask(screenW, screenH, screenR), blend: "dest-in" },
+    ])
     .png()
     .toBuffer()
 
@@ -244,38 +243,81 @@ async function generateThumb(wallpaperUrl, outputPath) {
     .toFile(outputPath)
 }
 
-async function writeDerivedVariants(slug, mainPath) {
-  const main = sharp(mainPath)
-  await main
-    .clone()
-    .resize(1200, 630, { fit: "cover", position: "centre" })
-    .jpeg({ quality: 88, mozjpeg: true })
-    .toFile(join(outDir, `${slug}-og.jpg`))
+const BACKGROUND = { r: 5, g: 5, b: 5 }
 
-  await main
-    .clone()
-    .resize(480, 480, { fit: "cover", position: "centre" })
-    .jpeg({ quality: 88, mozjpeg: true })
-    .toFile(join(outDir, `${slug}-list.jpg`))
+/** Structured-data crops: the mockup centred on a canvas of this shape. */
+const CANVAS_CROPS = [
+  { suffix: "-16x9", width: 1422, height: 800 },
+  { suffix: "-4x3", width: 1200, height: 900 },
+  { suffix: "-1x1", width: 1200, height: 1200 },
+]
+
+/** Every file derived from the mockup, with how to write it. */
+function derivedOutputs(slug) {
+  const main = join(outDir, `${slug}.jpg`)
+  const jpeg = (pipeline) => pipeline.jpeg({ quality: 88, mozjpeg: true })
+  return [
+    {
+      file: `${slug}-og.jpg`,
+      write: (out) =>
+        jpeg(
+          sharp(main).resize(1200, 630, { fit: "cover", position: "centre" })
+        ).toFile(out),
+    },
+    {
+      file: `${slug}-list.jpg`,
+      write: (out) =>
+        jpeg(
+          sharp(main).resize(480, 480, { fit: "cover", position: "centre" })
+        ).toFile(out),
+    },
+    {
+      file: `${slug}-640.jpg`,
+      write: (out) => jpeg(sharp(main).resize(640)).toFile(out),
+    },
+    ...CANVAS_CROPS.map(({ suffix, width, height }) => ({
+      file: `${slug}${suffix}.jpg`,
+      write: (out) => {
+        const x = Math.floor((width - W) / 2)
+        const y = Math.floor((height - H) / 2)
+        return jpeg(
+          sharp(main).extend({
+            top: y,
+            bottom: height - H - y,
+            left: x,
+            right: width - W - x,
+            background: BACKGROUND,
+          })
+        ).toFile(out)
+      },
+    })),
+    // AVIF siblings of the on-page tiles (~75% smaller than the JPEGs),
+    // served via <picture><source type="image/avif"> with the JPEG fallback.
+    // After the JPEGs above, which they are encoded from.
+    ...["", "-640", "-list"].map((suffix) => ({
+      file: `${slug}${suffix}.avif`,
+      write: (out) =>
+        sharp(join(outDir, `${slug}${suffix}.jpg`))
+          .avif({ quality: 55, effort: 6 })
+          .toFile(out),
+    })),
+  ]
 }
 
-/**
- * AVIF siblings of the on-page tiles (~75% smaller than the JPEGs). Served
- * via <picture><source type="image/avif">, with the JPEG as fallback.
- */
-async function writeAvifVariants(slug) {
-  for (const name of [slug, `${slug}-list`]) {
-    await sharp(join(outDir, `${name}.jpg`))
-      .avif({ quality: 55, effort: 6 })
-      .toFile(join(outDir, `${name}.avif`))
+/** Writes the derived files that are missing (or all of them with `force`). */
+async function writeDerivedVariants(slug, { force = false } = {}) {
+  let written = 0
+  for (const output of derivedOutputs(slug)) {
+    const out = join(outDir, output.file)
+    if (!force && existsSync(out)) continue
+    await output.write(out)
+    written++
   }
+  return written
 }
 
-function avifMissing(slug) {
-  return (
-    !existsSync(join(outDir, `${slug}.avif`)) ||
-    !existsSync(join(outDir, `${slug}-list.avif`))
-  )
+function expectedFiles(slug) {
+  return [`${slug}.jpg`, ...derivedOutputs(slug).map((output) => output.file)]
 }
 
 async function main() {
@@ -284,64 +326,54 @@ async function main() {
   const force = process.argv.includes("--force")
   const slugs = collectSlugs()
   console.log(
-    `Generating ${slugs.length} blog mockups (+ OG + list) → public/blog/thumbs/`
+    `Generating ${slugs.length} blog mockups and their variants → public/blog/thumbs/`
   )
 
-  let ok = 0
-  let skipped = 0
+  let generated = 0
+  let derived = 0
   let failed = 0
 
   for (let i = 0; i < slugs.length; i++) {
     const slug = slugs[i]
-    const key = thumbKeyForSlug(slug, i)
-    const url = thumbUrl(key)
     const out = join(outDir, `${slug}.jpg`)
-    const og = join(outDir, `${slug}-og.jpg`)
-    const list = join(outDir, `${slug}-list.jpg`)
-
-    if (!force && existsSync(out) && existsSync(og) && existsSync(list)) {
-      if (avifMissing(slug)) {
-        try {
-          await writeAvifVariants(slug)
-          process.stdout.write(`  ${slug} … avif added\n`)
-        } catch (err) {
-          console.log(`  ${slug} … avif FAIL (${err.message})`)
-        }
-      } else {
-        process.stdout.write(`  ${slug} … skip (exists)\n`)
-      }
-      skipped++
-      ok++
-      continue
-    }
 
     try {
       process.stdout.write(`  ${slug} … `)
-      await generateThumb(url, out)
-      await writeDerivedVariants(slug, out)
-      await writeAvifVariants(slug)
-      console.log("ok")
-      ok++
+      const regenerate = force || !existsSync(out)
+      if (regenerate) {
+        await generateThumb(thumbUrl(thumbKeyForSlug(slug, i)), out)
+        generated++
+      }
+      const written = await writeDerivedVariants(slug, { force: regenerate })
+      derived += written
+      console.log(
+        regenerate
+          ? "ok"
+          : written > 0
+            ? `${written} variant(s) added`
+            : "skip (exists)"
+      )
     } catch (err) {
       console.log(`FAIL (${err.message})`)
       failed++
     }
   }
 
-  const missing = slugs.filter(
-    (slug) =>
-      !existsSync(join(outDir, `${slug}.jpg`)) ||
-      !existsSync(join(outDir, `${slug}-og.jpg`)) ||
-      !existsSync(join(outDir, `${slug}-list.jpg`))
+  const missing = slugs.filter((slug) =>
+    expectedFiles(slug).some((file) => !existsSync(join(outDir, file)))
   )
 
   console.log(
-    `\nDone: ${ok} posts (${ok * 3} files), ${skipped} skipped, ${failed} failed.`
+    `\nDone: ${generated} mockup(s) generated, ${derived} variant file(s) written, ${failed} failed.`
   )
 
   if (missing.length > 0) {
-    console.error(`Missing thumbs for ${missing.length} slug(s): ${missing.join(", ")}`)
-    console.error("Run `npm run blog-thumbs:generate` with network access, or restore public/blog/thumbs from git.")
+    console.error(
+      `Missing thumbs for ${missing.length} slug(s): ${missing.join(", ")}`
+    )
+    console.error(
+      "Run `npm run blog-thumbs:generate` with network access, or restore public/blog/thumbs from git."
+    )
     process.exit(1)
   }
 

@@ -13,13 +13,19 @@ import {
 import { macwall } from "@/lib/macwall-site"
 import { JsonLd } from "@/components/seo/json-ld"
 import { createSimplePageMetadata } from "@/lib/seo/create-page-metadata"
+import {
+  breadcrumbListNode,
+  jsonLdGraph,
+  siteEntityIds,
+} from "@/lib/seo/json-ld-helpers"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 import { cn } from "@/lib/utils"
 
+const PAGE_TITLE = `Contact ${macwall.name} Support`
 const PAGE_DESCRIPTION = `Contact ${macwall.name} support: license keys, activation, billing and refunds. We reply by email within 1 to 2 business days.`
 
 export const metadata: Metadata = createSimplePageMetadata({
-  title: "Contact",
+  title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
   path: "/contact",
 })
@@ -30,27 +36,34 @@ export const metadata: Metadata = createSimplePageMetadata({
  */
 export default function ContactPage() {
   const origin = canonicalSiteOrigin()
+  const ids = siteEntityIds(origin)
+  const breadcrumb = breadcrumbListNode({
+    origin,
+    pathname: "/contact",
+    name: "Contact",
+  })
   return (
     <>
       <JsonLd
-        payload={{
-          "@context": "https://schema.org",
+        payload={jsonLdGraph(breadcrumb, {
           "@type": "ContactPage",
           "@id": `${origin}/contact#webpage`,
           url: `${origin}/contact`,
-          name: `Contact ${macwall.name}`,
+          name: PAGE_TITLE,
           description: PAGE_DESCRIPTION,
-          isPartOf: { "@id": `${origin}/#website` },
+          inLanguage: "en-US",
+          isPartOf: { "@id": ids.website },
+          breadcrumb: { "@id": breadcrumb["@id"] },
           // The Organization node itself lives in the root layout's graph.
-          mainEntity: { "@id": `${origin}/#organization` },
-        }}
+          mainEntity: { "@id": ids.organization },
+        })}
       />
       <MarketingTitleSection
         className="text-center"
         aria-labelledby="contact-title"
       >
         <h1 id="contact-title" className={cn(landingPageH1, "md:text-4xl")}>
-          Contact
+          Contact {macwall.name} support
         </h1>
         <p className={cn(landingPageLead, "mx-auto text-center")}>
           Questions about your license, activation or a payment? We&apos;re here
@@ -101,8 +114,8 @@ export default function ContactPage() {
           <section className="space-y-2">
             <h2 className="text-lg font-medium text-foreground">Company</h2>
             <p>
-              Our terms and policies, including who sells {macwall.name}, are
-              in the <Link href="/legal">legal center</Link>.
+              Our terms and policies, including who sells {macwall.name}, are in
+              the <Link href="/legal">legal center</Link>.
             </p>
           </section>
         </div>

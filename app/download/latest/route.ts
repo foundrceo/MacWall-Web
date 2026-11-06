@@ -1,5 +1,6 @@
 import { after, NextResponse } from "next/server"
 
+import { isBotUserAgent } from "@/lib/analytics/bot-user-agent"
 import { trackSiteEvent } from "@/lib/analytics/track-server"
 import {
   cannotOpenInstaller,
@@ -76,20 +77,24 @@ export async function GET(request: Request) {
     const referrer = request.headers.get("referer")
     const userAgent = request.headers.get("user-agent")
     const os = installerPlatformFromUserAgent(userAgent)
+    // Crawlers follow the header CTA on every page. They get the same
+    // redirect, but they aren't downloads, so they stay out of the counts.
+    const track = !isBotUserAgent(userAgent)
 
     // Phones and Windows can't open a DMG. Send them to the home page's
     // "send the link to your Mac" hero instead of a file they can't use.
     if (cannotOpenInstaller(os)) {
-      after(() =>
-        trackSiteEvent({
-          eventName: "download_send_to_mac",
-          path: "/download/latest",
-          referrer,
-          userAgent,
-          sessionId,
-          metadata: { os },
-        })
-      )
+      if (track)
+        after(() =>
+          trackSiteEvent({
+            eventName: "download_send_to_mac",
+            path: "/download/latest",
+            referrer,
+            userAgent,
+            sessionId,
+            metadata: { os },
+          })
+        )
       return NextResponse.redirect(new URL("/?send=1", request.url), {
         status: 303,
         headers: { "Cache-Control": "private, no-store" },
@@ -98,16 +103,17 @@ export async function GET(request: Request) {
 
     const destinationHost = target.hostname
     // Don't hold the 302 for analytics.
-    after(() =>
-      trackSiteEvent({
-        eventName: "download_redirect",
-        path: "/download/latest",
-        referrer,
-        userAgent,
-        sessionId,
-        metadata: { destination: destinationHost, os },
-      })
-    )
+    if (track)
+      after(() =>
+        trackSiteEvent({
+          eventName: "download_redirect",
+          path: "/download/latest",
+          referrer,
+          userAgent,
+          sessionId,
+          metadata: { destination: destinationHost, os },
+        })
+      )
     return NextResponse.redirect(target, 302)
   } catch {
     return new NextResponse("Invalid installer URL.", { status: 500 })

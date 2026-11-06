@@ -1,10 +1,14 @@
 import { ProseBreadcrumbs } from "@/components/content/prose-breadcrumbs"
 import { ContentBody } from "@/components/content/content-body"
+import { ContentCta } from "@/components/content/content-cta"
 import {
   MarketingBodySection,
   MarketingTitleSection,
 } from "@/components/macwall-marketing/marketing-inner-page"
-import { landingPageH1, landingPageLead } from "@/components/macwall-marketing/landing-type"
+import {
+  landingPageH1,
+  landingPageLead,
+} from "@/components/macwall-marketing/landing-type"
 import type { ContentFaq, ContentBlock } from "@/lib/content/types"
 import {
   proseFaq,
@@ -24,6 +28,7 @@ export function SeoPageShell({
   faq,
   breadcrumbs,
   meta,
+  cta,
   children,
 }: Readonly<{
   headline: string
@@ -32,6 +37,11 @@ export function SeoPageShell({
   faq?: ContentFaq[]
   breadcrumbs?: { label: string; href: string }[]
   meta?: ReactNode
+  /**
+   * Opt-in download prompt after the first section, for help and explainer
+   * pages (`pageType` "docs", "learn"…). Landing pages carry their own CTAs.
+   */
+  cta?: { slug: string; pageType: string }
   children?: ReactNode
   showBottomCta?: boolean
 }>) {
@@ -49,16 +59,22 @@ export function SeoPageShell({
       </MarketingTitleSection>
 
       <MarketingBodySection>
-        <article className="prose min-w-0 max-w-none px-4 py-8 md:px-6">
-          {sections ? <ContentBody sections={sections} /> : null}
+        <article className="prose max-w-none min-w-0 px-4 py-8 md:px-6">
+          {sections ? (
+            <ContentBody
+              sections={sections}
+              afterFirstSection={
+                cta ? (
+                  <ContentCta slug={cta.slug} pageType={cta.pageType} />
+                ) : undefined
+              }
+            />
+          ) : null}
           {children}
         </article>
 
         {faq && faq.length > 0 ? (
-          <section
-            className={proseFaq}
-            aria-labelledby="seo-page-faq-title"
-          >
+          <section className={proseFaq} aria-labelledby="seo-page-faq-title">
             <h2
               id="seo-page-faq-title"
               className={`${proseFaqTitle} px-4 pt-8 md:px-6`}
@@ -67,7 +83,10 @@ export function SeoPageShell({
             </h2>
             <dl className={proseFaqList}>
               {faq.map((item) => (
-                <div key={item.question} className={`${proseFaqItem} px-4 md:px-6`}>
+                <div
+                  key={item.question}
+                  className={`${proseFaqItem} px-4 md:px-6`}
+                >
                   <dt className={proseFaqQuestion}>{item.question}</dt>
                   <dd className={proseFaqAnswer}>{item.answer}</dd>
                 </div>

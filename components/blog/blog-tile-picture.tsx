@@ -2,41 +2,42 @@
 
 import {
   blogThumbAvifSrc,
+  blogThumbSrcSets,
   type BlogTileImageVariant,
 } from "@/lib/blog/tile-media"
-import Image from "next/image"
-import { useState, type ReactNode } from "react"
+import { useState } from "react"
 
 const HERO_WIDTH = 1286
 const HERO_HEIGHT = 724
 const TILE_WIDTH = 940
 const TILE_HEIGHT = 529
+/** The mockups are 1200×800 (3:2); the 640 copy has the same shape. */
+const MOCKUP_WIDTH = 1200
+const MOCKUP_HEIGHT = 800
 
-/** Browsers that decode AVIF take the ~75% smaller sibling; others keep the JPEG. */
-function WithAvif({
-  src,
-  className,
-  children,
-}: Readonly<{ src: string; className?: string; children: ReactNode }>) {
-  const avif = blogThumbAvifSrc(src)
-  return (
-    <picture className={className}>
-      {avif ? <source srcSet={avif} type="image/avif" /> : null}
-      {children}
-    </picture>
-  )
-}
+/** Grid tiles: a third of the row on desktop, half on tablets, full on phones. */
+const DEFAULT_SIZES = "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
 
+/**
+ * A blog mockup as `<picture>`: AVIF first (~75% smaller), JPEG fallback,
+ * each with the 640 and 1200 widths so narrow tiles download the small copy.
+ * Plain `<img>`, not next/image: the files are pre-sized in /public, and
+ * next/image can't take a hand-written `srcset`. Only the article cover is
+ * `priority`; everything below the fold lazy-loads.
+ */
 export function BlogTilePicture({
   src,
   alt,
   variant,
   priority,
+  sizes = DEFAULT_SIZES,
 }: Readonly<{
   src: string
   alt: string
   variant: BlogTileImageVariant
   priority?: boolean
+  /** `sizes` for the 640/1200 `srcset`; tiles default to the grid widths. */
+  sizes?: string
 }>) {
   const [failed, setFailed] = useState(false)
 
@@ -47,73 +48,52 @@ export function BlogTilePicture({
     return null
   }
 
-  if (variant === "list") {
-    return (
-      <WithAvif src={src}>
-        <Image
-          src={src}
-          alt={alt}
-          width={120}
-          height={120}
-          className="viewport-image tile__image tile__image--square"
-          loading={priority ? "eager" : undefined}
-          fetchPriority={priority ? "high" : undefined}
-          unoptimized
-          onError={() => setFailed(true)}
-        />
-      </WithAvif>
-    )
-  }
+  const avif = blogThumbAvifSrc(src)
+  const srcSets = variant === "list" ? null : blogThumbSrcSets(src)
+  const loading = priority ? ("eager" as const) : ("lazy" as const)
+  const fetchPriority = priority ? ("high" as const) : undefined
 
-  if (variant === "curated") {
-    return (
-      <WithAvif src={src}>
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-          className="size-full object-cover"
-          loading={priority ? "eager" : undefined}
-          fetchPriority={priority ? "high" : undefined}
-          unoptimized
-          onError={() => setFailed(true)}
-        />
-      </WithAvif>
-    )
-  }
+  const dimensions =
+    variant === "list"
+      ? { width: 120, height: 120 }
+      : variant === "hero"
+        ? { width: HERO_WIDTH, height: HERO_HEIGHT }
+        : variant === "curated"
+          ? { width: MOCKUP_WIDTH, height: MOCKUP_HEIGHT }
+          : { width: TILE_WIDTH, height: TILE_HEIGHT }
 
-  if (variant === "hero") {
-    return (
-      <WithAvif src={src} className="viewport-picture">
-        <Image
-          src={src}
-          alt={alt}
-          width={HERO_WIDTH}
-          height={HERO_HEIGHT}
-          className="viewport-image tile__image"
-          loading={priority ? "eager" : undefined}
-          fetchPriority={priority ? "high" : undefined}
-          unoptimized
-          onError={() => setFailed(true)}
-        />
-      </WithAvif>
-    )
-  }
+  const className =
+    variant === "list"
+      ? "viewport-image tile__image tile__image--square"
+      : variant === "curated"
+        ? "absolute inset-0 size-full object-cover"
+        : "viewport-image tile__image"
 
   return (
-    <WithAvif src={src} className="viewport-picture">
-      <Image
+    <picture
+      className={
+        variant === "hero" || variant === "tile"
+          ? "viewport-picture"
+          : undefined
+      }
+    >
+      {srcSets ? (
+        <source srcSet={srcSets.avif} sizes={sizes} type="image/avif" />
+      ) : avif ? (
+        <source srcSet={avif} type="image/avif" />
+      ) : null}
+      <img
         src={src}
+        srcSet={srcSets?.jpeg}
+        sizes={srcSets ? sizes : undefined}
         alt={alt}
-        width={TILE_WIDTH}
-        height={TILE_HEIGHT}
-        className="viewport-image tile__image"
-        loading={priority ? "eager" : undefined}
-        fetchPriority={priority ? "high" : undefined}
-        unoptimized
+        {...dimensions}
+        className={className}
+        loading={loading}
+        fetchPriority={fetchPriority}
+        decoding={priority ? "sync" : "async"}
         onError={() => setFailed(true)}
       />
-    </WithAvif>
+    </picture>
   )
 }

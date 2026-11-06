@@ -1,22 +1,59 @@
 import { blogArticles } from "@/lib/blog"
 import { BLOG_CATEGORY_LABELS } from "@/lib/content/types"
-import type { SeoContentPage } from "@/lib/content/types"
+import type { ContentBlock, SeoContentPage } from "@/lib/content/types"
 import { docsPages, docsPagesBySection } from "@/lib/docs/pages"
 import { learnPages } from "@/lib/learn/pages"
 import {
   macwall,
+  macwallBatteryPolicy,
+  macwallCreatorDisclosure,
+  macwallImportFormatsLabel,
   macwallLockScreenMacOSVersion,
-  macwallMinimumMacOSVersionLabel,
+  macwallMinimumMacOSVersion,
   macwallCatalog,
+  macwallPermissions,
+  macwallPlaybackModes,
+  macwallSupportedMacOS,
+  macwallTrial,
 } from "@/lib/macwall-site"
 import { seoPageToMarkdown } from "@/lib/ai/markdown"
-import { macwallAiInfoPage } from "@/lib/ai/macwall-ai-info"
+import {
+  MACWALL_AI_INFO_DESCRIPTION,
+  MACWALL_AI_INFO_PATH,
+  MACWALL_AI_INFO_TITLE,
+  getMacwallAiInfoPage,
+} from "@/lib/ai/macwall-ai-info"
+import {
+  CURRENCY_NOTE,
+  LICENSE_TABLE_COLUMNS,
+  currentPromotionLines,
+  licenseSummarySentence,
+  licenseTableRows,
+  proPriceText,
+} from "@/lib/ai/price-facts"
+import { proPriceFor } from "@/lib/pricing/sale-aware-price"
+import {
+  ABOUT_DESCRIPTION,
+  ABOUT_PATH,
+  ABOUT_TITLE,
+  COMPANY_PAGES_UPDATED_ISO,
+  PRESS_DESCRIPTION,
+  PRESS_PATH,
+  PRESS_TITLE,
+  getAboutPage,
+  getPressPage,
+} from "@/lib/company/about-press"
+import { faqMarkdownDocuments } from "@/lib/faq/answers"
+import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
+import { macwallCreatorCopy } from "@/lib/macwall-creator-copy"
+import { macwallPricingCopy } from "@/lib/macwall-pricing-copy"
 import {
   bestLiveWallpaperMacPage,
   downloadPage,
   livelyWallpaperMacPage,
   macwallVsBackdropPage,
   macwallVsWallspacePage,
+  screenSaverMacPage,
   wallpaperCategoryPage,
   wallpaperEngineAlternativePage,
 } from "@/lib/seo/landing-pages"
@@ -24,18 +61,32 @@ import { canonicalSiteOrigin } from "@/lib/site-url"
 import { LEGAL_DOCUMENTS } from "@/lib/legal/documents"
 import { LEGAL_HUB_DESCRIPTION } from "@/lib/legal/metadata"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
+import { categoryDisplayLabel, galleryIndexSeo } from "@/lib/seo/category-seo"
 import { crawlersPage } from "@/lib/seo/crawlers-page"
 import { toolSeoPage, tools, toolsHubPage } from "@/lib/tools/tools"
-import { loadDisplayPage } from "@/lib/public-catalog/display-wallpapers"
-import { displayPageDefs, displayPagePath } from "@/lib/seo/display-pages"
+import {
+  loadDisplayIndex,
+  loadDisplayPage,
+  loadMacbookHub,
+} from "@/lib/public-catalog/display-wallpapers"
+import {
+  DISPLAY_PAGES_PATH,
+  MACBOOK_HUB_PATH,
+  displayIndexDef,
+  displayPageDefs,
+  displayPagePath,
+  macbookHubDef,
+} from "@/lib/seo/display-pages"
 import { MAC_DISPLAY_SPECS_ACCESSED } from "@/lib/seo/mac-displays"
 import {
   compareIndexPage,
   dynamicWallpaperClubPage,
+  iwallpaperAlternativePage,
   plashAlternativePage,
   twentyFourHourWallpaperPage,
 } from "@/lib/seo/compare-pages"
 import { listCollectionWallpapers } from "@/lib/public-catalog/collections"
+import type { PublicWallpaper } from "@/lib/public-catalog/types"
 import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
 import {
   COLLECTION_GRID_LIMIT,
@@ -44,6 +95,7 @@ import {
   WALLPAPER_COLLECTIONS_HUB_PATH,
   collectionFaq,
   wallpaperCollectionPath,
+  collectionPublishable,
   wallpaperCollections,
   type WallpaperCollection,
 } from "@/lib/seo/wallpaper-collections"
@@ -59,25 +111,43 @@ import {
  */
 
 export type MarkdownGroup =
-  "product" | "docs" | "learn" | "blog" | "wallpapers" | "comparisons" | "legal"
+  | "product"
+  | "pricing"
+  | "docs"
+  | "faq"
+  | "comparisons"
+  | "learn"
+  | "blog"
+  | "wallpapers"
+  | "legal"
 
 export const MARKDOWN_GROUP_LABELS: Record<MarkdownGroup, string> = {
   product: "Product",
+  pricing: "Pricing",
   docs: "Documentation",
+  faq: "FAQ",
+  comparisons: "Comparisons & alternatives",
   learn: "Learn",
   blog: "Blog",
   wallpapers: "Wallpaper gallery",
-  comparisons: "Comparisons & alternatives",
   legal: "Company & legal",
 }
 
+/**
+ * Order of the llms.txt sections: what MacWall is and costs first, then how
+ * to use it, then editorial content, then the gallery hubs. Long listings
+ * (each collection, category, display and tool page) and legal text are
+ * marked `optional` and go under llms.txt's `## Optional`.
+ */
 export const MARKDOWN_GROUP_ORDER: readonly MarkdownGroup[] = [
   "product",
+  "pricing",
   "docs",
+  "faq",
+  "comparisons",
   "learn",
   "blog",
   "wallpapers",
-  "comparisons",
   "legal",
 ] as const
 
@@ -91,6 +161,11 @@ export type MarkdownDocument = {
   updatedAt?: string
   /** Included in `/llms-full.txt`. Long index/listing pages opt out. */
   includeInFullText: boolean
+  /**
+   * Listed under `## Optional` in `/llms.txt` (the section a model may skip)
+   * instead of under its group: per-item listings and legal text.
+   */
+  optional?: boolean
   render: () => string | Promise<string>
 }
 
@@ -100,82 +175,233 @@ export function markdownPathFor(path: string): string {
   return `${path}.md`
 }
 
-const homePage: SeoContentPage = {
-  slug: "home",
-  pathname: "/",
-  title: `${macwall.name}: ${macwall.tagline}`,
-  headline: `${macwall.name}: live wallpapers for Mac`,
-  description: `${macwall.name} is a native macOS app for 4K live video wallpapers, with hardware-decoded playback, automatic pausing, live Lock Screen on ${macwallLockScreenMacOSVersion}+, and a one-time ${macwall.pro.price} license.`,
-  keywords: [
-    "live wallpaper mac",
-    "mac video wallpaper app",
-    "macos live wallpaper",
-    "animated wallpaper mac",
-  ],
-  updatedAt: macwall.productInfoLastReviewedIso,
-  sections: [
-    {
-      type: "p",
-      text: `**${macwall.name}** (${macwall.website}) is a native macOS app that turns 4K video loops into your desktop wallpaper. It is written in Swift, decodes video on Apple's media engine rather than the CPU, and lives in the menu bar instead of the Dock. ${macwallMinimumMacOSVersionLabel}; live Lock Screen and Screen Saver motion requires ${macwallLockScreenMacOSVersion} or later.`,
-    },
-    { type: "h2", text: "What it does" },
-    { type: "ul", items: [...macwall.proIncludedFeatures] },
-    { type: "h2", text: "Pricing" },
-    {
-      type: "ul",
-      items: [
-        "**Free trial**: download with no account required and get 24 hours with the full catalog and live Lock Screen.",
-        `**Pro (permanent license)**: ${macwall.pro.price} one time in default USD pricing, activates on up to ${macwall.maxLicensedMacs} personal Macs, and unlocks the full catalog, private imports, and current Pro benefits.`,
-        "**Pro+ packs**: permanent multi-Mac licenses for families, studios, and labs. Available device counts and regional prices are on [pricing](/pricing).",
-      ],
-    },
-    { type: "h2", text: "Catalog" },
-    {
-      type: "p",
-      text: `${macwallCatalog.liveCountLabel} curated loops across ${macwall.categories.length} categories (${macwall.categories.join(", ")}), browsable in the app or on the web at [macwall.app/wallpapers](/wallpapers). Community members publish new wallpapers from inside the MacWall app (Add Wallpaper → Share with the community).`,
-    },
-    { type: "h2", text: "Performance model" },
-    {
-      type: "p",
-      text: "Frames are decoded through VideoToolbox and composited with Metal to keep playback overhead low. Actual CPU and energy use varies with the Mac, codec, resolution, frame rate, display count, and settings. Playback can pause on battery, in full-screen apps, on display sleep, in Low Power Mode, and when system load spikes; while paused, video decoding stops.",
-    },
-    { type: "h2", text: "Where to start" },
-    {
-      type: "ul",
-      items: [
-        "[Install MacWall](/docs/install-macwall): download, install, first wallpaper.",
-        "[Set a live wallpaper](/docs/set-a-live-wallpaper): catalog, per-display setups, Shuffle.",
-        "[Performance and battery](/docs/performance-and-battery): every pause rule, and how to verify CPU use.",
-        "[What is a live wallpaper?](/learn/what-is-a-live-wallpaper): concepts and terminology.",
-        "[Complete guide](/blog/what-is-macwall-complete-guide), the long-form overview.",
-      ],
-    },
-    { type: "h2", text: "Contact" },
-    {
-      type: "ul",
-      items: [
-        `Support: [${macwall.supportEmail}](mailto:${macwall.supportEmail})`,
-        `Community: [Discord](${macwall.discordInvite})`,
-        `Publisher: ${macwall.name}`,
-      ],
-    },
-  ],
+const HOME_DESCRIPTION = `${macwall.name} is a native macOS app for 4K live video wallpapers on the desktop, Lock Screen and screen saver, with hardware-decoded playback, a free 24-hour trial and a one-time Pro license.`
+
+const systemPlayback = macwallPlaybackModes.systemWallpaper
+const appPlayback = macwallPlaybackModes.app
+
+/**
+ * The home page's twin, built from the same copy the HTML uses
+ * (lib/macwall-marketing-copy.ts) plus the shared product constants, and
+ * priced at render time.
+ */
+function homeMarkdownPage(now: number): SeoContentPage {
+  const home = macwallMarketingCopy.home
+  const playback = home.playback
+  const promotions = currentPromotionLines(now)
+  return {
+    slug: "home",
+    pathname: "/",
+    title: `${macwall.name}: ${macwall.tagline}`,
+    headline: `${macwallMarketingCopy.interact.title} ${macwallMarketingCopy.interact.titleMuted.replace(/\.$/, "")}`,
+    description: HOME_DESCRIPTION,
+    keywords: [
+      "live wallpaper mac",
+      "mac video wallpaper app",
+      "macos live wallpaper",
+      "animated wallpaper mac",
+    ],
+    updatedAt: macwall.productInfoLastReviewedIso,
+    sections: [
+      {
+        type: "p",
+        text: `**${macwall.name}** (${macwall.website}) is a native macOS app that turns video loops into your wallpaper. ${macwallMarketingCopy.interact.heroLead} ${macwallSupportedMacOS.summary}`,
+      },
+      {
+        type: "p",
+        text: `${macwall.name} is a native macOS app that plays video loops as your desktop, Lock Screen and screen saver wallpaper: ${macwallCatalog.liveCountLabel} live wallpapers, most in 4K, plus your own videos with Pro. Every Mac gets a ${macwallTrial.name}, then Pro is ${proPriceText("default", now)} once for ${proPriceFor("default", now).macs} Macs. It runs on ${macwallMinimumMacOSVersion} or later; the live Lock Screen needs ${macwallLockScreenMacOSVersion}.`,
+      },
+      { type: "h2", text: home.showcase.title },
+      { type: "p", text: home.showcase.lead },
+      {
+        type: "ul",
+        items: [
+          home.showcase.lockScreen,
+          home.showcase.music,
+          home.showcase.bend,
+        ].map((item) => `**${item.eyebrow}**: ${item.body}`),
+      },
+      { type: "h2", text: playback.title },
+      { type: "p", text: playback.lead },
+      {
+        type: "table",
+        columns: [
+          "",
+          `${playback.modes.system.name} (Settings: ${systemPlayback.setting})`,
+          `${playback.modes.app.name} (Settings: ${appPlayback.setting})`,
+        ],
+        rows: [
+          ["Runs on", playback.modes.system.runsOn, playback.modes.app.runsOn],
+          ["How it plays", playback.modes.system.body, playback.modes.app.body],
+          ...playback.rows.map((row) => ["", row.system.text, row.app.text]),
+        ],
+        caption: `In ${systemPlayback.marketing} mode ${systemPlayback.cpu}.`,
+      },
+      { type: "h2", text: home.everything.title },
+      {
+        type: "ul",
+        items: home.everything.items.map(
+          (item) => `**${item.title}**: ${item.body}`
+        ),
+      },
+      { type: "h2", text: "Battery and performance" },
+      { type: "p", text: macwallBatteryPolicy.summary },
+      { type: "p", text: macwallPermissions.summary },
+      { type: "h2", text: "Pricing" },
+      {
+        type: "ul",
+        items: [
+          `**Free trial**: ${macwallTrial.summary}`,
+          `**Pro and Pro+**: ${licenseSummarySentence(now)} No subscription.`,
+          ...promotions,
+          CURRENCY_NOTE,
+          "Every pack and the full terms: [pricing](/pricing).",
+        ],
+      },
+      { type: "h2", text: "Catalog" },
+      {
+        type: "p",
+        text: `${macwallCatalog.liveCountLabel} curated loops across ${macwall.categories.length} categories (${macwall.categories.join(", ")}), browsable in the app or on the web at [macwall.app/wallpapers](/wallpapers). Pro users can add their own ${macwallImportFormatsLabel} videos, or share a loop with the community: a person reviews each upload before it appears in Explore ([how uploads work](/blog/upload-wallpaper-macwall-community)).`,
+      },
+      { type: "h2", text: "Where to start" },
+      {
+        type: "ul",
+        items: [
+          "[Install MacWall](/docs/install-macwall): download, install, first wallpaper.",
+          "[Set a live wallpaper](/docs/set-a-live-wallpaper): catalog, per-display setups, Shuffle.",
+          "[Performance and battery](/docs/performance-and-battery): every pause rule, and how to verify CPU use.",
+          "[FAQ](/faq): short answers on price, battery, the Lock Screen and compatibility.",
+          "[What is a live wallpaper?](/learn/what-is-a-live-wallpaper): concepts and terminology.",
+        ],
+      },
+      { type: "h2", text: "Contact" },
+      {
+        type: "ul",
+        items: [
+          `Support: [${macwall.supportEmail}](mailto:${macwall.supportEmail})`,
+          `Community: [Discord](${macwall.discordInvite})`,
+          `Publisher: ${macwall.name} (${macwall.legalCompanyName}). [About](/about) · [Press kit](/press)`,
+        ],
+      },
+    ],
+  }
+}
+
+const PRICING_TITLE = `${macwall.name} Pricing`
+const PRICING_SUMMARY =
+  "Free 24-hour trial, a one-time Pro license for 3 Macs and Pro+ packs for 5 or 10 Macs, with India pricing, the current sale and refund terms. No subscription."
+
+/**
+ * The /pricing twin, built from the copy the HTML page uses
+ * (lib/macwall-pricing-copy.ts) and priced at render time, so it carries the
+ * same packs, India prices, sale and FAQ as the page.
+ */
+function pricingMarkdownPage(now: number): SeoContentPage {
+  const copy = macwallPricingCopy
+  const promotions = currentPromotionLines(now)
+  return {
+    slug: "pricing",
+    pathname: "/pricing",
+    title: PRICING_TITLE,
+    headline: copy.heroH1,
+    description: `${copy.heroLead} ${macwallTrial.summary}`,
+    keywords: [
+      "macwall pricing",
+      "macwall pro price",
+      "live wallpaper app price",
+    ],
+    updatedAt: macwall.productInfoLastReviewedIso,
+    sections: [
+      {
+        type: "p",
+        text: `${macwall.name} is free to download, and every Mac gets one ${macwallTrial.name}. After it, the app is browse-only until you buy. Pro is a **one-time ${proPriceText("default", now)}** for up to ${macwall.maxLicensedMacs} Macs. In India, Pro is ${proPriceText("india", now)}. Nothing renews. ${CURRENCY_NOTE}`,
+      },
+      ...(promotions.length > 0
+        ? ([
+            { type: "h2", text: "Sales running now" },
+            { type: "ul", items: promotions },
+          ] satisfies ContentBlock[])
+        : []),
+      { type: "h2", text: "Packs and prices" },
+      {
+        type: "table",
+        columns: [...LICENSE_TABLE_COLUMNS],
+        rows: licenseTableRows(now),
+        caption: `All prices in USD, one time. ${CURRENCY_NOTE}`,
+      },
+      {
+        type: "p",
+        text: `**${copy.plans.pro.title}**: ${copy.plans.pro.subtitle}. **${copy.plans.proPlus.title}**: ${copy.plans.proPlus.subtitle}. The annual plan is retired for new purchases.`,
+      },
+      { type: "h2", text: "What Pro includes" },
+      { type: "ul", items: [...copy.pro.features] },
+      { type: "h2", text: "What Pro+ adds" },
+      { type: "ul", items: [...copy.proPlus.features] },
+      { type: "h2", text: "Paying and activating" },
+      {
+        type: "p",
+        text: `Checkout runs through ${macwall.paymentProcessor}; ${macwall.name} never handles card details. Your license key is emailed within seconds, and one click activates it in the app. No account is needed. Full flow: [license and activation](/docs/license-and-activation).`,
+      },
+      { type: "h2", text: "Getting your money back" },
+      {
+        type: "p",
+        text: `Every license has a ${macwall.refundWindowDays}-day money-back guarantee: email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) within ${macwall.refundWindowDays} days of purchase for a full refund, no reason needed.`,
+      },
+      {
+        type: "p",
+        text: `**${copy.reelRefund.title}**: ${copy.reelRefund.description} ${copy.reelRefund.finePrint} Details: [creator program](/creator).`,
+      },
+    ],
+    faq: [...copy.faq, ...copy.supportFaq].map((item) => ({
+      question: item.q,
+      answer: item.a,
+    })),
+  }
+}
+
+const CREATOR_SUMMARY = `Post a public video about ${macwall.name}, tagged ${macwallCreatorDisclosure.tag}, and get money back: 50% at ${macwall.reelRefundHalfViews.toLocaleString("en-US")} views, 100% at ${macwall.reelRefundFullViews.toLocaleString("en-US")}.`
+
+/** The /creator twin, built from lib/macwall-creator-copy.ts like the page. */
+function creatorMarkdownPage(): SeoContentPage {
+  const copy = macwallCreatorCopy
+  return {
+    slug: "creator",
+    pathname: "/creator",
+    title: `${macwall.name} Reel Refund: Money Back for a Video`,
+    headline: copy.heroTitle,
+    description: copy.heroLead,
+    keywords: ["macwall creator program", "macwall refund views"],
+    updatedAt: macwall.productInfoLastReviewedIso,
+    sections: [
+      { type: "h2", text: "How the Reel refund works" },
+      {
+        type: "ol",
+        items: copy.steps.map((step) => `**${step.title}**: ${step.body}`),
+      },
+      { type: "p", text: copy.finePrint },
+      { type: "h2", text: copy.influencerTitle },
+      { type: "p", text: copy.influencerBody },
+      { type: "h2", text: copy.closingTitle },
+      { type: "p", text: copy.closingBody },
+      {
+        type: "p",
+        text: `Claims: [${macwall.reelRefundEmail}](mailto:${macwall.reelRefundEmail}). Prices and the ${macwall.refundWindowDays}-day money-back guarantee: [pricing](/pricing).`,
+      },
+    ],
+    faq: copy.faq.map((item) => ({ question: item.q, answer: item.a })),
+  }
 }
 
 const wallpapersIndexPage: SeoContentPage = {
   slug: "wallpapers",
   pathname: "/wallpapers",
-  title: `Live Wallpaper Gallery for Mac | ${macwall.name}`,
-  headline: "Live wallpaper gallery",
-  description:
-    "Browse the full MacWall catalog of 4K live wallpapers for Mac by category, search, or popularity, then set any loop straight to your desktop.",
-  keywords: [
-    "live wallpaper gallery mac",
-    "4k live wallpapers",
-    "mac video wallpapers",
-  ],
+  title: galleryIndexSeo.title,
+  headline: galleryIndexSeo.headline,
+  description: galleryIndexSeo.description,
+  keywords: [...galleryIndexSeo.keywords],
   updatedAt: "2026-08-02",
   sections: [
+    { type: "p", text: galleryIndexSeo.intro },
     {
       type: "p",
       text: `The web gallery at [macwall.app/wallpapers](/wallpapers) mirrors the in-app catalog: ${macwallCatalog.liveCountLabel} curated loops (most in 4K), searchable and filterable by category, tag, and popularity. Each wallpaper has its own page with a preview, resolution, duration, file size, and a **Set on Mac** deep link that hands it to the installed app.`,
@@ -185,7 +411,7 @@ const wallpapersIndexPage: SeoContentPage = {
       type: "ul",
       items: macwall.categories.map((name) => {
         const page = wallpaperCategoryPage(name)
-        return `[${name}](${page.pathname}): ${page.description}`
+        return `[${categoryDisplayLabel(name)}](${page.pathname}): ${page.description}`
       }),
     },
     { type: "h2", text: "Collections" },
@@ -195,7 +421,7 @@ const wallpapersIndexPage: SeoContentPage = {
     },
     {
       type: "ul",
-      items: wallpaperCollections.map(
+      items: publishedCollections().map(
         (entry) =>
           `[${entry.name} live wallpapers](${wallpaperCollectionPath(entry.slug)}): ${entry.description}`
       ),
@@ -298,7 +524,7 @@ function learnIndexMarkdown(): string {
 
   return `---
 title: "Learn: Live Wallpapers on Mac"
-description: "Concept explainers for live wallpapers, macOS wallpaper internals, video codecs, displays, and battery."
+description: "Concept explainers for live wallpapers, macOS wallpaper internals, Lock Screen video, Wallpaper Engine on Mac, video codecs, displays, and battery."
 canonical: "${origin}/learn"
 ---
 
@@ -441,7 +667,7 @@ Source: ${origin}/bend
 function seoDoc(
   page: SeoContentPage,
   group: MarkdownGroup,
-  options: { includeInFullText?: boolean } = {}
+  options: { includeInFullText?: boolean; optional?: boolean } = {}
 ): MarkdownDocument {
   return {
     path: page.pathname,
@@ -450,14 +676,43 @@ function seoDoc(
     group,
     updatedAt: page.updatedAt ?? page.publishedAt,
     includeInFullText: options.includeInFullText ?? true,
+    ...(options.optional ? { optional: true } : {}),
     render: () => seoPageToMarkdown(page),
   }
+}
+
+/** A display page or the MacBook hub: its copy with the listed wallpapers. */
+function displayListMarkdown(data: {
+  page: SeoContentPage
+  wallpapers: readonly PublicWallpaper[]
+}): string {
+  const origin = canonicalSiteOrigin()
+  const list = data.wallpapers
+    .map(
+      (w) =>
+        `- [${w.name}](${origin}${wallpaperDetailPath(w)})${w.resolution ? ` (${w.resolution})` : ""}`
+    )
+    .join("\n")
+  return seoPageToMarkdown({
+    ...data.page,
+    sections: [
+      ...data.page.sections.slice(0, 1),
+      { type: "h2", text: "Wallpapers" },
+      { type: "p", text: list },
+      ...data.page.sections.slice(1),
+    ],
+  })
+}
+
+/** Collections that are built: likeness topics have no page, so no twin. */
+function publishedCollections(): WallpaperCollection[] {
+  return wallpaperCollections.filter(collectionPublishable)
 }
 
 function collectionsHubMarkdown(): string {
   const origin = canonicalSiteOrigin()
   const groups = COLLECTION_GROUP_ORDER.map((group) => {
-    const items = wallpaperCollections
+    const items = publishedCollections()
       .filter((entry) => entry.group === group)
       .map(
         (entry) =>
@@ -540,68 +795,51 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
   if (cachedDocuments) return cachedDocuments
 
   const documents: MarkdownDocument[] = [
-    seoDoc(macwallAiInfoPage, "product"),
-    seoDoc(homePage, "product"),
-    seoDoc(downloadPage, "product"),
     {
-      path: "/pricing",
-      title: `${macwall.name} Pricing`,
-      summary: `Free 24-hour trial of the full catalog, one-time ${macwall.pro.price} default-USD Pro license, and permanent Pro+ multi-Mac packs. No recurring subscription.`,
+      path: MACWALL_AI_INFO_PATH,
+      title: MACWALL_AI_INFO_TITLE,
+      summary: MACWALL_AI_INFO_DESCRIPTION,
       group: "product",
       updatedAt: macwall.productInfoLastReviewedIso,
       includeInFullText: true,
-      render: () =>
-        seoPageToMarkdown({
-          slug: "pricing",
-          pathname: "/pricing",
-          title: `${macwall.name} Pricing`,
-          headline: `${macwall.name} pricing`,
-          description: `Free 24-hour trial of the full catalog, one-time ${macwall.pro.price} default-USD Pro license, and permanent Pro+ multi-Mac packs. No recurring subscription.`,
-          keywords: [
-            "macwall pricing",
-            "macwall pro price",
-            "live wallpaper app price",
-          ],
-          updatedAt: macwall.productInfoLastReviewedIso,
-          sections: [
-            {
-              type: "p",
-              text: `${macwall.name} is free to download, and every download starts with a 24-hour trial of the full catalog and live Lock Screen. After the trial you can keep browsing the catalog; Pro keeps the full cloud catalog, private imports, and Pro-only features unlocked for a **one-time ${macwall.pro.price}** in default USD pricing, not a recurring subscription. Regional pricing may differ, and checkout is handled by ${macwall.paymentProcessor}.`,
-            },
-            { type: "h2", text: "Programs" },
-            {
-              type: "ul",
-              items: [
-                "**Free trial**: install with no account and get 24 hours with the full catalog and live Lock Screen.",
-                `**Permanent Pro license**: ${macwall.pro.price} once in default USD pricing. Activates on up to ${macwall.maxLicensedMacs} personal Macs and unlocks the full catalog, private imports, and current Pro benefits.`,
-                "**Pro+ packs**: permanent multi-Mac options for studios, labs, and families.",
-                "**Annual plan**: retired for new purchases.",
-              ],
-            },
-            { type: "h2", text: "What Pro includes" },
-            { type: "ul", items: [...macwall.pro.features] },
-            { type: "h2", text: "Investing and activating" },
-            {
-              type: "p",
-              text: "Checkout runs through Stripe; MacWall never handles card details. Secure payment is verified server-side before your license key is released, then one click activates it in the app. Full flow: [license and activation](/docs/license-and-activation).",
-            },
-            { type: "h2", text: "Getting your money back" },
-            {
-              type: "p",
-              text: `Every license has a ${macwall.refundWindowDays}-day money-back guarantee: email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) within ${macwall.refundWindowDays} days of purchase for a full refund, no reason needed. Separately, the [creator program](/creator) refunds you in full for a MacWall video that hits ${macwall.reelRefundFullViews.toLocaleString("en-US")} views, or half at ${macwall.reelRefundHalfViews.toLocaleString("en-US")}.`,
-            },
-          ],
-          faq: [
-            {
-              question: `Is ${macwall.name} a subscription?`,
-              answer: `No. The permanent license is a single ${macwall.pro.price} payment in default USD pricing with free updates forever. The annual plan is retired for new purchases.`,
-            },
-            {
-              question: "How many Macs does one license cover?",
-              answer: `Up to ${macwall.maxLicensedMacs} Macs you own, and you can deactivate a machine at any time to free a slot. The Pro+ program raises the limit.`,
-            },
-          ],
-        }),
+      render: () => seoPageToMarkdown(getMacwallAiInfoPage()),
+    },
+    {
+      path: "/",
+      title: `${macwall.name}: ${macwall.tagline}`,
+      summary: HOME_DESCRIPTION,
+      group: "product",
+      updatedAt: macwall.productInfoLastReviewedIso,
+      includeInFullText: true,
+      render: () => seoPageToMarkdown(homeMarkdownPage(Date.now())),
+    },
+    seoDoc(downloadPage, "product"),
+    {
+      path: ABOUT_PATH,
+      title: ABOUT_TITLE,
+      summary: ABOUT_DESCRIPTION,
+      group: "product",
+      updatedAt: COMPANY_PAGES_UPDATED_ISO,
+      includeInFullText: true,
+      render: () => seoPageToMarkdown(getAboutPage()),
+    },
+    {
+      path: PRESS_PATH,
+      title: PRESS_TITLE,
+      summary: PRESS_DESCRIPTION,
+      group: "product",
+      updatedAt: COMPANY_PAGES_UPDATED_ISO,
+      includeInFullText: false,
+      render: () => seoPageToMarkdown(getPressPage()),
+    },
+    {
+      path: "/pricing",
+      title: PRICING_TITLE,
+      summary: PRICING_SUMMARY,
+      group: "pricing",
+      updatedAt: macwall.productInfoLastReviewedIso,
+      includeInFullText: true,
+      render: () => seoPageToMarkdown(pricingMarkdownPage(Date.now())),
     },
     {
       path: "/changelog",
@@ -614,68 +852,49 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
     },
     {
       path: "/creator",
-      title: "Creator Refund Program",
-      summary: `Post a MacWall video and get your purchase refunded: 50% at ${macwall.reelRefundHalfViews.toLocaleString("en-US")} views, 100% at ${macwall.reelRefundFullViews.toLocaleString("en-US")}.`,
-      group: "product",
-      updatedAt: "2026-08-02",
+      title: "Reel Refund Program",
+      summary: CREATOR_SUMMARY,
+      group: "pricing",
+      updatedAt: macwall.productInfoLastReviewedIso,
       includeInFullText: true,
-      render: () =>
-        seoPageToMarkdown({
-          slug: "creator",
-          pathname: "/creator",
-          title: "MacWall Creator Refund Program",
-          headline: "Creator refund program",
-          description: `Post a MacWall video and get your purchase refunded: 50% at ${macwall.reelRefundHalfViews.toLocaleString("en-US")} views, 100% at ${macwall.reelRefundFullViews.toLocaleString("en-US")}.`,
-          keywords: ["macwall creator program", "macwall refund views"],
-          updatedAt: "2026-08-02",
-          sections: [
-            {
-              type: "p",
-              text: `Make a short video featuring ${macwall.name}, post it publicly, and we refund your license based on views: **50% at ${macwall.reelRefundHalfViews.toLocaleString("en-US")} views**, **100% at ${macwall.reelRefundFullViews.toLocaleString("en-US")} views**. Full terms and the claim form are at [/creator](/creator).`,
-            },
-            { type: "h2", text: "How to claim" },
-            {
-              type: "ol",
-              items: [
-                `Post your video on Instagram or TikTok, tag ${macwall.reelRefundInstagram} or ${macwall.reelRefundTiktok}, and include ${macwall.reelRefundHashtag}.`,
-                "Wait for the view count to cross a threshold.",
-                `Email [${macwall.reelRefundEmail}](mailto:${macwall.reelRefundEmail}) with the video link and your purchase email.`,
-                "We verify the views and refund to your original payment method.",
-              ],
-            },
-          ],
-        }),
+      render: () => seoPageToMarkdown(creatorMarkdownPage()),
     },
-    {
-      path: "/affiliate",
-      title: "Affiliate Program",
-      summary:
-        "Earn commission for every MacWall license you refer, with tracked links and self-serve payouts.",
-      group: "product",
-      updatedAt: "2026-08-02",
-      includeInFullText: true,
-      render: () =>
-        seoPageToMarkdown({
-          slug: "affiliate",
-          pathname: "/affiliate",
-          title: "MacWall Affiliate Program",
-          headline: "Affiliate program",
-          description:
-            "Earn commission for every MacWall license you refer, with tracked links and self-serve payouts.",
-          keywords: ["macwall affiliate", "mac app affiliate program"],
-          updatedAt: "2026-08-02",
-          sections: [
-            {
-              type: "p",
-              text: "Sign up at [/affiliate](/affiliate) to get a tracked referral link. Referrals are attributed automatically at checkout, and commission and payouts are managed from your affiliate dashboard.",
-            },
-            {
-              type: "p",
-              text: `Questions about the program: [${macwall.supportEmail}](mailto:${macwall.supportEmail}).`,
-            },
-          ],
-        }),
-    },
+    // The affiliate page stays reachable but is hidden from the site chrome
+    // until the program reopens; list it only when the links are back.
+    ...(AFFILIATE_UI_VISIBLE
+      ? [
+          {
+            path: "/affiliate",
+            title: "Affiliate Program",
+            summary:
+              "Earn commission for every MacWall license you refer, with tracked links and self-serve payouts.",
+            group: "pricing" as const,
+            updatedAt: "2026-08-02",
+            includeInFullText: true,
+            render: () =>
+              seoPageToMarkdown({
+                slug: "affiliate",
+                pathname: "/affiliate",
+                title: "MacWall Affiliate Program",
+                headline: "Affiliate program",
+                description:
+                  "Earn commission for every MacWall license you refer, with tracked links and self-serve payouts.",
+                keywords: ["macwall affiliate", "mac app affiliate program"],
+                updatedAt: "2026-08-02",
+                sections: [
+                  {
+                    type: "p",
+                    text: "Sign up at [/affiliate](/affiliate) to get a tracked referral link. Referrals are attributed automatically at checkout, and commission and payouts are managed from your affiliate dashboard.",
+                  },
+                  {
+                    type: "p",
+                    text: `Questions about the program: [${macwall.supportEmail}](mailto:${macwall.supportEmail}).`,
+                  },
+                ],
+              }),
+          } satisfies MarkdownDocument,
+        ]
+      : []),
 
     {
       path: "/docs",
@@ -688,11 +907,16 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
     },
     ...docsPages.map((page) => seoDoc(page, "docs")),
 
+    ...faqMarkdownDocuments().map((doc): MarkdownDocument => ({
+      ...doc,
+      group: "faq",
+    })),
+
     {
       path: "/learn",
       title: "Learn: Live Wallpapers on Mac",
       summary:
-        "Concept explainers for live wallpapers, macOS wallpaper internals, codecs, displays, and battery.",
+        "Concept explainers for live wallpapers, macOS wallpaper internals, Lock Screen video, Wallpaper Engine on Mac, codecs, displays, and battery.",
       group: "learn",
       includeInFullText: false,
       render: learnIndexMarkdown,
@@ -731,17 +955,19 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
       includeInFullText: false,
       render: collectionsHubMarkdown,
     },
-    ...wallpaperCollections.map((entry): MarkdownDocument => ({
+    ...publishedCollections().map((entry): MarkdownDocument => ({
       path: wallpaperCollectionPath(entry.slug),
       title: entry.title,
       summary: entry.description,
       group: "wallpapers",
       includeInFullText: false,
+      optional: true,
       render: () => collectionMarkdown(entry),
     })),
     ...macwall.categories.map((name) =>
       seoDoc(wallpaperCategoryPage(name), "wallpapers", {
         includeInFullText: false,
+        optional: true,
       })
     ),
 
@@ -749,13 +975,17 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
     seoDoc(wallpaperEngineAlternativePage, "comparisons"),
     seoDoc(macwallVsBackdropPage, "comparisons"),
     seoDoc(macwallVsWallspacePage, "comparisons"),
+    seoDoc(iwallpaperAlternativePage, "comparisons"),
+    seoDoc(screenSaverMacPage, "product"),
     seoDoc(livelyWallpaperMacPage, "comparisons"),
     seoDoc(twentyFourHourWallpaperPage, "comparisons"),
     seoDoc(plashAlternativePage, "comparisons"),
     seoDoc(dynamicWallpaperClubPage, "comparisons"),
     seoDoc(compareIndexPage, "comparisons"),
     seoDoc(toolsHubPage, "product"),
-    ...tools.map((tool) => seoDoc(toolSeoPage(tool), "product")),
+    ...tools.map((tool) =>
+      seoDoc(toolSeoPage(tool), "product", { optional: true })
+    ),
     ...displayPageDefs.map((def): MarkdownDocument => ({
       path: displayPagePath(def.slug),
       title: def.title,
@@ -763,27 +993,33 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
       group: "wallpapers",
       updatedAt: MAC_DISPLAY_SPECS_ACCESSED,
       includeInFullText: false,
+      optional: true,
       render: async () => {
         const data = await loadDisplayPage(def.slug)
-        if (!data) return ""
-        const origin = canonicalSiteOrigin()
-        const list = data.wallpapers
-          .map(
-            (w) =>
-              `- [${w.name}](${origin}${wallpaperDetailPath(w)})${w.resolution ? ` (${w.resolution})` : ""}`
-          )
-          .join("\n")
-        return seoPageToMarkdown({
-          ...data.page,
-          sections: [
-            ...data.page.sections.slice(0, 1),
-            { type: "h2", text: "Wallpapers" },
-            { type: "p", text: list },
-            ...data.page.sections.slice(1),
-          ],
-        })
+        return data ? displayListMarkdown(data) : ""
       },
     })),
+    {
+      path: MACBOOK_HUB_PATH,
+      title: macbookHubDef.title,
+      summary: macbookHubDef.description,
+      group: "wallpapers",
+      updatedAt: MAC_DISPLAY_SPECS_ACCESSED,
+      includeInFullText: false,
+      render: async () => {
+        const data = await loadMacbookHub()
+        return data ? displayListMarkdown(data) : ""
+      },
+    },
+    {
+      path: DISPLAY_PAGES_PATH,
+      title: displayIndexDef.title,
+      summary: displayIndexDef.description,
+      group: "wallpapers",
+      updatedAt: MAC_DISPLAY_SPECS_ACCESSED,
+      includeInFullText: false,
+      render: async () => seoPageToMarkdown((await loadDisplayIndex()).page),
+    },
 
     {
       path: "/legal",
@@ -792,6 +1028,7 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
       group: "legal",
       updatedAt: macwall.legalEffectiveDateIso,
       includeInFullText: false,
+      optional: true,
       render: () =>
         legalStubMarkdown({
           title: `${macwall.name} Legal`,
@@ -806,6 +1043,7 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
       group: "legal",
       updatedAt: macwall.legalEffectiveDateIso,
       includeInFullText: false,
+      optional: true,
       render: () =>
         legalStubMarkdown({
           title: `${macwall.name} ${doc.title}`,
@@ -846,15 +1084,24 @@ export function findMarkdownDocument(
   return siteMarkdownDocuments().find((doc) => doc.path === normalized)
 }
 
+/** Documents per group, in llms.txt order, without the `optional` ones. */
 export function markdownDocumentsByGroup(): {
   group: MarkdownGroup
   label: string
   documents: MarkdownDocument[]
 }[] {
-  const all = siteMarkdownDocuments()
+  const all = siteMarkdownDocuments().filter((doc) => !doc.optional)
   return MARKDOWN_GROUP_ORDER.map((group) => ({
     group,
     label: MARKDOWN_GROUP_LABELS[group],
     documents: all.filter((doc) => doc.group === group),
   })).filter((entry) => entry.documents.length > 0)
+}
+
+/** The `## Optional` section of llms.txt: listings and legal text, in group order. */
+export function optionalMarkdownDocuments(): MarkdownDocument[] {
+  const all = siteMarkdownDocuments().filter((doc) => doc.optional)
+  return MARKDOWN_GROUP_ORDER.flatMap((group) =>
+    all.filter((doc) => doc.group === group)
+  )
 }

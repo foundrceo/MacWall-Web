@@ -8,6 +8,7 @@ import { wallpaperCategoryPage } from "@/lib/seo/landing-pages"
 import {
   brandedTitle,
   createSeoPageMetadata,
+  OPEN_GRAPH_LOCALE,
 } from "@/lib/seo/create-page-metadata"
 import {
   canonicalSitePath,
@@ -18,6 +19,7 @@ import {
 import { buildWallpaperDetailContent } from "@/lib/seo/wallpaper-detail-content"
 import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
+import { wallpaperImageAlt } from "@/lib/public-catalog/wallpaper-alt"
 import type { Metadata } from "next"
 
 export type GalleryFilterParams = {
@@ -25,16 +27,6 @@ export type GalleryFilterParams = {
   tag?: string
   sort?: string
 }
-
-const GALLERY_INDEX_KEYWORDS = [
-  "live wallpapers for mac",
-  "mac live wallpaper",
-  "animated wallpaper macos",
-  "4k live wallpaper mac",
-  "video wallpaper mac",
-  "macwall wallpapers",
-  "macwall live wallpaper catalog",
-] as const
 
 export function isGalleryFilteredView(params: GalleryFilterParams): boolean {
   const q = params.q?.trim()
@@ -59,6 +51,7 @@ function defaultGalleryOpenGraph(input: {
     description: input.description,
     url: input.url,
     siteName: macwall.name,
+    locale: OPEN_GRAPH_LOCALE,
     type: "website" as const,
     images: [
       share ?? {
@@ -75,14 +68,18 @@ function defaultGalleryTwitter(input: {
   title: string
   description: string
   url: string
+  alt: string
 }) {
+  const share = ogImageForPath(new URL(input.url).pathname)
   return {
     card: "summary_large_image" as const,
     title: brandedTitle(input.title),
     description: input.description,
     images: [
-      ogImageForPath(new URL(input.url).pathname)?.url ??
-        openGraphImageAbsoluteUrl(),
+      {
+        url: share?.url ?? openGraphImageAbsoluteUrl(),
+        alt: share?.alt ?? input.alt,
+      },
     ],
   }
 }
@@ -111,14 +108,6 @@ export function wallpaperGalleryIndexMetadata(
   return {
     title,
     description,
-    keywords: tag
-      ? [
-          `${tag.toLowerCase()} live wallpaper mac`,
-          `${tag.toLowerCase()} wallpaper macos`,
-          "live wallpapers for mac",
-          "macwall wallpapers",
-        ]
-      : [...GALLERY_INDEX_KEYWORDS],
     alternates: {
       canonical,
       ...(!filtered
@@ -132,7 +121,12 @@ export function wallpaperGalleryIndexMetadata(
       url: canonical,
       alt: title,
     }),
-    twitter: defaultGalleryTwitter({ title, description, url: canonical }),
+    twitter: defaultGalleryTwitter({
+      title,
+      description,
+      url: canonical,
+      alt: title,
+    }),
   }
 }
 
@@ -187,8 +181,9 @@ function absoluteMediaUrl(url: string): string {
 /** Detail page metadata with absolute OG/Twitter thumbnail URLs. */
 export function wallpaperDetailMetadata(wallpaper: PublicWallpaper): Metadata {
   const content = buildWallpaperDetailContent(wallpaper)
-  // People search "{name} wallpaper"; keep that phrase at the front of the title.
-  const title = brandedTitle(content.pageTitle)
+  // "{Name} 4K Live Wallpaper for Mac | MacWall": the name people search for
+  // leads, and a long name drops the brand suffix rather than its own words.
+  const title = content.documentTitle
   const description = content.metaDescription
   const detailPath = wallpaperDetailPath(wallpaper)
   const canonical = canonicalSitePath(detailPath)
@@ -204,27 +199,11 @@ export function wallpaperDetailMetadata(wallpaper: PublicWallpaper): Metadata {
         type: "image/jpeg",
       }
     : { url: thumbUrl }
-  const shareAlt = `${wallpaper.name}, ${wallpaper.category.toLowerCase()} live wallpaper for Mac`
-  const name = wallpaper.name.toLowerCase()
-  const category = wallpaper.category.toLowerCase()
-  const keywords = [
-    `${name} wallpaper`,
-    `${name} live wallpaper`,
-    `${name} live wallpaper mac`,
-    `${name} 4k wallpaper`,
-    `${name} macbook wallpaper`,
-    `${category} live wallpaper mac`,
-    ...content.collections
-      .slice(0, 3)
-      .map((entry) => `${entry.name.toLowerCase()} live wallpaper`),
-    "live wallpaper macos",
-    `${macwall.name.toLowerCase()} wallpaper`,
-  ]
+  const shareAlt = wallpaperImageAlt(wallpaper)
 
   return {
     title: { absolute: title },
     description,
-    keywords,
     ...(content.thin ? { robots: { index: false, follow: true } } : {}),
     alternates: {
       canonical,
@@ -238,6 +217,7 @@ export function wallpaperDetailMetadata(wallpaper: PublicWallpaper): Metadata {
       description,
       url: canonical,
       siteName: macwall.name,
+      locale: OPEN_GRAPH_LOCALE,
       type: "website",
       images: [{ ...shareImage, alt: shareAlt }],
     },

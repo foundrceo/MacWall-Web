@@ -55,7 +55,9 @@ function PricingUrlParams({
   return null
 }
 
-export default function MacWallMarketingPricingPage() {
+export default function MacWallMarketingPricingPage({
+  priceLine,
+}: Readonly<{ priceLine?: string }> = {}) {
   const pricing = useMarketingPricing()
   const [urlState, setUrlState] = useState(EMPTY_URL_STATE)
   const checkoutUrl = withCheckoutPromo(
@@ -72,6 +74,7 @@ export default function MacWallMarketingPricingPage() {
       <PricingPagePlans
         checkoutUrl={checkoutUrl}
         checkoutError={urlState.checkoutError}
+        priceLine={priceLine}
       />
     </>
   )

@@ -1,12 +1,25 @@
 import {
   macwall,
   mailtoReelRefund,
+  macwallBatteryPolicy,
+  macwallCreatorDisclosure,
   macwallLockScreenMacOSVersion,
-  macwallMacOSRequirementsHint,
   macwallMinimumMacOSVersion,
   macwallMinimumMacOSRequirement,
   macwallCatalog,
+  macwallPlaybackModes,
+  macwallSupportedMacOS,
+  macwallTrial,
 } from "@/lib/macwall-site"
+import {
+  formatPriceCents,
+  proPriceFor,
+  type SaleAwarePrice,
+} from "@/lib/pricing/sale-aware-price"
+
+const systemPlayback = macwallPlaybackModes.systemWallpaper
+const appPlayback = macwallPlaybackModes.app
+const battery = macwallBatteryPolicy
 
 export type ReelRefundStepIcon = "video" | "tag" | "views" | "email"
 
@@ -18,7 +31,9 @@ export type PricingReview = {
 }
 
 export const macwallPricingCopy = {
-  pageTitle: "Pricing",
+  pageTitle: "MacWall Pricing: One-Time License, No Subscription",
+  /** The page's H1: names the brand and the query, not just a mood line. */
+  heroH1: `${macwall.name} pricing: pay once, keep it`,
 
   plans: {
     pro: {
@@ -66,7 +81,7 @@ export const macwallPricingCopy = {
       {
         icon: "tag" as const,
         title: "Post and tag us",
-        body: `Post it on Instagram ${macwall.reelRefundInstagram} or TikTok ${macwall.reelRefundTiktok} with ${macwall.reelRefundHashtag} and #ad (or the paid-partnership label).`,
+        body: `Post it on Instagram ${macwall.reelRefundInstagram} or TikTok ${macwall.reelRefundTiktok} with ${macwall.reelRefundHashtag} and ${macwallCreatorDisclosure.label}.`,
       },
       {
         icon: "views" as const,
@@ -81,8 +96,7 @@ export const macwallPricingCopy = {
     ],
     influencerTitle: "Got a big following?",
     finePrintLabel: "The fine print:",
-    finePrint:
-      "Post as many times as you like until one Reel hits 2,000 organic views. No bots, no paid promotion. Posts without #ad or a paid-partnership label don't qualify. We check the numbers and can decline suspicious claims. Refunds go back to the card you paid with. A 100% refund deactivates that license key, like any full refund. We can end this offer at any time.",
+    finePrint: `Post as many times as you like until one Reel hits ${macwall.reelRefundHalfViews.toLocaleString()} organic views. No bots, no paid promotion. Posts without ${macwallCreatorDisclosure.label} don't qualify. We check the numbers and can decline suspicious claims. Refunds go back to the card you paid with. A 100% refund deactivates that license key, like any full refund. We can end this offer at any time.`,
     cta: "Email us to claim your refund",
     ctaHref: mailtoReelRefund,
   },
@@ -91,7 +105,7 @@ export const macwallPricingCopy = {
     features: [
       `${macwallCatalog.liveCountLabel} live wallpapers, most in 4K`,
       "Bend: close the lid, desktop folds",
-      "Live Lock Screen & Screen Saver (macOS 26+)",
+      `Live Lock Screen & Screen Saver (${systemPlayback.minimumMacOS}+)`,
       "Import your own videos",
       "Music Sync",
       "Multi-display, hardware decoded",
@@ -133,7 +147,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "What can I do for free?",
-      a: "Every download starts with a free 24-hour trial of the full catalog and Lock Screen. After the trial you can keep browsing the catalog. Setting live wallpapers, Lock Screen, and imports need Pro.",
+      a: `${macwallTrial.summary} After the trial you can keep browsing the catalog; setting live wallpapers and the Lock Screen need Pro.`,
     },
     {
       q: "I have 4 or 5 Macs. Which plan do I need?",
@@ -153,7 +167,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "Which macOS versions are supported?",
-      a: `${macwallMacOSRequirementsHint}. Apple silicon and Intel Macs both work.`,
+      a: macwallSupportedMacOS.summary,
     },
     {
       q: "How do I get my money back for posting a Reel?",
@@ -173,7 +187,7 @@ export const macwallPricingCopy = {
   supportFaq: [
     {
       q: "Will I be charged when the free trial ends?",
-      a: "No. The trial never asks for a card, so nothing is charged. It lasts 24 hours, once per Mac. After it ends you can still browse; live wallpapers need Pro.",
+      a: `No. The trial asks for your email address but never a card, so nothing is charged. It lasts ${macwallTrial.hours} hours, once per Mac. After it ends you can still browse; live wallpapers need Pro.`,
     },
     {
       q: "Do I need an account to use my license?",
@@ -181,19 +195,19 @@ export const macwallPricingCopy = {
     },
     {
       q: "Can the desktop and Lock Screen have different wallpapers?",
-      a: "Yes, with MacWall App playback (Settings → Wallpaper → Playback): set your desktop wallpaper, then set another with Lock Screen Only. With System Wallpaper playback both show the same wallpaper.",
+      a: `Yes, with ${appPlayback.setting} playback (${appPlayback.marketing}; choose it in ${macwallPlaybackModes.settingsPath}): set your desktop wallpaper, then open another one, click the arrow next to Set Wallpaper and choose Lock Screen Only. With ${systemPlayback.setting} playback (${systemPlayback.marketing}) the desktop, Lock Screen and screen saver show the same wallpaper.`,
     },
     {
       q: "Does the wallpaper keep playing if I quit MacWall or restart?",
-      a: "Yes, with System Wallpaper playback on macOS 26: macOS plays it itself, even after a restart. With MacWall App playback the desktop waits until MacWall opens again.",
+      a: `Yes, with ${systemPlayback.setting} playback (${systemPlayback.marketing}) on ${systemPlayback.minimumMacOS} or later: macOS plays it itself, even after a restart, and ${systemPlayback.cpu}. With ${appPlayback.setting} playback (${appPlayback.marketing}) the desktop holds a still frame until MacWall opens again.`,
     },
     {
       q: "Do wallpapers have sound?",
-      a: "Some do; most are silent. Turn sound on from the player bar or the MacWall menu bar icon, and set the level in Settings → Sound.",
+      a: "Some do; most are silent. Turn sound on from the player bar or the MacWall menu bar icon, and set the level in Settings → Sound. MacWall remembers on or off for each wallpaper.",
     },
     {
       q: "Why did my wallpaper stop moving?",
-      a: "MacWall pauses behind full-screen apps, and, if you turn them on, in Low Power Mode or when your Mac is busy. Change these in Settings → Battery & Performance.",
+      a: `MacWall pauses behind full-screen apps, and, if you turn them on, whenever your Mac is unplugged (${battery.pauseOnBattery.label}) or busy (${battery.pauseWhenBusy.label}). Change these in ${battery.settingsPath}.`,
     },
     {
       q: "Can I use a different wallpaper on each display?",
@@ -205,7 +219,7 @@ export const macwallPricingCopy = {
     },
     {
       q: "Will it slow down my Mac or drain the battery?",
-      a: "Wallpapers are hardware-decoded and pause behind full-screen apps. You can also pause in Low Power Mode or when your Mac is busy, or lower quality on battery.",
+      a: `Wallpapers are hardware-decoded and pause behind full-screen apps. You can also turn on ${battery.pauseOnBattery.label}, which ${battery.pauseOnBattery.detail}, ${battery.lowerQualityOnBattery.label}, or ${battery.pauseWhenBusy.label}.`,
     },
     {
       q: "Can I download the video files?",
@@ -294,6 +308,25 @@ export const macwallPricingCopy = {
     ] as readonly PricingReview[],
   },
 } as const
+
+/** "$9.09 (Black Friday, regular $12.99)", or "$12.99" outside a sale. */
+function compactSalePrice(price: SaleAwarePrice): string {
+  const current = formatPriceCents(price.currentCents)
+  if (price.saleCents === null || !price.label) return current
+  return `${current} (${price.label}, regular ${formatPriceCents(price.regularCents)})`
+}
+
+/**
+ * The /pricing hero's price line, rendered on the server so crawlers and AI
+ * tools read the price and the India price without running the client:
+ * "Pro for 3 Macs: $12.99 once, or $4.99 in India. Prices in US dollars."
+ * Sale-aware at render time (the sale-boundary cron revalidates /pricing).
+ */
+export function pricingHeroPriceLine(now: number = Date.now()): string {
+  const pro = proPriceFor("default", now)
+  const india = proPriceFor("india", now)
+  return `Pro for ${pro.macs} Macs: ${compactSalePrice(pro)} once, or ${compactSalePrice(india)} in India. Prices in US dollars; nothing renews.`
+}
 
 const pricingFaqByQuestion = new Map<string, { q: string; a: string }>(
   macwallPricingCopy.faq.map((item) => [item.q, item])

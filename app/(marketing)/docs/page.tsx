@@ -17,7 +17,7 @@ import {
 } from "@/components/macwall-marketing/marketing-inner-page"
 import { JsonLd } from "@/components/seo/json-ld"
 import { HELP_TOPICS } from "@/lib/docs/help-topics"
-import { docsPagesBySection } from "@/lib/docs/pages"
+import { docsLastUpdatedIso, docsPagesBySection } from "@/lib/docs/pages"
 import { macwall } from "@/lib/macwall-site"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
 import { collectionPageJsonLd } from "@/lib/seo/json-ld-helpers"
@@ -26,8 +26,9 @@ import type { SeoContentPage } from "@/lib/content/types"
 const PAGE: SeoContentPage = {
   slug: "docs",
   pathname: "/docs",
-  title: "Help Center",
-  headline: "Help",
+  // Names the brand, so brandedTitle keeps it as written.
+  title: `${macwall.name} Help Center: Setup, Lock Screen and Fixes`,
+  headline: `${macwall.name} help center`,
   description:
     "Find answers fast: install, live wallpapers, Lock Screen, your license, refunds, and fixes for common problems.",
   keywords: [
@@ -49,9 +50,11 @@ export default function HelpCenterPage() {
       <JsonLd
         payload={collectionPageJsonLd({
           pathname: PAGE.pathname,
-          name: `${macwall.name} Help`,
+          name: `${macwall.name} Help Center`,
           description: PAGE.description,
-          breadcrumbLabel: "Help",
+          // Same label as the Docs crumb on every docs page.
+          breadcrumbLabel: "Docs",
+          dateModified: docsLastUpdatedIso(),
           items: articles.map((page) => ({
             name: page.title,
             pathname: page.pathname,
@@ -153,6 +156,13 @@ export default function HelpCenterPage() {
 
           <p className="mt-6 text-[13px] text-white/45">
             More reading:{" "}
+            <Link
+              href="/faq"
+              className="underline-offset-4 hover:text-white/75 hover:underline"
+            >
+              Quick answers (FAQ)
+            </Link>
+            {" · "}
             <Link
               href="/learn"
               className="underline-offset-4 hover:text-white/75 hover:underline"

@@ -1,11 +1,15 @@
-import { WallpaperCollectionPage } from "@/components/wallpaper-gallery/wallpaper-collection-page"
-import { JsonLd } from "@/components/seo/json-ld"
+import { DisplayWallpapersView } from "@/components/wallpaper-gallery/display-wallpapers-view"
 import { loadDisplayPage } from "@/lib/public-catalog/display-wallpapers"
-import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
-import { displayPageDefs, displayPagePath } from "@/lib/seo/display-pages"
-import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
-import { canonicalSitePath } from "@/lib/site-url"
+import {
+  DISPLAY_GRID_LIMIT,
+  DISPLAY_PAGES_PATH,
+  displayPageDefs,
+  displayPagePath,
+  displayPageDef,
+  displayPageTarget,
+  type DisplayPageData,
+} from "@/lib/seo/display-pages"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
@@ -27,72 +31,46 @@ export async function generateMetadata({
   return createSeoPageMetadata(data.page)
 }
 
+/** "783 loops fit the MacBook Air 15″ · 24 picked for this page" */
+function metaLine(data: DisplayPageData): string {
+  const { def, fitCount, totalPages } = data
+  if (def.paginate) {
+    return `${fitCount} ${fitCount === 1 ? "loop" : "loops"} · page 1 of ${totalPages}`
+  }
+  const target = displayPageTarget(def)
+  const screen = target ? `the ${target.shortName}` : "this screen"
+  return `${fitCount} ${fitCount === 1 ? "loop fits" : "loops fit"} ${screen} · ${Math.min(
+    DISPLAY_GRID_LIMIT,
+    data.wallpapers.length
+  )} picked for this page`
+}
+
 export default async function DisplayWallpapersPage({ params }: PageProps) {
   const { slug } = await params
   const data = await loadDisplayPage(slug)
   if (!data) notFound()
-  const { page, wallpapers } = data
-
-  const crumbs = [
-    { href: "/", label: "Home" },
-    { href: "/wallpapers", label: "Wallpapers" },
-    {
-      href: page.pathname,
-      label: page.headline.replace(/ live wallpapers.*$/i, ""),
-    },
-  ]
+  const { def, page } = data
+  const fourK = displayPageDef("4k")
 
   return (
-    <>
-      <JsonLd
-        payload={{
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          "@id": `${canonicalSitePath(page.pathname)}#webpage`,
-          url: canonicalSitePath(page.pathname),
-          name: page.headline,
-          description: page.description,
-          ...(page.updatedAt ? { dateModified: page.updatedAt } : {}),
-          mainEntity: {
-            "@type": "ItemList",
-            numberOfItems: wallpapers.length,
-            itemListElement: wallpapers.map((wallpaper, index) => ({
-              "@type": "ListItem",
-              position: index + 1,
-              name: wallpaper.name,
-              url: canonicalSitePath(wallpaperDetailPath(wallpaper)),
-            })),
-          },
-          breadcrumb: {
-            "@type": "BreadcrumbList",
-            itemListElement: crumbs.map((crumb, index) => ({
-              "@type": "ListItem",
-              position: index + 1,
-              name: crumb.label,
-              item: canonicalSitePath(crumb.href),
-            })),
-          },
-        }}
-      />
-      {page.faq?.length ? <JsonLd payload={faqPageJsonLd(page.faq)} /> : null}
-      <WallpaperCollectionPage
-        breadcrumbs={crumbs}
-        title={page.headline.replace(/^./, (c) => c.toUpperCase())}
-        intro={page.description}
-        meta={`${data.fitCount} matching wallpapers in the catalog`}
-        wallpapers={wallpapers}
-        moreHref="/wallpapers"
-        moreLabel="Browse all live wallpapers"
-        sections={page.sections}
-        faq={page.faq}
-        relatedTitle="Live wallpapers by display"
-        related={displayPageDefs
-          .filter((def) => def.slug !== page.slug)
-          .map((def) => ({
-            href: displayPagePath(def.slug),
-            label: def.headline.replace(/^./, (c) => c.toUpperCase()),
-          }))}
-      />
-    </>
+    <DisplayWallpapersView
+      page={page}
+      label={def.label}
+      parents={[
+        { href: "/wallpapers", label: "Wallpapers" },
+        { href: DISPLAY_PAGES_PATH, label: "Displays" },
+      ]}
+      basePath={displayPagePath(def.slug)}
+      wallpapers={data.wallpapers}
+      offset={data.offset}
+      pageNumber={1}
+      totalPages={data.totalPages}
+      meta={metaLine(data)}
+      // Model pages show one picked grid; the 4K page lists the rest.
+      moreHref={
+        def.paginate || !fourK ? undefined : displayPagePath(fourK.slug)
+      }
+      moreLabel={def.paginate ? undefined : "Browse every 4K live wallpaper"}
+    />
   )
 }

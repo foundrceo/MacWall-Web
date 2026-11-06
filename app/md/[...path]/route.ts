@@ -1,8 +1,5 @@
 import { markdownResponse } from "@/lib/ai/markdown"
-import {
-  findMarkdownDocument,
-  siteMarkdownDocuments,
-} from "@/lib/ai/site-content"
+import { findMarkdownDocument } from "@/lib/ai/site-content"
 import {
   galleryPageMarkdown,
   wallpaperDetailMarkdown,
@@ -64,12 +61,12 @@ export async function GET(
   })
 }
 
-/** Prerender every known Markdown twin at build time. */
-export function generateStaticParams(): { path: string[] }[] {
-  return siteMarkdownDocuments().map((document) => ({
-    path:
-      document.path === "/"
-        ? ["index"]
-        : document.path.replace(/^\//, "").split("/"),
-  }))
+/**
+ * Empty on purpose, as on the wallpaper detail page: it marks the catch-all
+ * as a static route so `force-static` and `revalidate` above apply. Twins
+ * render on first request and are then served from the ISR cache (and
+ * revalidated by tag, e.g. the sale-boundary cron for priced twins).
+ */
+export async function generateStaticParams(): Promise<{ path: string[] }[]> {
+  return []
 }

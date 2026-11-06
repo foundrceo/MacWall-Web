@@ -1,7 +1,28 @@
 import { LEGAL_HUB_HREF } from "@/lib/legal/documents"
-import { macwall } from "@/lib/macwall-site"
+import {
+  breadcrumbListNode,
+  jsonLdGraph,
+  siteEntityIds,
+  type BreadcrumbCrumb,
+  type JsonLdNode,
+} from "@/lib/seo/json-ld-helpers"
 
-/** WebPage + BreadcrumbList for indexable marketing/legal routes (trusted server strings only). */
+const LEGAL_HUB_CRUMB: BreadcrumbCrumb = {
+  name: "Legal",
+  pathname: LEGAL_HUB_HREF,
+}
+
+function crumbList(
+  parent: BreadcrumbCrumb | readonly BreadcrumbCrumb[] | undefined
+): readonly BreadcrumbCrumb[] {
+  if (!parent) return []
+  return "pathname" in parent ? [parent] : parent
+}
+
+/**
+ * WebPage + BreadcrumbList for indexable marketing and legal routes (trusted
+ * server strings only). The trail is MacWall > parent levels > page.
+ */
 export function webPageWithBreadcrumbsJsonLd(input: {
   origin: string
   pathname: string
@@ -9,26 +30,49 @@ export function webPageWithBreadcrumbsJsonLd(input: {
   headline: string
   description: string
   dateModifiedIso?: string
-  /** Connects an informational page to its canonical Schema.org entity. */
+  datePublishedIso?: string
+  /**
+   * Connects an informational page to its subject: a full `@id`, or a site
+   * entity fragment such as `"#softwareapplication"`.
+   */
   aboutId?: string
-  /** When set, inserts Legal hub as breadcrumb position 2. */
+  /** Levels between MacWall and the page, e.g. `{ name: "Docs", pathname: "/docs" }`. */
+  parent?: BreadcrumbCrumb | readonly BreadcrumbCrumb[]
+  /** Shorthand for the Legal hub parent. */
   legalHub?: boolean
+  /** Short leaf crumb ("Changelog"); defaults to `pageTitle`. */
+  breadcrumbName?: string
 }) {
   const origin = input.origin.replace(/\/$/, "")
-  const url = `${origin}${input.pathname.startsWith("/") ? input.pathname : `/${input.pathname}`}`
-  const siteId = `${origin}/#website`
-  const pageId = `${url}#webpage`
-  const legalHubUrl = `${origin}${LEGAL_HUB_HREF}`
+  const pathname = input.pathname.startsWith("/")
+    ? input.pathname
+    : `/${input.pathname}`
+  const url = `${origin}${pathname}`
+  const parents: BreadcrumbCrumb[] = [
+    ...(input.legalHub ? [LEGAL_HUB_CRUMB] : []),
+    ...crumbList(input.parent),
+  ]
+  const breadcrumb = breadcrumbListNode({
+    origin,
+    pathname,
+    name: input.breadcrumbName ?? input.pageTitle,
+    parents,
+  })
 
-  const webPage: Record<string, unknown> = {
+  const webPage: JsonLdNode = {
     "@type": "WebPage",
-    "@id": pageId,
+    "@id": `${url}#webpage`,
     url,
     name: input.pageTitle,
     headline: input.headline,
     description: input.description,
     inLanguage: "en-US",
-    isPartOf: { "@id": siteId },
+    isPartOf: { "@id": siteEntityIds(origin).website },
+    breadcrumb: { "@id": breadcrumb["@id"] },
+  }
+
+  if (input.datePublishedIso) {
+    webPage.datePublished = input.datePublishedIso
   }
 
   if (input.dateModifiedIso) {
@@ -36,54 +80,14 @@ export function webPageWithBreadcrumbsJsonLd(input: {
   }
 
   if (input.aboutId) {
-    webPage.about = { "@id": input.aboutId }
-    webPage.mainEntity = { "@id": input.aboutId }
+    const about = {
+      "@id": input.aboutId.startsWith("#")
+        ? `${origin}/${input.aboutId}`
+        : input.aboutId,
+    }
+    webPage.about = about
+    webPage.mainEntity = about
   }
 
-  const crumbs: Array<{
-    "@type": "ListItem"
-    position: number
-    name: string
-    item: string
-  }> = [
-    {
-      "@type": "ListItem",
-      position: 1,
-      name: macwall.name,
-      item: origin,
-    },
-  ]
-
-  if (input.legalHub && input.pathname !== LEGAL_HUB_HREF) {
-    crumbs.push({
-      "@type": "ListItem",
-      position: 2,
-      name: "Legal",
-      item: legalHubUrl,
-    })
-    crumbs.push({
-      "@type": "ListItem",
-      position: 3,
-      name: input.pageTitle,
-      item: url,
-    })
-  } else {
-    crumbs.push({
-      "@type": "ListItem",
-      position: 2,
-      name: input.pageTitle,
-      item: url,
-    })
-  }
-
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: crumbs,
-      },
-      webPage,
-    ],
-  } as const
+  return jsonLdGraph(breadcrumb, webPage)
 }

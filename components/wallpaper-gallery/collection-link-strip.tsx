@@ -7,7 +7,10 @@ import {
   type WallpaperCollection,
 } from "@/lib/seo/wallpaper-collections"
 
-/** Crawlable chip row linking gallery surfaces to topic collections. */
+/**
+ * Crawlable chip row linking gallery surfaces to topic collections. No
+ * viewport prefetch: the row can hold dozens of links.
+ */
 export function CollectionLinkStrip({
   title,
   collections,
@@ -25,6 +28,7 @@ export function CollectionLinkStrip({
           <li key={entry.slug}>
             <Link
               href={wallpaperCollectionPath(entry.slug)}
+              prefetch={false}
               className={GALLERY_CHIP_CLASS}
             >
               {entry.name} wallpapers
@@ -34,6 +38,7 @@ export function CollectionLinkStrip({
         <li>
           <Link
             href={WALLPAPER_COLLECTIONS_HUB_PATH}
+            prefetch={false}
             className={GALLERY_CHIP_CLASS}
           >
             All collections

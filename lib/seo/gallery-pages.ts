@@ -12,7 +12,14 @@ export function galleryPageHref(basePath: string, page: number): string {
   return page <= 1 ? basePath : `${basePath}/page/${page}`
 }
 
-/** First, last, and two either side of the current page; null marks a gap. */
+/** Every `GALLERY_PAGE_JUMP`th page is linked from every page. */
+export const GALLERY_PAGE_JUMP = 10
+
+/**
+ * First, last, two either side of the current page, and every 10th page;
+ * null marks a gap. With the jumps no page is more than four clicks from
+ * the first (page 25 of 48: 1 → 20 → 22 → 24 → 25), where it took twelve.
+ */
 export function galleryPageNumbers(
   current: number,
   total: number
@@ -20,6 +27,7 @@ export function galleryPageNumbers(
   const keep = new Set([1, total])
   for (let n = current - 2; n <= current + 2; n += 1)
     if (n >= 1 && n <= total) keep.add(n)
+  for (let n = GALLERY_PAGE_JUMP; n < total; n += GALLERY_PAGE_JUMP) keep.add(n)
   const sorted = [...keep].sort((a, b) => a - b)
   const out: (number | null)[] = []
   sorted.forEach((n, i) => {

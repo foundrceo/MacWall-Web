@@ -154,7 +154,6 @@ export function WallpaperCollectionPage({
                 wallpaper={wallpaper}
                 index={index}
                 priority={index < 3}
-                animateEntrance={index < 6}
               />
             ))}
           </div>

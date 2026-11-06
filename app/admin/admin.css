@@ -2,6 +2,17 @@
  * primitives render right without per-component overrides. Marketing pages
  * never load these styles. */
 
+/* Tailwind utilities for the admin portal. app/globals.css skips
+ * components/admin and app/admin so marketing pages don't ship admin classes;
+ * this build scans the whole project, admin included, against the same theme
+ * (app/tailwind-theme.css). It sits in its own layer above `utilities`, so on
+ * admin pages every utility resolves here, in Tailwind's order, whichever
+ * stylesheet loads first. */
+@layer theme, base, components, utilities, admin-utilities;
+@reference "tailwindcss";
+@reference "../tailwind-theme.css";
+@import "tailwindcss/utilities" layer(admin-utilities);
+
 /* Admin tokens live on :root — NOT on .admin-portal. Radix portals
  * (dialog / dropdown / select / tooltip / sheet content) mount into
  * document.body, outside the .admin-portal div, so scoped tokens never

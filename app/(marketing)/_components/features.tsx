@@ -1,5 +1,6 @@
+import Link from "next/link"
 import type { ReactNode } from "react"
-import { SparklesIcon } from "@hugeicons/core-free-icons"
+import { ArrowRight01Icon, SparklesIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import LockScreenFeatureVideo from "@/components/macwall-marketing/LockScreenFeatureVideo"
@@ -32,6 +33,8 @@ type FeatureItem = {
   copy: FeatureCopy
   exclusive: boolean
   media: () => ReactNode
+  /** Where the feature is explained in full; the label names the page. */
+  link?: Readonly<{ href: string; label: string }>
 }
 
 function ExclusiveBadge({ label }: Readonly<{ label: string }>) {
@@ -62,6 +65,7 @@ function buildItems(withAnchors: boolean): FeatureItem[] {
       key: "lock",
       copy: s.lockScreen,
       exclusive: false,
+      link: s.lockScreen.link,
       media: () => (
         <LockScreenFeatureVideo
           ariaLabel={s.lockScreen.title}
@@ -74,6 +78,7 @@ function buildItems(withAnchors: boolean): FeatureItem[] {
       anchor: withAnchors ? "bend" : undefined,
       copy: s.bend,
       exclusive: true,
+      link: s.bend.link,
       media: () => (
         <DeferredVideo
           src={MARKETING_BEND_VIDEO_MP4_URL}
@@ -130,6 +135,24 @@ function TileText({
       >
         {item.copy.body}
       </p>
+      {item.link ? (
+        <Link
+          href={item.link.href}
+          className={cn(
+            "group/link mt-4 inline-flex items-center gap-1 text-[15px] leading-[22px] text-ink underline-offset-4 outline-none hover:underline focus-visible:underline",
+            onMedia && "text-white"
+          )}
+        >
+          {item.link.label}
+          <HugeiconsIcon
+            icon={ArrowRight01Icon}
+            size={16}
+            strokeWidth={2}
+            className="transition-transform duration-200 group-hover/link:translate-x-0.5"
+            aria-hidden
+          />
+        </Link>
+      ) : null}
     </>
   )
 }

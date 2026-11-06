@@ -6,6 +6,7 @@ import { trackSiteEventClient } from "@/lib/analytics/client"
 import { trackMetaPurchase } from "@/lib/analytics/meta-client"
 import { markPurchaseCompleteInSession } from "@/lib/analytics/retargeting"
 import { trackTikTokPurchase } from "@/lib/analytics/tiktok-client"
+import { LICENSE_OFFERS } from "@/lib/license/offers.shared"
 import { macwall } from "@/lib/macwall-site"
 
 declare global {
@@ -14,9 +15,7 @@ declare global {
   }
 }
 
-const fallbackPurchaseValue = Number.parseFloat(
-  macwall.pro.price.replace(/[^0-9.]/g, "")
-)
+const fallbackPurchaseValue = LICENSE_OFFERS.permanent.usdCents / 100
 
 function fireGoogleAdsConversion(value: number, currency: string) {
   const conversionId = process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_ID?.trim()

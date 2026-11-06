@@ -28,6 +28,108 @@ const CONTENT_SECURITY_POLICY_REPORT_ONLY = [
   "object-src 'none'",
 ].join("; ")
 
+/**
+ * Gallery category slugs that were retired. `hub` replaces the old category
+ * page: the matching collection where one exists. `category` is where the
+ * slug's wallpapers now live (`LEGACY_SLUG_TO_NAME` in
+ * lib/seo/category-slugs.ts), so old `/page/{n}` URLs keep showing the same
+ * wallpapers.
+ */
+const LEGACY_GALLERY_CATEGORIES = {
+  city: { hub: "/wallpapers/collections/city", category: "dark" },
+  cats: { hub: "/wallpapers/collections/cat", category: "others" },
+  fantasy: { hub: "/wallpapers/collections/dark-fantasy", category: "others" },
+  "sci-fi": { hub: "/wallpapers/collections/cyberpunk", category: "heroes" },
+  "video-games": { hub: "/wallpapers/gaming", category: "gaming" },
+}
+
+/**
+ * Gallery hub redirects, each a single hop. Order matters (first match wins):
+ * the legacy slugs come before the generic rules so `/wallpapers/city/page/1`
+ * doesn't chain through `/wallpapers/city`.
+ *
+ * Only `/wallpaper/{category}` with a single segment is handled here. Detail
+ * URLs (`/wallpaper/{category}/{slug}`, legacy categories included) are
+ * canonicalised in worker/index.ts, never in this file.
+ */
+const galleryRedirects = [
+  ...Object.entries(LEGACY_GALLERY_CATEGORIES).flatMap(
+    ([slug, { hub, category }]) => [
+      { source: `/wallpapers/${slug}`, destination: hub, permanent: true },
+      { source: `/wallpaper/${slug}`, destination: hub, permanent: true },
+      {
+        source: `/wallpapers/${slug}/page/1`,
+        destination: hub,
+        permanent: true,
+      },
+      {
+        source: `/wallpapers/${slug}/page/:page`,
+        destination: `/wallpapers/${category}/page/:page`,
+        permanent: true,
+      },
+    ]
+  ),
+  // Page 1 is the hub itself (`galleryPageHref`); the `/page/{n}` routes 404 on 1.
+  { source: "/wallpapers/page/1", destination: "/wallpapers", permanent: true },
+  {
+    source: "/wallpapers/display/:slug/page/1",
+    destination: "/wallpapers/display/:slug",
+    permanent: true,
+  },
+  {
+    source: "/wallpapers/collections/:slug/page/1",
+    destination: "/wallpapers/collections/:slug",
+    permanent: true,
+  },
+  {
+    source: "/wallpapers/:category/page/1",
+    destination: "/wallpapers/:category",
+    permanent: true,
+  },
+  // A trimmed detail URL: `/wallpaper/anime` means the Anime gallery.
+  {
+    source: "/wallpaper/:category",
+    destination: "/wallpapers/:category",
+    permanent: true,
+  },
+]
+
+/**
+ * Blog posts merged into the page that owns their search intent, so each
+ * query has one URL: category posts into the gallery hubs, device posts into
+ * the display pages, and thin how-tos into the pillar guide that now covers
+ * them. Destinations are live pages, never another redirect source
+ * (tests/crawl-rules.test.mjs and tests/blog-content.test.mjs check this).
+ */
+const BLOG_MERGES = {
+  "anime-live-wallpaper-mac": "/wallpapers/anime",
+  "nature-live-wallpaper-mac": "/wallpapers/nature",
+  "space-wallpaper-mac": "/wallpapers/space",
+  "gaming-wallpaper-mac": "/wallpapers/gaming",
+  "live-wallpaper-macbook-air": "/wallpapers/display/macbook-air",
+  "live-wallpaper-macbook-pro": "/wallpapers/display/macbook-pro",
+  "4k-video-wallpaper-mac": "/wallpapers/display/4k",
+  "mp4-wallpaper-mac-guide": "/blog/how-to-use-video-as-wallpaper-mac",
+  "import-custom-wallpaper-mac": "/blog/how-to-use-video-as-wallpaper-mac",
+  "macbook-animated-wallpaper-guide": "/blog/how-to-set-live-wallpaper-mac",
+  "lock-screen-live-wallpaper-macos": "/blog/how-to-change-lock-screen-on-mac",
+  "macos-sequoia-dynamic-wallpaper": "/blog/macos-wallpapers",
+  "menu-bar-wallpaper-controls-mac": "/docs/menu-bar-controls",
+  // The performance posts, until a measured benchmark replaces them.
+  "live-wallpaper-battery-drain-mac": "/blog/live-wallpaper-cpu-usage-mac",
+  "apple-silicon-wallpaper-performance": "/blog/live-wallpaper-cpu-usage-mac",
+  "macwall-performance-zero-overhead-guide":
+    "/blog/live-wallpaper-cpu-usage-mac",
+}
+
+const blogMergeRedirects = Object.entries(BLOG_MERGES).map(
+  ([slug, destination]) => ({
+    source: `/blog/${slug}`,
+    destination,
+    permanent: true,
+  })
+)
+
 const nextConfig = {
   poweredByHeader: false,
   compress: true,
@@ -113,21 +215,29 @@ const nextConfig = {
       {
         source: "/support",
         destination: "/docs",
-        permanent: false,
+        permanent: true,
       },
+      // The old landing page for the head term, which the homepage now owns.
+      // Most of its search traffic was the brand query.
       {
         source: "/live-wallpaper-mac",
-        destination: "/blog/how-to-set-live-wallpaper-mac",
+        destination: "/",
         permanent: true,
       },
       {
         source: "/lock-screen-wallpaper",
-        destination: "/blog/lock-screen-live-wallpaper-macos",
+        destination: "/blog/how-to-change-lock-screen-on-mac",
         permanent: true,
       },
       {
         source: "/pricing/reel-refund",
         destination: "/creator",
+        permanent: true,
+      },
+      // No index page lives at /alternatives; /compare lists every comparison.
+      {
+        source: "/alternatives",
+        destination: "/compare",
         permanent: true,
       },
       {
@@ -171,6 +281,7 @@ const nextConfig = {
         destination: "/alternatives/lively-wallpaper-mac",
         permanent: true,
       },
+      ...blogMergeRedirects,
       {
         source: "/privacy",
         destination: "/legal/privacy",
@@ -191,31 +302,7 @@ const nextConfig = {
         destination: "/legal/terms",
         permanent: true,
       },
-      {
-        source: "/wallpapers/video-games",
-        destination: "/wallpapers/gaming",
-        permanent: true,
-      },
-      {
-        source: "/wallpapers/sci-fi",
-        destination: "/wallpapers/heroes",
-        permanent: true,
-      },
-      {
-        source: "/wallpapers/city",
-        destination: "/wallpapers/dark",
-        permanent: true,
-      },
-      {
-        source: "/wallpapers/cats",
-        destination: "/wallpapers/others",
-        permanent: true,
-      },
-      {
-        source: "/wallpapers/fantasy",
-        destination: "/wallpapers/others",
-        permanent: true,
-      },
+      ...galleryRedirects,
     ]
   },
   /**
@@ -264,6 +351,10 @@ const nextConfig = {
      * icon, poster and thumb. Names aren't content-hashed, so cache for a day
      * (not `immutable`) with a week of stale-while-revalidate. Asset folders
      * only, never page routes like `/blog/[slug]`.
+     *
+     * Under vinext (the Cloudflare build) static files never reach these
+     * rules; the Worker sets the same header (worker/edge.ts
+     * `staticAssetCacheControl`). Kept for `next start`.
      */
     const PUBLIC_ASSET_CACHE_CONTROL =
       "public, max-age=86400, stale-while-revalidate=604800"

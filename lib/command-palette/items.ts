@@ -55,13 +55,37 @@ function action(
 
 /** Everyday words people type that the help card titles don't contain. */
 const HELP_KEYWORDS: Record<string, string[]> = {
-  "/docs/install-macwall": ["install", "download", "setup", "dmg", "permission"],
-  "/docs/set-a-live-wallpaper": ["apply", "change wallpaper", "display", "monitor"],
+  "/docs/install-macwall": [
+    "install",
+    "download",
+    "setup",
+    "dmg",
+    "permission",
+  ],
+  "/docs/set-a-live-wallpaper": [
+    "apply",
+    "change wallpaper",
+    "display",
+    "monitor",
+  ],
   "/docs/live-lock-screen-and-screen-saver": ["screensaver", "tahoe", "lock"],
   "/docs/import-your-own-videos": ["mp4", "mov", "gif", "upload", "custom"],
-  "/docs/license-and-activation": ["key", "activate", "license", "new mac", "transfer"],
+  "/docs/license-and-activation": [
+    "key",
+    "activate",
+    "license",
+    "new mac",
+    "transfer",
+  ],
   "/docs/performance-and-battery": ["cpu", "slow", "battery", "pause", "fan"],
-  "/docs/troubleshooting": ["not working", "broken", "black screen", "stuck", "error", "help"],
+  "/docs/troubleshooting": [
+    "not working",
+    "broken",
+    "black screen",
+    "stuck",
+    "error",
+    "help",
+  ],
   "/docs/menu-bar-controls": ["pause", "shuffle", "skip"],
   "/legal/refund": ["refund", "money back", "cancel"],
   "/#faq": ["faq", "questions"],
@@ -78,7 +102,14 @@ export function getCommandPaletteStaticItems(): {
 
   const navKeywords: Record<string, string[]> = {
     "/wallpapers": ["gallery", "catalog", "live wallpaper", "browse"],
-    "/#features": ["lock screen", "screen saver", "music sync", "battery"],
+    "/wallpapers/collections": ["collections", "topics", "themes"],
+    "/best-live-wallpaper-mac": [
+      "compare",
+      "alternatives",
+      "wallpaper engine",
+      "backdrop",
+    ],
+    "/faq": ["questions", "answers"],
     "/docs": ["help", "support", "install", "license", "troubleshooting"],
     "/pricing": ["pro", "license", "buy", "upgrade"],
     "/learn": ["docs", "guides", "how it works", "explainers"],
@@ -103,9 +134,14 @@ export function getCommandPaletteStaticItems(): {
       (item) => item.href !== "/changelog"
     ),
   ].map((item) =>
-    page(`page-${item.href.slice(1).replace(/[/#]/g, "-")}`, item.label, item.href, {
-      keywords: navKeywords[item.href],
-    })
+    page(
+      `page-${item.href.slice(1).replace(/[/#]/g, "-")}`,
+      item.label,
+      item.href,
+      {
+        keywords: navKeywords[item.href],
+      }
+    )
   )
 
   const pages: CommandPaletteStaticItem[] = [
@@ -115,10 +151,19 @@ export function getCommandPaletteStaticItems(): {
     ...navPages,
     // Help center topics (the changelog has its own entry).
     ...HELP_TOPICS.filter((topic) => topic.href !== "/changelog").map((topic) =>
-      page(`help-${topic.href.replace(/[^a-z0-9]+/gi, "-")}`, topic.title, topic.href, {
-        description: topic.description,
-        keywords: ["help", topic.linkLabel.toLowerCase(), ...(HELP_KEYWORDS[topic.href] ?? [])],
-      })
+      page(
+        `help-${topic.href.replace(/[^a-z0-9]+/gi, "-")}`,
+        topic.title,
+        topic.href,
+        {
+          description: topic.description,
+          keywords: [
+            "help",
+            topic.linkLabel.toLowerCase(),
+            ...(HELP_KEYWORDS[topic.href] ?? []),
+          ],
+        }
+      )
     ),
     page("page-changelog", "Changelog", "/changelog", {
       keywords: ["release notes", "updates", "history", "github"],
@@ -136,8 +181,8 @@ export function getCommandPaletteStaticItems(): {
     ),
     page(
       "page-lock-screen",
-      "Lock Screen Live Wallpaper on macOS",
-      "/blog/lock-screen-live-wallpaper-macos",
+      "How to Change the Lock Screen on Mac",
+      "/blog/how-to-change-lock-screen-on-mac",
       {
         keywords: ["lock screen live wallpaper mac", "macos tahoe", "pro"],
       }
@@ -152,7 +197,7 @@ export function getCommandPaletteStaticItems(): {
       analyticsLocation: "command_palette",
     }),
     action("action-buy-pro", "Get MacWall Pro", macwallProCheckoutURL, {
-      description: `${macwall.pro.price}, paid once — no subscription`,
+      description: "One-time license, no subscription",
       keywords: ["checkout", "license", "upgrade", "pro", "buy", "price"],
       analyticsEvent: "checkout_started",
       analyticsLocation: "command_palette",
@@ -164,7 +209,14 @@ export function getCommandPaletteStaticItems(): {
     }),
     action("action-email", "Email Support", mailtoSupport, {
       description: macwall.supportEmail,
-      keywords: ["contact", "mail", "help", "support", "guidance", "assistance"],
+      keywords: [
+        "contact",
+        "mail",
+        "help",
+        "support",
+        "guidance",
+        "assistance",
+      ],
       external: true,
     }),
   ]
@@ -187,7 +239,5 @@ export function matchesCommandQuery(
     .join(" ")
     .toLowerCase()
 
-  return normalized
-    .split(/\s+/)
-    .every((token) => haystack.includes(token))
+  return normalized.split(/\s+/).every((token) => haystack.includes(token))
 }

@@ -21,9 +21,6 @@ export type PublicWallpaper = {
   thumbKey: string
   videoUrl: string
   thumbUrl: string
-  isPro: boolean
-  isFeatured: boolean
-  isCuratedPick: boolean
   likeCount: number
   createdAt: string
   /** Detail pages only: credit from the attribution record, if any. */

@@ -1,8 +1,12 @@
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 
 import { Features, type FeaturesVariant } from "../_components/features"
 
-/** Temporary: compare designs for the features section. Delete after picking. */
+/**
+ * Temporary: compare designs for the features section. Delete after picking.
+ * Local dev only; production answers 404.
+ */
 export const metadata: Metadata = {
   title: "Features lab",
   robots: { index: false, follow: false },
@@ -22,6 +26,7 @@ const VARIANTS: readonly { variant: FeaturesVariant; name: string; note: string 
 ]
 
 export default function FeaturesLabPage() {
+  if (process.env.NODE_ENV === "production") notFound()
   return (
     <>
       {VARIANTS.map((item) => (

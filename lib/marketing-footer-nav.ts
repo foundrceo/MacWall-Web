@@ -5,21 +5,16 @@ import {
   type LegalDocumentSlug,
 } from "@/lib/legal/documents"
 import { macwallMarketingCopy } from "@/lib/macwall-marketing-copy"
-import { macwall, macwallProCheckoutURL } from "@/lib/macwall-site"
+import { macwall } from "@/lib/macwall-site"
 import { categorySlugFromName } from "@/lib/seo/category-slugs"
+import { displayRelatedLinks } from "@/lib/seo/display-pages"
 
-export type FooterLinkKind = "internal" | "external" | "pricing" | "download"
+export type SiteFooterLink = Readonly<{ href: string; label: string }>
 
-export type FooterNavLink = {
-  label: string
-  href: string
-  kind: FooterLinkKind
-}
-
-export type FooterNavSection = {
+export type SiteFooterColumn = Readonly<{
   title: string
-  links: readonly FooterNavLink[]
-}
+  links: readonly SiteFooterLink[]
+}>
 
 export type MarketingFooterLink = {
   label: string
@@ -41,8 +36,9 @@ export type MarketingFooterSocialLink = {
 }
 
 /**
- * Visible footer columns: Product → Resources → Legal, five links each.
- * Download and Discord are left out: the footer shows them beside the brand.
+ * The shorter Product → Resources → Legal columns the /footer-lab design
+ * candidates use (marketing-footer.tsx). The live footer uses
+ * getSiteFooterColumns below.
  */
 export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
   const foot = macwallMarketingCopy.footer
@@ -105,150 +101,99 @@ export function getMarketingFooterSocialLinks(): readonly MarketingFooterSocialL
   ]
 }
 
-/** SEO comparison pages: crawlable from expanded footer surfaces. */
-export const footerCompareLinks = [
-  { href: "/compare", label: "All Mac Wallpaper Apps" },
-  { href: "/best-live-wallpaper-mac", label: "Best Live Wallpaper for Mac" },
+/**
+ * Comparison pages. The footer is the only sitewide link most of them get, so
+ * every one that targets a search query is here: the two hubs first.
+ */
+export const footerCompareLinks: readonly SiteFooterLink[] = [
+  { href: "/best-live-wallpaper-mac", label: "Best live wallpaper apps" },
+  { href: "/compare", label: "All Mac wallpaper apps" },
   { href: "/alternatives/wallpaper-engine", label: "Wallpaper Engine for Mac" },
-  {
-    href: "/alternatives/macwall-vs-wallspace",
-    label: "Wallspace Alternative",
-  },
-  { href: "/alternatives/macwall-vs-backdrop", label: "Backdrop Alternative" },
+  { href: "/alternatives/macwall-vs-backdrop", label: "MacWall vs Backdrop" },
+  { href: "/alternatives/macwall-vs-wallspace", label: "MacWall vs Wallspace" },
+  { href: "/alternatives/plash", label: "Plash alternative" },
   {
     href: "/alternatives/lively-wallpaper-mac",
     label: "Lively Wallpaper for Mac",
   },
   { href: "/alternatives/24-hour-wallpaper", label: "24 Hour Wallpaper" },
-  { href: "/alternatives/plash", label: "Plash Alternative" },
-] as const
-
-/** Wallpapers picked by Mac display (resolution-matched landing pages). */
-export const footerDisplayLinks = [
-  { href: "/wallpapers/display/macbook-air", label: "MacBook Air" },
-  { href: "/wallpapers/display/macbook-pro", label: "MacBook Pro" },
-  { href: "/wallpapers/display/imac", label: "iMac" },
-  { href: "/wallpapers/display/studio-display", label: "Studio Display" },
-  { href: "/wallpapers/display/ultrawide", label: "Ultrawide" },
-  { href: "/wallpapers/display/4k", label: "4K" },
-] as const
+  { href: "/alternatives/iwallpaper", label: "iWallpaper vs MacWall" },
+  { href: "/screen-saver-mac", label: "Live screen savers" },
+]
 
 /**
- * Wallpaper category landing pages: linked site-wide so every category is
- * crawlable from any page (prevents orphan pages and single-inbound-link issues).
+ * Wallpapers by Mac: the MacBook hub, each display page (resolution-matched)
+ * and the index of every Mac display, from lib/seo/display-pages.ts.
  */
-export const footerCategoryLinks: { href: string; label: string }[] =
+export const footerDisplayLinks: readonly SiteFooterLink[] =
+  displayRelatedLinks()
+
+/** Every catalog category hub, so each one is a click away from any page. */
+export const footerCategoryLinks: readonly SiteFooterLink[] =
   macwall.categories.flatMap((name) => {
     const slug = categorySlugFromName(name)
-    return slug ? [{ href: `/wallpapers/${slug}`, label: name as string }] : []
+    if (!slug) return []
+    const label = name === "Others" ? "Other wallpapers" : `${name} wallpapers`
+    return [{ href: `/wallpapers/${slug}`, label }]
   })
 
-/** Expanded footer sections for SEO-heavy layouts and future surfaces. */
-export function getMarketingFooterSections(
-  shopPricingHref: string
-): readonly FooterNavSection[] {
-  const foot = macwallMarketingCopy.footer
+/** Files and machine-readable pages: one "Developers" line in the bottom bar. */
+export const footerDeveloperLinks: readonly SiteFooterLink[] = [
+  { href: "/docs/public-api", label: "Public API" },
+  { href: "/ai-info", label: "AI product info" },
+  { href: "/llms.txt", label: "llms.txt" },
+  { href: "/llms-full.txt", label: "llms-full.txt" },
+]
 
+/**
+ * The live footer's link columns (SiteFooter). Product and Browse lead with
+ * the pages people buy from and browse; the SEO hubs (displays, comparisons,
+ * Learn, the FAQ) sit here because a footer link is the one internal link
+ * every page on the site gives them. /affiliate stays out while
+ * AFFILIATE_UI_VISIBLE is false.
+ */
+export function getSiteFooterColumns(): readonly SiteFooterColumn[] {
   return [
     {
-      title: foot.shopTitle,
+      title: "Product",
       links: [
-        {
-          label: foot.shop.buy,
-          href: macwallProCheckoutURL,
-          kind: "pricing",
-        },
-        {
-          label: foot.shop.pricing,
-          href: shopPricingHref,
-          kind: "internal",
-        },
-        {
-          label: foot.shop.download,
-          href: "/download",
-          kind: "internal",
-        },
-      ],
-    },
-    {
-      title: foot.exploreTitle,
-      links: [
-        { label: "Wallpapers", href: "/wallpapers", kind: "internal" },
-        {
-          label: "Wallpaper collections",
-          href: "/wallpapers/collections",
-          kind: "internal",
-        },
-        { label: "Bend", href: "/bend", kind: "internal" },
-        { label: "Reel Refund", href: "/creator", kind: "internal" },
-        { label: "Docs", href: "/docs", kind: "internal" },
-        { label: "Learn", href: "/learn", kind: "internal" },
-        { label: foot.explore.blog, href: "/blog", kind: "internal" },
-        { label: "Changelog", href: "/changelog", kind: "internal" },
-        {
-          label: foot.explore.liveWallpaper,
-          href: "/blog/how-to-set-live-wallpaper-mac",
-          kind: "internal",
-        },
-        {
-          label: foot.explore.lockScreen,
-          href: "/blog/lock-screen-live-wallpaper-macos",
-          kind: "internal",
-        },
-        { label: "AI product info", href: "/ai-info", kind: "internal" },
-      ],
-    },
-    {
-      title: foot.compareTitle,
-      links: footerCompareLinks.map((link) => ({
-        label: link.label,
-        href: link.href,
-        kind: "internal" as const,
-      })),
-    },
-    {
-      title: foot.categoriesTitle,
-      links: footerCategoryLinks.map((link) => ({
-        label: link.label,
-        href: link.href,
-        kind: "internal" as const,
-      })),
-    },
-    {
-      title: foot.connectTitle,
-      links: [
+        { href: "/download", label: "Download" },
+        { href: "/pricing", label: "Pricing" },
+        { href: "/wallpapers", label: "Wallpapers" },
+        { href: "/wallpapers/collections", label: "Collections" },
+        { href: "/bend", label: "Bend" },
+        { href: "/creator", label: "Reel Refund" },
+        { href: "/changelog", label: "Changelog" },
         ...(AFFILIATE_UI_VISIBLE
-          ? [
-              {
-                label: foot.connect.affiliate,
-                href: "/affiliate",
-                kind: "internal" as const,
-              },
-            ]
+          ? [{ href: "/affiliate", label: "Affiliates" }]
           : []),
-        {
-          label: "Email us",
-          href: `mailto:${macwall.supportEmail}`,
-          kind: "external",
-        },
-        {
-          label: macwallMarketingCopy.hover.links.discord.label,
-          href: macwall.discordInvite,
-          kind: "external",
-        },
+      ],
+    },
+    { title: "Browse", links: footerCategoryLinks },
+    { title: "Wallpapers by Mac", links: footerDisplayLinks },
+    { title: "Compare", links: footerCompareLinks },
+    {
+      title: "Resources",
+      links: [
+        { href: "/docs", label: "Help center" },
+        { href: "/faq", label: "FAQ" },
+        { href: "/learn", label: "Learn" },
+        { href: "/blog", label: "Blog" },
+        { href: "/tools", label: "Free tools" },
+        { href: "/contact", label: "Contact us" },
+        { href: "/about", label: "About" },
+        { href: "/press", label: "Press kit" },
+        { href: macwall.discordInvite, label: "Discord" },
+      ],
+    },
+    {
+      title: "Legal",
+      links: [
+        { href: "/legal/privacy", label: "Privacy Policy" },
+        { href: "/legal/terms", label: "Terms of Service" },
+        { href: "/legal/refund", label: "Refund Policy" },
+        { href: LEGAL_HUB_HREF, label: "All policies" },
       ],
     },
   ]
-}
-
-export function footerAnalyticsLocation(
-  sectionTitle: string,
-  kind: FooterLinkKind,
-  mobile: boolean
-): string {
-  const prefix = mobile ? "footer_mobile" : "footer"
-  const slug = sectionTitle.toLowerCase().replace(/\s+/g, "_")
-  if (kind === "pricing") return `${prefix}_${slug}_buy`
-  if (kind === "download") return `${prefix}_${slug}_download`
-  return `${prefix}_${slug}`
 }

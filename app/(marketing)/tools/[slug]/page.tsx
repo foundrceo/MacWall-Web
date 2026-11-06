@@ -5,11 +5,15 @@ import { ColorPalette } from "@/components/tools/color-palette"
 import { ScreenResolution } from "@/components/tools/screen-resolution"
 import { ToolSpecPage } from "@/components/tools/tool-spec"
 import { WallpaperResizer } from "@/components/tools/wallpaper-resizer"
-import { macwall } from "@/lib/macwall-site"
 import { createSeoPageMetadata } from "@/lib/seo/create-page-metadata"
-import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
-import { canonicalSitePath } from "@/lib/site-url"
-import { getTool, tools } from "@/lib/tools/tools"
+import {
+  faqPageJsonLd,
+  jsonLdGraph,
+  siteEntityIds,
+  webPageJsonLd,
+} from "@/lib/seo/json-ld-helpers"
+import { canonicalSiteOrigin, canonicalSitePath } from "@/lib/site-url"
+import { getTool, TOOLS_HUB_PATH, tools } from "@/lib/tools/tools"
 import type { Metadata } from "next"
 
 type PageProps = { params: Promise<{ slug: string }> }
@@ -36,45 +40,48 @@ const TOOL_UI: Record<string, () => React.ReactNode> = {
 export default async function ToolPage({ params }: PageProps) {
   const tool = getTool((await params).slug)
   if (!tool) notFound()
+  const origin = canonicalSiteOrigin()
   const url = canonicalSitePath(tool.pathname)
+  const appId = `${url}#app`
+  const organizationId = siteEntityIds(origin).organization
+
+  // WebPage carries the breadcrumb and points at the tool; `breadcrumb` is a
+  // WebPage property, so it never sits on the WebApplication itself.
+  const jsonLd = jsonLdGraph(
+    webPageJsonLd({
+      origin,
+      pathname: tool.pathname,
+      name: tool.title,
+      headline: tool.headline,
+      description: tool.description,
+      mainEntity: appId,
+      breadcrumbs: [{ name: "Tools", pathname: TOOLS_HUB_PATH }],
+      breadcrumbName: tool.name,
+      dateModified: tool.updatedAt,
+    }),
+    {
+      "@type": "WebApplication",
+      "@id": appId,
+      name: tool.name,
+      url,
+      description: tool.description,
+      applicationCategory: "UtilitiesApplication",
+      operatingSystem: "Any (runs in a web browser)",
+      browserRequirements: "Requires JavaScript",
+      isAccessibleForFree: true,
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+        seller: { "@id": organizationId },
+      },
+      publisher: { "@id": organizationId },
+    }
+  )
 
   return (
     <>
-      <JsonLd
-        payload={{
-          "@context": "https://schema.org",
-          "@type": "WebApplication",
-          "@id": `${url}#app`,
-          name: tool.name,
-          url,
-          description: tool.description,
-          applicationCategory: "UtilitiesApplication",
-          operatingSystem: "Any (runs in a web browser)",
-          browserRequirements: "Requires JavaScript",
-          isAccessibleForFree: true,
-          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-          publisher: { "@id": `${canonicalSitePath("/")}/#organization` },
-          provider: { "@type": "Organization", name: macwall.name },
-          breadcrumb: {
-            "@type": "BreadcrumbList",
-            itemListElement: [
-              {
-                "@type": "ListItem",
-                position: 1,
-                name: "Home",
-                item: canonicalSitePath("/"),
-              },
-              {
-                "@type": "ListItem",
-                position: 2,
-                name: "Tools",
-                item: canonicalSitePath("/tools"),
-              },
-              { "@type": "ListItem", position: 3, name: tool.name, item: url },
-            ],
-          },
-        }}
-      />
+      <JsonLd payload={jsonLd} />
       <JsonLd payload={faqPageJsonLd(tool.faq)} />
       <ToolSpecPage tool={tool}>{TOOL_UI[tool.slug]?.()}</ToolSpecPage>
     </>

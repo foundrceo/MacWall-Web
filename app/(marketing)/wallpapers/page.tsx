@@ -1,25 +1,36 @@
 import { CollectionLinkStrip } from "@/components/wallpaper-gallery/collection-link-strip"
+import { DisplayLinkStrip } from "@/components/wallpaper-gallery/display-link-strip"
 import { GalleryPagination } from "@/components/wallpaper-gallery/gallery-pagination"
-import { galleryPageCount } from "@/lib/seo/gallery-pages"
-import { WallpaperGalleryPageShell } from "@/components/wallpaper-gallery/wallpaper-gallery-page"
-import { wallpaperCollections } from "@/lib/seo/wallpaper-collections"
+import { galleryPageCount, GALLERY_PAGE_SIZE } from "@/lib/seo/gallery-pages"
+import {
+  GalleryHubProse,
+  WallpaperGalleryPageShell,
+} from "@/components/wallpaper-gallery/wallpaper-gallery-page"
+import {
+  collectionPublishable,
+  wallpaperCollections,
+} from "@/lib/seo/wallpaper-collections"
 import { JsonLd } from "@/components/seo/json-ld"
+import { galleryIndexSeo } from "@/lib/seo/category-seo"
+import { faqPageJsonLd } from "@/lib/seo/json-ld-helpers"
 import { wallpaperGalleryIndexJsonLd } from "@/lib/seo/wallpaper-json-ld"
 import { wallpaperGalleryIndexMetadata } from "@/lib/seo/wallpaper-metadata"
 import { listPublicWallpapers } from "@/lib/public-catalog/fetch"
-import { macwall, macwallCatalog } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 import type { Metadata } from "next"
 
-const PAGE_TITLE = "Live Wallpapers for Mac and MacBook"
-const PAGE_DESCRIPTION = `Browse ${macwallCatalog.liveCountLabel} live wallpapers for Mac and MacBook, most in 4K. They are video loops that play in the ${macwall.name} app, not still image downloads.`
-
 export const metadata: Metadata = wallpaperGalleryIndexMetadata()
+
+/** Collections linked from the index: every built topic (never real-person ones). */
+const indexCollections = wallpaperCollections.filter(collectionPublishable)
 
 /**
  * Prerendered (ISR via the catalog fetch's 6h revalidate + tag) with the
  * unfiltered list. `?q=&tag=&sort=` are applied client-side by the gallery,
  * and next.config marks those URLs `noindex` with an `X-Robots-Tag` header.
+ *
+ * All hub copy (title, H1, intro, FAQ) comes from `galleryIndexSeo` in
+ * lib/seo/category-seo.ts.
  */
 export default async function WallpapersGalleryPage() {
   let initial
@@ -28,7 +39,7 @@ export default async function WallpapersGalleryPage() {
     initial = await listPublicWallpapers({
       sort: "popular",
       page: 1,
-      limit: 24,
+      limit: GALLERY_PAGE_SIZE,
     })
   } catch {
     loadError = true
@@ -36,35 +47,38 @@ export default async function WallpapersGalleryPage() {
       wallpapers: [],
       total: 0,
       page: 1,
-      limit: 24,
+      limit: GALLERY_PAGE_SIZE,
       hasMore: false,
     }
   }
 
   const origin = canonicalSiteOrigin()
-  const showJsonLd = !loadError
+  const showSeoContent = !loadError
 
   return (
     <>
-      {showJsonLd ? (
+      {showSeoContent ? (
         <JsonLd
           payload={wallpaperGalleryIndexJsonLd({
             origin,
-            pageTitle: PAGE_TITLE,
-            headline: `${macwall.name} Live Wallpapers for Mac`,
-            description: PAGE_DESCRIPTION,
+            pageTitle: galleryIndexSeo.title,
+            headline: galleryIndexSeo.headline,
+            description: galleryIndexSeo.description,
             wallpapers: initial.wallpapers,
-            totalCount: initial.total,
           })}
         />
       ) : null}
+      {showSeoContent && galleryIndexSeo.faq.length > 0 ? (
+        <JsonLd payload={faqPageJsonLd(galleryIndexSeo.faq)} />
+      ) : null}
       <WallpaperGalleryPageShell
         initial={initial}
-        title="Live wallpapers for Mac"
+        title={galleryIndexSeo.headline}
+        intro={galleryIndexSeo.intro}
         loadError={loadError}
         afterGallery={
           <>
-            {!loadError ? (
+            {showSeoContent ? (
               <GalleryPagination
                 basePath="/wallpapers"
                 current={1}
@@ -74,8 +88,12 @@ export default async function WallpapersGalleryPage() {
             ) : null}
             <CollectionLinkStrip
               title="Popular collections"
-              collections={wallpaperCollections}
+              collections={indexCollections}
             />
+            <DisplayLinkStrip />
+            {showSeoContent ? (
+              <GalleryHubProse faq={galleryIndexSeo.faq} />
+            ) : null}
           </>
         }
       />

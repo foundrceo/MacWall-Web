@@ -1,23 +1,24 @@
 "use client"
 
-import Image from "next/image"
-import { X } from "lucide-react"
-import { useState } from "react"
+import dynamic from "next/dynamic"
+import { useEffect, useRef, useState } from "react"
 
-import { SendToMacForm } from "@/components/macwall-marketing/send-to-mac-form"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { trackSiteEventClient } from "@/lib/analytics/client"
-import {
-  macwall,
-  macwallAppIconPath,
-  macwallAppIconRadiusClass,
-} from "@/lib/macwall-site"
+import { trackSiteEventAfterPaint } from "@/lib/analytics/client"
 import { cn } from "@/lib/utils"
+
+const loadSendToMacPanel = () =>
+  import("@/components/macwall-marketing/send-to-mac-panel").then(
+    (m) => m.SendToMacPanel
+  )
+
+const SendToMacPanel = dynamic(loadSendToMacPanel, { ssr: false })
+
+/** Warm the pop-up's chunk so the first tap doesn't wait on the network. */
+export function preloadSendToMacDialog() {
+  loadSendToMacPanel().catch(() => {
+    // Offline or a stale deploy: the tap retries the import.
+  })
+}
 
 function AppleIcon({ className }: Readonly<{ className?: string }>) {
   return (
@@ -35,6 +36,11 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
 /**
  * A single "Send to my Mac" button for phones and Windows. The email field
  * lives in a pop-up so the page stays clean until someone wants it.
+ *
+ * The tap only flips state: the pop-up's code (send-to-mac-panel.tsx) loads
+ * when the browser is idle while this button is on screen, or on hover,
+ * focus or pointerdown at the latest, and the click is tracked after the
+ * next paint. Once opened it stays mounted so the close animation plays.
  */
 export function SendToMacButton({
   location,
@@ -49,18 +55,39 @@ export function SendToMacButton({
   wallpaperName?: string
   wallpaperPath?: string
 }>) {
+  const buttonRef = useRef<HTMLButtonElement>(null)
   const [open, setOpen] = useState(false)
+  const [hasOpened, setHasOpened] = useState(false)
+
+  useEffect(() => {
+    const button = buttonRef.current
+    // The hidden half of a CSS platform switch (mw-when-*) has no boxes.
+    if (!button || button.getClientRects().length === 0) return
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(preloadSendToMacDialog, {
+        timeout: 5000,
+      })
+      return () => window.cancelIdleCallback(id)
+    }
+    const id = window.setTimeout(preloadSendToMacDialog, 2500)
+    return () => window.clearTimeout(id)
+  }, [])
 
   return (
     <>
       <button
+        ref={buttonRef}
         type="button"
+        onPointerDown={preloadSendToMacDialog}
+        onPointerEnter={preloadSendToMacDialog}
+        onFocus={preloadSendToMacDialog}
         onClick={() => {
-          trackSiteEventClient("cta_click", {
+          setHasOpened(true)
+          setOpen(true)
+          trackSiteEventAfterPaint("cta_click", {
             location,
             action: "send_to_mac_open",
           })
-          setOpen(true)
         }}
         className={className}
         aria-haspopup="dialog"
@@ -69,46 +96,16 @@ export function SendToMacButton({
         Send to my Mac
       </button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent
-          showCloseButton={false}
-          className="w-[min(calc(100%-2rem),380px)] max-w-[min(calc(100%-2rem),380px)] gap-0 rounded-3xl border border-white/10 bg-secondary p-0 shadow-2xl ring-0 sm:max-w-[min(calc(100%-2rem),380px)]"
-        >
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className="absolute top-4 right-4 z-10 inline-flex size-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
-            aria-label="Close"
-          >
-            <X className="size-4" strokeWidth={2} />
-          </button>
-
-          <div className="flex flex-col items-center px-5 pt-7 pb-5 text-center sm:px-6">
-            <Image
-              src={macwallAppIconPath}
-              alt=""
-              width={56}
-              height={56}
-              className={cn("size-14", macwallAppIconRadiusClass)}
-            />
-            <DialogTitle className="mt-3 font-display text-2xl leading-tight font-normal tracking-tight text-foreground">
-              Send {macwall.name} to your Mac
-            </DialogTitle>
-            <DialogDescription className="mt-1.5 text-[13px] leading-snug text-marketing-muted">
-              We&rsquo;ll email you the download link. Open it on your Mac to
-              install. Free for 24 hours.
-            </DialogDescription>
-
-            <SendToMacForm
-              location={location}
-              shareUrl={shareUrl}
-              wallpaperName={wallpaperName}
-              wallpaperPath={wallpaperPath}
-              className="mt-5"
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      {hasOpened ? (
+        <SendToMacPanel
+          open={open}
+          onOpenChange={setOpen}
+          location={location}
+          shareUrl={shareUrl}
+          wallpaperName={wallpaperName}
+          wallpaperPath={wallpaperPath}
+        />
+      ) : null}
     </>
   )
 }

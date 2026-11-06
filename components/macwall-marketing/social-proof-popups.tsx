@@ -8,16 +8,15 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { MacWallAppIcon } from "@/components/macwall-app-icon"
 import { trackSiteEventClient } from "@/lib/analytics/client"
 import {
-  EMPTY_SOCIAL_PROOF_FEED,
-  buildSocialProofQueue,
-  socialProofFallbackMessages,
-  type SocialProofFeed,
+  socialProofMessage,
   type SocialProofMessage,
 } from "@/lib/social-proof/feed"
 
 const PURCHASE_COMPLETE_KEY = "macwall_purchase_complete"
+/** Set when the toast shows, so it appears at most once per session. */
+const SHOWN_KEY = "macwall_social_proof_shown"
 
-/** Post-purchase and account surfaces don't need a "go Pro" nudge. */
+/** Post-purchase and account surfaces don't need a nudge. */
 const HIDDEN_PATH_PREFIXES = [
   "/activate",
   "/thank-you",
@@ -26,15 +25,14 @@ const HIDDEN_PATH_PREFIXES = [
   "/open",
 ]
 
-/** Wait after landing, then keep 2–3 popups per minute. */
+/** Below Tailwind's `sm`: phones never get the toast. */
+const PHONE_QUERY = "(max-width: 639px)"
+
 const FIRST_DELAY_RANGE: readonly [number, number] = [10_000, 20_000]
-/** ~20–30s between starts → 2–3 / minute. */
-const GAP_RANGE: readonly [number, number] = [20_000, 30_000]
-/** How long a toast stays after the user has actually seen it. */
-const VISIBLE_MS = 4_500
-const HIDDEN_RETRY_MS = 8_000
-/** Client refresh is intentionally slower than CDN TTL: CDN absorbs most hits. */
-const REFRESH_MS = 300_000
+/** How long the toast stays after the user has actually seen it. */
+const VISIBLE_MS = 5_000
+/** Retry while the tab is hidden or a bottom banner holds the spot. */
+const BLOCKED_RETRY_MS = 8_000
 
 function randomBetween([min, max]: readonly [number, number]): number {
   return min + Math.random() * (max - min)
@@ -48,6 +46,24 @@ function readSessionFlag(key: string): boolean {
   }
 }
 
+function writeSessionFlag(key: string): void {
+  try {
+    window.sessionStorage.setItem(key, "1")
+  } catch {
+    // Storage blocked: the toast still shows only once on this page.
+  }
+}
+
+function isPhone(): boolean {
+  if (typeof document === "undefined") return true
+  if (document.documentElement.dataset.platform === "mobile") return true
+  try {
+    return window.matchMedia(PHONE_QUERY).matches
+  } catch {
+    return true
+  }
+}
+
 function isPurchaseBannerOpen(): boolean {
   if (typeof document === "undefined") return false
   const { dataset } = document.documentElement
@@ -58,14 +74,18 @@ function isPurchaseBannerOpen(): boolean {
   )
 }
 
+/**
+ * One downloads-only toast (`macwallSocialProof.downloadsLine`), once per
+ * session, desktop only. Mounted only while `FLAGS.socialProof` is on.
+ */
 export function SocialProofPopups() {
   const pathname = usePathname()
   const reduceMotion = useReducedMotion()
 
   const [current, setCurrent] = useState<SocialProofMessage | null>(null)
-  // Skip nudges for people who already completed purchase this session.
-  const [skipped, setSkipped] = useState(() =>
-    readSessionFlag(PURCHASE_COMPLETE_KEY)
+  // Skip if a purchase completed or the toast already showed this session.
+  const [skipped, setSkipped] = useState(
+    () => readSessionFlag(PURCHASE_COMPLETE_KEY) || readSessionFlag(SHOWN_KEY)
   )
   const [purchaseBannerOpen, setPurchaseBannerOpen] =
     useState(isPurchaseBannerOpen)
@@ -73,10 +93,8 @@ export function SocialProofPopups() {
     typeof document === "undefined" ? true : !document.hidden
   )
 
-  const feedRef = useRef<SocialProofFeed>(EMPTY_SOCIAL_PROOF_FEED)
-  const shownKeysRef = useRef<Set<string>>(new Set())
-  const fallbackIndexRef = useRef(0)
-  const queueIndexRef = useRef(0)
+  /** Also guards "once" when sessionStorage is blocked. */
+  const shownRef = useRef(false)
   /** Active dismiss timer: cleared when the toast is replaced or hidden. */
   const dismissTimerRef = useRef<number | null>(null)
 
@@ -106,7 +124,7 @@ export function SocialProofPopups() {
     return () => document.removeEventListener("visibilitychange", sync)
   }, [])
 
-  // If checkout completes mid-session, stop showing purchase nudges.
+  // If checkout completes mid-session, stop showing the nudge.
   useEffect(() => {
     const onStorage = (event: StorageEvent) => {
       if (event.key === PURCHASE_COMPLETE_KEY && event.newValue) {
@@ -120,99 +138,32 @@ export function SocialProofPopups() {
 
   const enabled = !skipped && !pathHidden
 
+  // Show the toast once, a little after landing, then never again.
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled || shownRef.current || isPhone()) return
 
     let cancelled = false
-    const load = async () => {
-      try {
-        const res = await fetch("/api/social-proof", {
-          headers: { Accept: "application/json" },
-        })
-        if (!res.ok || cancelled) return
-        const data = (await res.json()) as SocialProofFeed
-        if (!cancelled && Array.isArray(data?.purchases)) {
-          feedRef.current = data
-        }
-      } catch {
-        // No feed: the popups just stay quiet.
-      }
-    }
-
-    void load()
-    const id = window.setInterval(() => {
-      if (typeof document !== "undefined" && document.hidden) return
-      void load()
-    }, REFRESH_MS)
-    return () => {
-      cancelled = true
-      window.clearInterval(id)
-    }
-  }, [enabled])
-
-  const nextMessage = useCallback((): SocialProofMessage | null => {
-    const feed = feedRef.current
-    const queue = buildSocialProofQueue(feed, Date.now())
-
-    // Real recent purchases first, then the real aggregate lines once each.
-    while (queueIndexRef.current < queue.length) {
-      const item = queue[queueIndexRef.current]
-      queueIndexRef.current += 1
-      if (item && !shownKeysRef.current.has(item.key)) {
-        return item
-      }
-    }
-
-    const fallback = socialProofFallbackMessages(feed)
-    // Show each real aggregate line once per session, then stay quiet.
-    if (fallbackIndexRef.current >= fallback.length) return null
-
-    const picked = fallback[fallbackIndexRef.current % fallback.length]
-    fallbackIndexRef.current += 1
-    if (!picked) return null
-
-    // Re-key so the same line can animate again later in the session.
-    return {
-      ...picked,
-      key: `${picked.key}:n${fallbackIndexRef.current}`,
-    }
-  }, [])
-
-  // Show one popup at a time: replace any existing toast instead of stacking.
-  useEffect(() => {
-    if (!enabled) return
-
-    let cancelled = false
-    let scheduleTimer = 0
-
-    const schedule = (delayMs: number) => {
-      scheduleTimer = window.setTimeout(step, delayMs)
-    }
+    let timer = 0
 
     const step = () => {
       if (cancelled) return
-
-      if (isPurchaseBannerOpen()) {
-        schedule(HIDDEN_RETRY_MS)
+      if (isPhone() || readSessionFlag(SHOWN_KEY)) return
+      if (document.hidden || isPurchaseBannerOpen()) {
+        timer = window.setTimeout(step, BLOCKED_RETRY_MS)
         return
       }
-
-      const next = nextMessage()
-      if (next) {
-        shownKeysRef.current.add(next.key)
-        setCurrent(next)
-      }
-
-      schedule(randomBetween(GAP_RANGE))
+      shownRef.current = true
+      writeSessionFlag(SHOWN_KEY)
+      setCurrent(socialProofMessage())
     }
 
-    schedule(randomBetween(FIRST_DELAY_RANGE))
+    timer = window.setTimeout(step, randomBetween(FIRST_DELAY_RANGE))
 
     return () => {
       cancelled = true
-      window.clearTimeout(scheduleTimer)
+      window.clearTimeout(timer)
     }
-  }, [enabled, nextMessage])
+  }, [enabled])
 
   const clearDismissTimer = useCallback(() => {
     if (dismissTimerRef.current !== null) {
@@ -228,9 +179,7 @@ export function SocialProofPopups() {
   useEffect(() => {
     clearDismissTimer()
 
-    if (!enabled || !pageVisible || !current) {
-      return
-    }
+    if (!pageVisible || !current) return
 
     const key = current.key
     dismissTimerRef.current = window.setTimeout(() => {
@@ -239,19 +188,19 @@ export function SocialProofPopups() {
     }, VISIBLE_MS)
 
     return clearDismissTimer
-  }, [enabled, pageVisible, current, clearDismissTimer])
+  }, [pageVisible, current, clearDismissTimer])
 
   const onOpenPricing = useCallback(() => {
     trackSiteEventClient("cta_click", { source: "social_proof_popup" })
     setCurrent(null)
   }, [])
 
-  const visible = enabled && !purchaseBannerOpen && current !== null
+  const visible = !pathHidden && !purchaseBannerOpen && current !== null
 
   return (
     <div
       aria-live="polite"
-      className="pointer-events-none fixed right-3 bottom-3 z-[70] flex items-end sm:right-5 sm:bottom-5"
+      className="pointer-events-none fixed right-5 bottom-5 z-[70] flex items-end"
     >
       <AnimatePresence initial={false} mode="wait">
         {visible && current ? (
@@ -265,7 +214,7 @@ export function SocialProofPopups() {
               reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.96 }
             }
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="pointer-events-auto relative max-w-[min(22rem,calc(100vw-1.5rem))] rounded-[1.75rem] bg-white shadow-[0_14px_44px_rgba(0,0,0,0.32)]"
+            className="pointer-events-auto relative max-w-[min(22rem,calc(100vw-2.5rem))] rounded-[1.75rem] bg-white shadow-[0_14px_44px_rgba(0,0,0,0.32)]"
           >
             <Link
               href="/pricing"
@@ -278,15 +227,8 @@ export function SocialProofPopups() {
                 alt=""
                 aria-hidden
               />
-              <span className="flex min-w-0 flex-col">
-                <span className="font-sans text-[13px] leading-snug font-medium tracking-tight text-black">
-                  {current.text}
-                </span>
-                {current.meta ? (
-                  <span className="font-sans text-[11px] leading-snug font-normal text-black/45">
-                    {current.meta}
-                  </span>
-                ) : null}
+              <span className="min-w-0 font-sans text-[13px] leading-snug font-medium tracking-tight text-black">
+                {current.text}
               </span>
             </Link>
           </motion.div>

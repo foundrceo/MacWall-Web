@@ -1,20 +1,19 @@
-"use client"
-
-import { usePathname } from "next/navigation"
-
 import MacWallMarketingPageEnd from "@/components/macwall-marketing/marketing-page-end"
 
-const HIDE_CLOSING_CTA = new Set([
+/** Pages that end without the closing download CTA (they are the next step). */
+const HIDE_CLOSING_CTA = [
   "/thank-you",
   "/activate",
   "/open",
   "/tiktok",
   "/creator",
-])
+] as const
 
+/**
+ * The end of every marketing page: closing CTA and footer. A server
+ * component, so the footer ships as HTML only; the CTA is hidden on the
+ * pages above by a small client wrapper (HideOnPaths).
+ */
 export function MarketingShellEnd() {
-  const pathname = usePathname()
-  const showBottomCta = !HIDE_CLOSING_CTA.has(pathname)
-
-  return <MacWallMarketingPageEnd showBottomCta={showBottomCta} />
+  return <MacWallMarketingPageEnd bottomCtaHiddenOn={HIDE_CLOSING_CTA} />
 }

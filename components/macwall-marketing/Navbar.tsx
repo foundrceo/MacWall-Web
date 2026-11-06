@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation"
 import { useEffect, useId, useState } from "react"
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { MacWallBrandLink } from "@/components/macwall-marketing/MacWallBrandLink"
+import { NavSearchButton } from "@/components/macwall-marketing/nav-search-button"
+import { SendToMacButton } from "@/components/macwall-marketing/send-to-mac-dialog"
 import { FOOTER_FRAME } from "@/components/macwall-marketing/marketing-section"
 import {
   macwall,
@@ -119,7 +121,7 @@ export default function Navbar() {
           aria-label="Main"
         >
           <div className="flex min-w-0 items-center gap-6">
-            <MacWallBrandLink variant="nav" priority />
+            <MacWallBrandLink variant="nav" />
             <ul className="hidden items-center gap-0.5 lg:flex">
               {navItems.map((item) => (
                 <li key={item.href}>
@@ -152,8 +154,10 @@ export default function Navbar() {
             >
               <DiscordIcon className="size-[15px]" />
             </a>
-            {/* A .dmg is no use on a phone; phones get the menu's CTA instead. */}
-            <div className="mw-when-desktop ms-1">
+            <NavSearchButton className={iconButtonClass} />
+            {/* Macs get the .dmg; phones, Windows and Linux get "Send to my
+                Mac" (data-platform, set before paint). Only one shows. */}
+            <div className="mw-when-mac ms-1">
               <TrackedDownloadButton
                 href={macwallInstallerLatestPath}
                 size="pill"
@@ -163,6 +167,9 @@ export default function Navbar() {
                 <AppleIcon />
                 Download
               </TrackedDownloadButton>
+            </div>
+            <div className="mw-when-not-mac ms-1">
+              <SendToMacButton location="header" className={navDownloadClass} />
             </div>
             <button
               type="button"
@@ -194,113 +201,114 @@ export default function Navbar() {
         </nav>
       </div>
 
-      {menuOpen ? (
-        <div
-          id={menuId}
-          className="absolute inset-x-0 top-full h-[calc(100dvh-var(--marketing-chrome-height))] animate-in overflow-y-auto overscroll-contain bg-background duration-200 fade-in-0 slide-in-from-top-2 lg:hidden"
-        >
-          <div className={cn(FOOTER_FRAME, "flex min-h-full flex-col")}>
-            <div className="flex flex-1 flex-col pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-              <ul className="flex flex-col">
-                {navItems.map((item) => (
-                  <li key={item.href} className="">
-                    <Link
-                      href={item.href}
-                      onClick={closeMenu}
-                      aria-current={item.active ? "page" : undefined}
-                      className={cn(
-                        "flex items-center justify-between gap-3 py-4 text-lg tracking-tight transition-colors",
-                        item.active
-                          ? "text-foreground"
-                          : "text-foreground/80 hover:text-foreground"
-                      )}
-                    >
-                      <span className="inline-flex items-center gap-2">
-                        {item.label}
-                        {item.earnBadge ? <EarnBadge /> : null}
-                      </span>
-                      <ChevronRight
-                        className="size-4 text-muted-foreground"
-                        aria-hidden
-                      />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-6 grid grid-cols-2 gap-6 text-[15px] text-muted-foreground">
-                <div className="flex flex-col">
-                  <p className="pb-1 text-xs text-muted-foreground/70">Read</p>
-                  {secondaryItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={closeMenu}
-                      aria-current={item.active ? "page" : undefined}
-                      className={cn(
-                        "py-2 transition-colors hover:text-foreground",
-                        item.active && "text-foreground"
-                      )}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-                <div className="flex min-w-0 flex-col">
-                  <p className="pb-1 text-xs text-muted-foreground/70">
-                    Talk to us
-                  </p>
-                  <a
-                    href={macwall.discordInvite}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={closeMenu}
-                    className="inline-flex items-center gap-2 py-2 transition-colors hover:text-foreground"
-                  >
-                    <DiscordIcon className="size-4" />
-                    Discord
-                    <ArrowUpRight className="size-3.5" aria-hidden />
-                  </a>
-                  <a
-                    href={mailtoSupport}
-                    onClick={closeMenu}
-                    className="truncate py-2 transition-colors hover:text-foreground"
-                  >
-                    {ho.links.supportMail.label}
-                  </a>
-                </div>
-              </div>
-
-              <div className="mt-auto pt-8">
-                <div className="mw-when-desktop">
-                  <TrackedDownloadButton
-                    href={macwallInstallerLatestPath}
-                    size="pill"
-                    location="header_mobile"
-                    className={sheetCtaClass}
-                    onClick={closeMenu}
-                  >
-                    <AppleIcon className="size-4" />
-                    Download for Mac
-                  </TrackedDownloadButton>
-                </div>
-                <div className="mw-when-mobile">
+      {/* Always in the HTML (hidden until opened) so the secondary links
+          are crawlable server-rendered links, not JS-only ones. */}
+      <div
+        id={menuId}
+        hidden={!menuOpen}
+        className="absolute inset-x-0 top-full h-[calc(100dvh-var(--marketing-chrome-height))] animate-in overflow-y-auto overscroll-contain bg-background duration-200 fade-in-0 slide-in-from-top-2 lg:hidden"
+      >
+        <div className={cn(FOOTER_FRAME, "flex min-h-full flex-col")}>
+          <div className="flex flex-1 flex-col pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+            <ul className="flex flex-col">
+              {navItems.map((item) => (
+                <li key={item.href} className="">
                   <Link
-                    href="/pricing"
+                    href={item.href}
                     onClick={closeMenu}
-                    className={sheetCtaClass}
+                    aria-current={item.active ? "page" : undefined}
+                    className={cn(
+                      "flex items-center justify-between gap-3 py-4 text-lg tracking-tight transition-colors",
+                      item.active
+                        ? "text-foreground"
+                        : "text-foreground/80 hover:text-foreground"
+                    )}
                   >
-                    See pricing
+                    <span className="inline-flex items-center gap-2">
+                      {item.label}
+                      {item.earnBadge ? <EarnBadge /> : null}
+                    </span>
+                    <ChevronRight
+                      className="size-4 text-muted-foreground"
+                      aria-hidden
+                    />
                   </Link>
-                </div>
-                <p className="mt-3 text-center text-xs text-muted-foreground">
-                  Free for 24 hours. No card needed.
-                </p>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-6 grid grid-cols-2 gap-6 text-[15px] text-muted-foreground">
+              <div className="flex flex-col">
+                <p className="pb-1 text-xs text-muted-foreground/70">Read</p>
+                {secondaryItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={closeMenu}
+                    aria-current={item.active ? "page" : undefined}
+                    className={cn(
+                      "py-2 transition-colors hover:text-foreground",
+                      item.active && "text-foreground"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
               </div>
+              <div className="flex min-w-0 flex-col">
+                <p className="pb-1 text-xs text-muted-foreground/70">
+                  Talk to us
+                </p>
+                <a
+                  href={macwall.discordInvite}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={closeMenu}
+                  className="inline-flex items-center gap-2 py-2 transition-colors hover:text-foreground"
+                >
+                  <DiscordIcon className="size-4" />
+                  Discord
+                  <ArrowUpRight className="size-3.5" aria-hidden />
+                </a>
+                <a
+                  href={mailtoSupport}
+                  onClick={closeMenu}
+                  className="truncate py-2 transition-colors hover:text-foreground"
+                >
+                  {ho.links.supportMail.label}
+                </a>
+              </div>
+            </div>
+
+            <div className="mt-auto pt-8">
+              <div className="mw-when-mac">
+                <TrackedDownloadButton
+                  href={macwallInstallerLatestPath}
+                  size="pill"
+                  location="header_mobile"
+                  className={sheetCtaClass}
+                  onClick={closeMenu}
+                >
+                  <AppleIcon className="size-4" />
+                  Download for Mac
+                </TrackedDownloadButton>
+              </div>
+              <div className="mw-when-not-mac">
+                <Link
+                  href="/pricing"
+                  onClick={closeMenu}
+                  className={sheetCtaClass}
+                >
+                  See pricing
+                </Link>
+              </div>
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                Free for 24 hours. No card needed.
+              </p>
             </div>
           </div>
         </div>
-      ) : null}
+      </div>
     </header>
   )
 }

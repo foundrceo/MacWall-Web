@@ -177,8 +177,8 @@ function buildPricing(
   const india = isIndiaCountry(country)
   const region: PricingRegion = india ? "india" : "default"
 
-  // Everyone is charged in USD (India at the India catalog price). Show the
-  // local currency at the live FX rate when it is known.
+  // Prices are set in USD (India at the India catalog price); Stripe Adaptive
+  // Pricing may charge local currency. Show the local currency at the live FX rate when it is known.
   const proCents = licenseOfferPriceCents(LICENSE_OFFERS.permanent, region)
   const fxSource = bundle.permanentLocal
   const useLocal =

@@ -12,10 +12,12 @@ export function GET(): Response {
     openapi: "3.1.0",
     info: {
       title: `${macwall.name} Public API`,
-      version: "1.0.0",
-      summary: "Read-only public endpoints for the MacWall wallpaper catalog and release metadata.",
+      // 2.0.0: Wallpaper dropped isPro, isFeatured and isCuratedPick.
+      version: "2.0.0",
+      summary:
+        "Read-only public endpoints for the MacWall wallpaper catalog and release metadata.",
       description:
-        "Unauthenticated, read-only HTTP endpoints. There is no write API and no user data is exposed. Wallpaper metadata may be reused with attribution; wallpaper video files are licensed for use inside the MacWall app only.",
+        "Unauthenticated, read-only HTTP endpoints. There is no write API and no user data is exposed. Wallpaper metadata may be reused with attribution; wallpaper video files are licensed for use inside the MacWall app only. Version 2.0.0 removed the `isPro`, `isFeatured` and `isCuratedPick` fields from Wallpaper objects.",
       termsOfService: `${origin}/terms`,
       contact: {
         name: `${macwall.name} support`,
@@ -44,7 +46,8 @@ export function GET(): Response {
             {
               name: "q",
               in: "query",
-              description: "Free-text search across wallpaper name and tags.",
+              description:
+                "Case-insensitive text search across wallpaper name, id, category and resolution. Up to 100 characters.",
               required: false,
               schema: { type: "string" },
             },
@@ -58,7 +61,8 @@ export function GET(): Response {
             {
               name: "tag",
               in: "query",
-              description: "Filter by a single tag.",
+              description:
+                "Only wallpapers whose tags include this exact value.",
               required: false,
               schema: { type: "string" },
             },
@@ -75,24 +79,39 @@ export function GET(): Response {
             {
               name: "page",
               in: "query",
-              description: "1-based page number.",
+              description:
+                "1-based page number. A page past the end returns an empty `wallpapers` array.",
               required: false,
-              schema: { type: "integer", minimum: 1, default: 1 },
+              schema: {
+                type: "integer",
+                minimum: 1,
+                maximum: 1000,
+                default: 1,
+              },
             },
             {
               name: "limit",
               in: "query",
-              description: "Items per page.",
+              description: "Items per page. Larger values are treated as 60.",
               required: false,
-              schema: { type: "integer", minimum: 1, default: 24 },
+              schema: { type: "integer", minimum: 1, maximum: 60, default: 24 },
             },
           ],
           responses: {
             "200": {
-              description: "A page of wallpapers.",
+              description:
+                "A page of wallpapers. Past the last page, `wallpapers` is empty and `hasMore` is false.",
               content: {
                 "application/json": {
                   schema: { $ref: "#/components/schemas/WallpaperListResult" },
+                },
+              },
+            },
+            "400": {
+              description: "Unknown category or a malformed filter.",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Error" },
                 },
               },
             },
@@ -167,10 +186,10 @@ export function GET(): Response {
             "resolution",
             "durationSeconds",
             "fileSizeBytes",
-            "thumbUrl",
+            "videoKey",
+            "thumbKey",
             "videoUrl",
-            "isPro",
-            "isFeatured",
+            "thumbUrl",
             "likeCount",
             "createdAt",
           ],
@@ -178,13 +197,26 @@ export function GET(): Response {
             id: { type: "string", description: "Stable wallpaper identifier." },
             name: { type: "string" },
             category: { type: "string", enum: [...macwall.categories] },
-            tags: { type: "array", items: { type: "string" } },
+            tags: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "Free-form catalog tags as stored: words or hyphenated slugs.",
+            },
             resolution: {
               type: "string",
-              description: "Source resolution, e.g. `3840x2160`.",
+              description:
+                "Source resolution as width x height, e.g. `3840x2160`. Empty when not recorded.",
             },
-            durationSeconds: { type: "number" },
-            fileSizeBytes: { type: "integer" },
+            durationSeconds: {
+              type: "number",
+              description: "Loop length in seconds. 0 when not recorded.",
+            },
+            fileSizeBytes: {
+              type: "integer",
+              description:
+                "Size of the full-resolution wallpaper video, in bytes. 0 when not recorded.",
+            },
             videoKey: { type: "string" },
             thumbKey: { type: "string" },
             videoUrl: {
@@ -194,12 +226,6 @@ export function GET(): Response {
                 "Downscaled, silent web preview (max 1280px wide). Not the source file.",
             },
             thumbUrl: { type: "string", format: "uri" },
-            isPro: {
-              type: "boolean",
-              description: "Requires a Pro license in the app.",
-            },
-            isFeatured: { type: "boolean" },
-            isCuratedPick: { type: "boolean" },
             likeCount: { type: "integer" },
             createdAt: { type: "string", format: "date-time" },
           },
@@ -212,7 +238,10 @@ export function GET(): Response {
               type: "array",
               items: { $ref: "#/components/schemas/Wallpaper" },
             },
-            total: { type: "integer" },
+            total: {
+              type: "integer",
+              description: "Wallpapers matching the filters, across all pages.",
+            },
             page: { type: "integer" },
             limit: { type: "integer" },
             hasMore: { type: "boolean" },

@@ -26,7 +26,13 @@ import {
 } from "@/lib/marketing-footer-nav"
 import { cn } from "@/lib/utils"
 
-/** `directory` is the live footer (SiteFooter); the others are only shown on /footer-lab. */
+/**
+ * Footer design candidates for /footer-lab only. The live footer is
+ * SiteFooter (site-footer.tsx), which MacWallMarketingPageEnd imports
+ * directly, so nothing here (MacDesktop, WallpaperWall, the hover wordmark)
+ * ships on real pages. `directory` is SiteFooter itself, for side-by-side
+ * comparison.
+ */
 export type FooterVariant =
   "wordmark" | "desktop" | "wall" | "directory" | "card"
 
@@ -125,7 +131,7 @@ function LinkColumns({ className }: Readonly<{ className?: string }>) {
 function BrandBlock({ className }: Readonly<{ className?: string }>) {
   return (
     <div className={className}>
-      <MacWallBrandLink variant="footer" priority />
+      <MacWallBrandLink variant="footer" />
       <p className="mt-4 max-w-[16rem] text-[14px] leading-[1.55] text-marketing-muted">
         {macwallMarketingCopy.footer.blurb}
       </p>
@@ -260,7 +266,7 @@ function WallFooter() {
           <div className={cn(landingShellPad, "mt-14 md:mt-16")}>
             <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
               <div>
-                <MacWallBrandLink variant="footer" priority />
+                <MacWallBrandLink variant="footer" />
                 <p className="mt-4 font-display text-3xl tracking-tight text-foreground md:text-4xl">
                   {landing.browseTitle}.
                 </p>
@@ -306,7 +312,7 @@ function CardFooter() {
         ) : null}
         <div className="flex min-h-[34rem] flex-col justify-between gap-12 p-6 md:p-10 lg:min-h-[38rem] lg:p-12">
           <div className="flex items-center justify-between gap-4">
-            <MacWallBrandLink variant="footer" priority />
+            <MacWallBrandLink variant="footer" />
             <Socials className="-mr-[9px]" />
           </div>
           <div className="grid grid-cols-1 items-end gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">

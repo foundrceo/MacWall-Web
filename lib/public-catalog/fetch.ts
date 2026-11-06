@@ -1,7 +1,18 @@
 import "server-only"
 
 import { normalizeCatalogQuery } from "@/lib/public-catalog/query"
-import { isThinWallpaper } from "@/lib/seo/wallpaper-detail-content"
+import {
+  rankSimilarWallpapers,
+  SIMILAR_WALLPAPER_LIMIT,
+  type SimilarSignals,
+} from "@/lib/public-catalog/similar"
+import { collectionsForWallpaper } from "@/lib/seo/wallpaper-collections"
+import {
+  currentWallpaperTags,
+  displayTags,
+  isThinWallpaper,
+} from "@/lib/seo/wallpaper-detail-content"
+import { wallpaperColors } from "@/lib/seo/wallpaper-palette"
 import { unstable_cache } from "next/cache"
 import { cache } from "react"
 import {
@@ -23,6 +34,7 @@ import type {
   PublicWallpaperListQuery,
   PublicWallpaperListResult,
 } from "@/lib/public-catalog/types"
+import { REMOVED_WALLPAPER_ID_RULES } from "@/lib/public-catalog/redirects"
 import {
   wallpaperDetailPath,
   wallpaperIdFromDetailSlug,
@@ -32,21 +44,26 @@ import {
  * Catalog ids removed for copyright / legal reasons.
  * Kept here so stale ISR/CDN cannot resurface a deleted row.
  */
-const REMOVED_PUBLIC_WALLPAPER_IDS = new Set<string>(["rainy-parking-lot"])
+/** Taken-down wallpapers: hidden here, 410 in the Worker (one list for both). */
+const REMOVED_PUBLIC_WALLPAPER_IDS = new Set<string>(
+  Object.keys(REMOVED_WALLPAPER_ID_RULES)
+)
 
+/**
+ * Public columns of `wallpapers`. `is_pro`, `is_featured` and
+ * `is_curated_pick` are app-side ranking flags, not facts a visitor or API
+ * client can act on, so the public catalog never reads them.
+ */
 type WallpaperRow = {
   id: string
   name: string
   category: string
   tags: string[] | null
-  resolution: string
-  duration_seconds: number
-  file_size_bytes: number
+  resolution: string | null
+  duration_seconds: number | null
+  file_size_bytes: number | null
   video_key: string
   thumb_key: string
-  is_pro: boolean
-  is_featured: boolean
-  is_curated_pick: boolean
   like_count: number
   created_at: string
   author_display_name: string | null
@@ -54,17 +71,6 @@ type WallpaperRow = {
 }
 
 type WallpaperListRow = Pick<
-  WallpaperRow,
-  | "id"
-  | "name"
-  | "category"
-  | "video_key"
-  | "thumb_key"
-  | "like_count"
-  | "created_at"
->
-
-type WallpaperDetailRow = Pick<
   WallpaperRow,
   | "id"
   | "name"
@@ -77,32 +83,35 @@ type WallpaperDetailRow = Pick<
   | "thumb_key"
   | "like_count"
   | "created_at"
-  | "author_display_name"
-  | "origin_type"
 >
 
-const LIST_SELECT_COLUMNS =
-  "id,name,category,video_key,thumb_key,like_count,created_at"
+type WallpaperDetailRow = WallpaperListRow &
+  Pick<WallpaperRow, "author_display_name" | "origin_type">
 
-const DETAIL_SELECT_COLUMNS =
-  "id,name,category,tags,resolution,duration_seconds,file_size_bytes,video_key,thumb_key,like_count,created_at,author_display_name,origin_type"
+const LIST_SELECT_COLUMNS =
+  "id,name,category,tags,resolution,duration_seconds,file_size_bytes,video_key,thumb_key,like_count,created_at"
+
+const DETAIL_SELECT_COLUMNS = `${LIST_SELECT_COLUMNS},author_display_name,origin_type`
+
+/** `3840x2160` as stored; placeholders such as "—" become "". */
+function publicResolution(value: string | null): string {
+  const resolution = value?.trim() ?? ""
+  return /\d/.test(resolution) ? resolution : ""
+}
 
 function mapListRow(row: WallpaperListRow): PublicWallpaper {
   return {
     id: row.id,
     name: row.name,
     category: row.category,
-    tags: [],
-    resolution: "",
-    durationSeconds: 0,
-    fileSizeBytes: 0,
+    tags: row.tags ?? [],
+    resolution: publicResolution(row.resolution),
+    durationSeconds: row.duration_seconds ?? 0,
+    fileSizeBytes: row.file_size_bytes ?? 0,
     videoKey: row.video_key,
     thumbKey: row.thumb_key,
     videoUrl: catalogPreviewVideoUrlFromKey(row.video_key),
     thumbUrl: catalogPublicThumbUrlFromKey(row.thumb_key),
-    isPro: false,
-    isFeatured: false,
-    isCuratedPick: false,
     likeCount: row.like_count ?? 0,
     createdAt: row.created_at,
   }
@@ -110,22 +119,7 @@ function mapListRow(row: WallpaperListRow): PublicWallpaper {
 
 function mapDetailRow(row: WallpaperDetailRow): PublicWallpaper {
   return {
-    id: row.id,
-    name: row.name,
-    category: row.category,
-    tags: row.tags ?? [],
-    resolution: row.resolution,
-    durationSeconds: row.duration_seconds,
-    fileSizeBytes: row.file_size_bytes,
-    videoKey: row.video_key,
-    thumbKey: row.thumb_key,
-    videoUrl: catalogPreviewVideoUrlFromKey(row.video_key),
-    thumbUrl: catalogPublicThumbUrlFromKey(row.thumb_key),
-    isPro: false,
-    isFeatured: false,
-    isCuratedPick: false,
-    likeCount: row.like_count ?? 0,
-    createdAt: row.created_at,
+    ...mapListRow(row),
     authorDisplayName: row.author_display_name,
     originType: row.origin_type,
   }
@@ -208,7 +202,18 @@ async function fetchListPublicWallpapersUncached(
 
   const tag = options.tag?.trim()
   if (tag) {
-    params.set("tags", `cs.{${tag}}`)
+    // Catalog tags mix cases ("anime", "Anime"): match the tag as given, in
+    // lower case and capitalised. Commas and braces never get this far.
+    const lower = tag.toLowerCase()
+    const variants = new Set([
+      tag,
+      lower,
+      lower.charAt(0).toUpperCase() + lower.slice(1),
+    ])
+    const quoted = [...variants].map(
+      (value) => `"${value.replace(/["\\]/g, "\\$&")}"`
+    )
+    params.set("tags", `ov.{${quoted.join(",")}}`)
   }
 
   const res = await fetch(`${origin}/rest/v1/wallpapers?${params}`, {
@@ -217,23 +222,58 @@ async function fetchListPublicWallpapersUncached(
     signal: AbortSignal.timeout(8000),
   })
 
+  // With an exact count, PostgREST answers an offset past the last row with
+  // 416. Past the end is an empty page, not an outage.
+  if (res.status === 416) {
+    const total =
+      totalFromContentRange(res.headers.get("content-range")) ??
+      (await fetchListTotal(params))
+    return { wallpapers: [], total, page, limit, hasMore: false }
+  }
+
   if (!res.ok) {
     throw new Error(`Public catalog list failed: HTTP ${res.status}`)
   }
 
   const rows = (await res.json()) as WallpaperListRow[]
-  const contentRange = res.headers.get("content-range")
-  const totalFromRange = contentRange?.split("/")[1]
-  const total = totalFromRange ? Number(totalFromRange) : rows.length
-  const safeTotal = Number.isFinite(total) ? total : rows.length
+  const total =
+    totalFromContentRange(res.headers.get("content-range")) ?? rows.length
 
   return {
     wallpapers: rows.map(mapListRow),
-    total: safeTotal,
+    total,
     page,
     limit,
-    hasMore: offset + rows.length < safeTotal,
+    hasMore: offset + rows.length < total,
   }
+}
+
+/** The total after the slash in a `Content-Range` header, e.g. `0-23/1132`. */
+function totalFromContentRange(header: string | null): number | null {
+  const total = Number(header?.split("/")[1])
+  return header && Number.isSafeInteger(total) && total >= 0 ? total : null
+}
+
+/** Row count for a list query's filters, without reading any rows. */
+async function fetchListTotal(listParams: URLSearchParams): Promise<number> {
+  const params = new URLSearchParams(listParams)
+  params.set("select", "id")
+  params.set("limit", "1")
+  params.set("offset", "0")
+  params.delete("order")
+  const res = await fetch(`${requireOrigin()}/rest/v1/wallpapers?${params}`, {
+    method: "HEAD",
+    headers: catalogHeaders(true),
+    cache: "no-store",
+    signal: AbortSignal.timeout(8000),
+  })
+  const total = res.ok
+    ? totalFromContentRange(res.headers.get("content-range"))
+    : null
+  if (total === null) {
+    throw new Error(`Public catalog count failed: HTTP ${res.status}`)
+  }
+  return total
 }
 
 const getCachedListPublicWallpapers = unstable_cache(
@@ -241,20 +281,50 @@ const getCachedListPublicWallpapers = unstable_cache(
     const options = JSON.parse(cacheKey) as PublicWallpaperListQuery
     return fetchListPublicWallpapersUncached(options)
   },
-  ["public-wallpaper-list-v2"],
+  ["public-wallpaper-list-v3"],
   {
     revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
     tags: [PUBLIC_CATALOG_CACHE_TAG],
   }
 )
 
+/** Pages this shallow are cached without first looking up the total. */
+const ALWAYS_CACHED_PAGES = 20
+
+/**
+ * Deepest page of a filter that gets a Data Cache entry: every real page plus
+ * one, so the page the next upload opens is cached when it appears. Deeper
+ * requests are past the end, and caching them would only add entries.
+ */
+async function lastCachedPage(
+  normalized: ReturnType<typeof normalizeCatalogQuery>
+): Promise<number> {
+  // Same key as the gallery's own total lookup (`loadGalleryPage`).
+  const first = await getCachedListPublicWallpapers(
+    listQueryCacheKey({
+      category: normalized.category,
+      sort: normalized.sort,
+      page: 1,
+      limit: 1,
+    })
+  )
+  return Math.ceil(first.total / normalized.limit) + 1
+}
+
 export async function listPublicWallpapers(
   options: PublicWallpaperListQuery = {}
 ): Promise<PublicWallpaperListResult> {
   const normalized = normalizeCatalogQuery(options)
   // Free-form searches must not create a persisted cache entry for every input.
-  if (normalized.q || normalized.tag || normalized.page > 20)
+  if (normalized.q || normalized.tag)
     return fetchListPublicWallpapersUncached(normalized)
+  // Every gallery page is cached (`/wallpapers/page/48` too), so crawlers on
+  // the deepest pages don't each wait on a Supabase read.
+  if (normalized.page > ALWAYS_CACHED_PAGES) {
+    const lastPage = await lastCachedPage(normalized).catch(() => 0)
+    if (normalized.page > lastPage)
+      return fetchListPublicWallpapersUncached(normalized)
+  }
   return getCachedListPublicWallpapers(listQueryCacheKey(normalized))
 }
 
@@ -312,22 +382,61 @@ export const getPublicWallpaperByDetailSlug = cache(
   }
 )
 
-/** Same category, most-liked first (the index's order). */
+/**
+ * Collection slugs per name + tags. Matching runs every collection's patterns
+ * over a wallpaper, and the rail needs it for the whole catalog on each detail
+ * render, so warm isolates reuse it. The key holds every input, so an edited
+ * name or tag gets a fresh entry.
+ */
+const similarCollectionsMemo = new Map<string, readonly string[]>()
+const SIMILAR_MEMO_MAX = 20_000
+
+/** A collection about a real person (`rights: "likeness"`). */
+function isLikenessCollection(entry: { slug: string; rights?: string }) {
+  return entry.rights === "likeness"
+}
+
+/**
+ * Topic collections as a similarity signal. Likeness collections (real
+ * people) are left out: two wallpapers of one person are not a theme the
+ * rail should cluster on.
+ */
+function similarCollectionSlugs(wallpaper: PublicWallpaper): readonly string[] {
+  const key = `${wallpaper.name}\u0000${wallpaper.tags.join("\u0000")}`
+  let slugs = similarCollectionsMemo.get(key)
+  if (!slugs) {
+    slugs = collectionsForWallpaper(wallpaper)
+      .filter((entry) => !isLikenessCollection(entry))
+      .map((entry) => entry.slug)
+    if (similarCollectionsMemo.size >= SIMILAR_MEMO_MAX)
+      similarCollectionsMemo.clear()
+    similarCollectionsMemo.set(key, slugs)
+  }
+  return slugs
+}
+
+const similarSignals: SimilarSignals = {
+  collections: similarCollectionSlugs,
+  // Rename leftovers (an old title's words kept as tags) don't pair wallpapers.
+  tags: (wallpaper) =>
+    displayTags({ ...wallpaper, tags: currentWallpaperTags(wallpaper) }),
+  palette: (wallpaper) => wallpaperColors(wallpaper.id).map((c) => c.hex),
+  // Thin pages are served noindex (wallpaper-metadata.ts); linking them from
+  // every rail sent link equity to pages Google is told to drop.
+  excluded: (wallpaper) => isThinWallpaper(wallpaper),
+}
+
+/**
+ * "More like this": wallpapers that share collections, themes, colours or the
+ * category with `wallpaper`, a different set on every page, never a noindex
+ * page. See `rankSimilarWallpapers`.
+ */
 export async function listSimilarPublicWallpapers(
   wallpaper: PublicWallpaper,
-  limit = 6
+  limit = SIMILAR_WALLPAPER_LIMIT
 ): Promise<PublicWallpaper[]> {
-  const safeLimit = Number.isFinite(limit)
-    ? Math.min(24, Math.max(1, Math.floor(limit)))
-    : 6
   const index = await listPublicCatalogIndex()
-  return index
-    .filter(
-      (candidate) =>
-        candidate.category === wallpaper.category &&
-        candidate.id !== wallpaper.id
-    )
-    .slice(0, safeLimit)
+  return rankSimilarWallpapers(wallpaper, index, similarSignals, limit)
 }
 
 type SitemapWallpaperRow = {
@@ -336,13 +445,19 @@ type SitemapWallpaperRow = {
   category: string
   tags: string[] | null
   thumb_key: string | null
+  duration_seconds: number | null
   created_at: string
 }
 
-const SITEMAP_SELECT_COLUMNS = "id,name,category,tags,thumb_key,created_at"
+const SITEMAP_SELECT_COLUMNS =
+  "id,name,category,tags,thumb_key,duration_seconds,created_at"
 
 export type PublicWallpaperSitemapEntry = {
   path: string
+  /** Wallpaper name, for image and video sitemap titles. */
+  name: string
+  /** Loop length in seconds; 0 when unknown. */
+  durationSeconds: number
   lastModified: Date
   /** Poster for the image sitemap. */
   imageUrl: string | null
@@ -363,6 +478,8 @@ function mapSitemapRow(row: SitemapWallpaperRow): PublicWallpaperSitemapEntry {
       name: row.name,
       category: row.category,
     }),
+    name: row.name,
+    durationSeconds: row.duration_seconds ?? 0,
     lastModified: Number.isFinite(parsed) ? new Date(parsed) : new Date(),
     imageUrl: row.thumb_key
       ? catalogPublicThumbUrlFromKey(row.thumb_key)
@@ -419,7 +536,7 @@ async function fetchPublicWallpaperSitemapEntriesUncached(): Promise<
 
 const getCachedPublicWallpaperSitemapEntries = unstable_cache(
   async () => fetchPublicWallpaperSitemapEntriesUncached(),
-  ["public-wallpaper-sitemap-v2"],
+  ["public-wallpaper-sitemap-v3"],
   {
     revalidate: MARKETING_CATALOG_REVALIDATE_SECONDS,
     tags: [PUBLIC_CATALOG_CACHE_TAG],

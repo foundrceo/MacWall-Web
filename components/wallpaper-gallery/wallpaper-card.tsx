@@ -5,6 +5,8 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
+  type PointerEvent as ReactPointerEvent,
   type SyntheticEvent,
 } from "react"
 import Link from "next/link"
@@ -14,16 +16,33 @@ import { motion, useReducedMotion } from "motion/react"
 import type { PublicWallpaper } from "@/lib/public-catalog/types"
 import { markGalleryReturnFocus } from "@/lib/public-catalog/gallery-return-state"
 import { wallpaperDetailPath } from "@/lib/public-catalog/urls"
+import { wallpaperImageAlt } from "@/lib/public-catalog/wallpaper-alt"
 import {
   GALLERY_MEDIA_RADIUS_CLASS,
   GALLERY_TEXT_PRIMARY_CLASS,
   GALLERY_TEXT_TERTIARY_CLASS,
 } from "@/lib/public-catalog/chrome"
 import { CatalogImage } from "@/components/wallpaper-gallery/catalog-image"
+import { prefersLightweightMedia } from "@/lib/deferred-media"
 import { cn } from "@/lib/utils"
+
+/** Card labels that differ from the catalog name; the chips and crumbs say "More". */
+const CARD_CATEGORY_LABELS: Readonly<Record<string, string>> = {
+  Others: "More",
+}
 
 const PLAY_ICON_SIZE = 20
 const PLAY_ICON_STROKE = 1.75
+
+/**
+ * Hover previews that failed on this page so far. When the preview CDN is
+ * down for every wallpaper (e.g. a transformation quota), stop asking after
+ * a couple instead of sending a dead request on every hover.
+ */
+const HOVER_PREVIEW_FAILURE_LIMIT = 2
+const hoverPreviewHealth = { failures: 0 }
+
+const subscribeToNothing = () => () => {}
 
 function blockMediaContextMenu(event: SyntheticEvent) {
   event.preventDefault()
@@ -44,17 +63,40 @@ function WallpaperCardMedia({
   const [isHovered, setIsHovered] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [videoSrc, setVideoSrc] = useState<string | null>(null)
-  const masterFallbackDoneRef = useRef(false)
+  const previewFailedRef = useRef(false)
   const resolvedVideoUrl = previewVideoUrl ?? wallpaper.videoUrl
 
-  const handleMouseEnter = useCallback(() => {
-    setIsHovered(true)
-    if (reduceMotion || !resolvedVideoUrl) return
-    masterFallbackDoneRef.current = false
-    setVideoSrc(resolvedVideoUrl)
-  }, [reduceMotion, resolvedVideoUrl])
+  const handlePointerEnter = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      // Mouse hover only: on a touch screen the tap navigates, so a preview
+      // would be a wasted download.
+      if (event.pointerType !== "mouse") return
+      setIsHovered(true)
+      if (
+        reduceMotion ||
+        !resolvedVideoUrl ||
+        previewFailedRef.current ||
+        hoverPreviewHealth.failures >= HOVER_PREVIEW_FAILURE_LIMIT ||
+        prefersLightweightMedia()
+      ) {
+        return
+      }
+      setVideoSrc(resolvedVideoUrl)
+    },
+    [reduceMotion, resolvedVideoUrl]
+  )
 
-  const handleMouseLeave = useCallback(() => {
+  const handlePreviewError = useCallback(() => {
+    // Poster only from here on. Never swap in the full-resolution master:
+    // it is the paid file and tens of MB.
+    if (previewFailedRef.current) return
+    previewFailedRef.current = true
+    hoverPreviewHealth.failures += 1
+    setIsPlaying(false)
+    setVideoSrc(null)
+  }, [])
+
+  const handlePointerLeave = useCallback(() => {
     setIsHovered(false)
     setIsPlaying(false)
     const video = videoRef.current
@@ -79,10 +121,11 @@ function WallpaperCardMedia({
   const showPlayOverlay = hasVideo && isHovered
 
   return (
+    // Fixed 16:9 box: the tile keeps its size before and after the thumb loads.
     <div
-      className="relative aspect-video"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className="relative aspect-video w-full"
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
     >
       <div
         className={cn(
@@ -94,7 +137,7 @@ function WallpaperCardMedia({
       >
         <CatalogImage
           src={wallpaper.thumbUrl}
-          alt={`${wallpaper.name}, a ${wallpaper.category} live wallpaper for Mac`}
+          alt={wallpaperImageAlt(wallpaper)}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover [-webkit-user-drag:none]"
@@ -123,17 +166,7 @@ function WallpaperCardMedia({
             onDragStart={blockMediaContextMenu}
             onPlaying={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
-            onError={() => {
-              // Transform quota exhausted (Cloudflare 9422) → play the
-              // direct CDN object once instead of a dead hover preview.
-              if (masterFallbackDoneRef.current) return
-              masterFallbackDoneRef.current = true
-              const master = resolvedVideoUrl.replace(
-                /\/cdn-cgi\/media\/[^/]+/,
-                ""
-              )
-              if (master && master !== videoSrc) setVideoSrc(master)
-            }}
+            onError={handlePreviewError}
           />
         ) : null}
 
@@ -172,7 +205,7 @@ export function WallpaperCard({
   priority = false,
   index = 0,
   entranceIndex,
-  animateEntrance = true,
+  animateEntrance = false,
   className,
 }: Readonly<{
   wallpaper: PublicWallpaper
@@ -182,13 +215,23 @@ export function WallpaperCard({
   index?: number
   /** Stagger index for mount animation: use batch-relative values when paginating. */
   entranceIndex?: number
-  /** When false, skip mount fade/slide (already-visible cards). */
+  /**
+   * Fade/slide in on mount. Only for cards added on the client (Show more,
+   * a filter refresh); server-rendered cards never animate in either way.
+   */
   animateEntrance?: boolean
   className?: string
 }>) {
   const reduceMotion = useReducedMotion()
   const staggerIndex = entranceIndex ?? index
-  const shouldAnimateEntrance = animateEntrance && !reduceMotion
+  // Server HTML and hydration always get `false`, so a server-rendered card
+  // paints at full opacity without waiting for JS (it can be the LCP image).
+  // Cards mounted later on the client animate when asked to.
+  const shouldAnimateEntrance = useSyncExternalStore(
+    subscribeToNothing,
+    () => animateEntrance && !reduceMotion,
+    () => false
+  )
 
   return (
     <motion.div
@@ -204,6 +247,9 @@ export function WallpaperCard({
     >
       <Link
         href={wallpaperDetailPath(wallpaper)}
+        // A grid shows 24+ cards: viewport prefetch would fetch every detail
+        // page's RSC payload. Navigate on click instead.
+        prefetch={false}
         // pointerdown beats click: focus is saved before Next starts navigating.
         onPointerDown={() => markGalleryReturnFocus(wallpaper.id)}
         onClick={() => markGalleryReturnFocus(wallpaper.id)}
@@ -235,7 +281,7 @@ export function WallpaperCard({
               "group-hover:text-white/70 group-focus-visible:text-white/70"
             )}
           >
-            {wallpaper.category}
+            {CARD_CATEGORY_LABELS[wallpaper.category] ?? wallpaper.category}
           </p>
         </div>
       </Link>

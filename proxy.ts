@@ -26,6 +26,9 @@ export async function proxy(request: NextRequest) {
 
   // `Accept: text/markdown` on a page URL serves its `.md` twin. Production
   // does this in worker/index.ts before vinext; this covers `next start`.
+  // The Worker also drops the twin's `X-Robots-Tag: noindex` (meant for the
+  // `.md` URL) from the page URL; a proxy can't remove a header the route
+  // handler sets, so under `next start` it stays.
   if (prefersMarkdown(request.headers.get("accept"))) {
     const markdownPath = negotiatedMarkdownPath(pathname)
     if (!markdownPath) return NextResponse.next()
@@ -34,6 +37,7 @@ export async function proxy(request: NextRequest) {
     target.pathname = `/md${markdownPath.replace(/\.md$/, "")}`
     const response = NextResponse.rewrite(target)
     response.headers.set("Vary", "Accept")
+    response.headers.set("Content-Location", markdownPath)
     return response
   }
 

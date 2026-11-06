@@ -1,7 +1,9 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 
+import { useColorCollections } from "@/components/tools/color-collections-context"
 import {
   ChooseImageButton,
   ImageDropTarget,
@@ -10,6 +12,7 @@ import {
   SAMPLE_IMAGE,
 } from "@/components/tools/tool-controls"
 import { colorName } from "@/lib/seo/color-name"
+import type { ColorCollectionLink } from "@/lib/tools/tools"
 import { cn } from "@/lib/utils"
 
 type Swatch = { hex: string; rgb: [number, number, number]; share: number }
@@ -83,6 +86,30 @@ function extract(img: HTMLImageElement, k = 6): Swatch[] {
     .filter((s) => (seen.has(s.hex) ? false : (seen.add(s.hex), true)))
 }
 
+const DARK_NAMES = new Set(["black", "charcoal"])
+
+/**
+ * Colour collections that fit the palette: the same idea as the catalog's
+ * own palette matching. Near-black swatches under half the image are usually
+ * letterboxing, so the two leading colours are read after dropping them.
+ */
+function matchingCollections(
+  swatches: readonly Swatch[],
+  collections: readonly ColorCollectionLink[]
+): ColorCollectionLink[] {
+  const leading = swatches
+    .map((swatch) => ({ ...swatch, name: colorName(swatch.hex) }))
+    .filter((swatch) => !(DARK_NAMES.has(swatch.name) && swatch.share < 0.5))
+    .slice(0, 2)
+  // "deep blue" and "pale blue" are both blue.
+  const words = new Set(
+    leading.map((swatch) => swatch.name.replace(/^(?:deep|pale) /, ""))
+  )
+  return collections.filter((entry) =>
+    entry.words.some((word) => words.has(word))
+  )
+}
+
 function CopyValue({ value }: Readonly<{ value: string }>) {
   const [copied, setCopied] = useState(false)
   return (
@@ -110,6 +137,7 @@ export function ColorPalette() {
   const [image, setImage] = useState<HTMLImageElement | null>(null)
   const [imageName, setImageName] = useState(SAMPLE_IMAGE.name)
   const [error, setError] = useState<string | null>(null)
+  const collections = useColorCollections()
 
   useEffect(() => {
     loadImageUrl(SAMPLE_IMAGE.src)
@@ -121,6 +149,10 @@ export function ColorPalette() {
   const swatches = useMemo<Swatch[]>(
     () => (image ? extract(image) : []),
     [image]
+  )
+  const matches = useMemo(
+    () => matchingCollections(swatches, collections),
+    [swatches, collections]
   )
 
   const handleFile = async (file: File) => {
@@ -135,7 +167,7 @@ export function ColorPalette() {
 
   return (
     <section
-      aria-label="Colour palette extractor"
+      aria-label="Color palette extractor"
       className="flex flex-col gap-5 rounded-[28px] bg-surface-1 p-4 squircle sm:p-6"
     >
       <ImageDropTarget onFile={handleFile}>
@@ -208,6 +240,26 @@ export function ColorPalette() {
           </li>
         ))}
       </ul>
+
+      {matches.length > 0 ? (
+        <div className="flex flex-col gap-2.5">
+          <p className="text-[14px] leading-6 text-ink-2">
+            Live wallpapers in these colors:
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {matches.map((entry) => (
+              <li key={entry.href}>
+                <Link
+                  href={entry.href}
+                  className="inline-flex h-9 items-center rounded-full bg-surface-2 px-4 text-[14px] text-ink transition-colors duration-150 hover:bg-surface-3 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+                >
+                  {entry.name} live wallpapers
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap gap-3">
         <ChooseImageButton onFile={handleFile} />

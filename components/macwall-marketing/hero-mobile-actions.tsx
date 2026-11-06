@@ -2,7 +2,7 @@
 
 import { preloadProModal } from "@/components/macwall-marketing/pro-modal-lazy"
 import { SendToMacButton } from "@/components/macwall-marketing/send-to-mac-dialog"
-import { trackSiteEventClient } from "@/lib/analytics/client"
+import { trackSiteEventAfterPaint } from "@/lib/analytics/client"
 import { HeroPriceCaption } from "@/components/macwall-marketing/hero-price-caption"
 
 /** Full-width and 48px on phones: easy thumb targets when stacked. */
@@ -23,8 +23,8 @@ export function HeroMobileActions({
       <button
         type="button"
         onClick={() => {
-          trackSiteEventClient("pricing_click", { location: "hero_mobile" })
           onGetLicense()
+          trackSiteEventAfterPaint("pricing_click", { location: "hero_mobile" })
         }}
         className={`${heroSecondaryCapsule} mt-2`}
         aria-haspopup="dialog"

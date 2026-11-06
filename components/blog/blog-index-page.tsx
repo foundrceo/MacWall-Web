@@ -21,8 +21,8 @@ export function BlogIndexPage({
           Blog
         </h1>
         <p className={landingPageLead}>
-          Guides, release notes, and notes from the MacWall team on live
-          wallpapers and macOS.
+          Guides to wallpapers, the Lock Screen and screen savers on Mac, plus
+          comparisons and macOS notes from the MacWall team.
         </p>
       </MarketingTitleSection>
       <MarketingBodySection>

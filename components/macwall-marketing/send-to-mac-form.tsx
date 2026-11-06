@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import {
   getAnalyticsSessionId,
+  trackSiteEventAfterPaint,
   trackSiteEventClient,
 } from "@/lib/analytics/client"
 import { macwall } from "@/lib/macwall-site"
@@ -67,7 +68,7 @@ export function SendToMacForm({
   }
 
   const onShare = async () => {
-    trackSiteEventClient("cta_click", { location, action: "send_link" })
+    trackSiteEventAfterPaint("cta_click", { location, action: "send_link" })
     const url = shareUrl ?? `${macwall.website}/download`
     const shareData: ShareData = {
       title: `${macwall.name} — ${macwall.tagline}`,

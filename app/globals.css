@@ -1,105 +1,18 @@
 @import "tailwindcss";
+@import "./tailwind-theme.css";
 
 @source "../components/**/*.{tsx,ts,jsx,js}";
 @source "./**/*.{tsx,ts,jsx,js}";
-
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-
-@custom-variant dark (&:is(.dark *));
-
-/* Apple-style continuous corners (same as PostMesh). Browsers without
-   corner-shape keep the plain border-radius. */
-@utility squircle {
-  corner-shape: squircle;
-}
-
-/* PostMesh's surface system: one ink scale, three surfaces, one hairline,
-   all on a pure black page. */
-@theme {
-  --color-ink: #ececec;
-  --color-ink-2: #a3a3a3;
-  --color-ink-3: #808080;
-  --color-surface-1: #111111;
-  --color-surface-2: #181818;
-  --color-surface-3: #222222;
-  --color-hairline: rgba(255, 255, 255, 0.06);
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
-  --font-heading:
-    "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
-  --font-pixel:
-    var(--font-geist-pixel-square), ui-sans-serif, system-ui, sans-serif;
-  --font-display:
-    var(--font-averia-serif), "Averia Serif Libre", Georgia, serif;
-  --color-landing-rule: rgba(255, 255, 255, 0.08);
-  --color-landing-muted: #8a8a8a;
-  --color-landing-banner: #141414;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius: 0.5rem;
-  --radius-xs: calc(var(--radius) * 0.5);
-  --radius-sm: calc(var(--radius) * 0.75);
-  --radius-md: calc(var(--radius) * 0.875);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.5);
-  --radius-2xl: calc(var(--radius) * 1.75);
-  --radius-3xl: calc(var(--radius) * 2);
-  --radius-4xl: calc(var(--radius) * 2.25);
-  --color-hero-start: var(--hero-start);
-  --color-hero-mid: var(--hero-mid);
-  --color-hero-end: var(--hero-end);
-  --color-marketing-muted: var(--marketing-muted);
-  --color-surface: var(--surface);
-  --color-surface-elevated: var(--surface-elevated);
-  --spacing-v: 3rem;
-  --spacing-v1: var(--spacing-v);
-  --spacing-v2-12: calc(var(--spacing-v) * 2 / 12);
-  --spacing-v9-12: calc(var(--spacing-v) * 9 / 12);
-  --spacing-g0-75: 0.75rem;
-  --spacing-g1: 1rem;
-  --spacing-marketing-section: 3rem;
-  --spacing-marketing-section-md: 4rem;
-  --spacing-marketing-section-lg: 5rem;
-  --spacing-marketing-section-xl: 6rem;
-}
+/* The admin portal builds its own utilities (app/admin/admin.css), so
+   marketing pages don't ship them. */
+@source not "../components/admin";
+@source not "./admin";
 
 :root,
 .dark {
-  --marketing-banner-height: 3rem;
+  /* The strip above the navbar (sale or announcement banner). Its height
+     lives only here; 2rem holds two 12px lines on phones, one line above. */
+  --marketing-banner-height: 2rem;
   --marketing-nav-height: 3.5rem;
   --marketing-chrome-height: calc(
     var(--marketing-banner-height) + var(--marketing-nav-height)
@@ -160,13 +73,6 @@
   --sidebar-ring: rgba(255, 255, 255, 0.22);
 }
 
-@media (min-width: 640px) {
-  :root,
-  .dark {
-    --marketing-banner-height: 2rem;
-  }
-}
-
 /* Announcement banner off (`FLAGS.announcementBanner`): reclaim its space. */
 .dark.no-announcement-banner,
 .no-announcement-banner {
@@ -183,12 +89,52 @@
   }
 }
 
-/* Same as SaasCN: stepped container, 1400px only at 2xl. */
-@utility container {
-  width: 100%;
-  margin-inline: auto;
-  padding-inline: 0;
-  @apply sm:max-w-[640px] md:max-w-[768px] lg:max-w-[1024px] xl:max-w-[1280px] 2xl:max-w-[1400px];
+/* Dismissed banner (`data-site-banner="dismissed"` on <html>, set from
+   sessionStorage before first paint): no strip and no space for it. */
+:root[data-site-banner="dismissed"],
+:root[data-site-banner="dismissed"] .dark {
+  --marketing-banner-height: 0px;
+}
+
+:root[data-site-banner="dismissed"] #launch-banner {
+  display: none;
+}
+
+/* Below 1024px the strip and the navbar are both fixed. Once the page
+   scrolls (`data-site-banner-away`), the strip slides off the top and the
+   navbar moves up into its place, so only the navbar stays pinned. Both move
+   with transforms: the content keeps its offset and nothing reflows. At
+   1024px and up the strip sits in the flow and scrolls away on its own. */
+@media (width < 64rem) {
+  #launch-banner,
+  .navbar-header {
+    transition:
+      transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s;
+  }
+
+  :root[data-site-banner-away] #launch-banner {
+    /* Also clear anything hanging below the strip (the Diwali lights). */
+    transform: translateY(calc(-100% - 1.5rem));
+    visibility: hidden;
+    transition:
+      transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s 200ms;
+  }
+
+  :root[data-site-banner-away] .navbar-header {
+    transform: translateY(calc(-1 * var(--marketing-banner-height)));
+    /* The menu sheet under the navbar fills the screen without the strip. */
+    --marketing-chrome-height: var(--marketing-nav-height);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #launch-banner,
+  .navbar-header,
+  :root[data-site-banner-away] #launch-banner {
+    transition: none;
+  }
 }
 
 @layer components {
@@ -266,10 +212,6 @@
   .marketing-inline-link {
     @apply text-white underline decoration-white/25 underline-offset-2 transition-colors outline-none hover:text-landing-muted hover:decoration-landing-muted focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-white/20;
   }
-
-  .marketing-skip-link {
-    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[10000] focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-[14px] focus:font-medium focus:text-black focus:outline-none;
-  }
 }
 
 .mw-when-mobile {
@@ -282,6 +224,23 @@
 
 [data-platform="mobile"] .mw-when-mobile {
   display: revert;
+}
+
+/* Download routing by `data-platform` (visitor-platform-script.tsx): Macs
+   get the .dmg (.mw-when-mac), everyone else gets "Send to my Mac"
+   (.mw-when-not-mac). Hide-only rules, so each element keeps its own
+   display. */
+[data-platform="mac"] .mw-when-not-mac {
+  display: none;
+}
+
+[data-platform]:not([data-platform="mac"]) .mw-when-mac {
+  display: none;
+}
+
+/* No script ran (JS off), so the platform is unknown: offer only the .dmg. */
+:root:not([data-platform]) .mw-when-not-mac {
+  display: none;
 }
 
 @layer base {
@@ -317,13 +276,10 @@
     font-weight: 400;
   }
 
-  /* Page titles use the display serif; the admin portal keeps Geist. */
+  /* Page titles use the display serif (the admin portal resets its own in
+     app/admin/admin.css). */
   h1 {
     font-family: var(--font-display);
-  }
-
-  .admin-portal h1 {
-    font-family: var(--site-font-heading);
   }
 
   .dark {
@@ -1269,6 +1225,27 @@ a[href*="/api/checkout/"][aria-busy="true"] {
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-rise {
+    animation: none;
+  }
+}
+
+/* The same rise for the hero's LCP elements (H1 and the hero stage), with
+   no fade and no blur: an element at opacity 0 isn't painted, so it would
+   hold LCP back until the animation ends. Only the transform moves. */
+@keyframes hero-rise-solid {
+  from {
+    transform: translateY(16px);
+  }
+  to {
+    transform: none;
+  }
+}
+.hero-rise-solid {
+  animation: hero-rise-solid 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise-solid {
     animation: none;
   }
 }
