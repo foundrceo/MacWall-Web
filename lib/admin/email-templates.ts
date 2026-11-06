@@ -415,6 +415,13 @@ const LIFECYCLE_META: Record<
     edgeFunction: "send-app-update-emails",
     tone: "amber",
   },
+  black_friday_sale: {
+    label: "Black Friday: trial users, 30% until Dec 1",
+    description: "One-off to trial users who never bought. BLACKFRIDAY rides on the checkout link, so it applies in every country.",
+    trigger: "send-app-update-emails with audience black_friday",
+    edgeFunction: "send-app-update-emails",
+    tone: "violet",
+  },
   send_to_mac_reminder: {
     label: "Send to Mac: next-day reminder",
     description: "One reminder 24 hours after the link, skipped for buyers.",

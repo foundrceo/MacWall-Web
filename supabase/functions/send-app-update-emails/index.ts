@@ -2,6 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from "npm:@supabase/supabase-js@2.105.4"
 
 import {
+  BLACK_FRIDAY_SALE,
   LIFECYCLE_PROMO,
   buildLifecycleEmail,
   emailLooksDeliverable,
@@ -34,6 +35,10 @@ import {
  *   diwali     India visitors (checkout country IN) who never bought. The
  *              Diwali sale email; DIWALI applies itself at checkout for
  *              India. `version` is optional.
+ *   black_friday  trial users whose trial is over and who never bought,
+ *              minus known India visitors and anyone mailed in the last 20
+ *              hours, newest first. BLACKFRIDAY rides on the checkout link.
+ *              `version` is optional.
  *
  * Every address is logged in macwall_app_update_emails, so re-running never
  * emails anyone twice (the 20-hour cap then counts it). Without `offer` the
@@ -64,6 +69,22 @@ function mailFor(args: {
       checkoutHref: lifecycleCheckoutHref({
         email: args.email,
         medium: "recovery",
+        campaign: args.campaign,
+      }),
+    })
+  }
+  if (args.audience === "black_friday") {
+    return buildLifecycleEmail("black_friday_sale", {
+      appName: args.appName,
+      siteUrl: siteBaseUrl(),
+      logoUrl: logoUrl(),
+      supportEmail: supportEmail(),
+      postalAddress: postalAddress(),
+      unsubscribeHref: args.unsubscribeHref,
+      checkoutHref: lifecycleCheckoutHref({
+        promoCode: BLACK_FRIDAY_SALE.code,
+        email: args.email,
+        medium: "trial",
         campaign: args.campaign,
       }),
     })
@@ -100,7 +121,7 @@ function mailFor(args: {
 const SEND_GAP_MS = 150
 
 type Supabase = ReturnType<typeof createClient>
-type Audience = "customer" | "trial" | "winback" | "diwali"
+type Audience = "customer" | "trial" | "winback" | "diwali" | "black_friday"
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -141,7 +162,8 @@ Deno.serve(async (req: Request) => {
   const version = typeof body.version === "string" ? body.version.trim() : ""
   const audience =
     body.audience === "customer" || body.audience === "trial" ||
-    body.audience === "winback" || body.audience === "diwali"
+    body.audience === "winback" || body.audience === "diwali" ||
+    body.audience === "black_friday"
       ? body.audience
       : null
   const limit = Math.min(Math.max(Number(body.limit) || 50, 1), MAX_BATCH)
@@ -154,7 +176,7 @@ Deno.serve(async (req: Request) => {
   if (audience === "winback" && (!before || Number.isNaN(before.getTime()))) {
     return Response.json({ ok: false, error: "winback needs `before`, an ISO date" }, { status: 400 })
   }
-  if (!campaign || !audience || (!version && audience !== "winback" && audience !== "diwali")) {
+  if (!campaign || !audience || (!version && audience !== "winback" && audience !== "diwali" && audience !== "black_friday")) {
     return Response.json({ ok: false, error: "campaign, version and audience are required" }, { status: 400 })
   }
 
@@ -180,6 +202,11 @@ Deno.serve(async (req: Request) => {
     if (audience === "diwali") {
       return supabase.rpc("macwall_country_candidates", {
         p_campaign: campaign, p_country: "IN", p_limit: pLimit,
+      }, opts)
+    }
+    if (audience === "black_friday") {
+      return supabase.rpc("macwall_black_friday_candidates", {
+        p_campaign: campaign, p_limit: pLimit,
       }, opts)
     }
     return audience === "winback"
@@ -232,7 +259,7 @@ Deno.serve(async (req: Request) => {
       unsubscribeOneClick: unsub?.oneClick ?? null,
       idempotencyKey: `update/${campaign}/${email}`,
       tags: [
-        { name: "category", value: audience === "winback" || audience === "diwali" ? audience : offer ? "app_update_offer" : "app_update" },
+        { name: "category", value: audience === "winback" || audience === "diwali" || audience === "black_friday" ? audience : offer ? "app_update_offer" : "app_update" },
         { name: "campaign", value: campaign.replace(/[^A-Za-z0-9_-]/g, "_") },
       ],
     })

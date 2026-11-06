@@ -9,6 +9,8 @@ export const CONVERSION_PROMO_CODES = [
   "T4V8CL6Y",
   "B3H9KF5Q",
   "SFM6TCBY",
+  // Black Friday email links (the Stripe code itself expires Dec 1 PT).
+  "BLACKFRIDAY",
 ] as const
 
 export type ConversionPromoCode = (typeof CONVERSION_PROMO_CODES)[number]
