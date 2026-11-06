@@ -94,6 +94,8 @@ export type LifecycleEmailContext = {
   downloadHref?: string | null
   /** `send_to_mac*` only: the wallpaper page they were looking at. */
   wallpaper?: { name: string; href: string } | null
+  /** `black_friday_sale` only: opened a checkout but never tried the app. */
+  checkoutOnly?: boolean | null
 }
 
 export type LifecycleEmail = {
@@ -182,7 +184,9 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
         headline: "Black Friday.|30% off Pro.",
         lead: `${app} Pro and Pro+ are ${b.percent} off until ${b.deadline}. 850+ live wallpapers for your desktop and Lock Screen, paid once and yours forever.\u2021`,
         paragraphs: [
-          `You tried ${app} on your Mac. Pro turns your live wallpapers back on and unlocks the full catalog, the live Lock Screen on macOS 26, and your own videos as wallpapers.`,
+          ctx.checkoutOnly
+            ? "Pro unlocks the full catalog, the live Lock Screen on macOS 26, and your own videos as wallpapers."
+            : `You tried ${app} on your Mac. Pro turns your live wallpapers back on and unlocks the full catalog, the live Lock Screen on macOS 26, and your own videos as wallpapers.`,
           "One payment, no subscription. Every future update is included, and there's a 7-day money-back guarantee.",
         ],
         prices: [
@@ -197,7 +201,7 @@ function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
         secondaryLink: { label: "Compare Pro and Pro+", href: `${ctx.siteUrl}/pricing` },
         fineprint: `\u2021 ${b.percent} off ${app} Pro and Pro+ with the code ${b.code}, applied automatically by the button in this email, until ${b.deadline}. Prices shown are in US dollars; some countries have lower local prices, and checkout shows your exact total before you pay.`,
         ps: "Questions? Reply to this email and a real person will answer.",
-        reason: trialReason,
+        reason: ctx.checkoutOnly ? checkoutReason : trialReason,
       }
     }
     case "send_to_mac":

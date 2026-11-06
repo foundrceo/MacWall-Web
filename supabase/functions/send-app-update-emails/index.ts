@@ -39,6 +39,9 @@ import {
  *              minus known India visitors and anyone mailed in the last 20
  *              hours, newest first. BLACKFRIDAY rides on the checkout link.
  *              `version` is optional.
+ *   black_friday_checkout  people outside India who opened a checkout, never
+ *              bought and never started a trial. Same offer, without the
+ *              "you tried MacWall" wording.
  *
  * Every address is logged in macwall_app_update_emails, so re-running never
  * emails anyone twice (the 20-hour cap then counts it). Without `offer` the
@@ -73,8 +76,10 @@ function mailFor(args: {
       }),
     })
   }
-  if (args.audience === "black_friday") {
+  if (args.audience === "black_friday" || args.audience === "black_friday_checkout") {
+    const checkoutOnly = args.audience === "black_friday_checkout"
     return buildLifecycleEmail("black_friday_sale", {
+      checkoutOnly,
       appName: args.appName,
       siteUrl: siteBaseUrl(),
       logoUrl: logoUrl(),
@@ -84,7 +89,7 @@ function mailFor(args: {
       checkoutHref: lifecycleCheckoutHref({
         promoCode: BLACK_FRIDAY_SALE.code,
         email: args.email,
-        medium: "trial",
+        medium: checkoutOnly ? "recovery" : "trial",
         campaign: args.campaign,
       }),
     })
@@ -121,7 +126,7 @@ function mailFor(args: {
 const SEND_GAP_MS = 150
 
 type Supabase = ReturnType<typeof createClient>
-type Audience = "customer" | "trial" | "winback" | "diwali" | "black_friday"
+type Audience = "customer" | "trial" | "winback" | "diwali" | "black_friday" | "black_friday_checkout"
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -163,7 +168,7 @@ Deno.serve(async (req: Request) => {
   const audience =
     body.audience === "customer" || body.audience === "trial" ||
     body.audience === "winback" || body.audience === "diwali" ||
-    body.audience === "black_friday"
+    body.audience === "black_friday" || body.audience === "black_friday_checkout"
       ? body.audience
       : null
   const limit = Math.min(Math.max(Number(body.limit) || 50, 1), MAX_BATCH)
@@ -176,7 +181,7 @@ Deno.serve(async (req: Request) => {
   if (audience === "winback" && (!before || Number.isNaN(before.getTime()))) {
     return Response.json({ ok: false, error: "winback needs `before`, an ISO date" }, { status: 400 })
   }
-  if (!campaign || !audience || (!version && audience !== "winback" && audience !== "diwali" && audience !== "black_friday")) {
+  if (!campaign || !audience || (!version && audience !== "winback" && audience !== "diwali" && audience !== "black_friday" && audience !== "black_friday_checkout")) {
     return Response.json({ ok: false, error: "campaign, version and audience are required" }, { status: 400 })
   }
 
@@ -206,6 +211,11 @@ Deno.serve(async (req: Request) => {
     }
     if (audience === "black_friday") {
       return supabase.rpc("macwall_black_friday_candidates", {
+        p_campaign: campaign, p_limit: pLimit,
+      }, opts)
+    }
+    if (audience === "black_friday_checkout") {
+      return supabase.rpc("macwall_black_friday_checkout_candidates", {
         p_campaign: campaign, p_limit: pLimit,
       }, opts)
     }
@@ -259,7 +269,7 @@ Deno.serve(async (req: Request) => {
       unsubscribeOneClick: unsub?.oneClick ?? null,
       idempotencyKey: `update/${campaign}/${email}`,
       tags: [
-        { name: "category", value: audience === "winback" || audience === "diwali" || audience === "black_friday" ? audience : offer ? "app_update_offer" : "app_update" },
+        { name: "category", value: audience === "winback" || audience === "diwali" || audience === "black_friday" || audience === "black_friday_checkout" ? audience : offer ? "app_update_offer" : "app_update" },
         { name: "campaign", value: campaign.replace(/[^A-Za-z0-9_-]/g, "_") },
       ],
     })
