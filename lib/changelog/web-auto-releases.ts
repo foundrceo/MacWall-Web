@@ -6,6 +6,118 @@ import type { ChangelogRelease } from "@/lib/changelog/types"
 
 export const webAutoChangelogReleases: readonly ChangelogRelease[] = [
   {
+    id: "web-2026-11-05",
+    version: "2026.11.5",
+    date: "2026-11-05T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Black Friday sale: 30% off sitewide until Dec 1.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-30",
+    version: "2026.10.30",
+    date: "2026-10-30T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Report Send to my Mac to TikTok as CompleteRegistration.",
+          "Rewrite legal pages and claims to match what MacWall does.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-28",
+    version: "2026.10.28",
+    date: "2026-10-28T12:00:00.000Z",
+    sections: [
+      {
+        kind: "features",
+        items: [
+          "Homepage redesign: PostMesh footer and CTA, testimonials, new bento.",
+        ],
+      },
+      {
+        kind: "improvements",
+        items: [
+          "Playback modes as MacWall Native and MacWall Player.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-27",
+    version: "2026.10.27",
+    date: "2026-10-27T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Free tools: wallpaper resizer, screen resolution checker, colour palette.",
+          "Share images cache for a year; allowlist the public IndexNow key in gitleaks.",
+          "SEO, AEO and GEO pass: crawlable galleries, Markdown for agents, share cards.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-24",
+    version: "2026.10.24",
+    date: "2026-10-24T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Set on Mac: the \"MacWall didn't open?\" hint only when it really didn't.",
+          "Wallpaper pages share their poster at 1200×630.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-23",
+    version: "2026.10.23",
+    date: "2026-10-23T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Site copy: macOS 15 requirement reads cleanly; Pro+ prices say one-time.",
+          "Purchase_completed lands on the Mac that opened checkout, once per purchase.",
+          "Installer downloads from cdn.macwall.app; the update feed keeps minimum_version.",
+          "Support pushes work again: macwall-apns accepts verified server keys; replies keep the push alive on the Worker.",
+          "Require patched Node.js 24.22.1 (October 2026 security release).",
+        ],
+      },
+      {
+        kind: "fixes",
+        items: [
+          "Audit fixes: a pinned installer version never gets another build; Auth hiccups don't lock out pushes.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "web-2026-10-21",
+    version: "2026.10.21",
+    date: "2026-10-21T12:00:00.000Z",
+    sections: [
+      {
+        kind: "improvements",
+        items: [
+          "Tidy comments and docs.",
+          "Public changelog page synced with shipping updates.",
+        ],
+      },
+    ],
+  },
+  {
     id: "web-2026-10-17",
     version: "2026.10.17",
     date: "2026-10-17T12:00:00.000Z",
