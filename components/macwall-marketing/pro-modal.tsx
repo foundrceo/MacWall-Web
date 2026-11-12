@@ -1,13 +1,11 @@
 "use client"
 
-import { SaleWasPrice } from "@/components/macwall-marketing/sale-was-price"
 import Image from "next/image"
 import Link from "next/link"
 import { Check, Loader2, X } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
-import { BuyReassurance } from "@/components/macwall-marketing/buy-reassurance"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { useMarketingPricing } from "@/components/marketing/marketing-pricing-context"
 import {
@@ -25,6 +23,8 @@ const PRO_MODAL_FEATURES = [
   "Live Lock Screen & Screen Saver",
   "Music Sync with Apple Music & Spotify",
   `Up to ${macwall.maxLicensedMacs} Macs, free updates forever`,
+  `${macwall.refundWindowDays}-day money-back guarantee`,
+  "Key by email. Install on your Mac anytime.",
 ] as const
 
 /** Real customers who left a review with a photo. */
@@ -33,7 +33,7 @@ const REVIEWER_AVATARS = macwallPricingCopy.reviews.items
   .slice(0, 4)
 
 const PRO_MODAL_WIDTH =
-  "w-[min(calc(100%-2rem),380px)] max-w-[min(calc(100%-2rem),380px)] sm:max-w-[min(calc(100%-2rem),380px)]"
+  "w-[min(calc(100%-1.5rem),400px)] max-w-[min(calc(100%-1.5rem),400px)] sm:max-w-[min(calc(100%-1.5rem),400px)]"
 
 export function ProModal({
   open,
@@ -64,113 +64,125 @@ export function ProModal({
     >
       <DialogContent
         showCloseButton={false}
+        // Above the sale banner (z-51), social proof toasts (z-70) and the
+        // gallery's purchase bars (up to z-80), which would otherwise cover
+        // the top of the card or sit on it.
+        overlayClassName="z-[90]"
         className={cn(
           PRO_MODAL_WIDTH,
-          "max-h-[min(92vh,640px)] gap-0 overflow-y-auto rounded-3xl border border-white/10 bg-secondary p-0 shadow-2xl ring-0"
+          "z-[90]",
+          // A column: the offer scrolls, the button and terms stay pinned, so
+          // on a short screen nothing is cut off and Get Pro is always in view.
+          "flex max-h-[calc(100dvh-1.5rem)] flex-col gap-0 overflow-hidden rounded-[28px] border border-white/10 bg-secondary p-0 shadow-2xl ring-0"
         )}
       >
         <button
           type="button"
           onClick={() => onOpenChange(false)}
-          className="absolute top-4 right-4 z-10 inline-flex size-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+          className="absolute top-4 right-4 z-10 inline-flex size-8 items-center justify-center rounded-full bg-white/[0.06] text-muted-foreground transition-colors hover:bg-white/[0.12] hover:text-foreground focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:outline-none"
           aria-label="Close"
         >
           <X className="size-4" strokeWidth={2} />
         </button>
 
-        <div className="px-5 pt-7 pb-5 sm:px-6">
-          {/* Who, and who else bought it. */}
-          <div className="flex flex-col items-center text-center">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-5 pb-4 sm:px-6">
+          {/* Who, and who else bought it: one row, so the offer starts high. */}
+          <div className="flex items-center gap-3.5 pe-10">
             <Image
               src={macwallAppIconPath}
               alt=""
-              width={56}
-              height={56}
+              width={48}
+              height={48}
               loading="eager"
-              className={cn("size-14", macwallAppIconRadiusClass)}
+              className={cn("size-12 shrink-0", macwallAppIconRadiusClass)}
             />
-            <DialogTitle
-              id="pro-modal-title"
-              className="mt-3 font-display text-2xl leading-tight font-normal tracking-tight text-foreground"
-            >
-              {macwall.name} Pro
-            </DialogTitle>
-            <p className="mt-1 text-[13px] text-marketing-muted">
-              Everything, unlocked.
-            </p>
-            <div className="mt-3 flex items-center gap-2">
-              {REVIEWER_AVATARS.length > 0 ? (
-                <span className="flex" aria-hidden>
-                  {REVIEWER_AVATARS.map((item, index) => (
-                    <Image
-                      key={item.name}
-                      src={item.avatarSrc as string}
-                      alt=""
-                      width={40}
-                      height={40}
-                      sizes="20px"
-                      loading="eager"
-                      className="-ml-1.5 size-5 rounded-full object-cover ring-2 ring-secondary first:ml-0"
-                      style={{ zIndex: REVIEWER_AVATARS.length - index }}
-                    />
-                  ))}
+            <div className="min-w-0">
+              <DialogTitle
+                id="pro-modal-title"
+                className="font-display text-[22px] leading-[26px] font-normal tracking-tight text-foreground"
+              >
+                {macwall.name} Pro
+              </DialogTitle>
+              <p className="mt-1 flex items-center gap-1.5 text-[12.5px] leading-[18px] text-marketing-muted">
+                {REVIEWER_AVATARS.length > 0 ? (
+                  <span className="flex shrink-0" aria-hidden>
+                    {REVIEWER_AVATARS.map((item, index) => (
+                      <Image
+                        key={item.name}
+                        src={item.avatarSrc as string}
+                        alt=""
+                        width={40}
+                        height={40}
+                        sizes="16px"
+                        loading="eager"
+                        className="-ml-1.5 size-4 rounded-full object-cover ring-2 ring-secondary first:ml-0"
+                        style={{ zIndex: REVIEWER_AVATARS.length - index }}
+                      />
+                    ))}
+                  </span>
+                ) : null}
+                <span className="truncate">
+                  <span className="font-medium text-foreground">
+                    {macwall.pro.socialProofDownloads}
+                  </span>{" "}
+                  downloads
                 </span>
-              ) : null}
-              <p className="text-[12px] text-marketing-muted">
-                <span className="font-medium text-foreground">
-                  {macwall.pro.socialProofDownloads}
-                </span>{" "}
-                downloads
               </p>
             </div>
           </div>
 
           {/* The offer: price and what it buys, as one block. */}
-          <div className="mt-6 rounded-2xl bg-white/[0.03] p-4 ring-1 ring-white/[0.06]">
-            <div className="flex items-end justify-between gap-3">
-              <span className="font-display text-[40px] leading-none font-normal tracking-tight text-foreground tabular-nums">
-                <SaleWasPrice className="text-[22px]" />
-                {pricing.permanentPrice}
-              </span>
-              <span className="pb-1 text-right text-[12px] leading-4 text-marketing-muted">
-                One-time payment
-                <br />
-                No subscription
-              </span>
-            </div>
+          <div className="mt-5 rounded-2xl bg-white/[0.03] p-4 ring-1 ring-white/[0.07]">
             {pricing.sale ? (
-              <p className="mt-1.5 flex items-center gap-1.5 text-[12px] font-medium text-[#67EDEC]">
-                {pricing.sale.name} · {pricing.sale.percentOff}% off until{" "}
-                {pricing.sale.endsLabel}, applied at checkout
-              </p>
-            ) : null}
-            {pricing.permanentLocalHint ? (
-              <p className="mt-1.5 text-[12px] text-marketing-muted tabular-nums">
-                {pricing.permanentLocalHint}
-              </p>
+              <div className="mb-2.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+                <span className="inline-flex items-center rounded-full bg-[#67EDEC]/[0.12] px-2.5 py-1 text-[11px] leading-none font-semibold tracking-wide text-[#67EDEC]">
+                  {pricing.sale.name} · {pricing.sale.percentOff}% off
+                </span>
+                <span className="text-[12px] leading-4 text-marketing-muted">
+                  Auto-applied · ends {pricing.sale.endsLabel}
+                </span>
+              </div>
             ) : null}
 
-            <ul className="mt-4 space-y-2.5 border-t border-white/[0.06] pt-4">
+            <p className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+              <span className="font-display text-[38px] leading-[42px] font-normal tracking-tight text-foreground tabular-nums">
+                {pricing.permanentPrice}
+              </span>
+              {pricing.sale ? (
+                <s className="text-[17px] leading-6 text-marketing-muted tabular-nums decoration-white/40">
+                  <span className="sr-only">Was </span>
+                  {pricing.sale.regular.permanentPrice}
+                </s>
+              ) : null}
+            </p>
+            <p className="mt-1 text-[12px] leading-[18px] text-marketing-muted">
+              One-time payment · No subscription
+            </p>
+
+            <ul className="mt-4 space-y-2.5">
               {PRO_MODAL_FEATURES.map((label) => (
-                <li key={label} className="flex items-center gap-2.5">
-                  <span className="inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-white text-black">
-                    <Check className="size-2.5" strokeWidth={3.5} aria-hidden />
+                <li key={label} className="flex items-start gap-2.5">
+                  <span className="mt-px inline-flex size-[18px] shrink-0 items-center justify-center rounded-full bg-white text-black">
+                    <Check className="size-3" strokeWidth={3.25} aria-hidden />
                   </span>
-                  <span className="text-[13px] leading-snug text-foreground/90">
+                  <span className="text-[13.5px] leading-5 text-foreground/90">
                     {label}
                   </span>
                 </li>
               ))}
             </ul>
           </div>
+        </div>
 
+        {/* Pinned: the action and the point-of-sale terms are always visible. */}
+        <div className="shrink-0 px-5 pt-0.5 pb-4 sm:px-6">
           <TrackedPricingButton
             href={pricing.checkoutUrl}
             location="hero_pro_modal"
             ariaLabel={pricing.buyProAria}
             onClick={() => setRedirecting(true)}
             className={cn(
-              "mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-white text-[14px] font-medium text-black no-underline transition-colors hover:bg-white/90",
+              "flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white text-[15px] font-medium text-black no-underline transition-colors hover:bg-white/90",
               redirecting && "pointer-events-none bg-white/80"
             )}
           >
@@ -184,34 +196,28 @@ export function ProModal({
             )}
           </TrackedPricingButton>
 
-          <BuyReassurance className="mt-4 px-1" />
-
-          {/* Point-of-sale disclosure: terms and refund policy before payment.
-              One idea per line: what you're charged, then what you agree to. */}
-          <div className="mt-4 space-y-0.5 text-center text-[11px] leading-4 text-balance text-marketing-muted">
-            <p>
-              {pricing.permanentLocalHint
-                ? "Checkout may charge in your currency · Total shown before you pay"
-                : "Price in USD · Total shown at checkout before you pay"}
-            </p>
-            <p>
-              By purchasing, you agree to our{" "}
-              <Link
-                href="/legal/terms"
-                className="underline underline-offset-2 hover:text-foreground"
-              >
-                Terms
-              </Link>{" "}
-              and{" "}
-              <Link
-                href="/legal/refund"
-                className="underline underline-offset-2 hover:text-foreground"
-              >
-                Refund Policy
-              </Link>
-              .
-            </p>
-          </div>
+          {/* Point-of-sale disclosure: what you're charged and the terms you
+              agree to, before payment, in two lines. */}
+          <p className="mt-2.5 text-center text-[11px] leading-4 text-balance text-marketing-muted">
+            {pricing.permanentLocalHint
+              ? `${pricing.permanentLocalHint}, may be charged in your currency. Total shown before you pay.`
+              : "Price in USD. Total shown before you pay."}{" "}
+            By purchasing, you agree to our{" "}
+            <Link
+              href="/legal/terms"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              Terms
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/legal/refund"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              Refund Policy
+            </Link>
+            .
+          </p>
         </div>
       </DialogContent>
     </Dialog>
