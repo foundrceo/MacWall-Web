@@ -168,14 +168,16 @@ export type AuroraRibbonsProps = {
   className?: string
   theme?: ThemeMode
   environment?: SceneContainerProps["environment"]
+  /** First frame drawn: see `SceneContainer`. */
+  onReady?: () => void
 }
 
 /**
  * Silky aurora ribbons drifting in slow sine waves, shaded with a custom
  * gradient from `--primary` to `--accent`. Additive glow in dark mode.
  *
- * This is the three.js half. Render `AuroraRibbons` (aurora-ribbons.tsx),
- * which decides whether the device should load it at all.
+ * This is the three.js half: load it only where it will draw (the bottom CTA
+ * checks the device first, see marketing-bottom-cta.tsx).
  */
 export function AuroraRibbonsScene({
   ribbons = 5,
@@ -186,6 +188,7 @@ export function AuroraRibbonsScene({
   className,
   theme = "auto",
   environment = "night",
+  onReady,
 }: AuroraRibbonsProps) {
   return (
     <SceneContainer
@@ -194,6 +197,7 @@ export function AuroraRibbonsScene({
       environment={environment}
       camera={[0, 0.4, 7.5]}
       fov={38}
+      onReady={onReady}
     >
       <Ribbons
         ribbons={ribbons}

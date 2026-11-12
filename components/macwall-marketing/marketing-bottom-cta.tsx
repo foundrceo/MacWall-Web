@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
-import { useEffect, useRef, useState, useSyncExternalStore } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 
 import { TrackedDownloadButton } from "@/components/analytics/tracked-marketing-buttons"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
@@ -33,15 +33,20 @@ function AppleIcon({ className }: Readonly<{ className?: string }>) {
 }
 
 /**
- * The ribbons' gate (aurora-ribbons.tsx), which itself loads three.js only
- * for a mouse or trackpad with motion allowed.
+ * The three.js half of the ribbons (about 1 MB with react-three-fiber).
+ * One chunk, imported directly: a gate component in front of it used to
+ * add a second download that could only start after the first finished.
  */
-const AuroraRibbons = dynamic(() => import("@/components/ui/aurora-ribbons"), {
-  ssr: false,
-})
+const loadRibbonsScene = () => import("@/components/ui/aurora-ribbons-scene")
+const AuroraRibbonsScene = dynamic(loadRibbonsScene, { ssr: false })
 
-/** A laptop or desktop sized window with a mouse or trackpad. */
-const AURORA_MEDIA = "(pointer: fine) and (min-width: 1024px)"
+/**
+ * A laptop or desktop sized window with a mouse or trackpad, and no Reduce
+ * Motion. On phones and tablets the ribbons would compile close to 1 MB of
+ * JS and start the GPU mid-scroll for a decoration.
+ */
+const AURORA_MEDIA =
+  "(pointer: fine) and (min-width: 1024px) and (prefers-reduced-motion: no-preference)"
 
 /**
  * Templates where the CTA sits under long content people scroll through on
@@ -65,10 +70,36 @@ function auroraCapable(): boolean {
 
 const auroraCapableOnServer = () => false
 
+/** Run after the page has loaded and the main thread is idle. */
+function afterLoadIdle(run: () => void): () => void {
+  let idleId: number | null = null
+  let timeoutId: number | null = null
+  const schedule = () => {
+    if ("requestIdleCallback" in window) {
+      idleId = window.requestIdleCallback(run, { timeout: 3000 })
+    } else {
+      timeoutId = globalThis.setTimeout(run, 1500) as unknown as number
+    }
+  }
+  if (document.readyState === "complete") schedule()
+  else window.addEventListener("load", schedule, { once: true })
+  return () => {
+    window.removeEventListener("load", schedule)
+    if (idleId !== null) window.cancelIdleCallback(idleId)
+    if (timeoutId !== null) globalThis.clearTimeout(timeoutId)
+  }
+}
+
 /**
- * Aurora ribbons behind the CTA. Mounts (and so downloads three.js) only on
- * capable desktops, off the wallpaper and blog templates, once the card is
- * near the viewport, then fades in. Everyone else sees the plain card.
+ * Aurora ribbons behind the CTA, on capable desktops off the wallpaper and
+ * blog templates only. Loading used to start only as the card came near, then
+ * ran gate chunk -> three.js chunk -> canvas -> shader compile one after
+ * another, so people reached a bare card and the ribbons popped in late.
+ * Now, once the page is idle after load, three.js loads and the canvas
+ * mounts and draws its first frame off screen (it only animates while on
+ * screen, see SceneContainer), and it fades in on that first frame. By the
+ * time anyone scrolls down, the ribbons are already there. Everyone else
+ * sees the plain card.
  */
 function CtaRibbons() {
   const pathname = usePathname()
@@ -80,38 +111,46 @@ function CtaRibbons() {
   const allowedHere = !AURORA_SKIPPED_PREFIXES.some((prefix) =>
     pathname.startsWith(prefix)
   )
-  const ref = useRef<HTMLDivElement>(null)
-  const [near, setNear] = useState(false)
+  const enabled = capable && allowedHere
+  const [loaded, setLoaded] = useState(false)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    const node = ref.current
-    if (!node || !capable || !allowedHere) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return
-        setNear(true)
-        observer.disconnect()
-      },
-      { rootMargin: "600px 0px" }
-    )
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [capable, allowedHere])
+    if (!enabled) return
+    let cancelled = false
+    const cancelIdle = afterLoadIdle(() => {
+      loadRibbonsScene().then(
+        () => {
+          if (!cancelled) setLoaded(true)
+        },
+        // Chunk failed (offline, deploy swap): keep the plain card.
+        () => {}
+      )
+    })
+    return () => {
+      cancelled = true
+      cancelIdle()
+    }
+  }, [enabled])
 
   return (
     <div
-      ref={ref}
       aria-hidden
-      className="pointer-events-none absolute inset-0 -z-10 animate-in duration-1000 fade-in-0"
+      className="pointer-events-none absolute inset-0 -z-10"
     >
-      {near && capable && allowedHere ? (
+      {loaded && enabled ? (
         // Tilted across the card, and long enough that the faded ends sit
-        // outside it, so the band runs edge to edge. The dimming sits on this
-        // inner layer: the page's scroll reveal sets the wrapper to opacity 1.
-        <AuroraRibbons
-          className="h-full w-full opacity-70"
+        // outside it, so the band runs edge to edge. The dimming and fade sit
+        // on this inner layer: the page's scroll reveal sets the wrapper to
+        // opacity 1.
+        <AuroraRibbonsScene
+          className={cn(
+            "h-full w-full transition-opacity duration-1000 ease-out",
+            ready ? "opacity-70" : "opacity-0"
+          )}
           tilt={0.32}
           length={30}
+          onReady={() => setReady(true)}
         />
       ) : null}
     </div>
