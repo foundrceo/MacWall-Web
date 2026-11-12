@@ -23,7 +23,7 @@ export const CURRENCY_NOTE =
 /**
  * The running sales, one line per region, each only while it is live:
  * "Current promotion: Black Friday: 30% off Pro and Pro+ until Dec 1, 2026
- * (code BLACKFRIDAY, …)" and "In India: Diwali Sale: …". Empty outside a sale.
+ * (code BLACKFRIDAY, …)" and "In India: Black Friday: …". Empty outside a sale.
  */
 export function currentPromotionLines(now: number = Date.now()): string[] {
   const lines: string[] = []

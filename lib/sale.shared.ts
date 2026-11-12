@@ -10,7 +10,7 @@ import type { PricingRegion } from "@/lib/license/offers.shared"
  * To run another sale, create the coupon + promotion code in Stripe and
  * add an entry here. Overlapping entries for one region: the first wins.
  */
-export type SiteSaleTheme = "black-friday" | "diwali"
+export type SiteSaleTheme = "black-friday"
 
 export type SiteSale = {
   id: string
@@ -31,18 +31,6 @@ export type SiteSale = {
 
 export const SITE_SALES: readonly SiteSale[] = [
   {
-    id: "diwali-2026",
-    name: "Diwali Sale",
-    code: "DIWALI",
-    percentOff: 30,
-    startsAt: "2026-11-05T00:00:00Z",
-    // End of Nov 10, India time. Matches the DIWALI promotion code expiry.
-    endsAt: "2026-11-10T18:30:00Z",
-    endsLabel: "Nov 10",
-    regions: ["india"],
-    theme: "diwali",
-  },
-  {
     id: "black-friday-2026",
     name: "Black Friday",
     code: "BLACKFRIDAY",
@@ -51,20 +39,7 @@ export const SITE_SALES: readonly SiteSale[] = [
     // End of Dec 1, Pacific time. Matches the BLACKFRIDAY code expiry.
     endsAt: "2026-12-02T08:00:00Z",
     endsLabel: "Dec 1",
-    regions: ["default"],
-    theme: "black-friday",
-  },
-  {
-    // India's Black Friday starts on Black Friday itself (00:00 IST), after
-    // the Diwali sale and a gap at full price.
-    id: "black-friday-2026-india",
-    name: "Black Friday",
-    code: "BLACKFRIDAY",
-    percentOff: 30,
-    startsAt: "2026-11-26T18:30:00Z",
-    endsAt: "2026-12-02T08:00:00Z",
-    endsLabel: "Dec 1",
-    regions: ["india"],
+    regions: ["default", "india"],
     theme: "black-friday",
   },
 ]

@@ -26,19 +26,14 @@ test("sale window is start-inclusive, end-exclusive", () => {
 
 const at = (iso) => Date.parse(iso)
 
-test("India: Diwali to Nov 10 IST, full price, then Black Friday", () => {
-  assert.equal(activeSiteSale("india", at("2026-11-06T00:00:00Z"))?.code, "DIWALI")
-  // Ends with the DIWALI Stripe code (expires_at 1794335400).
-  assert.equal(activeSiteSale("india", 1794335400 * 1000 - 1)?.code, "DIWALI")
-  assert.equal(activeSiteSale("india", 1794335400 * 1000), null)
-  assert.equal(activeSiteSale("india", at("2026-11-20T00:00:00Z")), null)
-  assert.equal(activeSiteSale("india", at("2026-11-26T18:30:00Z"))?.code, "BLACKFRIDAY")
-  assert.equal(activeSiteSale("india", 1796198400 * 1000), null)
-})
-
-test("everyone else: Black Friday until the BLACKFRIDAY code expires", () => {
-  assert.equal(activeSiteSale("default", at("2026-11-06T00:00:00Z"))?.code, "BLACKFRIDAY")
-  assert.equal(activeSiteSale("default", at("2026-11-20T00:00:00Z"))?.code, "BLACKFRIDAY")
-  assert.equal(activeSiteSale("default", 1796198400 * 1000 - 1)?.code, "BLACKFRIDAY")
-  assert.equal(activeSiteSale("default", 1796198400 * 1000), null)
+test("every region: Black Friday until the BLACKFRIDAY code expires", () => {
+  for (const region of ["default", "india"]) {
+    assert.equal(activeSiteSale(region, at("2026-11-04T23:59:59Z")), null, region)
+    assert.equal(activeSiteSale(region, at("2026-11-06T00:00:00Z"))?.code, "BLACKFRIDAY", region)
+    assert.equal(activeSiteSale(region, at("2026-11-12T00:00:00Z"))?.code, "BLACKFRIDAY", region)
+    assert.equal(activeSiteSale(region, at("2026-11-20T00:00:00Z"))?.code, "BLACKFRIDAY", region)
+    // Ends with the BLACKFRIDAY Stripe code (expires_at 1796198400).
+    assert.equal(activeSiteSale(region, 1796198400 * 1000 - 1)?.code, "BLACKFRIDAY", region)
+    assert.equal(activeSiteSale(region, 1796198400 * 1000), null, region)
+  }
 })

@@ -99,7 +99,7 @@ const systemPlaybackCpu = `${systemPlayback.cpu.charAt(0).toUpperCase()}${system
 const reelHalf = macwall.reelRefundHalfViews.toLocaleString("en-US")
 const reelFull = macwall.reelRefundFullViews.toLocaleString("en-US")
 
-/** "the Black Friday sale", "the Diwali Sale". */
+/** "the Black Friday sale", "the Summer Sale". */
 function saleName(label: string): string {
   return /\bsale$/i.test(label) ? `the ${label}` : `the ${label} sale`
 }

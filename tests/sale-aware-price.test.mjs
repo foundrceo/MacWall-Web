@@ -27,46 +27,11 @@ const crossedAt = (now) =>
 const cents = (prices) =>
   prices.map((price) => [price.slug, price.regularCents, price.saleCents])
 
-test("2026-11-10T18:30Z: Diwali ends and India is back at full price", () => {
-  const boundary = at("2026-11-10T18:30:00Z")
-  assert.deepEqual(crossedAt(boundary + MINUTE), ["diwali-2026:end"])
+test("Black Friday prices in every region until Dec 1", () => {
+  const now = at("2026-11-12T12:00:00Z")
+  assert.deepEqual(crossedAt(now), [])
 
-  const before = proPriceFor("india", boundary - 1)
-  assert.equal(before.code, "DIWALI")
-  assert.equal(before.saleCents, 349)
-
-  const india = proPriceFor("india", boundary)
-  assert.equal(india.saleCents, null)
-  assert.equal(india.currentCents, 499)
-  assert.equal(india.code, null)
-  assert.equal(india.endsAt, null)
-  assert.equal(priceWithSaleText(india), "$4.99")
-  assert.equal(currentPromotionLine("india", boundary), null)
-  assert.deepEqual(schemaOfferPricing(india), {
-    price: "4.99",
-    priceCurrency: "USD",
-  })
-
-  // Full price in India for the whole gap before its Black Friday.
-  for (const iso of ["2026-11-15T00:00:00Z", "2026-11-26T18:29:59Z"]) {
-    assert.deepEqual(cents(offersFor("india", at(iso))), [
-      ["permanent", 499, null],
-      ["permanent_5", 799, null],
-      ["permanent_10", 1299, null],
-    ])
-  }
-
-  // Everyone else stays on Black Friday prices.
-  assert.equal(proPriceFor("default", boundary).currentCents, 909)
-})
-
-test("2026-11-26T18:30Z: India's Black Friday starts", () => {
-  const boundary = at("2026-11-26T18:30:00Z")
-  assert.deepEqual(crossedAt(boundary + MINUTE), [
-    "black-friday-2026-india:start",
-  ])
-
-  const india = offersFor("india", boundary)
+  const india = offersFor("india", now)
   assert.deepEqual(cents(india), [
     ["permanent", 499, 349],
     ["permanent_5", 799, 559],
@@ -75,7 +40,7 @@ test("2026-11-26T18:30Z: India's Black Friday starts", () => {
   assert.equal(india[0].code, "BLACKFRIDAY")
   assert.equal(india[0].endsAt, "2026-12-02T08:00:00Z")
 
-  const global = offersFor("default", boundary)
+  const global = offersFor("default", now)
   assert.deepEqual(cents(global), [
     ["permanent", 1299, 909],
     ["permanent_5", 1999, 1399],
@@ -86,7 +51,7 @@ test("2026-11-26T18:30Z: India's Black Friday starts", () => {
     "$9.09 (Black Friday price, 30% off until Dec 1, 2026; regular $12.99)"
   )
   assert.equal(
-    currentPromotionLine("default", boundary),
+    currentPromotionLine("default", now),
     "Black Friday: 30% off Pro and Pro+ until Dec 1, 2026 (code BLACKFRIDAY, applied automatically at checkout). Pro (3 Macs) $9.09 instead of $12.99; Pro+ (5 Macs) $13.99 instead of $19.99; Pro+ (10 Macs) $24.49 instead of $34.99."
   )
   assert.deepEqual(schemaOfferPricing(global[0]), {
@@ -104,10 +69,7 @@ test("2026-11-26T18:30Z: India's Black Friday starts", () => {
 
 test("2026-12-02T08:00Z: Black Friday ends everywhere", () => {
   const boundary = at("2026-12-02T08:00:00Z")
-  assert.deepEqual(crossedAt(boundary + MINUTE), [
-    "black-friday-2026:end",
-    "black-friday-2026-india:end",
-  ])
+  assert.deepEqual(crossedAt(boundary + MINUTE), ["black-friday-2026:end"])
 
   assert.equal(proPriceFor("default", boundary - 1).currentCents, 909)
   for (const region of ["default", "india"]) {
@@ -126,7 +88,7 @@ test("2026-12-02T08:00Z: Black Friday ends everywhere", () => {
 test("a run acts on each boundary once", () => {
   const boundary = at("2026-12-02T08:00:00Z")
   // The run at the boundary instant already sees new prices, so it acts.
-  assert.equal(crossedAt(boundary).length, 2)
+  assert.equal(crossedAt(boundary).length, 1)
   assert.equal(crossedAt(boundary - 1).length, 0)
   // The run a full lookback later has already moved past it.
   assert.equal(crossedAt(boundary + SALE_BOUNDARY_LOOKBACK_MS).length, 0)

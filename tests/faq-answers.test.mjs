@@ -42,7 +42,7 @@ const words = (text) => text.split(/\s+/).filter(Boolean).length
 const pageText = (answer) =>
   JSON.stringify([answer.answer, answer.description, answer.details])
 
-/** Moments with different sales live: default BF + India Diwali, the India gap, both BF, none. */
+/** Moments across the sale calendar: Black Friday everywhere, then none. */
 const MOMENTS = [
   "2026-11-06T12:00:00Z",
   "2026-11-15T00:00:00Z",
@@ -128,9 +128,10 @@ test("prices follow the sale calendar", () => {
 
   const after = getFaqAnswer("is-macwall-free", at("2026-12-03T00:00:00Z"))
   assert.match(after.answer, /It costs \$12\.99\.$/)
-  // India's price is listed, at full price between Diwali and Black Friday.
-  const gap = getFaqAnswer("is-macwall-free", at("2026-11-15T00:00:00Z"))
-  assert.ok(pageText(gap).includes("Pro (3 Macs) is $4.99."))
+  // India's price is listed, at its Black Friday price.
+  const india = getFaqAnswer("is-macwall-free", at("2026-11-15T00:00:00Z"))
+  assert.ok(pageText(india).includes("$3.49"))
+  assert.ok(!pageText(india).includes("$4.99"))
 
   assert.deepEqual(faqPricePaths(), [
     "/faq/is-macwall-free",

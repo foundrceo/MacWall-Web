@@ -1,6 +1,5 @@
 "use client"
 
-import { Diya } from "@/components/macwall-marketing/diwali-decor"
 import { SaleWasPrice } from "@/components/macwall-marketing/sale-was-price"
 import Image from "next/image"
 import Link from "next/link"
@@ -140,17 +139,7 @@ export function ProModal({
               </span>
             </div>
             {pricing.sale ? (
-              <p
-                className={cn(
-                  "mt-1.5 flex items-center gap-1.5 text-[12px] font-medium",
-                  pricing.sale.theme === "diwali"
-                    ? "text-[#FFC93C]"
-                    : "text-[#67EDEC]"
-                )}
-              >
-                {pricing.sale.theme === "diwali" ? (
-                  <Diya className="-my-1 size-5" />
-                ) : null}
+              <p className="mt-1.5 flex items-center gap-1.5 text-[12px] font-medium text-[#67EDEC]">
                 {pricing.sale.name} · {pricing.sale.percentOff}% off until{" "}
                 {pricing.sale.endsLabel}, applied at checkout
               </p>

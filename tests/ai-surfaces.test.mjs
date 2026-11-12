@@ -16,21 +16,17 @@ const at = (iso) => Date.parse(iso)
 const ORIGIN = "https://macwall.app"
 
 test("llms.txt promotion lines follow the sale calendar per region", () => {
-  // Black Friday (default) and Diwali (India) both live.
+  // Black Friday everywhere, with India's own prices on its line.
   const both = llmsTxtHeader(ORIGIN, at("2026-11-06T12:00:00Z"))
   assert.match(both, /\nCurrent promotion: Black Friday: 30% off .*BLACKFRIDAY/)
-  assert.match(both, /\nIn India: Diwali Sale: 30% off .*DIWALI/)
-
-  // The India gap between Diwali and India's Black Friday: default line only.
-  const gap = currentPromotionLines(at("2026-11-15T00:00:00Z"))
-  assert.equal(gap.length, 1)
-  assert.match(gap[0], /^Current promotion: Black Friday/)
-
-  // India's Black Friday from 2026-11-26T18:30Z.
-  const indiaBf = currentPromotionLines(at("2026-11-27T00:00:00Z"))
-  assert.equal(indiaBf.length, 2)
-  assert.match(indiaBf[1], /^In India: Black Friday: .*BLACKFRIDAY/)
-  assert.match(indiaBf[1], /\$3\.49 instead of \$4\.99/)
+  assert.match(both, /\nIn India: Black Friday: 30% off .*BLACKFRIDAY/)
+  for (const iso of ["2026-11-15T00:00:00Z", "2026-11-27T00:00:00Z"]) {
+    const lines = currentPromotionLines(at(iso))
+    assert.equal(lines.length, 2, iso)
+    assert.match(lines[0], /^Current promotion: Black Friday/)
+    assert.match(lines[1], /^In India: Black Friday: .*BLACKFRIDAY/)
+    assert.match(lines[1], /\$3\.49 instead of \$4\.99/)
+  }
 
   // After every sale: no promotion line at all.
   assert.deepEqual(currentPromotionLines(at("2026-12-03T00:00:00Z")), [])

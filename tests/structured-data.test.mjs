@@ -127,23 +127,12 @@ test("Black Friday: the default Pro offer is the visible sale price until Dec 1"
   assert.equal(pro.priceSpecification.price, "12.99")
 })
 
-test("India: Diwali until Nov 10, full price until Nov 26, then Black Friday", () => {
-  const diwali = paidOffers(appOffers("2026-11-10T18:29:00Z"), "india")
-  assert.deepEqual(prices(diwali), ["3.49", "5.59", "9.09"])
-  assert.equal(diwali[0].priceValidUntil, "2026-11-10")
-
-  for (const iso of ["2026-11-10T18:30:00Z", "2026-11-26T18:29:59Z"]) {
-    const gap = paidOffers(appOffers(iso), "india")
-    assert.deepEqual(prices(gap), ["4.99", "7.99", "12.99"], iso)
-    assert.ok(
-      gap.every((offer) => offer.priceValidUntil === undefined),
-      iso
-    )
+test("India: Black Friday prices until Dec 1", () => {
+  for (const iso of ["2026-11-06T00:00:00Z", "2026-11-12T00:00:00Z", "2026-11-27T00:00:00Z"]) {
+    const india = paidOffers(appOffers(iso), "india")
+    assert.deepEqual(prices(india), ["3.49", "5.59", "9.09"], iso)
+    assert.equal(india[0].priceValidUntil, "2026-12-01", iso)
   }
-
-  const blackFriday = paidOffers(appOffers("2026-11-26T18:30:00Z"), "india")
-  assert.deepEqual(prices(blackFriday), ["3.49", "5.59", "9.09"])
-  assert.equal(blackFriday[0].priceValidUntil, "2026-12-01")
 })
 
 test("after 2026-12-02T08:00Z every offer is back at its regular price", () => {
