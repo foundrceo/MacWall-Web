@@ -9,8 +9,9 @@ import {
   type ReactNode,
 } from "react"
 
+import { isIndiaCountry } from "@/lib/geo/country"
 import { getVisitorCountry } from "@/lib/geo/country-client"
-import { isSaleLive } from "@/lib/sale.shared"
+import { activeSiteSale, isSaleLive } from "@/lib/sale.shared"
 import {
   buildDefaultMarketingPricing,
   type MarketingPricing,
@@ -42,16 +43,30 @@ type CachedPricing = {
 let memoryCache: CachedPricing | null = null
 let inflightFetch: Promise<MarketingPricing | null> | null = null
 
+/**
+ * The sale id this country should see right now. A cached price from before
+ * a sale started, ended or changed (a new `SITE_SALES` entry) no longer
+ * matches it, so it is dropped and fetched again instead of living out its
+ * 24h TTL at the wrong price.
+ */
+function expectedSaleId(country: string): string | null {
+  return (
+    activeSiteSale(isIndiaCountry(country) ? "india" : "default")?.id ?? null
+  )
+}
+
 function isFresh(entry: CachedPricing | null, ttlMs: number): boolean {
+  const country = getVisitorCountry()
   return (
     entry !== null &&
     typeof entry.at === "number" &&
     Date.now() - entry.at >= 0 &&
     Date.now() - entry.at < ttlMs &&
-    !!getVisitorCountry() &&
-    entry.pricing?.country === getVisitorCountry() &&
+    !!country &&
+    entry.pricing?.country === country &&
     !!entry.pricing &&
-    typeof entry.pricing.permanentPrice === "string"
+    typeof entry.pricing.permanentPrice === "string" &&
+    (entry.pricing.sale?.id ?? null) === expectedSaleId(country)
   )
 }
 
