@@ -1,30 +1,20 @@
-import { AdminShell } from "@/components/admin/admin-shell"
-import { StatCardSkeleton } from "@/components/admin/admin-ui"
-import { AdminSkeleton } from "@/components/admin/admin-skeleton-reveal"
+import { Skeleton } from "@/components/admin/ui"
 
+/** Shown while a page's code loads; each page then draws its own skeleton. */
 export default function Loading() {
   return (
-    <AdminShell title="Analytics" largeTitle>
-      <div className="space-y-6" aria-hidden="true">
-        <AdminSkeleton className="h-4 w-72 rounded-md" />
-        {Array.from({ length: 2 }).map((_, section) => (
-          <div key={section} className="space-y-4">
-            <div className="space-y-1.5">
-              <AdminSkeleton className="h-4 w-40 rounded-md" />
-              <AdminSkeleton className="h-3 w-64 rounded-md" />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <StatCardSkeleton key={index} />
-              ))}
-            </div>
-            <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr]">
-              <AdminSkeleton className="h-80 rounded-2xl" />
-              <AdminSkeleton className="h-80 rounded-2xl" />
-            </div>
-          </div>
-        ))}
+    <div
+      role="status"
+      aria-label="Loading page"
+      className="mx-auto w-full max-w-[1240px] px-4 pt-6 sm:px-6 lg:px-8 lg:pt-8"
+    >
+      <Skeleton className="h-7 w-40" />
+      <Skeleton className="mt-2.5 h-4 w-72" />
+      <Skeleton className="mt-6 h-[104px] rounded-[14px]" />
+      <div className="mt-4 grid gap-4 lg:grid-cols-[1.6fr_1fr]">
+        <Skeleton className="h-72 rounded-[14px]" />
+        <Skeleton className="h-72 rounded-[14px]" />
       </div>
-    </AdminShell>
+    </div>
   )
 }

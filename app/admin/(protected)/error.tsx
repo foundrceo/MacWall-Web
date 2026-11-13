@@ -1,39 +1,34 @@
 "use client"
 
-import { useEffect } from "react"
 import { TriangleAlert } from "lucide-react"
+import { useEffect } from "react"
 
-import { AdminShell } from "@/components/admin/admin-shell"
+import { EmptyState } from "@/components/admin/ui"
 import { Button } from "@/components/ui/button"
 
 export default function ProtectedAdminError({
   error,
-  reset,
+  retry,
 }: Readonly<{
   error: Error & { digest?: string }
-  reset: () => void
+  retry: () => void
 }>) {
   useEffect(() => {
     console.error(error)
   }, [error])
 
   return (
-    <AdminShell title="Something broke">
-      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 text-center">
-        <TriangleAlert className="size-7 text-[var(--admin-amber-fg)]" />
-        <div className="space-y-1">
-          <h2 className="text-[15px] font-semibold text-[var(--admin-fg)]">
-            This page hit an error
-          </h2>
-          <p className="max-w-sm text-[13px] text-[var(--admin-muted)]">
-            Your session is still signed in. Try again, or open another section
-            from the sidebar.
-          </p>
-        </div>
-        <Button type="button" onClick={reset}>
-          Try again
-        </Button>
-      </div>
-    </AdminShell>
+    <div className="flex h-full min-h-[60svh] items-center justify-center">
+      <EmptyState
+        icon={<TriangleAlert />}
+        title="This page failed to load"
+        description="Try again. If it keeps happening, check the server logs."
+        action={
+          <Button type="button" size="sm" onClick={() => retry()}>
+            Try again
+          </Button>
+        }
+      />
+    </div>
   )
 }
