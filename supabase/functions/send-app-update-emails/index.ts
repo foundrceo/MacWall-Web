@@ -7,6 +7,7 @@ import {
 } from "../_shared/lifecycle-emails.ts"
 import {
   lifecycleCheckoutHref,
+  marketingFrom,
   logoUrl,
   marketingBlockReason,
   postalAddress,
@@ -115,12 +116,13 @@ Deno.serve(async (req: Request) => {
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
   const resendKey = Deno.env.get("RESEND_API_KEY")?.trim()
   // Optional sender for a campaign, e.g. "MacWall <hi@macwall.app>". Only
-  // the verified macwall.app domain is allowed.
+  // macwall.app and its subdomains are allowed.
   const fromOverride =
-    typeof body.from === "string" && /^[^<>@]*<[a-z0-9._%+-]+@macwall\.app>$|^[a-z0-9._%+-]+@macwall\.app$/i.test(body.from.trim())
+    typeof body.from === "string" && /^[^<>@]*<[a-z0-9._%+-]+@([a-z0-9-]+\.)?macwall\.app>$|^[a-z0-9._%+-]+@([a-z0-9-]+\.)?macwall\.app$/i.test(body.from.trim())
       ? body.from.trim()
       : null
-  const from = fromOverride || Deno.env.get("LICENSE_EMAIL_FROM")?.trim()
+  const licenseFrom = Deno.env.get("LICENSE_EMAIL_FROM")?.trim()
+  const from = fromOverride || (licenseFrom ? marketingFrom(licenseFrom) : undefined)
   const appName = Deno.env.get("APP_NAME")?.trim() || "MacWall"
   if (!supabaseUrl || !serviceKey || !resendKey || !from) {
     return Response.json({ ok: false, error: "missing_config" }, { status: 500 })

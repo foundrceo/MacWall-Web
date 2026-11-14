@@ -5,6 +5,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.105.4"
 import { buildLifecycleEmail } from "../_shared/lifecycle-emails.ts"
 import {
   lifecycleCheckoutHref,
+  marketingFrom,
   logoUrl,
   marketingBlockReason,
   nextAllowedSendAt,
@@ -326,7 +327,8 @@ Deno.serve(async (req: Request) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")
   const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
   const resendKey = Deno.env.get("RESEND_API_KEY")?.trim()
-  const from = Deno.env.get("LICENSE_EMAIL_FROM")?.trim()
+  const licenseFrom = Deno.env.get("LICENSE_EMAIL_FROM")?.trim()
+  const from = licenseFrom ? marketingFrom(licenseFrom) : undefined
   const appName = Deno.env.get("APP_NAME")?.trim() || "MacWall"
   if (!stripeSecret || !supabaseUrl || !supabaseServiceKey || !resendKey || !from) {
     return Response.json({ ok: false, error: "missing_config" }, { status: 500 })

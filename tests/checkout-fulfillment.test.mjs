@@ -73,3 +73,35 @@ test('reel_refund=false or an unreadable Stripe is treated as a real refund',asy
   const f=refundFixture(options);assert.deepEqual(await f.run(),{ok:true,revoked:1})
  }
 })
+
+import crypto from 'node:crypto'
+function webhookFixture(){
+ const rows=[]
+ const names=['base64ToBytes','bytesToBase64','safeEqual','verifySignature','suppressionReason','eventRecipients','handleEvent']
+ const fns=loadFunctions('supabase/functions/resend-webhook/index.ts',names,{SIGNATURE_TOLERANCE_SECONDS:300,encoder:new TextEncoder(),console:{error(){}}})
+ const supabase={from:()=>({upsert:async(values,options)=>{rows.push([values,options]);return {error:null}}})}
+ return {...fns,supabase,rows}
+}
+test('resend webhook accepts only a fresh, correctly signed request',async()=>{
+ const {verifySignature}=webhookFixture()
+ const key=crypto.randomBytes(24),secret='whsec_'+key.toString('base64'),body='{"type":"email.bounced"}',id='msg_1',timestamp='1794650000'
+ const sig='v1,'+crypto.createHmac('sha256',key).update(`${id}.${timestamp}.${body}`).digest('base64')
+ const check=o=>verifySignature({secret,id,timestamp,signatures:sig,body,nowSeconds:1794650010,...o})
+ assert.equal(await check({}),true)
+ assert.equal(await check({signatures:'v1,AAAA '+sig}),true)
+ assert.equal(await check({body:body+' '}),false)
+ assert.equal(await check({nowSeconds:1794650000+301}),false)
+ assert.equal(await check({signatures:null}),false)
+ assert.equal(await check({secret:'whsec_'+crypto.randomBytes(24).toString('base64')}),false)
+})
+test('resend webhook suppresses hard bounces and complaints, nothing else',async()=>{
+ const f=webhookFixture()
+ const run=async event=>(await f.handleEvent({event,supabase:f.supabase})).json()
+ assert.deepEqual(await run({type:'email.bounced',data:{to:['A@Example.test'],bounce:{type:'Permanent'}}}),{ok:true,suppressed:1,reason:'bounced'})
+ assert.deepEqual(f.rows[0],[[{email:'a@example.test',reason:'bounced'}],{onConflict:'email',ignoreDuplicates:true}])
+ assert.deepEqual(await run({type:'email.complained',data:{to:['b@example.test']}}),{ok:true,suppressed:1,reason:'complained'})
+ assert.equal(f.rows[1][1].ignoreDuplicates,false)
+ assert.deepEqual(await run({type:'email.bounced',data:{to:['c@example.test'],bounce:{type:'Transient'}}}),{ok:true,skipped:'ignored_event'})
+ assert.deepEqual(await run({type:'email.delivered',data:{to:['d@example.test']}}),{ok:true,skipped:'ignored_event'})
+ assert.equal(f.rows.length,2)
+})

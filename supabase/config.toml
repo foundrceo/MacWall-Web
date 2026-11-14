@@ -26,3 +26,7 @@ verify_jwt = true
 
 [functions.admin-resend-license]
 verify_jwt = false
+
+# Resend calls this with its own signature (verified in the function).
+[functions.resend-webhook]
+verify_jwt = false

@@ -5,6 +5,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.105.4"
 import { buildLicenseEmail } from "../_shared/license-email-template.ts"
 import { buildLifecycleEmail } from "../_shared/lifecycle-emails.ts"
 import {
+  marketingFrom,
   postalAddress,
   sendMarketingEmail,
   unsubscribeUrlsFor,
@@ -879,7 +880,8 @@ async function scheduleReelRefundEmail(args: {
     })
     const result = await sendMarketingEmail({
       resendKey: args.resendKey,
-      from: args.from,
+      // An offer, not a receipt: it goes out from the marketing sender.
+      from: marketingFrom(args.from),
       to: email,
       mail,
       unsubscribeOneClick: unsubscribe?.oneClick ?? null,

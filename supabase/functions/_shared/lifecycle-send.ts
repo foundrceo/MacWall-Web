@@ -31,6 +31,17 @@ export function postalAddress(): string | null {
   return Deno.env.get("EMAIL_POSTAL_ADDRESS")?.trim() || null
 }
 
+/**
+ * Sender for marketing mail (trial, checkout, sale and Reel emails). Set
+ * MARKETING_EMAIL_FROM to an address on a separate verified subdomain, e.g.
+ * "MacWall <hello@mail.macwall.app>", so spam complaints about a sale never
+ * touch the reputation of the domain that delivers license keys. Until it is
+ * set, marketing mail keeps using the license sender.
+ */
+export function marketingFrom(licenseFrom: string): string {
+  return Deno.env.get("MARKETING_EMAIL_FROM")?.trim() || licenseFrom
+}
+
 const textEncoder = new TextEncoder()
 
 function bytesToBase64Url(bytes: Uint8Array): string {

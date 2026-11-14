@@ -5,6 +5,7 @@ import { buildLifecycleEmail, type LifecycleEmailId } from "../_shared/lifecycle
 import {
   logoUrl,
   marketingBlockReason,
+  marketingFrom,
   postalAddress,
   sendMarketingEmail,
   siteBaseUrl,
@@ -103,7 +104,8 @@ Deno.serve(async (req: Request) => {
     })
     return sendMarketingEmail({
       resendKey,
-      from,
+      // The link is something they asked for; the reminder is marketing.
+      from: id === "send_to_mac" ? from : marketingFrom(from),
       to: email,
       mail,
       unsubscribeOneClick: unsubscribe?.oneClick ?? null,
