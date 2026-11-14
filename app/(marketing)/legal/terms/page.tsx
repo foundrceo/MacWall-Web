@@ -267,9 +267,7 @@ export default function LegalTermsPage() {
             </a>{" "}
             with the video link, a screenshot of the view count and your
             purchase email. We verify the claim and refund to your original
-            payment method, usually within 48 hours. A 50% refund keeps your
-            license active; a 100% refund is a full refund and deactivates the
-            license key. We refund what you actually paid, never more. Full
+            payment method, usually within 48 hours. Your license stays active after a 50% or a 100% refund under this offer. We refund what you actually paid, never more. Full
             rules are on <Link href="/creator">/creator</Link>. We may turn
             down claims that look inflated, and we can end this offer at any
             time.
@@ -313,8 +311,7 @@ export default function LegalTermsPage() {
             Every license comes with a {macwall.refundWindowDays}-day
             money-back guarantee, and billing errors are fixed at any time. How
             to ask, what is excluded and how long it takes are in our{" "}
-            <Link href="/legal/refund">Refund Policy</Link>. A full refund
-            deactivates the license key it paid for.
+            <Link href="/legal/refund">Refund Policy</Link>. A full refund under the guarantee deactivates the license key it paid for.
           </p>
           <p>
             If something is wrong with a charge, emailing {support} is usually

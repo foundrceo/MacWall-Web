@@ -1137,8 +1137,49 @@ async function handleSubscriptionStatusChange(args: {
   })
 }
 
+/** Stripe metadata key that marks a refund as a Reel payout. */
+const REEL_REFUND_METADATA_KEY = "reel_refund"
+
+function metadataMarksReelRefund(metadata: Stripe.Metadata | null | undefined): boolean {
+  const value = metadata?.[REEL_REFUND_METADATA_KEY]?.trim().toLowerCase()
+  return Boolean(value) && value !== "false" && value !== "0" && value !== "no"
+}
+
+/**
+ * A Reel payout gives the money back for a video and the buyer keeps Pro; a
+ * real refund ends the license. Stripe can't tell them apart, so the payout is
+ * marked by hand: `reel_refund = true` in the metadata of the payment (set in
+ * the Dashboard before refunding) or of the refund itself (API refunds).
+ *
+ * If Stripe can't be read this answers false, so an unmarked or unreadable
+ * refund is treated as a real one.
+ */
+async function isReelRefund(stripe: Stripe, charge: Stripe.Charge): Promise<boolean> {
+  if (metadataMarksReelRefund(charge.metadata)) return true
+  try {
+    const paymentIntentId =
+      typeof charge.payment_intent === "string"
+        ? charge.payment_intent
+        : (charge.payment_intent?.id ?? null)
+    if (paymentIntentId) {
+      // Dashboard edits land on the payment, not on the charge in the event.
+      const payment = await stripe.paymentIntents.retrieve(paymentIntentId)
+      if (metadataMarksReelRefund(payment.metadata)) return true
+    }
+    const refunds = await stripe.refunds.list({ charge: charge.id, limit: 20 })
+    return refunds.data.some((refund) => metadataMarksReelRefund(refund.metadata))
+  } catch (error) {
+    console.error(
+      "[stripe-license-email] reel_refund_lookup_failed",
+      error instanceof Error ? error.message : "error"
+    )
+    return false
+  }
+}
+
 async function handleChargeRefunded(args: {
   event: Stripe.Event
+  stripe: Stripe
   supabase: ReturnType<typeof createClient>
 }): Promise<Response> {
   const charge = args.event.data.object as Stripe.Charge
@@ -1161,6 +1202,11 @@ async function handleChargeRefunded(args: {
 
   if (!paymentIntentId && !licenseKeyFromMetadata) {
     return Response.json({ ok: true, skipped: "no_lookup_key" })
+  }
+  // Money back for a video: the buyer keeps Pro, so nothing is revoked and
+  // the payment is not recorded as refunded.
+  if (await isReelRefund(args.stripe, charge)) {
+    return Response.json({ ok: true, skipped: "reel_refund" })
   }
   const { data: revoked, error } = await args.supabase.rpc("record_macwall_stripe_refund", {
     p_payment_intent_id: paymentIntentId,
@@ -1300,7 +1346,7 @@ Deno.serve(async (req: Request) => {
   }
 
   if (event.type === "charge.refunded") {
-    return handleChargeRefunded({ event, supabase })
+    return handleChargeRefunded({ event, stripe, supabase })
   }
 
   if (

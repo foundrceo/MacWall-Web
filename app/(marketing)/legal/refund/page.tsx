@@ -136,9 +136,7 @@ export default function LegalRefundPage() {
             Approved refunds go back to the original payment method through
             our payment processor, {macwall.paymentProcessor}, in the currency
             you paid in. Once we issue a refund, banks usually show it within 5
-            to 10 business days. A full refund deactivates the license key it paid
-            for. A partial refund, such as 50% back under the program below,
-            keeps the license active.
+            to 10 business days. A full refund under the money-back guarantee deactivates the license key it paid for. Money back under the video program below, 50% or 100%, keeps the license active.
           </p>
         </LegalSection>
 
@@ -163,9 +161,7 @@ export default function LegalRefundPage() {
           <p>
             Because we pay you back for the post, it has to be disclosed as
             paid: include #ad or the platform&apos;s paid-partnership label.
-            Posts without it don&apos;t qualify. A 50% refund keeps your
-            license active. A 100% refund is a full refund, so it deactivates
-            that license key like any other full refund. The full rules are in
+            Posts without it don&apos;t qualify. Either way you keep your license: money back under this program, 50% or 100%, does not deactivate your key. The full rules are in
             our <Link href="/legal/terms#promotions">Terms</Link>.
           </p>
         </LegalSection>

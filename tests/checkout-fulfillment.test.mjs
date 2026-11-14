@@ -49,3 +49,27 @@ test('a delivered license schedules the Reel refund email once, and a failed one
  const sent=[];assert.equal((await fixture({reel:sent}).run()).status,200);assert.equal(sent.length,1);assert.equal(sent[0].to,'test@example.test')
  const failed=[];assert.equal((await fixture({reel:failed,emailFailure:true}).run()).status,503);assert.equal(failed.length,0)
 })
+
+function refundFixture({chargeMeta={},paymentMeta={},refundMeta={},stripeDown=false}={}){
+ const calls=[]
+ const globals={REEL_REFUND_METADATA_KEY:'reel_refund',console:{error(){}}}
+ const {handleChargeRefunded}=loadFunctions('supabase/functions/stripe-license-email/index.ts',['metadataMarksReelRefund','isReelRefund','handleChargeRefunded'],globals)
+ const fail=async()=>{throw new Error('offline')}
+ const stripe={paymentIntents:{retrieve:stripeDown?fail:async()=>({metadata:paymentMeta})},refunds:{list:stripeDown?fail:async()=>({data:[{metadata:refundMeta}]})}}
+ const supabase={rpc:async(name,params)=>{calls.push([name,params]);return {data:1,error:null}}}
+ const event={data:{object:{id:'ch_test',payment_intent:'pi_test',refunded:true,amount:100,amount_refunded:100,metadata:chargeMeta}}}
+ return {run:async()=>(await handleChargeRefunded({event,stripe,supabase})).json(),calls}
+}
+test('a real full refund revokes the license',async()=>{
+ const f=refundFixture();assert.deepEqual(await f.run(),{ok:true,revoked:1});assert.equal(f.calls[0][0],'record_macwall_stripe_refund')
+})
+test('a refund marked reel_refund on the payment, charge or refund keeps the license',async()=>{
+ for(const options of [{paymentMeta:{reel_refund:'true'}},{chargeMeta:{reel_refund:'yes'}},{refundMeta:{reel_refund:'1'}}]){
+  const f=refundFixture(options);assert.deepEqual(await f.run(),{ok:true,skipped:'reel_refund'});assert.deepEqual(f.calls,[])
+ }
+})
+test('reel_refund=false or an unreadable Stripe is treated as a real refund',async()=>{
+ for(const options of [{paymentMeta:{reel_refund:'false'}},{stripeDown:true}]){
+  const f=refundFixture(options);assert.deepEqual(await f.run(),{ok:true,revoked:1})
+ }
+})
