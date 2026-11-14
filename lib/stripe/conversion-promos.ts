@@ -21,6 +21,8 @@ const TIMED_PROMOS = new Set(["X9K4Q2MH", "R7N2WP8J", "T4V8CL6Y", "B3H9KF5Q", "S
 
 const FLOOR_PROMO = "MAC10"
 
+const TRIAL_OFFER_PROMO = "WALL10"
+
 const EMAIL_TWENTY = "R7N2WP8J"
 const EMAIL_THIRTY = "B3H9KF5Q"
 
@@ -32,6 +34,12 @@ export function normalizeConversionPromo(
   if (!code || !ALLOWLIST.has(code)) return null
   if (TIMED_PROMOS.has(code) && (!offerUntil || offerUntil.getTime() < Date.now())) {
     return FLOOR_PROMO
+  }
+  // WALL10 has no expiry of its own, but a link may carry a deadline (the
+  // trial offer email gives it 24 hours). Past that the link pays full price;
+  // WALL10 links without a deadline keep working.
+  if (code === TRIAL_OFFER_PROMO && offerUntil && offerUntil.getTime() < Date.now()) {
+    return null
   }
   return code
 }

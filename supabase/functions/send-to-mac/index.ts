@@ -108,7 +108,13 @@ Deno.serve(async (req: Request) => {
       mail,
       unsubscribeOneClick: unsubscribe?.oneClick ?? null,
       idempotencyKey,
-      tags: [{ name: "campaign", value: id }],
+      // `category` and `step` match the trial and recovery emails, so Resend
+      // groups every flow the same way; `campaign` is kept for older reports.
+      tags: [
+        { name: "category", value: "send_to_mac" },
+        { name: "step", value: id === "send_to_mac" ? "link" : "reminder" },
+        { name: "campaign", value: id },
+      ],
       scheduledAt,
     })
   }

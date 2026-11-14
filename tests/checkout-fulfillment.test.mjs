@@ -10,7 +10,8 @@ function fixture(options={}) {
  }
  const supabase={from:query,rpc:async()=>{calls.push(['activation']);return {data:options.ineligible?'ineligible':'active',error:options.activationFailure?{message:'offline'}:null}}}
  const noop=async()=>{}
- const globals={cancelCheckoutRecovery:noop,cancelTrialEndedEmails:noop,parseDeviceCount:()=>3,purchasedDeviceCount:async()=>3,inferDeviceCountFromAmounts:()=>3,sendTikTokPurchase:noop,sendXPurchase:noop,sendPostHogPurchase:async a=>{options.posthog?.push(a)},Deno:{env:{get:()=>undefined}},deliverLicenseEmail:async()=>{calls.push(['email']);return options.emailFailure?{ok:false,status:429,error:'retry',retryable:true}:{ok:true}}}
+ const reel=options.reel??[]
+ const globals={scheduleReelRefundEmail:async a=>{reel.push(a)},cancelCheckoutRecovery:noop,cancelTrialEndedEmails:noop,parseDeviceCount:()=>3,purchasedDeviceCount:async()=>3,inferDeviceCountFromAmounts:()=>3,sendTikTokPurchase:noop,sendXPurchase:noop,sendPostHogPurchase:async a=>{options.posthog?.push(a)},Deno:{env:{get:()=>undefined}},deliverLicenseEmail:async()=>{calls.push(['email']);return options.emailFailure?{ok:false,status:429,error:'retry',retryable:true}:{ok:true}}}
  const {handleCheckoutCompleted}=loadFunctions('supabase/functions/stripe-license-email/index.ts',['handleCheckoutCompleted'],globals)
  const args={event:{id:'evt_test',created:1761200000},stripe:{subscriptions:{retrieve:async()=>({status:options.subscriptionInactive?'canceled':'active'})},invoices:{retrieve:async()=>({status:'paid',payment_intent:'pi_invoice'})},paymentIntents:{retrieve:async()=>({status:'succeeded',latest_charge:{refunded:!!options.refunded,amount_refunded:options.refunded?100:0,amount:100}})}},session:{id:'cs_test',mode:options.annual?'subscription':'payment',invoice:options.annual?'in_invoice':null,subscription:options.annual?'sub_test':null,payment_status:options.unpaid?'unpaid':'paid',metadata:{license_key:'synthetic',...(options.metadata??{})},customer_email:'test@example.test',payment_intent:options.annual?null:'pi_test'},supabase,resendKey:'synthetic',from:'test@example.test'}
  return {run:()=>handleCheckoutCompleted(args),calls}
@@ -42,4 +43,9 @@ test('the purchase goes to PostHog on the app install that opened checkout',asyn
  const posthog=[];const f=fixture({posthog,metadata:{visitor_id:'A'.repeat(36),visitor_country:'IN'}});assert.equal((await f.run()).status,200)
  assert.equal(posthog.length,1);assert.equal(posthog[0].visitorId,'A'.repeat(36));assert.equal(posthog[0].eventIdSeed,'stripe_checkout_cs_test')
  assert.equal(posthog[0].occurredAt.toISOString(),new Date(1761200000*1000).toISOString());assert.equal(posthog[0].country,'IN')
+})
+
+test('a delivered license schedules the Reel refund email once, and a failed one does not',async()=>{
+ const sent=[];assert.equal((await fixture({reel:sent}).run()).status,200);assert.equal(sent.length,1);assert.equal(sent[0].to,'test@example.test')
+ const failed=[];assert.equal((await fixture({reel:failed,emailFailure:true}).run()).status,503);assert.equal(failed.length,0)
 })

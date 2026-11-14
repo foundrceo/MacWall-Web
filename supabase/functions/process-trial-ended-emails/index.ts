@@ -3,6 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.105.4"
 
 import {
   LIFECYCLE_PROMO,
+  TRIAL_OFFER_HOURS,
   buildLifecycleEmail,
   type LifecycleEmailId,
 } from "../_shared/lifecycle-emails.ts"
@@ -21,9 +22,9 @@ import {
 /**
  * Trial sequence for people who tried MacWall and did not buy.
  *
- *   ended      trial end (24h after start)   10% code
- *   reminder   +2 days                       Reel refund angle, 10% code
- *   last_call  +6 days                       20% for 48 hours, final email
+ *   ended      trial end (24h after start)   no discount
+ *   offer      +6 hours                      10% code, link valid 24 hours
+ *   last_call  +6 days                       20% for 24 hours, final email
  *
  * Follow-ups keep the same time of day as the trial start, which is when the
  * person was using their Mac. Every send re-checks purchase, unsubscribe,
@@ -33,18 +34,19 @@ import {
 const ENQUEUE_LIMIT = 40
 const SEND_LIMIT = 8
 const SEND_GAP_MS = 600
-const DAY_MS = 24 * 60 * 60 * 1000
+const HOUR_MS = 60 * 60 * 1000
+const DAY_MS = 24 * HOUR_MS
 
-type TrialStep = "ended" | "reminder" | "last_call"
+type TrialStep = "ended" | "offer" | "last_call"
 
 const STEP_EMAIL: Record<TrialStep, LifecycleEmailId> = {
   ended: "trial_ended",
-  reminder: "trial_reminder",
+  offer: "trial_offer",
   last_call: "trial_last_call",
 }
 
 const FOLLOW_UPS: { step: TrialStep; afterMs: number }[] = [
-  { step: "reminder", afterMs: 2 * DAY_MS },
+  { step: "offer", afterMs: 6 * HOUR_MS },
   { step: "last_call", afterMs: 6 * DAY_MS },
 ]
 
@@ -56,7 +58,9 @@ function sleep(ms: number): Promise<void> {
 }
 
 function parseStep(raw: string): TrialStep | null {
-  return raw === "ended" || raw === "reminder" || raw === "last_call" ? raw : null
+  // "reminder" (the Reel email) left this ladder: it now goes to buyers.
+  // Rows still queued under it are skipped as a retired step.
+  return raw === "ended" || raw === "offer" || raw === "last_call" ? raw : null
 }
 
 async function markQueueRow(supabase: Supabase, id: number, patch: Record<string, unknown>) {
@@ -112,17 +116,26 @@ async function processQueueRow(args: {
     return "skipped"
   }
 
-  const allowedAt = await nextAllowedSendAt(supabase, email)
+  // The offer is the second half of the trial-ended message, 6 hours later
+  // by design, so the 20-hour gap between marketing emails doesn't apply.
+  const allowedAt = step === "offer" ? null : await nextAllowedSendAt(supabase, email)
   if (allowedAt) {
     await markQueueRow(supabase, row.id, { scheduled_send_at: allowedAt.toISOString() })
     return "deferred"
   }
 
-  const promo = step === "last_call" ? LIFECYCLE_PROMO.twenty : LIFECYCLE_PROMO.ten
-  const untilUnix =
+  // The first email carries no discount; the code arrives with the offer.
+  const promo =
+    step === "ended" ? null : step === "last_call" ? LIFECYCLE_PROMO.twenty : LIFECYCLE_PROMO.ten
+  // Both discounts are timed from this send: checkout stops honouring the
+  // link's code after `until`.
+  const validHours =
     step === "last_call"
-      ? Math.floor(Date.now() / 1000) + LIFECYCLE_PROMO.twenty.validHours * 3600
-      : null
+      ? LIFECYCLE_PROMO.twenty.validHours
+      : step === "offer"
+        ? TRIAL_OFFER_HOURS
+        : null
+  const untilUnix = validHours ? Math.floor(Date.now() / 1000) + validHours * 3600 : null
   const unsub = await unsubscribeUrlsFor(email)
   const mail = buildLifecycleEmail(STEP_EMAIL[step], {
     appName,
@@ -132,7 +145,7 @@ async function processQueueRow(args: {
     postalAddress: postalAddress(),
     unsubscribeHref: unsub?.page ?? null,
     checkoutHref: lifecycleCheckoutHref({
-      promoCode: promo.code,
+      promoCode: promo?.code ?? null,
       untilUnix,
       email,
       visitorId: row.visitor_id,

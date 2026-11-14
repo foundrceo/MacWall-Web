@@ -2,12 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import Stripe from "npm:stripe@14.25.0"
 import { createClient } from "npm:@supabase/supabase-js@2.105.4"
 
-import {
-  LIFECYCLE_PROMO,
-  buildLifecycleEmail,
-  planLabelForOffer,
-  type LifecycleEmailId,
-} from "../_shared/lifecycle-emails.ts"
+import { buildLifecycleEmail } from "../_shared/lifecycle-emails.ts"
 import {
   lifecycleCheckoutHref,
   logoUrl,
@@ -27,28 +22,16 @@ import {
  * 14 days.
  *
  *   r1  ~1h after leaving   "Your checkout is saved", no discount
- *   r2  +1 day              10% code
- *   r3  +3 days             20% for 48 hours, final email
  *
- * Queue keys: `<session>` (r1), `<session>::r2`, `<session>::r3`.
+ * That is the whole sequence. The two discount follow-ups (r2 at +1 day and
+ * r3 at +3 days, queued as `<session>::r2` / `<session>::r3`) were removed;
+ * rows still queued for them are skipped as a retired format.
  */
 
 const SEND_LIMIT = 8
 const SEND_GAP_MS = 600
-const DAY_MS = 24 * 60 * 60 * 1000
 
-type RecoveryStep = "r1" | "r2" | "r3"
-
-const STEP_EMAIL: Record<RecoveryStep, LifecycleEmailId> = {
-  r1: "recovery_saved",
-  r2: "recovery_10",
-  r3: "recovery_last_call",
-}
-
-const FOLLOW_UPS: { step: RecoveryStep; afterMs: number }[] = [
-  { step: "r2", afterMs: 1 * DAY_MS },
-  { step: "r3", afterMs: 3 * DAY_MS },
-]
+type RecoveryStep = "r1"
 
 type QueueRow = {
   id: number
@@ -65,7 +48,7 @@ function sleep(ms: number): Promise<void> {
 }
 
 function stepFromReason(reason: string | null): RecoveryStep | null {
-  const match = reason?.match(/^recovery:(r1|r2|r3)$/)
+  const match = reason?.match(/^recovery:(r1)$/)
   return match ? (match[1] as RecoveryStep) : null
 }
 
@@ -88,10 +71,82 @@ async function cancelSequence(supabase: Supabase, sessionId: string, reason: str
     .eq("status", "pending")
 }
 
+/** Currencies Stripe quotes in whole units (no cents). */
+const ZERO_DECIMAL_CURRENCIES = new Set([
+  "BIF", "CLP", "DJF", "GNF", "JPY", "KMF", "KRW", "MGA", "PYG", "RWF",
+  "UGX", "VND", "VUV", "XAF", "XOF", "XPF",
+])
+
+/** Stripe API version that returns `presentment_details` on a session. */
+const PRESENTMENT_API_VERSION = "2026-08-26.dahlia"
+
+/**
+ * The price the buyer saw. Checkout charges in USD but Adaptive Pricing shows
+ * most buyers their own currency; Stripe keeps that amount on the session as
+ * `presentment_details`. Falls back to the USD total when it is missing (the
+ * buyer was shown USD, or never loaded the page).
+ */
+function sessionPriceLabel(session: Stripe.Checkout.Session): string | null {
+  const presentment = (
+    session as unknown as {
+      presentment_details?: {
+        presentment_amount?: number | null
+        presentment_currency?: string | null
+      } | null
+    }
+  ).presentment_details
+  return (
+    formatPrice(presentment?.presentment_amount ?? null, presentment?.presentment_currency ?? null) ??
+    formatPrice(session.amount_total, session.currency)
+  )
+}
+
+/**
+ * Macs in the cart they left: the license itself plus any "more Macs" add-on
+ * they ticked on the payment page. Same rule the Stripe webhook uses after a
+ * payment (price/product metadata `max_devices` and `adds_devices`). Falls
+ * back to the base license when Stripe can't be read.
+ */
+async function cartDeviceCount(
+  stripe: Stripe,
+  session: Stripe.Checkout.Session,
+  fallbackBase: number
+): Promise<number> {
+  try {
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+      limit: 20,
+      expand: ["data.price.product"],
+    })
+    const count = (raw: string | undefined) => {
+      const n = Number.parseInt(raw ?? "", 10)
+      return Number.isFinite(n) && n > 0 ? n : null
+    }
+    let base: number | null = null
+    let added = 0
+    for (const item of lineItems.data) {
+      const product = item.price?.product
+      const productMetadata =
+        product && typeof product === "object" && !product.deleted ? product.metadata : {}
+      const metadata = { ...productMetadata, ...(item.price?.metadata ?? {}) }
+      const licenseDevices = count(metadata.max_devices)
+      if (licenseDevices) base = Math.max(base ?? 0, licenseDevices)
+      const addonDevices = count(metadata.adds_devices)
+      if (addonDevices) added += addonDevices * (item.quantity ?? 1)
+    }
+    return (base ?? fallbackBase) + added
+  } catch (error) {
+    console.error(
+      "[process-checkout-recovery] line_items_failed",
+      error instanceof Error ? error.message : "error"
+    )
+    return fallbackBase
+  }
+}
+
 function formatPrice(amountMinor: number | null, currency: string | null): string | null {
   if (typeof amountMinor !== "number" || amountMinor <= 0 || !currency) return null
-  const major = amountMinor / 100
   const code = currency.toUpperCase()
+  const major = ZERO_DECIMAL_CURRENCIES.has(code) ? amountMinor : amountMinor / 100
   try {
     return new Intl.NumberFormat(code === "INR" ? "en-IN" : "en-US", {
       style: "currency",
@@ -101,25 +156,6 @@ function formatPrice(amountMinor: number | null, currency: string | null): strin
     }).format(major)
   } catch {
     return null
-  }
-}
-
-async function enqueueFollowUps(supabase: Supabase, row: QueueRow, email: string, sentAtMs: number) {
-  const sessionId = baseSessionId(row.checkout_session_id)
-  for (const follow of FOLLOW_UPS) {
-    await supabase.from("macwall_checkout_recovery_queue").upsert(
-      {
-        checkout_session_id: `${sessionId}::${follow.step}`,
-        license_key: row.license_key,
-        customer_email: email,
-        payment_intent_id: row.payment_intent_id,
-        reason: `recovery:${follow.step}`,
-        scheduled_send_at: new Date(sentAtMs + follow.afterMs).toISOString(),
-        status: "pending",
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "checkout_session_id", ignoreDuplicates: true }
-    )
   }
 }
 
@@ -147,7 +183,9 @@ async function processQueueRow(args: {
 
   let session: Stripe.Checkout.Session
   try {
-    session = await stripe.checkout.sessions.retrieve(sessionId)
+    session = await stripe.checkout.sessions.retrieve(sessionId, undefined, {
+      apiVersion: PRESENTMENT_API_VERSION,
+    })
   } catch (error) {
     const missing = (error as { code?: string }).code === "resource_missing"
     console.error(
@@ -199,28 +237,28 @@ async function processQueueRow(args: {
     return "deferred"
   }
 
-  const promo =
-    step === "r2" ? LIFECYCLE_PROMO.ten : step === "r3" ? LIFECYCLE_PROMO.twenty : null
-  const untilUnix =
-    step === "r3"
-      ? Math.floor(Date.now() / 1000) + LIFECYCLE_PROMO.twenty.validHours * 3600
-      : null
   const offerSlug = session.metadata?.offer_slug ?? "permanent"
-  const maxDevices = Number.parseInt(session.metadata?.max_devices ?? "", 10)
+  // The plan is named by the offer they chose; the Mac count is what was in
+  // the cart, add-on included, so it matches the price shown.
+  const proPlus = offerSlug === "permanent_5" || offerSlug === "permanent_10"
+  const baseDevices = Number.parseInt(session.metadata?.max_devices ?? "", 10)
+  const devices = await cartDeviceCount(
+    stripe,
+    session,
+    Number.isFinite(baseDevices) && baseDevices > 0 ? baseDevices : proPlus ? 5 : 3
+  )
   const unsub = await unsubscribeUrlsFor(email)
-  const mail = buildLifecycleEmail(STEP_EMAIL[step], {
+  const mail = buildLifecycleEmail("recovery_saved", {
     appName,
     siteUrl: siteBaseUrl(),
     logoUrl: logoUrl(),
     supportEmail: supportEmail(),
     postalAddress: postalAddress(),
     unsubscribeHref: unsub?.page ?? null,
-    planLabel: planLabelForOffer(appName, offerSlug, Number.isFinite(maxDevices) ? maxDevices : null),
-    priceLabel: formatPrice(session.amount_total, session.currency),
+    planLabel: `${appName} ${proPlus ? "Pro+" : "Pro"} (${devices} ${devices === 1 ? "Mac" : "Macs"})`,
+    priceLabel: sessionPriceLabel(session),
     checkoutHref: lifecycleCheckoutHref({
       offerSlug,
-      promoCode: promo?.code ?? null,
-      untilUnix,
       email,
       visitorId: session.metadata?.visitor_id ?? null,
       medium: "recovery",
@@ -261,13 +299,11 @@ async function processQueueRow(args: {
     return result.rateLimited ? "rate_limited" : "failed"
   }
 
-  const sentAtMs = Date.now()
   await markQueueRow(supabase, row.id, {
     status: "sent",
-    sent_at: new Date(sentAtMs).toISOString(),
+    sent_at: new Date().toISOString(),
     customer_email: email,
   })
-  if (step === "r1") await enqueueFollowUps(supabase, row, email, sentAtMs)
   return "sent"
 }
 

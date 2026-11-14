@@ -3,11 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.105.4"
 
 import {
   BLACK_FRIDAY_SALE,
-  LIFECYCLE_PROMO,
   buildLifecycleEmail,
-  emailLooksDeliverable,
-  type LifecycleEmailContext,
-  type LifecycleEmailId,
 } from "../_shared/lifecycle-emails.ts"
 import {
   lifecycleCheckoutHref,
@@ -21,122 +17,60 @@ import {
 } from "../_shared/lifecycle-send.ts"
 
 /**
- * One-off "please update" email for an app release, run in batches until
- * `remaining` is 0. POST { campaign, version, audience: "customer" | "trial",
- * offer?: "thirty_24h", limit?, dryRun? }.
+ * One-off campaign emails, run in batches until `remaining` is 0.
+ * POST { campaign, audience, limit?, dryRun?, from? }.
  *
- *   customer   active license emails (service notice; skips suppressed and
- *              undeliverable addresses)
- *   trial      trial leads who never bought, minus unsubscribed, suppressed
- *              and undeliverable addresses
- *   winback    trial leads (trial over) and unpaid checkouts first seen
- *              before `before` (ISO date) who never bought. Always the 50%
- *              code, valid 24 hours from each send; `version` is optional.
- *   diwali     India visitors (checkout country IN) who never bought. The
- *              Diwali sale email; DIWALI applies itself at checkout for
- *              India. `version` is optional.
  *   black_friday  trial users whose trial is over and who never bought,
  *              minus known India visitors and anyone mailed in the last 20
  *              hours, newest first. BLACKFRIDAY rides on the checkout link.
- *              `version` is optional.
  *   black_friday_checkout  people outside India who opened a checkout, never
  *              bought and never started a trial. Same offer, without the
  *              "you tried MacWall" wording.
  *
  * Every address is logged in macwall_app_update_emails, so re-running never
- * emails anyone twice (the 20-hour cap then counts it). Without `offer` the
- * button goes to the download page. With `offer: "thirty_24h"` (trial only)
- * the button is checkout with the 30% code, valid 24 hours from each send.
+ * emails anyone twice (the 20-hour cap then counts it).
+ *
+ * The function keeps its original name. It used to send the per-release
+ * "please update" emails, the 50% win-back and the Diwali sale, all removed.
  */
 
 const MAX_BATCH = 200
 
-/** Mail content for one address. `untilUnix` limits the code to 24 hours from this send. */
+/** Mail content for one address. */
 function mailFor(args: {
   audience: Audience
-  offer: boolean
   email: string
   campaign: string
-  version: string
   appName: string
   unsubscribeHref: string | null
 }) {
-  if (args.audience === "diwali") {
-    return buildLifecycleEmail("diwali_sale", {
-      appName: args.appName,
-      siteUrl: siteBaseUrl(),
-      logoUrl: logoUrl(),
-      supportEmail: supportEmail(),
-      postalAddress: postalAddress(),
-      unsubscribeHref: args.unsubscribeHref,
-      checkoutHref: lifecycleCheckoutHref({
-        email: args.email,
-        medium: "recovery",
-        campaign: args.campaign,
-      }),
-    })
-  }
-  if (args.audience === "black_friday" || args.audience === "black_friday_checkout") {
-    const checkoutOnly = args.audience === "black_friday_checkout"
-    return buildLifecycleEmail("black_friday_sale", {
-      checkoutOnly,
-      appName: args.appName,
-      siteUrl: siteBaseUrl(),
-      logoUrl: logoUrl(),
-      supportEmail: supportEmail(),
-      postalAddress: postalAddress(),
-      unsubscribeHref: args.unsubscribeHref,
-      checkoutHref: lifecycleCheckoutHref({
-        promoCode: BLACK_FRIDAY_SALE.code,
-        email: args.email,
-        medium: checkoutOnly ? "recovery" : "trial",
-        campaign: args.campaign,
-      }),
-    })
-  }
-  const winback = args.audience === "winback"
-  const download = `${siteBaseUrl()}/download?utm_source=email&utm_medium=${winback ? "trial" : "update"}&utm_campaign=${encodeURIComponent(args.campaign)}`
-  const id: LifecycleEmailId = winback
-    ? "trial_winback_50"
-    : args.audience === "customer"
-      ? "app_update_customer"
-      : args.offer ? "app_update_trial_offer" : "app_update_trial"
-  const promo = winback ? LIFECYCLE_PROMO.fifty : LIFECYCLE_PROMO.thirty
-  const ctx: LifecycleEmailContext = {
+  const checkoutOnly = args.audience === "black_friday_checkout"
+  return buildLifecycleEmail("black_friday_sale", {
+    checkoutOnly,
+    // The secondary link is tracked under the same campaign as the button.
+    utmCampaign: args.campaign,
     appName: args.appName,
     siteUrl: siteBaseUrl(),
     logoUrl: logoUrl(),
     supportEmail: supportEmail(),
     postalAddress: postalAddress(),
     unsubscribeHref: args.unsubscribeHref,
-    checkoutHref: args.offer || winback
-      ? lifecycleCheckoutHref({
-          promoCode: promo.code,
-          untilUnix: Math.floor(Date.now() / 1000) + promo.validHours * 3600,
-          email: args.email,
-          medium: "trial",
-          campaign: args.campaign,
-        })
-      : download,
-    downloadHref: download,
-    updateVersion: args.version,
-  }
-  return buildLifecycleEmail(id, ctx)
+    checkoutHref: lifecycleCheckoutHref({
+      promoCode: BLACK_FRIDAY_SALE.code,
+      email: args.email,
+      medium: checkoutOnly ? "recovery" : "trial",
+      campaign: args.campaign,
+    }),
+  })
 }
+
 const SEND_GAP_MS = 150
 
 type Supabase = ReturnType<typeof createClient>
-type Audience = "customer" | "trial" | "winback" | "diwali" | "black_friday" | "black_friday_checkout"
+type Audience = "black_friday" | "black_friday_checkout"
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function blockReason(supabase: Supabase, audience: Audience, email: string) {
-  if (audience !== "customer") return await marketingBlockReason(supabase, email)
-  if (!emailLooksDeliverable(email)) return "invalid_address"
-  const { data: suppressed } = await supabase.rpc("macwall_email_suppressed", { p_email: email })
-  return suppressed === true ? "suppressed" : null
 }
 
 async function log(
@@ -164,25 +98,17 @@ Deno.serve(async (req: Request) => {
 
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>
   const campaign = typeof body.campaign === "string" ? body.campaign.trim() : ""
-  const version = typeof body.version === "string" ? body.version.trim() : ""
   const audience =
-    body.audience === "customer" || body.audience === "trial" ||
-    body.audience === "winback" || body.audience === "diwali" ||
     body.audience === "black_friday" || body.audience === "black_friday_checkout"
       ? body.audience
       : null
   const limit = Math.min(Math.max(Number(body.limit) || 50, 1), MAX_BATCH)
   const dryRun = body.dryRun === true
-  const offer = body.offer === "thirty_24h"
-  if (offer && audience !== "trial") {
-    return Response.json({ ok: false, error: "the offer is for the trial audience only" }, { status: 400 })
-  }
-  const before = typeof body.before === "string" ? new Date(body.before) : null
-  if (audience === "winback" && (!before || Number.isNaN(before.getTime()))) {
-    return Response.json({ ok: false, error: "winback needs `before`, an ISO date" }, { status: 400 })
-  }
-  if (!campaign || !audience || (!version && audience !== "winback" && audience !== "diwali" && audience !== "black_friday" && audience !== "black_friday_checkout")) {
-    return Response.json({ ok: false, error: "campaign, version and audience are required" }, { status: 400 })
+  if (!campaign || !audience) {
+    return Response.json(
+      { ok: false, error: "campaign and audience (black_friday or black_friday_checkout) are required" },
+      { status: 400 }
+    )
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")
@@ -204,27 +130,12 @@ Deno.serve(async (req: Request) => {
   })
   const candidates = (pLimit: number, countOnly = false) => {
     const opts = countOnly ? { count: "exact" as const, head: true } : undefined
-    if (audience === "diwali") {
-      return supabase.rpc("macwall_country_candidates", {
-        p_campaign: campaign, p_country: "IN", p_limit: pLimit,
-      }, opts)
-    }
-    if (audience === "black_friday") {
-      return supabase.rpc("macwall_black_friday_candidates", {
-        p_campaign: campaign, p_limit: pLimit,
-      }, opts)
-    }
-    if (audience === "black_friday_checkout") {
-      return supabase.rpc("macwall_black_friday_checkout_candidates", {
-        p_campaign: campaign, p_limit: pLimit,
-      }, opts)
-    }
-    return audience === "winback"
-      ? supabase.rpc("macwall_winback_candidates", {
-          p_campaign: campaign, p_before: before!.toISOString(), p_limit: pLimit,
+    return audience === "black_friday"
+      ? supabase.rpc("macwall_black_friday_candidates", {
+          p_campaign: campaign, p_limit: pLimit,
         }, opts)
-      : supabase.rpc("macwall_app_update_candidates", {
-          p_campaign: campaign, p_audience: audience, p_limit: pLimit,
+      : supabase.rpc("macwall_black_friday_checkout_candidates", {
+          p_campaign: campaign, p_limit: pLimit,
         }, opts)
   }
   // An exact count: the API caps returned rows at 1,000.
@@ -237,7 +148,7 @@ Deno.serve(async (req: Request) => {
     const { count, error } = await countLeft()
     if (error) return Response.json({ ok: false, error: error.message }, { status: 500 })
     const sample = mailFor({
-      audience, offer, email: "someone@example.com", campaign, version, appName,
+      audience, email: "someone@example.com", campaign, appName,
       unsubscribeHref: `${siteBaseUrl()}/unsubscribe/trial?t=…`,
     })
     return Response.json({ ok: true, dryRun: true, candidates: count, from, subject: sample.subject, text: sample.text })
@@ -250,7 +161,7 @@ Deno.serve(async (req: Request) => {
   let rateLimited = false
   try {
   for (const { email } of (rows ?? []) as { email: string }[]) {
-    const blocked = await blockReason(supabase, audience, email)
+    const blocked = await marketingBlockReason(supabase, email)
     if (blocked) {
       await log(supabase, { campaign, email, audience, status: "skipped", skip_reason: blocked })
       counts.skipped += 1
@@ -258,7 +169,7 @@ Deno.serve(async (req: Request) => {
     }
     const unsub = await unsubscribeUrlsFor(email)
     const mail = mailFor({
-      audience, offer, email, campaign, version, appName,
+      audience, email, campaign, appName,
       unsubscribeHref: unsub?.page ?? null,
     })
     const result = await sendMarketingEmail({
@@ -269,7 +180,7 @@ Deno.serve(async (req: Request) => {
       unsubscribeOneClick: unsub?.oneClick ?? null,
       idempotencyKey: `update/${campaign}/${email}`,
       tags: [
-        { name: "category", value: audience === "winback" || audience === "diwali" || audience === "black_friday" || audience === "black_friday_checkout" ? audience : offer ? "app_update_offer" : "app_update" },
+        { name: "category", value: audience },
         { name: "campaign", value: campaign.replace(/[^A-Za-z0-9_-]/g, "_") },
       ],
     })

@@ -323,7 +323,7 @@ export const macwall = {
   /** Official channel ("MacWall", @MacWallApp), which links back to macwall.app. */
   youtubeChannelURL: "https://www.youtube.com/channel/UC0AggWIjNCI-iCQC1NNHdeA",
   supportEmail: "support@macwall.app",
-  /** Reel refund program: 50% at 2k views, 100% at 20k views. */
+  /** Reel refund program: 50% at 10k views, 100% at 20k views. */
   reelRefundEmail: "discount@macwall.app",
   reelRefundInstagram: "@macwallapp_",
   reelRefundInstagramURL: "https://www.instagram.com/macwallapp_",
@@ -331,7 +331,7 @@ export const macwall = {
   reelRefundTiktokURL: "https://www.tiktok.com/@macwall.app",
   reelRefundHashtag: "#macwall",
   reelRefundHashtagURL: "https://www.instagram.com/explore/tags/macwall/",
-  reelRefundHalfViews: 2_000,
+  reelRefundHalfViews: 10_000,
   reelRefundFullViews: 20_000,
   legalHub: "https://macwall.app/legal",
   legalTerms: "https://macwall.app/legal/terms",

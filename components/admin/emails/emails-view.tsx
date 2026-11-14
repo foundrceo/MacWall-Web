@@ -26,7 +26,7 @@ import {
 import {
   ADMIN_EMAIL_TEMPLATES,
   EMAIL_SITE_URL,
-  type AdminEmailTemplate,
+  type AdminEmailGroup,
   type AdminEmailTemplateId,
 } from "@/lib/admin/email-templates"
 import type { TrialEmailStats } from "@/lib/admin/trial-emails"
@@ -39,15 +39,21 @@ const WIDTH_PX: Record<PreviewWidth, number> = {
   mobile: 390,
 }
 
-/** A template's tone says which flow it belongs to. */
-const LANES: readonly {
-  tone: AdminEmailTemplate["tone"]
+const GROUPS: readonly {
+  id: AdminEmailGroup
   label: string
+  description: string
 }[] = [
-  { tone: "green", label: "Transactional" },
-  { tone: "violet", label: "Trial" },
-  { tone: "amber", label: "Recovery" },
-  { tone: "blue", label: "App updates" },
+  {
+    id: "automatic",
+    label: "Automatic",
+    description: "Sent by the system when something happens.",
+  },
+  {
+    id: "campaign",
+    label: "Campaigns",
+    description: "One-off sales, sent by hand.",
+  },
 ]
 
 const subscribeToNothing = () => () => {}
@@ -62,8 +68,7 @@ function useBrowserOrigin() {
 }
 
 export function EmailsView() {
-  const [selectedId, setSelectedId] =
-    useState<AdminEmailTemplateId>("license-3")
+  const [selectedId, setSelectedId] = useState<AdminEmailTemplateId>("license")
   const [width, setWidth] = useState<PreviewWidth>("desktop")
   const [frameHeight, setFrameHeight] = useState(900)
   const [stats, setStats] = useState<TrialEmailStats | null>(null)
@@ -161,17 +166,21 @@ export function EmailsView() {
             aria-label="Email templates"
             className="min-h-0 flex-1 overflow-y-auto p-2"
           >
-            {LANES.map((lane) => {
+            {GROUPS.map((group) => {
               const templates = ADMIN_EMAIL_TEMPLATES.filter(
-                (template) => template.tone === lane.tone
+                (template) => template.group === group.id
               )
               if (templates.length === 0) return null
               return (
-                <div key={lane.tone} className="mb-3 last:mb-0">
-                  <p className="text-faint flex items-center gap-2 px-2.5 pt-1.5 pb-1 text-[11px] font-medium">
-                    <StatusDot tone={lane.tone as Tone} className="size-1.5" />
-                    {lane.label}
-                  </p>
+                <div key={group.id} className="mb-4 last:mb-0">
+                  <div className="px-2.5 pt-1.5 pb-1.5">
+                    <p className="text-soft text-xs font-medium">
+                      {group.label}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {group.description}
+                    </p>
+                  </div>
                   <ul className="space-y-0.5">
                     {templates.map((template) => {
                       const active = template.id === selected.id
@@ -219,6 +228,7 @@ export function EmailsView() {
               {selected.subject}
             </h2>
             <dl className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1 text-xs">
+              <MetaItem label="Inbox preview" value={selected.preheader} />
               <MetaItem label="From" value={selected.from} />
               <MetaItem label="Trigger" value={selected.trigger} />
               <MetaItem label="Function" value={selected.edgeFunction} />

@@ -22,7 +22,10 @@ import {
   normalizeCheckoutVisitorId,
 } from "@/lib/stripe/checkout-email"
 import { resolveCheckoutSiteOrigin } from "@/lib/stripe/checkout-origin"
-import { createMacWallCheckoutSession } from "@/lib/stripe/create-macwall-checkout-session"
+import {
+  checkoutUtmFromParams,
+  createMacWallCheckoutSession,
+} from "@/lib/stripe/create-macwall-checkout-session"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -106,13 +109,9 @@ async function startCheckout(
   })
 
   const email =
-    lead.email ||
-    cookieStore.get(CHECKOUT_LEAD_EMAIL_COOKIE)?.value ||
-    null
+    lead.email || cookieStore.get(CHECKOUT_LEAD_EMAIL_COOKIE)?.value || null
   const visitorId =
-    lead.visitorId ||
-    cookieStore.get(CHECKOUT_VISITOR_ID_COOKIE)?.value ||
-    null
+    lead.visitorId || cookieStore.get(CHECKOUT_VISITOR_ID_COOKIE)?.value || null
 
   // Both cookies exist only when ad consent allowed the pixel, so a
   // non-consenting visitor sends no TikTok match data.
@@ -140,6 +139,8 @@ async function startCheckout(
     visitorId,
     intent,
     tiktok,
+    // Email buttons carry utm_*; keep them on the sale.
+    utm: checkoutUtmFromParams(new URL(request.url).searchParams),
   })
 }
 
@@ -193,14 +194,21 @@ export async function GET(request: Request) {
   }
 
   const response = NextResponse.redirect(result.url, 303)
-  attachLeadCookies(response, result.customerEmail ?? lead.email, lead.visitorId)
+  attachLeadCookies(
+    response,
+    result.customerEmail ?? lead.email,
+    lead.visitorId
+  )
   return response
 }
 
 export async function POST(request: Request) {
   // Sent by our own page JS, so only refuse unmistakable automation here.
   if (isAutomationUserAgent(request.headers.get("user-agent"))) {
-    return NextResponse.json({ error: "Checkout unavailable." }, { status: 403 })
+    return NextResponse.json(
+      { error: "Checkout unavailable." },
+      { status: 403 }
+    )
   }
 
   let offerSlug: string | null = null

@@ -6,42 +6,43 @@
  * both always show the same content.
  *
  * Sequences (each stops on purchase or unsubscribe):
- *   Trial:    trial_ended (day 0, 10%) → trial_reminder (day 2, Reel refund)
- *             → trial_last_call (day 6, 20% for 48h)
- *   Checkout: recovery_saved (~1h after abandoning, no discount)
- *             → recovery_10 (day 1, 10%) → recovery_last_call (day 3, 20% for 48h)
- *   One-off:  trial_winback_50 (50% for 24h, sent by hand to trial users
- *             and checkouts that never bought)
- *             diwali_sale (India, DIWALI 30% until Nov 10 IST, festive look)
- *             black_friday_sale (trial users, BLACKFRIDAY 30% until Dec 1 PT)
+ *   Trial:    trial_ended (at trial end, no discount) → trial_offer (+6h, 10% for 24h)
+ *             → trial_last_call (day 6, 20% for 24h)
+ *   Buyers:   reel_refund (about 90 minutes after purchase: money back for
+ *             posting a Reel)
+ *   Checkout: recovery_saved (~1h after abandoning, no discount; the only
+ *             checkout email)
+ *   One-off:  black_friday_sale (trial users, BLACKFRIDAY 30% until Dec 1 PT)
  *
  * Copy rules: plain words, no em dashes, one primary button, no fake urgency.
+ * Every email renders through the shared layout in ./email-layout.ts.
  */
+
+import {
+  renderEmailHtml,
+  renderEmailText,
+  type EmailBrand,
+  type EmailContent,
+} from "./email-layout.ts"
 
 export const LIFECYCLE_PROMO = {
-  /** 10% off, no expiry. */
+  /** 10% off. No expiry on its own; the trial offer email limits its link
+   *  to `TRIAL_OFFER_HOURS` with the checkout `until` param. */
   ten: { code: "WALL10", percent: "10%" },
-  /** 20% off, enforced for 48h via the checkout `until` param. */
-  twenty: { code: "R7N2WP8J", percent: "20%", validHours: 48 },
-  /** 30% off, enforced for 24h via the checkout `until` param (app update offer). */
-  thirty: { code: "B3H9KF5Q", percent: "30%", validHours: 24 },
-  /** 50% off, enforced for 24h via the checkout `until` param (one-off win-back). */
-  fifty: { code: "SFM6TCBY", percent: "50%", validHours: 24 },
+  /** 20% off, enforced for 24h via the checkout `until` param. */
+  twenty: { code: "R7N2WP8J", percent: "20%", validHours: 24 },
 } as const
 
-/**
- * India Diwali sale (matches SITE_SALES "diwali-2026" and the Stripe code
- * DIWALI, which expires at the deadline). India visitors get it applied at
- * checkout automatically. Rupee figures are rounded at the rate the site
- * showed when this was written, so the copy says "about".
- */
-export const DIWALI_SALE = {
-  code: "DIWALI",
-  percent: "30%",
-  deadline: "Nov 10, 11:59 PM IST",
-  pro: { was: "$4.99", now: "$3.49", inr: "₹333", wasInr: "₹476" },
-  proPlus: { was: "$7.99", now: "$5.59", inr: "₹533", wasInr: "₹762" },
+/** Reel refund handles. Keep these, and the view counts in the reel_refund
+ *  email (10,000 and 20,000), in sync with `macwall.reelRefund*` in
+ *  lib/macwall-site.ts (this file can't import from the Next app). */
+const REEL = {
+  hashtag: "#macwall",
+  email: "discount@macwall.app",
 } as const
+
+/** How long the 10% link in the trial offer email (trial_offer) works. */
+export const TRIAL_OFFER_HOURS = 24
 
 /**
  * Black Friday sale (matches SITE_SALES "black-friday-2026" and the Stripe
@@ -58,18 +59,12 @@ export const BLACK_FRIDAY_SALE = {
 
 export type LifecycleEmailId =
   | "trial_ended"
-  | "trial_reminder"
+  | "trial_offer"
+  | "reel_refund"
   | "trial_last_call"
-  | "trial_winback_50"
   | "recovery_saved"
-  | "recovery_10"
-  | "recovery_last_call"
-  | "app_update_customer"
-  | "app_update_trial"
-  | "app_update_trial_offer"
   | "send_to_mac"
   | "send_to_mac_reminder"
-  | "diwali_sale"
   | "black_friday_sale"
 
 export type LifecycleEmailContext = {
@@ -77,8 +72,7 @@ export type LifecycleEmailContext = {
   siteUrl: string
   logoUrl: string
   supportEmail: string
-  /** Primary button target (checkout link with promo already applied; the
-   *  download page for `app_update_*`). */
+  /** Primary button target (checkout link with the promo already applied). */
   checkoutHref: string
   /** Signed unsubscribe page, when available. */
   unsubscribeHref: string | null
@@ -88,14 +82,13 @@ export type LifecycleEmailContext = {
   planLabel?: string | null
   /** Recovery only: e.g. "₹441.50" or "$12.99". */
   priceLabel?: string | null
-  /** `app_update_*` only: the version to update to, e.g. "4.0.7". */
-  updateVersion?: string | null
-  /** `app_update_trial_offer` only: the download page (the button is checkout). */
-  downloadHref?: string | null
   /** `send_to_mac*` only: the wallpaper page they were looking at. */
   wallpaper?: { name: string; href: string } | null
   /** `black_friday_sale` only: opened a checkout but never tried the app. */
   checkoutOnly?: boolean | null
+  /** The `utm_campaign` the sender puts on the button, when it is not the
+   *  default for this email (one-off campaigns pass their campaign name). */
+  utmCampaign?: string | null
 }
 
 export type LifecycleEmail = {
@@ -105,583 +98,339 @@ export type LifecycleEmail = {
   text: string
 }
 
-type Copy = {
-  subject: string
-  preheader: string
-  headline: string
-  paragraphs: string[]
-  /** Small summary line, e.g. plan and price. */
-  summary?: string | null
-  code?: { code: string; hint: string } | null
-  button: string
-  secondaryLink?: { label: string; href: string } | null
-  ps?: string | null
-  /** Why they are getting this mail (footer). */
-  reason: string
-  /** Festive layout (art, two-tone headline, price cards). Default: plain. */
-  theme?: "diwali" | "black-friday"
-  /** Diwali only: plan rows with the struck-through price. */
-  prices?: { plan: string; was: string; now: string; note: string }[]
-  /** Diwali only: large centred line under the headline. */
-  lead?: string
-  /** Diwali only: offer terms in small print above the footer. */
-  fineprint?: string
+/** Sits under the button of every email that asks for a purchase. */
+const GUARANTEE = "One payment, not a subscription. 7-day money-back guarantee."
+
+/**
+ * UTM values for the links this file writes (the secondary link). They match
+ * what the sending functions put on the main button, so every click from one
+ * email lands in the same campaign.
+ */
+const TRACKING: Record<LifecycleEmailId, { medium: string; campaign: string }> = {
+  trial_ended: { medium: "trial", campaign: "trial_ended" },
+  trial_offer: { medium: "trial", campaign: "trial_offer" },
+  reel_refund: { medium: "customer", campaign: "reel_refund" },
+  trial_last_call: { medium: "trial", campaign: "trial_last_call" },
+  recovery_saved: { medium: "recovery", campaign: "recovery_r1" },
+  send_to_mac: { medium: "send_to_mac", campaign: "send_to_mac" },
+  send_to_mac_reminder: { medium: "send_to_mac", campaign: "send_to_mac_reminder" },
+  black_friday_sale: { medium: "trial", campaign: "black_friday_sale" },
 }
 
-function copyFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): Copy {
+/** Adds UTM parameters to a link on our own site. */
+function trackedLink(
+  href: string,
+  id: LifecycleEmailId,
+  ctx: LifecycleEmailContext
+): string {
+  if (!href.startsWith(ctx.siteUrl) || href.includes("utm_source=")) return href
+  const medium =
+    id === "black_friday_sale" && ctx.checkoutOnly ? "recovery" : TRACKING[id].medium
+  const campaign = ctx.utmCampaign?.trim() || TRACKING[id].campaign
+  const [base, hash] = href.split("#")
+  const query = `utm_source=email&utm_medium=${medium}&utm_campaign=${encodeURIComponent(campaign)}&utm_content=secondary_link`
+  return `${base}${base.includes("?") ? "&" : "?"}${query}${hash ? `#${hash}` : ""}`
+}
+
+/**
+ * Copy rules: say what happened, say what they get, one button. Two short
+ * paragraphs at most; the code, plan or price goes in the info card, the
+ * guarantee in the note, and help in the footer of every email.
+ */
+function contentFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): EmailContent {
   const app = ctx.appName
   const plan = ctx.planLabel?.trim() || `${app} Pro`
   const ten = LIFECYCLE_PROMO.ten
   const twenty = LIFECYCLE_PROMO.twenty
-  const trialReason = `You're getting this because you tried ${app} on your Mac.`
-  const checkoutReason = `You're getting this because you started a checkout on ${hostOf(ctx.siteUrl)}.`
+  // Short enough to sit on one line with the Unsubscribe link, on a phone too.
+  const trialReason = `You got this because you tried ${app}.`
+  const checkoutReason = "You got this because you started a checkout."
+  const sendToMacReason = "You got this because you asked for the link."
 
-  const version = ctx.updateVersion?.trim() || "the latest version"
-  const updateParagraphs = [
-    `${app} ${version} is a major update: the all-new ${app} 2.0 design, with a new Home, Wallpaper page and Spotlight-style search, and fixes for the problems people reported.`,
-    `Please update now. Open ${app} and it installs the update by itself. If it doesn't, download it with the button below and drag it to Applications.`,
-  ]
-
-  const sendToMacReason = `You're getting this because you asked for the ${app} download link on ${hostOf(ctx.siteUrl)}.`
+  const link = (label: string, href: string) => ({
+    label,
+    href: trackedLink(href, id, ctx),
+  })
   const wallpaperLink = ctx.wallpaper
-    ? { label: `See “${ctx.wallpaper.name}”`, href: ctx.wallpaper.href }
+    ? link(`See “${ctx.wallpaper.name}”`, ctx.wallpaper.href)
     : null
+  const codeRow = (code: string, hint: string) => ({
+    label: "Your code",
+    value: code,
+    hint,
+    mono: true,
+  })
+  // Most people first open a Send to Mac email on the phone they asked from,
+  // where the button can't install anything: the steps say what to do and where.
+  const installSteps = [
+    {
+      icon: `${ctx.siteUrl}/email/icon-laptop.png`,
+      label: "Step 1",
+      title: "Open this email on your Mac",
+    },
+    {
+      icon: `${ctx.siteUrl}/email/icon-download.png`,
+      label: "Step 2",
+      title: `Download ${app} and drag it to Applications`,
+    },
+    {
+      icon: `${ctx.siteUrl}/email/icon-sparkles.png`,
+      label: "Step 3",
+      title: "Pick a live wallpaper",
+    },
+  ]
+  const base = {
+    unsubscribeHref: ctx.unsubscribeHref,
+  }
+  const icon = (name: string) => `${ctx.siteUrl}/email/icon-${name}.png`
 
   switch (id) {
-    case "diwali_sale": {
-      const d = DIWALI_SALE
-      return {
-        theme: "diwali",
-        subject: `✨ Light up your Mac this Diwali`,
-        preheader: `${d.percent} off ${app} Pro and Pro+ until ${d.deadline}. Pro is ${d.pro.now}, about ${d.pro.inr}, paid once.`,
-        headline: "Light up|your Mac.",
-        lead: `Celebrate Diwali with ${d.percent} off ${app} Pro and Pro+. 1,000+ live wallpapers for your desktop and Lock Screen, paid once and yours forever.‡`,
-        paragraphs: [
-          "Pro unlocks the full catalog, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
-          "One payment, no subscription. Every future update is included, and there's a 7-day money-back guarantee.",
-        ],
-        prices: [
-          { plan: "Pro · 3 Macs", was: d.pro.was, now: d.pro.now, note: `about ${d.pro.inr}` },
-          { plan: "Pro+ · 5 Macs", was: d.proPlus.was, now: d.proPlus.now, note: `about ${d.proPlus.inr}` },
-        ],
-        code: {
-          code: d.code,
-          hint: `Applied automatically at checkout. Offer ends ${d.deadline}.`,
-        },
-        button: `Get ${app} Pro`,
-        secondaryLink: { label: "Compare Pro and Pro+", href: `${ctx.siteUrl}/pricing` },
-        fineprint: `‡ Offer for buyers in India: ${d.percent} off ${app} Pro and Pro+ with the code ${d.code}, applied automatically, until ${d.deadline}. Prices are set in US dollars. Rupee amounts are approximate, and checkout shows your exact total before you pay.`,
-        ps: "Questions? Reply to this email and a real person will answer.",
-        reason: checkoutReason,
-      }
-    }
     case "black_friday_sale": {
       const b = BLACK_FRIDAY_SALE
       return {
-        theme: "black-friday",
+        ...base,
         subject: `Black Friday: ${b.percent} off ${app} Pro`,
         preheader: `${app} Pro is ${b.pro.now} for Black Friday, paid once. Ends ${b.deadline}.`,
-        headline: "Black Friday.|30% off Pro.",
-        lead: `${app} Pro and Pro+ are ${b.percent} off until ${b.deadline}. 1,000+ live wallpapers for your desktop and Lock Screen, paid once and yours forever.\u2021`,
+        headline: `Black Friday.|${b.percent} off Pro.`,
+        // Day only: the exact hour is in the inbox preview line.
+        lead: `${app} Pro and Pro+ are ${b.percent} off until ${b.deadline.split(",")[0]}.`,
         paragraphs: [
           ctx.checkoutOnly
-            ? "Pro unlocks the full catalog, the live Lock Screen on macOS 26, and your own videos as wallpapers."
-            : `You tried ${app} on your Mac. Pro turns your live wallpapers back on and unlocks the full catalog, the live Lock Screen on macOS 26, and your own videos as wallpapers.`,
-          "One payment, no subscription. Every future update is included, and there's a 7-day money-back guarantee.",
+            ? "Pro unlocks 1,000+ live wallpapers, the live Lock Screen on macOS 26, and your own videos as wallpapers."
+            : `You tried ${app} on your Mac. Pro turns your live wallpapers back on and unlocks 1,000+ more.`,
         ],
-        prices: [
-          { plan: "Pro \u00b7 3 Macs", was: b.pro.was, now: b.pro.now, note: "one-time" },
-          { plan: "Pro+ \u00b7 5 Macs", was: b.proPlus.was, now: b.proPlus.now, note: "one-time" },
-        ],
-        code: {
-          code: b.code,
-          hint: `Applied automatically with the button below. Offer ends ${b.deadline}.`,
+        image: {
+          src: `${ctx.siteUrl}/email/black-friday-hero.jpg`,
+          width: 560,
+          height: 364,
+          alt: `A Mac desktop with a ${app} live wallpaper of a car at night`,
         },
-        button: `Get ${app} Pro`,
-        secondaryLink: { label: "Compare Pro and Pro+", href: `${ctx.siteUrl}/pricing` },
-        fineprint: `\u2021 ${b.percent} off ${app} Pro and Pro+ with the code ${b.code}, applied automatically by the button in this email, until ${b.deadline}. Prices shown are in US dollars; some countries have lower local prices, and checkout shows your exact total before you pay.`,
-        ps: "Questions? Reply to this email and a real person will answer.",
+        prices: [
+          { plan: "Pro · 3 Macs", was: b.pro.was, now: b.pro.now, note: "one-time" },
+          { plan: "Pro+ · 5 Macs", was: b.proPlus.was, now: b.proPlus.now, note: "one-time" },
+        ],
+        info: [codeRow(b.code, `${b.percent} off, applied automatically with the button below.`)],
+        button: { label: `Get ${app} Pro`, href: ctx.checkoutHref },
+        secondaryLink: link("Compare Pro and Pro+", `${ctx.siteUrl}/pricing`),
+        note: GUARANTEE,
         reason: ctx.checkoutOnly ? checkoutReason : trialReason,
       }
     }
     case "send_to_mac":
       return {
+        ...base,
         subject: `Your ${app} download link`,
-        preheader: "Open this on your Mac to install it. Free for 24 hours.",
-        headline: `Here's ${app} for your Mac`,
-        paragraphs: [
-          "Open this email on your Mac and tap the button to download. Drag MacWall to Applications, open it, and pick a wallpaper.",
-          "Every feature is free for 24 hours, no card needed. 1,000+ live wallpapers for your desktop, Lock Screen and screen saver.",
-        ],
-        button: `Download ${app} for Mac`,
+        preheader: "Open this on your Mac to install. Every feature is free for 24 hours.",
+        headline: `${app} for your Mac`,
+        paragraphs: ["Here's your download link. Installing takes about a minute."],
+        steps: installSteps,
+        button: { label: `Download ${app}`, href: ctx.checkoutHref },
         secondaryLink: wallpaperLink,
-        ps: "Stuck installing? Reply to this email and a real person will help.",
+        note: "Every feature is free for 24 hours. No card needed.",
         reason: sendToMacReason,
       }
     case "send_to_mac_reminder":
       return {
+        ...base,
         subject: `Did ${app} make it to your Mac?`,
-        preheader: "Your download link is still here. Free for 24 hours.",
-        headline: `Still want ${app} on your Mac?`,
+        preheader: "Your download link is still here. It takes about a minute.",
+        headline: "Your download is waiting",
         paragraphs: [
-          "Yesterday you asked for the download link. If you haven't installed it yet, here it is again. It takes about a minute.",
-          "Already using it? Ignore this. This is the only reminder.",
+          `You asked for the link yesterday. If ${app} isn't on your Mac yet, here it is again.`,
         ],
-        button: `Download ${app} for Mac`,
+        steps: installSteps,
+        button: { label: `Download ${app}`, href: ctx.checkoutHref },
         secondaryLink: wallpaperLink,
+        note: "Free for 24 hours, no card needed. This is the only reminder.",
         reason: sendToMacReason,
       }
-    case "app_update_customer":
-      return {
-        subject: `${app} ${version} is here: please update`,
-        preheader: `The all-new ${app} 2.0 design and fixes for the problems you reported.`,
-        headline: `${app} ${version} is here`,
-        paragraphs: [...updateParagraphs, "Your Pro license carries over. There's nothing to enter again."],
-        button: `Download ${app} ${version}`,
-        ps: "Something still not right after updating? Reply to this email and a real person will help.",
-        reason: `You're getting this because you bought ${app} Pro.`,
-      }
-    case "app_update_trial":
-      return {
-        subject: `${app} ${version} is here: please update`,
-        preheader: `The all-new ${app} 2.0 design and fixes for the problems you reported.`,
-        headline: `${app} ${version} is here`,
-        paragraphs: [...updateParagraphs, "Everything you set up is still in the app."],
-        button: `Download ${app} ${version}`,
-        ps: "Something still not right after updating? Reply to this email and a real person will help.",
-        reason: trialReason,
-      }
-    case "app_update_trial_offer": {
-      const thirty = LIFECYCLE_PROMO.thirty
-      return {
-        subject: `${app} ${version} is here, with ${thirty.percent} off Pro for 24 hours`,
-        preheader: `The all-new ${app} 2.0 and fixes for the problems you reported. ${thirty.percent} off Pro until tomorrow.`,
-        headline: `${app} ${version} is here`,
-        paragraphs: [
-          updateParagraphs[0],
-          `To celebrate, ${app} Pro is ${thirty.percent} off for the next 24 hours. It's a single payment, not a subscription, and every future update is included.`,
-          `If ${app} is open on your Mac, it updates by itself. Otherwise, download ${version} with the link below.`,
-        ],
-        code: {
-          code: thirty.code,
-          hint: `${thirty.percent} off, applied automatically with the button below. Ends 24 hours after this email was sent.`,
-        },
-        button: `Get ${app} Pro, ${thirty.percent} off`,
-        secondaryLink: ctx.downloadHref
-          ? { label: `Download ${app} ${version}`, href: ctx.downloadHref }
-          : null,
-        ps: "Questions before you buy? Reply to this email and a real person will answer.",
-        reason: trialReason,
-      }
-    }
-    case "trial_winback_50": {
-      const fifty = LIFECYCLE_PROMO.fifty
-      return {
-        subject: `Your ${fifty.percent} off ${app} Pro code expires in 24 hours`,
-        preheader: `We cut ${app} Pro in half, just for you. Use it before this time tomorrow.`,
-        headline: `We cut ${app} Pro in half. For 24 hours.`,
-        paragraphs: [
-          `You tried ${app} but didn't pick up Pro. We'd like to make it easier: for the next 24 hours, Pro is ${fifty.percent} off.`,
-          `${app} has had a big update since you tried it: an all-new design, Spotlight-style search, and fixes for the problems people reported.`,
-          "Pro turns your live wallpapers back on and unlocks the full catalog: 1,000+ live wallpapers, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
-          "It's a single payment, not a subscription. Every future update is included, one license covers up to 3 Macs, and there's a 7-day money-back guarantee.",
-        ],
-        code: {
-          code: fifty.code,
-          hint: `${fifty.percent} off, applied automatically with the button below. Ends 24 hours after this email was sent.`,
-        },
-        button: `Get ${app} Pro, ${fifty.percent} off`,
-        secondaryLink: ctx.downloadHref
-          ? { label: `Download the latest ${app}`, href: ctx.downloadHref }
-          : null,
-        ps: "Questions before you buy? Reply to this email and a real person will answer.",
-        reason: trialReason,
-      }
-    }
     case "trial_ended":
       return {
+        ...base,
         subject: `Your ${app} trial has ended`,
-        preheader: `Your wallpapers are still in the app. Here's ${ten.percent} off Pro.`,
+        preheader: "Your wallpapers are saved. Pro turns them back on.",
         headline: "Your trial has ended",
         paragraphs: [
-          `Thanks for trying ${app}. Your live wallpapers are paused now, but everything you picked is still in the app.`,
-          "Pro turns them back on and unlocks the full catalog: 1,000+ live wallpapers, the live Lock Screen on macOS 26, and your own videos as wallpapers.",
-          "It's a single payment, not a subscription. Every future update is included, and one license covers up to 3 Macs.",
+          "Your live wallpapers are paused. Everything you picked is still in the app, and Pro turns it back on.",
         ],
-        code: {
-          code: ten.code,
-          hint: `${ten.percent} off, applied automatically with the button below.`,
-        },
-        button: `Get ${app} Pro`,
-        ps: "Questions before you buy? Reply to this email and a real person will answer.",
+        // No discount here: the 10% code follows 6 hours later (trial_offer).
+        stepsLayout: "cards",
+        steps: [
+          {
+            icon: `${ctx.siteUrl}/email/icon-images.png`,
+            title: "1,000+ live wallpapers",
+          },
+          {
+            icon: `${ctx.siteUrl}/email/icon-lock-keyhole.png`,
+            title: "Live Lock Screen on macOS 26",
+          },
+          {
+            icon: `${ctx.siteUrl}/email/icon-film.png`,
+            title: "Your own videos as wallpapers",
+          },
+          {
+            icon: `${ctx.siteUrl}/email/icon-music.png`,
+            title: "Music Sync with your songs",
+          },
+          {
+            icon: `${ctx.siteUrl}/email/icon-laptop.png`,
+            title: "Bend: folds with your MacBook lid",
+          },
+          {
+            icon: `${ctx.siteUrl}/email/icon-monitor.png`,
+            title: "Every display, synced or solo",
+          },
+        ],
+        button: { label: `Get ${app} Pro`, href: ctx.checkoutHref },
+        note: "Pay once for 3 Macs. 7-day money-back guarantee.",
         reason: trialReason,
       }
-    case "trial_reminder":
+    // Trial 2, six hours on. They liked it enough to set wallpapers up, so
+    // lead with what they lost, make the discount the hero, and show what
+    // comes back.
+    case "trial_offer":
       return {
-        subject: `Get your ${app} Pro money back with a Reel`,
-        preheader: "Post one Reel of your desktop and get up to 100% of your money back.",
-        headline: "Get your money back with a Reel",
+        ...base,
+        subject: `${ten.percent} off to turn your wallpapers back on`,
+        preheader: `Everything you picked is still saved in ${app}. ${ten.percent} off for ${TRIAL_OFFER_HOURS} hours.`,
+        headline: "Turn your wallpapers back on",
         paragraphs: [
-          `Here's a way to get some or all of your ${app} Pro money back.`,
-          `Buy Pro, then post a short Reel or TikTok of ${app} running on your Mac with #macwall and #ad. At 2,000 views we refund half and your license stays active. At 20,000 views we refund all of it, which deactivates the license like any full refund.`,
-          `Your ${ten.percent} code still works too.`,
+          `Everything you picked is still saved in ${app}. Here's ${ten.percent} off Pro to bring it back, for the next ${TRIAL_OFFER_HOURS} hours.`,
         ],
-        code: {
+        offer: {
+          badge: `Ends in ${TRIAL_OFFER_HOURS} hours`,
+          amount: `${ten.percent} off`,
+          caption: `${app} Pro`,
           code: ten.code,
-          hint: `${ten.percent} off, applied automatically with the button below.`,
+          hint: "applied automatically with the button below.",
         },
-        button: `Get ${app} Pro`,
-        secondaryLink: {
-          label: "How the Reel refund works",
-          href: `${ctx.siteUrl}/creator`,
-        },
+        steps: [
+          { icon: icon("images"), title: "1,000+ live wallpapers, back on your desktop." },
+          { icon: icon("lock-keyhole"), title: "Live Lock Screen on macOS 26." },
+          { icon: icon("film"), title: "Your own videos as wallpapers." },
+        ],
+        button: { label: `Get Pro for ${ten.percent} off`, href: ctx.checkoutHref },
+        note: "Pay once for 3 Macs. 7-day money-back guarantee.",
         reason: trialReason,
       }
+    // Trial 3, the last one. The bigger number against the old one, a real
+    // deadline, and the three things that take the risk out of buying.
     case "trial_last_call":
       return {
+        ...base,
         subject: `Last reminder: ${twenty.percent} off ${app} Pro`,
-        preheader: `${twenty.percent} off for the next 48 hours. This is the last email about your trial.`,
-        headline: `${twenty.percent} off for 48 hours`,
+        preheader: `${twenty.percent} off for 24 hours. This is the last email about your trial.`,
+        headline: `Our best offer: ${twenty.percent} off`,
         paragraphs: [
-          "This is the last email we'll send about your trial.",
-          `If ${app} isn't for you, no problem at all. If it is, here's ${twenty.percent} off Pro for the next 48 hours. One payment, yours forever, with free updates.`,
+          "This is the last email about your trial, so here is our best price. It ends 24 hours after this email.",
         ],
-        code: {
+        offer: {
+          badge: "Ends in 24 hours",
+          was: `${ten.percent} off`,
+          amount: `${twenty.percent} off`,
+          caption: `${app} Pro`,
           code: twenty.code,
-          hint: `${twenty.percent} off for the next 48 hours, applied automatically.`,
+          hint: "applied automatically with the button below.",
         },
-        button: `Get Pro for ${twenty.percent} off`,
+        steps: [
+          { icon: icon("shield-check"), title: "Try it for 7 days. Not for you? Full refund." },
+          { icon: icon("infinity"), title: "Pay once. No subscription, free updates." },
+          { icon: icon("laptop"), title: "One license covers 3 Macs." },
+        ],
+        button: { label: `Get Pro for ${twenty.percent} off`, href: ctx.checkoutHref },
+        note: "After this, we won't email you about your trial again.",
         reason: trialReason,
       }
+    case "reel_refund":
+      return {
+        ...base,
+        subject: `Get your ${app} Pro money back with a Reel`,
+        preheader: "Post one short video of your desktop and get up to 100% back.",
+        headline: "Get your money back with a Reel",
+        paragraphs: [
+          `Thanks for buying ${app} Pro. Post a short video of it on your Mac and we refund up to 100%.`,
+        ],
+        // Each step earns reach: the hashtag and the mention point viewers at
+        // us, and a collab post also shows on our own Instagram page.
+        steps: [
+          {
+            icon: icon("clapperboard"),
+            label: "Step 1",
+            title: `Post a Reel or TikTok of ${app} on your Mac`,
+          },
+          {
+            icon: icon("hash"),
+            label: "Step 2",
+            title: `Add ${REEL.hashtag} and add us as a collab`,
+          },
+          {
+            icon: icon("send"),
+            label: "Step 3",
+            title: `Email the link to ${REEL.email}`,
+          },
+        ],
+        tiles: [
+          {
+            icon: icon("circle-dollar-sign"),
+            label: "At 10,000 views",
+            value: "50% back",
+            hint: "You keep Pro.",
+          },
+          {
+            icon: icon("circle-dollar-sign"),
+            label: "At 20,000 views",
+            value: "100% back",
+            hint: "You keep Pro.",
+          },
+        ],
+        button: { label: "See how it works", href: ctx.checkoutHref },
+        reason: `You got this because you bought ${app} Pro.`,
+      }
+    // The only checkout email. They reached the payment page, so they want
+    // it: remind them what they get, answer the doubts that stop a payment,
+    // and offer help in case the payment itself failed.
     case "recovery_saved":
       return {
-        subject: `Your ${app} checkout`,
-        preheader: `${plan} is saved for you. Finish in one tap.`,
+        ...base,
+        subject: `Your ${app} checkout is saved`,
+        preheader: `${plan} is one step away. Finish in a tap.`,
         headline: "Your checkout is saved",
         paragraphs: [
-          `You started buying ${plan} but didn't finish. You can pick up right where you left off.`,
-          "Your license key arrives by email the moment you pay, and it's yours forever with free updates.",
-          "If the payment didn't go through or something looked off, reply to this email and we'll help.",
+          `You were one step away from ${plan}. Pick up where you left off and it's yours in a minute.`,
         ],
-        summary: summaryLine(plan, ctx.priceLabel),
-        button: "Finish checkout",
-        reason: checkoutReason,
-      }
-    case "recovery_10":
-      return {
-        subject: `${ten.percent} off your ${app} checkout`,
-        preheader: `Your ${plan} checkout, now with ${ten.percent} off.`,
-        headline: `Here's ${ten.percent} off`,
-        paragraphs: [
-          `Still thinking about ${plan}? Here's ${ten.percent} off to make it easier.`,
-          "Pay once and keep it forever. No subscription, and every update is included.",
+        // No price here: what they get, then what takes the risk out.
+        steps: [
+          { icon: icon("images"), title: "1,000+ live wallpapers for your desktop." },
+          { icon: icon("lock-keyhole"), title: "Live Lock Screen on macOS 26." },
+          { icon: icon("film"), title: "Your own videos as wallpapers." },
+          { icon: icon("key-round"), title: "Your license key arrives by email, seconds after you pay." },
+          { icon: icon("shield-check"), title: "Try it for 7 days. Not for you? Full refund." },
+          { icon: icon("infinity"), title: "Pay once and keep it. Free updates included." },
         ],
-        summary: summaryLine(plan, ctx.priceLabel),
-        code: {
-          code: ten.code,
-          hint: `${ten.percent} off, applied automatically with the button below.`,
-        },
-        button: `Finish checkout with ${ten.percent} off`,
-        reason: checkoutReason,
-      }
-    case "recovery_last_call":
-      return {
-        subject: `Last reminder: ${twenty.percent} off ${app} Pro`,
-        preheader: `${twenty.percent} off for the next 48 hours. This is the last email about your checkout.`,
-        headline: `${twenty.percent} off for 48 hours`,
-        paragraphs: [
-          "This is the last email about your checkout.",
-          `Here's ${twenty.percent} off ${plan} for the next 48 hours. After that, we'll leave you alone.`,
-        ],
-        summary: summaryLine(plan, ctx.priceLabel),
-        code: {
-          code: twenty.code,
-          hint: `${twenty.percent} off for the next 48 hours, applied automatically.`,
-        },
-        button: `Finish checkout with ${twenty.percent} off`,
+        button: { label: "Finish checkout", href: ctx.checkoutHref },
+        note: "Payment didn't go through? Reply to this email and we'll help.",
         reason: checkoutReason,
       }
   }
-}
-
-function summaryLine(plan: string, price?: string | null): string {
-  return price ? `${plan} · ${price} · one-time payment` : `${plan} · one-time payment`
-}
-
-function hostOf(url: string): string {
-  return url.replace(/^https?:\/\//, "").replace(/\/.*$/, "")
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-}
-
-const FONT =
-  "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
-const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"
-
-function renderHtml(copy: Copy, ctx: LifecycleEmailContext): string {
-  if (copy.theme) return renderFestiveHtml(copy, ctx, FESTIVE_THEMES[copy.theme](ctx))
-  const p = (text: string) =>
-    `<p style="margin:0 0 16px;font-family:${FONT};font-size:16px;line-height:1.6;color:#333333;">${escapeHtml(text)}</p>`
-
-  const summary = copy.summary
-    ? `<p style="margin:0 0 20px;font-family:${FONT};font-size:14px;line-height:1.5;color:#111111;font-weight:600;">${escapeHtml(copy.summary)}</p>`
-    : ""
-
-  const code = copy.code
-    ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:4px 0 24px;">
-  <tr><td style="background:#f5f5f7;border-radius:10px;padding:16px 18px;">
-    <p style="margin:0 0 4px;font-family:${FONT};font-size:12px;color:#6e6e73;">Your code</p>
-    <p style="margin:0;font-family:${MONO};font-size:20px;font-weight:600;letter-spacing:0.06em;color:#111111;">${escapeHtml(copy.code.code)}</p>
-    <p style="margin:6px 0 0;font-family:${FONT};font-size:13px;line-height:1.45;color:#6e6e73;">${escapeHtml(copy.code.hint)}</p>
-  </td></tr>
-</table>`
-    : ""
-
-  const button = `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:8px 0 24px;">
-  <tr><td bgcolor="#0071e3" style="border-radius:980px;">
-    <a href="${escapeHtml(ctx.checkoutHref)}" style="display:inline-block;padding:13px 26px;font-family:${FONT};font-size:16px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:980px;">${escapeHtml(copy.button)}</a>
-  </td></tr>
-</table>`
-
-  const secondary = copy.secondaryLink
-    ? `<p style="margin:0 0 20px;font-family:${FONT};font-size:15px;line-height:1.5;"><a href="${escapeHtml(copy.secondaryLink.href)}" style="color:#0071e3;text-decoration:none;">${escapeHtml(copy.secondaryLink.label)} &rsaquo;</a></p>`
-    : ""
-
-  const ps = copy.ps
-    ? `<p style="margin:0 0 8px;font-family:${FONT};font-size:14px;line-height:1.5;color:#6e6e73;">${escapeHtml(copy.ps)}</p>`
-    : ""
-
-  const unsubscribe = ctx.unsubscribeHref
-    ? ` <a href="${escapeHtml(ctx.unsubscribeHref)}" style="color:#86868b;text-decoration:underline;">Unsubscribe</a>.`
-    : ""
-  const address = ctx.postalAddress?.trim()
-    ? `<br>${escapeHtml(ctx.postalAddress.trim())}`
-    : ""
-  const year = new Date().getFullYear()
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="light">
-<meta name="supported-color-schemes" content="light">
-<title>${escapeHtml(copy.subject)}</title>
-</head>
-<body style="margin:0;padding:0;background:#ffffff;">
-<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#ffffff;">${escapeHtml(copy.preheader)}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff">
-  <tr><td align="center" style="padding:32px 20px 40px;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px;">
-      <tr><td style="padding:0 0 24px;">
-        <img src="${escapeHtml(ctx.logoUrl)}" width="40" height="40" alt="${escapeHtml(ctx.appName)}" style="display:block;width:40px;height:40px;border:0;border-radius:10px;">
-      </td></tr>
-      <tr><td>
-        <h1 style="margin:0 0 18px;font-family:${FONT};font-size:26px;line-height:1.25;font-weight:700;color:#111111;">${escapeHtml(copy.headline)}</h1>
-        ${copy.paragraphs.map(p).join("\n        ")}
-        ${summary}
-        ${code}
-        ${button}
-        ${secondary}
-        ${ps}
-      </td></tr>
-      <tr><td style="padding-top:28px;border-top:1px solid #e5e5ea;">
-        <p style="margin:0;font-family:${FONT};font-size:12px;line-height:1.6;color:#86868b;">
-          ${escapeHtml(copy.reason)}${unsubscribe}<br>
-          Need help? <a href="mailto:${escapeHtml(ctx.supportEmail)}" style="color:#86868b;text-decoration:underline;">${escapeHtml(ctx.supportEmail)}</a>${address}<br>
-          &copy; ${year} ${escapeHtml(ctx.appName)}
-        </p>
-      </td></tr>
-    </table>
-  </td></tr>
-</table>
-</body>
-</html>`
-}
-
-type FestiveTheme = {
-  scheme: "light" | "dark"
-  bg: string
-  ink: string
-  muted: string
-  card: string
-  rule: string
-  accent1: string
-  accent2: string
-  codeColor: string
-  buttonBg: string
-  buttonFg: string
-  link: string
-  art: { src: string; width: number; height: number; alt: string; rounded: boolean }
-  /** Art sits above the headline (Diwali) or below the lead (Black Friday). */
-  artFirst: boolean
-}
-
-const FESTIVE_THEMES: Record<NonNullable<Copy["theme"]>, (ctx: LifecycleEmailContext) => FestiveTheme> = {
-  diwali: (ctx) => ({
-    scheme: "light",
-    bg: "#F5F5F7", ink: "#1D1D1F", muted: "#6E6E73", card: "#ffffff", rule: "#D2D2D7",
-    accent1: "#E2336B", accent2: "#F2832A", codeColor: "#E2336B",
-    buttonBg: "#0071E3", buttonFg: "#ffffff", link: "#0066CC",
-    art: { src: `${ctx.siteUrl}/email/diwali-rangoli.png`, width: 340, height: 340, alt: "A festive rangoli with a lit diya at its centre", rounded: false },
-    artFirst: true,
-  }),
-  "black-friday": (ctx) => ({
-    scheme: "dark",
-    bg: "#000000", ink: "#F5F5F7", muted: "#A1A1A6", card: "#1C1C1E", rule: "#3A3A3C",
-    accent1: "#F5F5F7", accent2: "#67EDEC", codeColor: "#67EDEC",
-    buttonBg: "#F5F5F7", buttonFg: "#000000", link: "#67EDEC",
-    art: { src: `${ctx.siteUrl}/email/black-friday-hero.jpg`, width: 552, height: 359, alt: "A Mac desktop with a MacWall live wallpaper of a car at night", rounded: true },
-    artFirst: false,
-  }),
-}
-
-/**
- * Festive sale layout in the style of a product launch mail: one large
- * image (our own art or a real MacWall screenshot), a two-tone headline
- * (`headline` is "first|second"), price cards, short centred copy.
- * Tables and solid colours only, so it holds up in Gmail and Outlook.
- */
-function renderFestiveHtml(copy: Copy, ctx: LifecycleEmailContext, t: FestiveTheme): string {
-  const BG = t.bg
-  const INK = t.ink
-  const MUTED = t.muted
-  const PINK = t.codeColor
-  const [first, second] = copy.headline.includes("|")
-    ? copy.headline.split("|")
-    : [copy.headline, ""]
-  const artImg = `<img src="${escapeHtml(t.art.src)}" width="${t.art.width}" height="${t.art.height}" alt="${escapeHtml(t.art.alt)}" style="display:block;width:${t.art.width}px;max-width:${t.art.rounded ? "100%" : "82%"};height:auto;border:0;${t.art.rounded ? "border-radius:14px;" : ""}">`
-
-  const prices = (copy.prices ?? [])
-    .map(
-      (row) => `<td align="center" valign="top" width="50%" style="padding:0 6px;">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="${t.card}" style="background:${t.card};border-radius:18px;">
-          <tr><td align="center" style="padding:20px 12px 18px;">
-            <p style="margin:0 0 8px;font-family:${FONT};font-size:14px;line-height:1.3;color:${MUTED};">${escapeHtml(row.plan)}</p>
-            <p style="margin:0;font-family:${FONT};font-size:28px;line-height:1.1;font-weight:700;letter-spacing:-0.01em;color:${INK};">${escapeHtml(row.now)}</p>
-            <p style="margin:6px 0 0;font-family:${FONT};font-size:13px;line-height:1.4;color:${MUTED};"><span style="text-decoration:line-through;">${escapeHtml(row.was)}</span> &middot; ${escapeHtml(row.note)}</p>
-          </td></tr>
-        </table>
-      </td>`
-    )
-    .join("\n      ")
-
-  const code = copy.code
-    ? `<p style="margin:0 0 28px;font-family:${FONT};font-size:15px;line-height:1.5;color:${MUTED};text-align:center;">Code <strong style="font-family:${MONO};letter-spacing:0.08em;color:${PINK};">${escapeHtml(copy.code.code)}</strong>. ${escapeHtml(copy.code.hint)}</p>`
-    : ""
-
-  const secondary = copy.secondaryLink
-    ? `<p style="margin:0 0 8px;font-family:${FONT};font-size:17px;line-height:1.5;text-align:center;"><a href="${escapeHtml(copy.secondaryLink.href)}" style="color:${t.link};text-decoration:none;">${escapeHtml(copy.secondaryLink.label)} &rsaquo;</a></p>`
-    : ""
-
-  const body = copy.paragraphs
-    .map(
-      (text) =>
-        `<p style="margin:0 0 12px;font-family:${FONT};font-size:15px;line-height:1.55;color:${MUTED};text-align:center;">${escapeHtml(text)}</p>`
-    )
-    .join("\n        ")
-
-  const unsubscribe = ctx.unsubscribeHref
-    ? ` <a href="${escapeHtml(ctx.unsubscribeHref)}" style="color:${MUTED};text-decoration:underline;">Unsubscribe</a>.`
-    : ""
-  const address = ctx.postalAddress?.trim()
-    ? `<br>${escapeHtml(ctx.postalAddress.trim())}`
-    : ""
-  const year = new Date().getFullYear()
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="${t.scheme}">
-<meta name="supported-color-schemes" content="${t.scheme}">
-<title>${escapeHtml(copy.subject)}</title>
-</head>
-<body style="margin:0;padding:0;background:${BG};">
-<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:${BG};">${escapeHtml(copy.preheader)}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="${BG}" style="background:${BG};">
-  <tr><td align="center" style="padding:28px 16px 44px;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;">
-      <tr><td align="center" style="padding:0 0 8px;">
-        <img src="${escapeHtml(ctx.logoUrl)}" width="32" height="32" alt="${escapeHtml(ctx.appName)}" style="display:block;width:32px;height:32px;border:0;border-radius:8px;">
-      </td></tr>
-      ${t.artFirst ? `<tr><td align="center" style="padding:8px 0 4px;">${artImg}</td></tr>` : ""}
-      <tr><td align="center" style="padding:${t.artFirst ? "20px" : "28px"} 12px 0;">
-        <h1 style="margin:0 0 18px;font-family:${FONT};font-size:46px;line-height:1.08;font-weight:700;letter-spacing:-0.025em;text-align:center;"><span style="color:${t.accent1};">${escapeHtml(first)}</span>${second ? ` <span style="color:${t.accent2};">${escapeHtml(second)}</span>` : ""}</h1>
-        ${copy.lead ? `<p style="margin:0 auto 30px;max-width:470px;font-family:${FONT};font-size:21px;line-height:1.42;color:${INK};text-align:center;">${escapeHtml(copy.lead)}</p>` : ""}
-      </td></tr>
-      ${t.artFirst ? "" : `<tr><td align="center" style="padding:0 0 26px;">${artImg}</td></tr>`}
-      ${prices ? `<tr><td style="padding:0 0 18px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr>
-      ${prices}
-      </tr></table></td></tr>` : ""}
-      <tr><td align="center">
-        ${code}
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:0 auto 18px;">
-          <tr><td bgcolor="${t.buttonBg}" style="border-radius:980px;">
-            <a href="${escapeHtml(ctx.checkoutHref)}" style="display:inline-block;padding:14px 30px;font-family:${FONT};font-size:17px;font-weight:600;color:${t.buttonFg};text-decoration:none;border-radius:980px;">${escapeHtml(copy.button)}</a>
-          </td></tr>
-        </table>
-        ${secondary}
-      </td></tr>
-      <tr><td align="center" style="padding:34px 24px 6px;">
-        ${body}
-        ${copy.ps ? `<p style="margin:0;font-family:${FONT};font-size:15px;line-height:1.55;color:${MUTED};text-align:center;">${escapeHtml(copy.ps)}</p>` : ""}
-      </td></tr>
-      <tr><td style="padding:34px 8px 0;">
-        <p style="margin:0 0 14px;padding-top:20px;border-top:1px solid ${t.rule};font-family:${FONT};font-size:12px;line-height:1.55;color:${MUTED};">${copy.fineprint ? escapeHtml(copy.fineprint) : ""}</p>
-        <p style="margin:0;font-family:${FONT};font-size:12px;line-height:1.6;color:${MUTED};">
-          ${escapeHtml(copy.reason)}${unsubscribe}<br>
-          Need help? <a href="mailto:${escapeHtml(ctx.supportEmail)}" style="color:${MUTED};text-decoration:underline;">${escapeHtml(ctx.supportEmail)}</a>${address}<br>
-          &copy; ${year} ${escapeHtml(ctx.appName)}
-        </p>
-      </td></tr>
-    </table>
-  </td></tr>
-</table>
-</body>
-</html>`
-}
-
-function renderText(copy: Copy, ctx: LifecycleEmailContext): string {
-  const lines: string[] = [copy.headline.replace("|", " "), ""]
-  if (copy.lead) lines.push(copy.lead, "")
-  lines.push(...copy.paragraphs.flatMap((p) => [p, ""]))
-  for (const row of copy.prices ?? []) {
-    lines.push(`${row.plan}: ${row.now} (was ${row.was}, ${row.note})`)
-  }
-  if (copy.prices?.length) lines.push("")
-  if (copy.summary) lines.push(copy.summary, "")
-  if (copy.code) lines.push(`Your code: ${copy.code.code}`, copy.code.hint, "")
-  lines.push(`${copy.button}: ${ctx.checkoutHref}`, "")
-  if (copy.secondaryLink) {
-    lines.push(`${copy.secondaryLink.label}: ${copy.secondaryLink.href}`, "")
-  }
-  if (copy.ps) lines.push(copy.ps, "")
-  if (copy.fineprint) lines.push(copy.fineprint, "")
-  lines.push("--", copy.reason)
-  if (ctx.unsubscribeHref) lines.push(`Unsubscribe: ${ctx.unsubscribeHref}`)
-  lines.push(`Help: ${ctx.supportEmail}`)
-  if (ctx.postalAddress?.trim()) lines.push(ctx.postalAddress.trim())
-  return lines.join("\n")
 }
 
 export function buildLifecycleEmail(
   id: LifecycleEmailId,
   ctx: LifecycleEmailContext
 ): LifecycleEmail {
-  const copy = copyFor(id, ctx)
+  const content = contentFor(id, ctx)
+  const brand: EmailBrand = {
+    appName: ctx.appName,
+    siteUrl: ctx.siteUrl,
+    logoUrl: ctx.logoUrl,
+    supportEmail: ctx.supportEmail,
+    postalAddress: ctx.postalAddress,
+  }
   return {
-    subject: copy.subject,
-    preheader: copy.preheader,
-    html: renderHtml(copy, ctx),
-    text: renderText(copy, ctx),
+    subject: content.subject,
+    preheader: content.preheader,
+    html: renderEmailHtml(content, brand),
+    text: renderEmailText(content, brand),
   }
 }
 

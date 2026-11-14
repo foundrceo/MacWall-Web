@@ -67,6 +67,37 @@ export type CreateMacWallCheckoutInput = {
     ip: string
     userAgent: string
   } | null
+  /**
+   * UTM values from the link that opened checkout (email buttons carry
+   * them). Saved in Stripe metadata so each sale records which email or
+   * campaign it came from.
+   */
+  utm?: CheckoutUtm | null
+}
+
+export type CheckoutUtm = {
+  source?: string
+  medium?: string
+  campaign?: string
+  content?: string
+}
+
+/** Reads `utm_*` from a checkout link; null when it carries none. */
+export function checkoutUtmFromParams(
+  params: URLSearchParams
+): CheckoutUtm | null {
+  const clean = (key: string) =>
+    (params.get(key) ?? "")
+      .trim()
+      .replace(/[^A-Za-z0-9_.-]/g, "_")
+      .slice(0, 100)
+  const utm = {
+    source: clean("utm_source"),
+    medium: clean("utm_medium"),
+    campaign: clean("utm_campaign"),
+    content: clean("utm_content"),
+  }
+  return utm.source || utm.medium || utm.campaign || utm.content ? utm : null
 }
 
 /** Stripe metadata values cap at 500 characters. */
@@ -153,6 +184,10 @@ export async function createMacWallCheckoutSession(
       ...(customerEmail ? { customer_email: customerEmail } : {}),
       ...(visitorId ? { visitor_id: visitorId } : {}),
       checkout_intent: input.intent ?? "click",
+      ...(input.utm?.source ? { utm_source: input.utm.source } : {}),
+      ...(input.utm?.medium ? { utm_medium: input.utm.medium } : {}),
+      ...(input.utm?.campaign ? { utm_campaign: input.utm.campaign } : {}),
+      ...(input.utm?.content ? { utm_content: input.utm.content } : {}),
       ...(input.tiktok
         ? {
             tt_ttclid: metadataValue(input.tiktok.ttclid),
