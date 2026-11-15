@@ -28,6 +28,10 @@ import {
  *              bought and never started a trial. Same offer, without the
  *              "you tried MacWall" wording.
  *
+ *   affiliate  everyone who gave us an address (trial users and buyers):
+ *              the affiliate program, not a sale. Buyers first, then the
+ *              newest trials. The link goes to /affiliate.
+ *
  * Every address is logged in macwall_app_update_emails, so re-running never
  * emails anyone twice (the 20-hour cap then counts it).
  *
@@ -44,7 +48,22 @@ function mailFor(args: {
   campaign: string
   appName: string
   unsubscribeHref: string | null
+  isBuyer?: boolean
 }) {
+  if (args.audience === "affiliate") {
+    const site = siteBaseUrl()
+    return buildLifecycleEmail("affiliate_campaign", {
+      isBuyer: args.isBuyer === true,
+      utmCampaign: args.campaign,
+      appName: args.appName,
+      siteUrl: site,
+      logoUrl: logoUrl(),
+      supportEmail: supportEmail(),
+      postalAddress: postalAddress(),
+      unsubscribeHref: args.unsubscribeHref,
+      checkoutHref: `${site}/affiliate?utm_source=email&utm_medium=campaign&utm_campaign=${encodeURIComponent(args.campaign)}`,
+    })
+  }
   const checkoutOnly = args.audience === "black_friday_checkout"
   return buildLifecycleEmail("black_friday_sale", {
     checkoutOnly,
@@ -68,7 +87,7 @@ function mailFor(args: {
 const SEND_GAP_MS = 150
 
 type Supabase = ReturnType<typeof createClient>
-type Audience = "black_friday" | "black_friday_checkout"
+type Audience = "black_friday" | "black_friday_checkout" | "affiliate"
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -100,14 +119,16 @@ Deno.serve(async (req: Request) => {
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>
   const campaign = typeof body.campaign === "string" ? body.campaign.trim() : ""
   const audience =
-    body.audience === "black_friday" || body.audience === "black_friday_checkout"
+    body.audience === "black_friday" ||
+    body.audience === "black_friday_checkout" ||
+    body.audience === "affiliate"
       ? body.audience
       : null
   const limit = Math.min(Math.max(Number(body.limit) || 50, 1), MAX_BATCH)
   const dryRun = body.dryRun === true
   if (!campaign || !audience) {
     return Response.json(
-      { ok: false, error: "campaign and audience (black_friday or black_friday_checkout) are required" },
+      { ok: false, error: "campaign and audience (black_friday, black_friday_checkout or affiliate) are required" },
       { status: 400 }
     )
   }
@@ -132,6 +153,11 @@ Deno.serve(async (req: Request) => {
   })
   const candidates = (pLimit: number, countOnly = false) => {
     const opts = countOnly ? { count: "exact" as const, head: true } : undefined
+    if (audience === "affiliate") {
+      return supabase.rpc("macwall_affiliate_campaign_candidates", {
+        p_campaign: campaign, p_limit: pLimit,
+      }, opts)
+    }
     return audience === "black_friday"
       ? supabase.rpc("macwall_black_friday_candidates", {
           p_campaign: campaign, p_limit: pLimit,
@@ -162,8 +188,11 @@ Deno.serve(async (req: Request) => {
   const counts = { sent: 0, skipped: 0, failed: 0 }
   let rateLimited = false
   try {
-  for (const { email } of (rows ?? []) as { email: string }[]) {
-    const blocked = await marketingBlockReason(supabase, email)
+  for (const { email, is_buyer: isBuyer } of (rows ?? []) as { email: string; is_buyer?: boolean }[]) {
+    // The affiliate email is not a sales pitch, so owners get it too.
+    const blocked = await marketingBlockReason(supabase, email, {
+      allowBuyers: audience === "affiliate",
+    })
     if (blocked) {
       await log(supabase, { campaign, email, audience, status: "skipped", skip_reason: blocked })
       counts.skipped += 1
@@ -173,6 +202,7 @@ Deno.serve(async (req: Request) => {
     const mail = mailFor({
       audience, email, campaign, appName,
       unsubscribeHref: unsub?.page ?? null,
+      isBuyer: isBuyer === true,
     })
     const result = await sendMarketingEmail({
       resendKey,

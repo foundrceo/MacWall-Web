@@ -12,7 +12,8 @@
  *             commission by sharing an affiliate link)
  *   Checkout: recovery_saved (~1h after abandoning, no discount; the only
  *             checkout email)
- *   One-off:  black_friday_sale (trial users, BLACKFRIDAY 30% until Dec 1 PT)
+ *   One-off:  affiliate_campaign (everyone with an address: earn a commission)
+ *             black_friday_sale (trial users, BLACKFRIDAY 30% until Dec 1 PT)
  *
  * Copy rules: plain words, no em dashes, one primary button, no fake urgency.
  * Every email renders through the shared layout in ./email-layout.ts.
@@ -62,6 +63,7 @@ export type LifecycleEmailId =
   | "trial_ended"
   | "trial_offer"
   | "affiliate_invite"
+  | "affiliate_campaign"
   | "trial_last_call"
   | "recovery_saved"
   | "send_to_mac"
@@ -87,6 +89,8 @@ export type LifecycleEmailContext = {
   wallpaper?: { name: string; href: string } | null
   /** `black_friday_sale` only: opened a checkout but never tried the app. */
   checkoutOnly?: boolean | null
+  /** `affiliate_campaign` only: the recipient already owns Pro. */
+  isBuyer?: boolean | null
   /** The `utm_campaign` the sender puts on the button, when it is not the
    *  default for this email (one-off campaigns pass their campaign name). */
   utmCampaign?: string | null
@@ -112,6 +116,7 @@ const TRACKING: Record<LifecycleEmailId, { medium: string; campaign: string }> =
     trial_ended: { medium: "trial", campaign: "trial_ended" },
     trial_offer: { medium: "trial", campaign: "trial_offer" },
     affiliate_invite: { medium: "customer", campaign: "affiliate_invite" },
+  affiliate_campaign: { medium: "campaign", campaign: "affiliate_campaign" },
     trial_last_call: { medium: "trial", campaign: "trial_last_call" },
     recovery_saved: { medium: "recovery", campaign: "recovery_r1" },
     send_to_mac: { medium: "send_to_mac", campaign: "send_to_mac" },
@@ -389,14 +394,27 @@ function contentFor(
       }
     // Sent to buyers: a happy customer with a link is the cheapest reach we
     // have. One number, three steps, one button to the affiliate page.
+    //
+    // affiliate_campaign is the same offer as a one-off to everyone who gave
+    // us an address. Most of them never bought, so it says up front that they
+    // don't need Pro, and the footer says why they are hearing from us.
     case "affiliate_invite":
+    case "affiliate_campaign": {
+      const invite = id === "affiliate_invite"
+      const owner = invite || ctx.isBuyer === true
       return {
         ...base,
-        subject: `Earn ${AFFILIATE.percent} with ${app}`,
+        subject: invite
+          ? `Earn ${AFFILIATE.percent} with ${app}`
+          : `Earn ${AFFILIATE.percent} every time a friend buys ${app}`,
         preheader: "Share your link. Get paid every time someone buys.",
         headline: `Earn with ${app}`,
         paragraphs: [
-          `Thanks for buying ${app} Pro. Post a Reel or send your link to a friend. When they buy, ${AFFILIATE.percent} is yours.`,
+          invite
+            ? `Thanks for buying ${app} Pro. Post a Reel or send your link to a friend. When they buy, ${AFFILIATE.percent} is yours.`
+            : owner
+              ? `Post a Reel or send your link to a friend. When they buy ${app} Pro, ${AFFILIATE.percent} is yours.`
+              : `Post a Reel or send your link to a friend. When they buy ${app} Pro, ${AFFILIATE.percent} is yours. You don't need to own Pro.`,
         ],
         tiles: [
           {
@@ -431,8 +449,11 @@ function contentFor(
         ],
         button: { label: "Get your affiliate link", href: ctx.checkoutHref },
         note: "Free to join. No follower minimum.",
-        reason: `You got this because you bought ${app} Pro.`,
+        reason: owner
+          ? `You got this because you bought ${app} Pro.`
+          : `You got this because you tried ${app}.`,
       }
+    }
     // The only checkout email. They reached the payment page, so they want
     // it: remind them what they get, answer the doubts that stop a payment,
     // and offer help in case the payment itself failed.

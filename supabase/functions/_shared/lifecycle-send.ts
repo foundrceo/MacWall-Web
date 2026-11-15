@@ -115,7 +115,9 @@ async function suppress(supabase: Supabase, email: string, reason: string) {
  */
 export async function marketingBlockReason(
   supabase: Supabase,
-  email: string
+  email: string,
+  /** `allowBuyers`: the email is not a sales pitch, so owners get it too. */
+  options: { allowBuyers?: boolean } = {}
 ): Promise<string | null> {
   const normalized = email.trim().toLowerCase()
   if (!emailLooksDeliverable(normalized)) {
@@ -123,10 +125,12 @@ export async function marketingBlockReason(
     return "invalid_address"
   }
 
-  const { data: converted } = await supabase.rpc("macwall_email_converted", {
-    p_email: normalized,
-  })
-  if (converted === true) return "converted"
+  if (!options.allowBuyers) {
+    const { data: converted } = await supabase.rpc("macwall_email_converted", {
+      p_email: normalized,
+    })
+    if (converted === true) return "converted"
+  }
 
   const { data: suppressed } = await supabase.rpc("macwall_email_suppressed", {
     p_email: normalized,

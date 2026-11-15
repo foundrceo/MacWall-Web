@@ -66,7 +66,7 @@ function lifecyclePreview(id: LifecycleEmailId) {
     supportEmail: EMAIL_SUPPORT,
     checkoutHref: download
       ? `${EMAIL_SITE_URL}/download/latest`
-      : id === "affiliate_invite"
+      : id === "affiliate_invite" || id === "affiliate_campaign"
         ? `${EMAIL_SITE_URL}/affiliate`
         : `${EMAIL_SITE_URL}/pricing`,
     unsubscribeHref: `${EMAIL_SITE_URL}/unsubscribe/trial`,
@@ -133,6 +133,14 @@ const LIFECYCLE_META: Record<LifecycleEmailId, LifecycleMeta> = {
     description:
       "One-off to trial users who never bought. BLACKFRIDAY rides on the checkout link, so it applies in every country.",
     trigger: "send-app-update-emails with audience black_friday",
+    edgeFunction: "send-app-update-emails",
+  },
+  affiliate_campaign: {
+    group: "campaign",
+    label: "Affiliate program: earn 35%",
+    description:
+      "One-off to everyone with an address, trial users and buyers. Invites them to earn a commission with an affiliate link.",
+    trigger: "send-app-update-emails with audience affiliate",
     edgeFunction: "send-app-update-emails",
   },
   affiliate_invite: {
