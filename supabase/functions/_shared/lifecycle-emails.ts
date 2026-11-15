@@ -41,10 +41,6 @@ export const LIFECYCLE_PROMO = {
 export const AFFILIATE = {
   percent: "35%",
   trackingDays: 30,
-  /** The most one sale pays: 35% of the 10-Mac pack ($34.99) while it is
-   *  30% off for Black Friday ($24.49) is $8.57, so "$8" is true during the
-   *  sale and after it (then it is $12.25). Lower it if that pack goes. */
-  topEarning: "$8",
 } as const
 
 /** How long the 10% link in the trial offer email (trial_offer) works. */
@@ -410,17 +406,17 @@ function contentFor(
         ...base,
         subject: invite
           ? `Earn ${AFFILIATE.percent} with ${app}`
-          : `Earn up to ${AFFILIATE.topEarning} every time a friend buys ${app}`,
+          : "Earn free money while you sleep",
         preheader: invite
           ? "Share your link. Get paid every time someone buys."
-          : `${AFFILIATE.percent} of every sale goes to you. Free to join, no followers needed.`,
-        headline: `Earn with ${app}`,
+          : `Share your ${app} link once. Get ${AFFILIATE.percent} every time someone buys.`,
+        headline: invite ? `Earn with ${app}` : "Earn while you sleep",
         paragraphs: [
           invite
             ? `Thanks for buying ${app} Pro. Post a Reel or send your link to a friend. When they buy, ${AFFILIATE.percent} is yours.`
             : owner
-              ? `Post a Reel or send your link to a friend. When they buy ${app} Pro, ${AFFILIATE.percent} is yours.`
-              : `Post a Reel or send your link to a friend. When they buy ${app} Pro, ${AFFILIATE.percent} is yours. You don't need to own Pro.`,
+              ? `Share your ${app} link once: post a Reel or send it to a friend. Every time someone buys, ${AFFILIATE.percent} is yours, even while you sleep.`
+              : `Share your ${app} link once: post a Reel or send it to a friend. Every time someone buys, ${AFFILIATE.percent} is yours, even while you sleep. It's free and you don't need to own Pro.`,
         ],
         tiles: [
           {
