@@ -12,7 +12,7 @@ import {
   Video01Icon,
 } from "@hugeicons/core-free-icons"
 import AffiliateEarningsEstimate from "@/components/macwall-marketing/affiliate-earnings-estimate"
-import AffiliateFaqSection from "@/components/macwall-marketing/affiliate-faq-section"
+import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { AffiliateHeroVisual } from "@/components/macwall-marketing/affiliate-hero-visual"
 import { ShaderBackground } from "@/components/macwall-marketing/shader-background"
@@ -203,24 +203,14 @@ export default function MacWallMarketingAffiliatePage() {
         </div>
       </MarketingBodySection>
 
-      <MarketingBodySection>
-        <div className="px-6 py-10 md:px-8">
-          <AffiliateFaqSection />
-        </div>
-      </MarketingBodySection>
+      <MarketingFaqSection items={copy.faq} heading={copy.faqTitle} />
 
       <MarketingBodySection>
         <div className="flex flex-col items-start gap-6 px-6 py-12 sm:flex-row sm:items-center sm:justify-between md:px-8">
           <div>
             <h2 className={sectionH2Class}>{copy.bottomTitle}</h2>
             <p className="mt-3 text-[15px] leading-[1.55] text-white/60">
-              {copy.bottomLead} Questions?{" "}
-              <a
-                href={copy.contactHref}
-                className="text-foreground underline-offset-2 hover:underline"
-              >
-                {copy.contactLabel}
-              </a>
+              {copy.bottomLead}
             </p>
           </div>
           <TrackedPricingButton

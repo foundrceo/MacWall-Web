@@ -1,5 +1,5 @@
 import { AFFONSO_COOKIE_DURATION_DAYS } from "@/lib/macwall-affiliate"
-import { macwall, mailtoSupport } from "@/lib/macwall-site"
+import { macwall } from "@/lib/macwall-site"
 
 /** Partner commission rate shown across the site. Keep the Affonso program
  *  and AFFILIATE.percent in supabase/functions/_shared/lifecycle-emails.ts
@@ -153,7 +153,4 @@ export const macwallAffiliateCopy = {
 
   bottomTitle: "Your link can start earning today",
   bottomLead: `Free to join. ${AFFILIATE_COMMISSION_PERCENT}% of every sale you refer.`,
-
-  contactHref: mailtoSupport,
-  contactLabel: macwall.supportEmail,
 } as const
