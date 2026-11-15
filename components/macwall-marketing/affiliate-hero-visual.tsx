@@ -62,11 +62,11 @@ export function AffiliateHeroVisual({
     <div
       ref={rootRef}
       className={cn(
-        "relative w-full overflow-hidden rounded-[28px]",
+        "relative w-full overflow-hidden rounded-[36px] squircle",
         className
       )}
     >
-      <div className="relative aspect-[4/5] w-full sm:aspect-[5/6] lg:aspect-auto lg:min-h-[min(72vh,640px)]">
+      <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-[5/6]">
         <ShaderBackground
           className="absolute inset-0"
           config={AFFILIATE_SHADER_HERO}

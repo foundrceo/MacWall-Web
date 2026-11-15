@@ -18,7 +18,6 @@ import { AffiliateHeroVisual } from "@/components/macwall-marketing/affiliate-he
 import { LandingSectionHeader } from "@/components/macwall-marketing/landing-section-header"
 import { ShaderBackground } from "@/components/macwall-marketing/shader-background"
 import { AFFILIATE_SHADER_PRESETS } from "@/lib/affiliate-shader-presets"
-import { MarketingTitleSection } from "@/components/macwall-marketing/marketing-inner-page"
 import {
   LANDING_CARD,
   LANDING_SECTION_END,
@@ -144,8 +143,8 @@ function StepCard({
 export default function MacWallMarketingAffiliatePage() {
   return (
     <>
-      <MarketingTitleSection className="grid lg:grid-cols-2 lg:p-0">
-        <div className="flex min-w-0 flex-col justify-center p-6 lg:p-10">
+      <MarketingSection className="grid items-center gap-10 pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,500px)] lg:gap-20 lg:pt-12">
+        <div className="min-w-0">
           <h1 className={landingPageH1}>
             {copy.heroTitleLines[0]}
             <br />
@@ -171,8 +170,8 @@ export default function MacWallMarketingAffiliatePage() {
             </TrackedPricingButton>
           </div>
         </div>
-        <AffiliateHeroVisual className="hidden min-h-[22rem] lg:block" />
-      </MarketingTitleSection>
+        <AffiliateHeroVisual className="hidden lg:block" />
+      </MarketingSection>
 
       <MarketingSection aria-labelledby="affiliate-ways">
         <LandingSectionHeader
