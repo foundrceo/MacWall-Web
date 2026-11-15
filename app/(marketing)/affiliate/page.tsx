@@ -9,7 +9,7 @@ import { macwall } from "@/lib/macwall-site"
 import { canonicalSiteOrigin } from "@/lib/site-url"
 
 const PAGE_TITLE = macwallAffiliateCopy.pageTitle
-const PAGE_DESCRIPTION = `${macwallAffiliateCopy.heroLead} Share one link in a video, post or newsletter and get paid for each purchase it brings.`
+const PAGE_DESCRIPTION = `${macwallAffiliateCopy.metaLead} Share one link in a Reel, your bio or with a friend and get paid for each purchase it brings.`
 
 export const metadata: Metadata = createSimplePageMetadata({
   title: PAGE_TITLE,

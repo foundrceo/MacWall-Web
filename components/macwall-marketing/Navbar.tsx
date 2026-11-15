@@ -1,5 +1,6 @@
 "use client"
 
+import { macwallAffiliateCopy } from "@/lib/macwall-affiliate-copy"
 import { ArrowUpRight, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -70,7 +71,7 @@ const sheetCtaClass = cn(
 function EarnBadge() {
   return (
     <span className="rounded-full bg-emerald-400/15 px-1.5 py-0.5 text-[10px] leading-none font-medium text-emerald-300">
-      Earn 40%
+      {macwallAffiliateCopy.navBadge}
     </span>
   )
 }

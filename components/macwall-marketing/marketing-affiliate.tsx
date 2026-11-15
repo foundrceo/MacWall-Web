@@ -3,11 +3,15 @@
 import { HugeiconsIcon } from "@hugeicons/react"
 import type { IconSvgElement } from "@hugeicons/react"
 import {
-  DollarCircleIcon,
-  FavouriteIcon,
+  Clock01Icon,
+  DashboardSquare01Icon,
   Link01Icon,
-  ShoppingBag01Icon,
+  Moon02Icon,
+  PercentCircleIcon,
+  UserMultiple02Icon,
+  Video01Icon,
 } from "@hugeicons/core-free-icons"
+import AffiliateEarningsEstimate from "@/components/macwall-marketing/affiliate-earnings-estimate"
 import AffiliateFaqSection from "@/components/macwall-marketing/affiliate-faq-section"
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { AffiliateHeroVisual } from "@/components/macwall-marketing/affiliate-hero-visual"
@@ -30,11 +34,20 @@ const partnerPrimaryBtnClass =
 const partnerSecondaryBtnClass =
   "inline-flex h-10 min-h-10 shrink-0 items-center justify-center rounded-full border border-border bg-transparent px-5 text-[14px] font-normal text-white no-underline transition-colors hover:bg-white/5"
 
+const sectionH2Class =
+  "font-display text-3xl font-normal tracking-tighter md:text-5xl"
+
 const perkIcons: Record<(typeof copy.perks)[number]["id"], IconSvgElement> = {
-  channels: ShoppingBag01Icon,
-  commission: FavouriteIcon,
-  cookie: Link01Icon,
-  payouts: DollarCircleIcon,
+  commission: PercentCircleIcon,
+  channels: Link01Icon,
+  cookie: Clock01Icon,
+  payouts: DashboardSquare01Icon,
+}
+
+const wayIcons: Record<(typeof copy.ways)[number]["id"], IconSvgElement> = {
+  reel: Video01Icon,
+  friend: UserMultiple02Icon,
+  sleep: Moon02Icon,
 }
 
 function PerkRow({
@@ -56,6 +69,31 @@ function PerkRow({
         <span className="text-white/90">{highlight}</span>
         {after}
       </p>
+    </li>
+  )
+}
+
+function WayCard({
+  id,
+  title,
+  body,
+  earn,
+}: Readonly<(typeof copy.ways)[number]>) {
+  return (
+    <li className="flex flex-col border-b border-border px-6 py-8 last:border-b-0 md:border-r md:border-b-0 md:px-8 md:last:border-r-0">
+      <HugeiconsIcon
+        icon={wayIcons[id]}
+        className="size-6 text-white/70"
+        strokeWidth={1.5}
+        aria-hidden
+      />
+      <h3 className="mt-6 text-[1.45rem] leading-[1.15] font-normal tracking-[-0.02em] text-white">
+        {title}
+      </h3>
+      <p className="mt-3 max-w-[40ch] text-[14px] leading-[1.55] text-white/60">
+        {body}
+      </p>
+      <p className="mt-auto pt-6 text-[13px] text-emerald-300">{earn}</p>
     </li>
   )
 }
@@ -113,7 +151,7 @@ export default function MacWallMarketingAffiliatePage() {
               external
               size="pill"
               className={partnerPrimaryBtnClass}
-              ariaLabel="Get your MacWall partner link"
+              ariaLabel="Get your free MacWall affiliate link"
             >
               {copy.primaryCta}
             </TrackedPricingButton>
@@ -121,9 +159,24 @@ export default function MacWallMarketingAffiliatePage() {
         </div>
         <AffiliateHeroVisual className="hidden min-h-[22rem] lg:block" />
       </MarketingTitleSection>
+
+      <MarketingBodySection>
+        <div className="px-6 py-10 md:px-8">
+          <h2 className={sectionH2Class}>{copy.waysTitle}</h2>
+          <p className="mt-4 max-w-[56ch] text-[15px] leading-[1.55] text-white/60">
+            {copy.waysLead}
+          </p>
+        </div>
+        <ul className="grid grid-cols-1 border-t border-border md:grid-cols-3">
+          {copy.ways.map((way) => (
+            <WayCard key={way.id} {...way} />
+          ))}
+        </ul>
+      </MarketingBodySection>
+
       <MarketingBodySection>
         <div className="flex flex-col gap-6 px-6 py-10 sm:flex-row sm:items-end sm:justify-between md:px-8">
-          <h2 className="max-w-[16ch] font-display text-3xl font-normal tracking-tighter md:text-5xl">
+          <h2 className={`max-w-[16ch] ${sectionH2Class}`}>
             {copy.socialProofTitle}
           </h2>
           <TrackedPricingButton
@@ -132,7 +185,7 @@ export default function MacWallMarketingAffiliatePage() {
             external
             size="pill"
             className={partnerSecondaryBtnClass}
-            ariaLabel="Apply to the MacWall affiliate program"
+            ariaLabel="Join the MacWall affiliate program"
           >
             {copy.secondaryCta}
           </TrackedPricingButton>
@@ -143,45 +196,23 @@ export default function MacWallMarketingAffiliatePage() {
           ))}
         </div>
       </MarketingBodySection>
+
       <MarketingBodySection>
-        <div className="px-6 py-10 md:px-8">
-          <h2 className="max-w-[18ch] font-display text-3xl font-normal tracking-tighter md:text-5xl">
-            {copy.ideasTitle}
-          </h2>
-          <p className="mt-4 max-w-[56ch] text-[15px] leading-[1.55] text-white/60">
-            {copy.ideasLead}
-          </p>
+        <div className="px-6 py-12 md:px-8">
+          <AffiliateEarningsEstimate />
         </div>
-        <ul className="grid grid-cols-1 border-t border-border sm:grid-cols-2">
-          {copy.ideas.map((idea, index) => (
-            <li
-              key={idea.id}
-              className="border-b border-border px-6 py-7 sm:odd:border-r md:px-8"
-            >
-              <span className="text-[13px] text-white/35 tabular-nums">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <h3 className="mt-3 text-[1.2rem] leading-[1.2] font-normal tracking-[-0.01em] text-white">
-                {idea.title}
-              </h3>
-              <p className="mt-2 max-w-[44ch] text-[14px] leading-[1.55] text-white/60">
-                {idea.body}
-              </p>
-            </li>
-          ))}
-        </ul>
       </MarketingBodySection>
+
       <MarketingBodySection>
         <div className="px-6 py-10 md:px-8">
           <AffiliateFaqSection />
         </div>
       </MarketingBodySection>
+
       <MarketingBodySection>
         <div className="flex flex-col items-start gap-6 px-6 py-12 sm:flex-row sm:items-center sm:justify-between md:px-8">
           <div>
-            <h2 className="font-display text-3xl font-normal tracking-tighter md:text-5xl">
-              {copy.bottomTitle}
-            </h2>
+            <h2 className={sectionH2Class}>{copy.bottomTitle}</h2>
             <p className="mt-3 text-[15px] leading-[1.55] text-white/60">
               {copy.bottomLead} Questions?{" "}
               <a
@@ -198,7 +229,7 @@ export default function MacWallMarketingAffiliatePage() {
             external
             size="pill"
             className={partnerPrimaryBtnClass}
-            ariaLabel="Get your MacWall affiliate link"
+            ariaLabel="Get your free MacWall affiliate link"
           >
             {copy.primaryCta}
           </TrackedPricingButton>

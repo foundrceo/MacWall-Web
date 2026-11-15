@@ -1,31 +1,46 @@
 import { AFFONSO_COOKIE_DURATION_DAYS } from "@/lib/macwall-affiliate"
 import { macwall, mailtoSupport } from "@/lib/macwall-site"
 
-/** Partner commission rate shown on the affiliate landing page. */
-export const AFFILIATE_COMMISSION_PERCENT = 40 as const
+/** Partner commission rate shown across the site. Keep the Affonso program
+ *  and AFFILIATE.percent in supabase/functions/_shared/lifecycle-emails.ts
+ *  on the same number. */
+export const AFFILIATE_COMMISSION_PERCENT = 35 as const
+
+/** List price of Pro in US dollars, used only for the earnings estimate. */
+export const AFFILIATE_EXAMPLE_PRICE_USD = 12.99 as const
+
+/** What one referred Pro sale earns at the list price, e.g. "$4.55". */
+export const AFFILIATE_EXAMPLE_EARNING = `$${(
+  (AFFILIATE_EXAMPLE_PRICE_USD * AFFILIATE_COMMISSION_PERCENT) /
+  100
+).toFixed(2)}`
 
 export const macwallAffiliateCopy = {
   pageTitle: "Affiliate Program",
+  navBadge: `Earn ${AFFILIATE_COMMISSION_PERCENT}%`,
 
   heroTitleLines: [
-    `Earn ${AFFILIATE_COMMISSION_PERCENT}% on every sale`,
-    "you refer to MacWall",
+    `Earn ${AFFILIATE_COMMISSION_PERCENT}% every time`,
+    `someone buys ${macwall.name}`,
   ] as const,
-  heroLead: `Join the MacWall affiliate program and earn ${AFFILIATE_COMMISSION_PERCENT}% of every sale you refer.`,
-  primaryCta: "Get your affiliate link",
+  heroLead:
+    "Post a Reel, send your link to a friend, or drop it in your bio. When they buy, you get paid, even while you sleep.",
+  /** One line for search results and link previews. */
+  metaLead: `Join the ${macwall.name} affiliate program and earn ${AFFILIATE_COMMISSION_PERCENT}% of every sale you refer.`,
+  primaryCta: "Get your free link",
 
   perks: [
     {
-      id: "channels",
-      before: "Drop one link in ",
-      highlight: "a YouTube description, a TikTok bio, or your newsletter",
-      after: "",
+      id: "commission",
+      before: "",
+      highlight: `${AFFILIATE_COMMISSION_PERCENT}% of every Pro sale`,
+      after: " that comes through your link",
     },
     {
-      id: "commission",
-      before: "Earn ",
-      highlight: `${AFFILIATE_COMMISSION_PERCENT}% of every Pro sale`,
-      after: " you refer",
+      id: "channels",
+      before: "One link for ",
+      highlight: "your bio, your videos and your friends",
+      after: "",
     },
     {
       id: "cookie",
@@ -35,71 +50,80 @@ export const macwallAffiliateCopy = {
     },
     {
       id: "payouts",
-      before: "See your clicks and payouts in the ",
-      highlight: "affiliate dashboard",
+      before: "Free to join, with every click and sale in ",
+      highlight: "your dashboard",
       after: "",
     },
   ] as const,
 
+  waysTitle: "Three ways to earn",
+  waysLead:
+    "You don't need a big audience. Pick whichever fits you, or do all three with the same link.",
+  ways: [
+    {
+      id: "reel",
+      title: "Make a Reel",
+      body: "Film your Mac with a live wallpaper running and put your link in your bio. Setup videos are what people share.",
+      earn: "Every viewer who buys pays you",
+    },
+    {
+      id: "friend",
+      title: "Tell a friend",
+      body: `Send your link to anyone with a Mac. When they buy ${macwall.name} Pro, ${AFFILIATE_COMMISSION_PERCENT}% of it is yours.`,
+      earn: `About ${AFFILIATE_EXAMPLE_EARNING} for each friend`,
+    },
+    {
+      id: "sleep",
+      title: "Earn while you sleep",
+      body: "Add your link to a YouTube description, a blog post or your bio once. It keeps working long after you post it.",
+      earn: "No extra work after day one",
+    },
+  ] as const,
+
   socialProofTitle: "Live in three steps",
-  secondaryCta: "Apply for free",
+  secondaryCta: "Join for free",
 
   steps: [
     {
       id: "01",
-      title: "Apply in two minutes",
-      body: "No follower minimum. Setup creators, reviewers, and Mac communities are all welcome. Just request access.",
+      title: "Get your link",
+      body: "Sign up in two minutes. It is free and there is no follower minimum.",
       shaderId: "01",
     },
     {
       id: "02",
-      title: "Grab your tracked link",
-      body: "Copy your link from the dashboard and put it wherever you post: bio, video description, or pinned comment.",
+      title: "Share it anywhere",
+      body: "Bio, Reel, video description, group chat. Ready-made captions and images are waiting in your dashboard.",
       shaderId: "02",
     },
     {
       id: "03",
-      title: "Post and get paid",
-      body: "When someone buys Pro through your link, the commission is logged automatically. No invoicing, no chasing.",
+      title: "Get paid",
+      body: "When someone buys Pro through your link, the commission is logged for you. No invoicing, no chasing.",
       shaderId: "03",
     },
   ] as const,
 
-  ideasTitle: "Where your link works best",
-  ideasLead:
-    "You don't need a big audience. One good post with your link under it keeps earning for as long as people find it.",
-  ideas: [
-    {
-      id: "reel",
-      title: "A Reel or TikTok of your desktop",
-      body: "Film your Mac with a live wallpaper running and put your link in your bio. Setup videos are what people share.",
-    },
-    {
-      id: "bio",
-      title: "Your bio link",
-      body: "Add it to Linktree or your profile once. Every wallpaper video you post after that points to it.",
-    },
-    {
-      id: "youtube",
-      title: "YouTube descriptions",
-      body: "Desk setup tours, Mac app roundups and macOS tips. Pin a comment with your link as well.",
-    },
-    {
-      id: "written",
-      title: "Posts, newsletters and communities",
-      body: "A blog post, an X thread or a reply where someone asks for a live wallpaper app for Mac.",
-    },
-  ] as const,
+  estimateTitle: "See what you could earn",
+  estimateLead:
+    "Drag to pick how many people buy through your link each month.",
+  estimateSalesLabel: "sales a month",
+  estimateResultLabel: "a month",
+  estimateNote: `An estimate, not a promise. Based on Pro at $${AFFILIATE_EXAMPLE_PRICE_USD}. You earn ${AFFILIATE_COMMISSION_PERCENT}% of what each buyer actually pays, so sale and regional prices earn less.`,
 
   faqTitle: "Affiliate questions",
   faq: [
     {
-      q: "Who can join?",
-      a: "Anyone. It is free, there is no follower minimum, and you don't need to own Pro. Creators, reviewers and Mac communities are all welcome.",
+      q: "Is it really free?",
+      a: "Yes. Joining costs nothing, there is no follower minimum, and you don't need to own Pro. Creators, reviewers, students and Mac communities are all welcome.",
     },
     {
       q: "How much do I earn?",
-      a: `${AFFILIATE_COMMISSION_PERCENT}% of every ${macwall.name} Pro sale that comes through your link, worked out on the price the buyer pays.`,
+      a: `${AFFILIATE_COMMISSION_PERCENT}% of every ${macwall.name} Pro sale that comes through your link, worked out on the price the buyer pays. At the regular Pro price that is about ${AFFILIATE_EXAMPLE_EARNING} a sale.`,
+    },
+    {
+      q: "Can I just share it with friends?",
+      a: "Yes. Send your link in a message or a group chat. If they buy through it, you earn the same commission as from a video.",
     },
     {
       q: "How long does my link keep tracking someone?",
@@ -119,7 +143,7 @@ export const macwallAffiliateCopy = {
     },
     {
       q: "Do I have to say it's an affiliate link?",
-      a: "Yes. Tell your audience you earn from the link, for example with #ad or the platform's paid-partnership label. Most platforms and consumer laws require it.",
+      a: "Yes. Tell people you earn from the link, for example with #ad or the platform's paid-partnership label. Most platforms and consumer laws require it.",
     },
     {
       q: "Is there anything I can't do?",
@@ -127,7 +151,7 @@ export const macwallAffiliateCopy = {
     },
   ] as const,
 
-  bottomTitle: "Start earning with one link",
+  bottomTitle: "Your link can start earning today",
   bottomLead: `Free to join. ${AFFILIATE_COMMISSION_PERCENT}% of every sale you refer.`,
 
   contactHref: mailtoSupport,

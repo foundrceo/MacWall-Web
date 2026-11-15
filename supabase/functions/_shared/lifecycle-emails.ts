@@ -38,7 +38,7 @@ export const LIFECYCLE_PROMO = {
  *  AFFONSO_COOKIE_DURATION_DAYS (lib/macwall-affiliate.ts); this file can't
  *  import from the Next app. */
 export const AFFILIATE = {
-  percent: "40%",
+  percent: "35%",
   trackingDays: 30,
 } as const
 
@@ -393,10 +393,10 @@ function contentFor(
       return {
         ...base,
         subject: `Earn ${AFFILIATE.percent} with ${app}`,
-        preheader: "Share your link and earn on every sale it brings.",
+        preheader: "Share your link. Get paid every time someone buys.",
         headline: `Earn with ${app}`,
         paragraphs: [
-          `Thanks for buying ${app} Pro. Share it with your own link and earn ${AFFILIATE.percent} of every sale it brings.`,
+          `Thanks for buying ${app} Pro. Post a Reel or send your link to a friend. When they buy, ${AFFILIATE.percent} is yours.`,
         ],
         tiles: [
           {
@@ -421,12 +421,12 @@ function contentFor(
           {
             icon: icon("clapperboard"),
             label: "Step 2",
-            title: `Post a Reel or TikTok of ${app} on your Mac`,
+            title: "Post a Reel or send it to a friend",
           },
           {
             icon: icon("circle-dollar-sign"),
             label: "Step 3",
-            title: "Put the link in your bio and earn on every sale",
+            title: "Get paid every time someone buys",
           },
         ],
         button: { label: "Get your affiliate link", href: ctx.checkoutHref },
