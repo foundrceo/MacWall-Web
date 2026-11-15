@@ -66,7 +66,7 @@ export function AffiliateHeroVisual({
         className
       )}
     >
-      <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-square">
+      <div className="relative aspect-square w-full sm:aspect-[16/10] lg:aspect-square">
         <ShaderBackground
           className="absolute inset-0"
           config={AFFILIATE_SHADER_HERO}

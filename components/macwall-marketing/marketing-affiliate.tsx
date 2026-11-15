@@ -23,10 +23,6 @@ import {
   LANDING_SECTION_END,
   MarketingSection,
 } from "@/components/macwall-marketing/marketing-section"
-import {
-  landingPageH1,
-  landingPageLead,
-} from "@/components/macwall-marketing/landing-type"
 import { macwallAffiliateCopy as copy } from "@/lib/macwall-affiliate-copy"
 import { macwallAffiliatePortalURL } from "@/lib/macwall-affiliate"
 import { cn } from "@/lib/utils"
@@ -143,21 +139,21 @@ function StepCard({
 export default function MacWallMarketingAffiliatePage() {
   return (
     <>
-      <MarketingSection className="grid items-center gap-10 pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:gap-20 lg:pt-12">
+      <MarketingSection className="grid items-center gap-12 pt-10 sm:pt-14 lg:grid-cols-2 lg:gap-20 lg:pt-20">
         <div className="min-w-0">
-          <h1 className={landingPageH1}>
-            {copy.heroTitleLines[0]}
-            <br />
-            {copy.heroTitleLines[1]}
+          <h1 className="font-display text-[36px] leading-[42px] font-normal tracking-tight text-balance text-ink sm:text-[48px] sm:leading-[56px] xl:text-[52px] xl:leading-[60px]">
+            {copy.heroTitleLines[0]} {copy.heroTitleLines[1]}
           </h1>
-          <p className={landingPageLead}>{copy.heroLead}</p>
-          <AffiliateHeroVisual className="mt-8 lg:hidden" />
-          <ul className="mt-8 space-y-3.5">
+          <p className="mt-5 max-w-[30rem] text-[17px] leading-7 text-ink-2">
+            {copy.heroLead}
+          </p>
+          <AffiliateHeroVisual className="mt-10 lg:hidden" />
+          <ul className="mt-10 space-y-4">
             {copy.perks.map((perk) => (
               <PerkRow key={perk.id} {...perk} />
             ))}
           </ul>
-          <div className="mt-9">
+          <div className="mt-10">
             <TrackedPricingButton
               href={macwallAffiliatePortalURL}
               location="affiliate_hero_partner"
