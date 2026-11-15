@@ -131,7 +131,7 @@ export const macwallAffiliateCopy = {
     },
     {
       q: "How do I get paid?",
-      a: "You add your payout details in the affiliate dashboard. Every click, sale and commission is listed there, along with what has been paid out.",
+      a: "Payouts go out monthly once your balance reaches $50. A commission becomes payable 30 days after the sale. You add your payout details, such as PayPal or a bank transfer, in the affiliate dashboard, where every click, sale and payout is listed.",
     },
     {
       q: "What happens if a sale is refunded?",
