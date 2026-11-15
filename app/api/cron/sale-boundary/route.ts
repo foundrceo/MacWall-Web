@@ -34,9 +34,10 @@ const PRICE_PATHS: readonly string[] = [
  * served by app/md/[...path] behind a rewrite, so both forms are listed.
  */
 const MARKDOWN_PATHS: readonly string[] = [
-  ...["/pricing", "/ai-info", "/index", "/creator", "/about", "/press"].flatMap(
-    (path) => [`${path}.md`, `/md${path}`]
-  ),
+  ...["/pricing", "/ai-info", "/index", "/about", "/press"].flatMap((path) => [
+    `${path}.md`,
+    `/md${path}`,
+  ]),
   ...faqPricePaths().flatMap((path) => [`${path}.md`, `/md${path}`]),
 ]
 

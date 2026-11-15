@@ -8,8 +8,8 @@
  * Sequences (each stops on purchase or unsubscribe):
  *   Trial:    trial_ended (at trial end, no discount) → trial_offer (+6h, 10% for 24h)
  *             → trial_last_call (day 6, 20% for 24h)
- *   Buyers:   reel_refund (about 90 minutes after purchase: money back for
- *             posting a Reel)
+ *   Buyers:   affiliate_invite (about 90 minutes after purchase: earn a
+ *             commission by sharing an affiliate link)
  *   Checkout: recovery_saved (~1h after abandoning, no discount; the only
  *             checkout email)
  *   One-off:  black_friday_sale (trial users, BLACKFRIDAY 30% until Dec 1 PT)
@@ -33,12 +33,13 @@ export const LIFECYCLE_PROMO = {
   twenty: { code: "R7N2WP8J", percent: "20%", validHours: 24 },
 } as const
 
-/** Reel refund handles. Keep these, and the view counts in the reel_refund
- *  email (10,000 and 20,000), in sync with `macwall.reelRefund*` in
- *  lib/macwall-site.ts (this file can't import from the Next app). */
-const REEL = {
-  hashtag: "#macwall",
-  email: "discount@macwall.app",
+/** Affiliate program terms shown in the affiliate_invite email. Keep in sync
+ *  with AFFILIATE_COMMISSION_PERCENT (lib/macwall-affiliate-copy.ts) and
+ *  AFFONSO_COOKIE_DURATION_DAYS (lib/macwall-affiliate.ts); this file can't
+ *  import from the Next app. */
+export const AFFILIATE = {
+  percent: "40%",
+  trackingDays: 30,
 } as const
 
 /** How long the 10% link in the trial offer email (trial_offer) works. */
@@ -60,7 +61,7 @@ export const BLACK_FRIDAY_SALE = {
 export type LifecycleEmailId =
   | "trial_ended"
   | "trial_offer"
-  | "reel_refund"
+  | "affiliate_invite"
   | "trial_last_call"
   | "recovery_saved"
   | "send_to_mac"
@@ -106,16 +107,20 @@ const GUARANTEE = "One payment, not a subscription. 7-day money-back guarantee."
  * what the sending functions put on the main button, so every click from one
  * email lands in the same campaign.
  */
-const TRACKING: Record<LifecycleEmailId, { medium: string; campaign: string }> = {
-  trial_ended: { medium: "trial", campaign: "trial_ended" },
-  trial_offer: { medium: "trial", campaign: "trial_offer" },
-  reel_refund: { medium: "customer", campaign: "reel_refund" },
-  trial_last_call: { medium: "trial", campaign: "trial_last_call" },
-  recovery_saved: { medium: "recovery", campaign: "recovery_r1" },
-  send_to_mac: { medium: "send_to_mac", campaign: "send_to_mac" },
-  send_to_mac_reminder: { medium: "send_to_mac", campaign: "send_to_mac_reminder" },
-  black_friday_sale: { medium: "trial", campaign: "black_friday_sale" },
-}
+const TRACKING: Record<LifecycleEmailId, { medium: string; campaign: string }> =
+  {
+    trial_ended: { medium: "trial", campaign: "trial_ended" },
+    trial_offer: { medium: "trial", campaign: "trial_offer" },
+    affiliate_invite: { medium: "customer", campaign: "affiliate_invite" },
+    trial_last_call: { medium: "trial", campaign: "trial_last_call" },
+    recovery_saved: { medium: "recovery", campaign: "recovery_r1" },
+    send_to_mac: { medium: "send_to_mac", campaign: "send_to_mac" },
+    send_to_mac_reminder: {
+      medium: "send_to_mac",
+      campaign: "send_to_mac_reminder",
+    },
+    black_friday_sale: { medium: "trial", campaign: "black_friday_sale" },
+  }
 
 /** Adds UTM parameters to a link on our own site. */
 function trackedLink(
@@ -125,7 +130,9 @@ function trackedLink(
 ): string {
   if (!href.startsWith(ctx.siteUrl) || href.includes("utm_source=")) return href
   const medium =
-    id === "black_friday_sale" && ctx.checkoutOnly ? "recovery" : TRACKING[id].medium
+    id === "black_friday_sale" && ctx.checkoutOnly
+      ? "recovery"
+      : TRACKING[id].medium
   const campaign = ctx.utmCampaign?.trim() || TRACKING[id].campaign
   const [base, hash] = href.split("#")
   const query = `utm_source=email&utm_medium=${medium}&utm_campaign=${encodeURIComponent(campaign)}&utm_content=secondary_link`
@@ -137,7 +144,10 @@ function trackedLink(
  * paragraphs at most; the code, plan or price goes in the info card, the
  * guarantee in the note, and help in the footer of every email.
  */
-function contentFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): EmailContent {
+function contentFor(
+  id: LifecycleEmailId,
+  ctx: LifecycleEmailContext
+): EmailContent {
   const app = ctx.appName
   const plan = ctx.planLabel?.trim() || `${app} Pro`
   const ten = LIFECYCLE_PROMO.ten
@@ -206,10 +216,25 @@ function contentFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): EmailCont
           alt: `A Mac desktop with a ${app} live wallpaper of a car at night`,
         },
         prices: [
-          { plan: "Pro · 3 Macs", was: b.pro.was, now: b.pro.now, note: "one-time" },
-          { plan: "Pro+ · 5 Macs", was: b.proPlus.was, now: b.proPlus.now, note: "one-time" },
+          {
+            plan: "Pro · 3 Macs",
+            was: b.pro.was,
+            now: b.pro.now,
+            note: "one-time",
+          },
+          {
+            plan: "Pro+ · 5 Macs",
+            was: b.proPlus.was,
+            now: b.proPlus.now,
+            note: "one-time",
+          },
         ],
-        info: [codeRow(b.code, `${b.percent} off, applied automatically with the button below.`)],
+        info: [
+          codeRow(
+            b.code,
+            `${b.percent} off, applied automatically with the button below.`
+          ),
+        ],
         button: { label: `Get ${app} Pro`, href: ctx.checkoutHref },
         secondaryLink: link("Compare Pro and Pro+", `${ctx.siteUrl}/pricing`),
         note: GUARANTEE,
@@ -220,9 +245,12 @@ function contentFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): EmailCont
       return {
         ...base,
         subject: `Your ${app} download link`,
-        preheader: "Open this on your Mac to install. Every feature is free for 24 hours.",
+        preheader:
+          "Open this on your Mac to install. Every feature is free for 24 hours.",
         headline: `${app} for your Mac`,
-        paragraphs: ["Here's your download link. Installing takes about a minute."],
+        paragraphs: [
+          "Here's your download link. Installing takes about a minute.",
+        ],
         steps: installSteps,
         button: { label: `Download ${app}`, href: ctx.checkoutHref },
         secondaryLink: wallpaperLink,
@@ -305,11 +333,20 @@ function contentFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): EmailCont
           hint: "applied automatically with the button below.",
         },
         steps: [
-          { icon: icon("images"), title: "1,000+ live wallpapers, back on your desktop." },
-          { icon: icon("lock-keyhole"), title: "Live Lock Screen on macOS 26." },
+          {
+            icon: icon("images"),
+            title: "1,000+ live wallpapers, back on your desktop.",
+          },
+          {
+            icon: icon("lock-keyhole"),
+            title: "Live Lock Screen on macOS 26.",
+          },
           { icon: icon("film"), title: "Your own videos as wallpapers." },
         ],
-        button: { label: `Get Pro for ${ten.percent} off`, href: ctx.checkoutHref },
+        button: {
+          label: `Get Pro for ${ten.percent} off`,
+          href: ctx.checkoutHref,
+        },
         note: "Pay once for 3 Macs. 7-day money-back guarantee.",
         reason: trialReason,
       }
@@ -333,57 +370,67 @@ function contentFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): EmailCont
           hint: "applied automatically with the button below.",
         },
         steps: [
-          { icon: icon("shield-check"), title: "Try it for 7 days. Not for you? Full refund." },
-          { icon: icon("infinity"), title: "Pay once. No subscription, free updates." },
+          {
+            icon: icon("shield-check"),
+            title: "Try it for 7 days. Not for you? Full refund.",
+          },
+          {
+            icon: icon("infinity"),
+            title: "Pay once. No subscription, free updates.",
+          },
           { icon: icon("laptop"), title: "One license covers 3 Macs." },
         ],
-        button: { label: `Get Pro for ${twenty.percent} off`, href: ctx.checkoutHref },
+        button: {
+          label: `Get Pro for ${twenty.percent} off`,
+          href: ctx.checkoutHref,
+        },
         note: "After this, we won't email you about your trial again.",
         reason: trialReason,
       }
-    case "reel_refund":
+    // Sent to buyers: a happy customer with a link is the cheapest reach we
+    // have. One number, three steps, one button to the affiliate page.
+    case "affiliate_invite":
       return {
         ...base,
-        subject: `Get your ${app} Pro money back with a Reel`,
-        preheader: "Post one short video of your desktop and get up to 100% back.",
-        headline: "Get your money back with a Reel",
+        subject: `Earn ${AFFILIATE.percent} with ${app}`,
+        preheader: "Share your link and earn on every sale it brings.",
+        headline: `Earn with ${app}`,
         paragraphs: [
-          `Thanks for buying ${app} Pro. Post a short video of it on your Mac and we refund up to 100%.`,
-        ],
-        // Each step earns reach: the hashtag and the mention point viewers at
-        // us, and a collab post also shows on our own Instagram page.
-        steps: [
-          {
-            icon: icon("clapperboard"),
-            label: "Step 1",
-            title: `Post a Reel or TikTok of ${app} on your Mac`,
-          },
-          {
-            icon: icon("hash"),
-            label: "Step 2",
-            title: `Add ${REEL.hashtag} and add us as a collab`,
-          },
-          {
-            icon: icon("send"),
-            label: "Step 3",
-            title: `Email the link to ${REEL.email}`,
-          },
+          `Thanks for buying ${app} Pro. Share it with your own link and earn ${AFFILIATE.percent} of every sale it brings.`,
         ],
         tiles: [
           {
             icon: icon("circle-dollar-sign"),
-            label: "At 10,000 views",
-            value: "50% back",
-            hint: "You keep Pro.",
+            label: "On every sale",
+            value: AFFILIATE.percent,
+            hint: "Of what the buyer pays.",
+          },
+          {
+            icon: icon("clock"),
+            label: "Your link tracks for",
+            value: `${AFFILIATE.trackingDays} days`,
+            hint: "Paid if they buy later.",
+          },
+        ],
+        steps: [
+          {
+            icon: icon("link"),
+            label: "Step 1",
+            title: "Get your free affiliate link",
+          },
+          {
+            icon: icon("clapperboard"),
+            label: "Step 2",
+            title: `Post a Reel or TikTok of ${app} on your Mac`,
           },
           {
             icon: icon("circle-dollar-sign"),
-            label: "At 20,000 views",
-            value: "100% back",
-            hint: "You keep Pro.",
+            label: "Step 3",
+            title: "Put the link in your bio and earn on every sale",
           },
         ],
-        button: { label: "See how it works", href: ctx.checkoutHref },
+        button: { label: "Get your affiliate link", href: ctx.checkoutHref },
+        note: "Free to join. No follower minimum.",
         reason: `You got this because you bought ${app} Pro.`,
       }
     // The only checkout email. They reached the payment page, so they want
@@ -400,12 +447,27 @@ function contentFor(id: LifecycleEmailId, ctx: LifecycleEmailContext): EmailCont
         ],
         // No price here: what they get, then what takes the risk out.
         steps: [
-          { icon: icon("images"), title: "1,000+ live wallpapers for your desktop." },
-          { icon: icon("lock-keyhole"), title: "Live Lock Screen on macOS 26." },
+          {
+            icon: icon("images"),
+            title: "1,000+ live wallpapers for your desktop.",
+          },
+          {
+            icon: icon("lock-keyhole"),
+            title: "Live Lock Screen on macOS 26.",
+          },
           { icon: icon("film"), title: "Your own videos as wallpapers." },
-          { icon: icon("key-round"), title: "Your license key arrives by email, seconds after you pay." },
-          { icon: icon("shield-check"), title: "Try it for 7 days. Not for you? Full refund." },
-          { icon: icon("infinity"), title: "Pay once and keep it. Free updates included." },
+          {
+            icon: icon("key-round"),
+            title: "Your license key arrives by email, seconds after you pay.",
+          },
+          {
+            icon: icon("shield-check"),
+            title: "Try it for 7 days. Not for you? Full refund.",
+          },
+          {
+            icon: icon("infinity"),
+            title: "Pay once and keep it. Free updates included.",
+          },
         ],
         button: { label: "Finish checkout", href: ctx.checkoutHref },
         note: "Payment didn't go through? Reply to this email and we'll help.",
@@ -441,7 +503,11 @@ export function planLabelForOffer(
   maxDevices?: number | null
 ): string {
   const macs = maxDevices && maxDevices > 0 ? maxDevices : null
-  if (offerSlug === "permanent_5" || offerSlug === "permanent_10" || (macs && macs >= 5)) {
+  if (
+    offerSlug === "permanent_5" ||
+    offerSlug === "permanent_10" ||
+    (macs && macs >= 5)
+  ) {
     return `${appName} Pro+ (${macs ?? 5} Macs)`
   }
   return `${appName} Pro (${macs ?? 3} Macs)`
@@ -449,10 +515,26 @@ export function planLabelForOffer(
 
 /** Common address typos and throwaway patterns that always bounce. */
 const TYPO_DOMAINS = new Set([
-  "gmial.com", "gmai.com", "gamil.com", "gmail.co", "gmail.con", "gmal.com",
-  "gnail.com", "gmaill.com", "hotmial.com", "hotmail.co", "hotmai.com",
-  "yaho.com", "yahoo.co", "yahooo.com", "outlok.com", "outlook.co",
-  "icloud.co", "iclod.com", "example.com", "test.com",
+  "gmial.com",
+  "gmai.com",
+  "gamil.com",
+  "gmail.co",
+  "gmail.con",
+  "gmal.com",
+  "gnail.com",
+  "gmaill.com",
+  "hotmial.com",
+  "hotmail.co",
+  "hotmai.com",
+  "yaho.com",
+  "yahoo.co",
+  "yahooo.com",
+  "outlok.com",
+  "outlook.co",
+  "icloud.co",
+  "iclod.com",
+  "example.com",
+  "test.com",
 ])
 
 /** Cheap syntax + typo check before any DNS lookup. */

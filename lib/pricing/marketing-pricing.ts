@@ -265,7 +265,7 @@ function buildPricing(
     buyProAria: `Get ${macwall.name} Pro`,
     bannerCta: "See pricing",
     priceLine: `Pro is ${permanentPrice}, paid once. No subscription.`,
-    pricingHeroLead: `Pro is ${permanentPrice}, paid once, or post a Reel and get your money back.`,
+    pricingHeroLead: `Pro is ${permanentPrice}, paid once. No subscription.`,
     pricingPermanentDescription: `Pay ${permanentPrice} once and keep Pro forever, updates included.`,
     pricingAnnualDescription: `The annual plan is retired for new purchases. Get the ${permanentPrice} lifetime license instead.`,
     bottomCtaLabel: MARKETING_GET_PRO_CTA,

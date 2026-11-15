@@ -253,12 +253,6 @@ export const macwallPermissions = {
     "MacWall never asks for Full Disk Access, Accessibility or Screen Recording. Only Music Sync asks for anything: Automation, to read the track playing in Apple Music or Spotify, and System Audio Recording, to move with the beat. Nothing is recorded or stored.",
 } as const
 
-/** What a Reel refund or creator post must carry so viewers know it's paid. */
-export const macwallCreatorDisclosure = {
-  tag: "#ad",
-  label: "#ad or the platform's paid-partnership label",
-} as const
-
 /**
  * Catalog count used by every page, meta description, FAQ and llms.txt line.
  * A fixed label, not computed from the live catalog. The founder set it to
@@ -323,16 +317,11 @@ export const macwall = {
   /** Official channel ("MacWall", @MacWallApp), which links back to macwall.app. */
   youtubeChannelURL: "https://www.youtube.com/channel/UC0AggWIjNCI-iCQC1NNHdeA",
   supportEmail: "support@macwall.app",
-  /** Reel refund program: 50% at 10k views, 100% at 20k views. */
-  reelRefundEmail: "discount@macwall.app",
-  reelRefundInstagram: "@macwallapp_",
-  reelRefundInstagramURL: "https://www.instagram.com/macwallapp_",
-  reelRefundTiktok: "@macwall.app",
-  reelRefundTiktokURL: "https://www.tiktok.com/@macwall.app",
-  reelRefundHashtag: "#macwall",
-  reelRefundHashtagURL: "https://www.instagram.com/explore/tags/macwall/",
-  reelRefundHalfViews: 10_000,
-  reelRefundFullViews: 20_000,
+  /** Official social accounts. */
+  instagramHandle: "@macwallapp_",
+  instagramURL: "https://www.instagram.com/macwallapp_",
+  tiktokHandle: "@macwall.app",
+  tiktokURL: "https://www.tiktok.com/@macwall.app",
   legalHub: "https://macwall.app/legal",
   legalTerms: "https://macwall.app/legal/terms",
   legalPrivacy: "https://macwall.app/legal/privacy",
@@ -388,7 +377,6 @@ export const macwall = {
   ],
 } as const
 
-export const mailtoReelRefund = `mailto:${macwall.reelRefundEmail}`
 export const mailtoSupport = `mailto:${macwall.supportEmail}`
 
 /**

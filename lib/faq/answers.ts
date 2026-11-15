@@ -96,8 +96,6 @@ const appPlayback = macwallPlaybackModes.app
 const playbackPath = macwallPlaybackModes.settingsPath
 /** "The MacWall process uses 0% CPU after you quit; macOS still decodes the video." */
 const systemPlaybackCpu = `${systemPlayback.cpu.charAt(0).toUpperCase()}${systemPlayback.cpu.slice(1)}`
-const reelHalf = macwall.reelRefundHalfViews.toLocaleString("en-US")
-const reelFull = macwall.reelRefundFullViews.toLocaleString("en-US")
 
 /** "the Black Friday sale", "the Summer Sale". */
 function saleName(label: string): string {
@@ -190,7 +188,7 @@ function buildFaqAnswers(now: number): FaqAnswer[] {
         { type: "h2", text: "Getting your money back" },
         {
           type: "p",
-          text: `Every license has a ${refundDays}-day money-back guarantee, no reason needed ([Refund Policy](/legal/refund)). Separately, the [Reel Refund program](/creator) pays back half of what you paid when a video of ${name} in use reaches ${reelHalf} views, and all of it at ${reelFull}.`,
+          text: `Every license has a ${refundDays}-day money-back guarantee, no reason needed ([Refund Policy](/legal/refund)).`,
         },
       ],
       docLinks: [
@@ -205,11 +203,6 @@ function buildFaqAnswers(now: number): FaqAnswer[] {
           label: "License and activation",
           description:
             "How the license key works, how to activate it and how to move it to another Mac.",
-        },
-        {
-          href: "/creator",
-          label: "Reel Refund",
-          description: `Post a video of ${name} in use and get half or all of your purchase back.`,
         },
       ],
       related: [
@@ -303,11 +296,6 @@ function buildFaqAnswers(now: number): FaqAnswer[] {
           type: "p",
           text: "Billing problems are put right at any time: a duplicate charge, a charge you don't recognize or a license key that never arrived.",
         },
-        { type: "h2", text: "Half or all of it back for a video" },
-        {
-          type: "p",
-          text: `The [Reel Refund program](/creator) refunds 50% of what you paid when one video of ${name} in use reaches ${reelHalf} views, and 100% at ${reelFull} views. After a 50% refund your license stays active; a full refund deactivates it.`,
-        },
       ],
       docLinks: [
         {
@@ -315,12 +303,6 @@ function buildFaqAnswers(now: number): FaqAnswer[] {
           label: "Refund Policy",
           description:
             "The full policy: what qualifies, EU and UK withdrawal rights and how refunds are paid.",
-        },
-        {
-          href: "/creator",
-          label: "Reel Refund",
-          description:
-            "The view thresholds, the platforms that count and how to claim.",
         },
         {
           href: "/contact",

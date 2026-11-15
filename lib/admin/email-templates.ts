@@ -66,8 +66,8 @@ function lifecyclePreview(id: LifecycleEmailId) {
     supportEmail: EMAIL_SUPPORT,
     checkoutHref: download
       ? `${EMAIL_SITE_URL}/download/latest`
-      : id === "reel_refund"
-        ? `${EMAIL_SITE_URL}/creator`
+      : id === "affiliate_invite"
+        ? `${EMAIL_SITE_URL}/affiliate`
         : `${EMAIL_SITE_URL}/pricing`,
     unsubscribeHref: `${EMAIL_SITE_URL}/unsubscribe/trial`,
     planLabel: recovery ? planLabelForOffer(EMAIL_APP_NAME, "permanent") : null,
@@ -135,11 +135,11 @@ const LIFECYCLE_META: Record<LifecycleEmailId, LifecycleMeta> = {
     trigger: "send-app-update-emails with audience black_friday",
     edgeFunction: "send-app-update-emails",
   },
-  reel_refund: {
+  affiliate_invite: {
     group: "campaign",
-    label: "Reel refund: after purchase",
+    label: "Affiliate invite: after purchase",
     description:
-      "About 90 minutes after a purchase. Money back for posting a Reel or TikTok.",
+      "About 90 minutes after a purchase. Invites the buyer to earn a commission with an affiliate link.",
     trigger: "Scheduled in Resend by stripe-license-email",
     edgeFunction: "stripe-license-email",
   },

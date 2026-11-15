@@ -1,4 +1,6 @@
 import type { ContentFaq, SeoContentPage } from "@/lib/content/types"
+import { AFFONSO_COOKIE_DURATION_DAYS } from "@/lib/macwall-affiliate"
+import { AFFILIATE_COMMISSION_PERCENT } from "@/lib/macwall-affiliate-copy"
 import {
   macwall,
   macwallBatteryPolicy,
@@ -27,8 +29,6 @@ const systemPlayback = macwallPlaybackModes.systemWallpaper
 const appPlayback = macwallPlaybackModes.app
 /** "The MacWall process uses 0% CPU after you quit; macOS still decodes the video." */
 const approvedCpuSentence = `${systemPlayback.cpu.charAt(0).toUpperCase()}${systemPlayback.cpu.slice(1)}.`
-const reelHalf = macwall.reelRefundHalfViews.toLocaleString("en-US")
-const reelFull = macwall.reelRefundFullViews.toLocaleString("en-US")
 
 /** Stable identity for metadata and the llms.txt index (no prices). */
 const AI_INFO_META = {
@@ -78,7 +78,7 @@ function aiInfoFaq(now: number): ContentFaq[] {
     },
     {
       question: "What is MacWall's refund policy?",
-      answer: `Every license has a ${macwall.refundWindowDays}-day money-back guarantee: email ${macwall.supportEmail} within ${macwall.refundWindowDays} days of purchase for a full refund, no reason needed. Separately, the creator program refunds 50% for a public video about MacWall at ${reelHalf} views and 100% at ${reelFull}.`,
+      answer: `Every license has a ${macwall.refundWindowDays}-day money-back guarantee: email ${macwall.supportEmail} within ${macwall.refundWindowDays} days of purchase for a full refund, no reason needed.`,
     },
     {
       question: "Which Macs and macOS versions does MacWall run on?",
@@ -282,7 +282,7 @@ export function getMacwallAiInfoPage(now: number = Date.now()): SeoContentPage {
           `**Currency:** ${CURRENCY_NOTE}`,
           ...promotions.map((line) => `**${line.replace(/: /, ":** ")}`),
           `**Refunds:** every license has a ${macwall.refundWindowDays}-day money-back guarantee; email support within ${macwall.refundWindowDays} days of purchase.`,
-          `**Creator refund:** a public video about MacWall, tagged #ad or with the platform's paid-partnership label, can earn a 50% refund at ${reelHalf} organic views or 100% at ${reelFull}, under the terms on [the creator page](/creator). A 100% refund deactivates that license key.`,
+          `**Affiliate program:** affiliates earn ${AFFILIATE_COMMISSION_PERCENT}% commission on every MacWall Pro sale they refer, with ${AFFONSO_COOKIE_DURATION_DAYS}-day tracking. It is free to join, with no follower minimum; details are on [the affiliate page](/affiliate).`,
         ],
       },
       {

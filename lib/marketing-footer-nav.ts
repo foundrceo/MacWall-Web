@@ -52,7 +52,6 @@ export function getMarketingFooterColumns(): readonly MarketingFooterColumn[] {
         { label: "Collections", href: "/wallpapers/collections" },
         { label: "Bend", href: "/bend" },
         { label: foot.shop.pricing, href: "/pricing" },
-        { label: "Reel Refund", href: "/creator" },
         ...(AFFILIATE_UI_VISIBLE
           ? [{ label: foot.connect.affiliate, href: "/affiliate" }]
           : []),
@@ -95,9 +94,9 @@ export function getMarketingFooterSocialLinks(): readonly MarketingFooterSocialL
     {
       brand: "Instagram",
       label: "Instagram",
-      href: macwall.reelRefundInstagramURL,
+      href: macwall.instagramURL,
     },
-    { brand: "TikTok", label: "TikTok", href: macwall.reelRefundTiktokURL },
+    { brand: "TikTok", label: "TikTok", href: macwall.tiktokURL },
   ]
 }
 
@@ -162,11 +161,10 @@ export function getSiteFooterColumns(): readonly SiteFooterColumn[] {
         { href: "/wallpapers", label: "Wallpapers" },
         { href: "/wallpapers/collections", label: "Collections" },
         { href: "/bend", label: "Bend" },
-        { href: "/creator", label: "Reel Refund" },
-        { href: "/changelog", label: "Changelog" },
         ...(AFFILIATE_UI_VISIBLE
           ? [{ href: "/affiliate", label: "Affiliates" }]
           : []),
+        { href: "/changelog", label: "Changelog" },
       ],
     },
     { title: "Browse", links: footerCategoryLinks },

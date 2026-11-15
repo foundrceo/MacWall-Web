@@ -17,7 +17,6 @@ export const macwallMarketingCopy = {
     navGallery: "Wallpapers",
     navBlog: "Blog",
     navLearn: "Learn",
-    navCreator: "Reel Refund",
     navSocials: "Community",
     navSupport: "Help",
     navPricing: "Pricing",
@@ -54,10 +53,8 @@ export const macwallMarketingCopy = {
   },
   pricing: {
     buyCta: "Get Pro",
-    secondaryCta: "Get money back with a Reel",
     /** No price here: prices come from lib/pricing/sale-aware-price.ts where they render. */
-    priceLine:
-      "Pay once, no subscription. Post a Reel and you can get all of it back.",
+    priceLine: "Pay once, no subscription.",
   },
   underFooter: {
     title: "Your desktop is a minute away from moving.",
@@ -99,7 +96,7 @@ export const macwallMarketingCopy = {
     communityTitle: "See real Mac setups",
     communityMuted: "Discord and TikTok",
     communityLead: "New clips land on TikTok. Setups and help live in Discord.",
-    faqLead: "Licenses, macOS versions, and the Reel refund.",
+    faqLead: "Licenses, macOS versions, and refunds.",
     contactUs: "Contact us",
     closingMuted: "Free download. Pay once for Pro.",
     featureLockTitle: "Lock Screen",
@@ -328,7 +325,7 @@ export const macwallMarketingCopy = {
     },
     copyrightName: macwall.name,
     disclaimerBullets: [
-      `${macwall.name} Pro is a one-time payment. See Pricing for current options. Post a Reel to qualify for up to 100% back.`,
+      `${macwall.name} Pro is a one-time payment. See Pricing for current options.`,
       "You'll need a compatible Mac, a recent macOS build, and an internet connection for catalog sync, updates, and license checks.",
       `Pro features, Lock Screen motion, and catalog size can vary by region and macOS version. Pro covers up to ${macwall.maxLicensedMacs} Macs; Pro+ covers up to 5.`,
       `Using ${macwall.name} means you agree to the Terms of Service and Privacy Policy linked in the footer.`,

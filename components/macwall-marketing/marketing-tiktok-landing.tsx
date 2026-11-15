@@ -52,7 +52,7 @@ export default function TikTokLandingHero() {
             </span>
             <span className="text-[15px] text-marketing-muted">one-time</span>
             <span className="w-full text-[13px] text-marketing-muted">
-              Up to 3 Macs. Post a Reel, get up to 100% back.
+              Up to 3 Macs. No subscription.
             </span>
           </div>
 

@@ -21,7 +21,6 @@ export function indexableMarketingPaths(): string[] {
     "/about",
     "/press",
     "/faq",
-    "/creator",
     "/blog",
     "/docs",
     "/learn",

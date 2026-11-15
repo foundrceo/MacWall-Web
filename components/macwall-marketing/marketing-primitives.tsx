@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { macwall, mailtoReelRefund } from "@/lib/macwall-site"
+import { macwall } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
 import {
   Fragment,
@@ -9,10 +9,8 @@ import {
 } from "react"
 
 const marketingLinkedTokens: Record<string, string> = {
-  [macwall.reelRefundInstagram]: macwall.reelRefundInstagramURL,
-  [macwall.reelRefundTiktok]: macwall.reelRefundTiktokURL,
-  [macwall.reelRefundHashtag]: macwall.reelRefundHashtagURL,
-  [macwall.reelRefundEmail]: mailtoReelRefund,
+  [macwall.instagramHandle]: macwall.instagramURL,
+  [macwall.tiktokHandle]: macwall.tiktokURL,
 }
 
 const marketingLinkedTextPattern = new RegExp(
@@ -58,95 +56,6 @@ export function MarketingRichText({
         )
       })}
     </Tag>
-  )
-}
-
-function MarketingInlineExternalLink({
-  href,
-  children,
-}: Readonly<{
-  href: string
-  children: ReactNode
-}>) {
-  return (
-    <a
-      href={href}
-      className="marketing-inline-link"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {children}
-    </a>
-  )
-}
-
-function MarketingReelAtLink({
-  platform,
-}: Readonly<{ platform: "instagram" | "tiktok" }>) {
-  const href =
-    platform === "instagram"
-      ? macwall.reelRefundInstagramURL
-      : macwall.reelRefundTiktokURL
-  const handle =
-    platform === "instagram"
-      ? macwall.reelRefundInstagram
-      : macwall.reelRefundTiktok
-
-  return (
-    <MarketingInlineExternalLink href={href}>
-      {handle}
-    </MarketingInlineExternalLink>
-  )
-}
-
-export function MarketingReelHashtagLink() {
-  return (
-    <MarketingInlineExternalLink href={macwall.reelRefundHashtagURL}>
-      {macwall.reelRefundHashtag}
-    </MarketingInlineExternalLink>
-  )
-}
-
-export function MarketingReelPostTagsCopy({
-  className,
-}: Readonly<{ className?: string }>) {
-  return (
-    <p className={className}>
-      Share on Instagram <MarketingReelAtLink platform="instagram" /> or TikTok{" "}
-      <MarketingReelAtLink platform="tiktok" />, with{" "}
-      <MarketingReelHashtagLink />.
-    </p>
-  )
-}
-
-export function MarketingReelInfluencerCopy({
-  className,
-}: Readonly<{ className?: string }>) {
-  return (
-    <span className={className}>
-      DM <MarketingReelAtLink platform="instagram" /> on Instagram or{" "}
-      <MarketingReelAtLink platform="tiktok" /> on TikTok and we can set up a
-      custom partnership.
-    </span>
-  )
-}
-
-export function MarketingReelFaqRefundCopy({
-  className,
-}: Readonly<{ className?: string }>) {
-  return (
-    <p className={className}>
-      Buy {macwall.name} Pro, post on Instagram{" "}
-      <MarketingReelAtLink platform="instagram" /> or TikTok{" "}
-      <MarketingReelAtLink platform="tiktok" /> with{" "}
-      <MarketingReelHashtagLink />, then email{" "}
-      <a href={mailtoReelRefund} className="marketing-inline-link">
-        {macwall.reelRefundEmail}
-      </a>{" "}
-      once you hit {macwall.reelRefundHalfViews.toLocaleString()} views for 50%
-      back, or {macwall.reelRefundFullViews.toLocaleString()} views to get your
-      money back in full.
-    </p>
   )
 }
 

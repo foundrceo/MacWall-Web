@@ -1,9 +1,10 @@
 import type { BlogArticleInput } from "@/lib/content/types"
+import { AFFONSO_COOKIE_DURATION_DAYS } from "@/lib/macwall-affiliate"
+import { AFFILIATE_COMMISSION_PERCENT } from "@/lib/macwall-affiliate-copy"
 import {
   macwall,
   macwallBatteryPolicy,
   macwallCatalog,
-  macwallCreatorDisclosure,
   macwallImportFormatsLabel,
   macwallLockScreenMacOSVersion,
   macwallPermissions,
@@ -98,7 +99,7 @@ export const overviewArticles: BlogArticleInput[] = [
           `**Pro**: a one-time purchase for up to ${macwall.maxLicensedMacs} Macs, with lifetime updates. No subscription and no ads.`,
           "**Pro+**: the same on 5 or 10 Macs, for families, teams and studios.",
           `**Refunds**: a ${macwall.refundWindowDays}-day money-back window on license purchases.`,
-          `**Creator refund**: post a public video of MacWall running on your Mac, labelled ${macwallCreatorDisclosure.label} and tagged ${macwall.reelRefundHashtag}, and get 50% back at ${macwall.reelRefundHalfViews.toLocaleString("en-US")} views or all of it at ${macwall.reelRefundFullViews.toLocaleString("en-US")} ([rules](/creator)).`,
+          `**Affiliate program**: earn ${AFFILIATE_COMMISSION_PERCENT}% of every Pro sale you refer, tracked for ${AFFONSO_COOKIE_DURATION_DAYS} days. It is free to join ([details](/affiliate)).`,
         ],
       },
       {

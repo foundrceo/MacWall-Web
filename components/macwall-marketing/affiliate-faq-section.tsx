@@ -4,15 +4,12 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import { useId, useState } from "react"
 
 import { FaqChevronIcon } from "@/components/macwall-marketing/FaqChevronIcon"
-import { macwallCreatorCopy as copy } from "@/lib/macwall-creator-copy"
+import { macwallAffiliateCopy as copy } from "@/lib/macwall-affiliate-copy"
 import { cn } from "@/lib/utils"
-
-const answerClassName =
-  "pb-5 text-[15px] leading-[1.55] text-foreground/70 sm:text-[16px]"
 
 const faqEase = [0.22, 1, 0.36, 1] as const
 
-function CreatorFaqItem({
+function AffiliateFaqItem({
   question,
   answer,
   isOpen,
@@ -40,7 +37,7 @@ function CreatorFaqItem({
         aria-controls={panelId}
         onClick={onToggle}
         className={cn(
-          "flex min-h-11 w-full cursor-pointer items-center justify-between gap-4 rounded-sm py-4 text-left text-[15px] font-normal transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:gap-4 sm:py-5 sm:text-[16px]",
+          "flex min-h-11 w-full cursor-pointer items-center justify-between gap-4 rounded-sm py-4 text-left text-[15px] font-normal transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:py-5 sm:text-[16px]",
           isOpen ? "text-foreground" : "text-foreground/90"
         )}
       >
@@ -71,7 +68,9 @@ function CreatorFaqItem({
             transition={transition}
             className="overflow-hidden"
           >
-            <p className={answerClassName}>{answer}</p>
+            <p className="pb-5 text-[15px] leading-[1.55] text-foreground/70 sm:text-[16px]">
+              {answer}
+            </p>
           </motion.div>
         ) : null}
       </AnimatePresence>
@@ -79,18 +78,19 @@ function CreatorFaqItem({
   )
 }
 
-export default function CreatorFaqSection() {
+/** Questions about the affiliate program; one answer open at a time. */
+export default function AffiliateFaqSection() {
   const reduceMotion = useReducedMotion()
   const [openQuestion, setOpenQuestion] = useState<string | null>(null)
 
   return (
     <section id="questions" className="scroll-mt-24">
-      <h2 className="text-[clamp(1.35rem,3.5vw,1.75rem)] leading-[1.2] font-normal tracking-[-0.02em] text-foreground">
+      <h2 className="font-display text-3xl font-normal tracking-tighter md:text-5xl">
         {copy.faqTitle}
       </h2>
       <div className="mt-8 border-t border-border/70 sm:mt-10">
         {copy.faq.map((item) => (
-          <CreatorFaqItem
+          <AffiliateFaqItem
             key={item.q}
             question={item.q}
             answer={item.a}

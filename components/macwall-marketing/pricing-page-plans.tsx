@@ -26,6 +26,7 @@ import { useMarketingPricing } from "@/components/marketing/marketing-pricing-co
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
 import { MarketingSection } from "@/components/macwall-marketing/marketing-section"
 import { PricingPlans } from "@/components/macwall-marketing/pricing-plans"
+import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
 import { macwallPricingCopy as p } from "@/lib/macwall-pricing-copy"
 import {
   macwall,
@@ -246,7 +247,7 @@ function BenefitsGrid() {
   )
 }
 
-function ReelRefundCallout() {
+function AffiliateCallout() {
   return (
     <div className="relative mx-auto max-w-4xl overflow-hidden rounded-3xl bg-[#0d0d0e] bg-[radial-gradient(90%_120%_at_0%_0%,rgba(16,185,129,0.14),transparent_60%)] p-6 ring-1 ring-white/[0.08] ring-inset sm:p-8">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
@@ -260,23 +261,20 @@ function ReelRefundCallout() {
           />
           <div>
             <h2 className="font-display text-[24px] leading-tight font-normal text-white sm:text-[28px]">
-              {p.reelRefund.title}
+              {p.affiliateHook.title}
             </h2>
             <p className="mt-2 max-w-md text-[14px] leading-6 text-landing-muted">
-              {macwall.reelRefundHalfViews.toLocaleString()} views gets you 50%
-              back. {macwall.reelRefundFullViews.toLocaleString()} views gets
-              you 100% back. Instagram or TikTok, organic views only, tagged
-              #ad.
+              {p.affiliateHook.body}
             </p>
           </div>
         </div>
         <TrackedLink
-          href={p.reelRefundHook.href}
+          href={p.affiliateHook.href}
           eventName="pricing_click"
-          metadata={{ location: "pricing_reel_refund_callout" }}
+          metadata={{ location: "pricing_affiliate_callout" }}
           className="inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-white/[0.08] px-5 text-[14px] font-medium text-white ring-1 ring-white/10 transition-colors ring-inset hover:bg-white/[0.13]"
         >
-          See how it works
+          {p.affiliateHook.cta}
         </TrackedLink>
       </div>
     </div>
@@ -376,9 +374,11 @@ export function PricingPagePlans({
         <BenefitsGrid />
       </MarketingSection>
 
-      <MarketingSection className="px-4 py-12 lg:px-6">
-        <ReelRefundCallout />
-      </MarketingSection>
+      {AFFILIATE_UI_VISIBLE ? (
+        <MarketingSection className="px-4 py-12 lg:px-6">
+          <AffiliateCallout />
+        </MarketingSection>
+      ) : null}
 
       <MarketingFaqSection defaultOpenQuestion={p.faq[0]?.q} />
 

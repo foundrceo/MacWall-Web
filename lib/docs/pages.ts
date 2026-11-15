@@ -127,7 +127,7 @@ export const docsPages: DocsPage[] = [
       },
       {
         type: "p",
-        text: `Every Mac gets one ${macwallTrial.name} of ${macwallTrial.includesLabel}. It asks for your email address but never a card, and importing your own videos needs Pro. It is the easiest window to evaluate MacWall or film a [creator video](/creator).`,
+        text: `Every Mac gets one ${macwallTrial.name} of ${macwallTrial.includesLabel}. It asks for your email address but never a card, and importing your own videos needs Pro. It is the easiest window to evaluate MacWall.`,
       },
       { type: "h2", text: "Permissions" },
       {
@@ -561,7 +561,7 @@ export const docsPages: DocsPage[] = [
       { type: "h2", text: "Refunds" },
       {
         type: "p",
-        text: `Every license has a ${macwall.refundWindowDays}-day money-back guarantee. Email ${supportLink} within ${macwall.refundWindowDays} days of purchase for a full refund, no reason needed; details are in the [Refund Policy](/legal/refund). Separately, the [creator program](/creator) refunds your purchase for posting a MacWall video that reaches the view thresholds.`,
+        text: `Every license has a ${macwall.refundWindowDays}-day money-back guarantee. Email ${supportLink} within ${macwall.refundWindowDays} days of purchase for a full refund, no reason needed; details are in the [Refund Policy](/legal/refund).`,
       },
     ],
     faq: [

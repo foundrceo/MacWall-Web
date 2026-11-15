@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import { JsonLd } from "@/components/seo/json-ld"
 import { LegalDocumentShell } from "@/components/legal/legal-document-shell"
 import { LegalSection, legalBulletList } from "@/components/legal/legal-section"
@@ -36,8 +35,8 @@ export default function LegalRefundPage() {
         intro={
           <p>
             Every {macwall.name} license comes with a{" "}
-            <strong>{macwall.refundWindowDays}-day money-back guarantee</strong>.
-            If you&apos;re not happy for any reason, email us within{" "}
+            <strong>{macwall.refundWindowDays}-day money-back guarantee</strong>
+            . If you&apos;re not happy for any reason, email us within{" "}
             {macwall.refundWindowDays} days of purchase and we&apos;ll refund
             you in full.
           </p>
@@ -49,8 +48,8 @@ export default function LegalRefundPage() {
         >
           <ul className={legalBulletList}>
             <li>
-              Covers every {macwall.name} license purchase: Pro, Pro+,
-              multi-Mac packs and any Mac add-on bought with them at checkout.
+              Covers every {macwall.name} license purchase: Pro, Pro+, multi-Mac
+              packs and any Mac add-on bought with them at checkout.
             </li>
             <li>
               Applies even if you have downloaded, installed or activated the
@@ -92,11 +91,10 @@ export default function LegalRefundPage() {
             If you live in the EU, EEA or UK and buy as a consumer, you can
             withdraw from your purchase within 14 days without giving a reason.
             We don&apos;t ask you to give up this right at checkout, so it
-            applies even after you have downloaded, activated or used Pro.
-            Email {support} within 14 days of the purchase with a clear
-            statement that you are withdrawing. We refund the full amount
-            within 14 days of hearing from you, and the license key is
-            deactivated.
+            applies even after you have downloaded, activated or used Pro. Email{" "}
+            {support} within 14 days of the purchase with a clear statement that
+            you are withdrawing. We refund the full amount within 14 days of
+            hearing from you, and the license key is deactivated.
           </p>
         </LegalSection>
 
@@ -123,20 +121,23 @@ export default function LegalRefundPage() {
           <p>
             Nothing in this policy limits rights you have under the consumer
             laws of your country that cannot be excluded by contract. If{" "}
-            {macwall.name} is faulty or not as described, you may be entitled
-            to a repair, replacement or refund under those laws, and we will
-            honor them. Our {macwall.refundWindowDays}-day guarantee is offered
-            in addition to those rights everywhere we sell and never reduces
-            them.
+            {macwall.name} is faulty or not as described, you may be entitled to
+            a repair, replacement or refund under those laws, and we will honor
+            them. Our {macwall.refundWindowDays}-day guarantee is offered in
+            addition to those rights everywhere we sell and never reduces them.
           </p>
         </LegalSection>
 
-        <LegalSection id="how-refunds-work" title="How Approved Refunds Are Paid">
+        <LegalSection
+          id="how-refunds-work"
+          title="How Approved Refunds Are Paid"
+        >
           <p>
-            Approved refunds go back to the original payment method through
-            our payment processor, {macwall.paymentProcessor}, in the currency
-            you paid in. Once we issue a refund, banks usually show it within 5
-            to 10 business days. A full refund under the money-back guarantee deactivates the license key it paid for. Money back under the video program below, 50% or 100%, keeps the license active.
+            Approved refunds go back to the original payment method through our
+            payment processor, {macwall.paymentProcessor}, in the currency you
+            paid in. Once we issue a refund, banks usually show it within 5 to
+            10 business days. A full refund deactivates the license key it paid
+            for.
           </p>
         </LegalSection>
 
@@ -144,25 +145,8 @@ export default function LegalRefundPage() {
           <p>
             The annual plan is no longer sold. If you still have one, you can
             cancel its renewal at any time by emailing {support}; Pro stays on
-            until the end of the year you have paid for, then switches off.
-            Your wallpapers and settings stay on your Mac.
-          </p>
-        </LegalSection>
-
-        <LegalSection id="creator-program" title="Money Back for a Video">
-          <p>
-            The program on <Link href="/creator">/creator</Link> refunds 50% of
-            what you paid when one video of {macwall.name} in use reaches{" "}
-            {macwall.reelRefundHalfViews.toLocaleString("en-US")} views, and
-            100% at {macwall.reelRefundFullViews.toLocaleString("en-US")}{" "}
-            views. It works alongside, and does not replace, the money-back
-            guarantee above.
-          </p>
-          <p>
-            Because we pay you back for the post, it has to be disclosed as
-            paid: include #ad or the platform&apos;s paid-partnership label.
-            Posts without it don&apos;t qualify. Either way you keep your license: money back under this program, 50% or 100%, does not deactivate your key. The full rules are in
-            our <Link href="/legal/terms#promotions">Terms</Link>.
+            until the end of the year you have paid for, then switches off. Your
+            wallpapers and settings stay on your Mac.
           </p>
         </LegalSection>
 
@@ -172,8 +156,8 @@ export default function LegalRefundPage() {
             emailing {support} is usually the fastest fix: we can refund
             directly, typically within 1 to 2 business days. You can also
             dispute a charge with your bank or card issuer at any time. If a
-            payment is reversed, the license key it paid for may be
-            deactivated, the same as after a full refund.
+            payment is reversed, the license key it paid for may be deactivated,
+            the same as after a full refund.
           </p>
         </LegalSection>
 

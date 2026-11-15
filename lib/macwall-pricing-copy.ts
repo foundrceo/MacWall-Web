@@ -1,8 +1,8 @@
+import { AFFONSO_COOKIE_DURATION_DAYS } from "@/lib/macwall-affiliate"
+import { AFFILIATE_COMMISSION_PERCENT } from "@/lib/macwall-affiliate-copy"
 import {
   macwall,
-  mailtoReelRefund,
   macwallBatteryPolicy,
-  macwallCreatorDisclosure,
   macwallLockScreenMacOSVersion,
   macwallMinimumMacOSVersion,
   macwallMinimumMacOSRequirement,
@@ -50,55 +50,16 @@ export const macwallPricingCopy = {
       featuresPrefix: "Everything in Pro, plus:",
       cta: "Get Pro+",
     },
-    reel: {
-      title: "Get paid back",
-      subtitle: "Post a Reel about your setup, tagged #ad",
-      price: "Up to 100% refunded",
-      featuresPrefix: "How it works:",
-      cta: "See how it works",
-    },
   },
 
   heroTitle: "Pay once. Keep Pro.",
   heroLead: "Full catalog and updates. No subscription.",
 
-  reelRefundHook: {
-    line: "Post a Reel, get up to 100% back",
-    href: "/creator",
-  },
-
-  reelRefund: {
-    badge: "Reel refund",
-    title: "Post a Reel, get your money back",
-    description:
-      "Film your desktop, post it on Instagram or TikTok, and we refund you. Organic views only.",
-    steps: [
-      {
-        icon: "video" as const,
-        title: "Film your setup",
-        body: `Record ${macwall.name} running on your Mac: your wallpaper, your desk, your setup. Short and natural works best.`,
-      },
-      {
-        icon: "tag" as const,
-        title: "Post and tag us",
-        body: `Post it on Instagram ${macwall.reelRefundInstagram} or TikTok ${macwall.reelRefundTiktok} with ${macwall.reelRefundHashtag} and ${macwallCreatorDisclosure.label}.`,
-      },
-      {
-        icon: "views" as const,
-        title: "Hit the view count",
-        body: `${macwall.reelRefundHalfViews.toLocaleString()} views gets you 50% back. ${macwall.reelRefundFullViews.toLocaleString()} views gets you 100% back.`,
-      },
-      {
-        icon: "email" as const,
-        title: "Email us to claim",
-        body: `Send ${macwall.reelRefundEmail} your Reel link, a screenshot of the views, and the email you paid with.`,
-      },
-    ],
-    influencerTitle: "Got a big following?",
-    finePrintLabel: "The fine print:",
-    finePrint: `Post as many times as you like until one Reel hits ${macwall.reelRefundHalfViews.toLocaleString()} organic views. No bots, no paid promotion. Posts without ${macwallCreatorDisclosure.label} don't qualify. We check the numbers and can decline suspicious claims. Refunds go back to the card you paid with. A 100% refund deactivates that license key, like any full refund. We can end this offer at any time.`,
-    cta: "Email us to claim your refund",
-    ctaHref: mailtoReelRefund,
+  affiliateHook: {
+    title: `Earn ${AFFILIATE_COMMISSION_PERCENT}% on every sale you refer`,
+    body: `Join the affiliate program and share one link. ${AFFONSO_COOKIE_DURATION_DAYS}-day tracking, free to join, no follower minimum.`,
+    cta: "See how it works",
+    href: "/affiliate",
   },
 
   pro: {
@@ -170,11 +131,7 @@ export const macwallPricingCopy = {
       a: macwallSupportedMacOS.summary,
     },
     {
-      q: "How do I get my money back for posting a Reel?",
-      a: `Buy Pro, post about ${macwall.name} on Instagram ${macwall.reelRefundInstagram} or TikTok ${macwall.reelRefundTiktok} with ${macwall.reelRefundHashtag} and #ad, then email ${macwall.reelRefundEmail}. ${macwall.reelRefundHalfViews.toLocaleString()} views gets you half back and your license stays active. ${macwall.reelRefundFullViews.toLocaleString()} views gets you the full amount back, and like any full refund, that license key is deactivated.`,
-    },
-    {
-      q: "Can I get a refund without posting a Reel?",
+      q: "Can I get a refund?",
       a: `Yes. Every license has a ${macwall.refundWindowDays}-day money-back guarantee, no reason needed. Email ${macwall.supportEmail} within ${macwall.refundWindowDays} days of purchase and we'll refund you in full.`,
     },
     {
@@ -238,7 +195,6 @@ export const macwallPricingCopy = {
   bottomTitle: "Unlock every wallpaper.",
   bottomDesc: "One payment. License emailed instantly.",
   bottomCtaPro: "Get Pro",
-  bottomCtaReel: "Get money back with a Reel",
 
   cardFooter: {
     tryFreeLabel: "Free to try",
@@ -376,8 +332,7 @@ export const macwallHomeFaq: readonly { q: string; a: string }[] = [
   ]),
   ...faqItems(pricingFaqByQuestion, [
     "How do I move my license to a new Mac?",
-    "Can I get a refund without posting a Reel?",
-    "How do I get my money back for posting a Reel?",
+    "Can I get a refund?",
   ]),
   ...faqItems(supportFaqByQuestion, ["How do I remove MacWall?"]),
 ]

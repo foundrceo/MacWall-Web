@@ -6,7 +6,6 @@ const HIDE_CLOSING_CTA = [
   "/activate",
   "/open",
   "/tiktok",
-  "/creator",
 ] as const
 
 /**

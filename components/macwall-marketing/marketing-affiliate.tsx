@@ -8,6 +8,7 @@ import {
   Link01Icon,
   ShoppingBag01Icon,
 } from "@hugeicons/core-free-icons"
+import AffiliateFaqSection from "@/components/macwall-marketing/affiliate-faq-section"
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { AffiliateHeroVisual } from "@/components/macwall-marketing/affiliate-hero-visual"
 import { ShaderBackground } from "@/components/macwall-marketing/shader-background"
@@ -141,15 +142,67 @@ export default function MacWallMarketingAffiliatePage() {
             <StepCard key={step.id} {...step} />
           ))}
         </div>
-        <p className="px-6 py-8 text-sm text-muted-foreground">
-          Questions?{" "}
-          <a
-            href={copy.contactHref}
-            className="text-foreground underline-offset-2 hover:underline"
+      </MarketingBodySection>
+      <MarketingBodySection>
+        <div className="px-6 py-10 md:px-8">
+          <h2 className="max-w-[18ch] font-display text-3xl font-normal tracking-tighter md:text-5xl">
+            {copy.ideasTitle}
+          </h2>
+          <p className="mt-4 max-w-[56ch] text-[15px] leading-[1.55] text-white/60">
+            {copy.ideasLead}
+          </p>
+        </div>
+        <ul className="grid grid-cols-1 border-t border-border sm:grid-cols-2">
+          {copy.ideas.map((idea, index) => (
+            <li
+              key={idea.id}
+              className="border-b border-border px-6 py-7 sm:odd:border-r md:px-8"
+            >
+              <span className="text-[13px] text-white/35 tabular-nums">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mt-3 text-[1.2rem] leading-[1.2] font-normal tracking-[-0.01em] text-white">
+                {idea.title}
+              </h3>
+              <p className="mt-2 max-w-[44ch] text-[14px] leading-[1.55] text-white/60">
+                {idea.body}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </MarketingBodySection>
+      <MarketingBodySection>
+        <div className="px-6 py-10 md:px-8">
+          <AffiliateFaqSection />
+        </div>
+      </MarketingBodySection>
+      <MarketingBodySection>
+        <div className="flex flex-col items-start gap-6 px-6 py-12 sm:flex-row sm:items-center sm:justify-between md:px-8">
+          <div>
+            <h2 className="font-display text-3xl font-normal tracking-tighter md:text-5xl">
+              {copy.bottomTitle}
+            </h2>
+            <p className="mt-3 text-[15px] leading-[1.55] text-white/60">
+              {copy.bottomLead} Questions?{" "}
+              <a
+                href={copy.contactHref}
+                className="text-foreground underline-offset-2 hover:underline"
+              >
+                {copy.contactLabel}
+              </a>
+            </p>
+          </div>
+          <TrackedPricingButton
+            href={macwallAffiliatePortalURL}
+            location="affiliate_bottom_cta"
+            external
+            size="pill"
+            className={partnerPrimaryBtnClass}
+            ariaLabel="Get your MacWall affiliate link"
           >
-            {copy.contactLabel}
-          </a>
-        </p>
+            {copy.primaryCta}
+          </TrackedPricingButton>
+        </div>
       </MarketingBodySection>
     </>
   )

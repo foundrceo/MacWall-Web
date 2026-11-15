@@ -83,33 +83,33 @@ export default function LegalTermsPage() {
         <LegalSection id="the-service" title="The Service">
           <p>
             {macwall.name} plays live video wallpapers on the Mac desktop, Lock
-            Screen and Screen Saver. The App is free to download. It includes
-            an online catalog of wallpapers, playback controls and, with a paid
+            Screen and Screen Saver. The App is free to download. It includes an
+            online catalog of wallpapers, playback controls and, with a paid
             license (&ldquo;{macwall.name} Pro&rdquo;), the full catalog, your
-            own videos as wallpapers and the other Pro features described on
-            our <Link href="/pricing">pricing page</Link>.
+            own videos as wallpapers and the other Pro features described on our{" "}
+            <Link href="/pricing">pricing page</Link>.
           </p>
         </LegalSection>
 
         <LegalSection id="eligibility" title="Eligibility">
           <p>
             You must be at least 13 years old (or the minimum age where you
-            live) to use the Service. If you are under the age of majority
-            where you live, a parent or guardian must agree to these Terms for
-            you and make any purchase. If you accept these Terms for an
-            organization, you confirm you can bind it.
+            live) to use the Service. If you are under the age of majority where
+            you live, a parent or guardian must agree to these Terms for you and
+            make any purchase. If you accept these Terms for an organization,
+            you confirm you can bind it.
           </p>
         </LegalSection>
 
         <LegalSection id="license-key" title="No Accounts: Your License Key">
           <p>
-            {macwall.name} has no user accounts. Your license key is what
-            proves your purchase, so keep it private and keep the purchase
-            email. When you activate Pro, the key is linked to that Mac using
-            an identifier derived from its hardware (we store only a one-way
-            hash of it). To move a license, unlink the old Mac in Settings,
-            then activate the new one. Anyone who has your key can use your
-            Mac slots: tell us at once if it leaks and we can help.
+            {macwall.name} has no user accounts. Your license key is what proves
+            your purchase, so keep it private and keep the purchase email. When
+            you activate Pro, the key is linked to that Mac using an identifier
+            derived from its hardware (we store only a one-way hash of it). To
+            move a license, unlink the old Mac in Settings, then activate the
+            new one. Anyone who has your key can use your Mac slots: tell us at
+            once if it leaks and we can help.
           </p>
         </LegalSection>
 
@@ -119,14 +119,14 @@ export default function LegalTermsPage() {
             non-transferable, revocable license to download and run the App on
             Macs you control, for personal use or internal use in your
             organization. The App, the Site, their code and design, and the{" "}
-            {macwall.name} name and logo belong to us or our licensors; no
-            other rights are granted.
+            {macwall.name} name and logo belong to us or our licensors; no other
+            rights are granted.
           </p>
           <p>You may not:</p>
           <ul className={legalBulletList}>
             <li>
-              Reverse engineer the App or try to extract its source code,
-              except where the law forbids this restriction;
+              Reverse engineer the App or try to extract its source code, except
+              where the law forbids this restriction;
             </li>
             <li>
               Redistribute the App as your own product or misrepresent its
@@ -152,8 +152,7 @@ export default function LegalTermsPage() {
           </p>
           <ul className={legalBulletList}>
             <li>
-              <strong>Pro</strong>, {pro.maxDevices} Macs:{" "}
-              {usd(pro.usdCents)}
+              <strong>Pro</strong>, {pro.maxDevices} Macs: {usd(pro.usdCents)}
             </li>
             <li>
               <strong>Pro+</strong>, {proPlus.maxDevices} Macs:{" "}
@@ -166,8 +165,8 @@ export default function LegalTermsPage() {
             <li>
               <strong>In India</strong>, the same licenses cost{" "}
               {usd(pro.indiaUsdCents)}, {usd(proPlus.indiaUsdCents)} and{" "}
-              {usd(tenMacs.indiaUsdCents)}. We apply these prices when our
-              Site detects that you are in India.
+              {usd(tenMacs.indiaUsdCents)}. We apply these prices when our Site
+              detects that you are in India.
             </li>
             <li>
               <strong>Checkout add-ons</strong> (optional): with Pro, 2 more
@@ -181,12 +180,11 @@ export default function LegalTermsPage() {
           </ul>
           <p>
             The price and what it includes are shown before you pay. We may
-            change prices for future purchases; a change never affects a
-            license you already bought. &ldquo;Lifetime updates&rdquo; and
-            &ldquo;free updates forever&rdquo; mean every update to the App
-            that we release, for as long as we develop and distribute it, at no
-            extra charge. Some features need a recent version of the App or
-            macOS.
+            change prices for future purchases; a change never affects a license
+            you already bought. &ldquo;Lifetime updates&rdquo; and &ldquo;free
+            updates forever&rdquo; mean every update to the App that we release,
+            for as long as we develop and distribute it, at no extra charge.
+            Some features need a recent version of the App or macOS.
           </p>
           <p>
             Your license key is emailed to the address you enter at checkout
@@ -197,26 +195,26 @@ export default function LegalTermsPage() {
 
         <LegalSection id="payment" title="Payment, Currency and Taxes">
           <p>
-            Payments are processed by {macwall.paymentProcessor}. You enter
-            your card or other payment details on {macwall.paymentProcessor}
+            Payments are processed by {macwall.paymentProcessor}. You enter your
+            card or other payment details on {macwall.paymentProcessor}
             &apos;s checkout page: they never pass through or get stored on our
-            servers. {macwall.paymentProcessor} is certified to PCI DSS Level
-            1, the highest level of the card industry&apos;s security standard.
+            servers. {macwall.paymentProcessor} is certified to PCI DSS Level 1,
+            the highest level of the card industry&apos;s security standard.
           </p>
           <p>
             <strong>Currency.</strong> Our prices are set in US dollars.{" "}
-            {macwall.paymentProcessor} Checkout may show the price in your
-            local currency and charge you in it, converted at{" "}
+            {macwall.paymentProcessor} Checkout may show the price in your local
+            currency and charge you in it, converted at{" "}
             {macwall.paymentProcessor}&apos;s exchange rate; the amount and
             currency you will pay are shown before you confirm. Local-currency
             prices on our Site are estimates at a recent exchange rate. Your
             bank may add its own foreign-transaction fees.
           </p>
           <p>
-            <strong>Taxes.</strong> We don&apos;t currently add sales tax,
-            VAT or GST at checkout: the total shown before you confirm is the
-            full amount we charge. If we start collecting tax where the law
-            requires it, it will be shown at checkout before you pay.
+            <strong>Taxes.</strong> We don&apos;t currently add sales tax, VAT
+            or GST at checkout: the total shown before you confirm is the full
+            amount we charge. If we start collecting tax where the law requires
+            it, it will be shown at checkout before you pay.
           </p>
         </LegalSection>
 
@@ -227,10 +225,10 @@ export default function LegalTermsPage() {
             identifier, so reinstalling the App doesn&apos;t start another
             trial. The trial is free: no payment details are collected for it
             and nothing is charged when it ends, because there is nothing to
-            renew. Current versions of the App ask for your email to start
-            the trial; the App shows a notice on your Mac about 3 hours before
-            the trial ends, and we email you when it has ended. The follow-up
-            emails and how to stop them are described in our{" "}
+            renew. Current versions of the App ask for your email to start the
+            trial; the App shows a notice on your Mac about 3 hours before the
+            trial ends, and we email you when it has ended. The follow-up emails
+            and how to stop them are described in our{" "}
             <Link href="/legal/privacy#emails">Privacy Policy</Link>.
           </p>
           <p>
@@ -252,34 +250,13 @@ export default function LegalTermsPage() {
             code that is shared publicly or misused.
           </p>
           <p>
-            <strong>Money back for a video.</strong> If you buy a license and
-            post a public video of {macwall.name} in real use, we refund 50% of
-            what you paid when one video reaches{" "}
-            {macwall.reelRefundHalfViews.toLocaleString("en-US")} views and
-            100% when it reaches{" "}
-            {macwall.reelRefundFullViews.toLocaleString("en-US")} views. The
-            post must be disclosed as paid (#ad or the platform&apos;s
-            paid-partnership label); views must be organic (no bots or paid
-            promotion); and views on different posts or platforms don&apos;t
-            add up. To claim, email{" "}
-            <a href={`mailto:${macwall.reelRefundEmail}`}>
-              {macwall.reelRefundEmail}
-            </a>{" "}
-            with the video link, a screenshot of the view count and your
-            purchase email. We verify the claim and refund to your original
-            payment method, usually within 48 hours. Your license stays active after a 50% or a 100% refund under this offer. We refund what you actually paid, never more. Full
-            rules are on <Link href="/creator">/creator</Link>. We may turn
-            down claims that look inflated, and we can end this offer at any
-            time.
-          </p>
-          <p>
             <strong>Affiliate program.</strong> Creators and sites can apply to
             promote {macwall.name} through our affiliate program at{" "}
             <a href={macwallAffiliatePortalURL}>
               {macwallAffiliatePortalURL.replace(/^https?:\/\//, "")}
             </a>
-            , run on the Affonso platform. We review every application.
-            Approved affiliates earn the commission shown on our{" "}
+            , run on the Affonso platform. We review every application. Approved
+            affiliates earn the commission shown on our{" "}
             <Link href="/affiliate">affiliate page</Link> (currently{" "}
             {AFFILIATE_COMMISSION_PERCENT}% of each Pro sale made through their
             link) for purchases made within the tracking window (currently{" "}
@@ -299,26 +276,27 @@ export default function LegalTermsPage() {
             We no longer sell the annual plan ({usd(annual.usdCents)} a year).
             If you bought it while it was offered, it renews automatically each
             year at the price you signed up for until it is cancelled. To
-            cancel, email {support} from the address you paid with, at any
-            time. We stop the renewal so you are not charged again, and Pro
-            stays on until the end of the year you have already paid for, then
-            switches off. Your wallpapers and settings stay on your Mac.
+            cancel, email {support} from the address you paid with, at any time.
+            We stop the renewal so you are not charged again, and Pro stays on
+            until the end of the year you have already paid for, then switches
+            off. Your wallpapers and settings stay on your Mac.
           </p>
         </LegalSection>
 
         <LegalSection id="refunds" title="Refunds and Disputed Charges">
           <p>
-            Every license comes with a {macwall.refundWindowDays}-day
-            money-back guarantee, and billing errors are fixed at any time. How
-            to ask, what is excluded and how long it takes are in our{" "}
-            <Link href="/legal/refund">Refund Policy</Link>. A full refund under the guarantee deactivates the license key it paid for.
+            Every license comes with a {macwall.refundWindowDays}-day money-back
+            guarantee, and billing errors are fixed at any time. How to ask,
+            what is excluded and how long it takes are in our{" "}
+            <Link href="/legal/refund">Refund Policy</Link>. A full refund
+            deactivates the license key it paid for.
           </p>
           <p>
             If something is wrong with a charge, emailing {support} is usually
             the fastest way to fix it, and we can refund directly. You can also
             dispute a charge with your bank or card issuer at any time. If a
-            payment is reversed, the license it paid for may be deactivated,
-            the same as after a full refund.
+            payment is reversed, the license it paid for may be deactivated, the
+            same as after a full refund.
           </p>
         </LegalSection>
 
@@ -327,14 +305,13 @@ export default function LegalTermsPage() {
             If you live in the EU, EEA or UK and buy as a consumer, you have a
             legal right to withdraw from your purchase within 14 days without
             giving a reason. We don&apos;t ask you to give up that right at
-            checkout, so it applies even after you have downloaded, activated
-            or used Pro. To withdraw, email {support} within 14 days of the
+            checkout, so it applies even after you have downloaded, activated or
+            used Pro. To withdraw, email {support} within 14 days of the
             purchase with a clear statement and your purchase email or license
             key. We refund the full amount to your original payment method
             within 14 days of hearing from you, and the license key is
-            deactivated. This is in addition to our money-back guarantee and
-            to any other rights you have if the App is faulty or not as
-            described.
+            deactivated. This is in addition to our money-back guarantee and to
+            any other rights you have if the App is faulty or not as described.
           </p>
         </LegalSection>
 
@@ -355,10 +332,10 @@ export default function LegalTermsPage() {
             the App. It gives you no ownership of, and no rights in, any
             wallpaper. You may display catalog wallpapers only through the App,
             on Macs you use, for personal, non-commercial purposes. You may not
-            download, extract, screen-record for reuse, copy, redistribute,
-            sell or sublicense them, use them in other products, or use them to
-            train AI models. Showing {macwall.name} itself in use, such as in a
-            video for the program above, is fine.
+            download, extract, screen-record for reuse, copy, redistribute, sell
+            or sublicense them, use them in other products, or use them to train
+            AI models. Showing {macwall.name} itself in use, such as in a video
+            for the affiliate program above, is fine.
           </p>
           <p>
             <strong>Removal.</strong> Rights holders can ask us to remove any
@@ -366,9 +343,9 @@ export default function LegalTermsPage() {
             <Link href="/legal/dmca">DMCA / Copyright</Link> process or by
             emailing {support}. We remove wallpapers when a rights holder asks
             or when we can&apos;t establish the rights to them, and we may
-            remove or change any wallpaper at any time. The catalog changes
-            over time, and we don&apos;t promise that a particular wallpaper
-            will stay available.
+            remove or change any wallpaper at any time. The catalog changes over
+            time, and we don&apos;t promise that a particular wallpaper will
+            stay available.
           </p>
         </LegalSection>
 
@@ -417,10 +394,10 @@ export default function LegalTermsPage() {
           <p>
             <strong>Removal and repeat infringers.</strong> You can ask us to
             remove an approved submission at any time by emailing {support}; we
-            take it out of the catalog within a reasonable time. If we receive
-            a valid copyright notice about a submission we remove it, and we
-            block the Mac that repeatedly submits infringing material from
-            submitting again. See our{" "}
+            take it out of the catalog within a reasonable time. If we receive a
+            valid copyright notice about a submission we remove it, and we block
+            the Mac that repeatedly submits infringing material from submitting
+            again. See our{" "}
             <Link href="/legal/dmca">DMCA / Copyright Policy</Link>.
           </p>
         </LegalSection>
@@ -438,12 +415,11 @@ export default function LegalTermsPage() {
             category. To do that, our server sends OpenAI one thumbnail image
             from your video (never the video), its file name and any draft
             title, and OpenAI returns a suggestion. We send these requests with
-            OpenAI&apos;s response storage turned off, and OpenAI states that
-            it does not train its models on data sent through its API by
-            default. Suggestions can be wrong or can name a brand, character or
-            person in the image: check them before you submit. A suggestion
-            never means that you, we or anyone else has the rights to what it
-            names.
+            OpenAI&apos;s response storage turned off, and OpenAI states that it
+            does not train its models on data sent through its API by default.
+            Suggestions can be wrong or can name a brand, character or person in
+            the image: check them before you submit. A suggestion never means
+            that you, we or anyone else has the rights to what it names.
           </p>
         </LegalSection>
 
@@ -563,8 +539,8 @@ export default function LegalTermsPage() {
 
         <LegalSection id="disputes" title="Resolving Problems">
           <p>
-            Most problems are solved quickly by email: write to {support} and
-            we aim to reply within 1 to 2 business days. This never limits your
+            Most problems are solved quickly by email: write to {support} and we
+            aim to reply within 1 to 2 business days. This never limits your
             right to dispute a charge with your bank or card issuer. Either of
             us may bring an individual claim in a small-claims court that has
             jurisdiction.
@@ -586,8 +562,8 @@ export default function LegalTermsPage() {
         <LegalSection id="general" title="General">
           <p>
             These Terms, together with the policies they link to, are the whole
-            agreement between you and us about {macwall.name}. If a provision
-            is found unenforceable, the rest stays in effect. Not enforcing a
+            agreement between you and us about {macwall.name}. If a provision is
+            found unenforceable, the rest stays in effect. Not enforcing a
             provision is not a waiver. You may not transfer these Terms or your
             license without our consent; we may transfer them as part of a
             reorganization or sale of the business. You agree that receipts,

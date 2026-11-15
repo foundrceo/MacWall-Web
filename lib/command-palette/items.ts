@@ -113,18 +113,8 @@ export function getCommandPaletteStaticItems(): {
     "/docs": ["help", "support", "install", "license", "troubleshooting"],
     "/pricing": ["pro", "license", "buy", "upgrade"],
     "/learn": ["docs", "guides", "how it works", "explainers"],
-    "/creator": [
-      "reel",
-      "refund",
-      "video",
-      "tiktok",
-      "instagram",
-      "creator",
-      "want free",
-      "get it free",
-    ],
     "/blog": ["news", "articles", "updates"],
-    "/affiliate": ["earn", "referral", "partner"],
+    "/affiliate": ["earn", "referral", "partner", "creator", "commission"],
   }
 
   // The changelog has its own entry below.

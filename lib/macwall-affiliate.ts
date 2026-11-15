@@ -1,10 +1,11 @@
 /** Affonso affiliate program: pixel + Stripe attribution (env only). */
 
 /**
- * Temporary UI kill-switch for affiliate entry points (nav, footer, etc.).
- * Page + tracking code stay live: flip to `true` to show links again.
+ * Shows the affiliate entry points (nav, footer, sitemap). The affiliate
+ * program replaced the Reel refund, so it is on; set to `false` to hide the
+ * links again. The page and tracking stay live either way.
  */
-export const AFFILIATE_UI_VISIBLE = false
+export const AFFILIATE_UI_VISIBLE: boolean = true
 
 export function getAffonsoProgramId(): string | undefined {
   const id = process.env.NEXT_PUBLIC_AFFONSO_PROGRAM_ID?.trim()

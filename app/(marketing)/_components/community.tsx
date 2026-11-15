@@ -37,7 +37,7 @@ export function Community() {
               Join Discord
             </TrackedLink>
             <a
-              href={macwall.reelRefundTiktokURL}
+              href={macwall.tiktokURL}
               target="_blank"
               rel="noopener noreferrer"
               className={cn(ghostCtaHeroClass, "justify-center sm:w-auto")}

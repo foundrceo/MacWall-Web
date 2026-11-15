@@ -5,7 +5,6 @@ import {
   macwall,
   macwallBatteryPolicy,
   macwallCatalog,
-  macwallCreatorDisclosure,
   macwallImportFormatsLabel,
   macwallImportFormatsOrLabel,
   macwallLockScreenMacOSVersion,
@@ -393,10 +392,6 @@ export const guideArticles: BlogArticleInput[] = [
       {
         type: "p",
         text: `MacWall is a paid app with a free trial. Every Mac gets one ${macwallTrial.name} of ${macwallTrial.includesLabel}, with no card. After that, Pro is a one-time purchase for up to ${macwall.maxLicensedMacs} Macs, with no subscription, and the catalog stays browsable without it; the current price is on the [pricing page](/pricing). What you pay for is a native app with ${macwallCatalog.liveCountLabel} 4K loops, your own ${macwallImportFormatsLabel} videos, Lock Screen and screen saver video on ${macwallLockScreenMacOSVersion} or later, and pause rules for battery and full-screen apps.`,
-      },
-      {
-        type: "p",
-        text: `If you want Pro for nothing, the creator program refunds it for a public video of MacWall running on your Mac, on Instagram, TikTok, YouTube, Threads or X. Because the refund pays you for it, the post must carry ${macwallCreatorDisclosure.label}, along with ${macwall.reelRefundHashtag}. When one video reaches ${macwall.reelRefundHalfViews.toLocaleString("en-US")} organic views you get 50% of what you paid back, and at ${macwall.reelRefundFullViews.toLocaleString("en-US")} all of it. The rules, including what disqualifies a post, are on the [creator page](/creator).`,
       },
       { type: "h2", text: "How to choose" },
       {

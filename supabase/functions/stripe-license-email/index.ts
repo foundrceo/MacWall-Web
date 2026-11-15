@@ -62,7 +62,9 @@ async function sendTikTokPurchase(args: {
   const pixelCode =
     Deno.env.get("TIKTOK_PIXEL_ID")?.trim() || TIKTOK_PIXEL_ID_FALLBACK
   if (!accessToken || !pixelCode) {
-    console.warn("[stripe-license-email] tiktok skipped: TIKTOK_EVENTS_API_ACCESS_TOKEN not set")
+    console.warn(
+      "[stripe-license-email] tiktok skipped: TIKTOK_EVENTS_API_ACCESS_TOKEN not set"
+    )
     return
   }
 
@@ -270,7 +272,9 @@ async function enqueueRecoveryForExpiredSession(args: {
     if (!opened) return { queued: false, skipped: "never_opened" }
   }
 
-  const since = new Date(Date.now() - RECOVERY_PER_EMAIL_WINDOW_MS).toISOString()
+  const since = new Date(
+    Date.now() - RECOVERY_PER_EMAIL_WINDOW_MS
+  ).toISOString()
   const { data: recent } = await supabase
     .from("macwall_checkout_recovery_queue")
     .select("id")
@@ -293,22 +297,24 @@ async function enqueueRecoveryForExpiredSession(args: {
     .ilike("email", email)
     .eq("status", "pending")
 
-  const { error } = await supabase.from("macwall_checkout_recovery_queue").upsert(
-    {
-      checkout_session_id: session.id,
-      license_key: licenseKeyFromSession(session) || null,
-      customer_email: email,
-      payment_intent_id:
-        typeof session.payment_intent === "string"
-          ? session.payment_intent
-          : (session.payment_intent?.id ?? null),
-      reason: "recovery:r1",
-      scheduled_send_at: new Date().toISOString(),
-      status: "pending",
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "checkout_session_id", ignoreDuplicates: true }
-  )
+  const { error } = await supabase
+    .from("macwall_checkout_recovery_queue")
+    .upsert(
+      {
+        checkout_session_id: session.id,
+        license_key: licenseKeyFromSession(session) || null,
+        customer_email: email,
+        payment_intent_id:
+          typeof session.payment_intent === "string"
+            ? session.payment_intent
+            : (session.payment_intent?.id ?? null),
+        reason: "recovery:r1",
+        scheduled_send_at: new Date().toISOString(),
+        status: "pending",
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "checkout_session_id", ignoreDuplicates: true }
+    )
   if (error) {
     console.error("[stripe-license-email] recovery_queue_insert", error.message)
     return { queued: false, skipped: "insert_failed" }
@@ -356,10 +362,7 @@ async function cancelTrialEndedEmails(
     p_email: normalized,
   })
   if (error) {
-    console.error(
-      "[stripe-license-email] trial_ended_cancel",
-      error.message
-    )
+    console.error("[stripe-license-email] trial_ended_cancel", error.message)
   }
 }
 
@@ -567,7 +570,9 @@ function inferDeviceCountFromAmounts(
     session.metadata?.unit_amount ??
       (currency === "usd" ? session.metadata?.unit_amount_usd : undefined)
   )
-  const subtotal = converted ? conversion.amount_subtotal : session.amount_subtotal
+  const subtotal = converted
+    ? conversion.amount_subtotal
+    : session.amount_subtotal
   if (!Number.isFinite(unit) || unit <= 0 || typeof subtotal !== "number") {
     return base
   }
@@ -694,33 +699,70 @@ async function handleCheckoutCompleted(args: {
   }
 
   if (session.mode === "subscription") {
-    const id = typeof session.subscription === "string"
-      ? session.subscription : session.subscription?.id
-    if (!id) return Response.json({ ok: false, error: "subscription_missing" }, { status: 500 })
+    const id =
+      typeof session.subscription === "string"
+        ? session.subscription
+        : session.subscription?.id
+    if (!id)
+      return Response.json(
+        { ok: false, error: "subscription_missing" },
+        { status: 500 }
+      )
     const subscription = await stripe.subscriptions.retrieve(id)
-    if (subscription.status !== "active" && subscription.status !== "trialing") {
+    if (
+      subscription.status !== "active" &&
+      subscription.status !== "trialing"
+    ) {
       return Response.json({ ok: true, skipped: "subscription_ineligible" })
     }
     // Reconcile the invoice associated with THIS checkout, not a newer renewal.
-    const invoiceId = typeof session.invoice === "string" ? session.invoice : session.invoice?.id
-    if (!invoiceId) return Response.json({ ok: false, error: "checkout_invoice_missing" }, { status: 500 })
+    const invoiceId =
+      typeof session.invoice === "string"
+        ? session.invoice
+        : session.invoice?.id
+    if (!invoiceId)
+      return Response.json(
+        { ok: false, error: "checkout_invoice_missing" },
+        { status: 500 }
+      )
     const invoice = await stripe.invoices.retrieve(invoiceId)
-    const invoicePaymentId = typeof invoice.payment_intent === "string"
-      ? invoice.payment_intent : invoice.payment_intent?.id
+    const invoicePaymentId =
+      typeof invoice.payment_intent === "string"
+        ? invoice.payment_intent
+        : invoice.payment_intent?.id
     if (!invoicePaymentId || invoice.status !== "paid") {
-      return Response.json({ ok: false, error: "checkout_invoice_unpaid" }, { status: 503 })
+      return Response.json(
+        { ok: false, error: "checkout_invoice_unpaid" },
+        { status: 503 }
+      )
     }
-    const payment = await stripe.paymentIntents.retrieve(invoicePaymentId, { expand: ["latest_charge"] })
+    const payment = await stripe.paymentIntents.retrieve(invoicePaymentId, {
+      expand: ["latest_charge"],
+    })
     const charge = payment.latest_charge
-    if (charge && typeof charge !== "string" &&
-        (charge.refunded || charge.amount_refunded >= charge.amount)) {
-      const { error } = await supabase.from("macwall_licenses")
-        .update({ status: "revoked" }).eq("license_key", licenseKey)
-        .eq("stripe_checkout_session_id", session.id).eq("source", "stripe")
-      if (error) return Response.json({ ok: false, error: "refund_reconcile_failed" }, { status: 500 })
+    if (
+      charge &&
+      typeof charge !== "string" &&
+      (charge.refunded || charge.amount_refunded >= charge.amount)
+    ) {
+      const { error } = await supabase
+        .from("macwall_licenses")
+        .update({ status: "revoked" })
+        .eq("license_key", licenseKey)
+        .eq("stripe_checkout_session_id", session.id)
+        .eq("source", "stripe")
+      if (error)
+        return Response.json(
+          { ok: false, error: "refund_reconcile_failed" },
+          { status: 500 }
+        )
       return Response.json({ ok: true, skipped: "refunded" })
     }
-    if (payment.status !== "succeeded") return Response.json({ ok: false, error: "payment_not_succeeded" }, { status: 503 })
+    if (payment.status !== "succeeded")
+      return Response.json(
+        { ok: false, error: "payment_not_succeeded" },
+        { status: 503 }
+      )
     licenseUpdate.stripe_payment_intent_id = invoicePaymentId
   }
 
@@ -731,23 +773,35 @@ async function handleCheckoutCompleted(args: {
       expand: ["latest_charge"],
     })
     const charge = payment.latest_charge
-    if (charge && typeof charge !== "string" &&
-        (charge.refunded || charge.amount_refunded >= charge.amount)) {
-      const { error } = await supabase.from("macwall_licenses")
+    if (
+      charge &&
+      typeof charge !== "string" &&
+      (charge.refunded || charge.amount_refunded >= charge.amount)
+    ) {
+      const { error } = await supabase
+        .from("macwall_licenses")
         .update({ status: "revoked" })
         .eq("license_key", licenseKey)
         .eq("stripe_checkout_session_id", session.id)
         .eq("source", "stripe")
-      if (error) return Response.json({ ok: false, error: "refund_reconcile_failed" }, { status: 500 })
+      if (error)
+        return Response.json(
+          { ok: false, error: "refund_reconcile_failed" },
+          { status: 500 }
+        )
       return Response.json({ ok: true, skipped: "refunded" })
     }
     if (payment.status !== "succeeded") {
-      return Response.json({ ok: false, error: "payment_not_succeeded" }, { status: 503 })
+      return Response.json(
+        { ok: false, error: "payment_not_succeeded" },
+        { status: 503 }
+      )
     }
   }
 
   const { data: activation, error: activationError } = await supabase.rpc(
-    "activate_macwall_stripe_checkout", {
+    "activate_macwall_stripe_checkout",
+    {
       p_license_key: licenseKey,
       p_checkout_session_id: session.id,
       p_update: licenseUpdate,
@@ -757,26 +811,54 @@ async function handleCheckoutCompleted(args: {
     if (!activationError && activation === "ineligible") {
       return Response.json({ ok: true, skipped: "ineligible_license" })
     }
-    console.error("[stripe-license-email] activation_failed", activationError?.message)
-    return Response.json({ ok: false, error: "license_activation_failed" }, { status: 500 })
+    console.error(
+      "[stripe-license-email] activation_failed",
+      activationError?.message
+    )
+    return Response.json(
+      { ok: false, error: "license_activation_failed" },
+      { status: 500 }
+    )
   }
 
   const { data: delivered, error: deliveryLookupError } = await supabase
-    .from("macwall_stripe_license_emails").select("id,delivery_status")
-    .eq("license_key", licenseKey).in("delivery_status", ["sent", "legacy_unknown"]).limit(1)
-  if (deliveryLookupError) return Response.json({ ok: false, error: "delivery_lookup_failed" }, { status: 500 })
-  if (delivered?.length) return Response.json({ ok: true, skipped: delivered[0].delivery_status === "legacy_unknown" ? "historical_delivery_requires_reconciliation" : "already_emailed" })
+    .from("macwall_stripe_license_emails")
+    .select("id,delivery_status")
+    .eq("license_key", licenseKey)
+    .in("delivery_status", ["sent", "legacy_unknown"])
+    .limit(1)
+  if (deliveryLookupError)
+    return Response.json(
+      { ok: false, error: "delivery_lookup_failed" },
+      { status: 500 }
+    )
+  if (delivered?.length)
+    return Response.json({
+      ok: true,
+      skipped:
+        delivered[0].delivery_status === "legacy_unknown"
+          ? "historical_delivery_requires_reconciliation"
+          : "already_emailed",
+    })
 
   const { error: insErr } = await supabase
-    .from("macwall_stripe_license_emails").upsert({
-      webhook_event_id: args.event.id,
-      checkout_session_id: session.id,
-      license_key: licenseKey,
-      customer_email: customerEmail,
-      delivery_status: "pending",
-      sent_at: null,
-    }, { onConflict: "webhook_event_id", ignoreDuplicates: true })
-  if (insErr) return Response.json({ ok: false, error: "delivery_ledger_failed" }, { status: 500 })
+    .from("macwall_stripe_license_emails")
+    .upsert(
+      {
+        webhook_event_id: args.event.id,
+        checkout_session_id: session.id,
+        license_key: licenseKey,
+        customer_email: customerEmail,
+        delivery_status: "pending",
+        sent_at: null,
+      },
+      { onConflict: "webhook_event_id", ignoreDuplicates: true }
+    )
+  if (insErr)
+    return Response.json(
+      { ok: false, error: "delivery_ledger_failed" },
+      { status: 500 }
+    )
 
   const amount =
     typeof session.amount_total === "number" ? session.amount_total / 100 : null
@@ -819,19 +901,32 @@ async function handleCheckoutCompleted(args: {
   })
 
   const { error: deliveryUpdateError } = await supabase
-    .from("macwall_stripe_license_emails").update({
+    .from("macwall_stripe_license_emails")
+    .update({
       delivery_status: sent.ok ? "sent" : "failed",
       sent_at: sent.ok ? new Date().toISOString() : null,
       last_error: sent.ok ? null : sent.error,
-    }).eq("webhook_event_id", args.event.id)
-  if (deliveryUpdateError) return Response.json({ ok: false, error: "delivery_ledger_update_failed" }, { status: 500 })
+    })
+    .eq("webhook_event_id", args.event.id)
+  if (deliveryUpdateError)
+    return Response.json(
+      { ok: false, error: "delivery_ledger_update_failed" },
+      { status: 500 }
+    )
   if (!sent.ok) {
-    console.error("[stripe-license-email] resend_failed", sent.status, sent.error)
-    return Response.json({ ok: false, error: sent.error }, { status: sent.retryable ? 503 : 502 })
+    console.error(
+      "[stripe-license-email] resend_failed",
+      sent.status,
+      sent.error
+    )
+    return Response.json(
+      { ok: false, error: sent.error },
+      { status: sent.retryable ? 503 : 502 }
+    )
   }
 
   // The license is delivered; nothing below may fail the webhook.
-  await scheduleReelRefundEmail({
+  await scheduleAffiliateInviteEmail({
     supabase,
     resendKey,
     from,
@@ -843,16 +938,16 @@ async function handleCheckoutCompleted(args: {
   return Response.json({ ok: true, emailed_to: customerEmail })
 }
 
-/** How long after the license email the Reel refund offer goes out. */
-const REEL_REFUND_DELAY_MS = 90 * 60 * 1000
+/** How long after the license email the affiliate invite goes out. */
+const AFFILIATE_INVITE_DELAY_MS = 90 * 60 * 1000
 
 /**
- * Tells a new buyer they can earn their money back by posting a Reel or
- * TikTok. Resend holds it for 90 minutes, so it lands once they have set the
- * app up. One per license (idempotency key), skipped for suppressed
+ * Invites a new buyer to the affiliate program: share a link, earn a
+ * commission on every sale it brings. Resend holds it for 90 minutes, so it
+ * lands once they have set the app up. One per license (idempotency key), skipped for suppressed
  * addresses, and never fatal: a failure here only gets logged.
  */
-async function scheduleReelRefundEmail(args: {
+async function scheduleAffiliateInviteEmail(args: {
   supabase: ReturnType<typeof createClient>
   resendKey: string
   from: string
@@ -862,21 +957,24 @@ async function scheduleReelRefundEmail(args: {
 }): Promise<void> {
   try {
     const email = args.to.trim().toLowerCase()
-    const { data: suppressed } = await args.supabase.rpc("macwall_email_suppressed", {
-      p_email: email,
-    })
+    const { data: suppressed } = await args.supabase.rpc(
+      "macwall_email_suppressed",
+      {
+        p_email: email,
+      }
+    )
     if (suppressed === true) return
 
     const site = siteBaseUrl()
     const unsubscribe = await unsubscribeUrlsFor(email)
-    const mail = buildLifecycleEmail("reel_refund", {
+    const mail = buildLifecycleEmail("affiliate_invite", {
       appName: args.appName,
       siteUrl: site,
       logoUrl: logoUrl(),
       supportEmail: supportEmail(),
       postalAddress: postalAddress(),
       unsubscribeHref: unsubscribe?.page ?? null,
-      checkoutHref: `${site}/creator?utm_source=email&utm_medium=customer&utm_campaign=reel_refund`,
+      checkoutHref: `${site}/affiliate?utm_source=email&utm_medium=customer&utm_campaign=affiliate_invite`,
     })
     const result = await sendMarketingEmail({
       resendKey: args.resendKey,
@@ -885,17 +983,20 @@ async function scheduleReelRefundEmail(args: {
       to: email,
       mail,
       unsubscribeOneClick: unsubscribe?.oneClick ?? null,
-      idempotencyKey: `reel-refund/${args.licenseKey}`,
+      idempotencyKey: `affiliate-invite/${args.licenseKey}`,
       tags: [
         { name: "category", value: "customer" },
-        { name: "step", value: "reel_refund" },
+        { name: "step", value: "affiliate_invite" },
       ],
-      scheduledAt: new Date(Date.now() + REEL_REFUND_DELAY_MS).toISOString(),
+      scheduledAt: new Date(
+        Date.now() + AFFILIATE_INVITE_DELAY_MS
+      ).toISOString(),
     })
-    if (!result.ok) console.error("[stripe-license-email] reel_refund_schedule_failed")
+    if (!result.ok)
+      console.error("[stripe-license-email] affiliate_invite_schedule_failed")
   } catch (error) {
     console.error(
-      "[stripe-license-email] reel_refund_exception",
+      "[stripe-license-email] affiliate_invite_exception",
       error instanceof Error ? error.message : "error"
     )
   }
@@ -937,15 +1038,21 @@ async function handleBackfillMissingLicenseEmails(args: {
         .in("license_key", keys)
         .in("delivery_status", ["sent", "legacy_unknown"])
     : { data: [] as Array<{ license_key: string }>, error: null }
-  if (emailedError) return Response.json({ ok: false, error: "delivery_lookup_failed" }, { status: 500 })
+  if (emailedError)
+    return Response.json(
+      { ok: false, error: "delivery_lookup_failed" },
+      { status: 500 }
+    )
 
   const emailedSet = new Set((emailed ?? []).map((row) => row.license_key))
-  const missing = licenses.flatMap((row) => {
-    const customerEmail = row.customer_email?.trim()
-    if (!customerEmail || emailedSet.has(row.license_key)) return []
-    if (!/^[\x20-\x7E]+$/.test(customerEmail)) return []
-    return [{ ...row, customerEmail }]
-  }).slice(0, args.limit)
+  const missing = licenses
+    .flatMap((row) => {
+      const customerEmail = row.customer_email?.trim()
+      if (!customerEmail || emailedSet.has(row.license_key)) return []
+      if (!/^[\x20-\x7E]+$/.test(customerEmail)) return []
+      return [{ ...row, customerEmail }]
+    })
+    .slice(0, args.limit)
 
   const appName = Deno.env.get("APP_NAME")?.trim() || "MacWall"
   const results: Array<{ license_key: string; ok: boolean; error?: string }> =
@@ -985,7 +1092,11 @@ async function handleBackfillMissingLicenseEmails(args: {
       })
 
     if (insErr && (insErr as { code?: string }).code !== "23505") {
-      results.push({ license_key: licenseKey, ok: false, error: insErr.message })
+      results.push({
+        license_key: licenseKey,
+        ok: false,
+        error: insErr.message,
+      })
       continue
     }
 
@@ -1058,7 +1169,11 @@ async function handleCheckoutSessionCreated(args: {
 }): Promise<Response> {
   // Sessions are also created by hover prefetch, so creation says nothing
   // about intent. Recovery is decided when an opened session expires.
-  return Response.json({ ok: true, skipped: "created_not_tracked", id: args.session.id })
+  return Response.json({
+    ok: true,
+    skipped: "created_not_tracked",
+    id: args.session.id,
+  })
 }
 
 async function handleCheckoutSessionExpired(args: {
@@ -1142,12 +1257,17 @@ async function handleSubscriptionStatusChange(args: {
 /** Stripe metadata key that marks a refund as a Reel payout. */
 const REEL_REFUND_METADATA_KEY = "reel_refund"
 
-function metadataMarksReelRefund(metadata: Stripe.Metadata | null | undefined): boolean {
+function metadataMarksReelRefund(
+  metadata: Stripe.Metadata | null | undefined
+): boolean {
   const value = metadata?.[REEL_REFUND_METADATA_KEY]?.trim().toLowerCase()
   return Boolean(value) && value !== "false" && value !== "0" && value !== "no"
 }
 
 /**
+ * The Reel refund program has ended; this stays so claims made before it
+ * ended can still be paid without ending the license.
+ *
  * A Reel payout gives the money back for a video and the buyer keeps Pro; a
  * real refund ends the license. Stripe can't tell them apart, so the payout is
  * marked by hand: `reel_refund = true` in the metadata of the payment (set in
@@ -1156,7 +1276,10 @@ function metadataMarksReelRefund(metadata: Stripe.Metadata | null | undefined): 
  * If Stripe can't be read this answers false, so an unmarked or unreadable
  * refund is treated as a real one.
  */
-async function isReelRefund(stripe: Stripe, charge: Stripe.Charge): Promise<boolean> {
+async function isReelRefund(
+  stripe: Stripe,
+  charge: Stripe.Charge
+): Promise<boolean> {
   if (metadataMarksReelRefund(charge.metadata)) return true
   try {
     const paymentIntentId =
@@ -1169,7 +1292,9 @@ async function isReelRefund(stripe: Stripe, charge: Stripe.Charge): Promise<bool
       if (metadataMarksReelRefund(payment.metadata)) return true
     }
     const refunds = await stripe.refunds.list({ charge: charge.id, limit: 20 })
-    return refunds.data.some((refund) => metadataMarksReelRefund(refund.metadata))
+    return refunds.data.some((refund) =>
+      metadataMarksReelRefund(refund.metadata)
+    )
   } catch (error) {
     console.error(
       "[stripe-license-email] reel_refund_lookup_failed",
@@ -1210,16 +1335,21 @@ async function handleChargeRefunded(args: {
   if (await isReelRefund(args.stripe, charge)) {
     return Response.json({ ok: true, skipped: "reel_refund" })
   }
-  const { data: revoked, error } = await args.supabase.rpc("record_macwall_stripe_refund", {
-    p_payment_intent_id: paymentIntentId,
-    p_license_key: licenseKeyFromMetadata,
-  })
+  const { data: revoked, error } = await args.supabase.rpc(
+    "record_macwall_stripe_refund",
+    {
+      p_payment_intent_id: paymentIntentId,
+      p_license_key: licenseKeyFromMetadata,
+    }
+  )
   if (error) {
     console.error("[stripe-license-email] revoke_failed", error.message)
-    return Response.json({ ok: false, error: "refund_record_failed" }, { status: 500 })
+    return Response.json(
+      { ok: false, error: "refund_record_failed" },
+      { status: 500 }
+    )
   }
   return Response.json({ ok: true, revoked: revoked ?? 0 })
-
 }
 
 Deno.serve(async (req: Request) => {
@@ -1245,7 +1375,10 @@ Deno.serve(async (req: Request) => {
     req.headers.get("x-macwall-action")?.trim() === "backfill-license-emails"
   ) {
     if (!adminAuthorized(req)) {
-      return Response.json({ ok: false, error: "unauthorized" }, { status: 401 })
+      return Response.json(
+        { ok: false, error: "unauthorized" },
+        { status: 401 }
+      )
     }
     if (!supabaseUrl || !supabaseServiceKey || !resendKey || !from) {
       return Response.json(
@@ -1262,7 +1395,10 @@ Deno.serve(async (req: Request) => {
       from,
       limit: Math.min(
         5,
-        Math.max(1, Number(new URL(req.url).searchParams.get("limit") || "3") || 3)
+        Math.max(
+          1,
+          Number(new URL(req.url).searchParams.get("limit") || "3") || 3
+        )
       ),
     })
   }

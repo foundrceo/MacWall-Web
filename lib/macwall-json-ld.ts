@@ -33,8 +33,8 @@ const MACWALL_YOUTUBE_CHANNEL_URL =
  * and are not a profile of the brand.
  */
 const MACWALL_SAME_AS = [
-  macwall.reelRefundInstagramURL,
-  macwall.reelRefundTiktokURL,
+  macwall.instagramURL,
+  macwall.tiktokURL,
   MACWALL_YOUTUBE_CHANNEL_URL,
 ] as const
 

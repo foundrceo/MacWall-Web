@@ -65,6 +65,71 @@ export const macwallAffiliateCopy = {
     },
   ] as const,
 
+  ideasTitle: "Where your link works best",
+  ideasLead:
+    "You don't need a big audience. One good post with your link under it keeps earning for as long as people find it.",
+  ideas: [
+    {
+      id: "reel",
+      title: "A Reel or TikTok of your desktop",
+      body: "Film your Mac with a live wallpaper running and put your link in your bio. Setup videos are what people share.",
+    },
+    {
+      id: "bio",
+      title: "Your bio link",
+      body: "Add it to Linktree or your profile once. Every wallpaper video you post after that points to it.",
+    },
+    {
+      id: "youtube",
+      title: "YouTube descriptions",
+      body: "Desk setup tours, Mac app roundups and macOS tips. Pin a comment with your link as well.",
+    },
+    {
+      id: "written",
+      title: "Posts, newsletters and communities",
+      body: "A blog post, an X thread or a reply where someone asks for a live wallpaper app for Mac.",
+    },
+  ] as const,
+
+  faqTitle: "Affiliate questions",
+  faq: [
+    {
+      q: "Who can join?",
+      a: "Anyone. It is free, there is no follower minimum, and you don't need to own Pro. Creators, reviewers and Mac communities are all welcome.",
+    },
+    {
+      q: "How much do I earn?",
+      a: `${AFFILIATE_COMMISSION_PERCENT}% of every ${macwall.name} Pro sale that comes through your link, worked out on the price the buyer pays.`,
+    },
+    {
+      q: "How long does my link keep tracking someone?",
+      a: `${AFFONSO_COOKIE_DURATION_DAYS} days. If someone clicks your link today and buys within ${AFFONSO_COOKIE_DURATION_DAYS} days on the same browser, the sale is yours.`,
+    },
+    {
+      q: "How do I get paid?",
+      a: "You add your payout details in the affiliate dashboard. Every click, sale and commission is listed there, along with what has been paid out.",
+    },
+    {
+      q: "What happens if a sale is refunded?",
+      a: "A refunded sale doesn't earn a commission. Everything else stays as it was.",
+    },
+    {
+      q: "Can I buy through my own link?",
+      a: "No. Purchases you make yourself don't count.",
+    },
+    {
+      q: "Do I have to say it's an affiliate link?",
+      a: "Yes. Tell your audience you earn from the link, for example with #ad or the platform's paid-partnership label. Most platforms and consumer laws require it.",
+    },
+    {
+      q: "Is there anything I can't do?",
+      a: `No spam, no fake reviews, and no ads that bid on the ${macwall.name} name. Accounts that break this are removed.`,
+    },
+  ] as const,
+
+  bottomTitle: "Start earning with one link",
+  bottomLead: `Free to join. ${AFFILIATE_COMMISSION_PERCENT}% of every sale you refer.`,
+
   contactHref: mailtoSupport,
   contactLabel: macwall.supportEmail,
 } as const

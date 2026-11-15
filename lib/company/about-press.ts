@@ -1,4 +1,6 @@
 import type { SeoContentPage } from "@/lib/content/types"
+import { macwallAffiliatePortalURL } from "@/lib/macwall-affiliate"
+import { AFFILIATE_COMMISSION_PERCENT } from "@/lib/macwall-affiliate-copy"
 import {
   macwall,
   macwallAppIconPath,
@@ -69,7 +71,7 @@ export function getAboutPage(now: number = Date.now()): SeoContentPage {
       { type: "h2", text: `Who makes ${macwall.name}` },
       {
         type: "p",
-        text: `${macwall.name} is made and sold by **${macwall.legalCompanyName}**, the company named in the [Terms of Service](/legal/terms). The [Reel refund](/creator) pays people back for posting a video of the app in use. Payments are processed by ${macwall.paymentProcessor}; ${macwall.name} never sees card details.`,
+        text: `${macwall.name} is made and sold by **${macwall.legalCompanyName}**, the company named in the [Terms of Service](/legal/terms). The [affiliate program](/affiliate) pays ${AFFILIATE_COMMISSION_PERCENT}% commission on every Pro sale referred. Payments are processed by ${macwall.paymentProcessor}; ${macwall.name} never sees card details.`,
       },
       {
         type: "p",
@@ -103,9 +105,9 @@ export function getAboutPage(now: number = Date.now()): SeoContentPage {
         type: "ul",
         items: [
           `Support, licenses, corrections and press: [${macwall.supportEmail}](mailto:${macwall.supportEmail}). See also [contact](/contact).`,
-          `Reel refund claims: [${macwall.reelRefundEmail}](mailto:${macwall.reelRefundEmail}).`,
+          `Affiliate sign-up and dashboard: [${macwallAffiliatePortalURL.replace(/^https?:\/\//, "")}](${macwallAffiliatePortalURL}).`,
           `Community: [Discord](${macwall.discordInvite}).`,
-          `Social: [Instagram ${macwall.reelRefundInstagram}](${macwall.reelRefundInstagramURL}), [TikTok ${macwall.reelRefundTiktok}](${macwall.reelRefundTiktokURL}), [YouTube](${macwall.youtubeChannelURL}).`,
+          `Social: [Instagram ${macwall.instagramHandle}](${macwall.instagramURL}), [TikTok ${macwall.tiktokHandle}](${macwall.tiktokURL}), [YouTube](${macwall.youtubeChannelURL}).`,
         ],
       },
       { type: "h2", text: "More about MacWall" },

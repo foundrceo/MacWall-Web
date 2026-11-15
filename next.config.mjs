@@ -206,6 +206,12 @@ const nextConfig = {
         destination: "/affiliate",
         permanent: true,
       },
+      // The Reel refund program ended; the affiliate program replaces it.
+      {
+        source: "/creator",
+        destination: "/affiliate",
+        permanent: true,
+      },
       // Uploads and support live in the Mac app now.
       {
         source: "/submit",
@@ -231,7 +237,7 @@ const nextConfig = {
       },
       {
         source: "/pricing/reel-refund",
-        destination: "/creator",
+        destination: "/affiliate",
         permanent: true,
       },
       // No index page lives at /alternatives; /compare lists every comparison.

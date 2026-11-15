@@ -4,10 +4,7 @@ import { useEffect, useState, type ReactNode } from "react"
 import { motion, useReducedMotion, type Transition } from "motion/react"
 import { Accordion as AccordionPrimitive } from "radix-ui"
 
-import {
-  MarketingReelFaqRefundCopy,
-  MarketingRichText,
-} from "@/components/macwall-marketing/marketing-primitives"
+import { MarketingRichText } from "@/components/macwall-marketing/marketing-primitives"
 import { macwallPricingCopy as pricingCopy } from "@/lib/macwall-pricing-copy"
 import { macwall, mailtoSupport } from "@/lib/macwall-site"
 import { cn } from "@/lib/utils"
@@ -42,9 +39,6 @@ function faqAnchor(question: string) {
 }
 
 function FaqAnswer({ item }: Readonly<{ item: MarketingFaqItem }>) {
-  if (item.q === "How does the Reel refund work?") {
-    return <MarketingReelFaqRefundCopy className="text-ink-2" />
-  }
   return (
     <MarketingRichText as="span" className="text-ink-2">
       {item.a}

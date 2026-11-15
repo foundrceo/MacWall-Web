@@ -6,7 +6,6 @@ import { learnPages } from "@/lib/learn/pages"
 import {
   macwall,
   macwallBatteryPolicy,
-  macwallCreatorDisclosure,
   macwallImportFormatsLabel,
   macwallLockScreenMacOSVersion,
   macwallMinimumMacOSVersion,
@@ -45,7 +44,6 @@ import {
 } from "@/lib/company/about-press"
 import { faqMarkdownDocuments } from "@/lib/faq/answers"
 import { AFFILIATE_UI_VISIBLE } from "@/lib/macwall-affiliate"
-import { macwallCreatorCopy } from "@/lib/macwall-creator-copy"
 import { macwallPricingCopy } from "@/lib/macwall-pricing-copy"
 import {
   bestLiveWallpaperMacPage,
@@ -347,48 +345,11 @@ function pricingMarkdownPage(now: number): SeoContentPage {
         type: "p",
         text: `Every license has a ${macwall.refundWindowDays}-day money-back guarantee: email [${macwall.supportEmail}](mailto:${macwall.supportEmail}) within ${macwall.refundWindowDays} days of purchase for a full refund, no reason needed.`,
       },
-      {
-        type: "p",
-        text: `**${copy.reelRefund.title}**: ${copy.reelRefund.description} ${copy.reelRefund.finePrint} Details: [creator program](/creator).`,
-      },
     ],
     faq: [...copy.faq, ...copy.supportFaq].map((item) => ({
       question: item.q,
       answer: item.a,
     })),
-  }
-}
-
-const CREATOR_SUMMARY = `Post a public video about ${macwall.name}, tagged ${macwallCreatorDisclosure.tag}, and get money back: 50% at ${macwall.reelRefundHalfViews.toLocaleString("en-US")} views, 100% at ${macwall.reelRefundFullViews.toLocaleString("en-US")}.`
-
-/** The /creator twin, built from lib/macwall-creator-copy.ts like the page. */
-function creatorMarkdownPage(): SeoContentPage {
-  const copy = macwallCreatorCopy
-  return {
-    slug: "creator",
-    pathname: "/creator",
-    title: `${macwall.name} Reel Refund: Money Back for a Video`,
-    headline: copy.heroTitle,
-    description: copy.heroLead,
-    keywords: ["macwall creator program", "macwall refund views"],
-    updatedAt: macwall.productInfoLastReviewedIso,
-    sections: [
-      { type: "h2", text: "How the Reel refund works" },
-      {
-        type: "ol",
-        items: copy.steps.map((step) => `**${step.title}**: ${step.body}`),
-      },
-      { type: "p", text: copy.finePrint },
-      { type: "h2", text: copy.influencerTitle },
-      { type: "p", text: copy.influencerBody },
-      { type: "h2", text: copy.closingTitle },
-      { type: "p", text: copy.closingBody },
-      {
-        type: "p",
-        text: `Claims: [${macwall.reelRefundEmail}](mailto:${macwall.reelRefundEmail}). Prices and the ${macwall.refundWindowDays}-day money-back guarantee: [pricing](/pricing).`,
-      },
-    ],
-    faq: copy.faq.map((item) => ({ question: item.q, answer: item.a })),
   }
 }
 
@@ -849,15 +810,6 @@ export function siteMarkdownDocuments(): MarkdownDocument[] {
       group: "product",
       includeInFullText: false,
       render: changelogMarkdown,
-    },
-    {
-      path: "/creator",
-      title: "Reel Refund Program",
-      summary: CREATOR_SUMMARY,
-      group: "pricing",
-      updatedAt: macwall.productInfoLastReviewedIso,
-      includeInFullText: true,
-      render: () => seoPageToMarkdown(creatorMarkdownPage()),
     },
     // The affiliate page stays reachable but is hidden from the site chrome
     // until the program reopens; list it only when the links are back.
