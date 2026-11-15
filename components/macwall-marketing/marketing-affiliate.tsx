@@ -143,7 +143,7 @@ function StepCard({
 export default function MacWallMarketingAffiliatePage() {
   return (
     <>
-      <MarketingSection className="grid items-center gap-10 pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,540px)] lg:gap-20 lg:pt-12">
+      <MarketingSection className="grid items-center gap-10 pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:gap-20 lg:pt-12">
         <div className="min-w-0">
           <h1 className={landingPageH1}>
             {copy.heroTitleLines[0]}
