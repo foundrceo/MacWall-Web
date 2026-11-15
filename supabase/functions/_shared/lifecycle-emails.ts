@@ -41,6 +41,10 @@ export const LIFECYCLE_PROMO = {
 export const AFFILIATE = {
   percent: "35%",
   trackingDays: 30,
+  /** The most one sale pays: 35% of the 10-Mac pack ($34.99) while it is
+   *  30% off for Black Friday ($24.49) is $8.57, so "$8" is true during the
+   *  sale and after it (then it is $12.25). Lower it if that pack goes. */
+  topEarning: "$8",
 } as const
 
 /** How long the 10% link in the trial offer email (trial_offer) works. */
@@ -406,8 +410,10 @@ function contentFor(
         ...base,
         subject: invite
           ? `Earn ${AFFILIATE.percent} with ${app}`
-          : `Earn ${AFFILIATE.percent} every time a friend buys ${app}`,
-        preheader: "Share your link. Get paid every time someone buys.",
+          : `Earn up to ${AFFILIATE.topEarning} every time a friend buys ${app}`,
+        preheader: invite
+          ? "Share your link. Get paid every time someone buys."
+          : `${AFFILIATE.percent} of every sale goes to you. Free to join, no followers needed.`,
         headline: `Earn with ${app}`,
         paragraphs: [
           invite
