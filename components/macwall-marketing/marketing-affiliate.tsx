@@ -31,7 +31,7 @@ const partnerPrimaryBtnClass =
   "inline-flex h-11 min-h-11 shrink-0 items-center justify-center rounded-full bg-white px-6 text-[15px] font-normal text-black no-underline transition-opacity hover:opacity-90"
 
 const partnerSecondaryBtnClass =
-  "inline-flex h-10 min-h-10 shrink-0 items-center justify-center rounded-full border border-border bg-transparent px-5 text-[14px] font-normal text-white no-underline transition-colors hover:bg-white/5"
+  "inline-flex h-10 min-h-10 shrink-0 self-start items-center justify-center rounded-full border border-border bg-transparent px-5 text-[14px] font-normal text-white no-underline transition-colors hover:bg-white/5"
 
 /** The page's card: the site's surface with rounder corners and no edge line. */
 const CARD = cn(LANDING_CARD, "rounded-[36px]")
@@ -207,32 +207,20 @@ export default function MacWallMarketingAffiliatePage() {
         </ol>
       </MarketingSection>
 
-      <MarketingSection
-        className="pt-20 lg:pt-[110px]"
-        aria-labelledby="affiliate-estimate"
-      >
-        <div className={cn(CARD, "p-7 sm:p-10 lg:p-14")}>
-          <AffiliateEarningsEstimate headingId="affiliate-estimate" />
-        </div>
+      <MarketingSection aria-labelledby="affiliate-estimate">
+        <AffiliateEarningsEstimate headingId="affiliate-estimate" />
       </MarketingSection>
 
       <MarketingFaqSection items={copy.faq} heading={copy.faqTitle} />
 
       <MarketingSection sectionClassName={LANDING_SECTION_END}>
-        <div
-          className={cn(
-            CARD,
-            "flex flex-col items-start gap-8 p-7 sm:p-10 lg:flex-row lg:items-center lg:justify-between lg:p-14"
-          )}
-        >
-          <div className="min-w-0">
-            <h2 className="font-display text-[32px] leading-10 font-normal tracking-tight text-balance text-ink sm:text-[40px] sm:leading-[48px]">
-              {copy.bottomTitle}
-            </h2>
-            <p className="mt-3 text-[15px] leading-[22px] text-ink-2">
-              {copy.bottomLead}
-            </p>
-          </div>
+        <div className="flex flex-col items-center border-t border-hairline pt-20 text-center lg:pt-24">
+          <h2 className="max-w-2xl font-display text-[36px] leading-[44px] font-normal tracking-tight text-balance text-ink sm:text-[48px] sm:leading-[58px]">
+            {copy.bottomTitle}
+          </h2>
+          <p className="mt-4 mb-8 text-[15px] leading-[22px] text-ink-2">
+            {copy.bottomLead}
+          </p>
           <TrackedPricingButton
             href={macwallAffiliatePortalURL}
             location="affiliate_bottom_cta"
