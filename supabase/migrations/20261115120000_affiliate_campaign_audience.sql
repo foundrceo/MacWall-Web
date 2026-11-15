@@ -11,9 +11,10 @@ alter table public.macwall_app_update_emails
     'black_friday', 'black_friday_checkout', 'affiliate'
   ]));
 
--- Buyers first (they know the app best), then trial users, newest first.
+-- Trial users first, newest first, then buyers.
 -- Left out: suppressed and unsubscribed addresses, anyone mailed in the last
--- 20 hours, and anyone this campaign already reached.
+-- 20 hours, anyone this campaign already reached, and trial users whose trial
+-- started in the last 7 days (they are still getting the trial emails).
 create or replace function public.macwall_affiliate_campaign_candidates(
   p_campaign text,
   p_limit integer
@@ -52,6 +53,7 @@ as $function$
            greatest(b.seen, t.seen) as seen
     from buyers b
     full outer join trials t on t.e = b.e
+    where b.e is not null or t.seen <= now() - interval '7 days'
   )
   select p.e, p.is_buyer from pool p
   where p.e not in (select e from excluded where e is not null)
@@ -59,7 +61,7 @@ as $function$
       select 1 from public.macwall_app_update_emails m
       where m.campaign = p_campaign and m.email = p.e
     )
-  order by p.is_buyer desc, p.seen desc nulls last, p.e
+  order by p.is_buyer asc, p.seen desc nulls last, p.e
   limit greatest(p_limit, 0);
 $function$;
 
