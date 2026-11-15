@@ -15,27 +15,34 @@ import AffiliateEarningsEstimate from "@/components/macwall-marketing/affiliate-
 import MarketingFaqSection from "@/components/macwall-marketing/MarketingFaqSection"
 import { TrackedPricingButton } from "@/components/analytics/tracked-marketing-buttons"
 import { AffiliateHeroVisual } from "@/components/macwall-marketing/affiliate-hero-visual"
+import { LandingSectionHeader } from "@/components/macwall-marketing/landing-section-header"
 import { ShaderBackground } from "@/components/macwall-marketing/shader-background"
 import { AFFILIATE_SHADER_PRESETS } from "@/lib/affiliate-shader-presets"
+import { MarketingTitleSection } from "@/components/macwall-marketing/marketing-inner-page"
 import {
-  MarketingBodySection,
-  MarketingTitleSection,
-} from "@/components/macwall-marketing/marketing-inner-page"
+  LANDING_CARD,
+  LANDING_SECTION_END,
+  MarketingSection,
+} from "@/components/macwall-marketing/marketing-section"
 import {
   landingPageH1,
   landingPageLead,
 } from "@/components/macwall-marketing/landing-type"
 import { macwallAffiliateCopy as copy } from "@/lib/macwall-affiliate-copy"
 import { macwallAffiliatePortalURL } from "@/lib/macwall-affiliate"
+import { cn } from "@/lib/utils"
 
 const partnerPrimaryBtnClass =
-  "inline-flex h-11 min-h-11 items-center justify-center rounded-full bg-white px-6 text-[15px] font-normal text-black no-underline transition-opacity hover:opacity-90"
+  "inline-flex h-11 min-h-11 shrink-0 items-center justify-center rounded-full bg-white px-6 text-[15px] font-normal text-black no-underline transition-opacity hover:opacity-90"
 
 const partnerSecondaryBtnClass =
   "inline-flex h-10 min-h-10 shrink-0 items-center justify-center rounded-full border border-border bg-transparent px-5 text-[14px] font-normal text-white no-underline transition-colors hover:bg-white/5"
 
-const sectionH2Class =
-  "font-display text-3xl font-normal tracking-tighter md:text-5xl"
+/** The page's card: the site's rounded surface with a hairline edge. */
+const CARD = cn(LANDING_CARD, "border border-hairline")
+
+/** Gap between the cards of one row, as on the home page. */
+const CARD_GRID = "grid grid-cols-1 gap-3 md:grid-cols-3"
 
 const perkIcons: Record<(typeof copy.perks)[number]["id"], IconSvgElement> = {
   commission: PercentCircleIcon,
@@ -80,20 +87,24 @@ function WayCard({
   earn,
 }: Readonly<(typeof copy.ways)[number]>) {
   return (
-    <li className="flex flex-col border-b border-border px-6 py-8 last:border-b-0 md:border-r md:border-b-0 md:px-8 md:last:border-r-0">
-      <HugeiconsIcon
-        icon={wayIcons[id]}
-        className="size-6 text-white/70"
-        strokeWidth={1.5}
-        aria-hidden
-      />
-      <h3 className="mt-6 text-[1.45rem] leading-[1.15] font-normal tracking-[-0.02em] text-white">
+    <li className={cn(CARD, "flex flex-col p-7 sm:p-8")}>
+      <span className="flex size-11 items-center justify-center rounded-[14px] bg-white/[0.06]">
+        <HugeiconsIcon
+          icon={wayIcons[id]}
+          className="size-[22px] text-ink"
+          strokeWidth={1.5}
+          aria-hidden
+        />
+      </span>
+      <h3 className="mt-8 text-[22px] leading-7 font-medium tracking-tight text-ink">
         {title}
       </h3>
-      <p className="mt-3 max-w-[40ch] text-[14px] leading-[1.55] text-white/60">
+      <p className="mt-2 max-w-[38ch] text-[15px] leading-[23px] text-ink-2">
         {body}
       </p>
-      <p className="mt-auto pt-6 text-[13px] text-emerald-300">{earn}</p>
+      <p className="mt-auto pt-8 text-[14px] leading-5 text-emerald-300">
+        {earn}
+      </p>
     </li>
   )
 }
@@ -107,23 +118,28 @@ function StepCard({
   const shaderConfig = AFFILIATE_SHADER_PRESETS[shaderId]
 
   return (
-    <article className="relative flex min-h-[280px] flex-col overflow-hidden bg-card p-6 sm:min-h-[300px] sm:p-8">
+    <li
+      className={cn(
+        LANDING_CARD,
+        "relative flex min-h-[300px] flex-col overflow-hidden p-7 sm:min-h-[340px] sm:p-8"
+      )}
+    >
       <ShaderBackground
         className="absolute inset-0 opacity-75"
         config={shaderConfig}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/12 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/12 to-transparent" />
 
-      <span className="relative text-[3.5rem] leading-none font-light tracking-tight text-white/35 sm:text-[4rem]">
+      <span className="relative text-[3.5rem] leading-none font-light tracking-tight text-white/40 sm:text-[4rem]">
         {id}
       </span>
-      <h3 className="relative mt-auto text-[1.55rem] leading-[1.15] font-normal tracking-[-0.02em] text-white sm:text-[1.65rem]">
+      <h3 className="relative mt-auto text-[22px] leading-7 font-medium tracking-tight text-white">
         {title}
       </h3>
-      <p className="relative mt-3 max-w-[34ch] text-[14px] leading-[1.5] font-normal text-white/70">
+      <p className="relative mt-2 max-w-[34ch] text-[15px] leading-[23px] text-white/75 md:min-h-[69px]">
         {body}
       </p>
-    </article>
+    </li>
   )
 }
 
@@ -160,25 +176,26 @@ export default function MacWallMarketingAffiliatePage() {
         <AffiliateHeroVisual className="hidden min-h-[22rem] lg:block" />
       </MarketingTitleSection>
 
-      <MarketingBodySection>
-        <div className="px-6 py-10 md:px-8">
-          <h2 className={sectionH2Class}>{copy.waysTitle}</h2>
-          <p className="mt-4 max-w-[56ch] text-[15px] leading-[1.55] text-white/60">
-            {copy.waysLead}
-          </p>
-        </div>
-        <ul className="grid grid-cols-1 border-t border-border md:grid-cols-3">
+      <MarketingSection aria-labelledby="affiliate-ways">
+        <LandingSectionHeader
+          id="affiliate-ways"
+          title={copy.waysTitle}
+          lead={copy.waysLead}
+        />
+        <ul className={CARD_GRID}>
           {copy.ways.map((way) => (
             <WayCard key={way.id} {...way} />
           ))}
         </ul>
-      </MarketingBodySection>
+      </MarketingSection>
 
-      <MarketingBodySection>
-        <div className="flex flex-col gap-6 px-6 py-10 sm:flex-row sm:items-end sm:justify-between md:px-8">
-          <h2 className={`max-w-[16ch] ${sectionH2Class}`}>
-            {copy.socialProofTitle}
-          </h2>
+      <MarketingSection aria-labelledby="affiliate-steps">
+        <div className="flex flex-col gap-6 pb-10 sm:flex-row sm:items-end sm:justify-between lg:pb-14">
+          <LandingSectionHeader
+            id="affiliate-steps"
+            title={copy.socialProofTitle}
+            className="pb-0 lg:pb-0"
+          />
           <TrackedPricingButton
             href={macwallAffiliatePortalURL}
             location="affiliate_steps_apply"
@@ -190,26 +207,36 @@ export default function MacWallMarketingAffiliatePage() {
             {copy.secondaryCta}
           </TrackedPricingButton>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3">
+        <ol className={CARD_GRID}>
           {copy.steps.map((step) => (
             <StepCard key={step.id} {...step} />
           ))}
-        </div>
-      </MarketingBodySection>
+        </ol>
+      </MarketingSection>
 
-      <MarketingBodySection>
-        <div className="px-6 py-12 md:px-8">
-          <AffiliateEarningsEstimate />
+      <MarketingSection
+        className="pt-20 lg:pt-[110px]"
+        aria-labelledby="affiliate-estimate"
+      >
+        <div className={cn(CARD, "p-7 sm:p-10 lg:p-14")}>
+          <AffiliateEarningsEstimate headingId="affiliate-estimate" />
         </div>
-      </MarketingBodySection>
+      </MarketingSection>
 
       <MarketingFaqSection items={copy.faq} heading={copy.faqTitle} />
 
-      <MarketingBodySection>
-        <div className="flex flex-col items-start gap-6 px-6 py-12 sm:flex-row sm:items-center sm:justify-between md:px-8">
-          <div>
-            <h2 className={sectionH2Class}>{copy.bottomTitle}</h2>
-            <p className="mt-3 text-[15px] leading-[1.55] text-white/60">
+      <MarketingSection sectionClassName={LANDING_SECTION_END}>
+        <div
+          className={cn(
+            CARD,
+            "flex flex-col items-start gap-8 p-7 sm:p-10 lg:flex-row lg:items-center lg:justify-between lg:p-14"
+          )}
+        >
+          <div className="min-w-0">
+            <h2 className="font-display text-[32px] leading-10 font-normal tracking-tight text-balance text-ink sm:text-[40px] sm:leading-[48px]">
+              {copy.bottomTitle}
+            </h2>
+            <p className="mt-3 text-[15px] leading-[22px] text-ink-2">
               {copy.bottomLead}
             </p>
           </div>
@@ -224,7 +251,7 @@ export default function MacWallMarketingAffiliatePage() {
             {copy.primaryCta}
           </TrackedPricingButton>
         </div>
-      </MarketingBodySection>
+      </MarketingSection>
     </>
   )
 }

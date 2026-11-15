@@ -20,19 +20,24 @@ const PER_SALE_USD =
  * Sales a month in, estimated earnings out. One slider and one number: the
  * point is to make the commission concrete, not to model anything.
  */
-export default function AffiliateEarningsEstimate() {
+export default function AffiliateEarningsEstimate({
+  headingId,
+}: Readonly<{ headingId?: string }>) {
   const sliderId = useId()
   const [sales, setSales] = useState(START_SALES)
   const earnings = Math.round(sales * PER_SALE_USD)
   const fill = ((sales - MIN_SALES) / (MAX_SALES - MIN_SALES)) * 100
 
   return (
-    <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-end lg:gap-16">
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center lg:gap-20">
       <div>
-        <h2 className="max-w-[14ch] font-display text-3xl font-normal tracking-tighter md:text-5xl">
+        <h2
+          id={headingId}
+          className="max-w-[14ch] font-display text-[36px] leading-[44px] font-normal tracking-tight text-balance text-ink sm:text-[48px] sm:leading-[58px]"
+        >
           {copy.estimateTitle}
         </h2>
-        <p className="mt-4 max-w-[44ch] text-[15px] leading-[1.55] text-white/60">
+        <p className="mt-4 max-w-[40ch] text-[15px] leading-[22px] text-ink-2">
           {copy.estimateLead}
         </p>
       </div>
