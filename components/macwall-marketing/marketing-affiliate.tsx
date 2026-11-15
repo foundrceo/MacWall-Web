@@ -38,8 +38,8 @@ const partnerPrimaryBtnClass =
 const partnerSecondaryBtnClass =
   "inline-flex h-10 min-h-10 shrink-0 items-center justify-center rounded-full border border-border bg-transparent px-5 text-[14px] font-normal text-white no-underline transition-colors hover:bg-white/5"
 
-/** The page's card: the site's rounded surface with a hairline edge. */
-const CARD = cn(LANDING_CARD, "border border-hairline")
+/** The page's card: the site's surface with rounder corners and no edge line. */
+const CARD = cn(LANDING_CARD, "rounded-[36px]")
 
 /** Gap between the cards of one row, as on the home page. */
 const CARD_GRID = "grid grid-cols-1 gap-3 md:grid-cols-3"
@@ -88,14 +88,12 @@ function WayCard({
 }: Readonly<(typeof copy.ways)[number]>) {
   return (
     <li className={cn(CARD, "flex flex-col p-7 sm:p-8")}>
-      <span className="flex size-11 items-center justify-center rounded-[14px] bg-white/[0.06]">
-        <HugeiconsIcon
-          icon={wayIcons[id]}
-          className="size-[22px] text-ink"
-          strokeWidth={1.5}
-          aria-hidden
-        />
-      </span>
+      <HugeiconsIcon
+        icon={wayIcons[id]}
+        className="size-8 text-ink"
+        strokeWidth={1.5}
+        aria-hidden
+      />
       <h3 className="mt-8 text-[22px] leading-7 font-medium tracking-tight text-ink">
         {title}
       </h3>
@@ -120,7 +118,7 @@ function StepCard({
   return (
     <li
       className={cn(
-        LANDING_CARD,
+        CARD,
         "relative flex min-h-[300px] flex-col overflow-hidden p-7 sm:min-h-[340px] sm:p-8"
       )}
     >
