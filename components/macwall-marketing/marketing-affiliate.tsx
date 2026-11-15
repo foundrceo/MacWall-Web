@@ -214,7 +214,7 @@ export default function MacWallMarketingAffiliatePage() {
       <MarketingFaqSection items={copy.faq} heading={copy.faqTitle} />
 
       <MarketingSection sectionClassName={LANDING_SECTION_END}>
-        <div className="relative flex flex-col items-start gap-8 overflow-hidden rounded-[36px] bg-[#0d0d0e] bg-[radial-gradient(90%_140%_at_0%_0%,rgba(16,185,129,0.16),transparent_60%)] p-7 ring-1 ring-white/[0.08] ring-inset squircle sm:p-10 lg:flex-row lg:items-center lg:justify-between lg:p-14">
+        <div className="relative flex flex-col items-start gap-8 overflow-hidden rounded-[36px] bg-[#0d0d0e] bg-[radial-gradient(90%_140%_at_0%_0%,rgba(16,185,129,0.16),transparent_60%)] p-7 squircle sm:p-10 lg:flex-row lg:items-center lg:justify-between lg:p-14">
           <div className="min-w-0">
             <h2 className="font-display text-[32px] leading-10 font-normal tracking-tight text-balance text-ink sm:text-[40px] sm:leading-[48px]">
               {copy.bottomTitle}
