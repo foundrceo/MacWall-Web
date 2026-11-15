@@ -19,7 +19,7 @@ import {
 
 /**
  * One-off campaign emails, run in batches until `remaining` is 0.
- * POST { campaign, audience, limit?, dryRun?, from? }.
+ * POST { campaign, audience, limit?, workers?, dryRun?, from? }.
  *
  *   black_friday  trial users whose trial is over and who never bought,
  *              minus known India visitors and anyone mailed in the last 20
@@ -39,7 +39,9 @@ import {
  * "please update" emails, the 50% win-back and the Diwali sale, all removed.
  */
 
-const MAX_BATCH = 200
+const MAX_BATCH = 600
+/** Most addresses handled at once in one run (`workers` in the request). */
+const MAX_WORKERS = 8
 
 /** Mail content for one address. */
 function mailFor(args: {
@@ -85,6 +87,11 @@ function mailFor(args: {
 }
 
 const SEND_GAP_MS = 150
+/** With several workers: each starts one email this often. */
+const WORKER_CYCLE_MS = 950
+const WORKER_STAGGER_MS = 120
+const RATE_LIMIT_BACKOFF_MS = 1500
+const MAX_RATE_LIMIT_HITS = 30
 
 type Supabase = ReturnType<typeof createClient>
 type Audience = "black_friday" | "black_friday_checkout" | "affiliate"
@@ -125,6 +132,8 @@ Deno.serve(async (req: Request) => {
       ? body.audience
       : null
   const limit = Math.min(Math.max(Number(body.limit) || 50, 1), MAX_BATCH)
+  // 1 (default) sends one at a time; up to 8 for a campaign that must go out fast.
+  const workers = Math.min(Math.max(Math.floor(Number(body.workers) || 1), 1), MAX_WORKERS)
   const dryRun = body.dryRun === true
   if (!campaign || !audience) {
     return Response.json(
@@ -187,8 +196,15 @@ Deno.serve(async (req: Request) => {
 
   const counts = { sent: 0, skipped: 0, failed: 0 }
   let rateLimited = false
-  try {
-  for (const { email, is_buyer: isBuyer } of (rows ?? []) as { email: string; is_buyer?: boolean }[]) {
+  const queue = [...((rows ?? []) as { email: string; is_buyer?: boolean }[])]
+  // With several workers, each starts one email about every second, which
+  // keeps the total under Resend's 10 requests a second.
+  const cycleMs = workers > 1 ? WORKER_CYCLE_MS : SEND_GAP_MS
+  let stop = false
+  let rateLimitHits = 0
+
+  /** Sends one address; false means "put it back, Resend asked us to slow down". */
+  const sendOne = async (email: string, isBuyer: boolean): Promise<boolean> => {
     // The affiliate email is not a sales pitch, so owners get it too.
     const blocked = await marketingBlockReason(supabase, email, {
       allowBuyers: audience === "affiliate",
@@ -196,13 +212,13 @@ Deno.serve(async (req: Request) => {
     if (blocked) {
       await log(supabase, { campaign, email, audience, status: "skipped", skip_reason: blocked })
       counts.skipped += 1
-      continue
+      return true
     }
     const unsub = await unsubscribeUrlsFor(email)
     const mail = mailFor({
       audience, email, campaign, appName,
       unsubscribeHref: unsub?.page ?? null,
-      isBuyer: isBuyer === true,
+      isBuyer,
     })
     const result = await sendMarketingEmail({
       resendKey,
@@ -217,17 +233,47 @@ Deno.serve(async (req: Request) => {
       ],
     })
     if (!result.ok) {
-      if (result.rateLimited) { rateLimited = true; break }
+      if (result.rateLimited) return false
       // Logged so one bad address can't keep the batches from finishing.
       await log(supabase, { campaign, email, audience, status: "skipped", skip_reason: "send_failed" })
       counts.failed += 1
-      continue
+      return true
     }
     await log(supabase, { campaign, email, audience, status: "sent", resend_id: result.id })
     counts.sent += 1
-    await sleep(SEND_GAP_MS)
+    return true
   }
+
+  const worker = async (index: number) => {
+    // Start the workers a moment apart so they don't all hit Resend at once.
+    if (index > 0) await sleep(index * WORKER_STAGGER_MS)
+    while (!stop) {
+      const row = queue.shift()
+      if (!row) return
+      const started = Date.now()
+      const done = await sendOne(row.email, row.is_buyer === true)
+      if (!done) {
+        // Rate limited: with one worker stop (the next run continues); with
+        // several, back off and retry a few times before giving up.
+        rateLimited = true
+        rateLimitHits += 1
+        queue.unshift(row)
+        if (workers === 1 || rateLimitHits > MAX_RATE_LIMIT_HITS) {
+          stop = true
+          return
+        }
+        await sleep(RATE_LIMIT_BACKOFF_MS)
+        continue
+      }
+      const wait = cycleMs - (workers > 1 ? Date.now() - started : 0)
+      if (wait > 0) await sleep(wait)
+    }
+  }
+
+  try {
+    await Promise.all(Array.from({ length: workers }, (_, index) => worker(index)))
   } catch (error) {
+    stop = true
     return Response.json(
       { ok: false, error: error instanceof Error ? error.message : "error", ...counts },
       { status: 500 }
