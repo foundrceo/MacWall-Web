@@ -73,6 +73,12 @@ export type CreateMacWallCheckoutInput = {
    * campaign it came from.
    */
   utm?: CheckoutUtm | null
+  /**
+   * CrispStats anonymous visitor id (32 hex chars) from the buyer's browser.
+   * CrispStats' Stripe webhook reads `crispstats_visitor_id` from the
+   * Checkout Session metadata to attribute the sale to the visit.
+   */
+  crispstatsVisitorId?: string | null
 }
 
 export type CheckoutUtm = {
@@ -238,7 +244,16 @@ export async function createMacWallCheckoutSession(
           : { allow_promotion_codes: true }),
         adaptive_pricing: { enabled: true },
         integration_identifier: CHECKOUT_INTEGRATION_ID,
-        metadata,
+        // CrispStats fields go on the session only: `payment_intent.succeeded`
+        // carrying the id would be a second record of the same charge.
+        metadata: {
+          ...metadata,
+          product_name:
+            planSlug === "pro_plus" ? "MacWall Pro+" : "MacWall Pro",
+          ...(input.crispstatsVisitorId
+            ? { crispstats_visitor_id: input.crispstatsVisitorId }
+            : {}),
+        },
         customer_creation: "always",
         payment_intent_data: { metadata },
       },
