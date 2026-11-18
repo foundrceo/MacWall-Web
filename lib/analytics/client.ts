@@ -5,6 +5,7 @@ import type {
   SiteAnalyticsMetadata,
 } from "@/lib/analytics/events"
 import { capturePostHogEvent } from "@/components/analytics/posthog-analytics"
+import { trackCrispstatsEvent } from "@/lib/analytics/crispstats"
 import { getVisitorCountry, isVisitorFromIndia } from "@/lib/geo/country-client"
 import { markInstallerDownloaded } from "@/lib/installer-seen"
 
@@ -132,10 +133,12 @@ function sendSiteEvent(
     ...(isVisitorFromIndia() ? { audience: "india" } : {}),
   }
 
-  // PostHog records page views itself; every other site event is mirrored
-  // there unsampled (download, pricing, checkout, purchase, CTA clicks).
+  // PostHog and CrispStats record page views themselves; every other site
+  // event is mirrored to both unsampled (download, pricing, checkout,
+  // purchase, CTA clicks).
   if (eventName !== "page_view") {
     capturePostHogEvent(eventName, enriched)
+    trackCrispstatsEvent(eventName, enriched)
   }
 
   if (eventName === "page_view" && Math.random() > PAGE_VIEW_SAMPLE_RATE) {

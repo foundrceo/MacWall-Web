@@ -1,5 +1,6 @@
 "use client"
 
+import { getCrispstatsVisitorId } from "@/lib/analytics/crispstats"
 import { AFFONSO_REFERRAL_COOKIE } from "@/lib/macwall-affiliate"
 import {
   DEFAULT_CHECKOUT_ERROR,
@@ -208,6 +209,9 @@ export function prefetchCheckoutSession(
       if (promo) body.promo = promo
       const until = options.until?.trim()
       if (until) body.until = until
+      // Lets CrispStats attribute the Stripe payment to this visit.
+      const crispstatsVisitorId = await getCrispstatsVisitorId()
+      if (crispstatsVisitorId) body.crispstats_visitor_id = crispstatsVisitorId
 
       const response = await fetch("/api/checkout/create-session", {
         method: "POST",

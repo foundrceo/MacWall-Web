@@ -26,6 +26,7 @@ import {
   checkoutUtmFromParams,
   createMacWallCheckoutSession,
 } from "@/lib/stripe/create-macwall-checkout-session"
+import { normalizeCrispstatsVisitorId } from "@/lib/analytics/crispstats"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -41,6 +42,8 @@ const LEAD_COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 30
 type CheckoutLeadInput = {
   email: string | null
   visitorId: string | null
+  /** CrispStats anonymous visitor id, for revenue attribution (POST only). */
+  crispstatsVisitorId?: string | null
 }
 
 function readLeadFromSearchParams(url: URL): CheckoutLeadInput {
@@ -141,6 +144,7 @@ async function startCheckout(
     tiktok,
     // Email buttons carry utm_*; keep them on the sale.
     utm: checkoutUtmFromParams(new URL(request.url).searchParams),
+    crispstatsVisitorId: normalizeCrispstatsVisitorId(lead.crispstatsVisitorId),
   })
 }
 
@@ -217,6 +221,7 @@ export async function POST(request: Request) {
   let offerUntil: string | null = null
   let email: string | null = null
   let visitorId: string | null = null
+  let crispstatsVisitorId: string | null = null
   // POST is how the site warms a session on hover; the real click is
   // reported separately, so default to "prefetch".
   let intent: "click" | "prefetch" = "prefetch"
@@ -229,6 +234,7 @@ export async function POST(request: Request) {
       email?: string
       visitor_id?: string
       visitorId?: string
+      crispstats_visitor_id?: string
       intent?: string
     }
     offerSlug = body.offer?.trim() || null
@@ -237,6 +243,7 @@ export async function POST(request: Request) {
     offerUntil = body.until?.trim() || null
     email = body.email?.trim() || null
     visitorId = body.visitor_id?.trim() || body.visitorId?.trim() || null
+    crispstatsVisitorId = body.crispstats_visitor_id?.trim() || null
     intent = body.intent === "click" ? "click" : "prefetch"
   } catch {
     offerSlug = null
@@ -263,7 +270,7 @@ export async function POST(request: Request) {
     planSlug,
     promoCode,
     offerUntil,
-    { email, visitorId },
+    { email, visitorId, crispstatsVisitorId },
     intent
   )
 

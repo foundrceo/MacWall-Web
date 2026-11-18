@@ -79,72 +79,76 @@ function LinkGroup({
 
 export default function NotFound() {
   return (
-    <StatusPage
-      art={<NotFoundIllustration className="text-[#67edec]" />}
-      title="Page not found"
-      body="This page doesn't exist or has moved. Search the wallpapers, or pick up from one of these."
-      action={
-        <div className="flex flex-col items-center gap-10">
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link href="/wallpapers" className={statusPrimaryButton}>
-              Browse wallpapers
-            </Link>
-            <CommandPaletteMount>
-              <NavSearchButton
-                showLabel
-                className={cn(secondaryButton, "text-foreground")}
-              />
-            </CommandPaletteMount>
+    <>
+      {/* CrispStats `data-404` reads this marker (React hoists it to <head>). */}
+      <meta name="crispstats:404" content="" />
+      <StatusPage
+        art={<NotFoundIllustration className="text-[#67edec]" />}
+        title="Page not found"
+        body="This page doesn't exist or has moved. Search the wallpapers, or pick up from one of these."
+        action={
+          <div className="flex flex-col items-center gap-10">
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link href="/wallpapers" className={statusPrimaryButton}>
+                Browse wallpapers
+              </Link>
+              <CommandPaletteMount>
+                <NavSearchButton
+                  showLabel
+                  className={cn(secondaryButton, "text-foreground")}
+                />
+              </CommandPaletteMount>
+            </div>
+
+            <LinkGroup title="Categories" links={categoryLinks} />
+            <LinkGroup
+              title="Popular collections"
+              links={[
+                ...popularCollections,
+                {
+                  href: WALLPAPER_COLLECTIONS_HUB_PATH,
+                  label: "All collections",
+                },
+              ]}
+            />
+
+            <nav
+              aria-label={macwall.name}
+              className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground"
+            >
+              <Link
+                href="/"
+                prefetch={false}
+                className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
+              >
+                <ArrowLeft className="size-4" aria-hidden />
+                Home
+              </Link>
+              <Link
+                href="/download"
+                prefetch={false}
+                className="transition-colors hover:text-foreground"
+              >
+                Download {macwall.name}
+              </Link>
+              <Link
+                href="/pricing"
+                prefetch={false}
+                className="transition-colors hover:text-foreground"
+              >
+                Pricing
+              </Link>
+              <Link
+                href="/docs"
+                prefetch={false}
+                className="transition-colors hover:text-foreground"
+              >
+                Help center
+              </Link>
+            </nav>
           </div>
-
-          <LinkGroup title="Categories" links={categoryLinks} />
-          <LinkGroup
-            title="Popular collections"
-            links={[
-              ...popularCollections,
-              {
-                href: WALLPAPER_COLLECTIONS_HUB_PATH,
-                label: "All collections",
-              },
-            ]}
-          />
-
-          <nav
-            aria-label={macwall.name}
-            className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground"
-          >
-            <Link
-              href="/"
-              prefetch={false}
-              className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
-            >
-              <ArrowLeft className="size-4" aria-hidden />
-              Home
-            </Link>
-            <Link
-              href="/download"
-              prefetch={false}
-              className="transition-colors hover:text-foreground"
-            >
-              Download {macwall.name}
-            </Link>
-            <Link
-              href="/pricing"
-              prefetch={false}
-              className="transition-colors hover:text-foreground"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/docs"
-              prefetch={false}
-              className="transition-colors hover:text-foreground"
-            >
-              Help center
-            </Link>
-          </nav>
-        </div>
-      }
-    />
+        }
+      />
+    </>
   )
 }

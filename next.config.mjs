@@ -20,7 +20,7 @@ const CONTENT_SECURITY_POLICY_REPORT_ONLY = [
   "font-src 'self' data: https://fonts.gstatic.com",
   `img-src 'self' data: blob: https://${R2_CDN_HOST} https://*.r2.cloudflarestorage.com https://*.supabase.co https://analytics.tiktok.com https://t.co https://analytics.twitter.com https://www.google-analytics.com https://www.facebook.com`,
   `media-src 'self' blob: https://${R2_CDN_HOST} https://*.r2.cloudflarestorage.com https://*.supabase.co`,
-  "connect-src 'self' https://*.supabase.co https://*.r2.cloudflarestorage.com https://business-api.tiktok.com https://analytics.tiktok.com https://ads-api.x.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://us.i.posthog.com https://us-assets.i.posthog.com https://api.affonso.io https://cdn.affonso.io https://www.facebook.com https://connect.facebook.net https://cloudflareinsights.com",
+  "connect-src 'self' https://*.supabase.co https://*.r2.cloudflarestorage.com https://business-api.tiktok.com https://analytics.tiktok.com https://ads-api.x.com https://static.ads-twitter.com https://analytics.ahrefs.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://us.i.posthog.com https://us-assets.i.posthog.com https://api.affonso.io https://cdn.affonso.io https://www.facebook.com https://connect.facebook.net https://cloudflareinsights.com https://in.crispstats.com",
   "frame-src 'self' https://www.facebook.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",
@@ -325,6 +325,16 @@ const nextConfig = {
       {
         source: "/r/psl.min.js",
         destination: "https://cdn.affonso.io/js/psl.min.js",
+      },
+      /**
+       * CrispStats script, first-party so ad blockers don't hide visitors.
+       * Events go to `/mw/e` (app/mw/e/route.ts), which forwards the
+       * visitor's IP. See lib/analytics/crispstats.ts.
+       * @see https://docs.crispstats.com/tracking/proxy
+       */
+      {
+        source: "/mw/s.js",
+        destination: "https://in.crispstats.com/js/script.js",
       },
       /**
        * Markdown twin of every content page: `/blog/example.md` is served by

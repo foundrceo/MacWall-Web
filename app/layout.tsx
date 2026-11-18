@@ -36,6 +36,7 @@ import type { Metadata, Viewport } from "next"
 import { averiaSerif, geistSans } from "@/app/fonts"
 import { PostHogAnalytics } from "@/components/analytics/posthog-analytics"
 import { GoogleAnalytics } from "@/components/analytics/google-analytics"
+import { CrispStatsAnalytics } from "@/components/analytics/crispstats-analytics"
 import "./globals.css"
 import { cn } from "@/lib/utils"
 
@@ -240,6 +241,8 @@ export default function RootLayout({
         </ThemeProvider>
         {/* Also records Core Web Vitals. */}
         <PostHogAnalytics />
+        {/* Cookieless, so outside the consent gate; skips private paths itself. */}
+        <CrispStatsAnalytics />
       </body>
     </html>
   )
